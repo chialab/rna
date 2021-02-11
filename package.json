@@ -1,0 +1,29 @@
+{
+  "name": "@chialab/fast-rna",
+  "version": "1.0.0",
+  "description": "A bundler based on esbuild for modern modules and applications.",
+  "main": "lib/index.js",
+  "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
+  "license": "MIT",
+  "dependencies": {
+    "acorn": "^8.0.5",
+    "acorn-bigint": "^1.0.0",
+    "acorn-jsx": "^5.3.1",
+    "acorn-walk": "^8.0.2",
+    "autoprefixer": "^10.2.4",
+    "browserslist": "^4.16.3",
+    "esbuild": "^0.8.43",
+    "magic-string": "^0.25.7",
+    "postcss": "^8.2.5",
+    "postcss-all-unset": "^1.1.0",
+    "postcss-custom-properties": "^11.0.0",
+    "postcss-focus-visible": "^5.0.0",
+    "postcss-focus-within": "^4.0.0",
+    "postcss-import": "^14.0.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.12.13",
+    "@chialab/eslint-config": "^2.2.0",
+    "eslint": "^7.19.0"
+  }
+}

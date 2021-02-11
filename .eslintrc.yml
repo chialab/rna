@@ -1,0 +1,2 @@
+extends:
+  - '@chialab/eslint-config/javascript'

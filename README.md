@@ -32,23 +32,6 @@ bundle({
     },
     targets: 'last 2 versions', // optional
     sourceMap: true,
-    transform: false,
     production: true,
 }).then(...).catch(...);
-```
-
-Multiple runs:
-
-```js
-const { startService, stopService, bundle } = require('@chialab/fast-rna');
-
-startService
-    .then(() => Promise.all([
-        bundle(...),
-        bundle(...),
-        bundle(...),
-        bundle(...),
-        bundle(...),
-    ]))
-    .then(() => stopService());
 ```

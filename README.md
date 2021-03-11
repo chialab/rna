@@ -16,9 +16,9 @@ $ yarn add git+ssh://git@gitlab.com/chialab/fast-rna.git
 Single run:
 
 ```js
-const { bundle } = require('@chialab/fast-rna');
+const { build } = require('@chialab/fast-rna');
 
-bundle({
+build({
     input: 'index.js',
     output: 'dist/esm/index.js',
     code: '...', // optional if input exists
@@ -31,7 +31,7 @@ bundle({
         pragmaFrag: 'Fragment',
     },
     targets: 'last 2 versions', // optional
-    sourceMap: true,
-    production: true,
+    sourcemap: true,
+    minify: true,
 }).then(...).catch(...);
 ```

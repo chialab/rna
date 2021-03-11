@@ -6,6 +6,8 @@
   "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
   "license": "MIT",
   "dependencies": {
+    "@web/dev-server": "^0.1.8",
+    "@web/dev-server-esbuild": "^0.2.11",
     "autoprefixer": "^10.2.4",
     "browserslist": "^4.16.3",
     "esbuild": "^0.9.0",
@@ -15,7 +17,7 @@
     "postcss-custom-properties": "^11.0.0",
     "postcss-focus-visible": "^5.0.0",
     "postcss-focus-within": "^4.0.0",
-    "vite": "^2.0.5"
+    "resolve": "^1.20.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.13",

@@ -7,8 +7,8 @@ A bundler based on esbuild for modern modules and applications.
 ## Install
 
 ```sh
-$ npm i git+ssh://git@gitlab.com/chialab/fast-rna.git
-$ yarn add git+ssh://git@gitlab.com/chialab/fast-rna.git
+$ npm i git+ssh://git@gitlab.com/chialab/rna.git
+$ yarn add git+ssh://git@gitlab.com/chialab/rna.git
 ```
 
 ## Usage
@@ -16,7 +16,7 @@ $ yarn add git+ssh://git@gitlab.com/chialab/fast-rna.git
 Single run:
 
 ```js
-const { build } = require('@chialab/fast-rna');
+const { build } = require('@chialab/rna');
 
 build({
     input: 'index.js',

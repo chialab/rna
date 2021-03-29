@@ -1,14 +1,14 @@
-# FastRNA
+# RNA
 
-A bundler based on esbuild for modern modules and applications.
+A bundler, a server and a test runner based on esbuild for modern modules and applications.
 
-> ⚠️ This is an experimantal faster version of the RNA bundler, some features are still missing and some others are ignored by design.
+> ⚠️ This is an experimantal faster version of the RNA bundler, some features are still missing and some others won't be replicated.
 
 ## Install
 
 ```sh
-$ npm i git+ssh://git@gitlab.com/chialab/rna.git
-$ yarn add git+ssh://git@gitlab.com/chialab/rna.git
+$ npm i @chialab/rna -D
+$ yarn add @chialab/rna -D
 ```
 
 ## Usage

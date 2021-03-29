@@ -1,6 +1,6 @@
 {
   "name": "@chialab/rna",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A bundler, a server and a test runner based on esbuild for modern modules and applications.",
   "main": "lib/index.js",
   "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
@@ -8,6 +8,12 @@
   "bin": {
     "rna": "./cli.js"
   },
+  "files": [
+    "lib",
+    "cli.js",
+    "package.json",
+    "README.md"
+  ],
   "dependencies": {
     "@rollup/plugin-commonjs": "^17.1.0",
     "@web/dev-server": "^0.1.8",

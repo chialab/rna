@@ -5,13 +5,21 @@
   "main": "lib/index.js",
   "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
   "license": "MIT",
+  "bin": {
+    "rna-fast": "./cli.js"
+  },
   "dependencies": {
+    "@rollup/plugin-commonjs": "^17.1.0",
     "@web/dev-server": "^0.1.8",
     "@web/dev-server-esbuild": "^0.2.11",
+    "@web/dev-server-rollup": "^0.3.2",
+    "@web/test-runner": "^0.12.15",
     "autoprefixer": "^10.2.4",
     "browserslist": "^4.16.3",
+    "commander": "^7.2.0",
     "esbuild": "^0.9.0",
     "magic-string": "^0.25.7",
+    "pkg-up": "^3.1.0",
     "postcss": "^8.2.5",
     "postcss-all-unset": "^1.1.0",
     "postcss-custom-properties": "^11.0.0",
@@ -20,7 +28,6 @@
     "resolve": "^1.20.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.12.13",
     "@chialab/eslint-config": "^2.2.0",
     "eslint": "^7.19.0"
   }

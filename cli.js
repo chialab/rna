@@ -42,10 +42,12 @@ program
     .command('test <specs>')
     .description('start the test runner')
     .option('-W, --watch', 'watch test files')
-    .action(async (input, { watch }) => {
+    .option('-C, --coverage', 'add coverage to tests')
+    .action(async (input, { watch, coverage }) => {
         const { test } = require('./lib/index');
         let config = {
             watch,
+            coverage,
         };
         if (input) {
             config.files = [input];

@@ -2,11 +2,12 @@
 
 import path from 'path';
 import { promises } from 'fs';
-import { program } from 'commander';
+import commander from 'commander';
 
 const { readFile } = promises;
 
 (async () => {
+    let { program } = commander;
     let packageJson = new URL('./package.json', import.meta.url);
     let json = JSON.parse(await readFile(packageJson, 'utf-8'));
 
@@ -21,7 +22,7 @@ const { readFile } = promises;
         .option('-B, --bundle', 'bundle dependencies')
         .option('-M, --minify', 'minify the build')
         .action(async (input, { output, format = 'esm', bundle, minify, name }) => {
-            const { build } = require('./lib/index');
+            const { build } = await import('./lib/index.js');
             await build({
                 input: path.resolve(input),
                 output: path.resolve(output),
@@ -34,21 +35,17 @@ const { readFile } = promises;
         });
 
     program
-        .command('serve [root]')
+        .command('serve [base]')
         .description('start the dev server')
         .option('-P, --port <number>', 'server port number')
-        .action(async (root, { port }) => {
-            const { serve } = require('./lib/index');
-            /**
-             * @type {Partial<import('@web/dev-server').DevServerConfig>}
-             */
-            let config = {
-                port,
-            };
-            if (root) {
-                config.rootDir = root;
-            }
-            await serve(config);
+        .option('-I, --index <path>', 'base index.html path')
+        .action(async (root, { port, index }) => {
+            const { serve } = await import('./lib/index.js');
+            await serve({
+                port: port ? parseInt(port) : undefined,
+                appIndex: index ? path.resolve(index) : undefined,
+                rootDir: root,
+            });
         });
 
     program
@@ -57,7 +54,7 @@ const { readFile } = promises;
         .option('-W, --watch', 'watch test files')
         .option('-C, --coverage', 'add coverage to tests')
         .action(async (input, { watch, coverage }) => {
-            const { test } = require('./lib/index');
+            const { test } = await import('./lib/index.js');
             /**
              * @type {Partial<import('@web/test-runner').TestRunnerConfig>}
              */

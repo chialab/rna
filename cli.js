@@ -53,7 +53,8 @@ const { readFile } = promises;
         .description('start the test runner')
         .option('-W, --watch', 'watch test files')
         .option('-C, --coverage', 'add coverage to tests')
-        .action(async (input, { watch, coverage }) => {
+        .option('-O, --open', 'open the browser')
+        .action(async (input, { watch, coverage, open }) => {
             const { test } = await import('./lib/index.js');
             /**
              * @type {Partial<import('@web/test-runner').TestRunnerConfig>}
@@ -61,6 +62,8 @@ const { readFile } = promises;
             let config = {
                 watch,
                 coverage,
+                open,
+                manual: open ? true : undefined,
             };
             if (input) {
                 config.files = [input];

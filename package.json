@@ -1,7 +1,7 @@
 {
   "name": "@chialab/rna",
   "type": "module",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "A bundler, a server and a test runner based on esbuild for modern modules and applications.",
   "main": "lib/index.js",
   "typings": "rna.d.ts",
@@ -14,7 +14,8 @@
     "lib",
     "cli.js",
     "package.json",
-    "README.md"
+    "README.md",
+    "rna.d.ts"
   ],
   "dependencies": {
     "@rollup/plugin-commonjs": "^17.1.0",

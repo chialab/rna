@@ -2,7 +2,7 @@
   "name": "@chialab/rna",
   "type": "module",
   "version": "0.3.2",
-  "description": "A bundler, a server and a test runner based on esbuild for modern modules and applications.",
+  "description": "A bundler, a server and a test runner for modern modules and applications.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",
   "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
@@ -21,8 +21,8 @@
     "README.md"
   ],
   "dependencies": {
-    "@rollup/plugin-commonjs": "^17.1.0",
-    "@web/dev-server": "^0.1.8",
+    "@rollup/plugin-commonjs": "^18.0.0",
+    "@web/dev-server": "^0.1.10",
     "@web/dev-server-esbuild": "^0.2.11",
     "@web/dev-server-rollup": "^0.3.2",
     "@web/test-runner": "^0.12.15",

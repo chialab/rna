@@ -1,6 +1,6 @@
 <p align="center">
     <a href="https://www.chialab.io/p/rna">
-        <img alt="RNA logo" width="144" height="144" src="https://raw.githack.com/chialab/rna/master/logo.svg" />
+        <img alt="RNA logo" width="144" height="144" src="https://raw.githack.com/chialab/rna/main/logo.svg" />
     </a>
 </p>
 

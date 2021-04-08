@@ -31,7 +31,7 @@ You can import RNA as a module or use it via CLI.
 
 ### CLI
 
-#### `build <entry>`
+#### `build <entry...>`
 
 Compile JS and CSS modules using [`esbuild`](https://esbuild.github.io/). It can output multiple module formats and it can be used to build a single module or to bundle all dependencies of an application.
 
@@ -41,6 +41,10 @@ Options:
   -F, --format <type>  bundle format
   -B, --bundle         bundle dependencies
   -M, --minify         minify the build
+  -W, --watch          keep build alive
+  -P, --public <path>  public path
+  --clean               cleanup output path
+  --metafile           generate manifest.json and endpoints.json
   -h, --help           display help for command
 ```
 

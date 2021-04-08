@@ -4,7 +4,7 @@ import path from 'path';
 import { promises } from 'fs';
 import commander from 'commander';
 
-const { readFile } = promises;
+const { readFile, readdir, stat, unlink, rmdir } = promises;
 
 (async () => {
     let { program } = commander;
@@ -15,22 +15,56 @@ const { readFile } = promises;
         .version(json.version);
 
     program
-        .command('build <entry>', { isDefault: true })
+        .command('build <entry...>', { isDefault: true })
         .description('Compile JS and CSS modules using esbuild (https://esbuild.github.io/). It can output multiple module formats and it can be used to build a single module or to bundle all dependencies of an application.')
         .option('-O, --output <path>', 'output directory or file')
         .option('-F, --format <type>', 'bundle format')
         .option('-B, --bundle', 'bundle dependencies')
         .option('-M, --minify', 'minify the build')
-        .action(async (input, { output, format = 'esm', bundle, minify, name }) => {
+        .option('-W, --watch', 'keep build alive')
+        .option('-P, --public <path>', 'public path')
+        .option('--clean', ' cleanup output path')
+        .option('--metafile', 'generate manifest.json and endpoints.json')
+        .action(async (input, { output, format = 'esm', bundle, minify, name, watch, metafile, public: publicPath, clean }) => {
             const { build } = await import('./lib/index.js');
 
+            output = path.resolve(output);
+
+            if (clean) {
+                let d;
+                try {
+                    d = await stat(output);
+                } catch (err) {
+                    //
+                }
+                if (d) {
+                    let outputDir = d.isDirectory() ? output : path.dirname(output);
+                    let files = await readdir(outputDir);
+                    await Promise.all(
+                        files
+                            .map((file) => path.join(outputDir, file))
+                            .map(async (file) => {
+                                let d = await stat(file);
+                                if (d.isDirectory()) {
+                                    return rmdir(file, { recursive: true });
+                                }
+
+                                return unlink(file);
+                            })
+                    );
+                }
+            }
+
             await build({
-                input: path.resolve(input),
-                output: path.resolve(output),
+                input: input.map((entry) => path.resolve(entry)),
+                output,
                 format,
                 name,
                 bundle,
                 minify,
+                watch,
+                metafile,
+                publicPath: publicPath ? path.resolve(publicPath) : undefined,
                 sourcemap: true,
             });
         });

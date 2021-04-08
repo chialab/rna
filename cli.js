@@ -39,10 +39,11 @@ const { readFile } = promises;
         .command('serve [root]')
         .description('Start a web dev server (https://modern-web.dev/docs/dev-server/overview/) that transforms ESM imports for node resolution on demand. It also uses esbuild (https://esbuild.github.io/) to compile non standard JavaScript syntax.')
         .option('-P, --port <number>', 'server port number')
-        .action(async (root, { port, index }) => {
+        .action(async (rootDir, { port }) => {
             const { serve } = await import('./lib/index.js');
 
             await serve({
+                rootDir: rootDir ? rootDir : undefined,
                 port: port ? parseInt(port) : undefined,
             });
         });

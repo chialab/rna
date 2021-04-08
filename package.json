@@ -23,8 +23,9 @@
   "dependencies": {
     "@rollup/plugin-commonjs": "^18.0.0",
     "@web/dev-server": "^0.1.10",
+    "@web/dev-server-core": "^0.3.8",
     "@web/dev-server-esbuild": "^0.2.11",
-    "@web/dev-server-rollup": "^0.3.2",
+    "@web/dev-server-rollup": "^0.3.3",
     "@web/test-runner": "^0.12.15",
     "autoprefixer": "^10.2.4",
     "browserslist": "^4.16.3",

@@ -37,15 +37,17 @@ Compile JS and CSS modules using [`esbuild`](https://esbuild.github.io/). It can
 
 ```
 Options:
-  -O, --output <path>  output directory or file
-  -F, --format <type>  bundle format
-  -B, --bundle         bundle dependencies
-  -M, --minify         minify the build
-  -W, --watch          keep build alive
-  -P, --public <path>  public path
-  --clean               cleanup output path
-  --metafile           generate manifest.json and endpoints.json
-  -h, --help           display help for command
+  -O, --output <path>    output directory or file
+  -F, --format <type>    bundle format
+  -B, --bundle           bundle dependencies
+  -M, --minify           minify the build
+  -W, --watch            keep build alive
+  -P, --public <path>    public path
+  -T, --target <query>   browserslist targets
+  -C, --clean            cleanup output path
+  -J, --metafile [path]  generate manifest and endpoints maps
+  --no-map               do not generate sourcemaps
+  -h, --help             display help for command
 ```
 
 **Samples**
@@ -62,8 +64,10 @@ Start a [web dev server](https://modern-web.dev/docs/dev-server/overview/) that 
 
 ```
 Options:
-  -P, --port <number>  server port number
-  -h, --help           display help for command
+  -P, --port <number>           server port number
+  -J, --metafile [path]         generate manifest and endpoints maps
+  -E, --entrypoints <entry...>  list of server entrypoints
+  -h, --help                    display help for command
 ```
 
 **Samples**

@@ -4,7 +4,7 @@ import path from 'path';
 import { promises } from 'fs';
 import commander from 'commander';
 
-const { readFile, readdir, stat, unlink, rmdir } = promises;
+const { readFile } = promises;
 
 (async () => {
     let { program } = commander;
@@ -23,49 +23,26 @@ const { readFile, readdir, stat, unlink, rmdir } = promises;
         .option('-M, --minify', 'minify the build')
         .option('-W, --watch', 'keep build alive')
         .option('-P, --public <path>', 'public path')
-        .option('--clean', ' cleanup output path')
-        .option('--metafile', 'generate manifest.json and endpoints.json')
-        .action(async (input, { output, format = 'esm', bundle, minify, name, watch, metafile, public: publicPath, clean }) => {
+        .option('-T, --target <query>', 'browserslist targets')
+        .option('-C, --clean', 'cleanup output path')
+        .option('-J, --metafile [path]', 'generate manifest and endpoints maps')
+        .option('--no-map', 'do not generate sourcemaps')
+        .action(async (input, { output, format = 'esm', bundle, minify, name, watch, metafile, target, public: publicPath, clean, map }) => {
             const { build } = await import('./lib/index.js');
-
-            output = path.resolve(output);
-
-            if (clean) {
-                let d;
-                try {
-                    d = await stat(output);
-                } catch (err) {
-                    //
-                }
-                if (d) {
-                    let outputDir = d.isDirectory() ? output : path.dirname(output);
-                    let files = await readdir(outputDir);
-                    await Promise.all(
-                        files
-                            .map((file) => path.join(outputDir, file))
-                            .map(async (file) => {
-                                let d = await stat(file);
-                                if (d.isDirectory()) {
-                                    return rmdir(file, { recursive: true });
-                                }
-
-                                return unlink(file);
-                            })
-                    );
-                }
-            }
 
             await build({
                 input: input.map((entry) => path.resolve(entry)),
-                output,
+                output: path.resolve(output),
                 format,
                 name,
                 bundle,
                 minify,
+                target,
+                clean,
                 watch,
                 metafile,
                 publicPath: publicPath ? path.resolve(publicPath) : undefined,
-                sourcemap: true,
+                sourcemap: map,
             });
         });
 
@@ -73,12 +50,16 @@ const { readFile, readdir, stat, unlink, rmdir } = promises;
         .command('serve [root]')
         .description('Start a web dev server (https://modern-web.dev/docs/dev-server/overview/) that transforms ESM imports for node resolution on demand. It also uses esbuild (https://esbuild.github.io/) to compile non standard JavaScript syntax.')
         .option('-P, --port <number>', 'server port number')
-        .action(async (rootDir, { port }) => {
+        .option('-J, --metafile [path]', 'generate manifest and endpoints maps')
+        .option('-E, --entrypoints <entry...>', 'list of server entrypoints')
+        .action(async (rootDir, { port, metafile, entrypoints = [] }) => {
             const { serve } = await import('./lib/index.js');
 
             await serve({
                 rootDir: rootDir ? rootDir : undefined,
                 port: port ? parseInt(port) : undefined,
+                metafile,
+                entryPoints: entrypoints.map((entry) => path.resolve(entry)),
             });
         });
 

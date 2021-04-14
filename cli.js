@@ -24,10 +24,11 @@ const { readFile } = promises;
         .option('-W, --watch', 'keep build alive')
         .option('-P, --public <path>', 'public path')
         .option('-T, --target <query>', 'browserslist targets')
+        .option('-E, --entryNames <pattern>', 'output file names')
         .option('-C, --clean', 'cleanup output path')
         .option('-J, --metafile [path]', 'generate manifest and endpoints maps')
         .option('--no-map', 'do not generate sourcemaps')
-        .action(async (input, { output, format = 'esm', bundle, minify, name, watch, metafile, target, public: publicPath, clean, map }) => {
+        .action(async (input, { output, format = 'esm', bundle, minify, name, watch, metafile, target, public: publicPath, entryNames, clean, map }) => {
             const { build } = await import('./lib/index.js');
 
             await build({
@@ -42,6 +43,7 @@ const { readFile } = promises;
                 watch,
                 metafile,
                 publicPath: publicPath ? path.resolve(publicPath) : undefined,
+                entryNames,
                 sourcemap: map,
             });
         });

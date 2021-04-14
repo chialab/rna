@@ -37,17 +37,18 @@ Compile JS and CSS modules using [`esbuild`](https://esbuild.github.io/). It can
 
 ```
 Options:
-  -O, --output <path>    output directory or file
-  -F, --format <type>    bundle format
-  -B, --bundle           bundle dependencies
-  -M, --minify           minify the build
-  -W, --watch            keep build alive
-  -P, --public <path>    public path
-  -T, --target <query>   browserslist targets
-  -C, --clean            cleanup output path
-  -J, --metafile [path]  generate manifest and endpoints maps
-  --no-map               do not generate sourcemaps
-  -h, --help             display help for command
+  -O, --output <path>         output directory or file
+  -F, --format <type>         bundle format
+  -B, --bundle                bundle dependencies
+  -M, --minify                minify the build
+  -W, --watch                 keep build alive
+  -P, --public <path>         public path
+  -T, --target <query>        browserslist targets
+  -E, --entryNames <pattern>  output file names
+  -C, --clean                 cleanup output path
+  -J, --metafile [path]       generate manifest and endpoints maps
+  --no-map                    do not generate sourcemaps
+  -h, --help                  display help for command
 ```
 
 **Samples**

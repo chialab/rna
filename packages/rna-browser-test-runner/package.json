@@ -13,7 +13,8 @@
     "directory": "packages/rna-browser-test-runner"
   },
   "scripts": {
-    "types": "tsc"
+    "types": "tsc",
+    "prepack": "npm run types"
   },
   "files": [
     "lib",

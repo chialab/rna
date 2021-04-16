@@ -10,9 +10,6 @@
     "type": "git",
     "url": "https://github.com/chialab/rna"
   },
-  "scripts": {
-    "types": "lerna run types"
-  },
   "devDependencies": {
     "@chialab/eslint-config": "^2.2.0",
     "eslint": "^7.19.0",

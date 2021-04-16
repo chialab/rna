@@ -13,7 +13,8 @@
     "directory": "packages/esbuild-plugin-html"
   },
   "scripts": {
-    "types": "tsc"
+    "types": "tsc",
+    "prepack": "npm run types"
   },
   "files": [
     "lib",

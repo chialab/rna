@@ -13,7 +13,8 @@
     "directory": "packages/rna-web-server"
   },
   "scripts": {
-    "types": "tsc"
+    "types": "tsc",
+    "prepack": "npm run types"
   },
   "files": [
     "lib",

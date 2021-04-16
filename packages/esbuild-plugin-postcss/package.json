@@ -13,7 +13,8 @@
     "directory": "packages/esbuild-plugin-postcss"
   },
   "scripts": {
-    "types": "tsc"
+    "types": "tsc",
+    "prepack": "npm run types"
   },
   "files": [
     "lib",

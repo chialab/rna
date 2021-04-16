@@ -13,7 +13,8 @@
     "directory": "packages/postcss-preset-chialab"
   },
   "scripts": {
-    "types": "tsc"
+    "types": "tsc",
+    "prepack": "npm run types"
   },
   "files": [
     "lib",

@@ -46,7 +46,7 @@ export function collectScripts(dom, base, outdir) {
                             resolveDir: base,
                             sourcefile: path.join(base, 'inline.tsx'),
                         },
-                        format: /** @type {import('esbuild'.Format)} */ ('esm'),
+                        format: /** @type {import('esbuild').Format} */ ('esm'),
                         entryNames: 'esm/[name]-[hash]',
                         chunkNames: 'esm/[name]-[hash]',
                         assetNames: 'esm/assets/[name]-[hash]',

@@ -1,8 +1,8 @@
 {
-  "name": "@chialab/rna",
+  "name": "@chialab/rna-web-server",
   "type": "module",
   "version": "0.4.0",
-  "description": "A bundler, a server and a test runner for modern modules and applications.",
+  "description": "A webapp server based on Web Dev Server.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",
   "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
@@ -10,13 +10,10 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/chialab/rna",
-    "directory": "packages/rna"
+    "directory": "packages/rna-web-server"
   },
   "scripts": {
     "types": "tsc"
-  },
-  "bin": {
-    "rna": "./lib/index.js"
   },
   "files": [
     "lib",
@@ -26,10 +23,16 @@
     "LICENSE.md"
   ],
   "dependencies": {
-    "@chialab/rna-browser-test-runner": "^0.4.0",
     "@chialab/rna-bundler": "^0.4.0",
-    "@chialab/rna-web-server": "^0.4.0",
-    "commander": "^7.2.0"
+    "@chialab/esbuild-plugin-env": "^0.4.0",
+    "@chialab/wds-plugin-postcss": "^0.4.0",
+    "@koa/cors": "^3.1.0",
+    "@rollup/plugin-commonjs": "^18.0.0",
+    "@web/dev-server": "^0.1.10",
+    "@web/dev-server-core": "^0.3.8",
+    "@web/dev-server-esbuild": "^0.2.11",
+    "@web/dev-server-hmr": "^0.1.8",
+    "@web/dev-server-rollup": "^0.3.3"
   },
   "devDependencies": {
     "@types/koa__cors": "^3.0.2",

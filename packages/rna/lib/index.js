@@ -1,321 +1,112 @@
+#!/usr/bin/env node
+
 import path from 'path';
 import { promises } from 'fs';
-import { loaders } from './loaders.js';
-import { camelize } from './camelize.js';
-import { saveManifestJson } from './saveManifestJson.js';
-import { saveEndpointsJson, saveDevEndpointsJson } from './saveEndpointsJson.js';
-import { emptyDir } from './emptyDir.js';
+import commander from 'commander';
 
-const { stat, readFile } = promises;
+const { readFile } = promises;
 
-export { loaders };
+(async () => {
+    let { program } = commander;
+    let packageJson = new URL('./package.json', import.meta.url);
+    let json = JSON.parse(await readFile(packageJson, 'utf-8'));
 
-/**
- * @typedef {Object} JSXOptions
- * @property {string} pragma The jsx pragma to use.
- * @property {string} [pragmaFrag] The jsx pragma to use for fragments.
- */
+    program
+        .version(json.version);
 
-/**
- * @typedef {Omit<import('esbuild').BuildOptions, 'loader'> & { output: string, root?: string, input?: string|string[], code?: string, loader?: import('esbuild').Loader, name?: string, jsx?: JSXOptions, metafile?: boolean|string, clean?: boolean }} BuildConfig
- */
+    program
+        .command('build <entry...>', { isDefault: true })
+        .description('Compile JS and CSS modules using esbuild (https://esbuild.github.io/). It can output multiple module formats and it can be used to build a single module or to bundle all dependencies of an application.')
+        .option('-O, --output <path>', 'output directory or file')
+        .option('-F, --format <type>', 'bundle format')
+        .option('-B, --bundle', 'bundle dependencies')
+        .option('-M, --minify', 'minify the build')
+        .option('-W, --watch', 'keep build alive')
+        .option('-P, --public <path>', 'public path')
+        .option('-T, --target <query>', 'browserslist targets')
+        .option('-E, --entryNames <pattern>', 'output file names')
+        .option('-C, --clean', 'cleanup output path')
+        .option('-J, --metafile [path]', 'generate manifest and endpoints maps')
+        .option('--no-map', 'do not generate sourcemaps')
+        .action(
+            /**
+             * @param {string[]} input
+             * @param {{ output: string, format?: import('esbuild').Format, bundle?: boolean, minify?: boolean, name?: string, watch?: boolean, metafile?: boolean, target?: string, public?: string, entryNames?: string, clean?: boolean, map?: boolean }} options
+             */
+            async (input, { output, format = 'esm', bundle, minify, name, watch, metafile, target, public: publicPath, entryNames, clean, map }) => {
+                const { build } = await import('@chialab/rna-bundler');
 
-/**
- * @typedef {import('esbuild').BuildResult & { outputFiles?: import('esbuild').OutputFile[] }} BuildResult
- */
+                await build({
+                    input: input.map((entry) => path.resolve(entry)),
+                    output: path.resolve(output),
+                    format,
+                    name,
+                    bundle,
+                    minify,
+                    target,
+                    clean,
+                    watch,
+                    metafile,
+                    publicPath: publicPath ? path.resolve(publicPath) : undefined,
+                    entryNames,
+                    sourcemap: map,
+                });
+            }
+        );
 
-/**
- * Build and bundle sources.
- * @param {BuildConfig} config
- * @return {Promise<BuildResult>} The esbuild bundle result.
- */
-export async function build(config) {
-    const { default: esbuild } = await import('esbuild');
-    const { default: pkgUp } = await import('pkg-up');
-    const { default: browserslist } = await import('browserslist');
+    program
+        .command('serve [root]')
+        .description('Start a web dev server (https://modern-web.dev/docs/dev-server/overview/) that transforms ESM imports for node resolution on demand. It also uses esbuild (https://esbuild.github.io/) to compile non standard JavaScript syntax.')
+        .option('-P, --port <number>', 'server port number')
+        .option('-J, --metafile [path]', 'generate manifest and endpoints maps')
+        .option('-E, --entrypoints <entry...>', 'list of server entrypoints')
+        .action(
+            /**
+             * @param {string} rootDir
+             * @param {{ port?: string, metafile?: boolean, entrypoints?: string[] }} options
+             */
+            async (rootDir, { port, metafile, entrypoints = [] }) => {
+                const { serve } = await import('@chialab/rna-web-server');
 
-    let {
-        root = process.cwd(),
-        input,
-        code,
-        output,
-        loader = 'tsx',
-        format = 'esm',
-        platform = format === 'cjs' ? 'node' : 'browser',
-        globalName = camelize(output),
-        jsx,
-        target,
-        publicPath,
-        entryNames = '[name]',
-        metafile = false,
-        clean = false,
-        bundle = false,
-        sourcemap = true,
-        minify = false,
-        watch = false,
-    } = config;
+                await serve({
+                    rootDir: rootDir ? rootDir : undefined,
+                    port: port ? parseInt(port) : undefined,
+                    metafile,
+                    entryPoints: entrypoints.map((entry) => path.resolve(entry)),
+                });
+            }
+        );
 
-    let hasOutputFile = !!path.extname(output);
-    let outputDir = hasOutputFile ? path.dirname(output) : output;
-    if (clean) {
-        await emptyDir(outputDir);
-    }
+    program
+        .command('test [specs...]')
+        .description('Start a browser test runner (https://modern-web.dev/docs/test-runner/overview/) based on the web dev server. It uses mocha (https://mochajs.org/) but you still need to import an assertion library (recommended https://open-wc.org/docs/testing/testing-package/).')
+        .option('-W, --watch', 'watch test files')
+        .option('-C, --coverage', 'add coverage to tests')
+        .option('-O, --open', 'open the browser')
+        .action(
+            /**
+             * @param {string[]} specs
+             * @param {{ watch?: boolean, coverage?: boolean, open?: boolean }} options
+             */
+            async (specs, { watch, coverage, open }) => {
+                const { test } = await import('@chialab/rna-browser-test-runner');
 
-    target = target ?
-        browserslist(target)
-            .filter((entry) => ['chrome', 'firefox', 'safari', 'edge', 'node'].includes(entry.split(' ')[0]))
-            .map((entry) => entry.split(' ').join('')) :
-        ['es2020'];
-
-    let entryOptions = {};
-    if (code) {
-        entryOptions.stdin = {
-            contents: code,
-            loader: /** @type {import('esbuild').Loader} */ (`${loader}`),
-            resolveDir: root,
-            sourcefile: Array.isArray(input) ? input[0] : input,
-        };
-    } else if (input) {
-        entryOptions.entryPoints = Array.isArray(input) ? input : [input];
-    }
-
-    /**
-     * @type {string[]}
-     */
-    let external = [];
-    if (!bundle) {
-        let packageFile = await pkgUp({
-            cwd: root,
-        });
-        if (packageFile) {
-            let packageJson = JSON.parse(await readFile(packageFile, 'utf-8'));
-            external = [
-                ...external,
-                ...Object.keys(packageJson.dependencies || {}),
-                ...Object.keys(packageJson.peerDependencies || {}),
-            ];
-        }
-    }
-
-    let result = await esbuild.build({
-        ...entryOptions,
-        globalName,
-        outfile: hasOutputFile ? output : undefined,
-        outdir: hasOutputFile ? undefined : output,
-        entryNames,
-        assetNames: entryNames,
-        splitting: format === 'esm' && !hasOutputFile,
-        target,
-        bundle: true,
-        sourcemap,
-        minify,
-        platform,
-        format,
-        external,
-        metafile,
-        jsxFactory: jsx && jsx.pragma || undefined,
-        jsxFragment: jsx && jsx.pragmaFrag || undefined,
-        mainFields: ['module', 'jsnext', 'jsnext:main', 'main'],
-        loader: loaders,
-        watch: watch && {
-            onRebuild(error, result) {
-                if (error) {
-                    // eslint-disable-next-line
-                    console.error(error);
+                /**
+                 * @type {Partial<import('@web/test-runner').TestRunnerConfig>}
+                 */
+                let config = {
+                    watch,
+                    coverage,
+                    open,
+                    manual: open ? true : undefined,
+                };
+                if (specs.length) {
+                    config.files = specs;
                 }
+                await test(config);
+            }
+        );
 
-                if (metafile && result) {
-                    let metaDir = typeof metafile === 'string' ? metafile : outputDir;
-                    saveManifestJson(result, metaDir, publicPath);
-                    saveEndpointsJson(entryOptions.entryPoints, result, root, metaDir, publicPath, { format });
-                }
-            },
-        },
-        plugins: [
-            (await import('@chialab/esbuild-plugin-env')).envPlugin(),
-            (await import('@chialab/esbuild-plugin-html')).htmlPlugin(),
-            (await import('@chialab/esbuild-plugin-postcss')).postcssPlugin(),
-            (await import('@chialab/esbuild-plugin-meta-url')).urlPlugin(),
-        ],
-    });
-
-    if (metafile) {
-        let metaDir = typeof metafile === 'string' ? metafile : outputDir;
-        await saveManifestJson(result, metaDir, publicPath);
-        await saveEndpointsJson(entryOptions.entryPoints, result, root, metaDir, publicPath, { format });
-    }
-
-    return result;
-}
-
-/**
- * @typedef {import('@web/dev-server').DevServerConfig & { metafile?: boolean|string, entryPoints?: string[] }} DevServerConfig
- */
-
-/**
- * Start the dev server.
- * @param {DevServerConfig} config
- * @return {Promise<import('@web/dev-server-core').DevServer>} The dev server instance.
- */
-export async function serve(config) {
-    const { startDevServer } = await import('@web/dev-server');
-    const { hmrPlugin } = await import('@web/dev-server-hmr');
-    const { esbuildPlugin } = await import('@web/dev-server-esbuild');
-    const { fromRollup } = await import('@web/dev-server-rollup');
-    const { default: rollupCommonjs } = await import('@rollup/plugin-commonjs');
-    const { default: cors } = await import('@koa/cors');
-    const { cssPlugin } = await import('@chialab/wds-plugin-postcss');
-    const { defineEnvVariables } = await import('@chialab/esbuild-plugin-env');
-    const commonjsPlugin = fromRollup(rollupCommonjs);
-
-    let root = config.rootDir || process.cwd();
-    let index = false;
-    try {
-        index = (await stat(path.join(root, 'index.html'))).isFile();
-    } catch {
-        //
-    }
-
-    let server = await startDevServer({
-        readCliArgs: false,
-        readFileConfig: false,
-        autoExitProcess: true,
-        logStartMessage: true,
-        config: {
-            port: 8080,
-            appIndex: index ? 'index.html' : undefined,
-            nodeResolve: {
-                exportConditions: ['default', 'module', 'import'],
-                mainFields: ['module', 'jsnext', 'jsnext:main', 'main'],
-            },
-            preserveSymlinks: true,
-            watch: true,
-            clearTerminalOnReload: true,
-            open: false,
-            ...config,
-            rootDir: root,
-            middleware: [
-                cors(),
-            ],
-            plugins: [
-                cssPlugin(),
-                esbuildPlugin({
-                    loaders: {
-                        '.mjs': 'tsx',
-                        '.js': 'tsx',
-                        '.jsx': 'tsx',
-                        '.ts': 'tsx',
-                        '.tsx': 'tsx',
-                        '.json': 'json',
-                        '.geojson': 'json',
-                    },
-                    define: {
-                        ...defineEnvVariables(),
-                    },
-                }),
-                commonjsPlugin({
-                    ignoreTryCatch: true,
-                    exclude: [
-                        'node_modules/chai/chai.js',
-                        'node_modules/chai-dom/chai-dom.js',
-                    ],
-                }),
-                hmrPlugin(),
-                ...(config.plugins || []),
-            ],
-        },
-    });
-
-    if (config.metafile) {
-        let metaDir;
-        if (typeof config.metafile === 'string') {
-            await emptyDir(config.metafile);
-            metaDir = config.metafile;
-        } else {
-            metaDir = config.rootDir || process.cwd();
-        }
-
-        await saveDevEndpointsJson(config.entryPoints || [], metaDir, server, {
-            format: 'esm',
-        });
-    }
-
-    return server;
-}
-
-/**
- * Start the test runner.
- * @param {Partial<import('@web/test-runner').TestRunnerConfig>} config
- * @return {Promise<import('@web/test-runner').TestRunner|undefined>} The test runner instance.
- */
-export async function test(config) {
-    const { startTestRunner } = await import('@web/test-runner');
-    const { esbuildPlugin } = await import('@web/dev-server-esbuild');
-    const { fromRollup } = await import('@web/dev-server-rollup');
-    const { default: rollupCommonjs } = await import('@rollup/plugin-commonjs');
-    const { cssPlugin } = await import('@chialab/wds-plugin-postcss');
-    const { defineEnvVariables } = await import('@chialab/esbuild-plugin-env');
-    const commonjsPlugin = fromRollup(rollupCommonjs);
-
-    let testFramework =
-        /**
-         * @type {import('@web/test-runner').TestFramework}
-         */
-        ({
-            config: {
-                ui: 'bdd',
-                timeout: '10000',
-            },
-        });
-
-    return startTestRunner({
-        readCliArgs: false,
-        readFileConfig: false,
-        autoExitProcess: true,
-        config: {
-            files: [
-                'test/**/*.test.js',
-                'test/**/*.spec.js',
-            ],
-            testFramework,
-            nodeResolve: {
-                exportConditions: ['default', 'module', 'import', 'require'],
-                mainFields: ['umd:main', 'module', 'browser', 'jsnext', 'jsnext:main', 'main'],
-            },
-            preserveSymlinks: true,
-            open: false,
-            ...config,
-            testRunnerHtml: testFramework => `<html>
-                <body>
-                    <script type="module">
-                        document.addEventListener('DOMContentLoaded', () => import('${testFramework}'));
-                    </script>
-                </body>
-            </html>`,
-            plugins: [
-                cssPlugin(),
-                esbuildPlugin({
-                    loaders: {
-                        '.mjs': 'tsx',
-                        '.jsx': 'tsx',
-                        '.ts': 'tsx',
-                        '.tsx': 'tsx',
-                        '.json': 'json',
-                        '.geojson': 'json',
-                    },
-                    define: {
-                        ...defineEnvVariables(),
-                    },
-                }),
-                commonjsPlugin({
-                    ignoreTryCatch: true,
-                    exclude: [
-                        'node_modules/chai/chai.js',
-                        'node_modules/chai-dom/chai-dom.js',
-                    ],
-                }),
-                ...(config.plugins || []),
-            ],
-        },
-    });
-}
+    program
+        .parse(process.argv);
+})();

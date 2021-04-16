@@ -1,8 +1,8 @@
 {
-  "name": "@chialab/rna",
+  "name": "@chialab/rna-bundler",
   "type": "module",
   "version": "0.4.0",
-  "description": "A bundler, a server and a test runner for modern modules and applications.",
+  "description": "A JavaScript, CSS and HTML bundler based on esbuild.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",
   "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
@@ -10,13 +10,10 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/chialab/rna",
-    "directory": "packages/rna"
+    "directory": "packages/rna-bundler"
   },
   "scripts": {
     "types": "tsc"
-  },
-  "bin": {
-    "rna": "./lib/index.js"
   },
   "files": [
     "lib",
@@ -26,13 +23,15 @@
     "LICENSE.md"
   ],
   "dependencies": {
-    "@chialab/rna-browser-test-runner": "^0.4.0",
-    "@chialab/rna-bundler": "^0.4.0",
-    "@chialab/rna-web-server": "^0.4.0",
-    "commander": "^7.2.0"
+    "@chialab/esbuild-plugin-env": "^0.4.0",
+    "@chialab/esbuild-plugin-html": "^0.4.0",
+    "@chialab/esbuild-plugin-meta-url": "^0.4.0",
+    "@chialab/esbuild-plugin-postcss": "^0.4.0",
+    "browserslist": "^4.16.3",
+    "esbuild": "^0.11.0",
+    "pkg-up": "^3.1.0"
   },
   "devDependencies": {
-    "@types/koa__cors": "^3.0.2",
     "typescript": "^4.2.3"
   }
 }

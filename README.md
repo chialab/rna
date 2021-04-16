@@ -20,6 +20,7 @@
 | [@chialab/rna-browser-test-runner](./packages/rna-browser-test-runner) | A test runner for browsers on Web Test Runner. | [<img src="https://img.shields.io/npm/v/@chialab/rna-browser-test-runner" alt="npm" />](https://www.npmjs.com/package/@chialab/rna-browser-test-runner) |
 | [@chialab/rna-bundler](./packages/rna-bundler) | A JavaScript, CSS and HTML bundler based on esbuild. | [<img src="https://img.shields.io/npm/v/@chialab/rna-bundler" alt="npm" />](https://www.npmjs.com/package/@chialab/rna-bundler) |
 | [@chialab/rna-web-server](./packages/rna-web-server) | A webapp server based on Web Dev Server. | [<img src="https://img.shields.io/npm/v/@chialab/rna-web-server" alt="npm" />](https://www.npmjs.com/package/@chialab/rna-web-server) |
+| [@chialab/wds-plugin-hmr-css](./packages/wds-plugin-hmr-css) | Enable CSS hmr for the web dev server. | [<img src="https://img.shields.io/npm/v/@chialab/wds-plugin-hmr-css" alt="npm" />](https://www.npmjs.com/package/@chialab/wds-plugin-hmr-css) |
 | [@chialab/wds-plugin-postcss](./packages/wds-plugin-postcss) | A CSS loader plugin for the Web Dev Server that uses postcss as preprocessor. | [<img src="https://img.shields.io/npm/v/@chialab/wds-plugin-postcss" alt="npm" />](https://www.npmjs.com/package/@chialab/wds-plugin-postcss) |
 
 ---

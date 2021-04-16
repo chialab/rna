@@ -1,7 +1,7 @@
 import { promises } from 'fs';
 import path from 'path';
 import $ from 'cheerio';
-import { generateIcon } from './generateIcon.js';
+import { SUPPORTED_MIME_TYPES, generateIcon } from './generateIcon.js';
 
 const { readFile, writeFile, mkdir } = promises;
 
@@ -54,8 +54,13 @@ export function collectWebManifest(dom, base, outdir) {
                 json.lang = json.lang || htmlElement.attr('lang') || 'en-US';
 
                 let iconHref = iconElement.attr('href');
-                if (iconHref) {
+                icon: if (iconHref) {
                     let iconsDir = path.join(outdir, 'icons');
+                    let mimeType = iconElement.attr('type') || 'image/png';
+                    if (!SUPPORTED_MIME_TYPES.includes(mimeType)) {
+                        break icon;
+                    }
+
                     try {
                         await mkdir(iconsDir);
                     } catch (err) {
@@ -102,7 +107,7 @@ export function collectWebManifest(dom, base, outdir) {
                             },
                         ].map(async ({ name, size }) => {
                             let outputFile = path.join(iconsDir, name);
-                            let buffer = await generateIcon(iconFile, size, 0, { r: 255, g: 255, b: 255, a: 1 }, iconElement.attr('type') || 'image/png');
+                            let buffer = await generateIcon(iconFile, size, 0, { r: 255, g: 255, b: 255, a: 1 }, mimeType);
                             await writeFile(outputFile, buffer);
                             return {
                                 src: path.relative(outdir, outputFile),

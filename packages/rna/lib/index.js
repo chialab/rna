@@ -8,7 +8,7 @@ const { readFile } = promises;
 
 (async () => {
     let { program } = commander;
-    let packageJson = new URL('./package.json', import.meta.url);
+    let packageJson = new URL('../package.json', import.meta.url);
     let json = JSON.parse(await readFile(packageJson, 'utf-8'));
 
     program

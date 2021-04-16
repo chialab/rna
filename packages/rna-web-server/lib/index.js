@@ -25,9 +25,10 @@ export async function serve(config) {
     const commonjsPlugin = fromRollup(rollupCommonjs);
 
     let root = config.rootDir || process.cwd();
+    let appIndex = path.join(root, 'index.html');
     let index = false;
     try {
-        index = (await stat(path.join(root, 'index.html'))).isFile();
+        index = (await stat(appIndex)).isFile();
     } catch {
         //
     }
@@ -39,7 +40,7 @@ export async function serve(config) {
         logStartMessage: true,
         config: {
             port: 8080,
-            appIndex: index ? 'index.html' : undefined,
+            appIndex: index ? appIndex : undefined,
             nodeResolve: {
                 exportConditions: ['default', 'module', 'import'],
                 mainFields: ['module', 'jsnext', 'jsnext:main', 'main'],

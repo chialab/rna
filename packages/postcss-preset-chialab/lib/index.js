@@ -11,7 +11,7 @@ import focusWithin from 'postcss-focus-within';
 export default function preset() {
     return {
         postcssPlugin: 'preset-chialab',
-        prepare() {
+        prepare(result) {
             const plugins = [
                 autoprefixer({
                     grid: true,
@@ -27,36 +27,40 @@ export default function preset() {
                     replaceWith: '.focus-within',
                 }),
             ];
+            let visitors = [
+                ...plugins.map((plugin) => typeof plugin === 'function' && plugin(result.root)).filter(Boolean),
+                ...plugins.map((plugin) => plugin.prepare && plugin.prepare(result)).filter(Boolean),
+            ];
             return {
                 Once(node, result) {
-                    plugins.forEach((plugin) => plugin.Once && plugin.Once(node, result));
+                    visitors.forEach((visitor) => visitor.Once && visitor.Once(node, result));
                 },
                 Root(node, result) {
-                    plugins.forEach((plugin) => plugin.Root && plugin.Root(node, result));
+                    visitors.forEach((visitor) => visitor.Root && visitor.Root(node, result));
                 },
                 AtRule(node, result) {
-                    plugins.forEach((plugin) => plugin.AtRule && plugin.AtRule(node, result));
+                    visitors.forEach((visitor) => visitor.AtRule && visitor.AtRule(node, result));
                 },
                 Rule(node, result) {
-                    plugins.forEach((plugin) => plugin.Rule && plugin.Rule(node, result));
+                    visitors.forEach((visitor) => visitor.Rule && visitor.Rule(node, result));
                 },
                 Declaration(node, result) {
-                    plugins.forEach((plugin) => plugin.Declaration && plugin.Declaration(node, result));
+                    visitors.forEach((visitor) => visitor.Declaration && visitor.Declaration(node, result));
                 },
                 OnceExit(node, result) {
-                    plugins.forEach((plugin) => plugin.OnceExit && plugin.OnceExit(node, result));
+                    visitors.forEach((visitor) => visitor.OnceExit && visitor.OnceExit(node, result));
                 },
                 RootExit(node, result) {
-                    plugins.forEach((plugin) => plugin.RootExit && plugin.RootExit(node, result));
+                    visitors.forEach((visitor) => visitor.RootExit && visitor.RootExit(node, result));
                 },
                 AtRuleExit(node, result) {
-                    plugins.forEach((plugin) => plugin.AtRuleExit && plugin.AtRuleExit(node, result));
+                    visitors.forEach((visitor) => visitor.AtRuleExit && visitor.AtRuleExit(node, result));
                 },
                 RuleExit(node, result) {
-                    plugins.forEach((plugin) => plugin.RuleExit && plugin.RuleExit(node, result));
+                    visitors.forEach((visitor) => visitor.RuleExit && visitor.RuleExit(node, result));
                 },
                 DeclarationExit(node, result) {
-                    plugins.forEach((plugin) => plugin.DeclarationExit && plugin.DeclarationExit(node, result));
+                    visitors.forEach((visitor) => visitor.DeclarationExit && visitor.DeclarationExit(node, result));
                 },
             };
         },

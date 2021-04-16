@@ -10,6 +10,28 @@
 
 ---
 
+## Quick usage
+
+```sh
+$ npm i @chialab/rna -D
+$ yarn add @chialab/rna -D
+```
+
+**package.json**
+```json
+{
+    "scripts": {
+        "start": "rna serve src --port 3000",
+        "build": "rna build src/index.html --output public",
+        "test": "rna test 'test/**/*.spec'"
+    }
+}
+```
+
+See more [here]((./packages/rna)).
+
+---
+
 | **Package** | **Description** | **Version** |
 | ----------- | --------------- | --------------- |
 | [@chialab/esbuild-plugin-env](./packages/esbuild-plugin-env) | Define all environement variables for esbuild. | [<img src="https://img.shields.io/npm/v/@chialab/esbuild-plugin-env" alt="npm" />](https://www.npmjs.com/package/@chialab/esbuild-plugin-env) |

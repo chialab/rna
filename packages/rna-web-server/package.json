@@ -1,7 +1,7 @@
 {
   "name": "@chialab/rna-web-server",
   "type": "module",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "description": "A webapp server based on Web Dev Server.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",
@@ -25,8 +25,8 @@
   ],
   "dependencies": {
     "@chialab/esbuild-plugin-env": "^0.4.1",
-    "@chialab/rna-bundler": "^0.4.2",
-    "@chialab/wds-plugin-postcss": "^0.4.1",
+    "@chialab/rna-bundler": "^0.4.3",
+    "@chialab/wds-plugin-postcss": "^0.4.3",
     "@koa/cors": "^3.1.0",
     "@rollup/plugin-commonjs": "^18.0.0",
     "@web/dev-server": "^0.1.10",

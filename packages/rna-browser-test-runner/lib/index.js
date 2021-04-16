@@ -3,7 +3,7 @@
  * @param {Partial<import('@web/test-runner').TestRunnerConfig>} config
  * @return {Promise<import('@web/test-runner').TestRunner|undefined>} The test runner instance.
  */
- export async function test(config) {
+export async function test(config) {
     const { startTestRunner } = await import('@web/test-runner');
     const { esbuildPlugin } = await import('@web/dev-server-esbuild');
     const { fromRollup } = await import('@web/dev-server-rollup');

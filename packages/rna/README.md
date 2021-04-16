@@ -25,11 +25,9 @@ $ yarn add @chialab/rna -D
 
 You can import RNA as a module or use it via CLI.
 
-### CLI
-
 #### `build <entry...>`
 
-Compile JS and CSS modules using [`esbuild`](https://esbuild.github.io/). It can output multiple module formats and it can be used to build a single module or to bundle all dependencies of an application.
+Compile JS and CSS modules and HTML apps using [`esbuild`](https://esbuild.github.io/). It can output multiple module formats and it can be used to build a single module or to bundle all dependencies of an application.
 
 ```
 Options:
@@ -92,46 +90,6 @@ Options:
 $ rna test
 $ rna test 'test/**/*.spec.js' --coverage
 $ rna test 'test/elements.spec.js' --watch --open
-```
-
-### Module
-
-```js
-import { build } from '@chialab/rna';
-
-await build({
-    output: 'dist/esm/index.js',
-    input: 'index.js',
-    // code: '...',
-    // rootDir: '.',
-    platform: 'browser' // 'node',
-    format: 'esm', // 'cjs' 'iife'
-    // globalName: '', // global name for iife modules
-    sourcemap: true,
-    minify: true,
-});
-```
-
-```js
-import { serve } from '@chialab/rna';
-
-/**
- * @see https://modern-web.dev/docs/dev-server/cli-and-configuration/
- */
-await serve({
-    // rootDir: '.',
-});
-```
-
-```js
-import { test } from '@chialab/rna';
-
-/**
- * @see https://modern-web.dev/docs/test-runner/cli-and-configuration/
- */
-await test({
-    // files: ['...'],
-});
 ```
 
 ---

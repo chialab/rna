@@ -1,0 +1,30 @@
+{
+  "name": "@chialab/wds-plugin-hmr-css",
+  "type": "module",
+  "version": "0.4.0",
+  "description": "Enable CSS hmr for the web dev server.",
+  "main": "lib/index.js",
+  "typings": "./types/index.d.ts",
+  "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chialab/rna",
+    "directory": "packages/wds-plugin-hmr-css"
+  },
+  "scripts": {
+    "types": "tsc",
+    "prepack": "npm run types"
+  },
+  "files": [
+    "lib",
+    "types",
+    "package.json",
+    "README.md",
+    "LICENSE.md"
+  ],
+  "devDependencies": {
+    "@web/dev-server-core": "^0.3.8",
+    "typescript": "^4.2.3"
+  }
+}

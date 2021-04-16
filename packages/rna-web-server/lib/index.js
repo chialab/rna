@@ -16,6 +16,7 @@ const { stat } = promises;
 export async function serve(config) {
     const { startDevServer } = await import('@web/dev-server');
     const { hmrPlugin } = await import('@web/dev-server-hmr');
+    const { hmrCssPlugin } = await import('@chialab/wds-plugin-hmr-css');
     const { esbuildPlugin } = await import('@web/dev-server-esbuild');
     const { fromRollup } = await import('@web/dev-server-rollup');
     const { default: rollupCommonjs } = await import('@rollup/plugin-commonjs');
@@ -78,6 +79,7 @@ export async function serve(config) {
                     ],
                 }),
                 hmrPlugin(),
+                hmrCssPlugin(),
                 ...(config.plugins || []),
             ],
         },

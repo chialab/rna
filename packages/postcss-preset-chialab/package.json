@@ -1,0 +1,36 @@
+{
+  "name": "@chialab/postcss-preset-chialab",
+  "type": "module",
+  "version": "0.4.0",
+  "description": "The postcss preset used by Chialab.",
+  "main": "lib/index.js",
+  "typings": "./types/index.d.ts",
+  "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chialab/rna",
+    "directory": "packages/postcss-preset-chialab"
+  },
+  "scripts": {
+    "types": "tsc"
+  },
+  "files": [
+    "lib",
+    "types",
+    "package.json",
+    "README.md",
+    "LICENSE.md"
+  ],
+  "dependencies": {
+    "autoprefixer": "^10.2.4",
+    "postcss-all-unset": "^1.1.0",
+    "postcss-custom-properties": "^11.0.0",
+    "postcss-focus-visible": "^5.0.0",
+    "postcss-focus-within": "^4.0.0"
+  },
+  "devDependencies": {
+    "postcss": "^8.2.5",
+    "typescript": "^4.2.3"
+  }
+}

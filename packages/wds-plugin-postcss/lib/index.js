@@ -2,7 +2,31 @@ import path from 'path';
 import postcss from 'postcss';
 import nodeResolve from 'resolve';
 import { getRequestFilePath } from '@web/dev-server-core';
-import { loadPostcssConfig } from '../helpers/loadPostcssConfig.js';
+import postcssrc from 'postcss-load-config';
+
+/**
+ * @typedef {Object} PostcssConfig
+ * @property {import('postcss').ProcessOptions} [options]
+ * @property {import('postcss').Plugin[]} [plugins]
+ */
+
+/**
+ * Load local postcss config.
+ * @return {Promise<PostcssConfig>}
+ */
+async function loadPostcssConfig() {
+    try {
+        /**
+         * @type {any}
+         */
+        let result = await postcssrc();
+        return result;
+    } catch {
+        //
+    }
+
+    return {};
+}
 
 function rebase({ rootDir = process.cwd(), filePath = '' } = {}) {
     /**

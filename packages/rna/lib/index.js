@@ -1,10 +1,10 @@
 import path from 'path';
 import { promises } from 'fs';
-import { loaders } from './helpers/loaders.js';
-import { camelize } from './helpers/camelize.js';
-import { saveManifestJson } from './helpers/saveManifestJson.js';
-import { saveEndpointsJson, saveDevEndpointsJson } from './helpers/saveEndpointsJson.js';
-import { emptyDir } from './helpers/emptyDir.js';
+import { loaders } from './loaders.js';
+import { camelize } from './camelize.js';
+import { saveManifestJson } from './saveManifestJson.js';
+import { saveEndpointsJson, saveDevEndpointsJson } from './saveEndpointsJson.js';
+import { emptyDir } from './emptyDir.js';
 
 const { stat, readFile } = promises;
 
@@ -33,7 +33,6 @@ export async function build(config) {
     const { default: esbuild } = await import('esbuild');
     const { default: pkgUp } = await import('pkg-up');
     const { default: browserslist } = await import('browserslist');
-    const { defineEnvVariables } = await import('./helpers/define.js');
 
     let {
         root = process.cwd(),
@@ -101,9 +100,6 @@ export async function build(config) {
     let result = await esbuild.build({
         ...entryOptions,
         globalName,
-        define: {
-            ...defineEnvVariables(),
-        },
         outfile: hasOutputFile ? output : undefined,
         outdir: hasOutputFile ? undefined : output,
         entryNames,
@@ -136,9 +132,10 @@ export async function build(config) {
             },
         },
         plugins: [
-            (await import('./build/html.js')).htmlPlugin(),
-            (await import('./build/postcss.js')).postcssPlugin(),
-            (await import('./build/url.js')).urlPlugin(loaders),
+            (await import('@chialab/esbuild-plugin-env')).envPlugin(),
+            (await import('@chialab/esbuild-plugin-html')).htmlPlugin(),
+            (await import('@chialab/esbuild-plugin-postcss')).postcssPlugin(),
+            (await import('@chialab/esbuild-plugin-meta-url')).urlPlugin(),
         ],
     });
 
@@ -167,8 +164,8 @@ export async function serve(config) {
     const { fromRollup } = await import('@web/dev-server-rollup');
     const { default: rollupCommonjs } = await import('@rollup/plugin-commonjs');
     const { default: cors } = await import('@koa/cors');
-    const { cssPlugin } = await import('./server/css.js');
-    const { defineEnvVariables } = await import('./helpers/define.js');
+    const { cssPlugin } = await import('@chialab/wds-plugin-postcss');
+    const { defineEnvVariables } = await import('@chialab/esbuild-plugin-env');
     const commonjsPlugin = fromRollup(rollupCommonjs);
 
     let root = config.rootDir || process.cwd();
@@ -256,8 +253,8 @@ export async function test(config) {
     const { esbuildPlugin } = await import('@web/dev-server-esbuild');
     const { fromRollup } = await import('@web/dev-server-rollup');
     const { default: rollupCommonjs } = await import('@rollup/plugin-commonjs');
-    const { cssPlugin } = await import('./server/css.js');
-    const { defineEnvVariables } = await import('./helpers/define.js');
+    const { cssPlugin } = await import('@chialab/wds-plugin-postcss');
+    const { defineEnvVariables } = await import('@chialab/esbuild-plugin-env');
     const commonjsPlugin = fromRollup(rollupCommonjs);
 
     let testFramework =

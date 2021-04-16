@@ -1,14 +1,38 @@
 import { promises } from 'fs';
 import postcss from 'postcss';
-import autoprefixer from 'autoprefixer';
-import unset from 'postcss-all-unset';
-import customProperties from 'postcss-custom-properties';
-import focusVisible from 'postcss-focus-visible';
-import focusWithin from 'postcss-focus-within';
-import { loadPostcssConfig } from '../helpers/loadPostcssConfig.js';
+import preset from '@chialab/postcss-preset-chialab';
+import postcssrc from 'postcss-load-config';
 
 const { readFile } = promises;
 
+/**
+ * @typedef {Object} PostcssConfig
+ * @property {import('postcss').ProcessOptions} [options]
+ * @property {import('postcss').Plugin[]} [plugins]
+ */
+
+/**
+ * Load local postcss config.
+ * @return {Promise<PostcssConfig>}
+ */
+async function loadPostcssConfig() {
+    try {
+        /**
+         * @type {any}
+         */
+        let result = await postcssrc();
+        return result;
+    } catch {
+        //
+    }
+
+    return {};
+}
+
+/**
+ * Instantiate a plugin that runs postcss across css files.
+ * @return An esbuild plugin.
+ */
 export function postcssPlugin(opts = {}) {
     /**
      * @type {import('esbuild').Plugin}
@@ -20,19 +44,7 @@ export function postcssPlugin(opts = {}) {
                 let contents = await readFile(filePath, 'utf-8');
                 let options = await loadPostcssConfig();
                 let plugins = (options.plugins || [
-                    autoprefixer({
-                        grid: true,
-                        flexbox: true,
-                        remove: false,
-                    }),
-                    customProperties({
-                        preserve: true,
-                    }),
-                    unset(),
-                    focusVisible(),
-                    focusWithin({
-                        replaceWith: '.focus-within',
-                    }),
+                    preset(),
                 ]);
 
                 let config = {

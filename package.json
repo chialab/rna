@@ -1,54 +1,24 @@
 {
   "name": "@chialab/rna",
-  "type": "module",
-  "version": "0.3.4",
+  "private": true,
+  "version": "0.4.0",
   "description": "A bundler, a server and a test runner for modern modules and applications.",
   "main": "lib/index.js",
-  "typings": "./types/index.d.ts",
   "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chialab/rna"
+  },
   "scripts": {
-    "types": "tsc"
-  },
-  "bin": {
-    "rna": "./cli.js"
-  },
-  "files": [
-    "lib",
-    "types",
-    "cli.js",
-    "package.json",
-    "README.md"
-  ],
-  "dependencies": {
-    "@koa/cors": "^3.1.0",
-    "@rollup/plugin-commonjs": "^18.0.0",
-    "@web/dev-server": "^0.1.10",
-    "@web/dev-server-core": "^0.3.8",
-    "@web/dev-server-esbuild": "^0.2.11",
-    "@web/dev-server-hmr": "^0.1.8",
-    "@web/dev-server-rollup": "^0.3.3",
-    "@web/test-runner": "^0.12.15",
-    "autoprefixer": "^10.2.4",
-    "browserslist": "^4.16.3",
-    "cheerio": "^1.0.0-rc.6",
-    "commander": "^7.2.0",
-    "esbuild": "^0.11.0",
-    "jimp": "^0.16.1",
-    "magic-string": "^0.25.7",
-    "pkg-up": "^3.1.0",
-    "postcss": "^8.2.5",
-    "postcss-all-unset": "^1.1.0",
-    "postcss-custom-properties": "^11.0.0",
-    "postcss-focus-visible": "^5.0.0",
-    "postcss-focus-within": "^4.0.0",
-    "postcss-load-config": "^3.0.1",
-    "resolve": "^1.20.0"
+    "types": "lerna run types"
   },
   "devDependencies": {
     "@chialab/eslint-config": "^2.2.0",
-    "@types/koa__cors": "^3.0.2",
     "eslint": "^7.19.0",
     "typescript": "^4.2.3"
-  }
+  },
+  "workspaces": [
+    "packages/*"
+  ]
 }

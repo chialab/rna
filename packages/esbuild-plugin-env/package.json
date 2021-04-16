@@ -1,0 +1,29 @@
+{
+  "name": "@chialab/esbuild-plugin-env",
+  "type": "module",
+  "version": "0.4.0",
+  "description": "Define all environement variables for esbuild.",
+  "main": "lib/index.js",
+  "typings": "./types/index.d.ts",
+  "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chialab/rna",
+    "directory": "packages/esbuild-plugin-env"
+  },
+  "scripts": {
+    "types": "tsc"
+  },
+  "files": [
+    "lib",
+    "types",
+    "package.json",
+    "README.md",
+    "LICENSE.md"
+  ],
+  "devDependencies": {
+    "esbuild": "^0.11.0",
+    "typescript": "^4.2.3"
+  }
+}

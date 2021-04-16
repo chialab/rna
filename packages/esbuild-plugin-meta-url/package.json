@@ -1,0 +1,32 @@
+{
+  "name": "@chialab/esbuild-plugin-meta-url",
+  "type": "module",
+  "version": "0.4.0",
+  "description": "A file loader plugin for esbuild for constructed URLs using import metadata.",
+  "main": "lib/index.js",
+  "typings": "./types/index.d.ts",
+  "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chialab/rna",
+    "directory": "packages/esbuild-plugin-meta-url"
+  },
+  "scripts": {
+    "types": "tsc"
+  },
+  "files": [
+    "lib",
+    "types",
+    "package.json",
+    "README.md",
+    "LICENSE.md"
+  ],
+  "dependencies": {
+    "magic-string": "^0.25.7"
+  },
+  "devDependencies": {
+    "esbuild": "^0.11.0",
+    "typescript": "^4.2.3"
+  }
+}

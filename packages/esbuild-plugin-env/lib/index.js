@@ -17,3 +17,27 @@ export function defineEnvVariables() {
 
     return definitions;
 }
+
+
+/**
+ * Pass environment variables to esbuild.
+ * @return An esbuild plugin.
+ */
+export function envPlugin() {
+
+    /**
+     * @type {import('esbuild').Plugin}
+     */
+    const plugin = {
+        name: 'env',
+        setup(build) {
+            let options = build.initialOptions;
+            options.define = {
+                ...defineEnvVariables(),
+                ...(options.define || {}),
+            };
+        },
+    };
+
+    return plugin;
+}

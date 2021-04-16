@@ -7,13 +7,9 @@ const { readFile } = promises;
 /**
  * Instantiate a plugin that converts URL references into static import
  * in order to handle assets bundling.
- * @param {{[ext: string]: import('esbuild').Loader}} loaders
  * @return An esbuild plugin.
  */
-export function urlPlugin(loaders = {}) {
-    const keys = Object.keys(loaders);
-    const tsxExtensions = keys.filter((key) => loaders[key] === 'tsx');
-    const tsxRegex = new RegExp(`\\.(${tsxExtensions.map((ext) => ext.replace('.', '')).join('|')})$`);
+export function urlPlugin() {
     const URL_REGEX = /(new\s+(?:window\.|self\.|globalThis\.)?URL\s*\()\s*['"]([^'"]*)['"]\s*\s*,\s*import\.meta\.url\s*(\))/g;
 
     /**
@@ -22,6 +18,12 @@ export function urlPlugin(loaders = {}) {
     const plugin = {
         name: 'url',
         setup(build) {
+            let options = build.initialOptions;
+            let loaders = options.loader || {};
+            let keys = Object.keys(loaders);
+            let tsxExtensions = keys.filter((key) => loaders[key] === 'tsx');
+            let tsxRegex = new RegExp(`\\.(${tsxExtensions.map((ext) => ext.replace('.', '')).join('|')})$`);
+
             build.onResolve({ filter: /^https?:\/\// }, args => ({ path: args.path, external: true }));
 
             build.onLoad({ filter: /\./, namespace: 'file' }, async ({ path }) => {

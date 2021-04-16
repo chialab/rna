@@ -1,7 +1,7 @@
 {
   "name": "@chialab/rna-browser-test-runner",
   "type": "module",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "A test runner for browsers on Web Test Runner.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",
@@ -24,12 +24,12 @@
     "LICENSE.md"
   ],
   "dependencies": {
-    "@chialab/esbuild-plugin-env": "^0.4.0",
-    "@chialab/wds-plugin-postcss": "^0.4.0",
+    "@chialab/esbuild-plugin-env": "^0.4.1",
+    "@chialab/wds-plugin-postcss": "^0.4.1",
     "@rollup/plugin-commonjs": "^18.0.0",
-    "@web/test-runner": "^0.12.15",
     "@web/dev-server-esbuild": "^0.2.11",
-    "@web/dev-server-rollup": "^0.3.3"
+    "@web/dev-server-rollup": "^0.3.3",
+    "@web/test-runner": "^0.12.15"
   },
   "devDependencies": {
     "typescript": "^4.2.3"

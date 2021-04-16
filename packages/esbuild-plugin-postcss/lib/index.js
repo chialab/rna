@@ -1,4 +1,6 @@
+import path from 'path';
 import { promises } from 'fs';
+import nodeResolve from 'resolve';
 import postcss from 'postcss';
 import preset from '@chialab/postcss-preset-chialab';
 import postcssrc from 'postcss-load-config';
@@ -29,6 +31,54 @@ async function loadPostcssConfig() {
     return {};
 }
 
+function rebase({ rootDir = process.cwd() } = {}) {
+    /**
+     * @type {import('postcss').Plugin}
+     */
+    const plugin = {
+        postcssPlugin: 'postcss-rebase',
+        AtRule: {
+            async import(decl) {
+                let match = decl.params.match(/url\(['"]?(.*?)['"]?\)/);
+                if (!match || !match[1]) {
+                    return;
+                }
+
+                let source = match[1];
+                if (source.startsWith('.') ||
+                    source.startsWith('/') ||
+                    source.startsWith('http:') ||
+                    source.startsWith('https:')) {
+                    return;
+                }
+
+                if (source.startsWith('~')) {
+                    source = source.substring(1);
+                }
+
+                let resolvedImportPath = await new Promise((resolve, reject) => nodeResolve(source, {
+                    basedir: rootDir,
+                    extensions: ['.css'],
+                    preserveSymlinks: true,
+                    packageFilter(pkg) {
+                        if (pkg.style) {
+                            pkg.main = pkg.style;
+                        }
+                    },
+                }, (err, data) => (err ? reject(err) : resolve(data))));
+
+                if (path.extname(resolvedImportPath) !== '.css') {
+                    return;
+                }
+
+                decl.params = `url('${resolvedImportPath}')`;
+            },
+        },
+    };
+
+    return plugin;
+}
+
 /**
  * Instantiate a plugin that runs postcss across css files.
  * @return An esbuild plugin.
@@ -43,9 +93,10 @@ export function postcssPlugin(opts = {}) {
             build.onLoad({ filter: /\.css$/, namespace: 'file' }, async ({ path: filePath }) => {
                 let contents = await readFile(filePath, 'utf-8');
                 let options = await loadPostcssConfig();
-                let plugins = (options.plugins || [
-                    preset(),
-                ]);
+                let plugins = [
+                    rebase(),
+                    ...(options.plugins || [preset()]),
+                ];
 
                 let config = {
                     from: filePath,

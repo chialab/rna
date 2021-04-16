@@ -33,7 +33,7 @@ function rebase({ rootDir = process.cwd(), filePath = '' } = {}) {
      * @type {import('postcss').Plugin}
      */
     const plugin = {
-        postcssPlugin: 'postcss-rewrite',
+        postcssPlugin: 'postcss-rebase',
         AtRule: {
             async import(decl) {
                 let match = decl.params.match(/url\(['"]?(.*?)['"]?\)/);
@@ -47,6 +47,10 @@ function rebase({ rootDir = process.cwd(), filePath = '' } = {}) {
                     source.startsWith('http:') ||
                     source.startsWith('https:')) {
                     return;
+                }
+
+                if (source.startsWith('~')) {
+                    source = source.substring(1);
                 }
 
                 let resolvedImportPath = await new Promise((resolve, reject) => nodeResolve(source, {

@@ -14,7 +14,7 @@ const { readFile, unlink } = promises;
  * @typedef {Object} Entrypoint
  * @property {import('esbuild').Loader} [loader] The loader to use.
  * @property {Partial<import('esbuild').BuildOptions>} options The file name of the referenced file.
- * @property {(filePath: string) => Promise<void>|void} finisher A callback function to invoke when output file has been generated.
+ * @property {(filePath: string, outputFiles: string[]) => Promise<void>|void} finisher A callback function to invoke when output file has been generated.
  */
 
 /**
@@ -52,6 +52,7 @@ export function htmlPlugin({ esbuild = esbuildModule } = {}) {
                         outfile: undefined,
                         outdir,
                         metafile: true,
+                        external: [],
                         ...entrypoint.options,
                     };
                     let result = await esbuild.build(config);
@@ -60,7 +61,8 @@ export function htmlPlugin({ esbuild = esbuildModule } = {}) {
                     }
 
                     let outputs = Object.keys(result.metafile.outputs);
-                    await entrypoint.finisher(outputs[0]);
+                    let outputFile = outputs[0].endsWith('.map') ? outputs[1] : outputs[0];
+                    await entrypoint.finisher(outputFile, outputs);
 
                     if (entrypoint.loader === 'file') {
                         await Promise.all(

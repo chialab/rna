@@ -60,7 +60,7 @@ Start a [web dev server](https://modern-web.dev/docs/dev-server/overview/) that 
 ```
 Options:
   -P, --port <number>           server port number
-  -J, --metafile [path]         generate manifest and endpoints maps
+  -M, --metafile [path]         generate manifest and endpoints maps
   -E, --entrypoints <entry...>  list of server entrypoints
   -h, --help                    display help for command
 ```

@@ -1,0 +1,36 @@
+import { promises } from 'fs';
+import path from 'path';
+
+const { readFile } = promises;
+
+/**
+ * Load any unkown refrence as file.
+ * @return An esbuild plugin.
+ */
+export function filePlugin() {
+    /**
+     * @type {import('esbuild').Plugin}
+     */
+    const plugin = {
+        name: 'any-file',
+        setup(build) {
+            let options = build.initialOptions;
+            let loaders = options.loader || {};
+            let keys = Object.keys(loaders);
+
+            build.onResolve({ filter: /^https?:\/\// }, ({ path: filePath }) => ({ path: filePath, external: true }));
+            build.onLoad({ filter: /\./, namespace: 'file' }, async (args) => {
+                if (keys.includes(path.extname(args.path))) {
+                    return;
+                }
+
+                return {
+                    contents: await readFile(args.path),
+                    loader: 'file',
+                };
+            });
+        },
+    };
+
+    return plugin;
+}

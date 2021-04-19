@@ -9,10 +9,11 @@ const WEBPACK_INCLUDE_REGEX = /import\(\s*\/\*\s*webpackInclude:\s*([^\s]+)\s\*\
 const SCRIPT_LOADERS = ['tsx', 'ts', 'jsx', 'js'];
 
 /**
- * @param {import('esbuild').OnLoadArgs & { contents?: string }} args
+ * @param {import('esbuild').OnLoadArgs} args
+ * @param {string} contents
  * @return {Promise<import('esbuild').OnLoadResult>}
  */
-async function transformWebpackIncludes({ path: filePath, contents }) {
+async function transformWebpackIncludes({ path: filePath }, contents = '') {
     contents = contents || await readFile(filePath, 'utf-8');
     if (!contents.match(WEBPACK_INCLUDE_REGEX)) {
         return { contents };
@@ -69,12 +70,12 @@ export function webpackIncludePlugin() {
             let tsxRegex = new RegExp(`\\.(${tsxExtensions.map((ext) => ext.replace('.', '')).join('|')})$`);
 
             if (transform) {
-                let args = /** @type {import('esbuild').OnLoadArgs} */ (/** @type {unknown} */ (transform));
+                let { args, contents } = /** @type {{ args: import('esbuild').OnLoadArgs, contents?: string }} */ (/** @type {unknown} */ (transform));
                 if (keys.includes(path.extname(args.path))) {
-                    return /** @type {void} */ (/** @type {unknown} */ (transformWebpackIncludes(args)));
+                    return /** @type {void} */ (/** @type {unknown} */ (transformWebpackIncludes(args, contents)));
                 }
 
-                return /** @type {void} */ (/** @type {unknown} */ (args));
+                return;
             }
 
             build.onLoad({ filter: tsxRegex, namespace: 'file' }, async (args) => {

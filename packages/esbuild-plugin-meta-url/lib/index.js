@@ -22,22 +22,12 @@ function resolve(spec, importer) {
 
 /**
  * @param {import('esbuild').OnLoadArgs & { contents?: string }} args
- * @return {Promise<import('esbuild').OnLoadResult>}
- */
-async function loadFile({ path: filePath, contents }) {
-    return {
-        contents: contents || await readFile(filePath),
-        loader: 'file',
-    };
-}
-
-/**
- * @param {import('esbuild').OnLoadArgs & { contents?: string }} args
  * @param {import('esbuild').BuildOptions} options
  * @param {import('esbuild')} esbuild
+ * @param {string} contents
  * @return {Promise<import('esbuild').OnLoadResult>}
  */
-async function transformUrls({ path: filePath, contents }, options, esbuild) {
+async function transformUrls({ path: filePath }, options, esbuild, contents = '') {
     contents = contents || await readFile(filePath, 'utf-8');
     if (!contents.match(URL_REGEX)) {
         return { contents };
@@ -100,7 +90,7 @@ export function urlPlugin({ esbuild = esbuildModule } = {}) {
      * @type {import('esbuild').Plugin}
      */
     const plugin = {
-        name: 'url',
+        name: 'meta-url',
         setup(build, { transform } = { transform: null }) {
             let options = build.initialOptions;
             let loaders = options.loader || {};
@@ -108,35 +98,15 @@ export function urlPlugin({ esbuild = esbuildModule } = {}) {
             let tsxExtensions = keys.filter((key) => SCRIPT_LOADERS.includes(loaders[key]));
             let tsxRegex = new RegExp(`\\.(${tsxExtensions.map((ext) => ext.replace('.', '')).join('|')})$`);
 
-            build.onResolve({ filter: /^https?:\/\// }, ({ path: filePath }) => ({ path: filePath, external: true }));
-            build.onResolve({ filter: /\.file$/ }, async ({ path: filePath, importer }) => ({
-                path: await resolve(filePath.replace(/\.file$/, ''), importer),
-                namespace: 'url',
-            }));
-
             if (transform) {
-                let args = /** @type {import('esbuild').OnLoadArgs} */ (/** @type {unknown} */ (transform));
-                if (args.namespace === 'url') {
-                    return /** @type {void} */ (/** @type {unknown} */ (loadFile(args)));
-                }
-                if (!keys.includes(path.extname(args.path))) {
-                    return /** @type {void} */ (/** @type {unknown} */ (loadFile(args)));
-                }
+                let { args, contents } = /** @type {{ args: import('esbuild').OnLoadArgs, contents?: string }} */ (/** @type {unknown} */ (transform));
                 if (args.path.match(tsxRegex)) {
-                    return /** @type {void} */ (/** @type {unknown} */ (transformUrls(args, options, esbuild)));
+                    return /** @type {void} */ (/** @type {unknown} */ (transformUrls(args, options, esbuild, contents)));
                 }
 
-                return /** @type {void} */ (/** @type {unknown} */ (args));
+                return;
             }
 
-            build.onLoad({ filter: /\./, namespace: 'url' }, (args) => loadFile(args));
-            build.onLoad({ filter: /\./, namespace: 'file' }, (args) => {
-                if (keys.includes(path.extname(args.path))) {
-                    return;
-                }
-
-                return loadFile(args);
-            });
             build.onLoad({ filter: tsxRegex, namespace: 'file' }, (args) => transformUrls(args, options, esbuild));
         },
     };

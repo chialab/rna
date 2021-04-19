@@ -24,6 +24,7 @@
     "LICENSE.md"
   ],
   "dependencies": {
+    "@chialab/esbuild-plugin-any-file": "^0.4.0",
     "@chialab/esbuild-plugin-env": "^0.4.1",
     "@chialab/esbuild-plugin-html": "^0.4.5",
     "@chialab/esbuild-plugin-meta-url": "^0.4.5",

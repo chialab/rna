@@ -133,6 +133,7 @@ export async function build(config) {
         },
         plugins: [
             (await import('@chialab/esbuild-plugin-env')).envPlugin(),
+            (await import('@chialab/esbuild-plugin-any-file')).filePlugin(),
             (await import('@chialab/esbuild-plugin-html')).htmlPlugin(),
             (await import('@chialab/esbuild-plugin-postcss')).postcssPlugin(),
             (await import('esbuild-plugin-pipe')).default({

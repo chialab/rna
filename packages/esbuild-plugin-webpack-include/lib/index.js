@@ -38,7 +38,7 @@ async function transformWebpackIncludes({ path: filePath }, contents = '') {
         magicCode.overwrite(
             match.index,
             match.index + match[0].length,
-            `({ ${Object.keys(map).map((key) => `'${key}': import('${map[key]}')`).join(', ')} })[${identifier}]()`
+            `({ ${Object.keys(map).map((key) => `'${key}': () => import('${map[key]}')`).join(', ')} })[${identifier}]()`
         );
 
         match = WEBPACK_INCLUDE_REGEX.exec(contents);

@@ -60,13 +60,18 @@ export function htmlPlugin({ esbuild = esbuildModule } = {}) {
                         return;
                     }
 
-                    let outputs = Object.keys(result.metafile.outputs);
-                    let outputFile = outputs[0].endsWith('.map') ? outputs[1] : outputs[0];
-                    await entrypoint.finisher(outputFile, outputs);
+                    let inputFiles = /** @type {string[]} */ (entrypoint.options.entryPoints || []);
+                    let outputs = result.metafile.outputs;
+                    let outputFiles = Object.keys(outputs);
+                    let outputFile = outputFiles
+                        .filter((output) => !output.endsWith('.map'))
+                        .filter((output) => outputs[output].entryPoint)
+                        .find((output) => inputFiles.includes(path.resolve(/** @type {string} */(outputs[output].entryPoint)))) || outputFiles[0];
+                    await entrypoint.finisher(outputFile, outputFiles);
 
                     if (entrypoint.loader === 'file') {
                         await Promise.all(
-                            outputs.slice(1).map((fileName) => unlink(fileName))
+                            outputFiles.slice(1).map((fileName) => unlink(fileName).catch(() => {}))
                         );
                     }
                 }

@@ -47,18 +47,23 @@ async function transformUrls({ path: filePath }, options, esbuild, contents = ''
 
         let loader = loaders[path.extname(filePath)];
         if (SCRIPT_LOADERS.includes(loader) || loader === 'css') {
+            let entryPoint = await resolve(value, filePath);
             /** @type {import('esbuild').BuildOptions} */
             let config = {
                 ...options,
-                entryPoints: [await resolve(value, filePath)],
+                entryPoints: [entryPoint],
                 outfile: undefined,
                 outdir,
                 metafile: true,
             };
             let result = await esbuild.build(config);
             if (result.metafile) {
-                let outputs = Object.keys(result.metafile.outputs);
-                let outputFile = outputs[0].endsWith('.map') ? outputs[1] : outputs[0];
+                let outputs = result.metafile.outputs;
+                let outputFiles = Object.keys(outputs);
+                let outputFile = outputFiles
+                    .filter((output) => !output.endsWith('.map'))
+                    .filter((output) => outputs[output].entryPoint)
+                    .find((output) => entryPoint === path.resolve(/** @type {string} */(outputs[output].entryPoint))) || outputFiles[0];
                 let baseUrl = 'import.meta.url';
                 magicCode.overwrite(match.index, match.index + len, `${match[1]}'./${path.basename(outputFile)}', ${baseUrl}${match[3]}`);
             }

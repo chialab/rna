@@ -1,5 +1,6 @@
 import { promises } from 'fs';
 import path from 'path';
+import esbuildModule from 'esbuild';
 import MagicString from 'magic-string';
 import nodeResolve from 'resolve';
 
@@ -7,6 +8,17 @@ const { readFile } = promises;
 
 const URL_REGEX = /(new\s+(?:window\.|self\.|globalThis\.)?URL\s*\()\s*['"]([^'"]*)['"]\s*\s*,\s*import\.meta\.url\s*(\))/g;
 const SCRIPT_LOADERS = ['tsx', 'ts', 'jsx', 'js'];
+
+/**
+ * @param {string} spec
+ * @param {string} importer
+ */
+function resolve(spec, importer) {
+    return new Promise((resolve, reject) => nodeResolve(spec, {
+        basedir: path.dirname(importer),
+        preserveSymlinks: true,
+    }, (err, data) => (err ? reject(err) : resolve(data))));
+}
 
 /**
  * @param {import('esbuild').OnLoadArgs & { contents?: string }} args
@@ -22,15 +34,17 @@ async function loadFile({ path: filePath, contents }) {
 /**
  * @param {import('esbuild').OnLoadArgs & { contents?: string }} args
  * @param {import('esbuild').BuildOptions} options
+ * @param {import('esbuild')} esbuild
  * @return {Promise<import('esbuild').OnLoadResult>}
  */
-async function transformUrls({ path: filePath, contents }, options) {
+async function transformUrls({ path: filePath, contents }, options, esbuild) {
     contents = contents || await readFile(filePath, 'utf-8');
     if (!contents.match(URL_REGEX)) {
         return { contents };
     }
 
-    let baseUrl = (options.platform === 'browser' && 'document.baseURI') || 'import.meta.url';
+    let outdir = options.outdir || (options.outfile && path.dirname(options.outfile)) || process.cwd();
+    let loaders = options.loader || {};
     let magicCode = new MagicString(contents);
     let match = URL_REGEX.exec(contents);
     while (match) {
@@ -41,9 +55,29 @@ async function transformUrls({ path: filePath, contents }, options) {
             value = `./${value}`;
         }
 
-        let identifier = `_${value.replace(/[^a-zA-Z0-9]/g, '_')}`;
-        magicCode.prepend(`import ${identifier} from '${value}.file';`);
-        magicCode.overwrite(match.index, match.index + len, `${match[1]}${identifier}, ${baseUrl}${match[3]}`);
+        let loader = loaders[path.extname(filePath)];
+        if (SCRIPT_LOADERS.includes(loader) || loader === 'css') {
+            /** @type {import('esbuild').BuildOptions} */
+            let config = {
+                ...options,
+                entryPoints: [await resolve(value, filePath)],
+                outfile: undefined,
+                outdir,
+                metafile: true,
+            };
+            let result = await esbuild.build(config);
+            if (result.metafile) {
+                let outputs = Object.keys(result.metafile.outputs);
+                let outputFile = outputs[0].endsWith('.map') ? outputs[1] : outputs[0];
+                let baseUrl = 'import.meta.url';
+                magicCode.overwrite(match.index, match.index + len, `${match[1]}'./${path.basename(outputFile)}', ${baseUrl}${match[3]}`);
+            }
+        } else {
+            let baseUrl = (options.platform === 'browser' && 'document.baseURI') || 'import.meta.url';
+            let identifier = `_${value.replace(/[^a-zA-Z0-9]/g, '_')}`;
+            magicCode.prepend(`import ${identifier} from '${value}.file';`);
+            magicCode.overwrite(match.index, match.index + len, `${match[1]}${identifier}, ${baseUrl}${match[3]}`);
+        }
 
         match = URL_REGEX.exec(contents);
     }
@@ -61,7 +95,7 @@ async function transformUrls({ path: filePath, contents }, options) {
  * in order to handle assets bundling.
  * @return An esbuild plugin.
  */
-export function urlPlugin() {
+export function urlPlugin({ esbuild = esbuildModule } = {}) {
     /**
      * @type {import('esbuild').Plugin}
      */
@@ -75,12 +109,8 @@ export function urlPlugin() {
             let tsxRegex = new RegExp(`\\.(${tsxExtensions.map((ext) => ext.replace('.', '')).join('|')})$`);
 
             build.onResolve({ filter: /^https?:\/\// }, ({ path: filePath }) => ({ path: filePath, external: true }));
-
             build.onResolve({ filter: /\.file$/ }, async ({ path: filePath, importer }) => ({
-                path: await new Promise((resolve, reject) => nodeResolve(filePath.replace(/\.file$/, ''), {
-                    basedir: path.dirname(importer),
-                    preserveSymlinks: true,
-                }, (err, data) => (err ? reject(err) : resolve(data)))),
+                path: await resolve(filePath.replace(/\.file$/, ''), importer),
                 namespace: 'url',
             }));
 
@@ -93,22 +123,21 @@ export function urlPlugin() {
                     return /** @type {void} */ (/** @type {unknown} */ (loadFile(args)));
                 }
                 if (args.path.match(tsxRegex)) {
-                    return /** @type {void} */ (/** @type {unknown} */ (transformUrls(args, options)));
+                    return /** @type {void} */ (/** @type {unknown} */ (transformUrls(args, options, esbuild)));
                 }
 
                 return /** @type {void} */ (/** @type {unknown} */ (args));
             }
 
-            build.onLoad({ filter: /\./, namespace: 'url' }, loadFile);
-            build.onLoad({ filter: /\./, namespace: 'file' }, async (args) => {
+            build.onLoad({ filter: /\./, namespace: 'url' }, (args) => loadFile(args));
+            build.onLoad({ filter: /\./, namespace: 'file' }, (args) => {
                 if (keys.includes(path.extname(args.path))) {
                     return;
                 }
 
                 return loadFile(args);
             });
-
-            build.onLoad({ filter: tsxRegex, namespace: 'file' }, async (args) => transformUrls(args, options));
+            build.onLoad({ filter: tsxRegex, namespace: 'file' }, (args) => transformUrls(args, options, esbuild));
         },
     };
 

@@ -9,6 +9,49 @@ const WEBPACK_INCLUDE_REGEX = /import\(\s*\/\*\s*webpackInclude:\s*([^\s]+)\s\*\
 const SCRIPT_LOADERS = ['tsx', 'ts', 'jsx', 'js'];
 
 /**
+ * @param {import('esbuild').OnLoadArgs & { contents?: string }} args
+ * @return {Promise<import('esbuild').OnLoadResult>}
+ */
+async function transformWebpackIncludes({ path: filePath, contents }) {
+    contents = contents || await readFile(filePath, 'utf-8');
+    if (!contents.match(WEBPACK_INCLUDE_REGEX)) {
+        return { contents };
+    }
+
+    let magicCode = new MagicString(contents);
+    let match = WEBPACK_INCLUDE_REGEX.exec(contents);
+    while (match) {
+        let include = new RegExp(match[1].substr(1, match[1].length - 2));
+        let exclude = match[2] && new RegExp(match[2].substr(1, match[2].length - 2));
+        let initial = match[3] || './';
+        let identifier = match[4];
+        let map = (await glob(`${initial}*`, {
+            cwd: path.dirname(filePath),
+        }))
+            .filter((name) => name.match(include) && (!exclude || !name.match(exclude)))
+            .reduce((map, name) => {
+                map[name.replace(include, '')] = `./${path.join(initial, name)}`;
+                return map;
+            }, /** @type {{ [key: string]: string }} */ ({}));
+
+        magicCode.overwrite(
+            match.index,
+            match.index + match[0].length,
+            `({ ${Object.keys(map).map((key) => `'${key}': import('${map[key]}')`).join(', ')} })[${identifier}]()`
+        );
+
+        match = WEBPACK_INCLUDE_REGEX.exec(contents);
+    }
+
+    let magicMap = magicCode.generateMap({ hires: true });
+    let magicUrl = `data:application/json;charset=utf-8;base64,${Buffer.from(magicMap.toString()).toString('base64')}`;
+
+    return {
+        contents: `${magicCode.toString()}//# sourceMappingURL=${magicUrl}`,
+    };
+}
+
+/**
  * A plugin that converts the `webpackInclude` syntax.
  * @return An esbuild plugin.
  */
@@ -18,55 +61,28 @@ export function webpackIncludePlugin() {
      */
     const plugin = {
         name: 'webpack-include',
-        setup(build) {
+        setup(build, { transform } = { transform: null }) {
             let options = build.initialOptions;
             let loaders = options.loader || {};
             let keys = Object.keys(loaders);
             let tsxExtensions = keys.filter((key) => SCRIPT_LOADERS.includes(loaders[key]));
             let tsxRegex = new RegExp(`\\.(${tsxExtensions.map((ext) => ext.replace('.', '')).join('|')})$`);
 
-            build.onLoad({ filter: tsxRegex, namespace: 'file' }, async ({ path: filePath }) => {
-                let ext = path.extname(filePath);
-                if (!keys.includes(ext)) {
+            if (transform) {
+                let args = /** @type {import('esbuild').OnLoadArgs} */ (/** @type {unknown} */ (transform));
+                if (keys.includes(path.extname(args.path))) {
+                    return /** @type {void} */ (/** @type {unknown} */ (transformWebpackIncludes(args)));
+                }
+
+                return /** @type {void} */ (/** @type {unknown} */ (args));
+            }
+
+            build.onLoad({ filter: tsxRegex, namespace: 'file' }, async (args) => {
+                if (!keys.includes(path.extname(args.path))) {
                     return;
                 }
 
-                let contents = await readFile(filePath, 'utf-8');
-                if (!contents.match(WEBPACK_INCLUDE_REGEX)) {
-                    return;
-                }
-
-                let magicCode = new MagicString(contents);
-                let match = WEBPACK_INCLUDE_REGEX.exec(contents);
-                while (match) {
-                    let include = new RegExp(match[1].substr(1, match[1].length - 2));
-                    let exclude = match[2] && new RegExp(match[2].substr(1, match[2].length - 2));
-                    let initial = match[3] || './';
-                    let identifier = match[4];
-                    let map = (await glob(`${initial}*`, {
-                        cwd: path.dirname(filePath),
-                    }))
-                        .filter((name) => name.match(include) && (!exclude || !name.match(exclude)))
-                        .reduce((map, name) => {
-                            map[name.replace(include, '')] = `./${path.join(initial, name)}`;
-                            return map;
-                        }, /** @type {{ [key: string]: string }} */ ({}));
-
-                    magicCode.overwrite(
-                        match.index,
-                        match.index + match[0].length,
-                        `({ ${Object.keys(map).map((key) => `'${key}': import('${map[key]}')`).join(', ')} })[${identifier}]()`
-                    );
-
-                    match = WEBPACK_INCLUDE_REGEX.exec(contents);
-                }
-
-                let magicMap = magicCode.generateMap({ hires: true });
-                let magicUrl = `data:application/json;charset=utf-8;base64,${Buffer.from(magicMap.toString()).toString('base64')}`;
-
-                return {
-                    contents: `${magicCode.toString()}//# sourceMappingURL=${magicUrl}`,
-                };
+                return transformWebpackIncludes(args);
             });
         },
     };

@@ -135,7 +135,12 @@ export async function build(config) {
             (await import('@chialab/esbuild-plugin-env')).envPlugin(),
             (await import('@chialab/esbuild-plugin-html')).htmlPlugin(),
             (await import('@chialab/esbuild-plugin-postcss')).postcssPlugin(),
-            (await import('@chialab/esbuild-plugin-meta-url')).urlPlugin(),
+            (await import('esbuild-plugin-pipe')).default({
+                plugins: [
+                    (await import('@chialab/esbuild-plugin-meta-url')).urlPlugin(),
+                    (await import('@chialab/esbuild-plugin-webpack-include')).webpackIncludePlugin(),
+                ],
+            }),
         ],
     });
 

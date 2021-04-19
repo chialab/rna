@@ -27,9 +27,11 @@
     "@chialab/esbuild-plugin-env": "^0.4.1",
     "@chialab/esbuild-plugin-html": "^0.4.3",
     "@chialab/esbuild-plugin-meta-url": "^0.4.1",
+    "@chialab/esbuild-plugin-webpack-include": "^0.4.0",
     "@chialab/esbuild-plugin-postcss": "^0.4.3",
     "browserslist": "^4.16.3",
     "esbuild": "^0.11.0",
+    "esbuild-plugin-pipe": "^0.2.0",
     "pkg-up": "^3.1.0"
   },
   "devDependencies": {

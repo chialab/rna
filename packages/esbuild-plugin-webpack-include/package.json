@@ -1,34 +1,34 @@
 {
-    "name": "@chialab/esbuild-plugin-webpack-include",
-    "type": "module",
-    "version": "0.4.0",
-    "description": "A plugin for esbuild that converts the webpackInclude syntax.",
-    "main": "lib/index.js",
-    "typings": "./types/index.d.ts",
-    "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
-    "license": "MIT",
-    "repository": {
-      "type": "git",
-      "url": "https://github.com/chialab/rna",
-      "directory": "packages/esbuild-plugin-webpack-include"
-    },
-    "scripts": {
-      "types": "tsc",
-      "prepack": "npm run types"
-    },
-    "files": [
-      "lib",
-      "types",
-      "package.json",
-      "README.md",
-      "LICENSE.md"
-    ],
-    "dependencies": {
-      "magic-string": "^0.25.7",
-      "fast-glob": "^3.2.5"
-    },
-    "devDependencies": {
-      "esbuild": "^0.11.0",
-      "typescript": "^4.2.3"
-    }
+  "name": "@chialab/esbuild-plugin-webpack-include",
+  "type": "module",
+  "version": "0.4.5",
+  "description": "A plugin for esbuild that converts the webpackInclude syntax.",
+  "main": "lib/index.js",
+  "typings": "./types/index.d.ts",
+  "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chialab/rna",
+    "directory": "packages/esbuild-plugin-webpack-include"
+  },
+  "scripts": {
+    "types": "tsc",
+    "prepack": "npm run types"
+  },
+  "files": [
+    "lib",
+    "types",
+    "package.json",
+    "README.md",
+    "LICENSE.md"
+  ],
+  "dependencies": {
+    "fast-glob": "^3.2.5",
+    "magic-string": "^0.25.7"
+  },
+  "devDependencies": {
+    "esbuild": "^0.11.0",
+    "typescript": "^4.2.3"
   }
+}

@@ -1,6 +1,7 @@
 import { promises } from 'fs';
-import { extname } from 'path';
+import path from 'path';
 import MagicString from 'magic-string';
+import nodeResolve from 'resolve';
 
 const { readFile } = promises;
 
@@ -26,15 +27,30 @@ export function urlPlugin() {
             let tsxExtensions = keys.filter((key) => SCRIPT_LOADERS.includes(loaders[key]));
             let tsxRegex = new RegExp(`\\.(${tsxExtensions.map((ext) => ext.replace('.', '')).join('|')})$`);
 
-            build.onResolve({ filter: /^https?:\/\// }, args => ({ path: args.path, external: true }));
+            build.onResolve({ filter: /^https?:\/\// }, ({ path: filePath }) => ({ path: filePath, external: true }));
 
-            build.onLoad({ filter: /\./, namespace: 'file' }, async ({ path }) => {
-                if (keys.includes(extname(path))) {
+            build.onResolve({ filter: /\.file$/ }, async ({ path: filePath, importer }) => ({
+                path: await new Promise((resolve, reject) => nodeResolve(filePath.replace(/\.file$/, ''), {
+                    basedir: path.dirname(importer),
+                    preserveSymlinks: true,
+                }, (err, data) => (err ? reject(err) : resolve(data)))),
+                namespace: 'url',
+            }));
+
+            build.onLoad({ filter: /\./, namespace: 'url' }, async ({ path: filePath }) => (
+                {
+                    contents: await readFile(filePath),
+                    loader: 'file',
+                }
+            ));
+
+            build.onLoad({ filter: /\./, namespace: 'file' }, async ({ path: filePath }) => {
+                if (keys.includes(path.extname(filePath))) {
                     return;
                 }
 
                 return {
-                    contents: await readFile(path),
+                    contents: await readFile(filePath),
                     loader: 'file',
                 };
             });
@@ -45,25 +61,20 @@ export function urlPlugin() {
                     return { contents };
                 }
 
+                let baseUrl = (options.platform === 'browser' && 'document.baseURI') || 'import.meta.url';
                 let magicCode = new MagicString(contents);
                 let match = URL_REGEX.exec(contents);
                 while (match) {
                     let len = match[0].length;
                     let value = match[2];
-                    let ext = extname(value);
-                    let loader = loaders[ext];
-                    if (SCRIPT_LOADERS.includes(loader) || loader === 'json') {
-                        match = URL_REGEX.exec(contents);
-                        continue;
-                    }
 
                     if (value[0] !== '.' && value[0] !== '/') {
                         value = `./${value}`;
                     }
 
                     let identifier = `_${value.replace(/[^a-zA-Z0-9]/g, '_')}`;
-                    magicCode.prepend(`import ${identifier} from '${value}';`);
-                    magicCode.overwrite(match.index, match.index + len, `${match[1]}${identifier}${match[3]}`);
+                    magicCode.prepend(`import ${identifier} from '${value}.file';`);
+                    magicCode.overwrite(match.index, match.index + len, `${match[1]}${identifier}, ${baseUrl}${match[3]}`);
 
                     match = URL_REGEX.exec(contents);
                 }

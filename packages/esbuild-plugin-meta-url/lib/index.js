@@ -4,6 +4,8 @@ import MagicString from 'magic-string';
 
 const { readFile } = promises;
 
+const SCRIPT_LOADERS = ['tsx', 'ts', 'jsx', 'js'];
+
 /**
  * Instantiate a plugin that converts URL references into static import
  * in order to handle assets bundling.
@@ -21,7 +23,7 @@ export function urlPlugin() {
             let options = build.initialOptions;
             let loaders = options.loader || {};
             let keys = Object.keys(loaders);
-            let tsxExtensions = keys.filter((key) => loaders[key] === 'tsx');
+            let tsxExtensions = keys.filter((key) => SCRIPT_LOADERS.includes(loaders[key]));
             let tsxRegex = new RegExp(`\\.(${tsxExtensions.map((ext) => ext.replace('.', '')).join('|')})$`);
 
             build.onResolve({ filter: /^https?:\/\// }, args => ({ path: args.path, external: true }));
@@ -48,7 +50,9 @@ export function urlPlugin() {
                 while (match) {
                     let len = match[0].length;
                     let value = match[2];
-                    if (keys.includes(extname(value))) {
+                    let ext = extname(value);
+                    let loader = loaders[ext];
+                    if (SCRIPT_LOADERS.includes(loader) || loader === 'json') {
                         match = URL_REGEX.exec(contents);
                         continue;
                     }

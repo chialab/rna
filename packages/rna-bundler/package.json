@@ -12,6 +12,13 @@
     "url": "https://github.com/chialab/rna",
     "directory": "packages/rna-bundler"
   },
+  "keywords": [
+    "bundler",
+    "webapp",
+    "esm",
+    "cjs",
+    "esbuild"
+  ],
   "scripts": {
     "types": "tsc",
     "prepack": "npm run types"

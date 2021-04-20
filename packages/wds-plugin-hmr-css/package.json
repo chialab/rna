@@ -12,6 +12,13 @@
     "url": "https://github.com/chialab/rna",
     "directory": "packages/wds-plugin-hmr-css"
   },
+  "keywords": [
+    "dev-server",
+    "plugin",
+    "hmr",
+    "css",
+    "livereload"
+  ],
   "scripts": {
     "types": "tsc",
     "prepack": "npm run types"

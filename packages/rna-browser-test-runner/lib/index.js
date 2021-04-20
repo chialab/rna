@@ -51,6 +51,7 @@ export async function test(config) {
                 cssPlugin(),
                 esbuildPlugin({
                     loaders: {
+                        '.cjs': 'tsx',
                         '.mjs': 'tsx',
                         '.jsx': 'tsx',
                         '.ts': 'tsx',

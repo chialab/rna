@@ -12,6 +12,14 @@
     "url": "https://github.com/chialab/rna",
     "directory": "packages/wds-plugin-postcss"
   },
+  "keywords": [
+    "dev-server",
+    "plugin",
+    "postcss",
+    "css",
+    "assets",
+    "import"
+  ],
   "scripts": {
     "types": "tsc",
     "prepack": "npm run types"

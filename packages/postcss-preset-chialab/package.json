@@ -12,6 +12,11 @@
     "url": "https://github.com/chialab/rna",
     "directory": "packages/postcss-preset-chialab"
   },
+  "keywords": [
+    "postcss",
+    "css",
+    "moderncss"
+  ],
   "scripts": {
     "types": "tsc",
     "prepack": "npm run types"

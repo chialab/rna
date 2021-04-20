@@ -59,6 +59,7 @@ export async function serve(config) {
                 cssPlugin(),
                 esbuildPlugin({
                     loaders: {
+                        '.cjs': 'tsx',
                         '.mjs': 'tsx',
                         '.js': 'tsx',
                         '.jsx': 'tsx',

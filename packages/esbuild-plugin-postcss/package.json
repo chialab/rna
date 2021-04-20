@@ -12,6 +12,12 @@
     "url": "https://github.com/chialab/rna",
     "directory": "packages/esbuild-plugin-postcss"
   },
+  "keywords": [
+    "esbuild",
+    "plugin",
+    "css",
+    "postcss"
+  ],
   "scripts": {
     "types": "tsc",
     "prepack": "npm run types"

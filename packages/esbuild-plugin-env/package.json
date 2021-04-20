@@ -12,6 +12,13 @@
     "url": "https://github.com/chialab/rna",
     "directory": "packages/esbuild-plugin-env"
   },
+  "keywords": [
+    "esbuild",
+    "plugin",
+    "env",
+    "environment",
+    "variables"
+  ],
   "scripts": {
     "types": "tsc",
     "prepack": "npm run types"

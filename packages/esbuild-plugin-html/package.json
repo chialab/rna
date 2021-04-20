@@ -12,6 +12,13 @@
     "url": "https://github.com/chialab/rna",
     "directory": "packages/esbuild-plugin-html"
   },
+  "keywords": [
+    "esbuild",
+    "plugin",
+    "html",
+    "webapp",
+    "bundle"
+  ],
   "scripts": {
     "types": "tsc",
     "prepack": "npm run types"

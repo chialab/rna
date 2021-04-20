@@ -12,6 +12,14 @@
     "url": "https://github.com/chialab/rna",
     "directory": "packages/rna-web-server"
   },
+  "keywords": [
+    "dev-server",
+    "webapp",
+    "browser",
+    "esm",
+    "livereload",
+    "hmr"
+  ],
   "scripts": {
     "types": "tsc",
     "prepack": "npm run types"

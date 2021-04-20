@@ -12,6 +12,13 @@
     "url": "https://github.com/chialab/rna",
     "directory": "packages/rna-browser-test-runner"
   },
+  "keywords": [
+    "test-runner",
+    "webapp",
+    "browser",
+    "unit",
+    "testing"
+  ],
   "scripts": {
     "types": "tsc",
     "prepack": "npm run types"

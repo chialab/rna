@@ -12,6 +12,13 @@
     "url": "https://github.com/chialab/rna",
     "directory": "packages/rna"
   },
+  "keywords": [
+    "bundle",
+    "webapp",
+    "cli",
+    "dev-server",
+    "test-runner"
+  ],
   "scripts": {
     "types": "tsc",
     "prepack": "npm run types"

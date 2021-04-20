@@ -43,6 +43,23 @@ await build({
 
 ---
 
+### Known limitations and workarounds
+
+Esbuild does not merge import statements from the same external source when bundling (see [#3](https://github.com/chialab/rna/issues/3)). Consumed esbuild bundles in webpack can be affected by a wrong optimization.  
+
+**Workaround**  
+Update webpack configuration with following rule:
+
+```js
+module.exports = {
+    optimization: {
+        innerGraph: false,
+    },
+};
+```
+
+---
+
 ## License
 
 RNA Bundler is released under the [MIT](https://github.com/chialab/rna/blob/master/packages/rna-bundler/LICENSE) license.

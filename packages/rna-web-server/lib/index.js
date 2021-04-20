@@ -70,6 +70,7 @@ export async function serve(config) {
                     define: {
                         ...defineEnvVariables(),
                     },
+                    target: 'auto-always',
                 }),
                 commonjsPlugin({
                     ignoreTryCatch: true,

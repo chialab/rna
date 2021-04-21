@@ -34,7 +34,7 @@ export async function test(config) {
             ],
             testFramework,
             nodeResolve: {
-                exportConditions: ['default', 'module', 'import', 'require'],
+                exportConditions: ['default', 'module', 'import'],
                 mainFields: ['umd:main', 'module', 'browser', 'jsnext', 'jsnext:main', 'main'],
             },
             preserveSymlinks: true,

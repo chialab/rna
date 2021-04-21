@@ -112,7 +112,7 @@ $ yarn add @chialab/esbuild-plugin-html -D
 
 ```js
 import esbuild from 'esbuild';
-import { htmlPlugin } from '@chialab/esbuild-plugin-html';
+import htmlPlugin from '@chialab/esbuild-plugin-html';
 
 await esbuild.build({
     plugins: [

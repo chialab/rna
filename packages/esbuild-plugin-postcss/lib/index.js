@@ -83,7 +83,7 @@ function rebase({ rootDir = process.cwd() } = {}) {
  * Instantiate a plugin that runs postcss across css files.
  * @return An esbuild plugin.
  */
-export function postcssPlugin(opts = {}) {
+export default function(opts = {}) {
     /**
      * @type {import('esbuild').Plugin}
      */

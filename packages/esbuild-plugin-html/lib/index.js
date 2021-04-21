@@ -20,7 +20,7 @@ const { readFile, unlink } = promises;
 /**
  * @return An esbuild plugin.
  */
-export function htmlPlugin({ esbuild = esbuildModule } = {}) {
+export default function({ esbuild = esbuildModule } = {}) {
     /**
      * @type {import('esbuild').Plugin}
      */

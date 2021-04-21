@@ -19,7 +19,7 @@ $ yarn add @chialab/esbuild-plugin-webpack-include -D
 
 ```js
 import esbuild from 'esbuild';
-import { webpackIncludePlugin } from '@chialab/esbuild-plugin-webpack-include';
+import webpackIncludePlugin from '@chialab/esbuild-plugin-webpack-include';
 
 await esbuild.build({
     plugins: [

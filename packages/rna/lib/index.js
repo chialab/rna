@@ -28,12 +28,16 @@ const { readFile } = promises;
         .option('-C, --clean', 'cleanup output path')
         .option('-J, --metafile [path]', 'generate manifest and endpoints maps')
         .option('--no-map', 'do not generate sourcemaps')
+        .option('--jsxPragma <identifier>', 'jsx pragma')
+        .option('--jsxFragment <identifier>', 'jsx fragment')
+        .option('--jsxModule <name>', 'jsx module name')
+        .option('--jsxExport <type>', 'jsx export mode')
         .action(
             /**
              * @param {string[]} input
-             * @param {{ output: string, format?: import('esbuild').Format, bundle?: boolean, minify?: boolean, name?: string, watch?: boolean, metafile?: boolean, target?: string, public?: string, entryNames?: string, clean?: boolean, map?: boolean }} options
+             * @param {{ output: string, format?: import('esbuild').Format, bundle?: boolean, minify?: boolean, name?: string, watch?: boolean, metafile?: boolean, target?: string, public?: string, entryNames?: string, clean?: boolean, map?: boolean, jsxPragma?: string, jsxFragment?: string, jsxModule?: string, jsxExport?: 'named'|'namespace'|'default' }} options
              */
-            async (input, { output, format = 'esm', bundle, minify, name, watch, metafile, target, public: publicPath, entryNames, clean, map }) => {
+            async (input, { output, format = 'esm', bundle, minify, name, watch, metafile, target, public: publicPath, entryNames, clean, map, jsxPragma, jsxFragment, jsxModule, jsxExport }) => {
                 const { build } = await import('@chialab/rna-bundler');
 
                 await build({
@@ -50,6 +54,14 @@ const { readFile } = promises;
                     publicPath: publicPath ? path.resolve(publicPath) : undefined,
                     entryNames,
                     sourcemap: map,
+                    jsx: jsxPragma ? {
+                        pragma: jsxPragma,
+                        pragmaFrag: jsxFragment,
+                        import: jsxModule ? {
+                            module: jsxModule,
+                            export: jsxExport,
+                        } : undefined,
+                    } : undefined,
                 });
             }
         );

@@ -19,7 +19,7 @@ $ yarn add @chialab/esbuild-plugin-any-file -D
 
 ```js
 import esbuild from 'esbuild';
-import { filePlugin } from '@chialab/esbuild-plugin-any-file';
+import filePlugin from '@chialab/esbuild-plugin-any-file';
 
 await esbuild.build({
     plugins: [

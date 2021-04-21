@@ -11,9 +11,16 @@ const { readFile } = promises;
 export { loaders, saveManifestJson, saveEndpointsJson, saveDevEndpointsJson };
 
 /**
+ * @typedef {Object} JSXImport
+ * @property {string} module The module name.
+ * @property {'named'|'namespace'|'default'} [export] The export mode of the jsc pragma.
+ */
+
+/**
  * @typedef {Object} JSXOptions
  * @property {string} pragma The jsx pragma to use.
  * @property {string} [pragmaFrag] The jsx pragma to use for fragments.
+ * @property {JSXImport} [import] The jsx import reference.
  */
 
 /**
@@ -132,14 +139,15 @@ export async function build(config) {
             },
         },
         plugins: [
-            (await import('@chialab/esbuild-plugin-env')).envPlugin(),
-            (await import('@chialab/esbuild-plugin-any-file')).filePlugin(),
-            (await import('@chialab/esbuild-plugin-html')).htmlPlugin(),
-            (await import('@chialab/esbuild-plugin-postcss')).postcssPlugin(),
+            (await import('@chialab/esbuild-plugin-env')).default(),
+            (await import('@chialab/esbuild-plugin-jsx-import')).default(jsx && jsx.import),
+            (await import('@chialab/esbuild-plugin-any-file')).default(),
+            (await import('@chialab/esbuild-plugin-html')).default(),
+            (await import('@chialab/esbuild-plugin-postcss')).default(),
             (await import('esbuild-plugin-pipe')).default({
                 plugins: [
-                    (await import('@chialab/esbuild-plugin-meta-url')).urlPlugin(),
-                    (await import('@chialab/esbuild-plugin-webpack-include')).webpackIncludePlugin(),
+                    (await import('@chialab/esbuild-plugin-meta-url')).default(),
+                    (await import('@chialab/esbuild-plugin-webpack-include')).default(),
                 ],
             }),
         ],

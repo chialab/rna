@@ -16,7 +16,7 @@ const SCRIPT_LOADERS = ['tsx', 'ts', 'jsx', 'js'];
 async function transformWebpackIncludes({ path: filePath }, contents = '') {
     contents = contents || await readFile(filePath, 'utf-8');
     if (!contents.match(WEBPACK_INCLUDE_REGEX)) {
-        return { contents };
+        return { contents, loader: 'tsx' };
     }
 
     let magicCode = new MagicString(contents);
@@ -49,6 +49,7 @@ async function transformWebpackIncludes({ path: filePath }, contents = '') {
 
     return {
         contents: `${magicCode.toString()}//# sourceMappingURL=${magicUrl}`,
+        loader: 'tsx',
     };
 }
 
@@ -56,7 +57,7 @@ async function transformWebpackIncludes({ path: filePath }, contents = '') {
  * A plugin that converts the `webpackInclude` syntax.
  * @return An esbuild plugin.
  */
-export function webpackIncludePlugin() {
+export default function() {
     /**
      * @type {import('esbuild').Plugin}
      */

@@ -30,7 +30,7 @@ function resolve(spec, importer) {
 async function transformUrls({ path: filePath }, options, esbuild, contents = '') {
     contents = contents || await readFile(filePath, 'utf-8');
     if (!contents.match(URL_REGEX)) {
-        return { contents };
+        return { contents, loader: 'tsx' };
     }
 
     let outdir = options.outdir || (options.outfile && path.dirname(options.outfile)) || process.cwd();
@@ -82,6 +82,7 @@ async function transformUrls({ path: filePath }, options, esbuild, contents = ''
 
     return {
         contents: `${magicCode.toString()}//# sourceMappingURL=${magicUrl}`,
+        loader: 'tsx',
     };
 }
 
@@ -90,7 +91,7 @@ async function transformUrls({ path: filePath }, options, esbuild, contents = ''
  * in order to handle assets bundling.
  * @return An esbuild plugin.
  */
-export function urlPlugin({ esbuild = esbuildModule } = {}) {
+export default function({ esbuild = esbuildModule } = {}) {
     /**
      * @type {import('esbuild').Plugin}
      */

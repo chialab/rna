@@ -7,7 +7,7 @@ const { readFile } = promises;
  * Load any unkown refrence as file.
  * @return An esbuild plugin.
  */
-export function filePlugin() {
+export default function() {
     /**
      * @type {import('esbuild').Plugin}
      */

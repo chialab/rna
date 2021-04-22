@@ -1,0 +1,41 @@
+{
+  "name": "@chialab/swc-plugin-htm",
+  "type": "module",
+  "version": "0.4.9",
+  "description": "A swc plugin for htm literals transpiling.",
+  "main": "lib/index.js",
+  "typings": "./types/index.d.ts",
+  "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chialab/rna",
+    "directory": "packages/swc-plugin-htm"
+  },
+  "keywords": [
+    "swc",
+    "plugin",
+    "htm",
+    "literals"
+  ],
+  "scripts": {
+    "types": "tsc",
+    "prepack": "npm run types"
+  },
+  "files": [
+    "lib",
+    "types",
+    "package.json",
+    "README.md",
+    "LICENSE.md"
+  ],
+  "dependencies": {
+    "@chialab/swc-types": "^0.4.0",
+    "htm": "^3.0.4"
+  },
+  "devDependencies": {
+    "@swc/core": "^1.2.54",
+    "esbuild": "^0.11.0",
+    "typescript": "^4.2.3"
+  }
+}

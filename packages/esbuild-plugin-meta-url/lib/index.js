@@ -110,7 +110,7 @@ export default function({ esbuild = esbuildModule } = {}) {
                     return /** @type {void} */ (/** @type {unknown} */ (transformUrls(args, options, esbuild, contents)));
                 }
 
-                return;
+                return /** @type {void} */ (/** @type {unknown} */ (transform));
             }
 
             build.onLoad({ filter: tsxRegex, namespace: 'file' }, (args) => transformUrls(args, options, esbuild));

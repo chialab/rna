@@ -148,6 +148,14 @@ export async function build(config) {
                 plugins: [
                     (await import('@chialab/esbuild-plugin-meta-url')).default(),
                     (await import('@chialab/esbuild-plugin-webpack-include')).default(),
+                    (await import('@chialab/esbuild-plugin-swc')).default({
+                        plugins: jsx && jsx.pragma ? [
+                            (await import('@chialab/swc-plugin-htm')).plugin({
+                                tag: 'html',
+                                pragma: jsx && jsx.pragma,
+                            }),
+                        ] : [],
+                    }),
                 ],
             }),
         ],

@@ -76,7 +76,7 @@ export default function() {
                     return /** @type {void} */ (/** @type {unknown} */ (transformWebpackIncludes(args, contents)));
                 }
 
-                return;
+                return /** @type {void} */ (/** @type {unknown} */ (transform));
             }
 
             build.onLoad({ filter: tsxRegex, namespace: 'file' }, async (args) => {

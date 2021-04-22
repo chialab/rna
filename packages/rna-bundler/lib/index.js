@@ -39,7 +39,6 @@ export { loaders, saveManifestJson, saveEndpointsJson, saveDevEndpointsJson };
 export async function build(config) {
     const { default: esbuild } = await import('esbuild');
     const { default: pkgUp } = await import('pkg-up');
-    const { default: browserslist } = await import('browserslist');
 
     let {
         root = process.cwd(),
@@ -51,7 +50,7 @@ export async function build(config) {
         platform = format === 'cjs' ? 'node' : 'browser',
         globalName = camelize(output),
         jsx,
-        target,
+        target = 'es2020',
         publicPath,
         entryNames = '[name]',
         metafile = false,
@@ -67,12 +66,6 @@ export async function build(config) {
     if (clean) {
         await emptyDir(outputDir);
     }
-
-    target = target ?
-        browserslist(target)
-            .filter((entry) => ['chrome', 'firefox', 'safari', 'edge', 'node'].includes(entry.split(' ')[0]))
-            .map((entry) => entry.split(' ').join('')) :
-        ['es2020'];
 
     let entryOptions = {};
     if (code) {
@@ -144,11 +137,13 @@ export async function build(config) {
             (await import('@chialab/esbuild-plugin-any-file')).default(),
             (await import('@chialab/esbuild-plugin-html')).default(),
             (await import('@chialab/esbuild-plugin-postcss')).default(),
+            (await import('@chialab/esbuild-plugin-swc')).helpers(),
             (await import('esbuild-plugin-pipe')).default({
                 plugins: [
                     (await import('@chialab/esbuild-plugin-meta-url')).default(),
                     (await import('@chialab/esbuild-plugin-webpack-include')).default(),
                     (await import('@chialab/esbuild-plugin-swc')).default({
+                        target: Array.isArray(target) ? target[0] : target,
                         plugins: jsx && jsx.pragma ? [
                             (await import('@chialab/swc-plugin-htm')).plugin({
                                 tag: 'html',

@@ -40,7 +40,6 @@
     "@chialab/esbuild-plugin-swc": "^0.4.9",
     "@chialab/esbuild-plugin-webpack-include": "^0.4.9",
     "@chialab/swc-plugin-htm": "^0.4.9",
-    "browserslist": "^4.16.3",
     "esbuild": "^0.11.0",
     "esbuild-plugin-pipe": "^0.2.0",
     "pkg-up": "^3.1.0"

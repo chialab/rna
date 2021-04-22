@@ -67,6 +67,7 @@ export function collectScripts(dom, base, outdir) {
                     entryPoints: [
                         path.resolve(base, /** @type {string} */ ($(element).attr('src'))),
                     ],
+                    target: 'es5',
                     format: /** @type {import('esbuild').Format} */ ('iife'),
                     entryNames: 'iife/[name]-[hash]',
                     chunkNames: 'iife/[name]-[hash]',
@@ -96,6 +97,7 @@ export function collectScripts(dom, base, outdir) {
                             resolveDir: base,
                             sourcefile: path.join(base, 'inline.tsx'),
                         },
+                        target: 'es5',
                         format: /** @type {import('esbuild').Format} */ ('iife'),
                         globalName: undefined,
                         entryNames: 'iife/[name]-[hash]',

@@ -20,7 +20,7 @@ const { readFile, unlink } = promises;
 /**
  * @return An esbuild plugin.
  */
-export default function({ esbuild = esbuildModule } = {}) {
+export default function({ esbuild = esbuildModule, scriptsTarget = 'es6', modulesTarget = '2020' } = {}) {
     /**
      * @type {import('esbuild').Plugin}
      */
@@ -40,7 +40,7 @@ export default function({ esbuild = esbuildModule } = {}) {
                     ...collectIcons(root, basePath, outdir),
                     ...collectWebManifest(root, basePath, outdir),
                     ...collectStyles(root, basePath, outdir),
-                    ...collectScripts(root, basePath, outdir),
+                    ...collectScripts(root, basePath, outdir, { scriptsTarget, modulesTarget }),
                     ...collectAssets(root, basePath, outdir),
                 ]);
 

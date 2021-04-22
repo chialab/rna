@@ -8,7 +8,7 @@ import $ from 'cheerio';
  * @param {string} outdir The output dir.
  * @return {import('./index').Entrypoint[]} A list of entrypoints.
  */
-export function collectScripts(dom, base, outdir) {
+export function collectScripts(dom, base, outdir, targets = { scriptsTarget: 'es6', modulesTarget: '2020' }) {
     return [
         ...dom.find('script[src][type="module"]')
             .get()
@@ -18,6 +18,7 @@ export function collectScripts(dom, base, outdir) {
                     entryPoints: [
                         path.resolve(base, /** @type {string} */ ($(element).attr('src'))),
                     ],
+                    target: targets.modulesTarget,
                     format: /** @type {import('esbuild').Format} */ ('esm'),
                     entryNames: 'esm/[name]-[hash]',
                     chunkNames: 'esm/[name]-[hash]',
@@ -46,6 +47,7 @@ export function collectScripts(dom, base, outdir) {
                             resolveDir: base,
                             sourcefile: path.join(base, 'inline.tsx'),
                         },
+                        target: targets.modulesTarget,
                         format: /** @type {import('esbuild').Format} */ ('esm'),
                         entryNames: 'esm/[name]-[hash]',
                         chunkNames: 'esm/[name]-[hash]',
@@ -67,7 +69,7 @@ export function collectScripts(dom, base, outdir) {
                     entryPoints: [
                         path.resolve(base, /** @type {string} */ ($(element).attr('src'))),
                     ],
-                    target: 'es5',
+                    target: targets.scriptsTarget,
                     format: /** @type {import('esbuild').Format} */ ('iife'),
                     entryNames: 'iife/[name]-[hash]',
                     chunkNames: 'iife/[name]-[hash]',
@@ -97,7 +99,7 @@ export function collectScripts(dom, base, outdir) {
                             resolveDir: base,
                             sourcefile: path.join(base, 'inline.tsx'),
                         },
-                        target: 'es5',
+                        target: targets.scriptsTarget,
                         format: /** @type {import('esbuild').Format} */ ('iife'),
                         globalName: undefined,
                         entryNames: 'iife/[name]-[hash]',

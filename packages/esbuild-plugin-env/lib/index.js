@@ -32,6 +32,10 @@ export default function() {
         name: 'env',
         setup(build) {
             let options = build.initialOptions;
+            if (options.platform === 'node') {
+                return;
+            }
+
             options.define = {
                 ...defineEnvVariables(),
                 ...(options.define || {}),

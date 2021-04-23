@@ -21,16 +21,24 @@ function resolve(spec, importer) {
 }
 
 /**
- * @param {import('esbuild').OnLoadArgs & { contents?: string }} args
+ * @param {import('esbuild').OnLoadArgs} args
  * @param {import('esbuild').BuildOptions} options
  * @param {import('esbuild')} esbuild
- * @param {string} contents
- * @return {Promise<import('esbuild').OnLoadResult>}
+ * @param {{ code?: string }} cache
+ * @param {boolean} pipe
+ * @return {Promise<import('esbuild').OnLoadResult|undefined>}
  */
-async function transformUrls({ path: filePath }, options, esbuild, contents = '') {
-    contents = contents || await readFile(filePath, 'utf-8');
+async function transformUrls({ path: filePath }, options, esbuild, cache, pipe) {
+    let contents = cache.code || await readFile(filePath, 'utf-8');
     if (!contents.match(URL_REGEX)) {
-        return { contents, loader: 'tsx' };
+        if (pipe) {
+            cache.code = contents;
+            return;
+        }
+        return {
+            contents,
+            loader: 'tsx',
+        };
     }
 
     let outdir = options.outdir || (options.outfile && path.dirname(options.outfile)) || process.cwd();
@@ -41,13 +49,15 @@ async function transformUrls({ path: filePath }, options, esbuild, contents = ''
         let len = match[0].length;
         let value = match[2];
 
-        if (value[0] !== '.' && value[0] !== '/') {
-            value = `./${value}`;
+        let loader = loaders[path.extname(value)];
+        let baseUrl = 'import.meta.url';
+        if (options.platform === 'browser' && options.format !== 'esm') {
+            baseUrl = 'document.baseURI';
+        } else if (options.platform === 'node' && options.format !== 'esm') {
+            baseUrl = '\'file://\' + __filename';
         }
-
-        let loader = loaders[path.extname(filePath)];
+        let entryPoint = await resolve(value, filePath);
         if (SCRIPT_LOADERS.includes(loader) || loader === 'css') {
-            let entryPoint = await resolve(value, filePath);
             /** @type {import('esbuild').BuildOptions} */
             let config = {
                 ...options,
@@ -64,13 +74,15 @@ async function transformUrls({ path: filePath }, options, esbuild, contents = ''
                     .filter((output) => !output.endsWith('.map'))
                     .filter((output) => outputs[output].entryPoint)
                     .find((output) => entryPoint === path.resolve(/** @type {string} */(outputs[output].entryPoint))) || outputFiles[0];
-                let baseUrl = 'import.meta.url';
                 magicCode.overwrite(match.index, match.index + len, `${match[1]}'./${path.basename(outputFile)}', ${baseUrl}${match[3]}`);
             }
         } else {
-            let baseUrl = (options.platform === 'browser' && 'document.baseURI') || 'import.meta.url';
             let identifier = `_${value.replace(/[^a-zA-Z0-9]/g, '_')}`;
-            magicCode.prepend(`import ${identifier} from '${value}.file';`);
+            if (contents.startsWith('#!')) {
+                magicCode.appendRight(contents.indexOf('\n') + 1, `import ${identifier} from '${entryPoint}.urlfile';\n`);
+            } else {
+                magicCode.prepend(`import ${identifier} from '${entryPoint}.urlfile';\n`);
+            }
             magicCode.overwrite(match.index, match.index + len, `${match[1]}${identifier}, ${baseUrl}${match[3]}`);
         }
 
@@ -79,9 +91,14 @@ async function transformUrls({ path: filePath }, options, esbuild, contents = ''
 
     let magicMap = magicCode.generateMap({ hires: true });
     let magicUrl = `data:application/json;charset=utf-8;base64,${Buffer.from(magicMap.toString()).toString('base64')}`;
+    contents = `${magicCode.toString()}//# sourceMappingURL=${magicUrl}`;
 
+    if (pipe) {
+        cache.code = contents;
+        return;
+    }
     return {
-        contents: `${magicCode.toString()}//# sourceMappingURL=${magicUrl}`,
+        contents,
         loader: 'tsx',
     };
 }
@@ -91,29 +108,31 @@ async function transformUrls({ path: filePath }, options, esbuild, contents = ''
  * in order to handle assets bundling.
  * @return An esbuild plugin.
  */
-export default function({ esbuild = esbuildModule } = {}) {
+export default function({ esbuild = esbuildModule, pipe = false, cache = new Map() } = {}) {
     /**
      * @type {import('esbuild').Plugin}
      */
     const plugin = {
         name: 'meta-url',
-        setup(build, { transform } = { transform: null }) {
+        setup(build) {
             let options = build.initialOptions;
             let loaders = options.loader || {};
             let keys = Object.keys(loaders);
             let tsxExtensions = keys.filter((key) => SCRIPT_LOADERS.includes(loaders[key]));
             let tsxRegex = new RegExp(`\\.(${tsxExtensions.map((ext) => ext.replace('.', '')).join('|')})$`);
 
-            if (transform) {
-                let { args, contents } = /** @type {{ args: import('esbuild').OnLoadArgs, contents?: string }} */ (/** @type {unknown} */ (transform));
-                if (args.path.match(tsxRegex)) {
-                    return /** @type {void} */ (/** @type {unknown} */ (transformUrls(args, options, esbuild, contents)));
-                }
-
-                return /** @type {void} */ (/** @type {unknown} */ (transform));
-            }
-
-            build.onLoad({ filter: tsxRegex, namespace: 'file' }, (args) => transformUrls(args, options, esbuild));
+            build.onResolve({ filter: /\.urlfile$/ }, async ({ path: filePath }) => ({
+                path: filePath.replace(/\.urlfile$/, ''),
+                namespace: 'meta-url',
+            }));
+            build.onLoad({ filter: /\./, namespace: 'meta-url' }, async ({ path: filePath }) => ({
+                contents: await readFile(filePath),
+                loader: 'file',
+            }));
+            build.onLoad({ filter: tsxRegex, namespace: 'file' }, (args) => {
+                cache.set(args.path, cache.get(args.path) || {});
+                return transformUrls(args, options, esbuild, cache.get(args.path), pipe);
+            });
         },
     };
 

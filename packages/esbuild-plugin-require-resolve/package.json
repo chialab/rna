@@ -1,8 +1,8 @@
 {
-  "name": "@chialab/esbuild-plugin-meta-url",
+  "name": "@chialab/esbuild-plugin-require-resolve",
   "type": "module",
   "version": "0.4.11",
-  "description": "A file loader plugin for esbuild for constructed URLs using import metadata.",
+  "description": "A file loader plugin for esbuild for require.resolve statements.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",
   "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
@@ -10,7 +10,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/chialab/rna",
-    "directory": "packages/esbuild-plugin-meta-url"
+    "directory": "packages/esbuild-plugin-require-resolve"
   },
   "keywords": [
     "esbuild",

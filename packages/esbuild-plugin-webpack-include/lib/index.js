@@ -10,13 +10,21 @@ const SCRIPT_LOADERS = ['tsx', 'ts', 'jsx', 'js'];
 
 /**
  * @param {import('esbuild').OnLoadArgs} args
- * @param {string} contents
- * @return {Promise<import('esbuild').OnLoadResult>}
+ * @param {{ code?: string }} cache
+ * @param {boolean} pipe
+ * @return {Promise<import('esbuild').OnLoadResult|undefined>}
  */
-async function transformWebpackIncludes({ path: filePath }, contents = '') {
-    contents = contents || await readFile(filePath, 'utf-8');
+async function transformWebpackIncludes({ path: filePath }, cache, pipe) {
+    let contents = cache.code || await readFile(filePath, 'utf-8');
     if (!contents.match(WEBPACK_INCLUDE_REGEX)) {
-        return { contents, loader: 'tsx' };
+        if (pipe) {
+            cache.code = contents;
+            return;
+        }
+        return {
+            contents,
+            loader: 'tsx',
+        };
     }
 
     let magicCode = new MagicString(contents);
@@ -46,9 +54,14 @@ async function transformWebpackIncludes({ path: filePath }, contents = '') {
 
     let magicMap = magicCode.generateMap({ hires: true });
     let magicUrl = `data:application/json;charset=utf-8;base64,${Buffer.from(magicMap.toString()).toString('base64')}`;
+    contents = `${magicCode.toString()}//# sourceMappingURL=${magicUrl}`;
 
+    if (pipe) {
+        cache.code = contents;
+        return;
+    }
     return {
-        contents: `${magicCode.toString()}//# sourceMappingURL=${magicUrl}`,
+        contents,
         loader: 'tsx',
     };
 }
@@ -57,34 +70,25 @@ async function transformWebpackIncludes({ path: filePath }, contents = '') {
  * A plugin that converts the `webpackInclude` syntax.
  * @return An esbuild plugin.
  */
-export default function() {
+export default function({ pipe = false, cache = new Map() } = {}) {
     /**
      * @type {import('esbuild').Plugin}
      */
     const plugin = {
         name: 'webpack-include',
-        setup(build, { transform } = { transform: null }) {
+        setup(build) {
             let options = build.initialOptions;
             let loaders = options.loader || {};
             let keys = Object.keys(loaders);
             let tsxExtensions = keys.filter((key) => SCRIPT_LOADERS.includes(loaders[key]));
             let tsxRegex = new RegExp(`\\.(${tsxExtensions.map((ext) => ext.replace('.', '')).join('|')})$`);
 
-            if (transform) {
-                let { args, contents } = /** @type {{ args: import('esbuild').OnLoadArgs, contents?: string }} */ (/** @type {unknown} */ (transform));
-                if (keys.includes(path.extname(args.path))) {
-                    return /** @type {void} */ (/** @type {unknown} */ (transformWebpackIncludes(args, contents)));
-                }
-
-                return /** @type {void} */ (/** @type {unknown} */ (transform));
-            }
-
             build.onLoad({ filter: tsxRegex, namespace: 'file' }, async (args) => {
                 if (!keys.includes(path.extname(args.path))) {
                     return;
                 }
-
-                return transformWebpackIncludes(args);
+                cache.set(args.path, cache.get(args.path) || {});
+                return transformWebpackIncludes(args, cache.get(args.path), pipe);
             });
         },
     };

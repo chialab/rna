@@ -20,7 +20,7 @@ const { readFile, unlink } = promises;
 /**
  * @return An esbuild plugin.
  */
-export default function({ esbuild = esbuildModule, scriptsTarget = 'es6', modulesTarget = '2020' } = {}) {
+export default function({ esbuild = esbuildModule, scriptsTarget = 'es6', modulesTarget = 'es2020' } = {}) {
     /**
      * @type {import('esbuild').Plugin}
      */
@@ -63,17 +63,19 @@ export default function({ esbuild = esbuildModule, scriptsTarget = 'es6', module
                     let inputFiles = /** @type {string[]} */ (entrypoint.options.entryPoints || []);
                     let outputs = result.metafile.outputs;
                     let outputFiles = Object.keys(outputs);
-                    let outputFile = outputFiles
-                        .filter((output) => !output.endsWith('.map'))
-                        .filter((output) => outputs[output].entryPoint)
-                        .find((output) => inputFiles.includes(path.resolve(/** @type {string} */(outputs[output].entryPoint)))) || outputFiles[0];
-                    await entrypoint.finisher(outputFile, outputFiles);
-
+                    let outputFile;
                     if (entrypoint.loader === 'file') {
+                        outputFile = outputFiles[0];
                         await Promise.all(
-                            outputFiles.slice(1).map((fileName) => unlink(fileName).catch(() => {}))
+                            outputFiles.slice(1).map((fileName) => unlink(fileName).catch(() => { }))
                         );
+                    } else {
+                        outputFile = outputFiles
+                            .filter((output) => !output.endsWith('.map'))
+                            .filter((output) => outputs[output].entryPoint)
+                            .find((output) => inputFiles.includes(path.resolve(/** @type {string} */(outputs[output].entryPoint)))) || outputFiles[0];
                     }
+                    await entrypoint.finisher(outputFile, outputFiles);
                 }
 
                 return {

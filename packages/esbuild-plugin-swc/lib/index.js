@@ -21,13 +21,18 @@ function resolve(spec, importer) {
  * @param {import('esbuild').OnLoadArgs & { contents?: string }} args
  * @param {string} target
  * @param {import('@swc/core').Plugin[]} plugins
- * @param {string} contents
- * @return {Promise<import('esbuild').OnLoadResult>}
+ * @param {{ code?: string, ast?: import('@swc/core').Program }} cache
+ * @param {boolean} pipe
+ * @return {Promise<import('esbuild').OnLoadResult|undefined>}
  */
-async function run({ path: filePath }, target, plugins, contents = '') {
-    contents = contents || await readFile(filePath, 'utf-8');
+async function run({ path: filePath }, target, plugins, cache, pipe) {
+    let contents = cache.code || await readFile(filePath, 'utf-8');
 
     if (!plugins.length) {
+        if (pipe) {
+            cache.code = contents;
+            return;
+        }
         return {
             contents,
             loader: 'tsx',
@@ -54,8 +59,14 @@ async function run({ path: filePath }, target, plugins, contents = '') {
             },
         });
 
+        contents = code;
+
+        if (pipe) {
+            cache.code = contents;
+            return;
+        }
         return {
-            contents: code,
+            contents,
             loader: 'tsx',
         };
     }
@@ -77,57 +88,43 @@ async function run({ path: filePath }, target, plugins, contents = '') {
 
     // swc renders decorators after the export statement, we revert it
     // @TODO handle sourcemaps
-    code = code.replace(/(export(?:\s+default)?\s+)(@(?:\s|.)*?)\s*class/g, '$2\n$1class');
+    contents = code.replace(/(export(?:\s+default)?\s+)(@(?:\s|.)*?)\s*class/g, '$2\n$1class');
 
+    if (pipe) {
+        cache.code = contents;
+        cache.ast = program;
+        return;
+    }
     return {
-        contents: code,
+        contents,
         loader: 'tsx',
     };
 }
 
-export function helpers() {
-    /**
-     * @type {import('esbuild').Plugin}
-     */
-    const plugin = {
-        name: 'swc-helpers',
-        setup(build) {
-            build.onResolve({ filter: /@swc\/helpers/ }, async () => ({
-                path: await resolve('@swc/helpers', import.meta.url),
-            }));
-        },
-    };
-
-    return plugin;
-}
-
 /**
- * @param {{ target?: string, plugins?: import('@swc/core').Plugin[] }} plugins
+ * @param {{ target?: string, plugins?: import('@swc/core').Plugin[], pipe?: boolean, cache?: Map<string, *> }} plugins
  * @return An esbuild plugin.
  */
-export default function({ target = 'esnext', plugins = [] } = {}) {
+export default function({ target = 'esnext', plugins = [], pipe = false, cache = new Map() } = {}) {
     /**
      * @type {import('esbuild').Plugin}
      */
     const plugin = {
         name: 'swc',
-        setup(build, { transform } = { transform: null }) {
+        setup(build) {
             let options = build.initialOptions;
             let { loader = {} } = options;
             let keys = Object.keys(loader);
             let tsxExtensions = keys.filter((key) => SCRIPT_LOADERS.includes(loader[key]));
             let tsxRegex = new RegExp(`\\.(${tsxExtensions.map((ext) => ext.replace('.', '')).join('|')})$`);
 
-            if (transform) {
-                let { args, contents } = /** @type {{ args: import('esbuild').OnLoadArgs, contents?: string }} */ (/** @type {unknown} */ (transform));
-                if (args.path.match(tsxRegex)) {
-                    return /** @type {void} */ (/** @type {unknown} */ (run(args, target, plugins, contents)));
-                }
-
-                return /** @type {void} */ (/** @type {unknown} */ (transform));
-            }
-
-            build.onLoad({ filter: tsxRegex, namespace: 'file' }, (args) => run(args, target, plugins));
+            build.onResolve({ filter: /@swc\/helpers/ }, async () => ({
+                path: await resolve('@swc/helpers', import.meta.url),
+            }));
+            build.onLoad({ filter: tsxRegex, namespace: 'file' }, (args) => {
+                cache.set(args.path, cache.get(args.path) || {});
+                return run(args, target, plugins, cache.get(args.path), pipe);
+            });
         },
     };
 

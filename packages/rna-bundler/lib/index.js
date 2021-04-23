@@ -53,6 +53,7 @@ export async function build(config) {
         target = 'es2020',
         publicPath,
         entryNames = '[name]',
+        external = [],
         metafile = false,
         clean = false,
         bundle = false,
@@ -79,10 +80,6 @@ export async function build(config) {
         entryOptions.entryPoints = Array.isArray(input) ? input : [input];
     }
 
-    /**
-     * @type {string[]}
-     */
-    let external = [];
     if (!bundle) {
         let packageFile = await pkgUp({
             cwd: root,
@@ -97,6 +94,7 @@ export async function build(config) {
         }
     }
 
+    let pluginCache = new Map();
     let result = await esbuild.build({
         ...entryOptions,
         globalName,
@@ -137,21 +135,27 @@ export async function build(config) {
             (await import('@chialab/esbuild-plugin-any-file')).default(),
             (await import('@chialab/esbuild-plugin-html')).default(),
             (await import('@chialab/esbuild-plugin-postcss')).default(),
-            (await import('@chialab/esbuild-plugin-swc')).helpers(),
-            (await import('esbuild-plugin-pipe')).default({
-                plugins: [
-                    (await import('@chialab/esbuild-plugin-meta-url')).default(),
-                    (await import('@chialab/esbuild-plugin-webpack-include')).default(),
-                    (await import('@chialab/esbuild-plugin-swc')).default({
-                        target: Array.isArray(target) ? target[0] : target,
-                        plugins: jsx && jsx.pragma ? [
-                            (await import('@chialab/swc-plugin-htm')).plugin({
-                                tag: 'html',
-                                pragma: jsx && jsx.pragma,
-                            }),
-                        ] : [],
+            (await import('@chialab/esbuild-plugin-require-resolve')).default({
+                pipe: true,
+                cache: pluginCache,
+            }),
+            (await import('@chialab/esbuild-plugin-meta-url')).default({
+                pipe: true,
+                cache: pluginCache,
+            }),
+            (await import('@chialab/esbuild-plugin-webpack-include')).default({
+                pipe: true,
+                cache: pluginCache,
+            }),
+            (await import('@chialab/esbuild-plugin-swc')).default({
+                cache: pluginCache,
+                target: Array.isArray(target) ? target[0] : target,
+                plugins: jsx && jsx.pragma ? [
+                    (await import('@chialab/swc-plugin-htm')).plugin({
+                        tag: 'html',
+                        pragma: jsx && jsx.pragma,
                     }),
-                ],
+                ] : [],
             }),
         ],
     });

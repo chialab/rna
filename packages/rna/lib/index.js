@@ -19,6 +19,7 @@ const { readFile } = promises;
         .description('Compile JS and CSS modules using esbuild (https://esbuild.github.io/). It can output multiple module formats and it can be used to build a single module or to bundle all dependencies of an application.')
         .option('-O, --output <path>', 'output directory or file')
         .option('-F, --format <type>', 'bundle format')
+        .option('-P, --platform <type>', 'platform destination')
         .option('-B, --bundle', 'bundle dependencies')
         .option('-M, --minify', 'minify the build')
         .option('-W, --watch', 'keep build alive')
@@ -27,6 +28,7 @@ const { readFile } = promises;
         .option('-E, --entryNames <pattern>', 'output file names')
         .option('-C, --clean', 'cleanup output path')
         .option('-J, --metafile [path]', 'generate manifest and endpoints maps')
+        .option('--external [modules]', 'comma separated external packages')
         .option('--no-map', 'do not generate sourcemaps')
         .option('--jsxPragma <identifier>', 'jsx pragma')
         .option('--jsxFragment <identifier>', 'jsx fragment')
@@ -35,15 +37,16 @@ const { readFile } = promises;
         .action(
             /**
              * @param {string[]} input
-             * @param {{ output: string, format?: import('esbuild').Format, bundle?: boolean, minify?: boolean, name?: string, watch?: boolean, metafile?: boolean, target?: string, public?: string, entryNames?: string, clean?: boolean, map?: boolean, jsxPragma?: string, jsxFragment?: string, jsxModule?: string, jsxExport?: 'named'|'namespace'|'default' }} options
+             * @param {{ output: string, format?: import('esbuild').Format, platform: import('esbuild').Platform, bundle?: boolean, minify?: boolean, name?: string, watch?: boolean, metafile?: boolean, target?: string, public?: string, entryNames?: string, clean?: boolean, external?: string, map?: boolean, jsxPragma?: string, jsxFragment?: string, jsxModule?: string, jsxExport?: 'named'|'namespace'|'default' }} options
              */
-            async (input, { output, format = 'esm', bundle, minify, name, watch, metafile, target, public: publicPath, entryNames, clean, map, jsxPragma, jsxFragment, jsxModule, jsxExport }) => {
+            async (input, { output, format = 'esm', platform, bundle, minify, name, watch, metafile, target, public: publicPath, entryNames, clean, external, map, jsxPragma, jsxFragment, jsxModule, jsxExport }) => {
                 const { build } = await import('@chialab/rna-bundler');
 
                 await build({
                     input: input.map((entry) => path.resolve(entry)),
                     output: path.resolve(output),
                     format,
+                    platform,
                     name,
                     bundle,
                     minify,
@@ -51,6 +54,7 @@ const { readFile } = promises;
                     clean,
                     watch,
                     metafile,
+                    external: external ? external.split(',') : undefined,
                     publicPath: publicPath ? path.resolve(publicPath) : undefined,
                     entryNames,
                     sourcemap: map,

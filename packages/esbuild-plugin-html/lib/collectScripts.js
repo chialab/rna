@@ -8,7 +8,7 @@ import $ from 'cheerio';
  * @param {string} outdir The output dir.
  * @return {import('./index').Entrypoint[]} A list of entrypoints.
  */
-export function collectScripts(dom, base, outdir, targets = { scriptsTarget: 'es6', modulesTarget: '2020' }) {
+export function collectScripts(dom, base, outdir, targets = { scriptsTarget: 'es6', modulesTarget: 'es2020' }) {
     return [
         ...dom.find('script[src][type="module"]')
             .get()

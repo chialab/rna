@@ -37,11 +37,11 @@
     "@chialab/esbuild-plugin-jsx-import": "^0.4.9",
     "@chialab/esbuild-plugin-meta-url": "^0.4.11",
     "@chialab/esbuild-plugin-postcss": "^0.4.9",
+    "@chialab/esbuild-plugin-require-resolve": "^0.4.11",
     "@chialab/esbuild-plugin-swc": "^0.4.11",
     "@chialab/esbuild-plugin-webpack-include": "^0.4.11",
     "@chialab/swc-plugin-htm": "^0.4.11",
     "esbuild": "^0.11.0",
-    "esbuild-plugin-pipe": "^0.2.0",
     "pkg-up": "^3.1.0"
   },
   "devDependencies": {

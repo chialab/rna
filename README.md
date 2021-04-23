@@ -28,7 +28,7 @@ $ yarn add @chialab/rna -D
 }
 ```
 
-See more [here]((./packages/rna)).
+See more [here](./packages/rna).
 
 ---
 

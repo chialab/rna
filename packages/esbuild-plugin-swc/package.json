@@ -1,7 +1,7 @@
 {
   "name": "@chialab/esbuild-plugin-swc",
   "type": "module",
-  "version": "0.4.11",
+  "version": "0.4.12",
   "description": "A pluggable esbuild plugin that runs swc for es5 transpilation.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",

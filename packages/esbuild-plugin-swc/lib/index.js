@@ -71,35 +71,36 @@ async function run({ path: filePath }, target, plugins, cache, pipe) {
         };
     }
 
-    /** @type {import('@swc/core').Program} */
-    let program = await swc.parse(contents, {
-        syntax: 'typescript',
-        tsx: true,
-        decorators: true,
-        dynamicImport: true,
-    });
+    // @TODO the swc printer loses decorators
+    // /** @type {import('@swc/core').Program} */
+    // let ast = await swc.parse(contents, {
+    //     syntax: 'typescript',
+    //     tsx: true,
+    //     decorators: true,
+    //     dynamicImport: true,
+    // });
 
-    program = swc.plugins(plugins)(program);
+    // ast = swc.plugins(plugins)(ast);
 
-    let { code, map } = await swc.print(program, {
-        sourceMaps: true,
-        filename: filePath,
-    });
+    // let { code, map } = await swc.print(ast, {
+    //     sourceMaps: true,
+    //     filename: filePath,
+    // });
 
-    contents = code;
+    // contents = code;
 
-    if (map) {
-        contents += `\n//# sourceMappingURL=data:application/json;base64,${Buffer.from(map).toString('base64')}`;
-    }
+    // if (map) {
+    //     contents += `\n//# sourceMappingURL=data:application/json;base64,${Buffer.from(map).toString('base64')}`;
+    // }
 
-    // swc renders decorators after the export statement, we revert it
-    // @TODO handle sourcemaps
-    contents = contents.replace(/(export(?:\s+default)?\s+)(@(?:\s|.)*?)\s*class/g, '$2\n$1class');
+    // // swc renders decorators after the export statement, we revert it
+    // // @TODO handle sourcemaps
+    // contents = contents.replace(/(export(?:\s+default)?\s+)(@(?:\s|.)*?)\s*class/g, '$2\n$1class');
 
     if (pipe) {
         cache.code = contents;
-        cache.map = map;
-        cache.ast = program;
+        // cache.map = map;
+        // cache.ast = ast;
         return;
     }
     return {

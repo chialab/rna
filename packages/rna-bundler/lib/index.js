@@ -150,12 +150,12 @@ export async function build(config) {
             (await import('@chialab/esbuild-plugin-swc')).default({
                 cache: pluginCache,
                 target: Array.isArray(target) ? target[0] : target,
-                plugins: jsx && jsx.pragma ? [
-                    (await import('@chialab/swc-plugin-htm')).plugin({
-                        tag: 'html',
-                        pragma: jsx && jsx.pragma,
-                    }),
-                ] : [],
+                // plugins: jsx && jsx.pragma ? [
+                //     (await import('@chialab/swc-plugin-htm')).plugin({
+                //         tag: 'html',
+                //         pragma: jsx && jsx.pragma,
+                //     }),
+                // ] : [],
             }),
         ],
     });

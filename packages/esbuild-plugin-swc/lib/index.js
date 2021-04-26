@@ -21,7 +21,7 @@ function resolve(spec, importer) {
  * @param {import('esbuild').OnLoadArgs & { contents?: string }} args
  * @param {string} target
  * @param {import('@swc/core').Plugin[]} plugins
- * @param {{ code?: string, ast?: import('@swc/core').Program }} cache
+ * @param {{ code?: string, ast?: import('@swc/core').Program, map?: import('source-map').SourceMap }} cache
  * @param {boolean} pipe
  * @return {Promise<import('esbuild').OnLoadResult|undefined>}
  */
@@ -81,17 +81,24 @@ async function run({ path: filePath }, target, plugins, cache, pipe) {
 
     program = swc.plugins(plugins)(program);
 
-    let { code } = await swc.print(program, {
-        // @TODO swc sourcemaps are incorrect for esbuild. Must investigate.
-        // sourceMaps: 'inline',
+    let { code, map } = await swc.print(program, {
+        sourceMaps: true,
+        filename: filePath,
     });
+
+    contents = code;
+
+    if (map) {
+        contents += `\n//# sourceMappingURL=data:application/json;base64,${Buffer.from(map).toString('base64')}`;
+    }
 
     // swc renders decorators after the export statement, we revert it
     // @TODO handle sourcemaps
-    contents = code.replace(/(export(?:\s+default)?\s+)(@(?:\s|.)*?)\s*class/g, '$2\n$1class');
+    contents = contents.replace(/(export(?:\s+default)?\s+)(@(?:\s|.)*?)\s*class/g, '$2\n$1class');
 
     if (pipe) {
         cache.code = contents;
+        cache.map = map;
         cache.ast = program;
         return;
     }

@@ -5,6 +5,7 @@
     "baseUrl": "."
   },
   "include": [
-    "lib"
+    "lib",
+    "modules.d.ts"
   ]
 }

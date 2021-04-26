@@ -28,17 +28,6 @@ function resolve(spec, importer) {
 async function run({ path: filePath }, target, plugins, cache, pipe) {
     let contents = cache.code || await readFile(filePath, 'utf-8');
 
-    if (!plugins.length) {
-        if (pipe) {
-            cache.code = contents;
-            return;
-        }
-        return {
-            contents,
-            loader: 'tsx',
-        };
-    }
-
     if (target === 'es5') {
         let { code } = await swc.transform(contents, {
             sourceFileName: filePath,
@@ -57,10 +46,22 @@ async function run({ path: filePath }, target, plugins, cache, pipe) {
                 },
                 shippedProposals: true,
             },
+            plugin: swc.plugins(plugins),
         });
 
         contents = code;
 
+        if (pipe) {
+            cache.code = contents;
+            return;
+        }
+        return {
+            contents,
+            loader: 'tsx',
+        };
+    }
+
+    if (!plugins.length) {
         if (pipe) {
             cache.code = contents;
             return;

@@ -3,8 +3,9 @@ import { build, treeify } from 'htm/src/build.mjs';
 
 /**
  * @param {*} obj
+ * @param {import('@swc/core/types').Span} span
  */
-function objectProperties(obj) {
+function objectProperties(obj, span) {
     return Object.keys(obj).map((key) => {
         /**
          * @type {import('@swc/core/types').Node[]}
@@ -14,36 +15,37 @@ function objectProperties(obj) {
              * @param {*} valueOrNode
              * @return {import('@swc/core/types').Node}
              */
-            (valueOrNode) => (t.isNode(valueOrNode) ? valueOrNode : t.valueToNode(valueOrNode))
+            (valueOrNode) => (t.isNode(valueOrNode) ? valueOrNode : t.valueToNode(valueOrNode, span))
         );
 
         let node = values[0];
         if (values.length > 1 && node.type !== 'StringLiteral' && values[1].type !== 'StringLiteral') {
-            node = t.binaryExpression('+', t.stringLiteral(''), /** @type {import('@swc/core/types').Expression} */ (node));
+            node = t.binaryExpression('+', t.stringLiteral('', span), /** @type {import('@swc/core/types').Expression} */ (node), span);
         }
         values.slice(1).forEach((value) => {
-            node = t.binaryExpression('+', /** @type {import('@swc/core/types').Expression} */ (node), /** @type {import('@swc/core/types').Expression} */ (value));
+            node = t.binaryExpression('+', /** @type {import('@swc/core/types').Expression} */ (node), /** @type {import('@swc/core/types').Expression} */ (value), span);
         });
 
-        return t.objectProperty(t.stringLiteral(key), /** @type {import('@swc/core/types').Expression} */ (node));
+        return t.objectProperty(t.stringLiteral(key, span), /** @type {import('@swc/core/types').Expression} */ (node));
     });
 }
 
 /**
  * @param {*} props
+ * @param {import('@swc/core/types').Span} span
  * @return {import('@swc/core/types').Node}
  */
-function propsNode(props) {
-    return t.isNode(props) ? props : t.objectExpression(objectProperties(props));
+function propsNode(props, span) {
+    return t.isNode(props) ? props : t.objectExpression(objectProperties(props, span), span);
 }
 
 /**
  * @param {*[]} args
- * @returns
+ * @param {import('@swc/core/types').Span} span
  */
-function spreadNode(args) {
+function spreadNode(args, span) {
     if (args.length === 0) {
-        return t.nullLiteral();
+        return t.nullLiteral(span);
     }
 
     if (args.length > 0 && t.isNode(args[0])) {
@@ -52,24 +54,24 @@ function spreadNode(args) {
 
     // 'Object.assign(x)', can be collapsed to 'x'.
     if (args.length === 1) {
-        return propsNode(args[0]);
+        return propsNode(args[0], span);
     }
     // 'Object.assign({}, x)', can be collapsed to 'x'.
     if (args.length === 2 && !t.isNode(args[0]) && Object.keys(args[0]).length === 0) {
-        return propsNode(args[1]);
+        return propsNode(args[1], span);
     }
 
     /** @type {(import('@swc/core/types').Property|import('@swc/core/types').SpreadElement)[]} */
     let properties = [];
     args.forEach((arg) => {
         if (t.isNode(arg)) {
-            properties.push(t.spreadElement(/** @type {import('@swc/core/types').Expression} */ (arg)));
+            properties.push(t.spreadElement(/** @type {import('@swc/core/types').Expression} */ (arg), span));
         }
         else {
-            properties.push(...objectProperties(arg));
+            properties.push(...objectProperties(arg, span));
         }
     });
-    return t.objectExpression(properties);
+    return t.objectExpression(properties, span);
 }
 
 /**
@@ -77,48 +79,55 @@ function spreadNode(args) {
  * @param {*} props
  * @param {import('@swc/core/types').ArrayExpression} children
  * @param {string} pragma
+ * @param {import('@swc/core/types').Span} span
  */
-function createVNode(tagName, props, children, pragma) {
+function createVNode(tagName, props, children, pragma, span) {
     // Never pass children=[[]].
     if (children.elements.length === 1 && t.isArrayExpression(children.elements[0]) && children.elements[0].elements.length === 0) {
         children = children.elements[0];
     }
 
     return t.callExpression(
-        t.identifier(pragma),
+        t.identifier(pragma, span),
         [
-            t.expressionStatement(tagName),
-            t.expressionStatement(props),
-            ...children.elements.map((child) => t.expressionStatement(/** @type {import('@swc/core/types').Expression} */(child))),
-        ]);
+            t.expressionStatement(tagName, span),
+            t.expressionStatement(props, span),
+            ...children.elements.map((child) => t.expressionStatement(/** @type {import('@swc/core/types').Expression} */(child), span)),
+        ],
+        span
+    );
 }
 
 /**
  * @param {*} node
  * @param {string} pragma
+ * @param {import('@swc/core/types').Span} span
  * @return {import('@swc/core/types').Expression}
  */
-function transform(node, pragma) {
+function transform(node, pragma, span) {
     if (t.isNode(node)) {
         return /** @type {import('@swc/core/types').Expression} */ (node);
     }
     if (typeof node === 'string') {
-        return t.stringLiteral(node);
+        return t.stringLiteral(node, span);
     }
     if (typeof node === 'undefined') {
-        return t.identifier('undefined');
+        return t.identifier('undefined', span);
     }
 
     let { tag: newTag, props: newProps, children: newChildren } = node;
-    newTag = typeof newTag === 'string' ? t.stringLiteral(newTag) : newTag;
-    newProps = spreadNode(newProps);
-    newChildren = t.arrayExpression(newChildren.map(
-        /**
-         * @param {*} child
-         */
-        (child) => transform(child, pragma))
+    newTag = typeof newTag === 'string' ? t.stringLiteral(newTag, span) : newTag;
+    newProps = spreadNode(newProps, span);
+    newChildren = t.arrayExpression(
+        newChildren.map(
+            /**
+             * @param {*} child
+             */
+            (child) => transform(child, pragma, span)
+        ),
+        span
     );
-    return createVNode(newTag, newProps, newChildren, pragma);
+    return createVNode(newTag, newProps, newChildren, pragma, span);
 }
 
 export class HtmVisitor extends Visitor {
@@ -126,22 +135,6 @@ export class HtmVisitor extends Visitor {
         super();
         this.tag = tag;
         this.pragma = pragma;
-    }
-
-    /**
-     * @param {import('@swc/core/types').TsType} t
-     */
-    visitTsType(t) {
-        return t;
-    }
-
-    /**
-     * @param {import('@swc/core/types').TsEnumDeclaration} n
-     */
-    visitTsEnumDeclaration(n) {
-        n.id = this.visitIdentifier(n.id);
-        n.member = this.visitTsEnumMembers(n.member || (/** @type {*} */ (n)).members);
-        return n;
     }
 
     /**
@@ -159,8 +152,18 @@ export class HtmVisitor extends Visitor {
 
         let tree = treeify(build(statics), expr);
         return !Array.isArray(tree) ?
-            transform(tree, this.pragma) :
-            t.arrayExpression(/** @type {*} */ (tree.map(root => t.expressionStatement(transform(root, this.pragma)))));
+            transform(tree, this.pragma, exp.span) :
+            t.arrayExpression(
+                /** @type {*} */
+                (
+                    tree.map(root =>
+                        t.expressionStatement(
+                            transform(root, this.pragma, exp.span),
+                            exp.span
+                        ))
+                ),
+                exp.span
+            );
     }
 }
 

@@ -2,6 +2,7 @@ import { promises } from 'fs';
 import path from 'path';
 import swc from '@swc/core';
 import nodeResolve from 'resolve';
+import esbuild from 'esbuild';
 
 const { readFile } = promises;
 const SCRIPT_LOADERS = ['tsx', 'ts', 'jsx', 'js'];
@@ -21,87 +22,64 @@ function resolve(spec, importer) {
  * @param {import('esbuild').OnLoadArgs & { contents?: string }} args
  * @param {string} target
  * @param {import('@swc/core').Plugin[]} plugins
- * @param {{ code?: string, ast?: import('@swc/core').Program, map?: import('source-map').SourceMap }} cache
+ * @param {import('esbuild').BuildOptions} options
+ * @param {{ code?: string }} cache
  * @param {boolean} pipe
  * @return {Promise<import('esbuild').OnLoadResult|undefined>}
  */
-async function run({ path: filePath }, target, plugins, cache, pipe) {
+async function run({ path: filePath }, target, plugins, options, cache, pipe) {
     let contents = cache.code || await readFile(filePath, 'utf-8');
 
+    let { code: esbuildCode } = await esbuild.transform(contents, {
+        sourcefile: filePath,
+        sourcemap: 'inline',
+        loader: 'tsx',
+        format: 'esm',
+        target,
+        jsxFactory: options.jsxFactory,
+        jsxFragment: options.jsxFragment,
+    });
+    contents = esbuildCode;
+
+    let jscTarget = /** @type {import('@swc/core').JscTarget} */ (target);
+
+    /** @type {import('@swc/core').Options} */
+    let config = {
+        sourceFileName: filePath,
+        sourceMaps: true,
+        jsc: {
+            parser: {
+                syntax: 'typescript',
+                tsx: true,
+                decorators: true,
+                dynamicImport: true,
+            },
+            externalHelpers: true,
+            target: jscTarget,
+            transform: {
+                optimizer: undefined,
+            },
+        },
+        plugin: swc.plugins(plugins),
+    };
+
     if (target === 'es5') {
-        let { code } = await swc.transform(contents, {
-            sourceFileName: filePath,
-            jsc: {
-                parser: {
-                    syntax: 'typescript',
-                    tsx: true,
-                    decorators: true,
-                    dynamicImport: true,
-                },
-                externalHelpers: true,
+        config.env = {
+            targets: {
+                ie: '11',
             },
-            env: {
-                targets: {
-                    ie: '11',
-                },
-                shippedProposals: true,
-            },
-            plugin: swc.plugins(plugins),
-        });
-
-        contents = code;
-
-        if (pipe) {
-            cache.code = contents;
-            return;
-        }
-        return {
-            contents,
-            loader: 'tsx',
+            shippedProposals: true,
         };
     }
 
-    if (!plugins.length) {
-        if (pipe) {
-            cache.code = contents;
-            return;
-        }
-        return {
-            contents,
-            loader: 'tsx',
-        };
+    let { code, map } = await swc.transform(contents, config);
+    contents = code;
+    if (map) {
+        contents += `\n//# sourceMappingURL=data:application/json;base64,${Buffer.from(map).toString('base64')}`;
     }
-
-    // @TODO the swc printer loses decorators
-    // /** @type {import('@swc/core').Program} */
-    // let ast = await swc.parse(contents, {
-    //     syntax: 'typescript',
-    //     tsx: true,
-    //     decorators: true,
-    //     dynamicImport: true,
-    // });
-
-    // ast = swc.plugins(plugins)(ast);
-
-    // let { code, map } = await swc.print(ast, {
-    //     sourceMaps: true,
-    //     filename: filePath,
-    // });
-
-    // contents = code;
-
-    // if (map) {
-    //     contents += `\n//# sourceMappingURL=data:application/json;base64,${Buffer.from(map).toString('base64')}`;
-    // }
-
-    // // swc renders decorators after the export statement, we revert it
-    // // @TODO handle sourcemaps
-    // contents = contents.replace(/(export(?:\s+default)?\s+)(@(?:\s|.)*?)\s*class/g, '$2\n$1class');
 
     if (pipe) {
         cache.code = contents;
-        // cache.map = map;
-        // cache.ast = ast;
         return;
     }
     return {
@@ -122,6 +100,7 @@ export default function({ target = 'esnext', plugins = [], pipe = false, cache =
         name: 'swc',
         setup(build) {
             let options = build.initialOptions;
+            options.metafile = true;
             let { loader = {} } = options;
             let keys = Object.keys(loader);
             let tsxExtensions = keys.filter((key) => SCRIPT_LOADERS.includes(loader[key]));
@@ -132,7 +111,7 @@ export default function({ target = 'esnext', plugins = [], pipe = false, cache =
             }));
             build.onLoad({ filter: tsxRegex, namespace: 'file' }, (args) => {
                 cache.set(args.path, cache.get(args.path) || {});
-                return run(args, target, plugins, cache.get(args.path), pipe);
+                return run(args, target, plugins, options, cache.get(args.path), pipe);
             });
         },
     };

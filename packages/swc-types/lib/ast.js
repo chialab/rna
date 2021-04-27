@@ -1,14 +1,11 @@
 /**
  * @param {string} str
+ * @param {import('@swc/core/types').Span} span
  * @return {import('@swc/core/types').StringLiteral}
  */
-export function stringLiteral(str) {
+export function stringLiteral(str, span) {
     return {
-        span: {
-            start: 0,
-            end: 0,
-            ctxt: 0,
-        },
+        span,
         type: 'StringLiteral',
         value: str,
         has_escape: false,
@@ -17,15 +14,12 @@ export function stringLiteral(str) {
 
 /**
  * @param {number} num
+ * @param {import('@swc/core/types').Span} span
  * @return {import('@swc/core/types').NumericLiteral}
  */
-export function numericLiteral(num) {
+export function numericLiteral(num, span) {
     return {
-        span: {
-            start: 0,
-            end: 0,
-            ctxt: 0,
-        },
+        span,
         type: 'NumericLiteral',
         value: num,
     };
@@ -33,15 +27,12 @@ export function numericLiteral(num) {
 
 /**
  * @param {boolean} value
+ * @param {import('@swc/core/types').Span} span
  * @return {import('@swc/core/types').BooleanLiteral}
  */
-export function booleanLiteral(value) {
+export function booleanLiteral(value, span) {
     return {
-        span: {
-            start: 0,
-            end: 0,
-            ctxt: 0,
-        },
+        span,
         type: 'BooleanLiteral',
         value,
     };
@@ -49,15 +40,12 @@ export function booleanLiteral(value) {
 
 /**
  * @param {string} str
+ * @param {import('@swc/core/types').Span} span
  * @return {import('@swc/core/types').Identifier}
  */
-export function identifier(str) {
+export function identifier(str, span) {
     return {
-        span: {
-            start: 0,
-            end: 0,
-            ctxt: 0,
-        },
+        span,
         type: 'Identifier',
         value: str,
         optional: false,
@@ -66,49 +54,40 @@ export function identifier(str) {
 
 /**
  * @param {import('@swc/core/types').Expression} arg
+ * @param {import('@swc/core/types').Span} span
  * @return {import('@swc/core/types').SpreadElement}
  */
-export function spreadElement(arg) {
+export function spreadElement(arg, span) {
     return {
         type: 'SpreadElement',
-        spread: {
-            start: 0,
-            end: 0,
-            ctxt: 0,
-        },
+        spread: span,
         arguments: arg,
     };
 }
 
 /**
+ * @param {import('@swc/core/types').Span} span
  * @return {import('@swc/core/types').NullLiteral}
  */
-export function nullLiteral() {
+export function nullLiteral(span) {
     return {
         type: 'NullLiteral',
-        span: {
-            start: 0,
-            end: 0,
-            ctxt: 0,
-        },
+        span,
     };
 }
 
 /**
  * @param {string} pattern
  * @param {string} flags
+ * @param {import('@swc/core/types').Span} span
  * @return {import('@swc/core/types').RegExpLiteral}
  */
-export function regExpLiteral(pattern, flags) {
+export function regExpLiteral(pattern, flags, span) {
     return {
         type: 'RegExpLiteral',
         pattern,
         flags,
-        span: {
-            start: 0,
-            end: 0,
-            ctxt: 0,
-        },
+        span,
     };
 }
 
@@ -116,37 +95,31 @@ export function regExpLiteral(pattern, flags) {
  * @param {import('@swc/core/types').BinaryOperator} operator
  * @param {import('@swc/core/types').Expression} left
  * @param {import('@swc/core/types').Expression} right
+ * @param {import('@swc/core/types').Span} span
  * @return {import('@swc/core/types').BinaryExpression}
  */
-export function binaryExpression(operator, left, right) {
+export function binaryExpression(operator, left, right, span) {
     return {
         type: 'BinaryExpression',
         operator,
         left,
         right,
-        span: {
-            start: 0,
-            end: 0,
-            ctxt: 0,
-        },
+        span,
     };
 }
 
 /**
  * @param {import('@swc/core/types').UnaryOperator} operator
  * @param {import('@swc/core/types').Expression} argument
+ * @param {import('@swc/core/types').Span} span
  * @return {import('@swc/core/types').UnaryExpression}
  */
-export function unaryExpression(operator, argument) {
+export function unaryExpression(operator, argument, span) {
     return {
         type: 'UnaryExpression',
         operator,
         argument,
-        span: {
-            start: 0,
-            end: 0,
-            ctxt: 0,
-        },
+        span,
     };
 }
 
@@ -165,51 +138,42 @@ export function objectProperty(key, value) {
 
 /**
  * @param {(import('@swc/core/types').Property|import('@swc/core/types').SpreadElement)[]} props
+ * @param {import('@swc/core/types').Span} span
  * @return {import('@swc/core/types').ObjectExpression}
  */
-export function objectExpression(props) {
+export function objectExpression(props, span) {
     return {
         type: 'ObjectExpression',
         properties: props,
-        span: {
-            start: 0,
-            end: 0,
-            ctxt: 0,
-        },
+        span,
     };
 }
 
 /**
  * @param {import('@swc/core/types').Expression[]} elements
+ * @param {import('@swc/core/types').Span} span
  * @return {import('@swc/core/types').ArrayExpression}
  */
-export function arrayExpression(elements) {
+export function arrayExpression(elements, span) {
     return {
         type: 'ArrayExpression',
         elements,
-        span: {
-            start: 0,
-            end: 0,
-            ctxt: 0,
-        },
+        span,
     };
 }
 
 /**
  * @param {import('@swc/core/types').Expression} callee
  * @param {import('@swc/core/types').Argument[]} args
+ * @param {import('@swc/core/types').Span} span
  * @return {import('@swc/core/types').CallExpression}
  */
-export function callExpression(callee, args) {
+export function callExpression(callee, args, span) {
     return {
         type: 'CallExpression',
         callee,
         arguments: args,
-        span: {
-            start: 0,
-            end: 0,
-            ctxt: 0,
-        },
+        span,
     };
 }
 
@@ -227,53 +191,44 @@ export function classExpression(clazz) {
 /**
  * @param {import('@swc/core/types').Identifier} id
  * @param {import('@swc/core/types').Expression} init
+ * @param {import('@swc/core/types').Span} span
  * @return {import('@swc/core/types').VariableDeclarator}
  */
-export function variableDeclarator(id, init) {
+export function variableDeclarator(id, init, span) {
     return {
         type: 'VariableDeclarator',
         id,
         definite: true,
         init,
-        span: {
-            start: 0,
-            end: 0,
-            ctxt: 0,
-        },
+        span,
     };
 }
 
 /**
  * @param {import('@swc/core/types').VariableDeclarator[]} declarations
+ * @param {import('@swc/core/types').Span} span
  * @return {import('@swc/core/types').VariableDeclaration}
  */
-export function variableDeclaration(declarations) {
+export function variableDeclaration(declarations, span) {
     return {
         type: 'VariableDeclaration',
         kind: 'var',
         declare: false,
         declarations,
-        span: {
-            start: 0,
-            end: 0,
-            ctxt: 0,
-        },
+        span,
     };
 }
 
 /**
  * @param {import('@swc/core/types').Expression} exp
+ * @param {import('@swc/core/types').Span} span
  * @return {import('@swc/core/types').ExpressionStatement}
  */
-export function  expressionStatement(exp) {
+export function expressionStatement(exp, span) {
     return {
         type: 'ExpressionStatement',
         expression: exp,
-        span: {
-            start: 0,
-            end: 0,
-            ctxt: 0,
-        },
+        span,
     };
 }
 
@@ -316,49 +271,50 @@ export function isPlainObject(value) {
 
 /**
  * @param {*} value
+ * @param {import('@swc/core/types').Span} span
  * @return {import('@swc/core/types').Expression}
  */
-export function valueToNode(value) {
+export function valueToNode(value, span) {
     // undefined
     if (value === undefined) {
-        return identifier('undefined');
+        return identifier('undefined', span);
     }
 
     // boolean
     if (value === true || value === false) {
-        return booleanLiteral(value);
+        return booleanLiteral(value, span);
     }
 
     // null
     if (value === null) {
-        return nullLiteral();
+        return nullLiteral(span);
     }
 
     // strings
     if (typeof value === 'string') {
-        return stringLiteral(value);
+        return stringLiteral(value, span);
     }
 
     // numbers
     if (typeof value === 'number') {
         let result;
         if (Number.isFinite(value)) {
-            result = numericLiteral(Math.abs(value));
+            result = numericLiteral(Math.abs(value), span);
         } else {
             let numerator;
             if (Number.isNaN(value)) {
                 // NaN
-                numerator = numericLiteral(0);
+                numerator = numericLiteral(0, span);
             } else {
                 // Infinity / -Infinity
-                numerator = numericLiteral(1);
+                numerator = numericLiteral(1, span);
             }
 
-            result = binaryExpression('/', numerator, numericLiteral(0));
+            result = binaryExpression('/', numerator, numericLiteral(0, span), span);
         }
 
         if (value < 0 || Object.is(value, -0)) {
-            result = unaryExpression('-', result);
+            result = unaryExpression('-', result, span);
         }
 
         return result;
@@ -368,22 +324,22 @@ export function valueToNode(value) {
     if (isRegExp(value)) {
         let pattern = value.source;
         let flags = (/** @type {RegExpMatchArray} */ (value.toString().match(/\/([a-z]+|)$/)))[1];
-        return regExpLiteral(pattern, flags);
+        return regExpLiteral(pattern, flags, span);
     }
 
     // array
     if (Array.isArray(value)) {
-        return arrayExpression(value.map(valueToNode));
+        return arrayExpression(value.map((item) => valueToNode(item, span)), span);
     }
 
     // object
     if (isPlainObject(value)) {
         let props = [];
         for (let [key, val] of Object.entries(value)) {
-            let nodeKey = stringLiteral(key);
-            props.push(objectProperty(nodeKey, valueToNode(val)));
+            let nodeKey = stringLiteral(key, span);
+            props.push(objectProperty(nodeKey, valueToNode(val, span)));
         }
-        return objectExpression(props);
+        return objectExpression(props, span);
     }
 
     throw new Error('don\'t know how to turn this value into a node');

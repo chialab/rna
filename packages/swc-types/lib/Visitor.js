@@ -1,10 +1,38 @@
 import visitor from '@swc/core/Visitor.js';
 
 /** @type {typeof import('@swc/core/Visitor').default} */
-let Visitor = (/** @type {*} */ (visitor));
+let BaseVisitor = (/** @type {*} */ (visitor));
 
-if (typeof (/** @type {*} */ (Visitor)).default === 'function') {
-    Visitor = (/** @type {*} */ (Visitor)).default;
+if (typeof (/** @type {*} */ (BaseVisitor)).default === 'function') {
+    BaseVisitor = (/** @type {*} */ (BaseVisitor)).default;
 }
 
-export { Visitor };
+export class Visitor extends BaseVisitor {
+    /**
+     * @param {import('@swc/core/types').TsType} t
+     */
+    visitTsType(t) {
+        return t;
+    }
+
+    /**
+     * @param {import('@swc/core/types').TsEnumDeclaration} n
+     */
+    visitTsEnumDeclaration(n) {
+        n.id = this.visitIdentifier(n.id);
+        (/** @type {*} */ (n)).members = n.member = this.visitTsEnumMembers(n.member || (/** @type {*} */ (n)).members);
+        return n;
+    }
+
+    /**
+     * @param {import('@swc/core/types').Expression} e
+     */
+    visitArrayElement(e) {
+        if (!e) {
+            return;
+        }
+
+        (/** @type {*} */ (e)).expression = this.visitExpression((/** @type {*} */ (e)).expression);
+        return e;
+    }
+}

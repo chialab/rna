@@ -55,12 +55,14 @@ function rebase({ rootDir = process.cwd(), filePath = '' } = {}) {
 
                 let resolvedImportPath = await new Promise((resolve, reject) => nodeResolve(source, {
                     basedir: rootDir,
+                    package: 'package.json',
                     extensions: ['.css'],
                     preserveSymlinks: true,
                     packageFilter(pkg) {
                         if (pkg.style) {
                             pkg.main = pkg.style;
                         }
+                        return pkg;
                     },
                 }, (err, data) => (err ? reject(err) : resolve(data))));
 

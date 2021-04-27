@@ -64,6 +64,7 @@ function rebase({ rootDir = process.cwd() } = {}) {
                         if (pkg.style) {
                             pkg.main = pkg.style;
                         }
+                        return pkg;
                     },
                 }, (err, data) => (err ? reject(err) : resolve(data))));
 

@@ -1,4 +1,15 @@
 /**
+ * @return {import('@swc/core/types').Span}
+ */
+export function emptySpan() {
+    return {
+        start: 0,
+        end: 0,
+        ctxt: 0,
+    };
+}
+
+/**
  * @param {string} str
  * @param {import('@swc/core/types').Span} span
  * @return {import('@swc/core/types').StringLiteral}
@@ -220,6 +231,35 @@ export function variableDeclaration(declarations, span) {
 }
 
 /**
+ * @param {import('@swc/core/types').ImportSpecifier[]} specifiers
+ * @param {import('@swc/core/types').StringLiteral} source
+ * @param {import('@swc/core/types').Span} span
+ * @return {import('@swc/core/types').ImportDeclaration & { typeOnly: boolean }}
+ */
+export function importDeclaration(specifiers, source, span) {
+    return {
+        type: 'ImportDeclaration',
+        specifiers,
+        source,
+        typeOnly: false,
+        span,
+    };
+}
+
+/**
+ * @param {import('@swc/core/types').Identifier} id
+ * @param {import('@swc/core/types').Span} span
+ * @return {import('@swc/core/types').ImportDefaultSpecifier}
+ */
+export function importDefaultSpecifier(id, span) {
+    return {
+        type: 'ImportDefaultSpecifier',
+        local: id,
+        span,
+    };
+}
+
+/**
  * @param {import('@swc/core/types').Expression} exp
  * @param {import('@swc/core/types').Span} span
  * @return {import('@swc/core/types').ExpressionStatement}
@@ -246,6 +286,14 @@ export function isArrayExpression(exp) {
  */
 export function isNode(obj) {
     return typeof obj.type === 'string';
+}
+
+/**
+ * @param {*} node
+ * @return {node is import('@swc/core/types').ImportDeclaration}
+ */
+export function isImportDeclaration(node) {
+    return node.type === 'ImportDeclaration';
 }
 
 /**

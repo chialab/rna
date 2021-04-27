@@ -35,7 +35,7 @@ export async function test(config) {
             testFramework,
             nodeResolve: {
                 exportConditions: ['default', 'module', 'import'],
-                mainFields: ['umd:main', 'module', 'browser', 'jsnext', 'jsnext:main', 'main'],
+                mainFields: ['umd:main', 'module', 'esnext', 'browser', 'jsnext', 'jsnext:main', 'main'],
             },
             preserveSymlinks: true,
             open: false,

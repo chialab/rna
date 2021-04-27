@@ -28,6 +28,7 @@ const { readFile } = promises;
         .option('-E, --entryNames <pattern>', 'output file names')
         .option('-C, --clean', 'cleanup output path')
         .option('-J, --metafile [path]', 'generate manifest and endpoints maps')
+        .option('-N, --name <identifier>', 'the iife global name')
         .option('--external [modules]', 'comma separated external packages')
         .option('--no-map', 'do not generate sourcemaps')
         .option('--jsxPragma <identifier>', 'jsx pragma')

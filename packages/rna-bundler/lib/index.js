@@ -113,7 +113,7 @@ export async function build(config) {
         metafile,
         jsxFactory: jsx && jsx.pragma || undefined,
         jsxFragment: jsx && jsx.pragmaFrag || undefined,
-        mainFields: ['module', 'jsnext', 'jsnext:main', 'main'],
+        mainFields: ['module', 'esnext', 'jsnext', 'jsnext:main', 'main'],
         loader: loaders,
         watch: watch && {
             onRebuild(error, result) {
@@ -133,7 +133,9 @@ export async function build(config) {
             (await import('@chialab/esbuild-plugin-env')).default(),
             (await import('@chialab/esbuild-plugin-jsx-import')).default(jsx && jsx.import),
             (await import('@chialab/esbuild-plugin-any-file')).default(),
-            (await import('@chialab/esbuild-plugin-html')).default(),
+            (await import('@chialab/esbuild-plugin-html')).default({
+                esbuild,
+            }),
             (await import('@chialab/esbuild-plugin-postcss')).default(),
             (await import('@chialab/esbuild-plugin-require-resolve')).default({
                 pipe: true,
@@ -148,14 +150,15 @@ export async function build(config) {
                 cache: pluginCache,
             }),
             (await import('@chialab/esbuild-plugin-swc')).default({
+                esbuild,
                 cache: pluginCache,
                 target: Array.isArray(target) ? target[0] : target,
-                // plugins: jsx && jsx.pragma ? [
-                //     (await import('@chialab/swc-plugin-htm')).plugin({
-                //         tag: 'html',
-                //         pragma: jsx && jsx.pragma,
-                //     }),
-                // ] : [],
+                plugins: jsx && jsx.pragma ? [
+                    (await import('@chialab/swc-plugin-htm')).plugin({
+                        tag: 'html',
+                        pragma: jsx && jsx.pragma,
+                    }),
+                ] : [],
             }),
         ],
     });

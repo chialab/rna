@@ -2,7 +2,7 @@ import { promises } from 'fs';
 import path from 'path';
 import swc from '@swc/core';
 import nodeResolve from 'resolve';
-import esbuild from 'esbuild';
+import esbuildModule from 'esbuild';
 
 const { readFile } = promises;
 const SCRIPT_LOADERS = ['tsx', 'ts', 'jsx', 'js'];
@@ -23,11 +23,12 @@ function resolve(spec, importer) {
  * @param {string} target
  * @param {import('@swc/core').Plugin[]} plugins
  * @param {import('esbuild').BuildOptions} options
+ * @param {typeof esbuildModule} esbuild
  * @param {{ code?: string }} cache
  * @param {boolean} pipe
  * @return {Promise<import('esbuild').OnLoadResult|undefined>}
  */
-async function run({ path: filePath }, target, plugins, options, cache, pipe) {
+async function run({ path: filePath }, target, plugins, options, esbuild, cache, pipe) {
     let contents = cache.code || await readFile(filePath, 'utf-8');
 
     let { code: esbuildCode } = await esbuild.transform(contents, {
@@ -35,7 +36,7 @@ async function run({ path: filePath }, target, plugins, options, cache, pipe) {
         sourcemap: 'inline',
         loader: 'tsx',
         format: 'esm',
-        target,
+        target: 'es2020',
         jsxFactory: options.jsxFactory,
         jsxFragment: options.jsxFragment,
     });
@@ -49,10 +50,16 @@ async function run({ path: filePath }, target, plugins, options, cache, pipe) {
         sourceMaps: true,
         jsc: {
             parser: {
-                syntax: 'typescript',
-                tsx: true,
-                decorators: true,
+                syntax: 'ecmascript',
+                jsx: true,
                 dynamicImport: true,
+                privateMethod: true,
+                functionBind: true,
+                exportDefaultFrom: true,
+                exportNamespaceFrom: true,
+                decoratorsBeforeExport: true,
+                importMeta: true,
+                decorators: true,
             },
             externalHelpers: true,
             target: jscTarget,
@@ -89,10 +96,10 @@ async function run({ path: filePath }, target, plugins, options, cache, pipe) {
 }
 
 /**
- * @param {{ target?: string, plugins?: import('@swc/core').Plugin[], pipe?: boolean, cache?: Map<string, *> }} plugins
+ * @param {{ target?: string, plugins?: import('@swc/core').Plugin[], pipe?: boolean, cache?: Map<string, *>, esbuild?: typeof esbuildModule }} plugins
  * @return An esbuild plugin.
  */
-export default function({ target = 'esnext', plugins = [], pipe = false, cache = new Map() } = {}) {
+export default function({ target = 'esnext', plugins = [], pipe = false, cache = new Map() } = {}, esbuild = esbuildModule) {
     /**
      * @type {import('esbuild').Plugin}
      */
@@ -106,12 +113,23 @@ export default function({ target = 'esnext', plugins = [], pipe = false, cache =
             let tsxExtensions = keys.filter((key) => SCRIPT_LOADERS.includes(loader[key]));
             let tsxRegex = new RegExp(`\\.(${tsxExtensions.map((ext) => ext.replace('.', '')).join('|')})$`);
 
+            /**
+             * @see https://github.com/chialab/rna/issues/14
+             */
+            if (target === 'es5') {
+                options.target = 'es6';
+            }
+
             build.onResolve({ filter: /@swc\/helpers/ }, async () => ({
                 path: await resolve('@swc/helpers', import.meta.url),
             }));
             build.onLoad({ filter: tsxRegex, namespace: 'file' }, (args) => {
+                if (args.path.includes('@swc/helpers/') ||
+                    args.path.includes('regenerator-runtime')) {
+                    return;
+                }
                 cache.set(args.path, cache.get(args.path) || {});
-                return run(args, target, plugins, options, cache.get(args.path), pipe);
+                return run(args, target, plugins, options, esbuild, cache.get(args.path), pipe);
             });
         },
     };

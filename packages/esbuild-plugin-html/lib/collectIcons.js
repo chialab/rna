@@ -4,7 +4,7 @@ import $ from 'cheerio';
 import { SUPPORTED_MIME_TYPES, generateIcon } from './generateIcon.js';
 import { generateLaunch } from './generateLaunch.js';
 
-const { writeFile, unlink, mkdir } = promises;
+const { writeFile, mkdir } = promises;
 
 const FAVICONS = [
     {
@@ -122,7 +122,7 @@ export function collectIcons(dom, base, outdir) {
                 chunkNames: '[name]',
                 assetNames: '[name]',
             },
-            async finisher(filePath) {
+            async finisher() {
                 let iconsDir = path.join(outdir, 'icons');
                 let mimeType = iconElement.attr('type') || 'image/png';
                 if (!SUPPORTED_MIME_TYPES.includes(mimeType)) {
@@ -186,7 +186,6 @@ export function collectIcons(dom, base, outdir) {
                 }
 
                 $(element).remove();
-                await unlink(filePath);
             },
         },
     ];

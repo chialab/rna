@@ -29,6 +29,9 @@
     "README.md",
     "LICENSE.md"
   ],
+  "engines": {
+    "node": ">=13"
+  },
   "dependencies": {
     "@chialab/swc-types": "^0.4.16",
     "htm": "^3.0.4"

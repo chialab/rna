@@ -29,6 +29,9 @@
     "README.md",
     "LICENSE.md"
   ],
+  "engines": {
+    "node": ">=13"
+  },
   "dependencies": {
     "fast-glob": "^3.2.5",
     "magic-string": "^0.25.7"

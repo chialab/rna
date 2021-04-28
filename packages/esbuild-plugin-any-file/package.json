@@ -28,6 +28,9 @@
     "README.md",
     "LICENSE.md"
   ],
+  "engines": {
+    "node": ">=13"
+  },
   "devDependencies": {
     "typescript": "^4.2.3"
   }

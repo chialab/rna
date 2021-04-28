@@ -29,6 +29,9 @@
     "README.md",
     "LICENSE.md"
   ],
+  "engines": {
+    "node": ">=13"
+  },
   "dependencies": {
     "@chialab/postcss-preset-chialab": "^0.4.9",
     "postcss": "^8.2.5",

@@ -31,6 +31,9 @@
     "README.md",
     "LICENSE.md"
   ],
+  "engines": {
+    "node": ">=13"
+  },
   "dependencies": {
     "@web/dev-server-core": "^0.3.8",
     "postcss": "^8.2.5",

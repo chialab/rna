@@ -30,6 +30,9 @@
     "README.md",
     "LICENSE.md"
   ],
+  "engines": {
+    "node": ">=13"
+  },
   "devDependencies": {
     "@web/dev-server-core": "^0.3.8",
     "typescript": "^4.2.3"

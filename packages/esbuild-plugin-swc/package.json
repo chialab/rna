@@ -30,6 +30,9 @@
     "README.md",
     "LICENSE.md"
   ],
+  "engines": {
+    "node": ">=13"
+  },
   "dependencies": {
     "@swc/core": "^1.2.54",
     "@swc/helpers": "^0.2.10",

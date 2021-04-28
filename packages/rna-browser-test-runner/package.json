@@ -30,6 +30,9 @@
     "README.md",
     "LICENSE.md"
   ],
+  "engines": {
+    "node": ">=13"
+  },
   "dependencies": {
     "@chialab/esbuild-plugin-env": "^0.4.12",
     "@chialab/wds-plugin-postcss": "^0.4.15",

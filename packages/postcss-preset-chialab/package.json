@@ -28,6 +28,9 @@
     "README.md",
     "LICENSE.md"
   ],
+  "engines": {
+    "node": ">=13"
+  },
   "dependencies": {
     "autoprefixer": "^10.2.4",
     "postcss-all-unset": "^1.1.0",

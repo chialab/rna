@@ -30,6 +30,9 @@
     "README.md",
     "LICENSE.md"
   ],
+  "engines": {
+    "node": ">=13"
+  },
   "dependencies": {
     "esbuild": "^0.11.0",
     "magic-string": "^0.25.7",

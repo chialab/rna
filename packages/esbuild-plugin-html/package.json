@@ -30,6 +30,9 @@
     "README.md",
     "LICENSE.md"
   ],
+  "engines": {
+    "node": ">=13"
+  },
   "dependencies": {
     "cheerio": "^1.0.0-rc.6",
     "esbuild": "^0.11.0",

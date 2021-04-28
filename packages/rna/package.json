@@ -33,6 +33,9 @@
     "README.md",
     "LICENSE.md"
   ],
+  "engines": {
+    "node": ">=13"
+  },
   "dependencies": {
     "@chialab/rna-browser-test-runner": "^0.4.16",
     "@chialab/rna-bundler": "^0.4.16",

@@ -34,9 +34,11 @@
     "node": ">=13"
   },
   "dependencies": {
+    "base32-encode": "^1.2.0",
     "cheerio": "^1.0.0-rc.6",
-    "esbuild": "^0.11.0",
-    "jimp": "^0.16.1"
+    "esbuild": "^0.11.16",
+    "jimp": "^0.16.1",
+    "xxhashjs": "^0.2.2"
   },
   "devDependencies": {
     "typescript": "^4.2.3"

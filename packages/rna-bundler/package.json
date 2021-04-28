@@ -44,7 +44,7 @@
     "@chialab/esbuild-plugin-swc": "^0.4.16",
     "@chialab/esbuild-plugin-webpack-include": "^0.4.12",
     "@chialab/swc-plugin-htm": "^0.4.16",
-    "esbuild": "^0.11.0",
+    "esbuild": "^0.11.16",
     "pkg-up": "^3.1.0"
   },
   "devDependencies": {

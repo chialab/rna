@@ -1,7 +1,7 @@
 {
   "name": "@chialab/esbuild-plugin-babel",
   "type": "module",
-  "version": "0.4.17",
+  "version": "0.4.18",
   "description": "A pluggable esbuild plugin that runs babel for es5 transpilation.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",
@@ -34,17 +34,17 @@
   },
   "dependencies": {
     "@babel/core": "^7.13.16",
-    "@babel/preset-env": "^7.13.15",
-    "@babel/runtime": "^7.13.17",
     "@babel/plugin-transform-runtime": "^7.13.15",
     "@babel/plugin-transform-typescript": "^7.13.0",
+    "@babel/preset-env": "^7.13.15",
+    "@babel/runtime": "^7.13.17",
     "babel-plugin-htm": "^3.0.0",
     "resolve": "^1.20.0"
   },
   "devDependencies": {
     "@types/babel__core": "^7.1.14",
-    "@types/babel__preset-env": "^7.9.1",
     "@types/babel__plugin-transform-runtime": "^7.9.1",
+    "@types/babel__preset-env": "^7.9.1",
     "typescript": "^4.2.3"
   }
 }

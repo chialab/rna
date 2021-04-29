@@ -42,7 +42,7 @@
     "@chialab/rna-web-server": "^0.4.18",
     "commander": "^7.2.0"
   },
-  "optionalDependencies": {
+  "peerDependencies": {
     "@chialab/esbuild-plugin-babel": "^0.4.18",
     "@chialab/esbuild-plugin-swc": "^0.4.18"
   },

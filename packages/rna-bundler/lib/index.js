@@ -24,7 +24,7 @@ export { loaders, saveManifestJson, saveEndpointsJson, saveDevEndpointsJson };
  */
 
 /**
- * @typedef {Omit<Omit<import('esbuild').BuildOptions, 'loader'>, 'plugins'> & { output: string, root?: string, input?: string|string[], code?: string, loader?: import('esbuild').Loader, name?: string, jsx?: JSXOptions, plugins?: (import('esbuild').Plugin|((options: any) => import('esbuild').Plugin))[], metafile?: boolean|string, clean?: boolean }} BuildConfig
+ * @typedef {Omit<import('esbuild').BuildOptions, 'loader'> & { output: string, root?: string, input?: string|string[], code?: string, loader?: import('esbuild').Loader, name?: string, jsx?: JSXOptions, metafile?: boolean|string, clean?: boolean, cache?: Map<string, *> }} BuildConfig
  */
 
 /**
@@ -61,6 +61,7 @@ export async function build(config) {
         minify = false,
         watch = false,
         plugins = [],
+        cache = new Map(),
     } = config;
 
     let hasOutputFile = !!path.extname(output);
@@ -95,7 +96,6 @@ export async function build(config) {
         }
     }
 
-    let pluginCache = new Map();
     let result = await esbuild.build({
         ...entryOptions,
         globalName,
@@ -131,39 +131,29 @@ export async function build(config) {
             },
         },
         plugins: [
-            (await import('@chialab/esbuild-plugin-env')).default(),
-            (await import('@chialab/esbuild-plugin-jsx-import')).default(jsx && jsx.import),
             (await import('@chialab/esbuild-plugin-any-file')).default(),
+            (await import('@chialab/esbuild-plugin-env')).default(),
             (await import('@chialab/esbuild-plugin-html')).default({
                 esbuild,
             }),
             (await import('@chialab/esbuild-plugin-postcss')).default(),
+            (await import('@chialab/esbuild-plugin-jsx-import')).default({
+                ...(jsx && jsx.import || {}),
+                pipe: true,
+                cache,
+            }),
             (await import('@chialab/esbuild-plugin-require-resolve')).default({
                 pipe: true,
-                cache: pluginCache,
+                cache,
             }),
-            ...plugins.map((plugin) => {
-                if (typeof plugin === 'object') {
-                    return plugin;
-                }
-
-                if (typeof plugin === 'function') {
-                    return plugin({
-                        esbuild,
-                        pipe: true,
-                        cache: pluginCache,
-                    });
-                }
-
-                return plugin;
-            }),
+            ...plugins,
             (await import('@chialab/esbuild-plugin-webpack-include')).default({
                 pipe: true,
-                cache: pluginCache,
+                cache,
             }),
             (await import('@chialab/esbuild-plugin-meta-url')).default({
                 pipe: false,
-                cache: pluginCache,
+                cache,
             }),
         ],
     });

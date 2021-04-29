@@ -2,6 +2,7 @@ import { promises } from 'fs';
 import path from 'path';
 import babel from '@babel/core';
 import nodeResolve from 'resolve';
+import esbuildModule from 'esbuild';
 
 const { readFile } = promises;
 const SCRIPT_LOADERS = ['tsx', 'ts', 'jsx', 'js'];
@@ -19,16 +20,27 @@ function resolve(spec, importer) {
 
 /**
  * @param {import('esbuild').OnLoadArgs & { contents?: string }} args
- * @param {string} target
  * @param {import('@babel/core').PluginItem[]} presets
  * @param {import('@babel/core').PluginItem[]} plugins
  * @param {import('esbuild').BuildOptions} options
+ * @param {typeof esbuildModule} esbuild
  * @param {{ code?: string }} cache
  * @param {boolean} pipe
  * @return {Promise<import('esbuild').OnLoadResult|undefined>}
  */
-async function run({ path: filePath }, target, presets, plugins, options, cache, pipe) {
+async function run({ path: filePath }, presets, plugins, options, esbuild, cache, pipe) {
     let contents = cache.code || await readFile(filePath, 'utf-8');
+
+    let { code: esbuildCode } = await esbuild.transform(contents, {
+        sourcefile: filePath,
+        sourcemap: 'inline',
+        loader: 'tsx',
+        format: 'esm',
+        target: 'es2020',
+        jsxFactory: options.jsxFactory,
+        jsxFragment: options.jsxFragment,
+    });
+    contents = esbuildCode;
 
     /** @type {import('@babel/core').TransformOptions} */
     let config = {
@@ -41,20 +53,15 @@ async function run({ path: filePath }, target, presets, plugins, options, cache,
     };
 
     let { default: runtimePlugin } = await import('@babel/plugin-transform-runtime');
-    let { default: tsPlugin } = await import('@babel/plugin-transform-typescript');
     plugins.unshift(
         [runtimePlugin, {
             corejs: false,
             helpers: true,
             regenerator: true,
-        }],
-        [tsPlugin, {
-            isTSX: true,
-            onlyRemoveTypeImports: true,
         }]
     );
 
-    if (target === 'es5') {
+    if (options.target === 'es5') {
         let { default: envPreset } = await import('@babel/preset-env');
         presets.unshift([envPreset, {
             targets: {
@@ -68,9 +75,6 @@ async function run({ path: filePath }, target, presets, plugins, options, cache,
             shippedProposals: true,
             useBuiltIns: 'entry',
             modules: false,
-            exclude: [
-                '@babel/plugin-transform-typeof-symbol',
-            ],
         }]);
     }
 
@@ -96,15 +100,15 @@ async function run({ path: filePath }, target, presets, plugins, options, cache,
 }
 
 /**
- * @param {{ target?: string, presets?: import('@babel/core').PluginItem[], plugins?: import('@babel/core').PluginItem[], pipe?: boolean, cache?: Map<string, *> }} plugins
+ * @param {{ presets?: import('@babel/core').PluginItem[], plugins?: import('@babel/core').PluginItem[], pipe?: boolean, cache?: Map<string, *>, esbuild?: typeof esbuildModule }} plugins
  * @return An esbuild plugin.
  */
-export default function({ target = 'esnext', presets = [], plugins = [], pipe = false, cache = new Map() } = {}) {
+export default function({ presets = [], plugins = [], pipe = false, cache = new Map(), esbuild = esbuildModule } = {}) {
     /**
      * @type {import('esbuild').Plugin}
      */
     const plugin = {
-        name: 'swc',
+        name: 'babel',
         setup(build) {
             let options = build.initialOptions;
             options.metafile = true;
@@ -113,16 +117,17 @@ export default function({ target = 'esnext', presets = [], plugins = [], pipe = 
             let tsxExtensions = keys.filter((key) => SCRIPT_LOADERS.includes(loader[key]));
             let tsxRegex = new RegExp(`\\.(${tsxExtensions.map((ext) => ext.replace('.', '')).join('|')})$`);
 
-            build.onResolve({ filter: /@swc\/helpers/ }, async () => ({
-                path: await resolve('@swc/helpers', import.meta.url),
+            build.onResolve({ filter: /@babel\/runtime/ }, async () => ({
+                path: await resolve('@babel/helpers', import.meta.url),
             }));
             build.onLoad({ filter: tsxRegex, namespace: 'file' }, (args) => {
-                if (args.path.includes('@swc/helpers/') ||
+                if (args.path.includes('/@babel/runtime/') ||
+                    args.path.includes('/core-js/') ||
                     args.path.includes('regenerator-runtime')) {
                     return;
                 }
                 cache.set(args.path, cache.get(args.path) || {});
-                return run(args, target, presets, plugins, options, cache.get(args.path), pipe);
+                return run(args, presets, plugins, options, esbuild, cache.get(args.path), pipe);
             });
         },
     };

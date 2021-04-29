@@ -20,7 +20,6 @@ function resolve(spec, importer) {
 
 /**
  * @param {import('esbuild').OnLoadArgs & { contents?: string }} args
- * @param {string} target
  * @param {import('@swc/core').Plugin[]} plugins
  * @param {import('esbuild').BuildOptions} options
  * @param {typeof esbuildModule} esbuild
@@ -28,7 +27,7 @@ function resolve(spec, importer) {
  * @param {boolean} pipe
  * @return {Promise<import('esbuild').OnLoadResult|undefined>}
  */
-async function run({ path: filePath }, target, plugins, options, esbuild, cache, pipe) {
+async function run({ path: filePath }, plugins, options, esbuild, cache, pipe) {
     let contents = cache.code || await readFile(filePath, 'utf-8');
 
     let { code: esbuildCode } = await esbuild.transform(contents, {
@@ -41,8 +40,6 @@ async function run({ path: filePath }, target, plugins, options, esbuild, cache,
         jsxFragment: options.jsxFragment,
     });
     contents = esbuildCode;
-
-    let jscTarget = /** @type {import('@swc/core').JscTarget} */ (target);
 
     /** @type {import('@swc/core').Options} */
     let config = {
@@ -62,14 +59,14 @@ async function run({ path: filePath }, target, plugins, options, esbuild, cache,
                 decorators: true,
             },
             externalHelpers: true,
-            target: jscTarget,
+            target: /** @type {import('@swc/core').JscTarget} */ (options.target || 'es2020'),
             transform: {
                 optimizer: undefined,
             },
         },
     };
 
-    if (target === 'es5') {
+    if (options.target === 'es5') {
         config.env = {
             targets: {
                 ie: '11',
@@ -104,10 +101,10 @@ async function run({ path: filePath }, target, plugins, options, esbuild, cache,
 }
 
 /**
- * @param {{ target?: string, plugins?: import('@swc/core').Plugin[], pipe?: boolean, cache?: Map<string, *>, esbuild?: typeof esbuildModule }} plugins
+ * @param {{ plugins?: import('@swc/core').Plugin[], pipe?: boolean, cache?: Map<string, *>, esbuild?: typeof esbuildModule }} plugins
  * @return An esbuild plugin.
  */
-export default function({ target = 'esnext', plugins = [], pipe = false, cache = new Map() } = {}, esbuild = esbuildModule) {
+export default function({ plugins = [], pipe = false, cache = new Map(), esbuild = esbuildModule } = {}) {
     /**
      * @type {import('esbuild').Plugin}
      */
@@ -121,24 +118,16 @@ export default function({ target = 'esnext', plugins = [], pipe = false, cache =
             let tsxExtensions = keys.filter((key) => SCRIPT_LOADERS.includes(loader[key]));
             let tsxRegex = new RegExp(`\\.(${tsxExtensions.map((ext) => ext.replace('.', '')).join('|')})$`);
 
-            /**
-             * @see https://github.com/chialab/rna/issues/14
-             */
-            if (target === 'es5') {
-                options.target = 'es6';
-            }
-
-            build.onResolve({ filter: /@babel\/runtime/ }, async () => ({
-                path: await resolve('@babel/helpers', import.meta.url),
+            build.onResolve({ filter: /@swc\/helpers/ }, async () => ({
+                path: await resolve('@swc/helpers', import.meta.url),
             }));
             build.onLoad({ filter: tsxRegex, namespace: 'file' }, (args) => {
-                if (args.path.includes('/@babel/runtime/') ||
-                    args.path.includes('/core-js/') ||
+                if (args.path.includes('@swc/helpers/') ||
                     args.path.includes('regenerator-runtime')) {
                     return;
                 }
                 cache.set(args.path, cache.get(args.path) || {});
-                return run(args, target, plugins, options, esbuild, cache.get(args.path), pipe);
+                return run(args, plugins, options, esbuild, cache.get(args.path), pipe);
             });
         },
     };

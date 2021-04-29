@@ -37,6 +37,7 @@ See more [here](./packages/rna).
 | **Package** | **Description** | **Version** |
 | ----------- | --------------- | --------------- |
 | [@chialab/esbuild-plugin-any-file](./packages/esbuild-plugin-any-file) | A loader plugin for esbuild for files with unknown loader. | [<img src="https://img.shields.io/npm/v/@chialab/esbuild-plugin-any-file" alt="npm" />](https://www.npmjs.com/package/@chialab/esbuild-plugin-any-file) |
+| [@chialab/esbuild-plugin-babel](./packages/esbuild-plugin-babel) | A pluggable esbuild plugin that runs babel for es5 transpilation. | [<img src="https://img.shields.io/npm/v/@chialab/esbuild-plugin-babel" alt="npm" />](https://www.npmjs.com/package/@chialab/esbuild-plugin-babel) |
 | [@chialab/esbuild-plugin-env](./packages/esbuild-plugin-env) | Define all environement variables for esbuild. | [<img src="https://img.shields.io/npm/v/@chialab/esbuild-plugin-env" alt="npm" />](https://www.npmjs.com/package/@chialab/esbuild-plugin-env) |
 | [@chialab/esbuild-plugin-html](./packages/esbuild-plugin-html) | A HTML loader plugin for esbuild. | [<img src="https://img.shields.io/npm/v/@chialab/esbuild-plugin-html" alt="npm" />](https://www.npmjs.com/package/@chialab/esbuild-plugin-html) |
 | [@chialab/esbuild-plugin-meta-url](./packages/esbuild-plugin-meta-url) | A file loader plugin for esbuild for constructed URLs using import metadata. | [<img src="https://img.shields.io/npm/v/@chialab/esbuild-plugin-meta-url" alt="npm" />](https://www.npmjs.com/package/@chialab/esbuild-plugin-meta-url) |

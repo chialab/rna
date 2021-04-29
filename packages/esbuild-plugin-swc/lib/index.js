@@ -67,7 +67,6 @@ async function run({ path: filePath }, target, plugins, options, esbuild, cache,
                 optimizer: undefined,
             },
         },
-        plugin: swc.plugins(plugins),
     };
 
     if (target === 'es5') {
@@ -78,6 +77,15 @@ async function run({ path: filePath }, target, plugins, options, esbuild, cache,
             shippedProposals: true,
         };
     }
+
+    if (options.jsxFactory) {
+        plugins.push((await import('@chialab/swc-plugin-htm')).plugin({
+            tag: 'html',
+            pragma: options.jsxFactory,
+        }));
+    }
+
+    config.plugin = swc.plugins(plugins);
 
     let { code, map } = await swc.transform(contents, config);
     contents = code;
@@ -120,11 +128,12 @@ export default function({ target = 'esnext', plugins = [], pipe = false, cache =
                 options.target = 'es6';
             }
 
-            build.onResolve({ filter: /@swc\/helpers/ }, async () => ({
-                path: await resolve('@swc/helpers', import.meta.url),
+            build.onResolve({ filter: /@babel\/runtime/ }, async () => ({
+                path: await resolve('@babel/helpers', import.meta.url),
             }));
             build.onLoad({ filter: tsxRegex, namespace: 'file' }, (args) => {
-                if (args.path.includes('@swc/helpers/') ||
+                if (args.path.includes('/@babel/runtime/') ||
+                    args.path.includes('/core-js/') ||
                     args.path.includes('regenerator-runtime')) {
                     return;
                 }

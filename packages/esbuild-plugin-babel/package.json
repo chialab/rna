@@ -1,8 +1,8 @@
 {
-  "name": "@chialab/esbuild-plugin-swc",
+  "name": "@chialab/esbuild-plugin-babel",
   "type": "module",
   "version": "0.4.17",
-  "description": "A pluggable esbuild plugin that runs swc for es5 transpilation.",
+  "description": "A pluggable esbuild plugin that runs babel for es5 transpilation.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",
   "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
@@ -10,12 +10,11 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/chialab/rna",
-    "directory": "packages/esbuild-plugin-swc"
+    "directory": "packages/esbuild-plugin-babel"
   },
   "keywords": [
     "esbuild",
     "plugin",
-    "swc",
     "babel",
     "es5"
   ],
@@ -34,14 +33,15 @@
     "node": ">=13"
   },
   "dependencies": {
-    "@chialab/swc-plugin-htm": "^0.4.17",
-    "@swc/core": "^1.2.54",
-    "@swc/helpers": "^0.2.10",
-    "esbuild": "^0.11.16",
+    "@babel/core": "^7.13.16",
+    "@babel/preset-env": "^7.13.15",
+    "@babel/runtime": "^7.13.17",
+    "babel-plugin-htm": "^3.0.0",
     "resolve": "^1.20.0"
   },
   "devDependencies": {
-    "@chialab/swc-types": "^0.4.17",
+    "@types/babel__core": "^7.1.14",
+    "@types/babel__preset-env": "^7.9.1",
     "typescript": "^4.2.3"
   }
 }

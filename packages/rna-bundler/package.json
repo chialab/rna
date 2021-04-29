@@ -41,9 +41,7 @@
     "@chialab/esbuild-plugin-meta-url": "^0.4.17",
     "@chialab/esbuild-plugin-postcss": "^0.4.17",
     "@chialab/esbuild-plugin-require-resolve": "^0.4.17",
-    "@chialab/esbuild-plugin-swc": "^0.4.17",
     "@chialab/esbuild-plugin-webpack-include": "^0.4.17",
-    "@chialab/swc-plugin-htm": "^0.4.17",
     "esbuild": "^0.11.16",
     "pkg-up": "^3.1.0"
   },

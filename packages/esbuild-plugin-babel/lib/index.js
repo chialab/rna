@@ -40,6 +40,20 @@ async function run({ path: filePath }, target, presets, plugins, options, cache,
         plugins,
     };
 
+    let { default: runtimePlugin } = await import('@babel/plugin-transform-runtime');
+    let { default: tsPlugin } = await import('@babel/plugin-transform-typescript');
+    plugins.unshift(
+        [runtimePlugin, {
+            corejs: false,
+            helpers: true,
+            regenerator: true,
+        }],
+        [tsPlugin, {
+            isTSX: true,
+            onlyRemoveTypeImports: true,
+        }]
+    );
+
     if (target === 'es5') {
         let { default: envPreset } = await import('@babel/preset-env');
         presets.unshift([envPreset, {

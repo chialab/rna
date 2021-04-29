@@ -30,7 +30,7 @@ await esbuild.build({
 });
 ```
 
-Please not that it already includes the [env preset](https://babeljs.io/docs/en/babel-preset-env) as well as [transpilation of tagged templates with htm](https://www.npmjs.com/package/babel-plugin-htm) to JSX.
+Please not that it already includes [typescript syntax support](https://babeljs.io/docs/en/babel-plugin-transform-typescript), the [env preset](https://babeljs.io/docs/en/babel-preset-env) and supports the [transpilation of tagged templates with htm](https://www.npmjs.com/package/babel-plugin-htm) to JSX.
 
 ---
 

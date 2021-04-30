@@ -46,6 +46,9 @@ export default function(opts = {}) {
                 } else {
                     contents = `export { ${specs.join(',')} } from '${opts.module}';`;
                 }
+
+                contents += '\n//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIiJdLCJtYXBwaW5ncyI6IkEifQ==';
+
                 return {
                     contents,
                     loader: 'ts',

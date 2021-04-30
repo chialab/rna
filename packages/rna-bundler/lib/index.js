@@ -137,11 +137,7 @@ export async function build(config) {
                 esbuild,
             }),
             (await import('@chialab/esbuild-plugin-postcss')).default(),
-            (await import('@chialab/esbuild-plugin-jsx-import')).default({
-                ...(jsx && jsx.import || {}),
-                pipe: true,
-                cache,
-            }),
+            (await import('@chialab/esbuild-plugin-jsx-import')).default(jsx && jsx.import),
             (await import('@chialab/esbuild-plugin-require-resolve')).default({
                 pipe: true,
                 cache,

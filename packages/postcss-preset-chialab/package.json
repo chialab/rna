@@ -1,7 +1,7 @@
 {
   "name": "@chialab/postcss-preset-chialab",
   "type": "module",
-  "version": "0.4.22",
+  "version": "0.5.0",
   "description": "The postcss preset used by Chialab.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",

@@ -1,7 +1,7 @@
 {
   "name": "@chialab/esbuild-plugin-html",
   "type": "module",
-  "version": "0.4.22",
+  "version": "0.5.0",
   "description": "A HTML loader plugin for esbuild.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",

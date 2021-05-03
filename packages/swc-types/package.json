@@ -1,7 +1,7 @@
 {
   "name": "@chialab/swc-types",
   "type": "module",
-  "version": "0.4.22",
+  "version": "0.5.0",
   "description": "A babel/types-like set of helpers for swc.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",

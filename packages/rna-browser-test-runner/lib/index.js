@@ -6,11 +6,9 @@
 export async function test(config) {
     const { startTestRunner } = await import('@web/test-runner');
     const { esbuildPlugin } = await import('@web/dev-server-esbuild');
-    const { fromRollup } = await import('@web/dev-server-rollup');
-    const { default: rollupCommonjs } = await import('@rollup/plugin-commonjs');
+    const { commonjsPlugin } = await import('@chialab/wds-plugin-commonjs');
     const { cssPlugin } = await import('@chialab/wds-plugin-postcss');
     const { defineEnvVariables } = await import('@chialab/esbuild-plugin-env');
-    const commonjsPlugin = fromRollup(rollupCommonjs);
 
     let testFramework =
         /**
@@ -63,13 +61,7 @@ export async function test(config) {
                         ...defineEnvVariables(),
                     },
                 }),
-                commonjsPlugin({
-                    ignoreTryCatch: true,
-                    exclude: [
-                        'node_modules/chai/chai.js',
-                        'node_modules/chai-dom/chai-dom.js',
-                    ],
-                }),
+                commonjsPlugin(),
                 ...(config.plugins || []),
             ],
         },

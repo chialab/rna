@@ -33,6 +33,7 @@
     "node": ">=13"
   },
   "dependencies": {
+    "@chialab/esbuild-plugin-transform": "^0.4.22",
     "fast-glob": "^3.2.5",
     "magic-string": "^0.25.7"
   },

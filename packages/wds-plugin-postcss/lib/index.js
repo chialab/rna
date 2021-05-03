@@ -36,7 +36,7 @@ function rebase({ rootDir = process.cwd(), filePath = '' } = {}) {
         postcssPlugin: 'postcss-rebase',
         AtRule: {
             async import(decl) {
-                let match = decl.params.match(/url\(['"]?(.*?)['"]?\)/);
+                const match = decl.params.match(/url\(['"]?(.*?)['"]?\)/);
                 if (!match || !match[1]) {
                     return;
                 }
@@ -69,21 +69,21 @@ function rebase({ rootDir = process.cwd(), filePath = '' } = {}) {
                     return;
                 }
 
-                let normalizedPath = path.normalize(resolvedImportPath);
+                const normalizedPath = path.normalize(resolvedImportPath);
                 if (!normalizedPath.startsWith(rootDir)) {
-                    let relativePath = path.relative(rootDir, normalizedPath);
-                    let dirUp = `..${path.sep}`;
-                    let lastDirUpIndex = relativePath.lastIndexOf(dirUp) + 3;
-                    let dirUpStrings = relativePath.substring(0, lastDirUpIndex).split(path.sep);
+                    const relativePath = path.relative(rootDir, normalizedPath);
+                    const dirUp = `..${path.sep}`;
+                    const lastDirUpIndex = relativePath.lastIndexOf(dirUp) + 3;
+                    const dirUpStrings = relativePath.substring(0, lastDirUpIndex).split(path.sep);
                     if (dirUpStrings.length === 0 || dirUpStrings.some(str => !['..', ''].includes(str))) {
                         throw new Error(`Resolved ${source} to ${resolvedImportPath}`);
                     }
 
-                    let importPath = relativePath.substring(lastDirUpIndex).split(path.sep).join('/');
+                    const importPath = relativePath.substring(lastDirUpIndex).split(path.sep).join('/');
                     resolvedImportPath = `/__wds-outside-root__/${dirUpStrings.length - 1}/${importPath}`;
                 } else {
-                    let resolveRelativeTo = path.extname(filePath) ? path.dirname(filePath) : filePath;
-                    let relativeImportFilePath = path.relative(resolveRelativeTo, resolvedImportPath);
+                    const resolveRelativeTo = path.extname(filePath) ? path.dirname(filePath) : filePath;
+                    const relativeImportFilePath = path.relative(resolveRelativeTo, resolvedImportPath);
                     resolvedImportPath = `./${relativeImportFilePath.split(path.sep).join('/')}`;
                 }
 
@@ -117,12 +117,12 @@ export function cssPlugin() {
         },
         async transform(context) {
             if (context.response.is('css')) {
-                let filePath = getRequestFilePath(context.url, rootDir);
-                let options = await loadPostcssConfig();
+                const filePath = getRequestFilePath(context.url, rootDir);
+                const options = await loadPostcssConfig();
                 /**
                  * @type {import('postcss').ProcessOptions}
                  */
-                let config = {
+                const config = {
                     map: {
                         inline: true,
                     },
@@ -130,7 +130,7 @@ export function cssPlugin() {
                     ...(options.options || {}),
                 };
 
-                let result = await postcss([
+                const result = await postcss([
                     rebase({
                         rootDir,
                         filePath,

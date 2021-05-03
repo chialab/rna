@@ -1,8 +1,8 @@
 {
-  "name": "@chialab/rna-browser-test-runner",
+  "name": "@chialab/esbuild-plugin-commonjs",
   "type": "module",
   "version": "0.4.22",
-  "description": "A test runner for browsers on Web Test Runner.",
+  "description": "A commonjs to esm converter for esbuild.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",
   "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
@@ -10,14 +10,13 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/chialab/rna",
-    "directory": "packages/rna-browser-test-runner"
+    "directory": "packages/esbuild-plugin-commonjs"
   },
   "keywords": [
-    "test-runner",
-    "webapp",
-    "browser",
-    "unit",
-    "testing"
+    "esbuild",
+    "plugin",
+    "commonjs",
+    "esm"
   ],
   "scripts": {
     "types": "tsc",
@@ -34,13 +33,9 @@
     "node": ">=13"
   },
   "dependencies": {
-    "@chialab/esbuild-plugin-env": "^0.4.22",
-    "@chialab/wds-plugin-commonjs": "^0.4.22",
-    "@chialab/wds-plugin-postcss": "^0.4.22",
-    "@rollup/plugin-commonjs": "^18.0.0",
-    "@web/dev-server-esbuild": "^0.2.11",
-    "@web/dev-server-rollup": "^0.3.3",
-    "@web/test-runner": "^0.12.15"
+    "@chialab/cjs-to-esm": "^0.4.22",
+    "@chialab/esbuild-plugin-transform": "^0.4.22",
+    "esbuild": "^0.11.16"
   },
   "devDependencies": {
     "typescript": "^4.2.3"

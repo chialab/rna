@@ -42,22 +42,15 @@ const { readFile } = promises;
              */
             async (input, { output, format = 'esm', platform, bundle, minify, name, watch, metafile, target, public: publicPath, entryNames, clean, external, map, jsxPragma, jsxFragment, jsxModule, jsxExport }) => {
                 const { build } = await import('@chialab/rna-bundler');
-                const cache = new Map();
                 const plugins = [];
                 const babelPlugin = await (async () => {
                     try {
-                        return (await import('@chialab/esbuild-plugin-swc')).default({
-                            pipe: true,
-                            cache,
-                        });
+                        return (await import('@chialab/esbuild-plugin-swc')).default();
                     } catch(err) {
                         //
                     }
                     try {
-                        return (await import('@chialab/esbuild-plugin-babel')).default({
-                            pipe: true,
-                            cache,
-                        });
+                        return (await import('@chialab/esbuild-plugin-babel')).default();
                     } catch(err) {
                         //
                     }
@@ -92,7 +85,6 @@ const { readFile } = promises;
                         } : undefined,
                     } : undefined,
                     plugins,
-                    cache,
                 });
             }
         );

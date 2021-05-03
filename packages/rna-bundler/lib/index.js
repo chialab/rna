@@ -24,7 +24,7 @@ export { loaders, saveManifestJson, saveEndpointsJson, saveDevEndpointsJson };
  */
 
 /**
- * @typedef {Omit<import('esbuild').BuildOptions, 'loader'> & { output: string, root?: string, input?: string|string[], code?: string, loader?: import('esbuild').Loader, name?: string, jsx?: JSXOptions, metafile?: boolean|string, clean?: boolean, cache?: Map<string, *> }} BuildConfig
+ * @typedef {Omit<import('esbuild').BuildOptions, 'loader'> & { output: string, root?: string, input?: string|string[], code?: string, loader?: import('esbuild').Loader, name?: string, jsx?: JSXOptions, metafile?: boolean|string, clean?: boolean }} BuildConfig
  */
 
 /**
@@ -61,7 +61,6 @@ export async function build(config) {
         minify = false,
         watch = false,
         plugins = [],
-        cache = new Map(),
     } = config;
 
     let hasOutputFile = !!path.extname(output);
@@ -133,24 +132,16 @@ export async function build(config) {
         plugins: [
             (await import('@chialab/esbuild-plugin-any-file')).default(),
             (await import('@chialab/esbuild-plugin-env')).default(),
-            (await import('@chialab/esbuild-plugin-html')).default({
-                esbuild,
-            }),
+            (await import('@chialab/esbuild-plugin-html')).default({ esbuild }),
             (await import('@chialab/esbuild-plugin-postcss')).default(),
             (await import('@chialab/esbuild-plugin-jsx-import')).default(jsx && jsx.import),
-            (await import('@chialab/esbuild-plugin-require-resolve')).default({
-                pipe: true,
-                cache,
-            }),
+            (await import('@chialab/esbuild-plugin-transform')).start(),
+            (await import('@chialab/esbuild-plugin-commonjs')).default({ esbuild }),
+            (await import('@chialab/esbuild-plugin-require-resolve')).default(),
+            (await import('@chialab/esbuild-plugin-webpack-include')).default(),
+            (await import('@chialab/esbuild-plugin-meta-url')).default(),
             ...plugins,
-            (await import('@chialab/esbuild-plugin-webpack-include')).default({
-                pipe: true,
-                cache,
-            }),
-            (await import('@chialab/esbuild-plugin-meta-url')).default({
-                pipe: false,
-                cache,
-            }),
+            (await import('@chialab/esbuild-plugin-transform')).end(),
         ],
     });
 

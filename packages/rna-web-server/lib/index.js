@@ -1,6 +1,5 @@
 import path from 'path';
 import { promises } from 'fs';
-import { saveDevEndpointsJson } from '@chialab/rna-bundler';
 
 const { stat } = promises;
 
@@ -18,12 +17,10 @@ export async function serve(config) {
     const { hmrPlugin } = await import('@web/dev-server-hmr');
     const { hmrCssPlugin } = await import('@chialab/wds-plugin-hmr-css');
     const { esbuildPlugin } = await import('@web/dev-server-esbuild');
-    const { fromRollup } = await import('@web/dev-server-rollup');
-    const { default: rollupCommonjs } = await import('@rollup/plugin-commonjs');
+    const { commonjsPlugin } = await import('@chialab/wds-plugin-commonjs');
     const { default: cors } = await import('@koa/cors');
     const { cssPlugin } = await import('@chialab/wds-plugin-postcss');
     const { defineEnvVariables } = await import('@chialab/esbuild-plugin-env');
-    const commonjsPlugin = fromRollup(rollupCommonjs);
 
     let root = config.rootDir || process.cwd();
     let appIndex = path.join(root, 'index.html');
@@ -73,13 +70,7 @@ export async function serve(config) {
                     },
                     target: 'auto-always',
                 }),
-                commonjsPlugin({
-                    ignoreTryCatch: true,
-                    exclude: [
-                        'node_modules/chai/chai.js',
-                        'node_modules/chai-dom/chai-dom.js',
-                    ],
-                }),
+                commonjsPlugin(),
                 hmrPlugin(),
                 hmrCssPlugin(),
                 ...(config.plugins || []),
@@ -88,6 +79,7 @@ export async function serve(config) {
     });
 
     if (config.metafile) {
+        const { saveDevEndpointsJson } = await import('@chialab/rna-bundler');
         let metaDir;
         if (typeof config.metafile === 'string') {
             metaDir = config.metafile;

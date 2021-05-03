@@ -35,12 +35,14 @@
   },
   "dependencies": {
     "@chialab/esbuild-plugin-any-file": "^0.4.22",
+    "@chialab/esbuild-plugin-commonjs": "^0.4.22",
     "@chialab/esbuild-plugin-env": "^0.4.22",
     "@chialab/esbuild-plugin-html": "^0.4.22",
     "@chialab/esbuild-plugin-jsx-import": "^0.4.22",
     "@chialab/esbuild-plugin-meta-url": "^0.4.22",
     "@chialab/esbuild-plugin-postcss": "^0.4.22",
     "@chialab/esbuild-plugin-require-resolve": "^0.4.22",
+    "@chialab/esbuild-plugin-transform": "^0.4.22",
     "@chialab/esbuild-plugin-webpack-include": "^0.4.22",
     "esbuild": "^0.11.16",
     "pkg-up": "^3.1.0"

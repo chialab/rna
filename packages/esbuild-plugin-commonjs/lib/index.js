@@ -1,9 +1,6 @@
 import esbuildModule from 'esbuild';
-import { transform } from '@chialab/cjs-to-esm';
+import { transform, ESM_KEYWORDS, CJS_KEYWORDS } from '@chialab/cjs-to-esm';
 import { TARGETS, getTransformOptions } from '@chialab/esbuild-plugin-transform';
-
-const ESM_KEYWORDS = /(\bimport\s*(\{.*?\}\s*from|\s[\w$]+\s+from)?\s*['"]|[\s;]export(\s+(default|const|var|let|function|class)[^\w$]|\s*\{))/;
-const CJS_KEYWORDS = /\b(module\.exports|exports|require)\b/;
 
 /**
  * @param {{ esbuild?: typeof esbuildModule }} plugins

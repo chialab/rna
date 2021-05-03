@@ -1,6 +1,8 @@
 import MagicString from 'magic-string';
 
-const REQUIRE_REGEX = /([^.\w$])require\s*\((['"])(.*?)\2\)/g;
+export const REQUIRE_REGEX = /([^.\w$])require\s*\((['"])(.*?)\2\)/g;
+export const ESM_KEYWORDS = /(\bimport\s*(\{.*?\}\s*from|\s[\w$]+\s+from)?\s*['"]|[\s;]export(\s+(default|const|var|let|function|class)[^\w$]|\s*\{))/;
+export const CJS_KEYWORDS = /\b(module\.exports|exports|require)\b/;
 
 /**
  * @param {string} contents
@@ -60,7 +62,7 @@ export function transform(contents, { source, sourceMap = true } = {}) {
     });
 
     if (sourceMap === 'inline') {
-        code = `\n//# sourceMappingURL=${map.toUrl()}`;
+        code += `\n//# sourceMappingURL=${map.toUrl()}`;
     }
 
     return { code, map: JSON.parse(map.toString()) };

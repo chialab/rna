@@ -35,7 +35,8 @@
   },
   "dependencies": {
     "@chialab/cjs-to-esm": "^0.5.1",
-    "@web/dev-server-core": "^0.3.8"
+    "@web/dev-server-core": "^0.3.8",
+    "resolve": "^1.20.0"
   },
   "devDependencies": {
     "typescript": "^4.2.3"

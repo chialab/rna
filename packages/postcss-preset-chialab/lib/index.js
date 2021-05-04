@@ -14,6 +14,7 @@ export default function preset() {
         prepare(result) {
             const plugins = [
                 autoprefixer({
+                    overrideBrowserslist: 'ie 11, chrome 30',
                     grid: true,
                     flexbox: true,
                     remove: false,

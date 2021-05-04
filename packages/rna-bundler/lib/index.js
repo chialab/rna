@@ -24,7 +24,7 @@ export { loaders, saveManifestJson, saveEndpointsJson, saveDevEndpointsJson };
  */
 
 /**
- * @typedef {Omit<import('esbuild').BuildOptions, 'loader'> & { output: string, root?: string, input?: string|string[], code?: string, loader?: import('esbuild').Loader, name?: string, jsx?: JSXOptions, metafile?: boolean|string, clean?: boolean }} BuildConfig
+ * @typedef {Omit<import('esbuild').BuildOptions, 'loader'> & { output: string, root?: string, input?: string|string[], code?: string, loader?: import('esbuild').Loader, jsx?: JSXOptions, metafile?: boolean|string, clean?: boolean }} BuildConfig
  */
 
 /**

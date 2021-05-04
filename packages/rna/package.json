@@ -42,10 +42,6 @@
     "@chialab/rna-web-server": "^0.5.2",
     "commander": "^7.2.0"
   },
-  "peerDependencies": {
-    "@chialab/esbuild-plugin-babel": "^0.5.0",
-    "@chialab/esbuild-plugin-swc": "^0.5.0"
-  },
   "devDependencies": {
     "@types/koa__cors": "^3.0.2",
     "typescript": "^4.2.3"

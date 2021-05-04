@@ -29,8 +29,8 @@ export default function({ presets = [], plugins = [], esbuild = esbuildModule } 
             const options = build.initialOptions;
             const { filter, getEntry, buildEntry } = getTransformOptions(build);
 
-            build.onResolve({ filter: /@babel\/runtime/ }, async () => ({
-                path: await resolve('@babel/helpers', import.meta.url),
+            build.onResolve({ filter: /@babel\/runtime/ }, async (args) => ({
+                path: await resolve(args.path, import.meta.url),
             }));
             build.onLoad({ filter, namespace: 'file' }, async (args) => {
                 if (args.path.includes('/@babel/runtime/') ||
@@ -73,6 +73,7 @@ export default function({ presets = [], plugins = [], esbuild = esbuildModule } 
                         corejs: false,
                         helpers: true,
                         regenerator: true,
+                        useESModules: true,
                     }]
                 );
 
@@ -81,6 +82,7 @@ export default function({ presets = [], plugins = [], esbuild = esbuildModule } 
                     presets.unshift([envPreset, {
                         targets: {
                             ie: '11',
+                            chrome: '30',
                         },
                         corejs: {
                             version: 3,

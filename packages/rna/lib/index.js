@@ -65,7 +65,7 @@ const { readFile } = promises;
                     output: path.resolve(output),
                     format,
                     platform,
-                    name,
+                    globalName: name,
                     bundle,
                     minify,
                     target,

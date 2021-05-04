@@ -37,9 +37,7 @@
     "@chialab/esbuild-plugin-env": "^0.5.0",
     "@chialab/wds-plugin-commonjs": "^0.5.2",
     "@chialab/wds-plugin-postcss": "^0.5.0",
-    "@rollup/plugin-commonjs": "^18.0.0",
     "@web/dev-server-esbuild": "^0.2.11",
-    "@web/dev-server-rollup": "^0.3.3",
     "@web/test-runner": "^0.12.15"
   },
   "devDependencies": {

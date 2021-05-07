@@ -1,5 +1,14 @@
 import autoprefixer from 'autoprefixer';
-import unset from 'postcss-all-unset';
+import nesting from 'postcss-nesting';
+import dir from 'postcss-dir-pseudo-class';
+import initial from 'postcss-initial';
+import colorHex from 'postcss-color-hex-alpha';
+import anyLink from 'postcss-pseudo-class-any-link';
+import fontVariant from 'postcss-font-variant';
+import logical from 'postcss-logical';
+import pageBreak from 'postcss-page-break';
+import place from 'postcss-place';
+import replaceOverflow from 'postcss-replace-overflow-wrap';
 import customProperties from 'postcss-custom-properties';
 import focusVisible from 'postcss-focus-visible';
 import focusWithin from 'postcss-focus-within';
@@ -13,6 +22,7 @@ export default function preset() {
         postcssPlugin: 'preset-chialab',
         prepare(result) {
             const plugins = [
+                nesting(),
                 autoprefixer({
                     overrideBrowserslist: 'ie 11, chrome 30',
                     grid: true,
@@ -22,7 +32,27 @@ export default function preset() {
                 customProperties({
                     preserve: true,
                 }),
-                unset(),
+                initial(),
+                anyLink({
+                    preserve: true,
+                }),
+                colorHex({
+                    preserve: true,
+                }),
+                logical({
+                    preserve: true,
+                }),
+                dir({
+                    preserve: true,
+                }),
+                fontVariant(),
+                place({
+                    preserve: true,
+                }),
+                pageBreak(),
+                replaceOverflow({
+                    method: 'copy',
+                }),
                 focusVisible(),
                 focusWithin({
                     replaceWith: '.focus-within',

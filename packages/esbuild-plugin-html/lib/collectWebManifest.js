@@ -1,13 +1,13 @@
 import { promises } from 'fs';
 import path from 'path';
-import $ from 'cheerio';
+import $ from './esm-cheerio.js';
 import { SUPPORTED_MIME_TYPES, generateIcon } from './generateIcon.js';
 
 const { readFile, writeFile, mkdir } = promises;
 
 /**
  * Collect and bundle webmanifests.
- * @param {$.Cheerio} dom The DOM element.
+ * @param {import('./esm-cheerio').Document} dom The DOM element.
  * @param {string} base The base dir.
  * @param {string} outdir The output dir.
  * @return {import('./index').Entrypoint[]} A list of entrypoints.

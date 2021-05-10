@@ -4,8 +4,10 @@
  * @return An esbuild plugin.
  */
 export default function(modules = {}) {
-    const aliases = Object.keys(modules);
-    const filter = new RegExp(`^${aliases.map((alias) => alias.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')}$`);
+    const aliases = Object.keys(modules).filter((alias) => modules[alias]);
+    const empty = Object.keys(modules).filter((alias) => !modules[alias]);
+    const aliasFilter = new RegExp(`^${aliases.map((alias) => alias.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')}$`);
+    const emptyFilter = new RegExp(`^${empty.map((alias) => alias.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')}$`);
 
     /**
      * @type {import('esbuild').Plugin}
@@ -13,22 +15,17 @@ export default function(modules = {}) {
     const plugin = {
         name: 'alias',
         setup(build) {
-            build.onResolve({ filter }, (args) => {
-                const alias = modules[args.path];
-                if (!alias) {
-                    return {
-                        path: args.path,
-                        namespace: 'empty',
-                    };
-                }
+            build.onResolve({ filter: aliasFilter }, (args) => ({
+                path: /** @type {string} */ (modules[args.path]),
+            }));
 
-                return {
-                    path: /** @type {string} */ (alias),
-                };
-            });
+            build.onResolve({ filter: emptyFilter }, (args) => ({
+                path: args.path,
+                namespace: 'empty',
+            }));
 
-            build.onLoad({ filter: /\./, namespace: 'empty' }, () => ({
-                contents: 'export default {}',
+            build.onLoad({ filter: emptyFilter, namespace: 'empty' }, () => ({
+                contents: 'export default {}\n//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIiJdLCJtYXBwaW5ncyI6IkEifQ==',
             }));
         },
     };

@@ -27,7 +27,7 @@
     "types",
     "package.json",
     "README.md",
-    "LICENSE.md"
+    "LICENSE"
   ],
   "engines": {
     "node": ">=13"

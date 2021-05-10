@@ -81,12 +81,31 @@ export async function build(config) {
         entryOptions.entryPoints = Array.isArray(input) ? input : [input];
     }
 
+    const extraPlugins = [];
+
     if (!bundle) {
         let packageFile = await pkgUp({
             cwd: root,
         });
         if (packageFile) {
             let packageJson = JSON.parse(await readFile(packageFile, 'utf-8'));
+            external = [
+                ...external,
+                ...Object.keys(packageJson.dependencies || {}),
+                ...Object.keys(packageJson.peerDependencies || {}),
+            ];
+        }
+    } else if (platform === 'browser') {
+        let packageFile = await pkgUp({
+            cwd: root,
+        });
+        if (packageFile) {
+            let packageJson = JSON.parse(await readFile(packageFile, 'utf-8'));
+            if (typeof packageJson.browser === 'object') {
+                extraPlugins.push(
+                    (await import('@chialab/esbuild-plugin-alias')).default(packageJson.browser)
+                );
+            }
             external = [
                 ...external,
                 ...Object.keys(packageJson.dependencies || {}),
@@ -140,6 +159,7 @@ export async function build(config) {
             (await import('@chialab/esbuild-plugin-require-resolve')).default(),
             (await import('@chialab/esbuild-plugin-webpack-include')).default(),
             (await import('@chialab/esbuild-plugin-meta-url')).default(),
+            ...extraPlugins,
             ...plugins,
             (await import('@chialab/esbuild-plugin-transform')).end(),
         ],

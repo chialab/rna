@@ -1,0 +1,39 @@
+{
+  "name": "@chialab/esbuild-plugin-alias",
+  "type": "module",
+  "version": "0.5.0",
+  "description": "A plugin for esbuild that resolves aliases or empty modules.",
+  "main": "lib/index.js",
+  "typings": "./types/index.d.ts",
+  "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chialab/rna",
+    "directory": "packages/esbuild-plugin-env"
+  },
+  "keywords": [
+    "esbuild",
+    "plugin",
+    "alias",
+    "empty"
+  ],
+  "scripts": {
+    "types": "tsc",
+    "prepack": "npm run types"
+  },
+  "files": [
+    "lib",
+    "types",
+    "package.json",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=13"
+  },
+  "devDependencies": {
+    "esbuild": "^0.11.16",
+    "typescript": "^4.2.3"
+  }
+}

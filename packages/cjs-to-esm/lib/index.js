@@ -1,11 +1,11 @@
 import MagicString from 'magic-string';
 
 const COMMENTS_REGEX = /\/\*[\s\S]*?\*\//g;
-export const REQUIRE_REGEX = /([^.\w$])require\s*\((['"])(.*?)\2\)/g;
+export const REQUIRE_REGEX = /([^.\w$]|^)require\s*\((['"])(.*?)\2\)/g;
 export const UMD_REGEXES = [
-    /\btypeof\s+exports\s*===?['|"]object['|"]/,
-    /\btypeof\s+define\s*===?['|"]function['|"]/,
-    /\btypeof\s+window\s*!==?['|"]undefined['|"]/,
+    /\btypeof\s+exports\s*===?\s*['|"]object['|"]/,
+    /\btypeof\s+define\s*===?\s*['|"]function['|"]/,
+    /\btypeof\s+window\s*!==?\s*['|"]undefined['|"]/,
 ];
 export const ESM_KEYWORDS = /((?:^\s*|;\s*)(\bimport\s*(\{.*?\}\s*from|\s[\w$]+\s+from|\*\s*as\s+[^\s]+\s+from)?\s*['"])|((?:^\s*|;\s*)export(\s+(default|const|var|let|function|class)[^\w$]|\s*\{)))/m;
 export const CJS_KEYWORDS = /\b(module\.exports|exports|require)\b/;
@@ -69,7 +69,7 @@ export function transform(contents, { source, sourceMap = true, ignore = () => f
         magicCode.append('\nexport default __umd[__umdExport]');
     } else {
         magicCode.prepend('var module = { exports: {} }, exports = module.exports;\n');
-        magicCode.append('\nexport default (\'default\' in module.exports ? module.exports.default : module.exports);');
+        magicCode.append('\nexport default ((typeof module.exports === \'object\' && \'default\' in module.exports) ? module.exports.default : module.exports);');
     }
 
     if (insertHelper) {

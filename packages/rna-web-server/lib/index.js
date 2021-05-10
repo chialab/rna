@@ -40,7 +40,7 @@ export async function serve(config) {
             port: 8080,
             appIndex: index ? appIndex : undefined,
             nodeResolve: {
-                exportConditions: ['default', 'module', 'import'],
+                exportConditions: ['default', 'module', 'import', 'browser'],
                 mainFields: ['module', 'esnext', 'jsnext', 'jsnext:main', 'main'],
             },
             preserveSymlinks: true,

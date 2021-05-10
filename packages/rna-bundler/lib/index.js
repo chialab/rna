@@ -40,7 +40,7 @@ export async function build(config) {
     const { default: esbuild } = await import('esbuild');
     const { default: pkgUp } = await import('pkg-up');
 
-    let {
+    const {
         root = process.cwd(),
         input,
         code,
@@ -63,13 +63,13 @@ export async function build(config) {
         plugins = [],
     } = config;
 
-    let hasOutputFile = !!path.extname(output);
-    let outputDir = hasOutputFile ? path.dirname(output) : output;
+    const hasOutputFile = !!path.extname(output);
+    const outputDir = hasOutputFile ? path.dirname(output) : output;
     if (clean) {
         await emptyDir(outputDir);
     }
 
-    let entryOptions = {};
+    const entryOptions = {};
     if (code) {
         entryOptions.stdin = {
             contents: code,
@@ -84,37 +84,36 @@ export async function build(config) {
     const extraPlugins = [];
 
     if (!bundle) {
-        let packageFile = await pkgUp({
+        const packageFile = await pkgUp({
             cwd: root,
         });
         if (packageFile) {
-            let packageJson = JSON.parse(await readFile(packageFile, 'utf-8'));
-            external = [
-                ...external,
+            const packageJson = JSON.parse(await readFile(packageFile, 'utf-8'));
+            external.push(
                 ...Object.keys(packageJson.dependencies || {}),
-                ...Object.keys(packageJson.peerDependencies || {}),
-            ];
+                ...Object.keys(packageJson.peerDependencies || {})
+            );
         }
-    } else if (platform === 'browser') {
-        let packageFile = await pkgUp({
+    }
+    if (platform === 'browser') {
+        const packageFile = await pkgUp({
             cwd: root,
         });
         if (packageFile) {
-            let packageJson = JSON.parse(await readFile(packageFile, 'utf-8'));
+            const packageJson = JSON.parse(await readFile(packageFile, 'utf-8'));
             if (typeof packageJson.browser === 'object') {
                 extraPlugins.push(
                     (await import('@chialab/esbuild-plugin-alias')).default(packageJson.browser)
                 );
             }
-            external = [
-                ...external,
+            external.push(
                 ...Object.keys(packageJson.dependencies || {}),
-                ...Object.keys(packageJson.peerDependencies || {}),
-            ];
+                ...Object.keys(packageJson.peerDependencies || {})
+            );
         }
     }
 
-    let result = await esbuild.build({
+    const result = await esbuild.build({
         ...entryOptions,
         globalName,
         outfile: hasOutputFile ? output : undefined,
@@ -142,7 +141,7 @@ export async function build(config) {
                 }
 
                 if (metafile && result) {
-                    let metaDir = typeof metafile === 'string' ? metafile : outputDir;
+                    const metaDir = typeof metafile === 'string' ? metafile : outputDir;
                     saveManifestJson(result, metaDir, publicPath);
                     saveEndpointsJson(entryOptions.entryPoints, result, root, metaDir, publicPath, { format });
                 }
@@ -166,7 +165,7 @@ export async function build(config) {
     });
 
     if (metafile) {
-        let metaDir = typeof metafile === 'string' ? metafile : outputDir;
+        const metaDir = typeof metafile === 'string' ? metafile : outputDir;
         await saveManifestJson(result, metaDir, publicPath);
         await saveEndpointsJson(entryOptions.entryPoints, result, root, metaDir, publicPath, { format });
     }

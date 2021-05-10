@@ -37,6 +37,7 @@ See more [here](./packages/rna).
 | **Package** | **Description** | **Version** |
 | ----------- | --------------- | --------------- |
 | [@chialab/cjs-to-esm](./packages/cjs-to-esm) | A commonjs to esm converter. | [<img src="https://img.shields.io/npm/v/@chialab/cjs-to-esm" alt="npm" />](https://www.npmjs.com/package/@chialab/cjs-to-esm) |
+| [@chialab/esbuild-plugin-alias](./packages/esbuild-plugin-alias) | A plugin for esbuild that resolves aliases or empty modules. | [<img src="https://img.shields.io/npm/v/@chialab/esbuild-plugin-alias" alt="npm" />](https://www.npmjs.com/package/@chialab/esbuild-plugin-alias) |
 | [@chialab/esbuild-plugin-any-file](./packages/esbuild-plugin-any-file) | A loader plugin for esbuild for files with unknown loader. | [<img src="https://img.shields.io/npm/v/@chialab/esbuild-plugin-any-file" alt="npm" />](https://www.npmjs.com/package/@chialab/esbuild-plugin-any-file) |
 | [@chialab/esbuild-plugin-babel](./packages/esbuild-plugin-babel) | A pluggable esbuild plugin that runs babel for es5 transpilation. | [<img src="https://img.shields.io/npm/v/@chialab/esbuild-plugin-babel" alt="npm" />](https://www.npmjs.com/package/@chialab/esbuild-plugin-babel) |
 | [@chialab/esbuild-plugin-commonjs](./packages/esbuild-plugin-commonjs) | A commonjs to esm converter for esbuild. | [<img src="https://img.shields.io/npm/v/@chialab/esbuild-plugin-commonjs" alt="npm" />](https://www.npmjs.com/package/@chialab/esbuild-plugin-commonjs) |

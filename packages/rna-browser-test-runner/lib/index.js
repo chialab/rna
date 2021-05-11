@@ -118,14 +118,19 @@ export async function test(config) {
                     config.platformName = 'Windows 10';
                     break;
                 }
+                case 'ios':
                 case 'iphone':
                 case 'ios_safari': {
                     config.browserName = 'iphone';
                     config.version = browserVersion;
+                    config.device = 'iPhone 8';
                     break;
                 }
+                case 'and_chr':
+                case 'and_uc':
+                case 'samsung':
                 case 'android': {
-                    config.deviceName = 'Android GoogleAPI Emulator';
+                    config.browserName = 'Android GoogleAPI Emulator';
                     break;
                 }
             }

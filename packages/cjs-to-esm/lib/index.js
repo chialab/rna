@@ -73,7 +73,7 @@ export function transform(contents, { source, sourceMap = true, ignore = () => f
     }
 
     if (insertHelper) {
-        magicCode.prepend('function $$cjs_default$$(m,i){for(i in m)if(i!=\'default\')return m;return m.default||m}\n');
+        magicCode.prepend('function $$cjs_default$$(m, i) { for (i in m) if (i != \'default\') return m; if (typeof m == \'object\' && \'default\' in m) return m.default; return m; }\n');
     }
 
     specs.forEach(spec => {

@@ -33,14 +33,19 @@
   "engines": {
     "node": ">=13"
   },
+  "peerDependencies": {
+    "@web/test-runner-saucelabs": "^0.5.0"
+  },
   "dependencies": {
     "@chialab/esbuild-plugin-env": "^0.5.8",
     "@chialab/wds-plugin-commonjs": "^0.5.8",
     "@chialab/wds-plugin-postcss": "^0.5.8",
     "@web/dev-server-esbuild": "^0.2.11",
-    "@web/test-runner": "^0.12.15"
+    "@web/test-runner": "^0.12.15",
+    "pkg-up": "^3.1.0"
   },
   "devDependencies": {
+    "@web/test-runner-saucelabs": "^0.5.0",
     "typescript": "^4.2.3"
   }
 }

@@ -118,22 +118,24 @@ const { readFile } = promises;
         .option('-W, --watch', 'watch test files')
         .option('-C, --coverage', 'add coverage to tests')
         .option('-O, --open', 'open the browser')
+        .option('--saucelabs [browsers...]', 'run tests using Saucelabs browsers')
         .action(
             /**
              * @param {string[]} specs
-             * @param {{ watch?: boolean, coverage?: boolean, open?: boolean }} options
+             * @param {{ watch?: boolean, coverage?: boolean, open?: boolean, saucelabs?: boolean|string[] }} options
              */
-            async (specs, { watch, coverage, open }) => {
+            async (specs, { watch, coverage, open, saucelabs }) => {
                 const { test } = await import('@chialab/rna-browser-test-runner');
 
                 /**
-                 * @type {Partial<import('@web/test-runner').TestRunnerConfig>}
+                 * @type {import('@chialab/rna-browser-test-runner').TestRunnerConfig}
                  */
-                let config = {
+                const config = {
                     watch,
                     coverage,
                     open,
                     manual: open ? true : undefined,
+                    saucelabs,
                 };
                 if (specs.length) {
                     config.files = specs;

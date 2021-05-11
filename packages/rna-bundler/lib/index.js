@@ -99,18 +99,16 @@ export async function build(config) {
         const packageFile = await pkgUp({
             cwd: root,
         });
-        if (packageFile) {
-            const packageJson = JSON.parse(await readFile(packageFile, 'utf-8'));
-            if (typeof packageJson.browser === 'object') {
-                extraPlugins.push(
-                    (await import('@chialab/esbuild-plugin-alias')).default(packageJson.browser)
-                );
-            }
-            external.push(
-                ...Object.keys(packageJson.dependencies || {}),
-                ...Object.keys(packageJson.peerDependencies || {})
+        const packageJson = packageFile ? JSON.parse(await readFile(packageFile, 'utf-8')) : {};
+        if (typeof packageJson.browser === 'object') {
+            extraPlugins.push(
+                (await import('@chialab/esbuild-plugin-alias')).default(packageJson.browser)
             );
         }
+        external.push(
+            ...Object.keys(packageJson.dependencies || {}),
+            ...Object.keys(packageJson.peerDependencies || {})
+        );
     }
 
     const result = await esbuild.build({

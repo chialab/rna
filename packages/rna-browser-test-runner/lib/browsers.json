@@ -2,8 +2,8 @@
   "android 5",
   "android latest-1",
   "android latest",
-  "iphone 9",
-  "iphone 10",
+  "iphone 9.0",
+  "iphone 10.0",
   "iphone latest-1",
   "iphone latest",
   "firefox latest-2",
@@ -20,5 +20,6 @@
   "safari 9",
   "safari 10",
   "safari latest-1",
-  "safari latest"
+  "safari latest",
+  "internet explorer 11.0"
 ]

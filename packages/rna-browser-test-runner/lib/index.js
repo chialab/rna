@@ -79,24 +79,49 @@ export async function test(config) {
         const getLauncherData = (browser) => {
             const chunks = browser.split(' ');
             const browserVersion = chunks.pop();
-            let browserName = chunks.join(' ');
+
+            let browserName = chunks.join(' ').toLowerCase();
+
+            /**
+             * @type {*}
+             */
+            const config = {
+                browserVersion,
+                browserName,
+            };
             switch (browserName) {
                 case 'ie': {
-                    browserName = 'internet explorer';
+                    config.browserName = 'internet explorer';
+                    config.platformName = 'Windows 10';
                     break;
                 }
+                case 'edge':
+                case 'microsoftedge':
+                case 'microsoft edge': {
+                    config.browserName = 'Microsoft Edge';
+                    config.platformName = 'Windows 10';
+                    break;
+                }
+                case 'chrome':
                 case 'google chrome':
-                case 'chromium':{
-                    browserName = 'chrome';
+                case 'chromium': {
+                    config.browserName = 'chrome';
+                    config.platformName = 'Windows 10';
                     break;
                 }
+                case 'iphone':
                 case 'ios_safari': {
-                    browserName = 'iphone';
+                    config.browserName = 'iphone';
+                    config.platform = 'iPhone X Simulator';
+                    break;
+                }
+                case 'android': {
+                    config.browserName = 'Android GoogleAPI Emulator';
                     break;
                 }
             }
 
-            return { browserName, browserVersion };
+            return config;
         };
 
         launchers = [

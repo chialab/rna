@@ -33,8 +33,17 @@ export async function test(config) {
     if (config.saucelabs) {
         const { default: path } = await import('path');
         const { promises: { readFile } } = await import('fs');
-        const { createSauceLabsLauncher } = await import('@web/test-runner-saucelabs');
         const { default: pkgUp } = await import('pkg-up');
+
+        /**
+         * @type {typeof import('@web/test-runner-saucelabs').createSauceLabsLauncher}
+         */
+        let createSauceLabsLauncher;
+        try {
+            createSauceLabsLauncher = (await import('@web/test-runner-saucelabs')).createSauceLabsLauncher;
+        } catch (err) {
+            throw new Error('Missing saucelabs runner. Did you forget to install the `@web/test-runner-saucelabs` package?')
+        }
 
         const packageFile = await pkgUp();
         const packageJson = packageFile ? JSON.parse(await readFile(packageFile, 'utf-8')) : {};
@@ -43,6 +52,12 @@ export async function test(config) {
             build: testJob(),
         };
 
+        if (!process.env.SAUCE_USERNAME) {
+            throw new Error('Missing saucelabs username. Did you forget to set the `SAUCE_USERNAME` environment variable?');
+        }
+        if (!process.env.SAUCE_ACCESS_KEY) {
+            throw new Error('Missing saucelabs access key. Did you forget to set the `SAUCE_ACCESS_KEY` environment variable?');
+        }
         const sauceLabsLauncher = createSauceLabsLauncher(
             {
                 user: process.env.SAUCE_USERNAME || '',

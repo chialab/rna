@@ -42,22 +42,13 @@ const { readFile } = promises;
              */
             async (input, { output, format = 'esm', platform, bundle, minify, name, watch, metafile, target, public: publicPath, entryNames, clean, external, map, jsxPragma, jsxFragment, jsxModule, jsxExport }) => {
                 const { build } = await import('@chialab/rna-bundler');
+                const { loadBabelPlugin } = await import('./plugins.js');
                 const plugins = [];
-                const babelPlugin = await (async () => {
-                    try {
-                        return (await import('@chialab/esbuild-plugin-swc')).default();
-                    } catch(err) {
-                        //
-                    }
-                    try {
-                        return (await import('@chialab/esbuild-plugin-babel')).default();
-                    } catch(err) {
-                        //
-                    }
-                })();
 
-                if (babelPlugin) {
-                    plugins.push(babelPlugin);
+                try {
+                    plugins.push(await loadBabelPlugin());
+                } catch (err) {
+                    //
                 }
 
                 await build({
@@ -102,13 +93,29 @@ const { readFile } = promises;
              */
             async (rootDir, { port, metafile, entrypoints = [] }) => {
                 const { serve } = await import('@chialab/rna-web-server');
+                const { loadLegacyPlugin } = await import('./plugins.js');
 
-                await serve({
+                /**
+                 * @type {import('@web/dev-server-core').Plugin[]}
+                 */
+                const plugins = [];
+
+                /**
+                 * @type {import('@chialab/rna-web-server').DevServerConfig}
+                 */
+                const config = {
                     rootDir: rootDir ? rootDir : undefined,
                     port: port ? parseInt(port) : undefined,
                     metafile,
                     entryPoints: entrypoints.map((entry) => path.resolve(entry)),
-                });
+                };
+                try {
+                    plugins.push(await loadLegacyPlugin());
+                } catch (err) {
+                    //
+                }
+
+                await serve(config);
             }
         );
 
@@ -126,6 +133,12 @@ const { readFile } = promises;
              */
             async (specs, { watch, coverage, open, saucelabs }) => {
                 const { test } = await import('@chialab/rna-browser-test-runner');
+                const { loadLegacyPlugin } = await import('./plugins.js');
+
+                /**
+                 * @type {import('@web/test-runner').TestRunnerPlugin[]}
+                 */
+                const plugins = [];
 
                 /**
                  * @type {import('@chialab/rna-browser-test-runner').TestRunnerConfig}
@@ -136,9 +149,15 @@ const { readFile } = promises;
                     open,
                     manual: open ? true : undefined,
                     saucelabs,
+                    plugins,
                 };
                 if (specs.length) {
                     config.files = specs;
+                }
+                try {
+                    plugins.push(await loadLegacyPlugin());
+                } catch (err) {
+                    //
                 }
                 await test(config);
             }

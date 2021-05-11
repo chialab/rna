@@ -44,6 +44,7 @@
   },
   "devDependencies": {
     "@types/koa__cors": "^3.0.2",
+    "@web/dev-server-legacy": "^0.1.7",
     "typescript": "^4.2.3"
   }
 }

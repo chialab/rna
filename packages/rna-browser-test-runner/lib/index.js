@@ -42,7 +42,7 @@ export async function test(config) {
         try {
             createSauceLabsLauncher = (await import('@web/test-runner-saucelabs')).createSauceLabsLauncher;
         } catch (err) {
-            throw new Error('Missing saucelabs runner. Did you forget to install the `@web/test-runner-saucelabs` package?')
+            throw new Error('Missing saucelabs runner. Did you forget to install the `@web/test-runner-saucelabs` package?');
         }
 
         const packageFile = await pkgUp();
@@ -96,9 +96,10 @@ export async function test(config) {
                     break;
                 }
                 case 'edge':
+                case 'ms edge':
                 case 'microsoftedge':
                 case 'microsoft edge': {
-                    config.browserName = 'Microsoft Edge';
+                    config.browserName = 'MicrosoftEdge';
                     config.platformName = 'Windows 10';
                     break;
                 }
@@ -109,14 +110,20 @@ export async function test(config) {
                     config.platformName = 'Windows 10';
                     break;
                 }
+                case 'firefox':
+                case 'ff': {
+                    config.browserName = 'firefox';
+                    config.platformName = 'Windows 10';
+                    break;
+                }
                 case 'iphone':
                 case 'ios_safari': {
                     config.browserName = 'iphone';
-                    config.platform = 'iPhone X Simulator';
+                    config.version = browserVersion;
                     break;
                 }
                 case 'android': {
-                    config.browserName = 'Android GoogleAPI Emulator';
+                    config.deviceName = 'Android GoogleAPI Emulator';
                     break;
                 }
             }

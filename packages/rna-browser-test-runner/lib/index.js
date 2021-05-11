@@ -13,6 +13,8 @@ export async function test(config) {
     const { commonjsPlugin } = await import('@chialab/wds-plugin-commonjs');
     const { cssPlugin } = await import('@chialab/wds-plugin-postcss');
     const { defineEnvVariables } = await import('@chialab/esbuild-plugin-env');
+    const { default: cors } = await import('@koa/cors');
+    const { default: range } = await import('koa-range');
     const { testName, testJob } = await import('./ci.js');
 
     const testFramework =
@@ -163,6 +165,10 @@ export async function test(config) {
                     </script>
                 </body>
             </html>`,
+            middleware: [
+                cors(),
+                range,
+            ],
             plugins: [
                 cssPlugin(),
                 esbuildPlugin({

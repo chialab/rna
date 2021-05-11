@@ -18,9 +18,10 @@ export async function serve(config) {
     const { hmrCssPlugin } = await import('@chialab/wds-plugin-hmr-css');
     const { esbuildPlugin } = await import('@web/dev-server-esbuild');
     const { commonjsPlugin } = await import('@chialab/wds-plugin-commonjs');
-    const { default: cors } = await import('@koa/cors');
     const { cssPlugin } = await import('@chialab/wds-plugin-postcss');
     const { defineEnvVariables } = await import('@chialab/esbuild-plugin-env');
+    const { default: cors } = await import('@koa/cors');
+    const { default: range } = await import('koa-range');
 
     let root = config.rootDir || process.cwd();
     let appIndex = path.join(root, 'index.html');
@@ -51,6 +52,7 @@ export async function serve(config) {
             rootDir: root,
             middleware: [
                 cors(),
+                range,
             ],
             plugins: [
                 cssPlugin(),

@@ -44,10 +44,12 @@
     "@web/dev-server": "^0.1.10",
     "@web/dev-server-core": "^0.3.8",
     "@web/dev-server-esbuild": "^0.2.11",
-    "@web/dev-server-hmr": "^0.1.8"
+    "@web/dev-server-hmr": "^0.1.8",
+    "koa-range": "^0.3.0"
   },
   "devDependencies": {
     "@types/koa__cors": "^3.0.2",
+    "@types/koa-range": "^0.3.2",
     "typescript": "^4.2.3"
   }
 }

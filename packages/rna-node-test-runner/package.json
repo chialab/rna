@@ -1,8 +1,8 @@
 {
-  "name": "@chialab/rna",
+  "name": "@chialab/rna-node-test-runner",
   "type": "module",
   "version": "0.5.12",
-  "description": "A bundler, a server and a test runner for modern modules and applications.",
+  "description": "A test runner for node based on mocha.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",
   "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
@@ -10,21 +10,19 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/chialab/rna",
-    "directory": "packages/rna"
+    "directory": "packages/rna-node-test-runner"
   },
   "keywords": [
-    "bundle",
-    "webapp",
-    "cli",
-    "dev-server",
-    "test-runner"
+    "test-runner",
+    "mocha",
+    "esbuild",
+    "node",
+    "unit",
+    "testing"
   ],
   "scripts": {
     "types": "tsc",
     "prepack": "npm run types"
-  },
-  "bin": {
-    "rna": "./lib/index.js"
   },
   "files": [
     "lib",
@@ -37,15 +35,11 @@
     "node": ">=13"
   },
   "dependencies": {
-    "@chialab/rna-browser-test-runner": "^0.5.12",
-    "@chialab/rna-bundler": "^0.5.11",
-    "@chialab/rna-node-test-runner": "^0.5.12",
-    "@chialab/rna-web-server": "^0.5.11",
-    "commander": "^7.2.0"
+    "fast-glob": "^3.2.5",
+    "mocha": "^8.4.0",
+    "c8": "^7.7.2"
   },
   "devDependencies": {
-    "@types/koa__cors": "^3.0.2",
-    "@web/dev-server-legacy": "^0.1.7",
     "typescript": "^4.2.3"
   }
 }

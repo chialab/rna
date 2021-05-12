@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-    <strong>RNA Browser Test Runner</strong> • A test runner for browsers on <a href="https://modern-web.dev/docs/test-runner/overview/">Web Test Runner</a>.
+    <strong>RNA Browser Test Runner</strong> • A test runner for browsers based on <a href="https://modern-web.dev/docs/test-runner/overview/">Web Test Runner</a>.
 </p>
 
 <p align="center">

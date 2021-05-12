@@ -7,9 +7,9 @@ import commander from 'commander';
 const { readFile } = promises;
 
 (async () => {
-    let { program } = commander;
-    let packageJson = new URL('../package.json', import.meta.url);
-    let json = JSON.parse(await readFile(packageJson, 'utf-8'));
+    const { program } = commander;
+    const packageJson = new URL('../package.json', import.meta.url);
+    const json = JSON.parse(await readFile(packageJson, 'utf-8'));
 
     program
         .version(json.version);
@@ -120,7 +120,7 @@ const { readFile } = promises;
         );
 
     program
-        .command('test [specs...]')
+        .command('test-web [specs...]')
         .description('Start a browser test runner (https://modern-web.dev/docs/test-runner/overview/) based on the web dev server. It uses mocha (https://mochajs.org/) but you still need to import an assertion library (recommended https://open-wc.org/docs/testing/testing-package/).')
         .option('-W, --watch', 'watch test files')
         .option('-C, --coverage', 'add coverage to tests')
@@ -158,6 +158,32 @@ const { readFile } = promises;
                     plugins.push(await loadLegacyPlugin());
                 } catch (err) {
                     //
+                }
+                await test(config);
+            }
+        );
+
+    program
+        .command('test-node [specs...]')
+        .description('Start a node test runner based on mocha and esbuild.')
+        .option('-W, --watch', 'watch test files')
+        .option('-C, --coverage', 'add coverage to tests')
+        .action(
+            /**
+             * @param {string[]} specs
+             * @param {{ coverage?: boolean }} options
+             */
+            async (specs, { coverage }) => {
+                const { test } = await import('@chialab/rna-node-test-runner');
+
+                /**
+                 * @type {import('@chialab/rna-node-test-runner').TestRunnerConfig}
+                 */
+                const config = {
+                    coverage,
+                };
+                if (specs.length) {
+                    config.files = specs;
                 }
                 await test(config);
             }

@@ -45,7 +45,7 @@ $ npm i @chialab/rna @chialab/rna-browser-test-runner -D
 ```
 
 ```
-test:web [options] [specs...]
+test:browser [options] [specs...]
 
 Options:
   -W, --watch                watch test files
@@ -58,9 +58,9 @@ Options:
 **Samples**
 
 ```sh
-$ rna test:web
-$ rna test:web 'test/**/*.spec.js' --coverage
-$ rna test:web 'test/elements.spec.js' --watch --open
+$ rna test:browser
+$ rna test:browser 'test/**/*.spec.js' --coverage
+$ rna test:browser 'test/elements.spec.js' --watch --open
 ```
 
 ---

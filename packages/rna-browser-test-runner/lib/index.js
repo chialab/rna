@@ -202,7 +202,7 @@ export async function test(config) {
  */
 export function command(program) {
     program
-        .command('test:web [specs...]')
+        .command('test:browser [specs...]')
         .description('Start a browser test runner (https://modern-web.dev/docs/test-runner/overview/) based on the web dev server. It uses mocha (https://mochajs.org/) but you still need to import an assertion library (recommended https://open-wc.org/docs/testing/testing-package/).')
         .option('-W, --watch', 'watch test files')
         .option('-C, --coverage', 'add coverage to tests')

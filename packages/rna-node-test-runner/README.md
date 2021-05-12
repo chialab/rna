@@ -23,12 +23,28 @@ $ yarn add @chialab/rna-node-test-runner -D
 
 ## Usage
 
+### Via import
+
 ```js
 import { test } from '@chialab/rna-node-test-runner';
 
 await test({
     // files: ['...'],
 });
+```
+
+### Via cli
+
+```sh
+$ npm i @chialab/rna @chialab/rna-node-test-runner -D
+```
+
+```
+test:node [options] [specs...]
+
+Options:
+  -C, --coverage  collect code coverage
+  -h, --help      display help for command
 ```
 
 ---

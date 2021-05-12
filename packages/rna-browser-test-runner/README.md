@@ -25,6 +25,8 @@ $ yarn add @chialab/rna-browser-test-runner -D
 
 Start a browser [test runner](https://modern-web.dev/docs/test-runner/overview/) based on the web dev server. It uses [mocha](https://mochajs.org/) but you still need to import an assertion library (recommended [`@open-wc/testing`](https://open-wc.org/docs/testing/testing-package/)).
 
+### Via import
+
 ```js
 import { test } from '@chialab/rna-browser-test-runner';
 
@@ -34,6 +36,31 @@ import { test } from '@chialab/rna-browser-test-runner';
 await test({
     // files: ['...'],
 });
+```
+
+### Via cli
+
+```sh
+$ npm i @chialab/rna @chialab/rna-browser-test-runner -D
+```
+
+```
+test:web [options] [specs...]
+
+Options:
+  -W, --watch                watch test files
+  -C, --coverage             add coverage to tests
+  -O, --open                 open the browser
+  --saucelabs [browsers...]  run tests using Saucelabs browsers
+  -h, --help                 display help for command
+```
+
+**Samples**
+
+```sh
+$ rna test:web
+$ rna test:web 'test/**/*.spec.js' --coverage
+$ rna test:web 'test/elements.spec.js' --watch --open
 ```
 
 ---

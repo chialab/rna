@@ -196,3 +196,63 @@ export async function test(config) {
         },
     });
 }
+
+/**
+ * @param {import('commander').Command} program
+ */
+export function command(program) {
+    program
+        .command('test:web [specs...]')
+        .description('Start a browser test runner (https://modern-web.dev/docs/test-runner/overview/) based on the web dev server. It uses mocha (https://mochajs.org/) but you still need to import an assertion library (recommended https://open-wc.org/docs/testing/testing-package/).')
+        .option('-W, --watch', 'watch test files')
+        .option('-C, --coverage', 'add coverage to tests')
+        .option('-O, --open', 'open the browser')
+        .option('--saucelabs [browsers...]', 'run tests using Saucelabs browsers')
+        .action(
+            /**
+             * @param {string[]} specs
+             * @param {{ watch?: boolean, coverage?: boolean, open?: boolean, saucelabs?: boolean|string[] }} options
+             */
+            async (specs, { watch, coverage, open, saucelabs }) => {
+                /**
+                 * @type {import('@web/test-runner').TestRunnerPlugin[]}
+                 */
+                const plugins = [];
+
+                /**
+                 * @type {TestRunnerConfig}
+                 */
+                const config = {
+                    watch,
+                    coverage,
+                    open,
+                    manual: open ? true : undefined,
+                    saucelabs,
+                    plugins,
+                };
+                if (specs.length) {
+                    config.files = specs;
+                }
+                try {
+                    const { legacyPlugin } = await import('@web/dev-server-legacy');
+                    plugins.push(legacyPlugin({
+                        polyfills: {
+                            coreJs: false,
+                            regeneratorRuntime: true,
+                            webcomponents: false,
+                            fetch: false,
+                            abortController: false,
+                            intersectionObserver: false,
+                            resizeObserver: false,
+                            dynamicImport: true,
+                            systemjs: true,
+                            shadyCssCustomStyle: false,
+                        },
+                    }));
+                } catch (err) {
+                    //
+                }
+                await test(config);
+            }
+        );
+}

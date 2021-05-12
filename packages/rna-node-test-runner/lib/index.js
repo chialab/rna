@@ -1,5 +1,3 @@
-import { Worker } from 'worker_threads';
-
 /**
  * @typedef {Object} TestRunnerConfig
  * @property {string[]} [files] A list or a glob of files to test.
@@ -14,6 +12,7 @@ export async function test(config) {
     const { default: os } = await import('os');
     const { promises: fs } = await import('fs');
     const { default: path } = await import('path');
+    const { Worker } = await import('worker_threads');
     const { Report } = await import('c8');
 
     const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'rna-nyc'));
@@ -70,4 +69,32 @@ export async function test(config) {
     if (failures) {
         throw new Error('Some tests failed');
     }
+}
+
+/**
+ * @param {import('commander').Command} program
+ */
+export function command(program) {
+    program
+        .command('test:node [specs...]')
+        .description('Start a node test runner based on mocha.')
+        .option('-C, --coverage', 'collect code coverage')
+        .action(
+            /**
+             * @param {string[]} specs
+             * @param {{ coverage?: boolean }} options
+             */
+            async (specs, { coverage }) => {
+                /**
+                 * @type {TestRunnerConfig}
+                 */
+                const config = {
+                    coverage,
+                };
+                if (specs.length) {
+                    config.files = specs;
+                }
+                await test(config);
+            }
+        );
 }

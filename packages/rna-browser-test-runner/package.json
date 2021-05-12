@@ -34,7 +34,16 @@
     "node": ">=13"
   },
   "peerDependencies": {
+    "@web/dev-server-legacy": "^0.1.7",
     "@web/test-runner-saucelabs": "^0.5.0"
+  },
+  "peerDependenciesMeta": {
+    "@web/dev-server-legacy": {
+      "optional": true
+    },
+    "@web/test-runner-saucelabs": {
+      "optional": true
+    }
   },
   "dependencies": {
     "@chialab/esbuild-plugin-env": "^0.5.8",
@@ -48,7 +57,9 @@
   "devDependencies": {
     "@types/koa__cors": "^3.0.2",
     "@types/koa-range": "^0.3.2",
+    "@web/dev-server-legacy": "^0.1.7",
     "@web/test-runner-saucelabs": "^0.5.0",
+    "commander": "^7.2.0",
     "typescript": "^4.2.3"
   }
 }

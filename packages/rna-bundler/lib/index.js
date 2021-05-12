@@ -170,3 +170,82 @@ export async function build(config) {
 
     return result;
 }
+
+/**
+ * @param {import('commander').Command} program
+ */
+export function command(program) {
+    program
+        .command('build <entry...>', { isDefault: true })
+        .description('Compile JS and CSS modules using esbuild (https://esbuild.github.io/). It can output multiple module formats and it can be used to build a single module or to bundle all dependencies of an application.')
+        .option('-O, --output <path>', 'output directory or file')
+        .option('-F, --format <type>', 'bundle format')
+        .option('-P, --platform <type>', 'platform destination')
+        .option('-B, --bundle', 'bundle dependencies')
+        .option('-M, --minify', 'minify the build')
+        .option('-W, --watch', 'keep build alive')
+        .option('-P, --public <path>', 'public path')
+        .option('-T, --target <query>', 'browserslist targets')
+        .option('-E, --entryNames <pattern>', 'output file names')
+        .option('-C, --clean', 'cleanup output path')
+        .option('-J, --metafile [path]', 'generate manifest and endpoints maps')
+        .option('-N, --name <identifier>', 'the iife global name')
+        .option('--external [modules]', 'comma separated external packages')
+        .option('--no-map', 'do not generate sourcemaps')
+        .option('--jsxPragma <identifier>', 'jsx pragma')
+        .option('--jsxFragment <identifier>', 'jsx fragment')
+        .option('--jsxModule <name>', 'jsx module name')
+        .option('--jsxExport <type>', 'jsx export mode')
+        .action(
+            /**
+             * @param {string[]} input
+             * @param {{ output: string, format?: import('esbuild').Format, platform: import('esbuild').Platform, bundle?: boolean, minify?: boolean, name?: string, watch?: boolean, metafile?: boolean, target?: string, public?: string, entryNames?: string, clean?: boolean, external?: string, map?: boolean, jsxPragma?: string, jsxFragment?: string, jsxModule?: string, jsxExport?: 'named'|'namespace'|'default' }} options
+             */
+            async (input, { output, format = 'esm', platform, bundle, minify, name, watch, metafile, target, public: publicPath, entryNames, clean, external, map, jsxPragma, jsxFragment, jsxModule, jsxExport }) => {
+                const plugins = [];
+
+                const loadBabelPlugin = async () => {
+                    try {
+                        return (await import('@chialab/esbuild-plugin-swc')).default();
+                    } catch (err) {
+                        //
+                    }
+
+                    return (await import('@chialab/esbuild-plugin-babel')).default();
+                };
+
+                try {
+                    plugins.push(await loadBabelPlugin());
+                } catch (err) {
+                    //
+                }
+
+                await build({
+                    input: input.map((entry) => path.resolve(entry)),
+                    output: path.resolve(output),
+                    format,
+                    platform,
+                    globalName: name,
+                    bundle,
+                    minify,
+                    target,
+                    clean,
+                    watch,
+                    metafile,
+                    external: external ? external.split(',') : undefined,
+                    publicPath: publicPath ? path.resolve(publicPath) : undefined,
+                    entryNames,
+                    sourcemap: map,
+                    jsx: jsxPragma ? {
+                        pragma: jsxPragma,
+                        pragmaFrag: jsxFragment,
+                        import: jsxModule ? {
+                            module: jsxModule,
+                            export: jsxExport,
+                        } : undefined,
+                    } : undefined,
+                    plugins,
+                });
+            }
+        );
+}

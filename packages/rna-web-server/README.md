@@ -25,6 +25,8 @@ $ yarn add @chialab/rna-web-server -D
 
 Start a [web dev server](https://modern-web.dev/docs/dev-server/overview/) that transforms ESM imports for node resolution on demand. It also uses [`esbuild`](https://esbuild.github.io/) to compile non standard JavaScript syntax.
 
+### Via import
+
 ```js
 import { serve } from '@chialab/rna';
 
@@ -34,6 +36,29 @@ import { serve } from '@chialab/rna';
 await serve({
     // rootDir: '.',
 });
+```
+
+### Via cli
+
+```sh
+$ npm i @chialab/rna @chialab/rna-web-server -D
+```
+
+```
+serve [options] [root]
+
+Options:
+  -P, --port <number>           server port number
+  -M, --metafile [path]         generate manifest and endpoints maps
+  -E, --entrypoints <entry...>  list of server entrypoints
+  -h, --help                    display help for command
+```
+
+**Samples**
+
+```sh
+$ rna serve
+$ rna serve public --port 3000
 ```
 
 ---

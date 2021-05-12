@@ -96,3 +96,58 @@ export async function serve(config) {
 
     return server;
 }
+
+/**
+ * @param {import('commander').Command} program
+ */
+export function command(program) {
+    program
+        .command('serve [root]')
+        .description('Start a web dev server (https://modern-web.dev/docs/dev-server/overview/) that transforms ESM imports for node resolution on demand. It also uses esbuild (https://esbuild.github.io/) to compile non standard JavaScript syntax.')
+        .option('-P, --port <number>', 'server port number')
+        .option('-M, --metafile [path]', 'generate manifest and endpoints maps')
+        .option('-E, --entrypoints <entry...>', 'list of server entrypoints')
+        .action(
+            /**
+             * @param {string} rootDir
+             * @param {{ port?: string, metafile?: boolean, entrypoints?: string[] }} options
+             */
+            async (rootDir, { port, metafile, entrypoints = [] }) => {
+                /**
+                 * @type {import('@web/dev-server-core').Plugin[]}
+                 */
+                const plugins = [];
+
+                /**
+                 * @type {DevServerConfig}
+                 */
+                const config = {
+                    rootDir: rootDir ? rootDir : undefined,
+                    port: port ? parseInt(port) : undefined,
+                    metafile,
+                    entryPoints: entrypoints.map((entry) => path.resolve(entry)),
+                };
+                try {
+                    const { legacyPlugin } = await import('@web/dev-server-legacy');
+                    plugins.push(legacyPlugin({
+                        polyfills: {
+                            coreJs: false,
+                            regeneratorRuntime: true,
+                            webcomponents: false,
+                            fetch: false,
+                            abortController: false,
+                            intersectionObserver: false,
+                            resizeObserver: false,
+                            dynamicImport: true,
+                            systemjs: true,
+                            shadyCssCustomStyle: false,
+                        },
+                    }));
+                } catch (err) {
+                    //
+                }
+
+                await serve(config);
+            }
+        );
+}

@@ -24,7 +24,7 @@ export { loaders, saveManifestJson, saveEndpointsJson, saveDevEndpointsJson };
  */
 
 /**
- * @typedef {Omit<import('esbuild').BuildOptions, 'loader'> & { output: string, root?: string, input?: string|string[], code?: string, loader?: import('esbuild').Loader, jsx?: JSXOptions, metafile?: boolean|string, clean?: boolean }} BuildConfig
+ * @typedef {Omit<import('esbuild').BuildOptions, 'loader'> & { output: string, root?: string, input?: string|string[], code?: string, loader?: import('esbuild').Loader, jsx?: JSXOptions, transformPlugins?: import('esbuild').Plugin[], metafile?: boolean|string, clean?: boolean }} BuildConfig
  */
 
 /**
@@ -61,6 +61,7 @@ export async function build(config) {
         minify = false,
         watch = false,
         plugins = [],
+        transformPlugins = [],
     } = config;
 
     const hasOutputFile = !!path.extname(output);
@@ -148,16 +149,14 @@ export async function build(config) {
         plugins: [
             (await import('@chialab/esbuild-plugin-any-file')).default(),
             (await import('@chialab/esbuild-plugin-env')).default(),
-            (await import('@chialab/esbuild-plugin-html')).default({ esbuild }),
-            (await import('@chialab/esbuild-plugin-postcss')).default(),
             (await import('@chialab/esbuild-plugin-jsx-import')).default(jsx && jsx.import),
+            ...plugins,
             (await import('@chialab/esbuild-plugin-transform')).start(),
             (await import('@chialab/esbuild-plugin-commonjs')).default({ esbuild }),
             (await import('@chialab/esbuild-plugin-require-resolve')).default(),
             (await import('@chialab/esbuild-plugin-webpack-include')).default(),
             (await import('@chialab/esbuild-plugin-meta-url')).default(),
-            ...extraPlugins,
-            ...plugins,
+            ...transformPlugins,
             (await import('@chialab/esbuild-plugin-transform')).end(),
         ],
     });
@@ -202,7 +201,29 @@ export function command(program) {
              * @param {{ output: string, format?: import('esbuild').Format, platform: import('esbuild').Platform, bundle?: boolean, minify?: boolean, name?: string, watch?: boolean, metafile?: boolean, target?: string, public?: string, entryNames?: string, clean?: boolean, external?: string, map?: boolean, jsxPragma?: string, jsxFragment?: string, jsxModule?: string, jsxExport?: 'named'|'namespace'|'default' }} options
              */
             async (input, { output, format = 'esm', platform, bundle, minify, name, watch, metafile, target, public: publicPath, entryNames, clean, external, map, jsxPragma, jsxFragment, jsxModule, jsxExport }) => {
+                const { default: esbuild } = await import('esbuild');
+
+                /**
+                 * @type {import('esbuild').Plugin[]}
+                 */
                 const plugins = [];
+
+                try {
+                    plugins.push((await import('@chialab/esbuild-plugin-html')).default({ esbuild }));
+                } catch (err) {
+                    //
+                }
+
+                try {
+                    plugins.push((await import('@chialab/esbuild-plugin-postcss')).default());
+                } catch (err) {
+                    //
+                }
+
+                /**
+                 * @type {import('esbuild').Plugin[]}
+                 */
+                const transformPlugins = [];
 
                 const loadBabelPlugin = async () => {
                     try {
@@ -215,7 +236,7 @@ export function command(program) {
                 };
 
                 try {
-                    plugins.push(await loadBabelPlugin());
+                    transformPlugins.push(await loadBabelPlugin());
                 } catch (err) {
                     //
                 }
@@ -245,6 +266,7 @@ export function command(program) {
                         } : undefined,
                     } : undefined,
                     plugins,
+                    transformPlugins,
                 });
             }
         );

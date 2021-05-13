@@ -38,10 +38,8 @@
     "@chialab/esbuild-plugin-any-file": "^0.6.0",
     "@chialab/esbuild-plugin-commonjs": "^0.6.0",
     "@chialab/esbuild-plugin-env": "^0.6.0",
-    "@chialab/esbuild-plugin-html": "^0.6.0",
     "@chialab/esbuild-plugin-jsx-import": "^0.6.0",
     "@chialab/esbuild-plugin-meta-url": "^0.6.0",
-    "@chialab/esbuild-plugin-postcss": "^0.6.0",
     "@chialab/esbuild-plugin-require-resolve": "^0.6.0",
     "@chialab/esbuild-plugin-transform": "^0.6.0",
     "@chialab/esbuild-plugin-webpack-include": "^0.6.0",
@@ -50,10 +48,18 @@
   },
   "peerDependencies": {
     "@chialab/esbuild-plugin-babel": "^0.6.0",
+    "@chialab/esbuild-plugin-html": "^0.6.0",
+    "@chialab/esbuild-plugin-postcss": "^0.6.0",
     "@chialab/esbuild-plugin-swc": "^0.6.0"
   },
   "peerDependenciesMeta": {
     "@chialab/esbuild-plugin-babel": {
+      "optional": true
+    },
+    "@chialab/esbuild-plugin-html": {
+      "optional": true
+    },
+    "@chialab/esbuild-plugin-postcss": {
       "optional": true
     },
     "@chialab/esbuild-plugin-swc": {

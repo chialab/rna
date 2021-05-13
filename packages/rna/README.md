@@ -25,7 +25,7 @@ The `@chialab/rna` contains only the core of the RNA cli. In order to make comma
 | `test:browser` | A test runner for browsers based on Web Test Runner. | [@chialab/rna-browser-test-runner](https://www.npmjs.com/package/@chialab/rna-browser-test-runner) |
 | `test:node` | A test runner for node based on mocha. | [@chialab/rna-node-test-runner](https://www.npmjs.com/package/@chialab/rna-node-test-runner) |
 
-#### Common
+#### Common module
 
 ```sh
 $ npm i -D \
@@ -37,6 +37,28 @@ $ npm i -D \
 $ yarn add -D \
   @chialab/rna \
   @chialab/rna-bundler \
+  @chialab/rna-web-server \
+  @chialab/rna-browser-test-runner
+```
+
+#### Common webapp
+
+```sh
+$ npm i -D \
+  @chialab/rna \
+  @chialab/rna-bundler \
+  @chialab/esbuild-plugin-babel \
+  @chialab/esbuild-plugin-html \
+  @chialab/esbuild-plugin-postcss \
+  @chialab/rna-web-server \
+  @chialab/rna-browser-test-runner
+
+$ yarn add -D \
+  @chialab/rna \
+  @chialab/rna-bundler \
+  @chialab/esbuild-plugin-babel \
+  @chialab/esbuild-plugin-html \
+  @chialab/esbuild-plugin-postcss \
   @chialab/rna-web-server \
   @chialab/rna-browser-test-runner
 ```

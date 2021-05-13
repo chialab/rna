@@ -25,6 +25,8 @@ $ yarn add @chialab/rna-bundler -D
 
 Compile JS and CSS modules and HTML apps using [`esbuild`](https://esbuild.github.io/). It can output multiple module formats and it can be used to build a single module or to bundle all dependencies of an application.
 
+Please note that HTML and CSS loaders are separated plugins that needs to be installed in order to work.
+
 ### Via import
 
 ```js
@@ -46,7 +48,7 @@ await build({
 ### Via cli
 
 ```sh
-$ npm i @chialab/rna @chialab/rna-bundler -D
+$ npm i @chialab/rna @chialab/rna-bundler @chialab/esbuild-plugin-html @chialab/esbuild-plugin-postcss -D
 ```
 
 ```

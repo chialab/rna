@@ -37,10 +37,10 @@
     "node": ">=13"
   },
   "peerDependencies": {
-    "@chialab/rna-browser-test-runner": "^0.5.12",
-    "@chialab/rna-bundler": "^0.5.11",
-    "@chialab/rna-node-test-runner": "^0.5.12",
-    "@chialab/rna-web-server": "^0.5.11"
+    "@chialab/rna-browser-test-runner": "^0.6.0",
+    "@chialab/rna-bundler": "^0.6.0",
+    "@chialab/rna-node-test-runner": "^0.6.0",
+    "@chialab/rna-web-server": "^0.6.0"
   },
   "peerDependenciesMeta": {
     "@chialab/rna-browser-test-runner": {

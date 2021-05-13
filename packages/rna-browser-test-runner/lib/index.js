@@ -65,7 +65,8 @@ export async function test(config) {
                 user: process.env.SAUCE_USERNAME || '',
                 key: process.env.SAUCE_ACCESS_KEY || '',
             },
-            sauceLabsCapabilities
+            sauceLabsCapabilities,
+            { noSslBumpDomains: 'all' }
         );
 
         /**
@@ -121,16 +122,24 @@ export async function test(config) {
                 case 'ios':
                 case 'iphone':
                 case 'ios_safari': {
-                    config.browserName = 'iphone';
+                    delete config.browserVersion;
+                    config.browserName = 'Safari';
+                    config.platformName = 'iOS';
                     config.version = browserVersion;
-                    config.device = 'iPhone 8';
+                    config.platformVersion = browserVersion;
+                    config.deviceName = 'iPhone 8 Simulator';
                     break;
                 }
                 case 'and_chr':
                 case 'and_uc':
                 case 'samsung':
                 case 'android': {
-                    config.browserName = 'Android GoogleAPI Emulator';
+                    delete config.browserVersion;
+                    config.browserName = 'Chrome';
+                    config.platformName = 'Android';
+                    config.version = browserVersion;
+                    config.platformVersion = browserVersion;
+                    config.deviceName = 'Android GoogleAPI Emulator';
                     break;
                 }
             }
@@ -149,6 +158,7 @@ export async function test(config) {
         readFileConfig: false,
         autoExitProcess: true,
         config: {
+            browserStartTimeout: 2 * 60 * 1000,
             concurrentBrowsers: 2,
             files: [
                 'test/**/*.test.js',
@@ -163,13 +173,6 @@ export async function test(config) {
             open: false,
             ...config,
             browsers: launchers,
-            testRunnerHtml: testFramework => `<html>
-                <body>
-                    <script type="module">
-                        document.addEventListener('DOMContentLoaded', () => import('${testFramework}'));
-                    </script>
-                </body>
-            </html>`,
             middleware: [
                 cors(),
                 range,
@@ -240,13 +243,14 @@ export function command(program) {
                             coreJs: false,
                             regeneratorRuntime: true,
                             webcomponents: false,
-                            fetch: false,
+                            fetch: true,
                             abortController: false,
                             intersectionObserver: false,
                             resizeObserver: false,
                             dynamicImport: true,
                             systemjs: true,
                             shadyCssCustomStyle: false,
+                            esModuleShims: true,
                         },
                     }));
                 } catch (err) {

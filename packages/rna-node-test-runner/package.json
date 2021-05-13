@@ -1,7 +1,7 @@
 {
   "name": "@chialab/rna-node-test-runner",
   "type": "module",
-  "version": "0.5.12",
+  "version": "0.6.0",
   "description": "A test runner for node based on mocha.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",
@@ -35,9 +35,9 @@
     "node": ">=13"
   },
   "dependencies": {
+    "c8": "^7.7.2",
     "fast-glob": "^3.2.5",
-    "mocha": "^8.4.0",
-    "c8": "^7.7.2"
+    "mocha": "^8.4.0"
   },
   "devDependencies": {
     "commander": "^7.2.0",

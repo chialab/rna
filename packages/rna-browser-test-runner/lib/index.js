@@ -33,6 +33,7 @@ export async function test(config) {
      */
     const runnerConfig = {
         browserStartTimeout: 2 * 60 * 1000,
+        concurrency: 2,
         concurrentBrowsers: 2,
         files: [
             'test/**/*.test.js',
@@ -204,7 +205,6 @@ export async function test(config) {
             ...(runnerConfig.browsers || []),
             ...browsers.map((browser) => sauceLabsLauncher(getLauncherData(browser))),
         ];
-        runnerConfig.concurrency = 1;
         runnerConfig.browserLogs = false;
     }
 
@@ -223,16 +223,17 @@ export function command(program) {
     program
         .command('test:browser [specs...]')
         .description('Start a browser test runner (https://modern-web.dev/docs/test-runner/overview/) based on the web dev server. It uses mocha (https://mochajs.org/) but you still need to import an assertion library (recommended https://open-wc.org/docs/testing/testing-package/).')
-        .option('-W, --watch', 'watch test files')
-        .option('-C, --coverage', 'add coverage to tests')
-        .option('-O, --open', 'open the browser')
+        .option('--watch', 'watch test files')
+        .option('--concurrency', 'watch test files')
+        .option('--open', 'open the browser')
+        .option('--coverage', 'add coverage to tests')
         .option('--saucelabs [browsers...]', 'run tests using Saucelabs browsers')
         .action(
             /**
              * @param {string[]} specs
-             * @param {{ watch?: boolean, coverage?: boolean, open?: boolean, saucelabs?: boolean|string[] }} options
+             * @param {{ watch?: boolean, concurrency?: number, coverage?: boolean, open?: boolean, saucelabs?: boolean|string[] }} options
              */
-            async (specs, { watch, coverage, open, saucelabs }) => {
+            async (specs, { watch, concurrency, coverage, open, saucelabs }) => {
                 /**
                  * @type {import('@web/test-runner').TestRunnerPlugin[]}
                  */
@@ -243,6 +244,7 @@ export function command(program) {
                  */
                 const config = {
                     watch,
+                    concurrency,
                     coverage,
                     open,
                     manual: open ? true : undefined,
@@ -271,6 +273,9 @@ export function command(program) {
                             esModuleShims: true,
                         },
                     });
+                    // we change the name in order to override the wtr behavior
+                    // that ensures the legacy plugin is the last of the chain
+                    // because we really need the polyfill plugin to be the last one
                     plugin.name = 'rna-legacy';
                     plugins.push(plugin);
                 } catch (err) {

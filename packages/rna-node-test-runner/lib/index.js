@@ -78,7 +78,7 @@ export function command(program) {
     program
         .command('test:node [specs...]')
         .description('Start a node test runner based on mocha.')
-        .option('-C, --coverage', 'collect code coverage')
+        .option('--coverage', 'collect code coverage')
         .action(
             /**
              * @param {string[]} specs

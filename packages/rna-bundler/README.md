@@ -56,17 +56,17 @@ build [options] <entry...>
 
 Options:
   -O, --output <path>         output directory or file
-  -F, --format <type>         bundle format
-  -P, --platform <type>       platform destination
-  -B, --bundle                bundle dependencies
-  -M, --minify                minify the build
-  -W, --watch                 keep build alive
-  -P, --public <path>         public path
-  -T, --target <query>        browserslist targets
-  -E, --entryNames <pattern>  output file names
-  -C, --clean                 cleanup output path
-  -J, --metafile [path]       generate manifest and endpoints maps
-  -N, --name <identifier>     the iife global name
+  --format <type>             bundle format
+  --platform <type>           platform destination
+  --bundle                    bundle dependencies
+  --minify                    minify the build
+  --watch                     keep build alive
+  --public <path>             public path
+  --target <query>            output targets (es5, es2015, es2020)
+  --entryNames <pattern>      output file names
+  --clean                     cleanup output path
+  --metafile [path]           generate manifest and endpoints maps
+  --name <identifier>         the iife global name
   --external [modules]        comma separated external packages
   --no-map                    do not generate sourcemaps
   --jsxPragma <identifier>    jsx pragma

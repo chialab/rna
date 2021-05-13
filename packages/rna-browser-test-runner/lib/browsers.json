@@ -1,7 +1,6 @@
 [
   "android 5.1",
   "android 9.0",
-  "android 10.0",
   "android 11.0",
   "ios 10.3",
   "ios 13.0",
@@ -13,7 +12,6 @@
   "chrome latest-2",
   "chrome latest-1",
   "chrome latest",
-  "edge 15.15063",
   "edge 17.17134",
   "edge 18.17763",
   "edge latest",

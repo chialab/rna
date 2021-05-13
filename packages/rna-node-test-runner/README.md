@@ -43,8 +43,8 @@ $ npm i @chialab/rna @chialab/rna-node-test-runner -D
 test:node [options] [specs...]
 
 Options:
-  -C, --coverage  collect code coverage
-  -h, --help      display help for command
+  --coverage  collect code coverage
+  -h, --help  display help for command
 ```
 
 ---

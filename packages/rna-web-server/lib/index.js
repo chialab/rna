@@ -105,8 +105,8 @@ export function command(program) {
         .command('serve [root]')
         .description('Start a web dev server (https://modern-web.dev/docs/dev-server/overview/) that transforms ESM imports for node resolution on demand. It also uses esbuild (https://esbuild.github.io/) to compile non standard JavaScript syntax.')
         .option('-P, --port <number>', 'server port number')
-        .option('-M, --metafile [path]', 'generate manifest and endpoints maps')
-        .option('-E, --entrypoints <entry...>', 'list of server entrypoints')
+        .option('--metafile [path]', 'generate manifest and endpoints maps')
+        .option('--entrypoints <entry...>', 'list of server entrypoints')
         .action(
             /**
              * @param {string} rootDir

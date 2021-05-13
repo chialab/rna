@@ -48,9 +48,9 @@ $ npm i @chialab/rna @chialab/rna-browser-test-runner -D
 test:browser [options] [specs...]
 
 Options:
-  -W, --watch                watch test files
-  -C, --coverage             add coverage to tests
-  -O, --open                 open the browser
+  --watch                    watch test files
+  --coverage                 add coverage to tests
+  --open                     open the browser
   --saucelabs [browsers...]  run tests using Saucelabs browsers
   -h, --help                 display help for command
 ```

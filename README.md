@@ -57,8 +57,9 @@ See more [here](./packages/rna).
 | [@chialab/rna-web-server](./packages/rna-web-server) | A webapp server based on Web Dev Server. | [<img src="https://img.shields.io/npm/v/@chialab/rna-web-server" alt="npm" />](https://www.npmjs.com/package/@chialab/rna-web-server) |
 | [@chialab/swc-plugin-htm](./packages/swc-plugin-htm) | A swc plugin for htm literals transpiling. | [<img src="https://img.shields.io/npm/v/@chialab/swc-plugin-htm" alt="npm" />](https://www.npmjs.com/package/@chialab/swc-plugin-htm) |
 | [@chialab/swc-types](./packages/swc-types) | A babel/types-like set of helpers for swc. | [<img src="https://img.shields.io/npm/v/@chialab/swc-types" alt="npm" />](https://www.npmjs.com/package/@chialab/swc-types) |
-| [@chialab/wds-plugin-commonjs](./packages/wds-plugin-commonjs) | A commonjs to esm transformer for web dev server. | [<img src="https://img.shields.io/npm/v/@chialab/wds-plugin-commonjs" alt="npm" />](https://www.npmjs.com/package/@chialab/wds-plugin-commonjs) |
+| [@chialab/wds-plugin-commonjs](./packages/wds-plugin-commonjs) | A commonjs to esm transformer for the web dev server. | [<img src="https://img.shields.io/npm/v/@chialab/wds-plugin-commonjs" alt="npm" />](https://www.npmjs.com/package/@chialab/wds-plugin-commonjs) |
 | [@chialab/wds-plugin-hmr-css](./packages/wds-plugin-hmr-css) | Enable CSS hmr for the web dev server. | [<img src="https://img.shields.io/npm/v/@chialab/wds-plugin-hmr-css" alt="npm" />](https://www.npmjs.com/package/@chialab/wds-plugin-hmr-css) |
+| [@chialab/wds-plugin-polyfill](./packages/wds-plugin-polyfill) | Inject polyfills to HTML responses served by the web dev server. | [<img src="https://img.shields.io/npm/v/@chialab/wds-plugin-polyfill" alt="npm" />](https://www.npmjs.com/package/@chialab/wds-plugin-polyfill) |
 | [@chialab/wds-plugin-postcss](./packages/wds-plugin-postcss) | A CSS loader plugin for the Web Dev Server that uses postcss as preprocessor. | [<img src="https://img.shields.io/npm/v/@chialab/wds-plugin-postcss" alt="npm" />](https://www.npmjs.com/package/@chialab/wds-plugin-postcss) |
 
 ---

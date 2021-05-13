@@ -35,13 +35,17 @@
   },
   "peerDependencies": {
     "@web/dev-server-legacy": "^0.1.7",
-    "@web/test-runner-saucelabs": "^0.5.0"
+    "@web/test-runner-saucelabs": "^0.5.0",
+    "@chialab/wds-plugin-polyfill": "^0.6.0"
   },
   "peerDependenciesMeta": {
     "@web/dev-server-legacy": {
       "optional": true
     },
     "@web/test-runner-saucelabs": {
+      "optional": true
+    },
+    "@chialab/wds-plugin-polyfill": {
       "optional": true
     }
   },

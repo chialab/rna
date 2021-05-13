@@ -29,9 +29,48 @@ export async function test(config) {
         });
 
     /**
-     * @type {import('@web/test-runner').BrowserLauncher[]|undefined}
+     * @type {import('@web/test-runner').TestRunnerConfig}
      */
-    let launchers = undefined;
+    const runnerConfig = {
+        browserStartTimeout: 2 * 60 * 1000,
+        concurrentBrowsers: 2,
+        files: [
+            'test/**/*.test.js',
+            'test/**/*.spec.js',
+        ],
+        testFramework,
+        nodeResolve: {
+            exportConditions: ['default', 'module', 'import', 'browser'],
+            mainFields: ['umd:main', 'module', 'esnext', 'browser', 'jsnext', 'jsnext:main', 'main'],
+        },
+        preserveSymlinks: true,
+        open: false,
+        ...(/** @type {*} */ (config)),
+        middleware: [
+            cors(),
+            range,
+        ],
+        plugins: [
+            cssPlugin(),
+            esbuildPlugin({
+                loaders: {
+                    '.cjs': 'tsx',
+                    '.mjs': 'tsx',
+                    '.jsx': 'tsx',
+                    '.ts': 'tsx',
+                    '.tsx': 'tsx',
+                    '.json': 'json',
+                    '.geojson': 'json',
+                },
+                define: {
+                    ...defineEnvVariables(),
+                },
+            }),
+            commonjsPlugin(),
+            ...(config.plugins || []),
+        ],
+    };
+
     if (config.saucelabs) {
         const { default: path } = await import('path');
         const { promises: { readFile } } = await import('fs');
@@ -81,7 +120,8 @@ export async function test(config) {
          */
         const getLauncherData = (browser) => {
             const chunks = browser.split(' ');
-            const browserVersion = chunks.pop();
+            const browserVersion = /** @type {string} */ (chunks.pop());
+            const majorVersion = parseInt(browserVersion.split('.')[0]);
 
             let browserName = chunks.join(' ').toLowerCase();
 
@@ -110,13 +150,26 @@ export async function test(config) {
                 case 'google chrome':
                 case 'chromium': {
                     config.browserName = 'chrome';
-                    config.platformName = 'Windows 10';
+                    if (majorVersion < 75) {
+                        delete config.browserVersion;
+                        config.version = browserVersion;
+                        config.platform = 'Windows 10';
+                    } else {
+                        config.platformName = 'Windows 10';
+                    }
                     break;
                 }
                 case 'firefox':
                 case 'ff': {
                     config.browserName = 'firefox';
                     config.platformName = 'Windows 10';
+                    break;
+                }
+                case 'safari': {
+                    if (majorVersion < 11) {
+                        delete config.browserVersion;
+                        config.version = browserVersion;
+                    }
                     break;
                 }
                 case 'ios':
@@ -127,7 +180,7 @@ export async function test(config) {
                     config.platformName = 'iOS';
                     config.version = browserVersion;
                     config.platformVersion = browserVersion;
-                    config.deviceName = 'iPhone 8 Simulator';
+                    config.deviceName = 'iPhone Simulator';
                     break;
                 }
                 case 'and_chr':
@@ -147,56 +200,19 @@ export async function test(config) {
             return config;
         };
 
-        launchers = [
-            ...(launchers || []),
+        runnerConfig.browsers = [
+            ...(runnerConfig.browsers || []),
             ...browsers.map((browser) => sauceLabsLauncher(getLauncherData(browser))),
         ];
+        runnerConfig.concurrency = 1;
+        runnerConfig.browserLogs = false;
     }
 
     return startTestRunner({
         readCliArgs: false,
         readFileConfig: false,
         autoExitProcess: true,
-        config: {
-            browserStartTimeout: 2 * 60 * 1000,
-            concurrentBrowsers: 2,
-            files: [
-                'test/**/*.test.js',
-                'test/**/*.spec.js',
-            ],
-            testFramework,
-            nodeResolve: {
-                exportConditions: ['default', 'module', 'import', 'browser'],
-                mainFields: ['umd:main', 'module', 'esnext', 'browser', 'jsnext', 'jsnext:main', 'main'],
-            },
-            preserveSymlinks: true,
-            open: false,
-            ...config,
-            browsers: launchers,
-            middleware: [
-                cors(),
-                range,
-            ],
-            plugins: [
-                cssPlugin(),
-                esbuildPlugin({
-                    loaders: {
-                        '.cjs': 'tsx',
-                        '.mjs': 'tsx',
-                        '.jsx': 'tsx',
-                        '.ts': 'tsx',
-                        '.tsx': 'tsx',
-                        '.json': 'json',
-                        '.geojson': 'json',
-                    },
-                    define: {
-                        ...defineEnvVariables(),
-                    },
-                }),
-                commonjsPlugin(),
-                ...(config.plugins || []),
-            ],
-        },
+        config: runnerConfig,
     });
 }
 
@@ -233,17 +249,19 @@ export function command(program) {
                     saucelabs,
                     plugins,
                 };
+
                 if (specs.length) {
                     config.files = specs;
                 }
+
                 try {
                     const { legacyPlugin } = await import('@web/dev-server-legacy');
-                    plugins.push(legacyPlugin({
+                    const plugin = legacyPlugin({
                         polyfills: {
                             coreJs: false,
-                            regeneratorRuntime: true,
+                            regeneratorRuntime: false,
                             webcomponents: false,
-                            fetch: true,
+                            fetch: false,
                             abortController: false,
                             intersectionObserver: false,
                             resizeObserver: false,
@@ -252,10 +270,32 @@ export function command(program) {
                             shadyCssCustomStyle: false,
                             esModuleShims: true,
                         },
-                    }));
+                    });
+                    plugin.name = 'rna-legacy';
+                    plugins.push(plugin);
                 } catch (err) {
                     //
                 }
+
+                try {
+                    const { polyfillPlugin } = await import('@chialab/wds-plugin-polyfill');
+                    plugins.push(
+                        polyfillPlugin({
+                            minify: true,
+                            features: {
+                                'URL': {},
+                                'URL.prototype.toJSON': {},
+                                'URLSearchParams': {},
+                                'Promise': {},
+                                'Promise.prototype.finally': {},
+                                'fetch': {},
+                            },
+                        })
+                    );
+                } catch (err) {
+                    //
+                }
+
                 await test(config);
             }
         );

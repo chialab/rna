@@ -24,6 +24,9 @@ export function commonjsPlugin() {
         },
         async transform(context) {
             if (context.response.is('js')) {
+                if (context.path.includes('/polyfills/')) {
+                    return;
+                }
                 const filePath = getRequestFilePath(context.url, rootDir);
                 const body = /** @type {string} */ (context.body);
                 if (body.match(ESM_KEYWORDS) || !body.match(CJS_KEYWORDS)) {

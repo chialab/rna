@@ -33,8 +33,6 @@ export async function test(config) {
      */
     const runnerConfig = {
         browserStartTimeout: 2 * 60 * 1000,
-        testsStartTimeout: 5 * 60 * 1000,
-        testsFinishTimeout: 5 * 60 * 1000,
         concurrency: 2,
         concurrentBrowsers: 2,
         files: [

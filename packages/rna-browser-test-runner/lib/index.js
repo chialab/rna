@@ -248,7 +248,7 @@ export function command(program) {
                 const config = {
                     port,
                     watch,
-                    concurrentBrowsers: concurrency,
+                    concurrentBrowsers: concurrency || 2,
                     coverage,
                     open,
                     manual: open ? true : undefined,
@@ -265,7 +265,7 @@ export function command(program) {
                     const plugin = legacyPlugin({
                         polyfills: {
                             coreJs: false,
-                            regeneratorRuntime: true,
+                            regeneratorRuntime: 'always',
                             webcomponents: false,
                             shadyCssCustomStyle: false,
                             fetch: false,

@@ -1,6 +1,39 @@
 import polyfillLibrary from 'polyfill-library';
 
 /**
+ * Inject polyfill loader into another plugin.
+ * This is useful in combination with the dev server legacy plugin.
+ * @param {import('@web/dev-server-core').Plugin} plugin
+ * @param {import('polyfill-library').Config} config
+ */
+export function inject(plugin, config) {
+    const originalTransform = plugin.transform;
+    plugin.transform = async function transform(context) {
+        if (originalTransform) {
+            await originalTransform.call(this, context);
+        }
+        if (!context.response.is('html')) {
+            return;
+        }
+        if (!Object.keys(config.features).length) {
+            return;
+        }
+        const code = await polyfillLibrary.getPolyfillString({
+            uaString: context.get('user-agent'),
+            ...config,
+        });
+        const body = /** @type {string} */ (context.body);
+        if (body.includes('<head>')) {
+            context.body = body.replace('<head>', () => `<head><script type="text/javascript" charset="UTF-8">${code}</script>`);
+        } else if (body.includes('<body>')) {
+            context.body = body.replace('<body>', () => `<body><script type="text/javascript" charset="UTF-8">${code}</script>`);
+        } else {
+            context.body = `<script type="text/javascript" charset="UTF-8">${code}</script>${body}`;
+        }
+    };
+}
+
+/**
  * @param {import('polyfill-library').Config} config
  */
 export function polyfillPlugin(config = { features: {}}) {
@@ -9,27 +42,8 @@ export function polyfillPlugin(config = { features: {}}) {
      */
     const plugin = {
         name: 'polyfill',
-        async transform(context) {
-            if (!context.response.is('html')) {
-                return;
-            }
-            if (!Object.keys(config.features).length) {
-                return;
-            }
-            const code = await polyfillLibrary.getPolyfillString({
-                uaString: context.get('user-agent'),
-                ...config,
-            });
-            const body = /** @type {string} */ (context.body);
-            if (body.includes('<head>')) {
-                context.body = body.replace('<head>', () => `<head><script>${code}</script>`);
-            } else if (body.includes('<body>')) {
-                context.body = body.replace('<body>', () => `<body><script>${code}</script>`);
-            } else {
-                context.body = `<script>${code}</script>${body}`;
-            }
-        },
     };
+    inject(plugin, config);
 
     return plugin;
 }

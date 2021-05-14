@@ -33,6 +33,8 @@ export async function test(config) {
      */
     const runnerConfig = {
         browserStartTimeout: 2 * 60 * 1000,
+        testsStartTimeout: 5 * 60 * 1000,
+        testsFinishTimeout: 5 * 60 * 1000,
         concurrency: 2,
         concurrentBrowsers: 2,
         files: [
@@ -263,31 +265,21 @@ export function command(program) {
                     const plugin = legacyPlugin({
                         polyfills: {
                             coreJs: false,
-                            regeneratorRuntime: false,
+                            regeneratorRuntime: true,
                             webcomponents: false,
+                            shadyCssCustomStyle: false,
                             fetch: false,
                             abortController: false,
                             intersectionObserver: false,
                             resizeObserver: false,
                             dynamicImport: true,
                             systemjs: true,
-                            shadyCssCustomStyle: false,
                             esModuleShims: true,
                         },
                     });
-                    // we change the name in order to override the wtr behavior
-                    // that ensures the legacy plugin is the last of the chain
-                    // because we really need the polyfill plugin to be the last one
-                    plugin.name = 'rna-legacy';
-                    plugins.push(plugin);
-                } catch (err) {
-                    //
-                }
-
-                try {
-                    const { polyfillPlugin } = await import('@chialab/wds-plugin-polyfill');
-                    plugins.push(
-                        polyfillPlugin({
+                    try {
+                        const { inject } = await import('@chialab/wds-plugin-polyfill');
+                        inject(plugin, {
                             minify: true,
                             features: {
                                 'URL': {},
@@ -297,8 +289,11 @@ export function command(program) {
                                 'Promise.prototype.finally': {},
                                 'fetch': {},
                             },
-                        })
-                    );
+                        });
+                    } catch (err) {
+                        //
+                    }
+                    plugins.push(plugin);
                 } catch (err) {
                     //
                 }

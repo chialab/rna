@@ -82,7 +82,7 @@ export async function build(config) {
         entryOptions.entryPoints = Array.isArray(input) ? input : [input];
     }
 
-    const extraPlugins = [];
+    const extraTransformPlugins = [];
 
     if (!bundle) {
         const packageFile = await pkgUp({
@@ -102,7 +102,7 @@ export async function build(config) {
         });
         const packageJson = packageFile ? JSON.parse(await readFile(packageFile, 'utf-8')) : {};
         if (typeof packageJson.browser === 'object') {
-            extraPlugins.push(
+            extraTransformPlugins.push(
                 (await import('@chialab/esbuild-plugin-alias')).default(packageJson.browser)
             );
         }
@@ -156,6 +156,7 @@ export async function build(config) {
             (await import('@chialab/esbuild-plugin-require-resolve')).default(),
             (await import('@chialab/esbuild-plugin-webpack-include')).default(),
             (await import('@chialab/esbuild-plugin-meta-url')).default(),
+            ...extraTransformPlugins,
             ...transformPlugins,
             (await import('@chialab/esbuild-plugin-transform')).end(),
         ],

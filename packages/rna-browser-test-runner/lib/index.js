@@ -223,17 +223,18 @@ export function command(program) {
     program
         .command('test:browser [specs...]')
         .description('Start a browser test runner (https://modern-web.dev/docs/test-runner/overview/) based on the web dev server. It uses mocha (https://mochajs.org/) but you still need to import an assertion library (recommended https://open-wc.org/docs/testing/testing-package/).')
+        .option('-P, --port', 'web server port')
         .option('--watch', 'watch test files')
-        .option('--concurrency', 'watch test files')
+        .option('--concurrency <number>', 'number of concurrent browsers')
         .option('--open', 'open the browser')
         .option('--coverage', 'add coverage to tests')
         .option('--saucelabs [browsers...]', 'run tests using Saucelabs browsers')
         .action(
             /**
              * @param {string[]} specs
-             * @param {{ watch?: boolean, concurrency?: number, coverage?: boolean, open?: boolean, saucelabs?: boolean|string[] }} options
+             * @param {{ port?: number, watch?: boolean, concurrency?: number, coverage?: boolean, open?: boolean, saucelabs?: boolean|string[] }} options
              */
-            async (specs, { watch, concurrency, coverage, open, saucelabs }) => {
+            async (specs, { port, watch, concurrency, coverage, open, saucelabs }) => {
                 /**
                  * @type {import('@web/test-runner').TestRunnerPlugin[]}
                  */
@@ -243,8 +244,9 @@ export function command(program) {
                  * @type {TestRunnerConfig}
                  */
                 const config = {
+                    port,
                     watch,
-                    concurrency,
+                    concurrentBrowsers: concurrency,
                     coverage,
                     open,
                     manual: open ? true : undefined,

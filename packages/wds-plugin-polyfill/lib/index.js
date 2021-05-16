@@ -18,17 +18,18 @@ export function inject(plugin, config) {
         if (!Object.keys(config.features).length) {
             return;
         }
+        const consolePolyfill = 'console.log=console.log.bind(console);';
         const code = await polyfillLibrary.getPolyfillString({
             uaString: context.get('user-agent'),
             ...config,
         });
         const body = /** @type {string} */ (context.body);
         if (body.includes('<head>')) {
-            context.body = body.replace('<head>', () => `<head><script type="text/javascript" charset="UTF-8">${code}</script>`);
+            context.body = body.replace('<head>', () => `<head><script>${consolePolyfill}${code}</script>`);
         } else if (body.includes('<body>')) {
-            context.body = body.replace('<body>', () => `<body><script type="text/javascript" charset="UTF-8">${code}</script>`);
+            context.body = body.replace('<body>', () => `<body><script>${consolePolyfill}${code}</script>`);
         } else {
-            context.body = `<script type="text/javascript" charset="UTF-8">${code}</script>${body}`;
+            context.body = `<script>${consolePolyfill}${code}</script>${body}`;
         }
     };
 }

@@ -52,6 +52,7 @@ Options:
   --watch                    watch test files
   --concurrency <number>     number of concurrent browsers
   --coverage                 add coverage to tests
+  --manual                   manual test mode
   --open                     open the browser
   --saucelabs [browsers...]  run tests using Saucelabs browsers
   -h, --help                 display help for command

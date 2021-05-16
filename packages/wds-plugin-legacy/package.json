@@ -1,0 +1,50 @@
+{
+  "name": "@chialab/wds-plugin-legacy",
+  "type": "module",
+  "version": "0.6.0",
+  "description": "Transform esm modules served by the web dev server into SystemJS modules for legacy browser compatibility.",
+  "main": "lib/index.js",
+  "typings": "./types/index.d.ts",
+  "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chialab/rna",
+    "directory": "packages/wds-plugin-legacy"
+  },
+  "keywords": [
+    "dev-server",
+    "plugin",
+    "legacy",
+    "babel"
+  ],
+  "scripts": {
+    "types": "tsc",
+    "prepack": "npm run types"
+  },
+  "files": [
+    "lib",
+    "types",
+    "package.json",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=13"
+  },
+  "dependencies": {
+    "@babel/core": "^7.14.2",
+    "@babel/preset-env": "^7.14.2",
+    "browserslist-useragent": "^3.0.3",
+    "cheerio": "^1.0.0-rc.9",
+    "regenerator-runtime": "^0.13.7",
+    "systemjs": "^6.9.0"
+  },
+  "devDependencies": {
+    "@types/babel__core": "^7.1.14",
+    "@types/babel__preset-env": "^7.9.1",
+    "@types/browserslist-useragent": "^3.0.3",
+    "@web/dev-server-core": "^0.3.8",
+    "typescript": "^4.2.3"
+  }
+}

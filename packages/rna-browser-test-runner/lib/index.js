@@ -108,6 +108,7 @@ export async function test(config) {
             sauceLabsCapabilities,
             { noSslBumpDomains: 'all' }
         );
+        const { getSauceCapabilities } = await import('./getSauceLauncherData.js');
 
         /**
          * @type {string[]}
@@ -116,96 +117,14 @@ export async function test(config) {
             JSON.parse(await readFile(new URL('./browsers.json', import.meta.url), 'utf-8')) :
             config.saucelabs;
 
-        /**
-         * @param {string} browser
-         */
-        const getLauncherData = (browser) => {
-            const chunks = browser.split(' ');
-            const browserVersion = /** @type {string} */ (chunks.pop());
-            const majorVersion = parseInt(browserVersion.split('.')[0]);
-
-            let browserName = chunks.join(' ').toLowerCase();
-
-            /**
-             * @type {*}
-             */
-            const config = {
-                browserVersion,
-                browserName,
-            };
-            switch (browserName) {
-                case 'ie': {
-                    config.browserName = 'internet explorer';
-                    config.platformName = 'Windows 10';
-                    break;
-                }
-                case 'edge':
-                case 'ms edge':
-                case 'microsoftedge':
-                case 'microsoft edge': {
-                    config.browserName = 'MicrosoftEdge';
-                    config.platformName = 'Windows 10';
-                    break;
-                }
-                case 'chrome':
-                case 'google chrome':
-                case 'chromium': {
-                    config.browserName = 'chrome';
-                    if (majorVersion < 75) {
-                        delete config.browserVersion;
-                        config.version = browserVersion;
-                        config.platform = 'Windows 10';
-                    } else {
-                        config.platformName = 'Windows 10';
-                    }
-                    break;
-                }
-                case 'firefox':
-                case 'ff': {
-                    config.browserName = 'firefox';
-                    config.platformName = 'Windows 10';
-                    break;
-                }
-                case 'safari': {
-                    if (majorVersion < 11) {
-                        delete config.browserVersion;
-                        config.version = browserVersion;
-                    }
-                    break;
-                }
-                case 'ios':
-                case 'iphone':
-                case 'ios_safari': {
-                    delete config.browserVersion;
-                    config.browserName = 'Safari';
-                    config.platformName = 'iOS';
-                    config.version = browserVersion;
-                    config.platformVersion = browserVersion;
-                    config.deviceName = 'iPhone Simulator';
-                    break;
-                }
-                case 'and_chr':
-                case 'and_uc':
-                case 'samsung':
-                case 'android': {
-                    delete config.browserVersion;
-                    config.browserName = 'Chrome';
-                    config.platformName = 'Android';
-                    config.version = browserVersion;
-                    config.platformVersion = browserVersion;
-                    config.deviceName = 'Android GoogleAPI Emulator';
-                    break;
-                }
-            }
-
-            return config;
-        };
-
         runnerConfig.browsers = [
             ...(runnerConfig.browsers || []),
-            ...browsers.map((browser) => sauceLabsLauncher(getLauncherData(browser))),
+            ...browsers.map((browser) => sauceLabsLauncher(getSauceCapabilities(browser))),
         ];
         runnerConfig.browserLogs = false;
+        runnerConfig.concurrency = 1;
+        runnerConfig.testsStartTimeout = 3 * 60 * 1000;
+        runnerConfig.testsFinishTimeout = 3 * 60 * 1000;
     }
 
     return startTestRunner({
@@ -225,16 +144,17 @@ export function command(program) {
         .description('Start a browser test runner (https://modern-web.dev/docs/test-runner/overview/) based on the web dev server. It uses mocha (https://mochajs.org/) but you still need to import an assertion library (recommended https://open-wc.org/docs/testing/testing-package/).')
         .option('-P, --port', 'web server port')
         .option('--watch', 'watch test files')
-        .option('--concurrency <number>', 'number of concurrent browsers')
+        .option('--concurrency <number>', 'number of concurrent browsers', parseInt)
+        .option('--manual', 'manual test mode')
         .option('--open', 'open the browser')
         .option('--coverage', 'add coverage to tests')
         .option('--saucelabs [browsers...]', 'run tests using Saucelabs browsers')
         .action(
             /**
              * @param {string[]} specs
-             * @param {{ port?: number, watch?: boolean, concurrency?: number, coverage?: boolean, open?: boolean, saucelabs?: boolean|string[] }} options
+             * @param {{ port?: number, watch?: boolean, concurrency?: number, coverage?: boolean, manual?: boolean; open?: boolean, saucelabs?: boolean|string[] }} options
              */
-            async (specs, { port, watch, concurrency, coverage, open, saucelabs }) => {
+            async (specs, { port, watch, concurrency, coverage, manual, open, saucelabs }) => {
                 /**
                  * @type {import('@web/test-runner').TestRunnerPlugin[]}
                  */
@@ -248,8 +168,8 @@ export function command(program) {
                     watch,
                     concurrentBrowsers: concurrency || 2,
                     coverage,
+                    manual: manual || open === true,
                     open,
-                    manual: open ? true : undefined,
                     saucelabs,
                     plugins,
                 };
@@ -259,27 +179,14 @@ export function command(program) {
                 }
 
                 try {
-                    const { legacyPlugin } = await import('@web/dev-server-legacy');
-                    const plugin = legacyPlugin({
-                        polyfills: {
-                            coreJs: false,
-                            regeneratorRuntime: 'always',
-                            webcomponents: false,
-                            shadyCssCustomStyle: false,
-                            fetch: false,
-                            abortController: false,
-                            intersectionObserver: false,
-                            resizeObserver: false,
-                            dynamicImport: true,
-                            systemjs: true,
-                            esModuleShims: true,
-                        },
-                    });
+                    const { legacyPlugin } = await import('@chialab/wds-plugin-legacy');
+                    const plugin = legacyPlugin();
                     try {
                         const { inject } = await import('@chialab/wds-plugin-polyfill');
                         inject(plugin, {
                             minify: true,
                             features: {
+                                'es6': {},
                                 'URL': {},
                                 'URL.prototype.toJSON': {},
                                 'URLSearchParams': {},

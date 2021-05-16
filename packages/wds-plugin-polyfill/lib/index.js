@@ -1,10 +1,22 @@
 import polyfillLibrary from 'polyfill-library';
 
+/** @typedef {import('polyfill-library').Config} Config */
+
+const DEFAULT_FEATURES = {
+    'es6': {},
+    'URL': {},
+    'URL.prototype.toJSON': {},
+    'URLSearchParams': {},
+    'Promise': {},
+    'Promise.prototype.finally': {},
+    'fetch': {},
+};
+
 /**
  * Inject polyfill loader into another plugin.
  * This is useful in combination with the dev server legacy plugin.
  * @param {import('@web/dev-server-core').Plugin} plugin
- * @param {import('polyfill-library').Config} config
+ * @param {Config} config
  */
 export function inject(plugin, config) {
     const originalTransform = plugin.transform;
@@ -15,13 +27,15 @@ export function inject(plugin, config) {
         if (!context.response.is('html')) {
             return;
         }
-        if (!Object.keys(config.features).length) {
+        const features = config.features || DEFAULT_FEATURES;
+        if (!Object.keys(features).length) {
             return;
         }
         const consolePolyfill = 'console.log=console.log.bind(console);';
         const code = await polyfillLibrary.getPolyfillString({
             uaString: context.get('user-agent'),
             ...config,
+            features,
         });
         const body = /** @type {string} */ (context.body);
         if (body.includes('<head>')) {
@@ -35,7 +49,7 @@ export function inject(plugin, config) {
 }
 
 /**
- * @param {import('polyfill-library').Config} config
+ * @param {Config} config
  */
 export function polyfillPlugin(config = { features: {}}) {
     /**

@@ -128,20 +128,9 @@ export function command(program) {
                     entryPoints: entrypoints.map((entry) => path.resolve(entry)),
                 };
                 try {
-                    const { legacyPlugin } = await import('@web/dev-server-legacy');
+                    const { legacyPlugin } = await import('@chialab/wds-plugin-legacy');
                     plugins.push(legacyPlugin({
-                        polyfills: {
-                            coreJs: false,
-                            regeneratorRuntime: true,
-                            webcomponents: false,
-                            fetch: false,
-                            abortController: false,
-                            intersectionObserver: false,
-                            resizeObserver: false,
-                            dynamicImport: true,
-                            systemjs: true,
-                            shadyCssCustomStyle: false,
-                        },
+                        minify: true,
                     }));
                 } catch (err) {
                     //

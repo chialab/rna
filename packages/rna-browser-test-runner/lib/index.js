@@ -1,5 +1,5 @@
 /**
- * @typedef {Partial<import('@web/test-runner').TestRunnerConfig> & { saucelabs?: string[]|boolean }} TestRunnerConfig
+ * @typedef {Partial<Omit<import('@web/test-runner').TestRunnerConfig, 'browsers'>> & { browsers?: string[]|import('@web/test-runner').BrowserLauncher[] }} TestRunnerConfig
  */
 
 /**
@@ -8,14 +8,13 @@
  * @return {Promise<import('@web/test-runner').TestRunner|undefined>} The test runner instance.
  */
 export async function test(config) {
-    const { startTestRunner } = await import('@web/test-runner');
+    const { startTestRunner, defaultReporter } = await import('@web/test-runner');
     const { esbuildPlugin } = await import('@web/dev-server-esbuild');
     const { commonjsPlugin } = await import('@chialab/wds-plugin-commonjs');
     const { cssPlugin } = await import('@chialab/wds-plugin-postcss');
     const { defineEnvVariables } = await import('@chialab/esbuild-plugin-env');
     const { default: cors } = await import('@koa/cors');
     const { default: range } = await import('koa-range');
-    const { testName, testJob } = await import('./ci.js');
 
     const testFramework =
         /**
@@ -38,6 +37,12 @@ export async function test(config) {
         files: [
             'test/**/*.test.js',
             'test/**/*.spec.js',
+        ],
+        reporters: [
+            defaultReporter({
+                reportTestProgress: true,
+                reportTestResults: true,
+            }),
         ],
         testFramework,
         nodeResolve: {
@@ -72,61 +77,6 @@ export async function test(config) {
         ],
     };
 
-    if (config.saucelabs) {
-        const { default: path } = await import('path');
-        const { promises: { readFile } } = await import('fs');
-        const { default: pkgUp } = await import('pkg-up');
-
-        /**
-         * @type {typeof import('@web/test-runner-saucelabs').createSauceLabsLauncher}
-         */
-        let createSauceLabsLauncher;
-        try {
-            createSauceLabsLauncher = (await import('@web/test-runner-saucelabs')).createSauceLabsLauncher;
-        } catch (err) {
-            throw new Error('Missing saucelabs runner. Did you forget to install the `@web/test-runner-saucelabs` package?');
-        }
-
-        const packageFile = await pkgUp();
-        const packageJson = packageFile ? JSON.parse(await readFile(packageFile, 'utf-8')) : {};
-        const sauceLabsCapabilities = {
-            name: testName(packageJson.name || path.basename(process.cwd())),
-            build: testJob(),
-        };
-
-        if (!process.env.SAUCE_USERNAME) {
-            throw new Error('Missing saucelabs username. Did you forget to set the `SAUCE_USERNAME` environment variable?');
-        }
-        if (!process.env.SAUCE_ACCESS_KEY) {
-            throw new Error('Missing saucelabs access key. Did you forget to set the `SAUCE_ACCESS_KEY` environment variable?');
-        }
-        const sauceLabsLauncher = createSauceLabsLauncher(
-            {
-                user: process.env.SAUCE_USERNAME || '',
-                key: process.env.SAUCE_ACCESS_KEY || '',
-            },
-            sauceLabsCapabilities,
-            { noSslBumpDomains: 'all' }
-        );
-        const { getSauceCapabilities } = await import('./getSauceLauncherData.js');
-
-        /**
-         * @type {string[]}
-         */
-        const browsers = typeof config.saucelabs === 'boolean' ?
-            JSON.parse(await readFile(new URL('./browsers.json', import.meta.url), 'utf-8')) :
-            config.saucelabs;
-
-        runnerConfig.browsers = [
-            ...(runnerConfig.browsers || []),
-            ...browsers.map((browser) => sauceLabsLauncher(getSauceCapabilities(browser))),
-        ];
-        runnerConfig.browserLogs = false;
-        runnerConfig.concurrency = 1;
-        runnerConfig.testsStartTimeout = 3 * 60 * 1000;
-        runnerConfig.testsFinishTimeout = 3 * 60 * 1000;
-    }
-
     return startTestRunner({
         readCliArgs: false,
         readFileConfig: false,
@@ -148,13 +98,12 @@ export function command(program) {
         .option('--manual', 'manual test mode')
         .option('--open', 'open the browser')
         .option('--coverage', 'add coverage to tests')
-        .option('--saucelabs [browsers...]', 'run tests using Saucelabs browsers')
         .action(
             /**
              * @param {string[]} specs
-             * @param {{ port?: number, watch?: boolean, concurrency?: number, coverage?: boolean, manual?: boolean; open?: boolean, saucelabs?: boolean|string[] }} options
+             * @param {{ port?: number, watch?: boolean, concurrency?: number, coverage?: boolean, manual?: boolean; open?: boolean }} options
              */
-            async (specs, { port, watch, concurrency, coverage, manual, open, saucelabs }) => {
+            async (specs, { port, watch, concurrency, coverage, manual, open }) => {
                 /**
                  * @type {import('@web/test-runner').TestRunnerPlugin[]}
                  */
@@ -170,7 +119,6 @@ export function command(program) {
                     coverage,
                     manual: manual || open === true,
                     open,
-                    saucelabs,
                     plugins,
                 };
 
@@ -180,25 +128,9 @@ export function command(program) {
 
                 try {
                     const { legacyPlugin } = await import('@chialab/wds-plugin-legacy');
-                    const plugin = legacyPlugin();
-                    try {
-                        const { inject } = await import('@chialab/wds-plugin-polyfill');
-                        inject(plugin, {
-                            minify: true,
-                            features: {
-                                'es6': {},
-                                'URL': {},
-                                'URL.prototype.toJSON': {},
-                                'URLSearchParams': {},
-                                'Promise': {},
-                                'Promise.prototype.finally': {},
-                                'fetch': {},
-                            },
-                        });
-                    } catch (err) {
-                        //
-                    }
-                    plugins.push(plugin);
+                    plugins.push(legacyPlugin({
+                        minify: true,
+                    }));
                 } catch (err) {
                     //
                 }

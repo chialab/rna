@@ -1,23 +1,15 @@
 [
-  "android 5.1",
   "android 9.0",
   "android 11.0",
-  "ios 10.3",
   "ios 13.0",
   "ios 14.0",
   "firefox latest-2",
   "firefox latest-1",
   "firefox latest",
-  "chrome 45",
   "chrome latest-2",
   "chrome latest-1",
   "chrome latest",
-  "edge 17.17134",
-  "edge 18.17763",
   "edge latest",
-  "safari 9.0",
-  "safari 10.0",
   "safari latest-1",
-  "safari latest",
-  "internet explorer 11.0"
+  "safari latest"
 ]

@@ -35,10 +35,10 @@
     "node": ">=13"
   },
   "peerDependencies": {
-    "@web/dev-server-legacy": "^0.1.7"
+    "@chialab/wds-plugin-legacy": "^0.6.0"
   },
   "peerDependenciesMeta": {
-    "@web/dev-server-legacy": {
+    "@chialab/wds-plugin-legacy": {
       "optional": true
     }
   },
@@ -58,7 +58,6 @@
   "devDependencies": {
     "@types/koa-range": "^0.3.2",
     "@types/koa__cors": "^3.0.2",
-    "@web/dev-server-legacy": "^0.1.7",
     "commander": "^7.2.0",
     "typescript": "^4.2.3"
   }

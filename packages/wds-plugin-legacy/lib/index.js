@@ -1,55 +1,18 @@
 import { createRequire } from 'module';
+import { inject } from '@chialab/wds-plugin-polyfill';
 import { checkEsmSupport } from './checkEsmSupport.js';
 import { readFile } from './readFile.js';
+import { transform } from './transform.js';
 import $ from './esm-cheerio.js';
 
 const require = createRequire(import.meta.url);
 
 /**
- * @param {string} content Code to transform.
- * @param {import('@web/dev-server-core').Context} context
- */
-async function transform(content, context) {
-    const { transformAsync } = await import('@babel/core');
-    const { default: env } = await import('@babel/preset-env');
-    const { default: system } = await import('@babel/plugin-transform-modules-systemjs');
-    /**
-     * @type {import('@babel/core').PluginItem[]}
-     */
-    const presets = [];
-    /**
-     * @type {import('@babel/core').PluginItem[]}
-     */
-    const plugins = [];
-    if (!context.url.includes('core-js')) {
-        presets.push([env, {
-            targets: ['ie 10'],
-            bugfixes: true,
-            ignoreBrowserslistConfig: true,
-            shippedProposals: true,
-            modules: 'systemjs',
-        }]);
-    } else {
-        plugins.push(system);
-    }
-    const result = await transformAsync(content, {
-        sourceMaps: 'inline',
-        babelrc: false,
-        compact: false,
-        presets,
-        plugins,
-    });
-    if (!result) {
-        return content;
-    }
-    return /** @type {string} */ (result.code);
-}
-
-/**
  * Convert esm modules to the SystemJS module format.
  * It also transpiles source code using babel.
+ * @param {import('@chialab/wds-plugin-polyfill').Config} config
  */
-export function legacyPlugin() {
+export function legacyPlugin(config = {}) {
     const systemUrl = require.resolve('systemjs/dist/s.min.js');
     const regeneratorUrl = require.resolve('regenerator-runtime/runtime.js');
 
@@ -95,7 +58,7 @@ export function legacyPlugin() {
             }
             if (context.response.is('js')) {
                 const body = /** @type {string} */ (context.body);
-                context.body = await transform(body, context);
+                context.body = await transform(body, context.url);
                 return;
             }
             if (context.response.is('html')) {
@@ -137,6 +100,8 @@ export function legacyPlugin() {
             }
         },
     };
+
+    inject(plugin, config);
 
     return plugin;
 }

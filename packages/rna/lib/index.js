@@ -36,6 +36,7 @@ const { readFile } = promises;
         await loadCommand('serve', '@chialab/rna-web-server'),
         await loadCommand('test:browser', '@chialab/rna-browser-test-runner'),
         await loadCommand('test:node', '@chialab/rna-node-test-runner'),
+        await loadCommand('test:saucelabs', '@chialab/rna-saucelabs-test-runner'),
     ]);
 
     program

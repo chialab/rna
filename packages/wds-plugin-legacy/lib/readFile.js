@@ -14,9 +14,8 @@ const memoReadFile = function() {
      * @param {string} fileName
      */
     const memo = async function memo(fileName) {
-        const contentRequest = files[fileName] || readFile(fileName, 'utf-8');
-        files[fileName] = contentRequest;
-        return await contentRequest;
+        files[fileName] = files[fileName] || readFile(fileName, 'utf-8');
+        return await files[fileName];
     };
 
     return memo;

@@ -16,7 +16,8 @@ export function getSauceCapabilities(browser) {
         browserName,
     };
     switch (browserName) {
-        case 'ie': {
+        case 'ie':
+        case 'internet explorer':{
             config.browserName = 'internet explorer';
             config.platformName = 'Windows 10';
             break;

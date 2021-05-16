@@ -6,9 +6,10 @@ import $ from './esm-cheerio.js';
  * @param {import('./esm-cheerio').Document} dom The DOM element.
  * @param {string} base The base dir.
  * @param {string} outdir The output dir.
+ * @param {import('esbuild').BuildOptions} options Build options.
  * @return {import('./index').Entrypoint[]} A list of entrypoints.
  */
-export function collectAssets(dom, base, outdir) {
+export function collectAssets(dom, base, outdir, options) {
     return [
         ...dom
             .find('[src]:not(script)')
@@ -20,9 +21,9 @@ export function collectAssets(dom, base, outdir) {
                     entryPoints: [
                         path.resolve(base, /** @type {string} */ ($(element).attr('src'))),
                     ],
-                    entryNames: 'assets/[name]-[hash]',
-                    chunkNames: 'assets/[name]-[hash]',
-                    assetNames: 'assets/[name]-[hash]',
+                    entryNames: `assets/${options.entryNames || '[name]'}`,
+                    chunkNames: `assets/${options.chunkNames || '[name]'}`,
+                    assetNames: `assets/${options.assetNames || '[name]'}`,
                 },
                 /**
                  * @param {string} filePath
@@ -41,9 +42,9 @@ export function collectAssets(dom, base, outdir) {
                     entryPoints: [
                         path.resolve(base, /** @type {string} */ ($(element).attr('href'))),
                     ],
-                    entryNames: 'assets/[name]-[hash]',
-                    chunkNames: 'assets/[name]-[hash]',
-                    assetNames: 'assets/[name]-[hash]',
+                    entryNames: `assets/${options.entryNames || '[name]'}`,
+                    chunkNames: `assets/${options.chunkNames || '[name]'}`,
+                    assetNames: `assets/${options.assetNames || '[name]'}`,
                 },
                 /**
                  * @param {string} filePath

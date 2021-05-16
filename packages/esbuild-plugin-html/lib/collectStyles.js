@@ -6,9 +6,10 @@ import $ from './esm-cheerio.js';
  * @param {import('./esm-cheerio').Document} dom The DOM element.
  * @param {string} base The base dir.
  * @param {string} outdir The output dir.
+ * @param {import('esbuild').BuildOptions} options Build options.
  * @return {import('./index').Entrypoint[]} A list of entrypoints.
  */
-export function collectStyles(dom, base, outdir) {
+export function collectStyles(dom, base, outdir, options) {
     return [
         ...dom
             .find('link[href][rel="stylesheet"]')
@@ -20,9 +21,9 @@ export function collectStyles(dom, base, outdir) {
                     entryPoints: [
                         path.resolve(base, /** @type {string} */ ($(element).attr('href'))),
                     ],
-                    entryNames: 'css/[name]-[hash]',
-                    chunkNames: 'css/[name]-[hash]',
-                    assetNames: 'css/assets/[name]-[hash]',
+                    entryNames: `css/${options.entryNames || '[name]'}`,
+                    chunkNames: `css/${options.chunkNames || '[name]'}`,
+                    assetNames: `css/assets/${options.assetNames || '[name]'}`,
                 },
                 /**
                  * @param {string} filePath
@@ -46,9 +47,9 @@ export function collectStyles(dom, base, outdir) {
                             resolveDir: base,
                             sourcefile: path.join(base, 'inline.css'),
                         },
-                        entryNames: 'css/[name]-[hash]',
-                        chunkNames: 'css/[name]-[hash]',
-                        assetNames: 'css/assets/[name]-[hash]',
+                        entryNames: `css/${options.entryNames || '[name]'}`,
+                        chunkNames: `css/${options.chunkNames || '[name]'}`,
+                        assetNames: `css/assets/${options.assetNames || '[name]'}`,
                     },
                     /**
                      * @param {string} filePath

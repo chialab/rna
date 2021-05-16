@@ -28,39 +28,39 @@ export default function({ esbuild = esbuildModule, scriptsTarget = 'es6', module
     const plugin = {
         name: 'html',
         setup(build) {
-            let options = build.initialOptions;
+            const options = build.initialOptions;
 
             build.onLoad({ filter: /\.html$/ }, async ({ path: filePath }) => {
-                let contents = await readFile(filePath, 'utf-8');
-                let basePath = path.dirname(filePath);
-                let outdir = /** @type {string} */ (options.outdir || (options.outfile && path.dirname(options.outfile)));
-                let dom = $.load(contents);
-                let root = dom.root();
+                const contents = await readFile(filePath, 'utf-8');
+                const basePath = path.dirname(filePath);
+                const outdir = /** @type {string} */ (options.outdir || (options.outfile && path.dirname(options.outfile)));
+                const dom = $.load(contents);
+                const root = dom.root();
 
-                let entrypoints = /** @type {Entrypoint[]} */ ([
+                const entrypoints = /** @type {Entrypoint[]} */ ([
                     ...collectIcons(root, basePath, outdir),
                     ...collectWebManifest(root, basePath, outdir),
-                    ...collectStyles(root, basePath, outdir),
-                    ...collectScripts(root, basePath, outdir, { scriptsTarget, modulesTarget }),
-                    ...collectAssets(root, basePath, outdir),
+                    ...collectStyles(root, basePath, outdir, options),
+                    ...collectScripts(root, basePath, outdir, { scriptsTarget, modulesTarget }, options),
+                    ...collectAssets(root, basePath, outdir, options),
                 ]);
 
                 for (let i = 0; i < entrypoints.length; i++) {
-                    let entrypoint = entrypoints[i];
+                    const entrypoint = entrypoints[i];
+                    /** @type {string[]} */
+                    const outputFiles = [];
                     /** @type {string} */
                     let outputFile;
-                    /** @type {string[]} */
-                    let outputFiles = [];
                     if (entrypoint.loader === 'file') {
-                        let files = /** @type {string[]|undefined}} */ (entrypoint.options.entryPoints);
-                        let file = files && files[0];
+                        const files = /** @type {string[]|undefined}} */ (entrypoint.options.entryPoints);
+                        const file = files && files[0];
                         if (!file) {
                             continue;
                         }
-                        let ext = path.extname(file);
-                        let basename = path.basename(file, ext);
-                        let buffer = await readFile(file);
-                        let assetNames = entrypoint.options.assetNames || options.assetNames || '[name]';
+                        const ext = path.extname(file);
+                        const basename = path.basename(file, ext);
+                        const buffer = await readFile(file);
+                        const assetNames = entrypoint.options.assetNames || options.assetNames || '[name]';
                         let computedName = assetNames
                             .replace('[name]', basename)
                             .replace('[hash]', () => {
@@ -78,7 +78,7 @@ export default function({ esbuild = esbuildModule, scriptsTarget = 'es6', module
                         outputFiles.push(outputFile);
                     } else {
                         /** @type {import('esbuild').BuildOptions} */
-                        let config = {
+                        const config = {
                             ...options,
                             outfile: undefined,
                             outdir,
@@ -86,14 +86,14 @@ export default function({ esbuild = esbuildModule, scriptsTarget = 'es6', module
                             external: [],
                             ...entrypoint.options,
                         };
-                        let result = await esbuild.build(config);
+                        const result = await esbuild.build(config);
                         if (!result.metafile) {
                             continue;
                         }
 
-                        let inputFiles = /** @type {string[]} */ (entrypoint.options.entryPoints || []);
-                        let outputs = result.metafile.outputs;
-                        let outputFiles = Object.keys(outputs);
+                        const inputFiles = /** @type {string[]} */ (entrypoint.options.entryPoints || []);
+                        const outputs = result.metafile.outputs;
+                        const outputFiles = Object.keys(outputs);
                         outputFile = outputFiles
                             .filter((output) => !output.endsWith('.map'))
                             .filter((output) => outputs[output].entryPoint)

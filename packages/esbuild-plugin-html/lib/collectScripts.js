@@ -6,9 +6,10 @@ import $ from './esm-cheerio.js';
  * @param {import('./esm-cheerio').Document} dom The DOM element.
  * @param {string} base The base dir.
  * @param {string} outdir The output dir.
+ * @param {import('esbuild').BuildOptions} options Build options.
  * @return {import('./index').Entrypoint[]} A list of entrypoints.
  */
-export function collectScripts(dom, base, outdir, targets = { scriptsTarget: 'es6', modulesTarget: 'es2020' }) {
+export function collectScripts(dom, base, outdir, targets = { scriptsTarget: 'es6', modulesTarget: 'es2020' }, options) {
     return [
         ...dom.find('script[src][type="module"]')
             .get()
@@ -20,9 +21,9 @@ export function collectScripts(dom, base, outdir, targets = { scriptsTarget: 'es
                     ],
                     target: targets.modulesTarget,
                     format: /** @type {import('esbuild').Format} */ ('esm'),
-                    entryNames: 'esm/[name]-[hash]',
-                    chunkNames: 'esm/[name]-[hash]',
-                    assetNames: 'esm/assets/[name]-[hash]',
+                    entryNames: `esm/${options.entryNames || '[name]'}`,
+                    chunkNames: `esm/${options.chunkNames || '[name]'}`,
+                    assetNames: `esm/assets/${options.assetNames || '[name]'}`,
                 },
                 /**
                  * @param {string} filePath
@@ -49,9 +50,9 @@ export function collectScripts(dom, base, outdir, targets = { scriptsTarget: 'es
                         },
                         target: targets.modulesTarget,
                         format: /** @type {import('esbuild').Format} */ ('esm'),
-                        entryNames: 'esm/[name]-[hash]',
-                        chunkNames: 'esm/[name]-[hash]',
-                        assetNames: 'esm/assets/[name]-[hash]',
+                        entryNames: `esm/${options.entryNames || '[name]'}`,
+                        chunkNames: `esm/${options.chunkNames || '[name]'}`,
+                        assetNames: `esm/assets/${options.assetNames || '[name]'}`,
                     },
                     /**
                      * @param {string} filePath
@@ -71,9 +72,9 @@ export function collectScripts(dom, base, outdir, targets = { scriptsTarget: 'es
                     ],
                     target: targets.scriptsTarget,
                     format: /** @type {import('esbuild').Format} */ ('iife'),
-                    entryNames: 'iife/[name]-[hash]',
-                    chunkNames: 'iife/[name]-[hash]',
-                    assetNames: 'iife/assets/[name]-[hash]',
+                    entryNames: `iife/${options.entryNames || '[name]'}`,
+                    chunkNames: `iife/${options.chunkNames || '[name]'}`,
+                    assetNames: `iife/assets/${options.assetNames || '[name]'}`,
                     splitting: false,
                 },
                 /**
@@ -102,9 +103,9 @@ export function collectScripts(dom, base, outdir, targets = { scriptsTarget: 'es
                         target: targets.scriptsTarget,
                         format: /** @type {import('esbuild').Format} */ ('iife'),
                         globalName: undefined,
-                        entryNames: 'iife/[name]-[hash]',
-                        chunkNames: 'iife/[name]-[hash]',
-                        assetNames: 'iife/assets/[name]-[hash]',
+                        entryNames: `iife/${options.entryNames || '[name]'}`,
+                        chunkNames: `iife/${options.chunkNames || '[name]'}`,
+                        assetNames: `iife/assets/${options.assetNames || '[name]'}`,
                         splitting: false,
                     },
                     /**

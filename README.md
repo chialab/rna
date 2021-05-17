@@ -23,7 +23,7 @@ $ yarn add @chialab/rna -D
     "scripts": {
         "start": "rna serve src --port 3000",
         "build": "rna build src/index.html --output public",
-        "test": "rna test 'test/**/*.spec'"
+        "test": "rna test:browser 'test/**/*.spec'"
     }
 }
 ```

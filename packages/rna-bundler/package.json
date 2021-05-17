@@ -47,10 +47,10 @@
     "pkg-up": "^3.1.0"
   },
   "peerDependencies": {
-    "@chialab/esbuild-plugin-babel": "^0.6.0",
-    "@chialab/esbuild-plugin-html": "^0.6.0",
-    "@chialab/esbuild-plugin-postcss": "^0.6.0",
-    "@chialab/esbuild-plugin-swc": "^0.6.0"
+    "@chialab/esbuild-plugin-babel": "^0.7.0",
+    "@chialab/esbuild-plugin-html": "^0.7.0",
+    "@chialab/esbuild-plugin-postcss": "^0.7.0",
+    "@chialab/esbuild-plugin-swc": "^0.7.0"
   },
   "peerDependenciesMeta": {
     "@chialab/esbuild-plugin-babel": {

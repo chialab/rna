@@ -34,8 +34,8 @@
     "node": ">=13"
   },
   "peerDependencies": {
-    "@chialab/rna-saucelabs-test-runner": "^0.6.0",
-    "@chialab/wds-plugin-legacy": "^0.6.0"
+    "@chialab/rna-saucelabs-test-runner": "^0.7.0",
+    "@chialab/wds-plugin-legacy": "^0.7.0"
   },
   "peerDependenciesMeta": {
     "@chialab/rna-saucelabs-test-runner": {

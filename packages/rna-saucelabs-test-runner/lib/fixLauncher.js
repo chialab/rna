@@ -1,7 +1,7 @@
 /**
  * @param {import('@web/test-runner').BrowserLauncher} launcher
  */
-export function fixSafariDriver(launcher) {
+export function fixLauncher(launcher) {
     const createDriverManager = (/** @type {*} */ (launcher)).createDriverManager;
     /**
      * @this {*}

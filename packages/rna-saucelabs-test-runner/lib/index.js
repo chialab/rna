@@ -10,7 +10,7 @@ export async function test(config, sauceOptions) {
     const { default: pkgUp } = await import('pkg-up');
     const { createSauceLabsLauncher } = await import('@web/test-runner-saucelabs');
     const { test: coreTest } = await import('@chialab/rna-browser-test-runner');
-    const { fixSafariDriver } = await import('./fixSafariDriver.js');
+    const { fixLauncher } = await import('./fixLauncher.js');
     const { testName, testJob } = await import('./info.js');
     config = { ...config };
 
@@ -52,7 +52,7 @@ export async function test(config, sauceOptions) {
     }
 
     config.browsers = [
-        ...browsers.map((browser) => fixSafariDriver(sauceLabsLauncher(getSauceCapabilities(browser)))),
+        ...browsers.map((browser) => fixLauncher(sauceLabsLauncher(getSauceCapabilities(browser)))),
     ];
     config.browserLogs = false;
     config.concurrency = 1;

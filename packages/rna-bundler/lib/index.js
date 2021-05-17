@@ -181,7 +181,7 @@ export function command(program) {
     program
         .command('build <entry...>', { isDefault: true })
         .description('Compile JS and CSS modules using esbuild (https://esbuild.github.io/). It can output multiple module formats and it can be used to build a single module or to bundle all dependencies of an application.')
-        .option('-O, --output <path>', 'output directory or file')
+        .requiredOption('-O, --output <path>', 'output directory or file')
         .option('--format <type>', 'bundle format')
         .option('--platform <type>', 'platform destination')
         .option('--bundle', 'bundle dependencies')

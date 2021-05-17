@@ -22,12 +22,16 @@ const { readFile } = promises;
             const { command } = await import(source);
             command(program);
         } catch (err) {
-            program
-                .command(name)
-                .allowUnknownOption()
-                .action(() => {
-                    throw new Error(`Command not installed, please run:\n\nnpm install ${source} -D\nyarn add ${source} -D\n`);
-                });
+            if (err.code === 'ERR_MODULE_NOT_FOUND') {
+                return program
+                    .command(name)
+                    .allowUnknownOption()
+                    .action(() => {
+                        throw new Error(`Command not installed, please run:\n\nnpm install ${source} -D\nyarn add ${source} -D\n`);
+                    });
+            }
+
+            throw err;
         }
     };
 
@@ -37,6 +41,7 @@ const { readFile } = promises;
         await loadCommand('test:browser', '@chialab/rna-browser-test-runner'),
         await loadCommand('test:node', '@chialab/rna-node-test-runner'),
         await loadCommand('test:saucelabs', '@chialab/rna-saucelabs-test-runner'),
+        await loadCommand('apidoc', '@chialab/rna-apidoc'),
     ]);
 
     program

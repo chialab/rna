@@ -9,9 +9,10 @@ export async function test(config, sauceOptions) {
     const { promises: { readFile } } = await import('fs');
     const { default: pkgUp } = await import('pkg-up');
     const { createSauceLabsLauncher } = await import('@web/test-runner-saucelabs');
-    const { test: coreTest } = await import('@chialab/rna-browser-test-runner');
+    const { test: coreTest, defaultReporter } = await import('@chialab/rna-browser-test-runner');
     const { fixLauncher } = await import('./fixLauncher.js');
     const { testName, testJob } = await import('./info.js');
+    const { sauceReporter } = await import('./reporter.js');
     config = { ...config };
 
     const packageFile = await pkgUp();
@@ -58,6 +59,13 @@ export async function test(config, sauceOptions) {
     config.concurrency = 1;
     config.testsStartTimeout = Math.max(3 * 60 * 1000, config.testsStartTimeout || 0);
     config.testsFinishTimeout = Math.max(3 * 60 * 1000, config.testsFinishTimeout || 0);
+    config.reporters = [
+        defaultReporter({
+            reportTestProgress: true,
+            reportTestResults: true,
+        }),
+        sauceReporter(sauceOptions),
+    ];
 
     return coreTest(config);
 }
@@ -76,8 +84,8 @@ export function command(program) {
         .option('--manual', 'manual test mode')
         .option('--open', 'open the browser')
         .option('--coverage', 'add coverage to tests')
-        .option('-U, --user', 'sauce username')
-        .option('-K, --key', 'sauce access key')
+        .option('-U, --user <string>', 'sauce username')
+        .option('-K, --key <string>', 'sauce access key')
         .action(
             /**
              * @param {string[]} specs

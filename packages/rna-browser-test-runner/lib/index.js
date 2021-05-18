@@ -139,3 +139,5 @@ export function command(program) {
             }
         );
 }
+
+export { defaultReporter } from '@web/test-runner';

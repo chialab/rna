@@ -19,7 +19,7 @@ function renderSummary(groups, json) {
     }
 
     return groups.map((group) => `
-**${group.title.replace(' aliases', 's')}**
+<strong>${group.title.replace(' aliases', 's')}</strong>
 
 ${getChildren(group, json).map((node) => renderLink(node)).join(', ')}
 `).join('\n\n');
@@ -144,10 +144,10 @@ function renderInfo(node) {
     }
     let message = '';
     if (deprecated) {
-        message += `**Deprecated** ${deprecated.text || ''}  \n`;
+        message += `<strong>Deprecated</strong> ${deprecated.text || ''}  \n`;
     }
     if (since && since.text) {
-        message += `**Since** ${since.text}  \n`;
+        message += `<strong>Since</strong> ${since.text}  \n`;
     }
     return `${message}`;
 }
@@ -175,7 +175,7 @@ function renderFunction(node, json) {
     const returnDescription = getReturnDescription(node);
     return `<strong${node.kindString === 'Constructor' ? '' : ` id="${slug(node)}"`}><code>Function</code> ${node.name}</strong>
 
-    ${renderInfo(node)}
+${renderInfo(node)}
 
 ${description ? `<p>
 
@@ -187,7 +187,7 @@ ${signatures.map((signature) => `<details>
 <summary>
     <code>${renderSignature(signature, json, false)}</code>
 </summary>
-<br />
+
 ${signature.parameters && signature.parameters.length ? `
 <strong>Params</strong>
 <table>
@@ -410,7 +410,7 @@ ${renderProperties(instanceProperties)}` : ''}
 ${instanceMethods.length ? `
 <strong>Methods</strong>
 
-${instanceMethods.map((method) => renderFunction(method, json)).join('\n<br />\n\n')}` : ''}
+${instanceMethods.map((method) => renderFunction(method, json)).join('\n\n')}` : ''}
 
 ${staticProperties.length ? `
 <strong>Static properties</strong>
@@ -420,7 +420,7 @@ ${renderProperties(staticProperties)}` : ''}
 ${staticMethods.length ? `
 <strong>Static methods</strong>
 
-${staticMethods.map((method) => renderFunction(method, json)).join('\n<br />\n\n')}` : ''}
+${staticMethods.map((method) => renderFunction(method, json)).join('\n\n')}` : ''}
 
 ${links.length ? `
 <strong>See also</strong>
@@ -503,11 +503,9 @@ function renderMethod(node, json) {
 
 /**
  * @param {import('typedoc').JSONOutput.ProjectReflection} json
- * @param {{ header?: string, footer?: string }} options
  */
-export default function(json, options = {}) {
-    let output = options.header || '';
-
+export default function(json) {
+    let output = '';
     if (json.groups) {
         const groups = json.groups.filter((group) => group.children && group.children.length);
         output += renderSummary(groups, json);
@@ -520,6 +518,5 @@ export default function(json, options = {}) {
         }
     }
 
-    output += options.footer || '';
-    return output;
+    return output.replace(/\n{3,}/g, '\n\n').trim();
 }

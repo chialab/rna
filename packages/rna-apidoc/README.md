@@ -30,7 +30,7 @@ import { generate } from '@chialab/rna-apidoc';
 
 await generate([
     'path/to/entrypoint.ts',
-], 'docs/');
+], 'markdown', 'docs/');
 ```
 
 ### Via cli
@@ -44,6 +44,7 @@ apidoc [options] <files...>
 
 Options:
   -O, --output <path>        output dir or file
+  -F, --format <string>      the output format (json or markdown)
   -h, --help                 display help for command
 ```
 

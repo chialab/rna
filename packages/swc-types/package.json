@@ -36,7 +36,7 @@
     "@swc/core": "^1.2.54"
   },
   "devDependencies": {
-    "esbuild": "^0.11.16",
+    "esbuild": "^0.12.0",
     "typescript": "^4.2.3"
   }
 }

@@ -51,9 +51,15 @@ export default function({ esbuild = esbuildModule } = {}) {
 
                 const outdir = options.outdir || (options.outfile && path.dirname(options.outfile)) || process.cwd();
                 const loaders = options.loader || {};
-                const magicCode = new MagicString(entry.code);
+                const code = entry.code;
+                const magicCode = new MagicString(code);
 
-                let match = URL_REGEX.exec(entry.code);
+                /**
+                 * @type {{ [key: string]: string }}
+                 */
+                const ids = {};
+
+                let match = URL_REGEX.exec(code);
                 while (match) {
                     const len = match[0].length;
                     const value = match[2];
@@ -86,16 +92,18 @@ export default function({ esbuild = esbuildModule } = {}) {
                             magicCode.overwrite(match.index, match.index + len, `${match[1]}'./${path.basename(outputFile)}', ${baseUrl}${match[3]}`);
                         }
                     } else {
-                        let identifier = `_${value.replace(/[^a-zA-Z0-9]/g, '_')}`;
-                        if (entry.code.startsWith('#!')) {
-                            magicCode.appendRight(entry.code.indexOf('\n') + 1, `import ${identifier} from '${entryPoint}.urlfile';\n`);
-                        } else {
-                            magicCode.prepend(`import ${identifier} from '${entryPoint}.urlfile';\n`);
+                        if (!ids[entryPoint]) {
+                            let identifier = ids[entryPoint] = `_${value.replace(/[^a-zA-Z0-9]/g, '_')}`;
+                            if (code.startsWith('#!')) {
+                                magicCode.appendRight(code.indexOf('\n') + 1, `import ${identifier} from '${entryPoint}.urlfile';\n`);
+                            } else {
+                                magicCode.prepend(`import ${identifier} from '${entryPoint}.urlfile';\n`);
+                            }
                         }
-                        magicCode.overwrite(match.index, match.index + len, `${match[1]}${identifier}, ${baseUrl}${match[3]}`);
+                        magicCode.overwrite(match.index, match.index + len, `${match[1]}${ids[entryPoint]}, ${baseUrl}${match[3]}`);
                     }
 
-                    match = URL_REGEX.exec(entry.code);
+                    match = URL_REGEX.exec(code);
                 }
 
                 const map = JSON.parse(magicCode.generateMap({

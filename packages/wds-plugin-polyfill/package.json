@@ -1,7 +1,7 @@
 {
   "name": "@chialab/wds-plugin-polyfill",
   "type": "module",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "Inject polyfills to HTML responses served by the web dev server.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",

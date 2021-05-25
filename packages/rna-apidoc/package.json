@@ -1,7 +1,7 @@
 {
   "name": "@chialab/rna-apidoc",
   "type": "module",
-  "version": "0.7.5",
+  "version": "0.8.0",
   "description": "Generate api documentation using TypeScript symbols.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",

@@ -48,10 +48,9 @@ $ npm i @chialab/rna @chialab/rna-web-server -D
 serve [options] [root]
 
 Options:
-  -P, --port <number>       server port number
-  --metafile [path]         generate manifest and endpoints maps
-  --entrypoints <entry...>  list of server entrypoints
-  -h, --help                display help for command
+  -P, --port <number>   server port number
+  --entrypoints [path]  generate and serve endpoints
+  -h, --help            display help for command
 ```
 
 **Samples**
@@ -59,6 +58,7 @@ Options:
 ```sh
 $ rna serve
 $ rna serve public --port 3000
+$ rna serve src/index.js --entrypoints webroot/entrypoints.json
 ```
 
 ---

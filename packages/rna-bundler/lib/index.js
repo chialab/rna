@@ -11,20 +11,7 @@ const { readFile } = promises;
 export { loaders, saveManifestJson, saveEndpointsJson, saveDevEndpointsJson };
 
 /**
- * @typedef {Object} JSXImport
- * @property {string} module The module name.
- * @property {'named'|'namespace'|'default'} [export] The export mode of the jsc pragma.
- */
-
-/**
- * @typedef {Object} JSXOptions
- * @property {string} pragma The jsx pragma to use.
- * @property {string} [pragmaFrag] The jsx pragma to use for fragments.
- * @property {JSXImport} [import] The jsx import reference.
- */
-
-/**
- * @typedef {Omit<import('esbuild').BuildOptions, 'loader'> & { output: string, root?: string, input?: string|string[], code?: string, loader?: import('esbuild').Loader, jsx?: JSXOptions, transformPlugins?: import('esbuild').Plugin[], metafile?: boolean|string, clean?: boolean }} BuildConfig
+ * @typedef {Omit<import('esbuild').BuildOptions, 'loader'> & { output: string, root?: string, input?: string|string[], code?: string, loader?: import('esbuild').Loader, jsxModule?: string, jsxExport?: 'default'|'named'|'namespace', transformPlugins?: import('esbuild').Plugin[], manifest?: boolean|string, entrypoints?: boolean|string, clean?: boolean }} BuildConfig
  */
 
 /**
@@ -52,7 +39,10 @@ export async function build(config) {
         format = 'esm',
         platform = format === 'cjs' ? 'node' : 'browser',
         globalName = camelize(output),
-        jsx,
+        jsxFactory,
+        jsxFragment,
+        jsxModule,
+        jsxExport,
         target = format === 'iife' ? 'es5' : 'es2020',
         publicPath,
         entryNames,
@@ -60,6 +50,8 @@ export async function build(config) {
         chunkNames,
         external = [],
         metafile = false,
+        manifest = false,
+        entrypoints = false,
         clean = false,
         watch = false,
         plugins = [],
@@ -130,9 +122,9 @@ export async function build(config) {
         platform,
         format,
         external,
-        metafile,
-        jsxFactory: jsx && jsx.pragma || undefined,
-        jsxFragment: jsx && jsx.pragmaFrag || undefined,
+        metafile: metafile || !!manifest || !!entrypoints,
+        jsxFactory,
+        jsxFragment,
         mainFields: ['module', 'esnext', 'jsnext', 'jsnext:main', 'main'],
         loader: loaders,
         watch: watch && {
@@ -142,17 +134,18 @@ export async function build(config) {
                     console.error(error);
                 }
 
-                if (metafile && result) {
-                    const metaDir = typeof metafile === 'string' ? metafile : outputDir;
-                    saveManifestJson(result, metaDir, publicPath);
-                    saveEndpointsJson(entryOptions.entryPoints, result, root, metaDir, publicPath, { format });
+                if (manifest && result) {
+                    saveManifestJson(result, typeof manifest === 'string' ? manifest : outputDir, publicPath);
+                }
+                if (entrypoints && result) {
+                    saveEndpointsJson(entryOptions.entryPoints, result, root, typeof entrypoints === 'string' ? entrypoints : outputDir, publicPath, { format });
                 }
             },
         },
         plugins: [
             (await import('@chialab/esbuild-plugin-any-file')).default(),
             (await import('@chialab/esbuild-plugin-env')).default(),
-            (await import('@chialab/esbuild-plugin-jsx-import')).default(jsx && jsx.import),
+            (await import('@chialab/esbuild-plugin-jsx-import')).default({ jsxModule, jsxExport }),
             ...plugins,
             (await import('@chialab/esbuild-plugin-transform')).start(),
             (await import('@chialab/esbuild-plugin-commonjs')).default({ esbuild }),
@@ -165,10 +158,11 @@ export async function build(config) {
         ],
     });
 
-    if (metafile) {
-        const metaDir = typeof metafile === 'string' ? metafile : outputDir;
-        await saveManifestJson(result, metaDir, publicPath);
-        await saveEndpointsJson(entryOptions.entryPoints, result, root, metaDir, publicPath, { format });
+    if (manifest && result) {
+        saveManifestJson(result, typeof manifest === 'string' ? manifest : outputDir, publicPath);
+    }
+    if (entrypoints && result) {
+        saveEndpointsJson(entryOptions.entryPoints, result, root, typeof entrypoints === 'string' ? entrypoints : outputDir, publicPath, { format });
     }
 
     return result;
@@ -191,20 +185,21 @@ export function command(program) {
         .option('--target <query>', 'output targets (es5, es2015, es2020)')
         .option('--entryNames <pattern>', 'output file names')
         .option('--clean', 'cleanup output path')
-        .option('--metafile [path]', 'generate manifest and endpoints maps')
+        .option('--manifest [path]', 'generate manifest file')
+        .option('--entrypoints [path]', 'generate entrypoints file')
         .option('--name <identifier>', 'the iife global name')
         .option('--external [modules]', 'comma separated external packages')
         .option('--no-map', 'do not generate sourcemaps')
-        .option('--jsxPragma <identifier>', 'jsx pragma')
+        .option('--jsxFactory <identifier>', 'jsx pragma')
         .option('--jsxFragment <identifier>', 'jsx fragment')
         .option('--jsxModule <name>', 'jsx module name')
         .option('--jsxExport <type>', 'jsx export mode')
         .action(
             /**
              * @param {string[]} input
-             * @param {{ output: string, format?: import('esbuild').Format, platform: import('esbuild').Platform, bundle?: boolean, minify?: boolean, name?: string, watch?: boolean, metafile?: boolean, target?: string, public?: string, entryNames?: string, clean?: boolean, external?: string, map?: boolean, jsxPragma?: string, jsxFragment?: string, jsxModule?: string, jsxExport?: 'named'|'namespace'|'default' }} options
+             * @param {{ output: string, format?: import('esbuild').Format, platform: import('esbuild').Platform, bundle?: boolean, minify?: boolean, name?: string, watch?: boolean, manifest?: boolean|string, entrypoints?: boolean|string, target?: string, public?: string, entryNames?: string, clean?: boolean, external?: string, map?: boolean, jsxFactory?: string, jsxFragment?: string, jsxModule?: string, jsxExport?: 'named'|'namespace'|'default' }} options
              */
-            async (input, { output, format = 'esm', platform, bundle, minify, name, watch, metafile, target, public: publicPath, entryNames, clean, external, map, jsxPragma, jsxFragment, jsxModule, jsxExport }) => {
+            async (input, { output, format = 'esm', platform, bundle, minify, name, watch, manifest, entrypoints, target, public: publicPath, entryNames, clean, external, map, jsxFactory, jsxFragment, jsxModule, jsxExport }) => {
                 const { default: esbuild } = await import('esbuild');
 
                 /**
@@ -256,19 +251,16 @@ export function command(program) {
                     target,
                     clean,
                     watch,
-                    metafile,
+                    manifest,
+                    entrypoints,
                     external: external ? external.split(',') : undefined,
-                    publicPath: publicPath ? path.resolve(publicPath) : undefined,
+                    publicPath,
                     entryNames,
                     sourcemap: map,
-                    jsx: jsxPragma ? {
-                        pragma: jsxPragma,
-                        pragmaFrag: jsxFragment,
-                        import: jsxModule ? {
-                            module: jsxModule,
-                            export: jsxExport,
-                        } : undefined,
-                    } : undefined,
+                    jsxFactory,
+                    jsxFragment,
+                    jsxModule,
+                    jsxExport,
                     plugins,
                     transformPlugins,
                 });

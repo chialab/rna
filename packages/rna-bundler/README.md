@@ -65,11 +65,12 @@ Options:
   --target <query>            output targets (es5, es2015, es2020)
   --entryNames <pattern>      output file names
   --clean                     cleanup output path
-  --metafile [path]           generate manifest and endpoints maps
+  --manifest [path]           generate manifest file
+  --entrypoints [path]        generate entrypoints file
   --name <identifier>         the iife global name
   --external [modules]        comma separated external packages
   --no-map                    do not generate sourcemaps
-  --jsxPragma <identifier>    jsx pragma
+  --jsxFactory <identifier>   jsx pragma
   --jsxFragment <identifier>  jsx fragment
   --jsxModule <name>          jsx module name
   --jsxExport <type>          jsx export mode

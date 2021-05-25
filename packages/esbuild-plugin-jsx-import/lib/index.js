@@ -1,6 +1,6 @@
 /**
  * A plugin for esbuild that enables automatic injection of the jsx module import.
- * @param {{ module?: string, export?: 'named'|'namespace'|'default' }} opts
+ * @param {{ jsxModule?: string, jsxExport?: 'named'|'namespace'|'default' }} opts
  * @return An esbuild plugin.
  */
 export default function(opts = {}) {
@@ -15,7 +15,7 @@ export default function(opts = {}) {
             let options = build.initialOptions;
             let { jsxFactory, jsxFragment } = options;
 
-            if (!jsxFactory || !opts || !opts.module) {
+            if (!jsxFactory || !opts || !opts.jsxModule) {
                 return;
             }
 
@@ -33,18 +33,18 @@ export default function(opts = {}) {
             }
 
             // force js loader
-            build.onLoad({ filter: new RegExp(`${opts.module}\\/.*\\.js$`) }, () => ({
+            build.onLoad({ filter: new RegExp(`${opts.jsxModule}\\/.*\\.js$`) }, () => ({
                 loader: 'js',
             }));
 
             build.onLoad({ filter: new RegExp(RUNTIME_ALIAS) }, () => {
                 let contents = '';
-                if (opts.export === 'default') {
-                    contents = `export { default as ${identifier} } from '${opts.module}';`;
-                } else if (opts.export === 'namespace') {
-                    contents = `export * as ${identifier} from '${opts.module}';`;
+                if (opts.jsxExport === 'default') {
+                    contents = `export { default as ${identifier} } from '${opts.jsxModule}';`;
+                } else if (opts.jsxExport === 'namespace') {
+                    contents = `export * as ${identifier} from '${opts.jsxModule}';`;
                 } else {
-                    contents = `export { ${specs.join(',')} } from '${opts.module}';`;
+                    contents = `export { ${specs.join(',')} } from '${opts.jsxModule}';`;
                 }
 
                 contents += '\n//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIiJdLCJtYXBwaW5ncyI6IkEifQ==';

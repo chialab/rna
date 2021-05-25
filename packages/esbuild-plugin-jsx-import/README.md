@@ -26,8 +26,8 @@ await esbuild.build({
     jsxFragment: 'Fragment',
     plugins: [
         jsxImportPlugin({
-            module: '@chialab/dna',
-            export: 'named',
+            jsxModule: '@chialab/dna',
+            jsxExport: 'named',
         }),
     ],
 });

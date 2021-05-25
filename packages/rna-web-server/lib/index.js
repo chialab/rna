@@ -4,7 +4,7 @@ import { promises } from 'fs';
 const { stat } = promises;
 
 /**
- * @typedef {import('@web/dev-server').DevServerConfig & { metafile?: boolean|string, entryPoints?: string[] }} DevServerConfig
+ * @typedef {import('@web/dev-server').DevServerConfig & { entries?: string[], entrypoints?: boolean|string }} DevServerConfig
  */
 
 /**
@@ -32,7 +32,7 @@ export async function serve(config) {
         //
     }
 
-    let server = await startDevServer({
+    const server = await startDevServer({
         readCliArgs: false,
         readFileConfig: false,
         autoExitProcess: true,
@@ -80,16 +80,10 @@ export async function serve(config) {
         },
     });
 
-    if (config.metafile) {
+    if (config.entrypoints) {
         const { saveDevEndpointsJson } = await import('@chialab/rna-bundler');
-        let metaDir;
-        if (typeof config.metafile === 'string') {
-            metaDir = config.metafile;
-        } else {
-            metaDir = config.rootDir || process.cwd();
-        }
-
-        await saveDevEndpointsJson(config.entryPoints || [], metaDir, server, {
+        const dir = typeof config.entrypoints === 'string' ? config.entrypoints : (config.rootDir || process.cwd());
+        await saveDevEndpointsJson(config.entries || [], dir, server, {
             format: 'esm',
         });
     }
@@ -102,17 +96,16 @@ export async function serve(config) {
  */
 export function command(program) {
     program
-        .command('serve [root]')
+        .command('serve [root...]')
         .description('Start a web dev server (https://modern-web.dev/docs/dev-server/overview/) that transforms ESM imports for node resolution on demand. It also uses esbuild (https://esbuild.github.io/) to compile non standard JavaScript syntax.')
         .option('-P, --port <number>', 'server port number')
-        .option('--metafile [path]', 'generate manifest and endpoints maps')
-        .option('--entrypoints <entry...>', 'list of server entrypoints')
+        .option('--entrypoints [path]', 'generate and serve endpoints')
         .action(
             /**
-             * @param {string} rootDir
-             * @param {{ port?: string, metafile?: boolean, entrypoints?: string[] }} options
+             * @param {string[]} entries
+             * @param {{ port?: string, entrypoints?: boolean|string }} options
              */
-            async (rootDir, { port, metafile, entrypoints = [] }) => {
+            async (entries, { port, entrypoints }) => {
                 /**
                  * @type {import('@web/dev-server-core').Plugin[]}
                  */
@@ -122,10 +115,10 @@ export function command(program) {
                  * @type {DevServerConfig}
                  */
                 const config = {
-                    rootDir: rootDir ? rootDir : undefined,
+                    rootDir: entrypoints ? process.cwd() : (entries[0] || process.cwd()),
                     port: port ? parseInt(port) : undefined,
-                    metafile,
-                    entryPoints: entrypoints.map((entry) => path.resolve(entry)),
+                    entries,
+                    entrypoints,
                 };
                 try {
                     const { legacyPlugin } = await import('@chialab/wds-plugin-legacy');

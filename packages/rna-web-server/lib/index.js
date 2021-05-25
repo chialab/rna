@@ -81,9 +81,9 @@ export async function serve(config) {
     });
 
     if (config.entrypoints) {
-        const { saveDevEndpointsJson } = await import('@chialab/rna-bundler');
+        const { saveDevEntrypointsJson } = await import('@chialab/rna-bundler');
         const dir = typeof config.entrypoints === 'string' ? config.entrypoints : (config.rootDir || process.cwd());
-        await saveDevEndpointsJson(config.entries || [], dir, server, {
+        await saveDevEntrypointsJson(config.entries || [], dir, server, {
             format: 'esm',
         });
     }
@@ -99,7 +99,7 @@ export function command(program) {
         .command('serve [root...]')
         .description('Start a web dev server (https://modern-web.dev/docs/dev-server/overview/) that transforms ESM imports for node resolution on demand. It also uses esbuild (https://esbuild.github.io/) to compile non standard JavaScript syntax.')
         .option('-P, --port <number>', 'server port number')
-        .option('--entrypoints [path]', 'generate and serve endpoints')
+        .option('--entrypoints [path]', 'generate and serve entrypoints')
         .action(
             /**
              * @param {string[]} entries

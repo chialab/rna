@@ -4,11 +4,11 @@ import { loaders } from './loaders.js';
 import { emptyDir } from './emptyDir.js';
 import { camelize } from './camelize.js';
 import { saveManifestJson } from './saveManifestJson.js';
-import { saveEndpointsJson, saveDevEndpointsJson } from './saveEndpointsJson.js';
+import { saveEntrypointsJson, saveDevEntrypointsJson } from './saveEntrypointsJson.js';
 
 const { readFile } = promises;
 
-export { loaders, saveManifestJson, saveEndpointsJson, saveDevEndpointsJson };
+export { loaders, saveManifestJson, saveEntrypointsJson, saveDevEntrypointsJson };
 
 /**
  * @typedef {Omit<import('esbuild').BuildOptions, 'loader'> & { output: string, root?: string, input?: string|string[], code?: string, loader?: import('esbuild').Loader, jsxModule?: string, jsxExport?: 'default'|'named'|'namespace', transformPlugins?: import('esbuild').Plugin[], manifest?: boolean|string, entrypoints?: boolean|string, clean?: boolean }} BuildConfig
@@ -138,7 +138,7 @@ export async function build(config) {
                     saveManifestJson(result, typeof manifest === 'string' ? manifest : outputDir, publicPath);
                 }
                 if (entrypoints && result) {
-                    saveEndpointsJson(entryOptions.entryPoints, result, root, typeof entrypoints === 'string' ? entrypoints : outputDir, publicPath, { format });
+                    saveEntrypointsJson(entryOptions.entryPoints, result, root, typeof entrypoints === 'string' ? entrypoints : outputDir, publicPath, { format });
                 }
             },
         },
@@ -162,7 +162,7 @@ export async function build(config) {
         saveManifestJson(result, typeof manifest === 'string' ? manifest : outputDir, publicPath);
     }
     if (entrypoints && result) {
-        saveEndpointsJson(entryOptions.entryPoints, result, root, typeof entrypoints === 'string' ? entrypoints : outputDir, publicPath, { format });
+        saveEntrypointsJson(entryOptions.entryPoints, result, root, typeof entrypoints === 'string' ? entrypoints : outputDir, publicPath, { format });
     }
 
     return result;

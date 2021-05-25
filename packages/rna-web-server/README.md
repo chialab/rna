@@ -49,7 +49,7 @@ serve [options] [root]
 
 Options:
   -P, --port <number>   server port number
-  --entrypoints [path]  generate and serve endpoints
+  --entrypoints [path]  generate and serve entrypoints
   -h, --help            display help for command
 ```
 

@@ -5,7 +5,7 @@ import { loaders } from './loaders.js';
 const { writeFile } = promises;
 
 /**
- * Write endpoints.json
+ * Write entrypoints.json
  * @param {string[]} entrypoints The build entrypoints.
  * @param {import('esbuild').BuildResult} result The build result.
  * @param {string} rootDir The root dir.
@@ -13,7 +13,7 @@ const { writeFile } = promises;
  * @param {string} publicPath The public path.
  * @param {Object} extras Extra metadata, such as bundle format.
  */
-export async function saveEndpointsJson(entrypoints, result, rootDir, outputFile, publicPath = '/', extras = {}) {
+export async function saveEntrypointsJson(entrypoints, result, rootDir, outputFile, publicPath = '/', extras = {}) {
     const { metafile } = result;
     if (!metafile) {
         return;
@@ -61,13 +61,13 @@ export async function saveEndpointsJson(entrypoints, result, rootDir, outputFile
 
 
 /**
- * Write endpoints.json for dev server
+ * Write entrypoints.json for dev server
  * @param {string[]} entrypoints The build entrypoints.
  * @param {string} outputFile The output file or dir.
  * @param {import('@web/dev-server-core').DevServer} server The server instance.
  * @param {Object} extras Extra metadata, such as bundle format.
  */
-export async function saveDevEndpointsJson(entrypoints, outputFile, server, extras = {}) {
+export async function saveDevEntrypointsJson(entrypoints, outputFile, server, extras = {}) {
     const { config } = server;
     const base = `http${config.http2 ? 's' : ''}://${config.hostname ?? 'localhost'}:${config.port}`;
     const outputDir = path.extname(outputFile) ? path.dirname(outputFile) : outputFile;

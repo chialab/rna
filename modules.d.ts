@@ -11,7 +11,7 @@ declare type SourceMap = {
 declare module '@parcel/source-map' {
     class SourceMapNode {
         setSourceContent(filename: string, contents: string);
-        addRawMappings(mapping: SourceMap);
+        addVLQMap(mapping: SourceMap);
         extends(buffer: Buffer);
         toVLQ(): SourceMap;
         toBuffer(): Buffer;

@@ -134,7 +134,7 @@ function buildEntryFactory(build, shouldReturn = true) {
             mapping.sources = [basename];
             mapping.sourcesContent = [original];
             const map = new SourceMap();
-            map.addRawMappings(mapping);
+            map.addVLQMap(mapping);
             map.extends(sourceMap.toBuffer());
             return map;
         }, initialSourceMap);

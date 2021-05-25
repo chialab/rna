@@ -21,7 +21,7 @@ The `@chialab/rna` contains only the core of the RNA cli. In order to make comma
 | Command | Description | Module |
 | ------- | ----------- | ------ |
 | `build` | A JavaScript, CSS and HTML bundler based on esbuild. | [@chialab/rna-bundler](https://www.npmjs.com/package/@chialab/rna-bundler) |
-| `serve` | A webapp server based on Web Dev Server. | [@chialab/rna-web-server](https://www.npmjs.com/package/@chialab/rna-web-server) |
+| `serve` | A webapp server based on Web Dev Server. | [@chialab/rna-dev-server](https://www.npmjs.com/package/@chialab/rna-dev-server) |
 | `test:browser` | A test runner for browsers based on Web Test Runner. | [@chialab/rna-browser-test-runner](https://www.npmjs.com/package/@chialab/rna-browser-test-runner) |
 | `test:node` | A test runner for node based on mocha. | [@chialab/rna-node-test-runner](https://www.npmjs.com/package/@chialab/rna-node-test-runner) |
 
@@ -31,13 +31,13 @@ The `@chialab/rna` contains only the core of the RNA cli. In order to make comma
 $ npm i -D \
   @chialab/rna \
   @chialab/rna-bundler \
-  @chialab/rna-web-server \
+  @chialab/rna-dev-server \
   @chialab/rna-browser-test-runner
 
 $ yarn add -D \
   @chialab/rna \
   @chialab/rna-bundler \
-  @chialab/rna-web-server \
+  @chialab/rna-dev-server \
   @chialab/rna-browser-test-runner
 ```
 
@@ -50,7 +50,7 @@ $ npm i -D \
   @chialab/esbuild-plugin-babel \
   @chialab/esbuild-plugin-html \
   @chialab/esbuild-plugin-postcss \
-  @chialab/rna-web-server \
+  @chialab/rna-dev-server \
   @chialab/rna-browser-test-runner
 
 $ yarn add -D \
@@ -59,7 +59,7 @@ $ yarn add -D \
   @chialab/esbuild-plugin-babel \
   @chialab/esbuild-plugin-html \
   @chialab/esbuild-plugin-postcss \
-  @chialab/rna-web-server \
+  @chialab/rna-dev-server \
   @chialab/rna-browser-test-runner
 ```
 

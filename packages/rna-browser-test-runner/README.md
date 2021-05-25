@@ -48,7 +48,7 @@ $ npm i @chialab/rna @chialab/rna-browser-test-runner -D
 test:browser [options] [specs...]
 
 Options:
-  -P, --port                 web server port
+  -P, --port                 dev server port
   --watch                    watch test files
   --concurrency <number>     number of concurrent browsers
   --coverage                 add coverage to tests

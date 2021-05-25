@@ -53,7 +53,7 @@ $ npm i @chialab/rna @chialab/rna-saucelabs-test-runner -D
 test:saucelabs [options] [specs...]
 
 Options:
-  -P, --port                 web server port
+  -P, --port                 dev server port
   --browsers [browsers...]   saucelabs browsers list
   --watch                    watch test files
   --concurrency <number>     number of concurrent browsers

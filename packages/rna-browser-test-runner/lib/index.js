@@ -92,7 +92,7 @@ export function command(program) {
     program
         .command('test:browser [specs...]')
         .description('Start a browser test runner (https://modern-web.dev/docs/test-runner/overview/) based on the web dev server. It uses mocha (https://mochajs.org/) but you still need to import an assertion library (recommended https://open-wc.org/docs/testing/testing-package/).')
-        .option('-P, --port', 'web server port')
+        .option('-P, --port', 'dev server port')
         .option('--watch', 'watch test files')
         .option('--concurrency <number>', 'number of concurrent browsers', parseInt)
         .option('--manual', 'manual test mode')

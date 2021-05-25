@@ -1,5 +1,5 @@
 {
-  "name": "@chialab/rna-web-server",
+  "name": "@chialab/rna-dev-server",
   "type": "module",
   "version": "0.7.6",
   "description": "A webapp server based on Web Dev Server.",
@@ -10,7 +10,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/chialab/rna",
-    "directory": "packages/rna-web-server"
+    "directory": "packages/rna-dev-server"
   },
   "keywords": [
     "dev-server",

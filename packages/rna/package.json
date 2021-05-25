@@ -42,7 +42,7 @@
     "@chialab/rna-bundler": "^0.7.0",
     "@chialab/rna-node-test-runner": "^0.7.0",
     "@chialab/rna-saucelabs-test-runner": "^0.7.0",
-    "@chialab/rna-web-server": "^0.7.0"
+    "@chialab/rna-dev-server": "^0.7.0"
   },
   "peerDependenciesMeta": {
     "@chialab/rna-apidoc": {
@@ -60,7 +60,7 @@
     "@chialab/rna-saucelabs-test-runner": {
       "optional": true
     },
-    "@chialab/rna-web-server": {
+    "@chialab/rna-dev-server": {
       "optional": true
     }
   },

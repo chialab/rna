@@ -67,8 +67,10 @@ export default function({ presets = [], plugins = [], esbuild = esbuildModule } 
                     plugins,
                 };
 
+                const { default: jsx } = await import('@babel/plugin-syntax-jsx');
                 const { default: runtimePlugin } = await import('@babel/plugin-transform-runtime');
                 plugins.unshift(
+                    jsx,
                     [runtimePlugin, {
                         corejs: false,
                         helpers: true,

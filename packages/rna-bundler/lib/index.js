@@ -86,7 +86,8 @@ export async function build(config) {
             const packageJson = JSON.parse(await readFile(packageFile, 'utf-8'));
             external.push(
                 ...Object.keys(packageJson.dependencies || {}),
-                ...Object.keys(packageJson.peerDependencies || {})
+                ...Object.keys(packageJson.peerDependencies || {}),
+                ...Object.keys(packageJson.optionalDependencies || {})
             );
         }
     }

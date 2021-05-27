@@ -4,7 +4,7 @@
  * @return An esbuild plugin.
  */
 export default function(opts = {}) {
-    const RUNTIME_ALIAS = '__jsx-runtime__';
+    const RUNTIME_ALIAS = '__jsx-runtime__.js';
 
     /**
      * @type {import('esbuild').Plugin}
@@ -31,11 +31,6 @@ export default function(opts = {}) {
             if (jsxFragment) {
                 specs.push(jsxFragment.split('.')[0]);
             }
-
-            // force js loader
-            build.onLoad({ filter: new RegExp(`${opts.jsxModule}\\/.*\\.js$`) }, () => ({
-                loader: 'js',
-            }));
 
             build.onLoad({ filter: new RegExp(RUNTIME_ALIAS) }, () => {
                 let contents = '';

@@ -133,10 +133,15 @@ function buildEntryFactory(build, shouldReturn = true) {
             mapping.file = basename;
             mapping.sources = [basename];
             mapping.sourcesContent = [original];
-            const map = new SourceMap();
-            map.addVLQMap(mapping);
-            map.extends(sourceMap.toBuffer());
-            return map;
+            try {
+                const map = new SourceMap();
+                map.addVLQMap(mapping);
+                map.extends(sourceMap.toBuffer());
+                return map;
+            } catch(err) {
+                //
+            }
+            return sourceMap;
         }, initialSourceMap);
 
         const map = sourceMap.toVLQ();

@@ -62,7 +62,7 @@ export async function serve(config) {
                         '.mjs': 'tsx',
                         '.js': 'tsx',
                         '.jsx': 'tsx',
-                        '.ts': 'tsx',
+                        '.ts': 'ts',
                         '.tsx': 'tsx',
                         '.json': 'json',
                         '.geojson': 'json',

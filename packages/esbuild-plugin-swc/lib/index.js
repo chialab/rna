@@ -27,6 +27,7 @@ export default function({ plugins = [], esbuild = esbuildModule } = {}) {
         name: 'swc',
         setup(build) {
             const options = build.initialOptions;
+            const loaders = options.loader || {};
             const { filter, getEntry, buildEntry } = getTransformOptions(build);
 
             build.onResolve({ filter: /@swc\/helpers/ }, async () => ({
@@ -44,7 +45,7 @@ export default function({ plugins = [], esbuild = esbuildModule } = {}) {
                     const { code, map } = await esbuild.transform(entry.code, {
                         sourcefile: args.path,
                         sourcemap: true,
-                        loader: 'tsx',
+                        loader: loaders[path.extname(args.path)] === 'ts' ? 'ts' : 'tsx',
                         format: 'esm',
                         target: TARGETS.es2020,
                         jsxFactory: options.jsxFactory,

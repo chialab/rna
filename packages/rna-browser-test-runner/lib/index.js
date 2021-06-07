@@ -63,7 +63,7 @@ export async function test(config) {
                     '.cjs': 'tsx',
                     '.mjs': 'tsx',
                     '.jsx': 'tsx',
-                    '.ts': 'tsx',
+                    '.ts': 'ts',
                     '.tsx': 'tsx',
                     '.json': 'json',
                     '.geojson': 'json',

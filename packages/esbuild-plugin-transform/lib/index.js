@@ -55,8 +55,8 @@ export function getTransformOptions(build) {
         store: new Map(),
         filter: createFilter(options),
         getEntry: getEntryFactory(build),
-        buildEntry: buildEntryFactory(build),
-        finishEntry: buildEntryFactory(build),
+        buildEntry: buildEntryFactory(build, options),
+        finishEntry: buildEntryFactory(build, options),
     };
 }
 
@@ -99,8 +99,9 @@ function getEntryFactory(build) {
 
 /**
  * @param {import('esbuild').PluginBuild} build
+ * @param {import('esbuild').BuildOptions} options
  */
-function buildEntryFactory(build, shouldReturn = true) {
+function buildEntryFactory(build, options, shouldReturn = true) {
     /**
      * @param {string} filePath
      * @param {Partial<import('esbuild').OnLoadResult>} extra
@@ -117,11 +118,13 @@ function buildEntryFactory(build, shouldReturn = true) {
             return;
         }
 
+        const loaders = options.loader || {};
+        const defaultLoader = (loaders[path.extname(filePath)] === 'ts' ? 'ts' : 'tsx');
         const { original, mappings, code } = entry;
         if (!mappings.length) {
             return {
                 ...extra,
-                loader: entry.loader || extra.loader || 'tsx',
+                loader: entry.loader || extra.loader || defaultLoader,
                 contents: code,
             };
         }
@@ -152,7 +155,7 @@ function buildEntryFactory(build, shouldReturn = true) {
 
         return {
             ...extra,
-            loader: entry.loader || extra.loader || 'tsx',
+            loader: entry.loader || extra.loader || defaultLoader,
             contents: `${code}\n//# sourceMappingURL=data:application/json;base64,${Buffer.from(JSON.stringify(map)).toString('base64')}`,
         };
     }
@@ -184,8 +187,8 @@ export function start() {
                     filter,
                     store,
                     getEntry: getEntryFactory(build),
-                    buildEntry: buildEntryFactory(build, false),
-                    finishEntry: buildEntryFactory(build),
+                    buildEntry: buildEntryFactory(build, options, false),
+                    finishEntry: buildEntryFactory(build, options),
                 },
             });
         },
@@ -204,10 +207,12 @@ export function end() {
     const plugin = {
         name: 'transform-end',
         setup(build) {
+            const options = build.initialOptions;
+            const loaders = options.loader || {};
             const { filter, finishEntry } = getTransformOptions(build);
 
             build.onLoad({ filter, namespace: 'file' }, async (args) => finishEntry(args.path, {
-                loader: 'tsx',
+                loader: loaders[path.extname(args.path)] === 'ts' ? 'ts' : 'tsx',
             }));
         },
     };

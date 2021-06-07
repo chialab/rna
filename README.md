@@ -13,8 +13,11 @@
 ## Quick usage
 
 ```sh
-$ npm i @chialab/rna -D
-$ yarn add @chialab/rna -D
+$ npm i -D \
+    @chialab/rna \
+    @chialab/rna-bundler \
+    @chialab/rna-dev-server \
+    @chialab/rna-browser-test-runner
 ```
 
 **package.json**

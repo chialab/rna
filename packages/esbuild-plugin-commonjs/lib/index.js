@@ -1,3 +1,4 @@
+import path from 'path';
 import esbuildModule from 'esbuild';
 import { transform, ESM_KEYWORDS, CJS_KEYWORDS } from '@chialab/cjs-to-esm';
 import { TARGETS, getTransformOptions } from '@chialab/esbuild-plugin-transform';
@@ -18,6 +19,7 @@ export default function({ esbuild = esbuildModule } = {}) {
                 return;
             }
 
+            const loaders = options.loader || {};
             const { filter, getEntry, buildEntry } = getTransformOptions(build);
 
             build.onLoad({ filter, namespace: 'file' }, async (args) => {
@@ -31,7 +33,7 @@ export default function({ esbuild = esbuildModule } = {}) {
                     const { code, map } = await esbuild.transform(entry.code, {
                         sourcefile: args.path,
                         sourcemap: true,
-                        loader: 'tsx',
+                        loader: loaders[path.extname(args.path)] === 'ts' ? 'ts' : 'tsx',
                         format: 'cjs',
                         target: TARGETS.es2020,
                         jsxFactory: options.jsxFactory,

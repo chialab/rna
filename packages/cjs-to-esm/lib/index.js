@@ -5,8 +5,9 @@ export const REQUIRE_REGEX = /([^.\w$]|^)require\s*\((['"])(.*?)\2\)/g;
 export const UMD_REGEXES = [
     /\btypeof\s+exports\s*===?\s*['|"]object['|"]/,
     /\btypeof\s+define\s*===?\s*['|"]function['|"]/,
-    /\btypeof\s+window\s*!==?\s*['|"]undefined['|"]/,
 ];
+export const UMD_GLOBALS = ['globalThis', 'global', 'self', 'window'];
+export const UMD_GLOBALS_REGEXES = UMD_GLOBALS.map((varName) => new RegExp(`\\btypeof\\s+(${varName})\\s*!==?\\s*['|"]undefined['|"]`));
 export const ESM_KEYWORDS = /((?:^\s*|;\s*)(\bimport\s*(\{.*?\}\s*from|\s[\w$]+\s+from|\*\s*as\s+[^\s]+\s+from)?\s*['"])|((?:^\s*|;\s*)export(\s+(default|const|var|let|function|class)[^\w$]|\s*\{)))/m;
 export const CJS_KEYWORDS = /\b(module\.exports|exports|require)\b/;
 
@@ -59,13 +60,33 @@ export function transform(contents, { source, sourceMap = true, ignore = () => f
     }
 
     if (isUmd) {
-        magicCode.prepend('var __umd = {}; (function(window, globalThis) {\n');
-        magicCode.append('\n }).call(__umd, __umd, __umd);');
+        let endDefinition = contents.indexOf('\'use strict\';');
+        if (endDefinition === -1) {
+            endDefinition = contents.indexOf('"use strict";');
+        }
+        if (endDefinition === -1) {
+            endDefinition = contents.length;
+        }
+
+        let varName = '';
+        UMD_GLOBALS.forEach((name, index) => {
+            const regex = UMD_GLOBALS_REGEXES[index];
+            const match = contents.match(regex);
+            if (match && match.index != null && match.index < endDefinition) {
+                if (varName) {
+                    magicCode.overwrite(match.index, match.index + match[0].length, 'false');
+                } else {
+                    varName = name;
+                }
+            }
+        });
+        magicCode.prepend(`var __umd = {}; (function(${varName || '_'}) {\n`);
+        magicCode.append('\n }).call(__umd, __umd);');
         magicCode.append('\nvar __umdExport = Object.keys(__umd)[0];');
-        magicCode.append('\nif (typeof window !== \'undefined\') window[__umdExport] = __umd[__umdExport];');
-        magicCode.append('\nif (typeof self !== \'undefined\') self[__umdExport] = __umd[__umdExport];');
-        magicCode.append('\nif (typeof global !== \'undefined\') global[__umdExport] = __umd[__umdExport];');
-        magicCode.append('\nif (typeof globalThis !== \'undefined\') globalThis[__umdExport] = __umd[__umdExport];');
+        magicCode.append('\nif (__umdExport && typeof window !== \'undefined\') window[__umdExport] = __umd[__umdExport];');
+        magicCode.append('\nif (__umdExport && typeof self !== \'undefined\') self[__umdExport] = __umd[__umdExport];');
+        magicCode.append('\nif (__umdExport && typeof global !== \'undefined\') global[__umdExport] = __umd[__umdExport];');
+        magicCode.append('\nif (__umdExport && typeof globalThis !== \'undefined\') globalThis[__umdExport] = __umd[__umdExport];');
         magicCode.append('\nexport default __umd[__umdExport]');
     } else {
         magicCode.prepend('var module = { exports: {} }, exports = module.exports;\n');

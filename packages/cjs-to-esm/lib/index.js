@@ -59,8 +59,8 @@ export function transform(contents, { source, sourceMap = true, ignore = () => f
     }
 
     if (isUmd) {
-        magicCode.prepend('var __umd = {}; (function(window) {\n');
-        magicCode.append('\n })(__umd);');
+        magicCode.prepend('var __umd = {}; (function(window, globalThis) {\n');
+        magicCode.append('\n }).call(__umd, __umd, __umd);');
         magicCode.append('\nvar __umdExport = Object.keys(__umd)[0];');
         magicCode.append('\nif (typeof window !== \'undefined\') window[__umdExport] = __umd[__umdExport];');
         magicCode.append('\nif (typeof self !== \'undefined\') self[__umdExport] = __umd[__umdExport];');

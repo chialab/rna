@@ -10,6 +10,10 @@
 
 ---
 
+Full documentation at [Chialab.io](https://www.chialab.io/p/rna) and [Github Wiki](https://github.com/chialab/rna/wiki).
+
+---
+
 ## Quick usage
 
 ```sh
@@ -31,7 +35,7 @@ $ npm i -D \
 }
 ```
 
-See more [here](./packages/rna).
+Read more about the [cli module](./packages/rna).
 
 ---
 

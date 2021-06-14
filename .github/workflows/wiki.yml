@@ -14,7 +14,7 @@ jobs:
           git config --global user.email "dev@chialab.io"
           git config --global user.name "chialab-io"
           git clone https://${GITHUB_TOKEN}@github.com/chialab/rna.wiki.git wiki
-          rm -rf wiki/*
+          rm -rf wiki/*.md
           cp -rf docs/* wiki
           git add .
           git diff-index --quiet HEAD || git commit -m "Update wiki from workflow"

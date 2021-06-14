@@ -3,9 +3,9 @@
 
 ### Build
 
-* [Build ESM and CJS modules](./Build-modules)
-* [Build CSS modules](./Build-css)
-* [Build Web Apps](./Build-web-apps)
+* [Building ESM and CJS modules](./Building-modules)
+* [Building CSS modules](./Building-css)
+* [Building Web Apps](./Building-web-apps)
 
 ### Dev Server
 

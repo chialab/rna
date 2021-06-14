@@ -12,7 +12,7 @@ The RNA ecosystem is heavily based on [esbuild](https://esbuild.github.io/), *an
 
 ## 🚀 Development server
 
-Build plugins are also available for a dev web server based on the [Web Dev Server project](https://modern-web.dev/docs/dev-server/overview/). Since WDS and RNA philosophy is to use standard syntax and practises in web projects, you can run a local server with hot module replacement and CSS livereload without have to bundle your web app first or to re-run a partial build for each change. Files loaded via ESM will pass through a little esbuild transpilation in order to support TypeScript, CommonJS modules and node resolution, making a great difference in developer experience. The dev server can be used also for PHP with an Encore-like approach.
+Build plugins are also available for a dev web server based on the [Web Dev Server project](https://modern-web.dev/docs/dev-server/overview/). Since WDS and [RNA philosophy](./Concepts) is to use standard syntax and practises in web projects, you can run a local server with hot module replacement and CSS livereload without have to bundle your web app first or to re-run a partial build for each change. Files loaded via ESM will pass through a little esbuild transpilation in order to support TypeScript, CommonJS modules and node resolution, making a great difference in developer experience. The dev server can be used also for PHP with an Encore-like approach.
 
 ## 🧭 Testing in the browser
 

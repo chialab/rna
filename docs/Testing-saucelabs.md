@@ -1,1 +1,1 @@
-# Testing in the SauceLabs cloud
+# Testing in SauceLabs

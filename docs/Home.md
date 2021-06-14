@@ -26,6 +26,8 @@ Since RNA aims to support both browser and Node modules, you can test your modul
 
 ## Quick usage
 
+[<img src="https://img.shields.io/npm/v/@chialab/rna" alt="npm" />](https://www.npmjs.com/package/@chialab/rna)
+
 ```sh
 $ npm i -D \
     @chialab/rna \

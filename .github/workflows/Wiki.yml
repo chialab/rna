@@ -14,10 +14,8 @@ jobs:
           git config --global user.email "dev@chialab.io"
           git config --global user.name "chialab-io"
           git clone https://${GITHUB_TOKEN}@github.com/chialab/rna.wiki.git wiki
+          cp -rf docs/* wiki
           cd wiki
-          git checkout ${GITHUB_REF#refs/heads/} || git checkout -B ${GITHUB_REF#refs/heads/}
-          cp -rf ../docs/* .
           git add .
           git diff-index --quiet HEAD || git commit -m "Update wiki from workflow"
-          git push --set-upstream origin ${GITHUB_REF#refs/heads/} --follow-tags
-          cd ..
+          git push --set-upstream origin master --follow-tags

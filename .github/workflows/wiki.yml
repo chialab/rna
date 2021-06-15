@@ -16,6 +16,6 @@ jobs:
           git clone https://${GITHUB_TOKEN}@github.com/chialab/rna.wiki.git wiki
           rm -rf wiki/*.md
           cp -rf docs/* wiki
-          git add .
-          git diff-index --quiet HEAD || git commit -m "Update wiki from workflow"
-          git push --set-upstream origin master --follow-tags
+          git -C wiki add .
+          git -C wiki diff-index --quiet HEAD || git -C wiki commit -m "Update wiki from workflow"
+          git -C wiki push --set-upstream origin master --follow-tags

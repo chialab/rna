@@ -59,6 +59,8 @@ And creating or updating tghe postcss config file:
 
 ## Recommendations
 
+### Stylelint
+
 Although out of RNA scope, we strongly recommend to use a linter for CSS projects. Our preferred one is [Stylelint](https://stylelint.io/) that is built upon the PostCSS parser.  
 First, you need to install the stylelint cli:
 

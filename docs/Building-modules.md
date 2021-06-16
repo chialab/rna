@@ -24,7 +24,7 @@ $ yarn rna build src/index.js --output public/index.js
 
 This will generate a ESM bundle at the `--output` destination. Using `--format` and `--platform` flags we can generate multiple bundles that targets both browser and Node environments.
 
-## Bundling for the browser
+## Bundling for the Web
 
 TODO
 
@@ -54,14 +54,14 @@ if (process.env.NODE_ENV !== 'production') {
 ...
 ```
 
-become
+**Output**
 
 ```javascript
 const response = await fetch('/data.json');
 ...
 ```
 
-because of dead code elimination. 
+The console statement will be removed because of dead code elimination. 
 
 ## Assets management
 
@@ -73,7 +73,7 @@ import IMAGE_URL from './assets/logo.png';
 
 Since esbuild supports this common convention, RNA treats every unknown import as external file reference, delegating to esbuild assets collection and optimization.
 
-Accordingly to its [Concepts](./Concepts), RNA encourages and supports for assets referenced by standard `URL` instances:
+Accordingly to its [concepts](./Concepts), RNA encourages and supports for assets referenced by standard `URL` instances:
 
 ```javascript
 const IMAGE_URL = new URL('./assets/logo.png', import.meta.url).href;
@@ -82,11 +82,32 @@ const blob = await response.blob();
 ...
 ```
 
-This kind of reference is natively supported by browser and Node. During the build, RNA will convert thos references to esbuild's import in order to correctly update the path for distribution files.
+This kind of reference is natively supported by browser and Node. During the build, RNA will convert those references to esbuild's imports statements in order to correctly update the path for distribution files.
 
 ## JSX
 
-TODO
+Although JSX is not part of EcmaScript standards, it is largerly used by many projects and the benifits it brings are real, even if [you may not need it](#Tagged-templates).  
+Esbuild supports JSX transpilation, so RNA does it too. A plugin for auto importing the JSX pragma from a module is also available with the bundler.
+
+```sh
+$ npx rna build src/index.js --output public/index.js --jsxFactory h --jsxFragment Fragment --jsxModule '@chialab/dna'
+```
+
+**Input**
+
+```javascript
+import { render } from '@chialab/dna';
+
+render(<div>Hello world!</div>, document.body);
+```
+
+**Output**
+
+```javascript
+import { render, h } from '@chialab/dna';
+
+render(h('div', nullm, 'Hello world!'), document.body);
+```
 
 ## TypeScript
 
@@ -100,5 +121,6 @@ TODO
 
 ## Recommendations
 
-* Eslint
-* Tagged templates
+### Eslint
+
+### Tagged templates

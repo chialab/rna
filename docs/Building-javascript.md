@@ -98,7 +98,7 @@ $ yarn rna build src/index.js --output public/index.js --format esm --platform n
 
 TODO
 
-## Dynamic import and code splitting
+## Code splitting
 
 TODO
 
@@ -154,7 +154,7 @@ const response = await fetch('/data.json');
 
 The console statement will be removed because of dead code elimination. 
 
-## Assets management
+## Assets
 
 Generally, files are referenced in JavaScript scripts with non-standard inputs and ad hoc loaders:
 

@@ -55,6 +55,8 @@ $ npx tsc --noEmit
 $ yarn tsc --noEmit
 ```
 
+> 👉 See the **Recommendations** section for [JSDoc typechecking](#JSDoc-typechecking) and more [TypeScript usage tricks](#Type-imports).
+
 ## ENV variables
 
 Many JavaScript modules uses process variables for both browser and Node environments. Expecially frameworks and web apps try to access the value of the `process.env.NODE_ENV` member in order to detect test or production environments. RNA comes with a plugin that automatically replaces the expression with the actual value.
@@ -128,6 +130,8 @@ import { render, h } from '@chialab/dna';
 render(h('div', nullm, 'Hello world!'), document.body);
 ```
 
+> 👉 See the **Recommendations** section for JSX alternatives using [Tagged Templates](#Tagged-templates).
+
 ## Targeting ES5
 
 Even if modern JavaScript is supported by the majority of browsers, sometimes we have to still support legacy verisons such as Internet Explorer or old Safari releases. Since esbuild supports transpilation from the latest ECMA version to the ES6 version, a plugin is needed for lower transpilation.
@@ -196,6 +200,10 @@ Also, do not forget to install the linter extension for your IDE:
 
 TODO
 
-### JSDoc
+### JSDoc typechecking
+
+TODO
+
+### Type imports
 
 TODO

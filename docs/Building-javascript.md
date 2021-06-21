@@ -26,13 +26,83 @@ This will generate a ESM bundle at the `--output` destination. Using `--format` 
 
 ## Bundling for the Web
 
-TODO
+The Web is the primary target of the RNA toolchain. Everything is optimized for light builds to serve over the network and to work natively in modern browsers. For this reasons, `esm` is the default output format and esbuild is configured to use the `browser` platform.  
+So, the explicit command is equivalent to the previous run snippet:
+
+```sh
+$ npx rna build src/index.js --output public/index.js --format esm --platform browser
+$ yarn rna build src/index.js --output public/index.js --format esm --platform browser
+```
+
+When targeting the browser platform, RNA will respect your `browser` configuration in the `package.json` in order to optimize the build for the requested environment.  
+Using the `browser` field is optimal for modules that need to run in both browser and node environments:
+
+**input**
+
+```javascript
+import jsdom from 'jsdom';
+
+const document = typeof window !== undefined ? window.document : new jsdom.JSOM().window.document;
+```
+
+**package.json**
+
+```jsonc
+{
+    // ...
+    "browser": {
+        "jsdom": false
+    }
+    // ...
+}
+```
+
+**output**
+
+```javascript
+const document = typeof window !== undefined ? window.document : undefined;
+```
 
 ## Bundling for Node
+
+Node is also a first class output. Specifying the `cjs` format, RNA will automatically target the `node` platform, converting every `import` statements to `require` invokations.
+
+```sh
+$ npx rna build src/index.js --output public/index.js --format cjs
+$ yarn rna build src/index.js --output public/index.js --format cjs
+```
+
+**input**
+
+```javascript
+import jsdom from 'jsdom';
+
+const document = typeof window !== undefined ? window.document : new jsdom.JSOM().window.document;
+```
+
+**output**
+
+```javascript
+const jsdom = require('jsdom');
+const document = typeof window !== undefined ? window.document : new jsdom.JSOM().window.document;
+```
+
+Since even the LTS version of node supports ES modules, you may want to target node with the `esm` format:
+
+```sh
+$ npx rna build src/index.js --output public/index.js --format esm --platform node
+$ yarn rna build src/index.js --output public/index.js --format esm --platform node
+```
+
+## Modules resolution
 
 TODO
 
 ## Dynamic import and code splitting
+
+TODO
+
+## Optimizations
 
 TODO
 

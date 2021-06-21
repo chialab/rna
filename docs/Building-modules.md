@@ -115,7 +115,29 @@ TODO
 
 ## Targeting ES5
 
-TODO
+Even if modern JavaScript is supported by the majority of browsers, sometimes we have to still support legacy verisons such as Internet Explorer or old Safari releases. Since esbuild supports transpilation from the latest ECMA version to the ES6 version, a plugin is needed for lower transpilation.
+
+RNA provides 2 plugins for this scopes. Both of them can be installed and are automatically loaded by the RNA cli if found in the node_modules.
+
+### Babel
+
+[Babel](https://babeljs.io/) is the most common solution for this scope:
+
+```sh
+$ npm i -D @chialab/esbuild-plugin-babel
+$ yarn add -D @chialab/esbuild-plugin-babel
+```
+
+This will install Babel core packages, its [env preset](https://babeljs.io/docs/en/babel-preset-env) and an adapter for esbuild. You can configure the output using a [browserslist query](https://babeljs.io/docs/en/babel-preset-env#browserslist-integration) or specifying a Babel's [config file](https://babeljs.io/docs/en/config-files) in the root of your project.
+
+### SWC
+
+[Swc](https://swc.rs/) is a Babel alternative written in rust and way more performant. It is gaining large support by the community, but it does not have the Babel stability (yet). If you like risks and speed, you may want to install the swc plugin:
+
+```sh
+$ npm i -D @chialab/esbuild-plugin-swc
+$ yarn add -D @chialab/esbuild-plugin-swc
+```
 
 ---
 

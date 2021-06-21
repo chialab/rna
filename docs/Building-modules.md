@@ -143,6 +143,40 @@ $ yarn add -D @chialab/esbuild-plugin-swc
 
 ## Recommendations
 
+Here's a list of authors' reccomendations for your project setup. Some of those hints are out of the scope of RNA itself, but they are foundamental for JavaScript development.
+
 ### Eslint
 
+Eslint is the most common linter for JavaScript. It is pluggable with parsers and custom rules and there is great community support.  
+First, you need to install the eslint cli:
+
+```sh
+$ npm i -D eslint
+```
+
+Please follow official guide for [linter configuration](https://eslint.org/docs/user-guide/configuring/).
+
+We also provide our configuration preset:
+
+```sh
+$ npm i -D @chialab/eslint-config
+```
+
+**.eslintrc.json**
+
+```json
+{
+    "extends": [
+        "@chialab/eslint-config/javascript"
+        // "@chialab/eslint-config/typescript"
+    ]
+}
+```
+
+Also, do not forget to install the linter extension for your IDE:
+* [VSCode](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint)
+
+
 ### Tagged templates
+
+TODO

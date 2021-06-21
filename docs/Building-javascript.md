@@ -1,4 +1,4 @@
-# Building ESM and CJS modules
+# Building JavaScript modules
 
 Transpiling and bundling JavaScript files has been the main cause of headaches in the JavaScript ecosystem for long time. Tools were necessarily complicated because they had to handle a lot of cases and very different environments.
 
@@ -35,6 +35,25 @@ TODO
 ## Dynamic import and code splitting
 
 TODO
+
+## TypeScript
+
+TypeScript syntax is supported out of the box from esbuild, also respecting your **tsconfig.json** file.  
+**No supplementary plugin is required.**
+
+However, please not that esbuild will only transpile your source without checking your code. For typechecking, you still need the vanilla `tsc` cli:
+
+```sh
+$ npm i -D typescript
+$ yarn add -D typescript
+```
+
+You can run tsc with the `--noEmit` flag in order to execute typecheck only:
+
+```sh
+$ npx tsc --noEmit
+$ yarn tsc --noEmit
+```
 
 ## ENV variables
 
@@ -109,10 +128,6 @@ import { render, h } from '@chialab/dna';
 render(h('div', nullm, 'Hello world!'), document.body);
 ```
 
-## TypeScript
-
-TODO
-
 ## Targeting ES5
 
 Even if modern JavaScript is supported by the majority of browsers, sometimes we have to still support legacy verisons such as Internet Explorer or old Safari releases. Since esbuild supports transpilation from the latest ECMA version to the ES6 version, a plugin is needed for lower transpilation.
@@ -164,7 +179,7 @@ $ npm i -D @chialab/eslint-config
 
 **.eslintrc.json**
 
-```json
+```jsonc
 {
     "extends": [
         "@chialab/eslint-config/javascript"
@@ -178,5 +193,9 @@ Also, do not forget to install the linter extension for your IDE:
 
 
 ### Tagged templates
+
+TODO
+
+### JSDoc
 
 TODO

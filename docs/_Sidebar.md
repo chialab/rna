@@ -3,7 +3,7 @@
 
 ### Build
 
-* [Building ESM and CJS modules](./Building-modules)
+* [Building JavaScript](./Building-javascript)
 * [Building CSS](./Building-css)
 * [Building web apps](./Building-web-apps)
 

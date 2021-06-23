@@ -47,40 +47,37 @@ export function sauceReporter({ user, key }) {
     let updates = [];
 
     /**
-     * @type {WeakMap<object, string>}
-     */
-    let map = new WeakMap();
-
-    /**
      * @type {import('@web/test-runner').Reporter}
      */
     const reporter = {
         start(args) {
             updates = [];
             args.browsers.forEach((browser) => {
-                Object.defineProperty(browser, 'driver', {
-                    get() {
-                        return this._driver;
-                    },
-                    set(driver) {
-                        this._driver = driver;
-                        map.set(this, driver.sessionId);
-                    },
-                });
-            });
-        },
+                const stop = browser.stop;
+                browser.stop = async function() {
+                    const driver = (/** @type {*} */ (this)).driver;
+                    const sessions = args.sessions.forBrowser(this);
 
-        onTestRunFinished(args) {
-            updates.push(...args.sessions.map((session) =>
-                fetch(`https://${user}:${key}@saucelabs.com/rest/v1/${user}/jobs/${map.get(session.browser)}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                }, JSON.stringify({
-                    passed: session.passed,
-                }))
-            ));
+                    let passed = true;
+                    for (const session of sessions) {
+                        if (session.passed === false) {
+                            passed = false;
+                        }
+                    }
+                    await fetch(`https://${user}:${key}@saucelabs.com/rest/v1/${user}/jobs/${driver.sessionId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                    }, JSON.stringify({
+                        passed,
+                    }));
+
+                    if (stop) {
+                        return stop.call(this);
+                    }
+                };
+            });
         },
 
         async stop() {

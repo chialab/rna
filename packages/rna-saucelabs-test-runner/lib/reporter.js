@@ -47,6 +47,11 @@ export function sauceReporter({ user, key }) {
     let updates = [];
 
     /**
+     * @type {WeakMap<object, string>}
+     */
+    let map = new WeakMap();
+
+    /**
      * @type {import('@web/test-runner').Reporter}
      */
     const reporter = {
@@ -59,7 +64,7 @@ export function sauceReporter({ user, key }) {
                     },
                     set(driver) {
                         this._driver = driver;
-                        this.sessionId = driver.sessionId;
+                        map.set(this, driver.sessionId);
                     },
                 });
             });
@@ -67,7 +72,7 @@ export function sauceReporter({ user, key }) {
 
         onTestRunFinished(args) {
             updates.push(...args.sessions.map((session) =>
-                fetch(`https://${user}:${key}@saucelabs.com/rest/v1/${user}/jobs/${session.browser.sessionId}`, {
+                fetch(`https://${user}:${key}@saucelabs.com/rest/v1/${user}/jobs/${map.get(session.browser)}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',

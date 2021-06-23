@@ -83,9 +83,7 @@ export async function serve(config) {
     if (config.entrypoints) {
         const { saveDevEntrypointsJson } = await import('@chialab/rna-bundler');
         const dir = typeof config.entrypoints === 'string' ? config.entrypoints : (config.rootDir || process.cwd());
-        await saveDevEntrypointsJson(config.entries || [], dir, server, {
-            format: 'esm',
-        });
+        await saveDevEntrypointsJson(config.entries || [], dir, server, 'esm');
     }
 
     return server;

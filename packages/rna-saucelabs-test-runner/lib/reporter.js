@@ -50,25 +50,32 @@ export function sauceReporter({ user, key }) {
      * @type {import('@web/test-runner').Reporter}
      */
     const reporter = {
-        start() {
+        start(args) {
             updates = [];
+            args.browsers.forEach((browser) => {
+                Object.defineProperty(browser, 'driver', {
+                    get() {
+                        return this._driver;
+                    },
+                    set(driver) {
+                        this._driver = driver;
+                        this.sessionId = driver.sessionId;
+                    },
+                });
+            });
         },
 
         onTestRunFinished(args) {
-            const browser = args.sessions[0].browser;
-            const driver = (/** @type {*} */ (browser)).driver;
-            const hasPassed = args.sessions.every((session) => session.passed);
-            const url = `https://${user}:${key}@saucelabs.com/rest/v1/${user}/jobs/${driver.sessionId}`;
-            updates.push(
-                fetch(url, {
+            updates.push(...args.sessions.map((session) =>
+                fetch(`https://${user}:${key}@saucelabs.com/rest/v1/${user}/jobs/${session.browser.sessionId}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
                     },
                 }, JSON.stringify({
-                    passed: hasPassed,
+                    passed: session.passed,
                 }))
-            );
+            ));
         },
 
         async stop() {

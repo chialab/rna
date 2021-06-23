@@ -19,21 +19,25 @@ export async function saveManifestJson(result, outputFile, publicPath = '/') {
     outputFile = path.extname(outputFile) ? outputFile : path.join(outputDir, 'entrypoints.json');
 
     const { outputs } = metafile;
+    const manifestJson = Object.entries(outputs)
+        .reduce((json, [fileName, output]) => {
+            const outputFile = path.join(publicPath, path.relative(outputDir, fileName));
 
-    /**
-     * @type {{[file: string]: string}}
-     */
-    const manifestJson = {};
-    for (let k in outputs) {
-        let entry = outputs[k].entryPoint || Object.keys(outputs[k].inputs)[0] || undefined;
-        if (entry) {
-            manifestJson[path.join(path.dirname(k), path.basename(entry))] = `${publicPath.replace(/\/+$/, '')}/${path.relative(outputDir, k)}`;
-        } else if (k.match(/\.map$/)) {
-            entry = outputs[k.replace(/\.map$/, '')].entryPoint;
-            if (entry) {
-                manifestJson[path.join(path.dirname(k), `${path.basename(entry)}.map`)] = `${publicPath.replace(/\/+$/, '')}/${path.relative(outputDir, k)}`;
+            if (fileName.endsWith('.map')) {
+                const entry = outputs[fileName.replace(/\.map$/, '')].entryPoint;
+                if (entry) {
+                    json[path.join(path.dirname(fileName), `${path.basename(entry)}.map`)] = outputFile;
+                }
+
+                return json;
             }
-        }
-    }
+
+            const entry = output.entryPoint || Object.keys(output.inputs)[0] || undefined;
+            if (entry) {
+                json[path.join(path.dirname(fileName), path.basename(entry))] = outputFile;
+            }
+            return json;
+        }, /** @type {{[file: string]: string}} */ ({}));
+
     await writeFile(outputFile, JSON.stringify(manifestJson, null, 2));
 }

@@ -33,29 +33,31 @@ export async function saveEntrypointsJson(entrypoints, result, rootDir, outputFi
             return map;
         }, /** @type {{ [key: string]: string }} */ ({}));
 
-    /**
-     * @type {{[file: string]: { js?: string[], css?: string[] }}}
-     */
-    const entrypointsJson = {};
-    entrypoints.forEach((entrypoint) => {
+    const entrypointsJson = entrypoints.reduce((json, entrypoint) => {
         const extname = path.extname(entrypoint);
         const basename = path.basename(entrypoint, extname);
         const loader = loaders[extname] || 'tsx';
-        const map = entrypointsJson[basename] = entrypointsJson[basename] || {};
-        Object.assign(map, extras);
+        const map = json[basename] = json[basename] || {
+            js: [],
+            css: [],
+            ...extras,
+        };
+
+        const outputFile = path.join(publicPath, path.relative(outputDir, outputsByEntrypoint[entrypoint]));
         switch (loader) {
             case 'css': {
-                const list = map['css'] = map['css'] || [];
-                list.push(`${publicPath.replace(/\/+$/, '')}/${path.relative(outputDir, outputsByEntrypoint[entrypoint])}`);
+                map.css.push(outputFile);
                 break;
             }
             default: {
-                const list = map['js'] = map['js'] || [];
-                list.push(`${publicPath.replace(/\/+$/, '')}/${path.relative(outputDir, outputsByEntrypoint[entrypoint])}`);
+                map.js.push(outputFile);
                 break;
             }
         }
-    });
+
+        return json;
+    }, /** @type {{[file: string]: { js: string[], css: string[] }}} */ ({}));
+
     await writeFile(outputFile, JSON.stringify({ entrypoints: entrypointsJson }, null, 2));
 }
 

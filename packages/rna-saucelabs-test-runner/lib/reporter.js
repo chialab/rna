@@ -66,8 +66,7 @@ export function sauceReporter({ user, key }) {
                         'Content-Type': 'application/json',
                     },
                 }, JSON.stringify({
-                    'passed': hasPassed,
-                    'custom-data': args.sessions.map((session) => session.testResults),
+                    passed: hasPassed,
                 }))
             );
         },

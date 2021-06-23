@@ -1,7 +1,7 @@
 {
   "name": "@chialab/rna-saucelabs-test-runner",
   "type": "module",
-  "version": "0.8.6",
+  "version": "0.8.7",
   "description": "A test runner for Saucelabs based on Web Test Runner.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",

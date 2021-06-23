@@ -137,7 +137,7 @@ export async function build(config) {
                     saveManifestJson(result, typeof manifest === 'string' ? manifest : outputDir, publicPath);
                 }
                 if (entrypoints && result) {
-                    saveEntrypointsJson(entryOptions.entryPoints, result, root, typeof entrypoints === 'string' ? entrypoints : outputDir, publicPath, { format });
+                    saveEntrypointsJson(entryOptions.entryPoints, result, root, typeof entrypoints === 'string' ? entrypoints : outputDir, publicPath, format);
                 }
             },
         },
@@ -161,7 +161,7 @@ export async function build(config) {
         saveManifestJson(result, typeof manifest === 'string' ? manifest : outputDir, publicPath);
     }
     if (entrypoints && result) {
-        saveEntrypointsJson(entryOptions.entryPoints, result, root, typeof entrypoints === 'string' ? entrypoints : outputDir, publicPath, { format });
+        saveEntrypointsJson(entryOptions.entryPoints, result, root, typeof entrypoints === 'string' ? entrypoints : outputDir, publicPath, format);
     }
 
     return result;

@@ -49,9 +49,9 @@ And creating or updating tghe postcss config file:
 
 ```json
 {
-  "plugins": {
-    "@chialab/postcss-preset-chialab": {}
-  }
+    "plugins": {
+        "@chialab/postcss-preset-chialab": {}
+    }
 }
 ```
 
@@ -80,7 +80,7 @@ $ npm i -D @chialab/stylelint-config
 
 ```json
 {
-  "extends": "@chialab/stylelint-config"
+    "extends": "@chialab/stylelint-config"
 }
 ```
 

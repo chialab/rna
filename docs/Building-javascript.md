@@ -47,7 +47,7 @@ const document = typeof window !== undefined ? window.document : new jsdom.JSOM(
 
 **package.json**
 
-```jsonc
+```json
 {
     // ...
     "browser": {
@@ -125,7 +125,11 @@ $ npx tsc --noEmit
 $ yarn tsc --noEmit
 ```
 
-> 👉 See the **Recommendations** section for [JSDoc typechecking](#JSDoc-typechecking) and more [TypeScript usage tricks](#Type-imports).
+<div class="note">
+
+👉 See the **Recommendations** section for [JSDoc typechecking](#JSDoc-typechecking) and more [TypeScript usage tricks](#Type-imports).
+
+</div>
 
 ## ENV variables
 
@@ -200,7 +204,11 @@ import { render, h } from '@chialab/dna';
 render(h('div', nullm, 'Hello world!'), document.body);
 ```
 
-> 👉 See the **Recommendations** section for JSX alternatives using [Tagged Templates](#Tagged-templates).
+<div class="note">
+
+👉 See the **Recommendations** section for JSX alternatives using [Tagged Templates](#Tagged-templates).
+
+</div>
 
 ## Targeting ES5
 
@@ -253,7 +261,7 @@ $ npm i -D @chialab/eslint-config
 
 **.eslintrc.json**
 
-```jsonc
+```json
 {
     "extends": [
         "@chialab/eslint-config/javascript"

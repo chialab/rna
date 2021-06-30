@@ -95,8 +95,8 @@ const APPLE_LAUNCH_SCREENS = [
  * @return {import('./index').Entrypoint[]} A list of entrypoints.
  */
 export function collectIcons(dom, base, outdir) {
-    let iconElement = dom.find('link[rel*="icon"]');
-    let element = dom
+    const iconElement = dom.find('link[rel*="icon"]');
+    const element = dom
         .find('link[rel*="icon"]')
         .get()
         .filter((element) => $(element).attr('href'))[0];
@@ -104,12 +104,12 @@ export function collectIcons(dom, base, outdir) {
         return [];
     }
 
-    let iconHref = iconElement.attr('href') || '';
+    const iconHref = iconElement.attr('href') || '';
     if (!iconHref) {
         return [];
     }
 
-    let entryPoint = path.resolve(base, iconHref);
+    const entryPoint = path.resolve(base, iconHref);
 
     return [
         {
@@ -123,8 +123,8 @@ export function collectIcons(dom, base, outdir) {
                 assetNames: '[name]',
             },
             async finisher() {
-                let iconsDir = path.join(outdir, 'icons');
-                let mimeType = iconElement.attr('type') || 'image/png';
+                const iconsDir = path.join(outdir, 'icons');
+                const mimeType = iconElement.attr('type') || 'image/png';
                 if (!SUPPORTED_MIME_TYPES.includes(mimeType)) {
                     return;
                 }
@@ -135,21 +135,21 @@ export function collectIcons(dom, base, outdir) {
                     //
                 }
 
-                let iconFile = path.resolve(base, iconHref);
+                const iconFile = path.resolve(base, iconHref);
                 for (let i = 0; i < FAVICONS.length; i++) {
-                    let { name, size } = FAVICONS[i];
-                    let outputFile = path.join(iconsDir, name);
-                    let buffer = await generateIcon(iconFile, size, 0, { r: 255, g: 255, b: 255, a: 1 }, mimeType);
+                    const { name, size } = FAVICONS[i];
+                    const outputFile = path.join(iconsDir, name);
+                    const buffer = await generateIcon(iconFile, size, 0, { r: 255, g: 255, b: 255, a: 1 }, mimeType);
                     await writeFile(outputFile, buffer);
                     if (size === 196) {
-                        let link = $('<link>');
+                        const link = $('<link>');
                         link.attr('rel', 'shortcut icon');
                         link.attr('href', path.relative(outdir, outputFile));
                         link.insertBefore($(element));
                         $(element).before('\n    ');
                     }
 
-                    let link = $('<link>');
+                    const link = $('<link>');
                     link.attr('rel', 'icon');
                     link.attr('sizes', `${size}x${size}`);
                     link.attr('href', path.relative(outdir, outputFile));
@@ -158,11 +158,11 @@ export function collectIcons(dom, base, outdir) {
                 }
 
                 for (let i = 0; i < APPLE_ICONS.length; i++) {
-                    let { name, size, gutter, background } = APPLE_ICONS[i];
-                    let outputFile = path.join(iconsDir, name);
-                    let buffer = await generateIcon(iconFile, size, gutter, background, mimeType);
+                    const { name, size, gutter, background } = APPLE_ICONS[i];
+                    const outputFile = path.join(iconsDir, name);
+                    const buffer = await generateIcon(iconFile, size, gutter, background, mimeType);
                     await writeFile(outputFile, buffer);
-                    let link = $('<link>');
+                    const link = $('<link>');
                     link.attr('rel', 'apple-touch-icon');
                     link.attr('sizes', `${size}x${size}`);
                     link.attr('href', path.relative(outdir, outputFile));
@@ -171,11 +171,11 @@ export function collectIcons(dom, base, outdir) {
                 }
 
                 for (let i = 0; i < APPLE_LAUNCH_SCREENS.length; i++) {
-                    let { name, query, width, height } = APPLE_LAUNCH_SCREENS[i];
-                    let outputFile = path.join(iconsDir, name);
-                    let buffer = await generateLaunch(iconFile, width, height, 0, { r: 255, g: 255, b: 255, a: 1 }, mimeType);
+                    const { name, query, width, height } = APPLE_LAUNCH_SCREENS[i];
+                    const outputFile = path.join(iconsDir, name);
+                    const buffer = await generateLaunch(iconFile, width, height, 0, { r: 255, g: 255, b: 255, a: 1 }, mimeType);
                     await writeFile(outputFile, buffer);
-                    let link = $('<link>');
+                    const link = $('<link>');
                     link.attr('rel', 'apple-touch-startup-image');
                     link.attr('media', query);
                     link.attr('href', path.relative(outdir, outputFile));

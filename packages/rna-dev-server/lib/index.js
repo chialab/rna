@@ -23,8 +23,8 @@ export async function serve(config) {
     const { default: cors } = await import('@koa/cors');
     const { default: range } = await import('koa-range');
 
-    let root = config.rootDir || process.cwd();
-    let appIndex = path.join(root, 'index.html');
+    const root = config.rootDir || process.cwd();
+    const appIndex = path.join(root, 'index.html');
     let index = false;
     try {
         index = (await stat(appIndex)).isFile();

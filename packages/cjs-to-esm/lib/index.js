@@ -32,11 +32,11 @@ export function transform(contents, { source, sourceMap = true, ignore = () => f
     if (!isUmd) {
         match = REQUIRE_REGEX.exec(contents);
         while (match) {
-            let [str, before, quote, specifier] = match;
+            const [str, before, quote, specifier] = match;
             let spec = specs.get(specifier);
             if (!spec) {
                 let id = `$cjs$${specifier.replace(/[^\w_$]+/g, '_')}`;
-                let count = (ns.get(id) || 0) + 1;
+                const count = (ns.get(id) || 0) + 1;
                 ns.set(id, count);
                 if (count > 1) {
                     id += count;

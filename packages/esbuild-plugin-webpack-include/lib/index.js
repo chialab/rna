@@ -28,11 +28,11 @@ export default function() {
                 const magicCode = new MagicString(entry.code);
                 let match = WEBPACK_INCLUDE_REGEX.exec(entry.code);
                 while (match) {
-                    let include = new RegExp(match[1].substr(1, match[1].length - 2));
-                    let exclude = match[2] && new RegExp(match[2].substr(1, match[2].length - 2));
-                    let initial = match[3] || './';
-                    let identifier = match[4];
-                    let map = (await glob(`${initial}*`, {
+                    const include = new RegExp(match[1].substr(1, match[1].length - 2));
+                    const exclude = match[2] && new RegExp(match[2].substr(1, match[2].length - 2));
+                    const initial = match[3] || './';
+                    const identifier = match[4];
+                    const map = (await glob(`${initial}*`, {
                         cwd: path.dirname(args.path),
                     }))
                         .filter((name) => name.match(include) && (!exclude || !name.match(exclude)))

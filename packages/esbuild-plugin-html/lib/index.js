@@ -64,7 +64,7 @@ export default function({ esbuild = esbuildModule, scriptsTarget = 'es6', module
                         let computedName = assetNames
                             .replace('[name]', basename)
                             .replace('[hash]', () => {
-                                let hash = crypto.createHash('sha1');
+                                const hash = crypto.createHash('sha1');
                                 hash.update(buffer);
                                 return hash.digest('hex').substr(0, 8);
                             });

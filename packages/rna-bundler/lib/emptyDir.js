@@ -19,13 +19,13 @@ export async function emptyDir(directory) {
         return false;
     }
 
-    let outputDir = d.isDirectory() ? directory : path.dirname(directory);
-    let files = await readdir(outputDir);
+    const outputDir = d.isDirectory() ? directory : path.dirname(directory);
+    const files = await readdir(outputDir);
     await Promise.all(
         files
             .map((file) => path.join(outputDir, file))
             .map(async (file) => {
-                let d = await stat(file);
+                const d = await stat(file);
                 if (d.isDirectory()) {
                     return rmdir(file, { recursive: true });
                 }

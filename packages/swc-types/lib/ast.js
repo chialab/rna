@@ -313,7 +313,7 @@ export function isPlainObject(value) {
     if (typeof value !== 'object' || value === null) {
         return false;
     }
-    let proto = Object.getPrototypeOf(value);
+    const proto = Object.getPrototypeOf(value);
     return proto === null || proto === Object.prototype;
 }
 
@@ -370,8 +370,8 @@ export function valueToNode(value, span) {
 
     // regexes
     if (isRegExp(value)) {
-        let pattern = value.source;
-        let flags = (/** @type {RegExpMatchArray} */ (value.toString().match(/\/([a-z]+|)$/)))[1];
+        const pattern = value.source;
+        const flags = (/** @type {RegExpMatchArray} */ (value.toString().match(/\/([a-z]+|)$/)))[1];
         return regExpLiteral(pattern, flags, span);
     }
 
@@ -382,9 +382,9 @@ export function valueToNode(value, span) {
 
     // object
     if (isPlainObject(value)) {
-        let props = [];
-        for (let [key, val] of Object.entries(value)) {
-            let nodeKey = stringLiteral(key, span);
+        const props = [];
+        for (const [key, val] of Object.entries(value)) {
+            const nodeKey = stringLiteral(key, span);
             props.push(objectProperty(nodeKey, valueToNode(val, span)));
         }
         return objectExpression(props, span);

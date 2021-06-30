@@ -36,7 +36,7 @@ export function collectStyles(dom, base, outdir, options) {
             .find('style')
             .get()
             .map((element) => {
-                let code = /** @type {string} */ ($(element).html());
+                const code = /** @type {string} */ ($(element).html());
                 return {
                     loader: /** @type {import('esbuild').Loader} */ ('css'),
                     options: {

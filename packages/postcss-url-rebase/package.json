@@ -1,8 +1,8 @@
 {
-  "name": "@chialab/esbuild-plugin-postcss",
+  "name": "@chialab/postcss-url-rebase",
   "type": "module",
   "version": "0.8.0",
-  "description": "A CSS loader plugin for esbuild that uses postcss as preprocessor.",
+  "description": "A postcss plugin for url() rebasing before import.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",
   "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
@@ -10,13 +10,11 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/chialab/rna",
-    "directory": "packages/esbuild-plugin-postcss"
+    "directory": "packages/postcss-url-rebase"
   },
   "keywords": [
-    "esbuild",
-    "plugin",
-    "css",
-    "postcss"
+    "postcss",
+    "css"
   ],
   "scripts": {
     "types": "tsc",
@@ -33,13 +31,10 @@
     "node": ">=13"
   },
   "dependencies": {
-    "@chialab/postcss-preset-chialab": "^0.8.0",
-    "@chialab/postcss-url-rebase": "^0.8.0",
-    "postcss": "^8.2.5",
-    "postcss-load-config": "^3.0.1"
+    "resolve": "^1.20.0"
   },
   "devDependencies": {
-    "esbuild": "^0.12.0",
+    "postcss": "^8.2.5",
     "typescript": "^4.2.3"
   }
 }

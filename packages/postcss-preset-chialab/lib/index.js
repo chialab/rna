@@ -12,16 +12,39 @@ import replaceOverflow from 'postcss-replace-overflow-wrap';
 import customProperties from 'postcss-custom-properties';
 import focusVisible from 'postcss-focus-visible';
 import focusWithin from 'postcss-focus-within';
+import urlRebase from '@chialab/postcss-url-rebase';
+import atImport from 'postcss-import';
+import url from 'postcss-url';
+
+/**
+ * @typedef {Object} PresetOptions
+ * @property {boolean} [bundle] Should include plugins to bundle CSS.
+ * @property {string} [root] The root dir of the build.
+ * @property {string} [assetsPath] Directory to copy assets (relative to to or absolute).
+ * @property {boolean} [useHash] Use filehash(xxhash) for naming assets.
+ */
 
 /**
  * Create the postcss preset used by Chialab.
+ * @param {PresetOptions} options
  * @return {import('postcss').Plugin}
  */
-export default function preset() {
+export default function preset({ bundle = false, root = process.cwd(), assetsPath = '.', useHash = false } = {}) {
     return {
         postcssPlugin: 'preset-chialab',
         prepare(result) {
+            const bundlePlugins = bundle ? [
+                urlRebase({ root }),
+                atImport({ root }),
+                url({
+                    url: 'copy',
+                    assetsPath,
+                    useHash,
+                }),
+            ] : [];
+
             const plugins = [
+                ...bundlePlugins,
                 nesting(),
                 autoprefixer({
                     overrideBrowserslist: 'ie 11, chrome 30',
@@ -58,7 +81,7 @@ export default function preset() {
                     replaceWith: '.focus-within',
                 }),
             ];
-            let visitors = [
+            const visitors = [
                 ...plugins.map((plugin) => typeof plugin === 'function' && plugin(result.root)).filter(Boolean),
                 ...plugins.map((plugin) => plugin.prepare && plugin.prepare(result)).filter(Boolean),
             ];

@@ -35,7 +35,7 @@ export function collectScripts(dom, base, outdir, targets = { scriptsTarget: 'es
         ...dom.find('script[type="module"]:not([src])')
             .get()
             .map((element) => {
-                let code = /** @type {string} */ ($(element).html());
+                const code = /** @type {string} */ ($(element).html());
                 $(element).html('');
 
                 return {
@@ -87,7 +87,7 @@ export function collectScripts(dom, base, outdir, targets = { scriptsTarget: 'es
         ...dom.find('script:not([src]):not([type]), script[type="text/javascript"]:not([src]), script[type="application/javascript"]:not([src])')
             .get()
             .map((element) => {
-                let code = /** @type {string} */ ($(element).html());
+                const code = /** @type {string} */ ($(element).html());
                 $(element).html('');
 
                 return {

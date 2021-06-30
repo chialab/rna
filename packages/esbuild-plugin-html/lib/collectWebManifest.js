@@ -13,13 +13,13 @@ const { readFile, writeFile, mkdir } = promises;
  * @return {import('./index').Entrypoint[]} A list of entrypoints.
  */
 export function collectWebManifest(dom, base, outdir) {
-    let htmlElement = dom.find('html');
-    let baseElement = dom.find('base');
-    let titleElement = dom.find('title');
-    let descriptionElement = dom.find('meta[name="description"]');
-    let themeElement = dom.find('meta[name="theme"]');
-    let iconElement = dom.find('link[rel*="icon"]');
-    let element = dom
+    const htmlElement = dom.find('html');
+    const baseElement = dom.find('base');
+    const titleElement = dom.find('title');
+    const descriptionElement = dom.find('meta[name="description"]');
+    const themeElement = dom.find('meta[name="theme"]');
+    const iconElement = dom.find('link[rel*="icon"]');
+    const element = dom
         .find('link[rel="manifest"]')
         .get()
         .filter((element) => $(element).attr('href'))[0];
@@ -27,7 +27,7 @@ export function collectWebManifest(dom, base, outdir) {
         return [];
     }
 
-    let entryPoint = path.resolve(base, /** @type {string} */($(element).attr('href')));
+    const entryPoint = path.resolve(base, /** @type {string} */($(element).attr('href')));
     return [
         {
             loader: 'file',
@@ -40,8 +40,8 @@ export function collectWebManifest(dom, base, outdir) {
                 assetNames: '[name]',
             },
             async finisher(filePath) {
-                let contents = await readFile(filePath, 'utf-8');
-                let json = JSON.parse(contents);
+                const contents = await readFile(filePath, 'utf-8');
+                const json = JSON.parse(contents);
                 json.name = json.name || titleElement.text() || undefined;
                 json.short_name = json.short_name || json.name || titleElement.text() || undefined;
                 json.description = json.description || descriptionElement.attr('content') || undefined;
@@ -53,10 +53,10 @@ export function collectWebManifest(dom, base, outdir) {
                 json.background_color = json.background_color || '#fff';
                 json.lang = json.lang || htmlElement.attr('lang') || 'en-US';
 
-                let iconHref = iconElement.attr('href');
+                const iconHref = iconElement.attr('href');
                 icon: if (iconHref) {
-                    let iconsDir = path.join(outdir, 'icons');
-                    let mimeType = iconElement.attr('type') || 'image/png';
+                    const iconsDir = path.join(outdir, 'icons');
+                    const mimeType = iconElement.attr('type') || 'image/png';
                     if (!SUPPORTED_MIME_TYPES.includes(mimeType)) {
                         break icon;
                     }
@@ -66,7 +66,7 @@ export function collectWebManifest(dom, base, outdir) {
                     } catch (err) {
                         //
                     }
-                    let iconFile = path.resolve(base, iconHref);
+                    const iconFile = path.resolve(base, iconHref);
                     json.icons = await Promise.all(
                         [
                             {
@@ -106,8 +106,8 @@ export function collectWebManifest(dom, base, outdir) {
                                 size: 512,
                             },
                         ].map(async ({ name, size }) => {
-                            let outputFile = path.join(iconsDir, name);
-                            let buffer = await generateIcon(iconFile, size, 0, { r: 255, g: 255, b: 255, a: 1 }, mimeType);
+                            const outputFile = path.join(iconsDir, name);
+                            const buffer = await generateIcon(iconFile, size, 0, { r: 255, g: 255, b: 255, a: 1 }, mimeType);
                             await writeFile(outputFile, buffer);
                             return {
                                 src: path.relative(outdir, outputFile),

@@ -7,6 +7,6 @@ import path from 'path';
  * @return {string}
  */
 export function camelize(file) {
-    let filename = path.basename(file, path.extname(file));
+    const filename = path.basename(file, path.extname(file));
     return filename.replace(/(^[a-z0-9]|[-_]([a-z0-9]))/g, (g) => (g[1] || g[0]).toUpperCase());
 }

@@ -6,7 +6,7 @@ export function getSauceCapabilities(browser) {
     const browserVersion = /** @type {string} */ (chunks.pop());
     const majorVersion = parseInt(browserVersion.split('.')[0]);
 
-    let browserName = chunks.join(' ').toLowerCase();
+    const browserName = chunks.join(' ').toLowerCase();
 
     /**
      * @type {*}

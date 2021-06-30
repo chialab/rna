@@ -19,7 +19,7 @@ async function loadPostcssConfig() {
         /**
          * @type {any}
          */
-        let result = await postcssrc();
+        const result = await postcssrc();
         return result;
     } catch {
         //

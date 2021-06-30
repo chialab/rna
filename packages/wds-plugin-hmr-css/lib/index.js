@@ -94,7 +94,7 @@ export function hmrCssPlugin() {
             const send = webSockets.send;
             webSockets.send = function(message) {
                 try {
-                    let data = JSON.parse(message);
+                    const data = JSON.parse(message);
                     if (data.type === 'import' && currentFile && dependencyTree.has(currentFile)) {
                         const entrypoints = invalidateResource(dependencyTree, currentFile)
                             .map((entryPoint) => entryPoint.url);

@@ -50,11 +50,11 @@ export default function() {
                 const magicCode = new MagicString(entry.code);
                 let match = RESOLVE_REGEX.exec(entry.code);
                 while (match) {
-                    let len = match[0].length;
-                    let value = match[2];
+                    const len = match[0].length;
+                    const value = match[2];
 
-                    let entryPoint = await resolve(value, args.path);
-                    let identifier = `_${value.replace(/[^a-zA-Z0-9]/g, '_')}`;
+                    const entryPoint = await resolve(value, args.path);
+                    const identifier = `_${value.replace(/[^a-zA-Z0-9]/g, '_')}`;
                     if (entry.code.startsWith('#!')) {
                         magicCode.appendRight(entry.code.indexOf('\n') + 1, `var ${identifier} = require('${entryPoint}.requirefile');\n`);
                     } else {

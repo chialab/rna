@@ -6,7 +6,7 @@ export function defineEnvVariables() {
     /**
      * @type {{ [key: string]: string }}
      */
-    let definitions = {};
+    const definitions = {};
     definitions['process.env.NODE_ENV'] = JSON.stringify(process.env.NODE_ENV || 'development');
     Object.keys(process.env).forEach((map, key) => {
         if (isNaN(key)) {
@@ -31,7 +31,7 @@ export default function() {
     const plugin = {
         name: 'env',
         setup(build) {
-            let options = build.initialOptions;
+            const options = build.initialOptions;
             if (options.platform === 'node') {
                 return;
             }

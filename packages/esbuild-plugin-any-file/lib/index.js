@@ -14,9 +14,9 @@ export default function() {
     const plugin = {
         name: 'any-file',
         setup(build) {
-            let options = build.initialOptions;
-            let loaders = options.loader || {};
-            let keys = Object.keys(loaders);
+            const options = build.initialOptions;
+            const loaders = options.loader || {};
+            const keys = Object.keys(loaders);
 
             build.onResolve({ filter: /^https?:\/\// }, ({ path: filePath }) => ({ path: filePath, external: true }));
             build.onLoad({ filter: /\./, namespace: 'file' }, async (args) => {

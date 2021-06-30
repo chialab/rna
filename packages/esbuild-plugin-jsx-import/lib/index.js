@@ -12,8 +12,8 @@ export default function(opts = {}) {
     const plugin = {
         name: 'jsx-import',
         setup(build) {
-            let options = build.initialOptions;
-            let { jsxFactory, jsxFragment } = options;
+            const options = build.initialOptions;
+            const { jsxFactory, jsxFragment } = options;
 
             if (!jsxFactory || !opts || !opts.jsxModule) {
                 return;
@@ -26,8 +26,8 @@ export default function(opts = {}) {
                 ];
             }
 
-            let identifier = jsxFactory.split('.')[0];
-            let specs = [identifier];
+            const identifier = jsxFactory.split('.')[0];
+            const specs = [identifier];
             if (jsxFragment) {
                 specs.push(jsxFragment.split('.')[0]);
             }

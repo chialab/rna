@@ -10,7 +10,7 @@ function objectProperties(obj, span) {
         /**
          * @type {import('@swc/core/types').Node[]}
          */
-        let values = obj[key].map(
+        const values = obj[key].map(
             /**
              * @param {*} valueOrNode
              * @return {import('@swc/core/types').Node}
@@ -62,7 +62,7 @@ function spreadNode(args, span) {
     }
 
     /** @type {(import('@swc/core/types').Property|import('@swc/core/types').SpreadElement)[]} */
-    let properties = [];
+    const properties = [];
     args.forEach((arg) => {
         if (t.isNode(arg)) {
             properties.push(t.spreadElement(/** @type {import('@swc/core/types').Expression} */ (arg), span));
@@ -142,15 +142,15 @@ export class HtmVisitor extends Visitor {
      */
     visitTaggedTemplateExpression(exp) {
         super.visitTaggedTemplateExpression(exp);
-        let tag = /** @type {import('@swc/core/types').Identifier} */ (exp.tag);
+        const tag = /** @type {import('@swc/core/types').Identifier} */ (exp.tag);
         if (tag.value !== this.tag) {
             return exp;
         }
 
-        let statics = exp.template.quasis.map(e => e.raw.value);
-        let expr = exp.template.expressions;
+        const statics = exp.template.quasis.map(e => e.raw.value);
+        const expr = exp.template.expressions;
 
-        let tree = treeify(build(statics), expr);
+        const tree = treeify(build(statics), expr);
         return !Array.isArray(tree) ?
             transform(tree, this.pragma, exp.span) :
             t.arrayExpression(

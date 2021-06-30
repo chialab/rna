@@ -57,3 +57,13 @@ declare module 'postcss-focus-within' {
     type Options = { replaceWith?: string };
     export default (options: Options) => import('postcss').Plugin;
 }
+
+declare module 'postcss-import' {
+    type Options = { root?: string };
+    export default (options: Options) => import('postcss').Plugin;
+}
+
+declare module 'postcss-url' {
+    type Options = { url: 'copy', assetsPath: string, useHash?: boolean };
+    export default (options: Options) => import('postcss').Plugin;
+}

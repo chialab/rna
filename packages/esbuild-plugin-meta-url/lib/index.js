@@ -93,7 +93,7 @@ export default function({ esbuild = esbuildModule } = {}) {
                         }
                     } else {
                         if (!ids[entryPoint]) {
-                            let identifier = ids[entryPoint] = `_${value.replace(/[^a-zA-Z0-9]/g, '_')}`;
+                            const identifier = ids[entryPoint] = `_${value.replace(/[^a-zA-Z0-9]/g, '_')}`;
                             if (code.startsWith('#!')) {
                                 magicCode.appendRight(code.indexOf('\n') + 1, `import ${identifier} from '${entryPoint}.urlfile';\n`);
                             } else {

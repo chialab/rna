@@ -137,8 +137,8 @@ function renderExamples(samples) {
  * @return {string}
  */
 function renderInfo(node) {
-    let deprecated = getTags(node, 'deprecated')[0];
-    let since = getTags(node, 'since')[0];
+    const deprecated = getTags(node, 'deprecated')[0];
+    const since = getTags(node, 'since')[0];
     if (!deprecated && !since) {
         return '';
     }
@@ -288,7 +288,7 @@ function renderType(node, json) {
         return renderLink(node);
     }
     if (node.type === 'array') {
-        let type = renderType(node.elementType, json);
+        const type = renderType(node.elementType, json);
         return `${type.replace(/(<([^>]+)>)/gi, '').trim().includes(' ') ? `(${type})` : type}[]`;
     }
     if (node.type === 'predicate') {

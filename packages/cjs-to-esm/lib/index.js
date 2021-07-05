@@ -82,12 +82,13 @@ export function transform(contents, { source, sourceMap = true, ignore = () => f
         });
         magicCode.prepend(`var __umd = {}; (function(${varName || '_'}) {\n`);
         magicCode.append('\n }).call(__umd, __umd);');
-        magicCode.append('\nvar __umdExport = Object.keys(__umd)[0];');
+        magicCode.append('\nvar __umdKeys = Object.keys(__umd);');
+        magicCode.append('\nvar __umdExport = __umdKeys.length === 1 ? __umdKeys[0] : false;');
         magicCode.append('\nif (__umdExport && typeof window !== \'undefined\') window[__umdExport] = __umd[__umdExport];');
         magicCode.append('\nif (__umdExport && typeof self !== \'undefined\') self[__umdExport] = __umd[__umdExport];');
         magicCode.append('\nif (__umdExport && typeof global !== \'undefined\') global[__umdExport] = __umd[__umdExport];');
         magicCode.append('\nif (__umdExport && typeof globalThis !== \'undefined\') globalThis[__umdExport] = __umd[__umdExport];');
-        magicCode.append('\nexport default __umd[__umdExport]');
+        magicCode.append('\nexport default (__umdExport ? __umd[__umdExport] : __umd);');
     } else {
         magicCode.prepend('var module = { exports: {} }, exports = module.exports;\n');
         magicCode.append('\nexport default ((typeof module.exports === \'object\' && \'default\' in module.exports) ? module.exports.default : module.exports);');

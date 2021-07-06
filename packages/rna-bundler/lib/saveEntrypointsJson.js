@@ -73,7 +73,7 @@ export async function saveDevEntrypointsJson(entrypoints, outputFile, server, fo
     const { config } = server;
     const base = `http${config.http2 ? 's' : ''}://${config.hostname ?? 'localhost'}:${config.port}`;
     const outputDir = path.extname(outputFile) ? path.dirname(outputFile) : outputFile;
-    const webSocketImport = server.webSockets && server.webSockets.webSocketImport && path.join(base, server.webSockets.webSocketImport);
+    const webSocketImport = server.webSockets && server.webSockets.webSocketImport && new URL(server.webSockets.webSocketImport, base).href;
     outputFile = path.extname(outputFile) ? outputFile : path.join(outputDir, 'entrypoints.json');
 
     const entrypointsJson = entrypoints.reduce((json, entrypoint) => {
@@ -85,7 +85,7 @@ export async function saveDevEntrypointsJson(entrypoints, outputFile, server, fo
             js: [],
             css: [],
         };
-        const outputFile = path.join(base, path.relative(config.rootDir, entrypoint));
+        const outputFile = new URL(path.relative(config.rootDir, entrypoint), base).href;
 
         switch (loader) {
             case 'css': {

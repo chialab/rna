@@ -14,7 +14,7 @@ const { stat } = promises;
  */
 export async function serve(config) {
     const { startDevServer } = await import('@web/dev-server');
-    const { hmrPlugin } = await import('@web/dev-server-hmr');
+    const { hmrPlugin } = await import('./hmr.js');
     const { hmrCssPlugin } = await import('@chialab/wds-plugin-hmr-css');
     const { esbuildPlugin } = await import('@web/dev-server-esbuild');
     const { commonjsPlugin } = await import('@chialab/wds-plugin-commonjs');

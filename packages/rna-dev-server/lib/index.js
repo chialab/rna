@@ -42,7 +42,7 @@ export async function serve(config) {
             appIndex: index ? appIndex : undefined,
             nodeResolve: {
                 exportConditions: ['default', 'module', 'import', 'browser'],
-                mainFields: ['module', 'esnext', 'jsnext', 'jsnext:main', 'main'],
+                mainFields: ['module', 'esnext', 'jsnext', 'jsnext:main', 'browser', 'main'],
             },
             preserveSymlinks: true,
             watch: true,

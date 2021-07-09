@@ -124,7 +124,14 @@ export async function build(config) {
         metafile: metafile || !!manifest || !!entrypoints,
         jsxFactory,
         jsxFragment,
-        mainFields: ['module', 'esnext', 'jsnext', 'jsnext:main', 'main'],
+        mainFields: [
+            'module',
+            'esnext',
+            'jsnext',
+            'jsnext:main',
+            ...(platform === 'browser' ? ['browser'] : []),
+            'main',
+        ],
         loader: loaders,
         watch: watch && {
             onRebuild(error, result) {
@@ -183,6 +190,8 @@ export function command(program) {
         .option('--public <path>', 'public path')
         .option('--target <query>', 'output targets (es5, es2015, es2020)')
         .option('--entryNames <pattern>', 'output file names')
+        .option('--chunkNames <pattern>', 'output chunk names')
+        .option('--assetNames <pattern>', 'output asset names')
         .option('--clean', 'cleanup output path')
         .option('--manifest [path]', 'generate manifest file')
         .option('--entrypoints [path]', 'generate entrypoints file')
@@ -196,9 +205,9 @@ export function command(program) {
         .action(
             /**
              * @param {string[]} input
-             * @param {{ output: string, format?: import('esbuild').Format, platform: import('esbuild').Platform, bundle?: boolean, minify?: boolean, name?: string, watch?: boolean, manifest?: boolean|string, entrypoints?: boolean|string, target?: string, public?: string, entryNames?: string, clean?: boolean, external?: string, map?: boolean, jsxFactory?: string, jsxFragment?: string, jsxModule?: string, jsxExport?: 'named'|'namespace'|'default' }} options
+             * @param {{ output: string, format?: import('esbuild').Format, platform: import('esbuild').Platform, bundle?: boolean, minify?: boolean, name?: string, watch?: boolean, manifest?: boolean|string, entrypoints?: boolean|string, target?: string, public?: string, entryNames?: string, chunkNames?: string, assetNames?: string, clean?: boolean, external?: string, map?: boolean, jsxFactory?: string, jsxFragment?: string, jsxModule?: string, jsxExport?: 'named'|'namespace'|'default' }} options
              */
-            async (input, { output, format = 'esm', platform, bundle, minify, name, watch, manifest, entrypoints, target, public: publicPath, entryNames, clean, external, map, jsxFactory, jsxFragment, jsxModule, jsxExport }) => {
+            async (input, { output, format = 'esm', platform, bundle, minify, name, watch, manifest, entrypoints, target, public: publicPath, entryNames, chunkNames, assetNames, clean, external, map, jsxFactory, jsxFragment, jsxModule, jsxExport }) => {
                 const { default: esbuild } = await import('esbuild');
 
                 /**
@@ -255,6 +264,8 @@ export function command(program) {
                     external: external ? external.split(',') : undefined,
                     publicPath,
                     entryNames,
+                    chunkNames,
+                    assetNames,
                     sourcemap: map,
                     jsxFactory,
                     jsxFragment,

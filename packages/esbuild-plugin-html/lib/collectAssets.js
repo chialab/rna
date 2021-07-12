@@ -1,9 +1,9 @@
 import path from 'path';
-import $ from './esm-cheerio.js';
+import $ from 'cheerio';
 
 /**
  * Collect and bundle each node with a src reference.
- * @param {import('./esm-cheerio').Document} dom The DOM element.
+ * @param {import('cheerio').Cheerio<import('cheerio').Document>} dom The DOM element.
  * @param {string} base The base dir.
  * @param {string} outdir The output dir.
  * @param {import('esbuild').BuildOptions} options Build options.

@@ -1,6 +1,6 @@
 import { promises } from 'fs';
 import path from 'path';
-import $ from './esm-cheerio.js';
+import $ from 'cheerio';
 import { SUPPORTED_MIME_TYPES, generateIcon } from './generateIcon.js';
 import { generateLaunch } from './generateLaunch.js';
 
@@ -89,7 +89,7 @@ const APPLE_LAUNCH_SCREENS = [
 
 /**
  * Collect and bundle favicons.
- * @param {import('./esm-cheerio').Document} dom The DOM element.
+ * @param {import('cheerio').Cheerio<import('cheerio').Document>} dom The DOM element.
  * @param {string} base The base dir.
  * @param {string} outdir The output dir.
  * @return {import('./index').Entrypoint[]} A list of entrypoints.

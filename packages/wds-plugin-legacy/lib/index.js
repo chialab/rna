@@ -3,7 +3,7 @@ import { inject } from '@chialab/wds-plugin-polyfill';
 import { checkEsmSupport } from './checkEsmSupport.js';
 import { readFile } from './readFile.js';
 import { transform } from './transform.js';
-import $ from './esm-cheerio.js';
+import $ from 'cheerio';
 
 const require = createRequire(import.meta.url);
 

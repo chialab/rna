@@ -1,6 +1,6 @@
 import path from 'path';
 import { getRequestFilePath } from '@web/dev-server-core';
-import { transform, transformLoaders, loadPlugins, loadTransformPlugins, JS_EXTENSIONS, CSS_EXTENSIONS } from '@chialab/rna-bundler';
+import { transform, transformLoaders, loadPlugins, loadTransformPlugins, JS_EXTENSIONS, JSON_EXTENSIONS, CSS_EXTENSIONS } from '@chialab/rna-bundler';
 
 /**
  * @typedef {import('@web/dev-server-core').Plugin} Plugin
@@ -31,7 +31,8 @@ export class EsbuildPlugin {
      */
     resolveMimeType(context) {
         const fileExtension = path.posix.extname(context.path);
-        if (JS_EXTENSIONS.includes(fileExtension)) {
+        if (JS_EXTENSIONS.includes(fileExtension) ||
+            JSON_EXTENSIONS.includes(fileExtension)) {
             return 'js';
         }
         if (CSS_EXTENSIONS.includes(fileExtension)) {

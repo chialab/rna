@@ -35,10 +35,10 @@
     "node": ">=13"
   },
   "dependencies": {
+    "@chialab/node-resolve": "^0.8.0",
     "@web/dev-server-core": "^0.3.8",
     "postcss": "^8.2.5",
-    "postcss-load-config": "^3.0.1",
-    "resolve": "^1.20.0"
+    "postcss-load-config": "^3.0.1"
   },
   "devDependencies": {
     "typescript": "^4.2.3"

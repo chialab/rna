@@ -1,8 +1,8 @@
 {
-  "name": "@chialab/wds-plugin-commonjs",
+  "name": "@chialab/node-resolve",
   "type": "module",
-  "version": "0.8.14",
-  "description": "A commonjs to esm transformer for the web dev server.",
+  "version": "0.8.0",
+  "description": "A promise based node resolution library based on enhanced-resolve.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",
   "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
@@ -10,14 +10,14 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/chialab/rna",
-    "directory": "packages/wds-plugin-commonjs"
+    "directory": "packages/node-resolve"
   },
   "keywords": [
-    "dev-server",
-    "plugin",
-    "commonjs",
-    "esm",
-    "import"
+    "node",
+    "resolve",
+    "exports",
+    "conditions",
+    "esm"
   ],
   "scripts": {
     "types": "tsc",
@@ -34,8 +34,7 @@
     "node": ">=13"
   },
   "dependencies": {
-    "@chialab/cjs-to-esm": "^0.8.14",
-    "@web/dev-server-core": "^0.3.8"
+    "enhanced-resolve": "^5.8.2"
   },
   "devDependencies": {
     "typescript": "^4.2.3"

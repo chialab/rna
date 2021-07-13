@@ -15,7 +15,7 @@ declare module '@parcel/source-map' {
         extends(buffer: Buffer);
         toVLQ(): SourceMap;
         toBuffer(): Buffer;
-    };
+    }
 
     export default {
         default: SourceMapNode,

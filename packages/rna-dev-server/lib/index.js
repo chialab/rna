@@ -1,27 +1,62 @@
 import path from 'path';
 import { promises } from 'fs';
+import debug from 'debug';
 
 const { stat } = promises;
+const logger = debug('rna dev server');
 
 /**
- * @typedef {import('@web/dev-server').DevServerConfig & { entries?: string[], entrypoints?: boolean|string }} DevServerConfig
+ * @typedef {Partial<import('@web/dev-server-core').DevServerCoreConfig> & { entries?: string[], entrypoints?: boolean|string }} DevServerConfig
  */
+
+export async function buildMiddlewares() {
+    const [
+        { default: cors },
+        { default: range },
+    ] = await Promise.all([
+        import('@koa/cors'),
+        import('koa-range'),
+    ]);
+
+    return [
+        cors(),
+        range,
+    ];
+}
+
+export async function buildPlugins() {
+    const { esbuildPlugin } = await import('./plugins/esbuild.js');
+
+    return [
+        esbuildPlugin(),
+    ];
+}
+
+export async function buildDevPlugins() {
+    const [
+        { hmrPlugin },
+        { hmrCssPlugin },
+        { watchPlugin },
+    ] = await Promise.all([
+        import('./plugins/hmr.js'),
+        import('@chialab/wds-plugin-hmr-css'),
+        import('./plugins/watch.js'),
+    ]);
+
+    return [
+        hmrPlugin(),
+        watchPlugin(),
+        hmrCssPlugin(),
+    ];
+}
 
 /**
  * Start the dev server.
  * @param {DevServerConfig} config
  * @return {Promise<import('@web/dev-server-core').DevServer>} The dev server instance.
  */
-export async function serve(config) {
-    const { startDevServer } = await import('@web/dev-server');
-    const { hmrPlugin } = await import('./hmr.js');
-    const { hmrCssPlugin } = await import('@chialab/wds-plugin-hmr-css');
-    const { esbuildPlugin } = await import('@web/dev-server-esbuild');
-    const { commonjsPlugin } = await import('@chialab/wds-plugin-commonjs');
-    const { cssPlugin } = await import('@chialab/wds-plugin-postcss');
-    const { defineEnvVariables } = await import('@chialab/esbuild-plugin-env');
-    const { default: cors } = await import('@koa/cors');
-    const { default: range } = await import('koa-range');
+export async function startDevServer(config) {
+    const { DevServer } = await import('@web/dev-server-core');
 
     const root = config.rootDir || process.cwd();
     const appIndex = path.join(root, 'index.html');
@@ -31,60 +66,95 @@ export async function serve(config) {
     } catch {
         //
     }
-
-    const server = await startDevServer({
-        readCliArgs: false,
-        readFileConfig: false,
-        autoExitProcess: true,
-        logStartMessage: true,
-        config: {
-            port: 8080,
-            appIndex: index ? appIndex : undefined,
-            nodeResolve: {
-                exportConditions: ['default', 'module', 'import', 'browser'],
-                mainFields: ['module', 'esnext', 'jsnext', 'jsnext:main', 'browser', 'main'],
-            },
-            preserveSymlinks: true,
-            watch: true,
-            clearTerminalOnReload: true,
-            open: false,
-            ...config,
-            rootDir: root,
-            middleware: [
-                cors(),
-                range,
-            ],
-            plugins: [
-                cssPlugin(),
-                esbuildPlugin({
-                    loaders: {
-                        '.cjs': 'tsx',
-                        '.mjs': 'tsx',
-                        '.js': 'tsx',
-                        '.jsx': 'tsx',
-                        '.ts': 'ts',
-                        '.tsx': 'tsx',
-                        '.json': 'json',
-                        '.geojson': 'json',
-                    },
-                    define: {
-                        ...defineEnvVariables(),
-                    },
-                    target: 'auto-always',
-                }),
-                commonjsPlugin(),
-                hmrPlugin(),
-                hmrCssPlugin(),
-                ...(config.plugins || []),
-            ],
+    const server = new DevServer({
+        appIndex: index ? appIndex : undefined,
+        ...config,
+        injectWebSocket: true,
+        hostname: config.hostname || 'localhost',
+        port: config.port || 8080,
+        rootDir: root,
+        middleware: [
+            ...(await buildMiddlewares()),
+            ...(config.middleware || []),
+        ],
+        plugins: [
+            ...(await buildPlugins()),
+            ...(await buildDevPlugins()),
+            ...(config.plugins || []),
+        ],
+    }, {
+        /**
+         * @param  {any[]} messages
+         */
+        log(...messages) {
+            // eslint-disable-next-line no-console
+            console.log(...messages);
+        },
+        /**
+         * @param  {any[]} messages
+         */
+        debug(...messages) {
+            logger('%s', ...messages);
+        },
+        /**
+         * @param  {any[]} messages
+         */
+        error(...messages) {
+            // eslint-disable-next-line no-console
+            console.error(...messages);
+        },
+        /**
+         * @param  {any[]} messages
+         */
+        warn(...messages) {
+            // eslint-disable-next-line no-console
+            console.warn(...messages);
+        },
+        group() {
+            // eslint-disable-next-line no-console
+            console.group();
+        },
+        groupEnd() {
+            // eslint-disable-next-line no-console
+            console.groupEnd();
+        },
+        /**
+         * @param {import('@web/dev-server-core').ErrorWithLocation} error
+         */
+        logSyntaxError(error) {
+            // eslint-disable-next-line no-console
+            console.error(error);
         },
     });
+
+    return server;
+}
+
+/**
+ * Start the dev server.
+ * @param {DevServerConfig} config
+ * @return {Promise<import('@web/dev-server-core').DevServer>} The dev server instance.
+ */
+export async function serve(config) {
+    const server = await startDevServer(config);
 
     if (config.entrypoints) {
         const { saveDevEntrypointsJson } = await import('@chialab/rna-bundler');
         const dir = typeof config.entrypoints === 'string' ? config.entrypoints : (config.rootDir || process.cwd());
         await saveDevEntrypointsJson(config.entries || [], dir, server, 'esm');
     }
+
+    await server.start();
+
+    process.on('uncaughtException', error => {
+        // eslint-disable-next-line no-console
+        console.error(error);
+    });
+
+    process.on('SIGINT', async () => {
+        await server.stop();
+        process.exit(0);
+    });
 
     return server;
 }
@@ -127,7 +197,14 @@ export function command(program) {
                     //
                 }
 
-                await serve(config);
+                const server = await serve(config);
+
+                // eslint-disable-next-line no-console
+                console.log(`rna dev server started...
+
+  Root dir: ${config.rootDir},
+  Local:    http://${server.config.hostname}:${server.config.port}/
+`);
             }
         );
 }

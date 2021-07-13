@@ -1,6 +1,5 @@
 import { getRequestFilePath } from '@web/dev-server-core';
 import { transform, ESM_KEYWORDS, CJS_KEYWORDS } from '@chialab/cjs-to-esm';
-import resolve from 'resolve';
 
 /**
  * Create a server plugin instance that converts cjs modules to esm.
@@ -33,7 +32,6 @@ export function commonjsPlugin() {
                     body: transform(body, {
                         source: filePath,
                         sourceMap: 'inline',
-                        ignore: (specifier) => resolve.isCore(specifier) || false,
                     }).code,
                 };
             }

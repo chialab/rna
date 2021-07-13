@@ -19,12 +19,13 @@ $ yarn add @chialab/esbuild-plugin-transform -D
 
 ```js
 import esbuild from 'esbuild';
-import { start, end } from '@chialab/esbuild-plugin-transform';
+import transform from '@chialab/esbuild-plugin-transform';
 
 await esbuild.build({
     plugins: [
-        start(),
-        end(),
+        transform([
+            // plugins
+        ]),
     ],
 });
 ```
@@ -51,13 +52,13 @@ export default {
     setup(build) {
         const { filter, running, getEntry, buildEntry } = getTransformOptions(build);
 
-        build.onLoad({ filter: /\./, namespace: 'file' }, async (args) => {
+        build.onLoad({ filter, namespace: 'file' }, async (args) => {
             const entry = await getEntry(args.path);
             const { code, map } = await transform(entry.code);
-            entry.code = code;
-            entry.mappings.push(map);
 
             return buildEntry(entry, {
+                code,
+                map,
                 loader: 'js',
             });
         });

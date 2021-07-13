@@ -161,7 +161,7 @@ export function objectExpression(props, span) {
 }
 
 /**
- * @param {import('@swc/core/types').Expression[]} elements
+ * @param {import('@swc/core/types').ExprOrSpread[]} elements
  * @param {import('@swc/core/types').Span} span
  * @return {import('@swc/core/types').ArrayExpression}
  */
@@ -377,7 +377,7 @@ export function valueToNode(value, span) {
 
     // array
     if (Array.isArray(value)) {
-        return arrayExpression(value.map((item) => valueToNode(item, span)), span);
+        return arrayExpression(value.map((item) => /** @type {import('@swc/core/types').ExprOrSpread} */ (valueToNode(item, span))), span);
     }
 
     // object

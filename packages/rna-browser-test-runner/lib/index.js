@@ -1,24 +1,44 @@
 /**
- * @typedef {Partial<Omit<import('@web/test-runner').TestRunnerConfig, 'browsers'>> & { browsers?: string[]|import('@web/test-runner').BrowserLauncher[] }} TestRunnerConfig
+ * @typedef {Partial<Omit<import('@web/test-runner-core').TestRunnerCoreConfig, 'browsers'>> & { browsers?: string[]|import('@web/test-runner-core').BrowserLauncher[] }} TestRunnerConfig
+ */
+
+/**
+ * @typedef {import('@web/test-runner-core').TestRunner} TestRunner
+ */
+
+/**
+ * @typedef {import('@web/test-runner-core').TestRunnerPlugin} TestRunnerPlugin
+ */
+
+/**
+ * @typedef {import('@web/test-runner-core').TestFramework} TestFramework
+ */
+
+/**
+ * @typedef {import('@web/test-runner-core').BrowserLauncher} BrowserLauncher
+ */
+
+/**
+ * @typedef {import('@web/test-runner-core').Reporter} Reporter
  */
 
 /**
  * Start the test runner.
  * @param {TestRunnerConfig} config
- * @return {Promise<import('@web/test-runner').TestRunner|undefined>} The test runner instance.
+ * @return {Promise<TestRunner>} The test runner instance.
  */
-export async function test(config) {
-    const { startTestRunner, defaultReporter } = await import('@web/test-runner');
-    const { esbuildPlugin } = await import('@web/dev-server-esbuild');
-    const { commonjsPlugin } = await import('@chialab/wds-plugin-commonjs');
-    const { cssPlugin } = await import('@chialab/wds-plugin-postcss');
-    const { defineEnvVariables } = await import('@chialab/esbuild-plugin-env');
-    const { default: cors } = await import('@koa/cors');
-    const { default: range } = await import('koa-range');
-
+export async function startTestRunner(config) {
+    const [
+        { TestRunner },
+        { buildMiddlewares, buildPlugins },
+    ] = await Promise.all([
+        import('@web/test-runner-core'),
+        import('@chialab/rna-dev-server'),
+    ]);
+    // const { defaultReporter } = await import('@web/test-runner-core');
     const testFramework =
         /**
-         * @type {import('@web/test-runner').TestFramework}
+         * @type {TestFramework}
          */
         ({
             config: {
@@ -28,7 +48,7 @@ export async function test(config) {
         });
 
     /**
-     * @type {import('@web/test-runner').TestRunnerConfig}
+     * @type {import('@web/test-runner-core').TestRunnerCoreConfig}
      */
     const runnerConfig = {
         browserStartTimeout: 2 * 60 * 1000,
@@ -38,51 +58,49 @@ export async function test(config) {
             'test/**/*.test.js',
             'test/**/*.spec.js',
         ],
-        reporters: [
-            defaultReporter({
-                reportTestProgress: true,
-                reportTestResults: true,
-            }),
-        ],
+        // reporters: [
+        //     defaultReporter({
+        //         reportTestProgress: true,
+        //         reportTestResults: true,
+        //     }),
+        // ],
         testFramework,
-        nodeResolve: {
-            exportConditions: ['default', 'module', 'import', 'browser'],
-            mainFields: ['umd:main', 'module', 'esnext', 'browser', 'jsnext', 'jsnext:main', 'main'],
-        },
-        preserveSymlinks: true,
         open: false,
         ...(/** @type {*} */ (config)),
         middleware: [
-            cors(),
-            range,
+            ...(await buildMiddlewares()),
+            ...(config.middleware || []),
         ],
         plugins: [
-            cssPlugin(),
-            esbuildPlugin({
-                loaders: {
-                    '.cjs': 'tsx',
-                    '.mjs': 'tsx',
-                    '.jsx': 'tsx',
-                    '.ts': 'ts',
-                    '.tsx': 'tsx',
-                    '.json': 'json',
-                    '.geojson': 'json',
-                },
-                define: {
-                    ...defineEnvVariables(),
-                },
-            }),
-            commonjsPlugin(),
+            ...(await buildPlugins()),
             ...(config.plugins || []),
         ],
     };
 
-    return startTestRunner({
-        readCliArgs: false,
-        readFileConfig: false,
-        autoExitProcess: true,
-        config: runnerConfig,
+    return new TestRunner(runnerConfig);
+}
+
+/**
+ * Start the test runner.
+ * @param {TestRunnerConfig} config
+ * @return {Promise<TestRunner>} The test runner instance.
+ */
+export async function test(config) {
+    const runner = await startTestRunner(config);
+
+    await runner.start();
+
+    process.on('uncaughtException', error => {
+        // eslint-disable-next-line no-console
+        console.error(error);
     });
+
+    process.on('SIGINT', async () => {
+        await runner.stop();
+        process.exit(0);
+    });
+
+    return runner;
 }
 
 /**
@@ -105,7 +123,7 @@ export function command(program) {
              */
             async (specs, { port, watch, concurrency, coverage, manual, open }) => {
                 /**
-                 * @type {import('@web/test-runner').TestRunnerPlugin[]}
+                 * @type {TestRunnerPlugin[]}
                  */
                 const plugins = [];
 
@@ -139,5 +157,3 @@ export function command(program) {
             }
         );
 }
-
-export { defaultReporter } from '@web/test-runner';

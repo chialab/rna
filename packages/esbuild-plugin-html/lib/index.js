@@ -19,6 +19,12 @@ const { readFile, writeFile, mkdir } = promises;
  */
 
 /**
+ * @typedef {{ esbuild?: typeof esbuildModule, scriptsTarget?: string, modulesTarget?: string }} PluginOptions
+ */
+
+/**
+ * A HTML loader plugin for esbuild.
+ * @param {PluginOptions} options
  * @return An esbuild plugin.
  */
 export default function({ esbuild = esbuildModule, scriptsTarget = 'es6', modulesTarget = 'es2020' } = {}) {

@@ -6,7 +6,6 @@
   },
   "include": [
     "lib",
-    "modules.d.ts",
-    "../../modules.d.ts"
+    "modules.d.ts"
   ]
 }

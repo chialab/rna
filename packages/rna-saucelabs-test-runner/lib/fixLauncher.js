@@ -1,5 +1,5 @@
 /**
- * @param {import('@web/test-runner').BrowserLauncher} launcher
+ * @param {import('@chialab/rna-browser-test-runner').BrowserLauncher} launcher
  */
 export function fixLauncher(launcher) {
     const createDriverManager = (/** @type {*} */ (launcher)).createDriverManager;

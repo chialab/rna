@@ -25,7 +25,7 @@ export class Visitor extends BaseVisitor {
     }
 
     /**
-     * @param {import('@swc/core/types').Expression} e
+     * @param {import('@swc/core/types').ExprOrSpread} e
      */
     visitArrayElement(e) {
         if (!e) {

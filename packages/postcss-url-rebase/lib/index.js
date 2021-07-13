@@ -1,16 +1,25 @@
 import path from 'path';
-import nodeResolve from 'resolve';
+import { createResolver } from '@chialab/node-resolve';
 
 /**
  * @typedef {Object} UrlRebasePluginOptions
  * @property {string} [root] The root dir of the build.
+ * @property {boolean} [relative] Should use relative paths.
  */
 
 /**
  * A postcss plugin for url() rebasing before import.
  * @param {UrlRebasePluginOptions} options
  */
-export default function urlRebase({ root = process.cwd() } = {}) {
+export default function urlRebase({ root = process.cwd(), relative } = {}) {
+    const resolve = createResolver({
+        extensions: ['.css'],
+        exportsFields: [],
+        mainFields: ['style'],
+    });
+
+    relative = typeof relative === 'boolean' ? relative : true;
+
     /**
      * @type {import('postcss').Plugin}
      */
@@ -23,7 +32,7 @@ export default function urlRebase({ root = process.cwd() } = {}) {
                     return;
                 }
 
-                let source = match[1];
+                const source = match[1].replace(/^~/, '');
                 if (source.startsWith('.') ||
                     source.startsWith('/') ||
                     source.startsWith('http:') ||
@@ -31,27 +40,13 @@ export default function urlRebase({ root = process.cwd() } = {}) {
                     return;
                 }
 
-                if (source.startsWith('~')) {
-                    source = source.substring(1);
-                }
-
-                const resolvedImportPath = await new Promise((resolve, reject) => nodeResolve(source, {
-                    basedir: root,
-                    extensions: ['.css'],
-                    preserveSymlinks: true,
-                    packageFilter(pkg) {
-                        if (pkg.style) {
-                            pkg.main = pkg.style;
-                        }
-                        return pkg;
-                    },
-                }, (err, data) => (err ? reject(err) : resolve(data))));
-
+                const resolvedImportPath = await resolve(source, decl.source?.input.file ?? root);
                 if (path.extname(resolvedImportPath) !== '.css') {
                     return;
                 }
 
-                decl.params = `url('${resolvedImportPath}')`;
+                const filePath = (decl.source?.input.file && relative) ? `./${path.relative(decl.source.input.file, resolvedImportPath)}` : resolvedImportPath;
+                decl.params = `url('${filePath}')`;
             },
         },
     };

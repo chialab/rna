@@ -1,178 +1,13 @@
 import path from 'path';
-import { promises } from 'fs';
-import { loaders } from './loaders.js';
-import { emptyDir } from './emptyDir.js';
-import { camelize } from './camelize.js';
+import { build } from './build.js';
 import { saveManifestJson } from './saveManifestJson.js';
 import { saveEntrypointsJson, saveDevEntrypointsJson } from './saveEntrypointsJson.js';
+import { loadPlugins, loadTransformPlugins } from './loadPlugins.js';
 
-const { readFile } = promises;
-
-export { loaders, saveManifestJson, saveEntrypointsJson, saveDevEntrypointsJson };
-
-/**
- * @typedef {Omit<import('esbuild').BuildOptions, 'loader'> & { output: string, root?: string, input?: string|string[], code?: string, loader?: import('esbuild').Loader, jsxModule?: string, jsxExport?: 'default'|'named'|'namespace', transformPlugins?: import('esbuild').Plugin[], manifest?: boolean|string, entrypoints?: boolean|string, clean?: boolean }} BuildConfig
- */
-
-/**
- * @typedef {import('esbuild').BuildResult & { outputFiles?: import('esbuild').OutputFile[] }} BuildResult
- */
-
-/**
- * Build and bundle sources.
- * @param {BuildConfig} config
- * @return {Promise<BuildResult>} The esbuild bundle result.
- */
-export async function build(config) {
-    const { default: esbuild } = await import('esbuild');
-    const { default: pkgUp } = await import('pkg-up');
-
-    const {
-        root = process.cwd(),
-        input,
-        code,
-        output,
-        bundle = false,
-        sourcemap = true,
-        minify = false,
-        loader = 'tsx',
-        format = 'esm',
-        platform = format === 'cjs' ? 'node' : 'browser',
-        globalName = camelize(output),
-        jsxFactory,
-        jsxFragment,
-        jsxModule,
-        jsxExport,
-        target = format === 'iife' ? 'es5' : 'es2020',
-        publicPath,
-        entryNames,
-        assetNames,
-        chunkNames,
-        external = [],
-        metafile = false,
-        manifest = false,
-        entrypoints = false,
-        clean = false,
-        watch = false,
-        plugins = [],
-        transformPlugins = [],
-    } = config;
-
-    const hasOutputFile = !!path.extname(output);
-    const outputDir = hasOutputFile ? path.dirname(output) : output;
-    if (clean) {
-        await emptyDir(outputDir);
-    }
-
-    const entryOptions = {};
-    if (code) {
-        entryOptions.stdin = {
-            contents: code,
-            loader: /** @type {import('esbuild').Loader} */ (`${loader}`),
-            resolveDir: root,
-            sourcefile: Array.isArray(input) ? input[0] : input,
-        };
-    } else if (input) {
-        entryOptions.entryPoints = Array.isArray(input) ? input : [input];
-    }
-
-    const extraTransformPlugins = [];
-
-    if (!bundle) {
-        const packageFile = await pkgUp({
-            cwd: root,
-        });
-        if (packageFile) {
-            const packageJson = JSON.parse(await readFile(packageFile, 'utf-8'));
-            external.push(
-                ...Object.keys(packageJson.dependencies || {}),
-                ...Object.keys(packageJson.peerDependencies || {}),
-                ...Object.keys(packageJson.optionalDependencies || {})
-            );
-        }
-    }
-    if (platform === 'browser') {
-        const packageFile = await pkgUp({
-            cwd: root,
-        });
-        if (packageFile) {
-            const packageJson = JSON.parse(await readFile(packageFile, 'utf-8'));
-            if (typeof packageJson.browser === 'object') {
-                extraTransformPlugins.push(
-                    (await import('@chialab/esbuild-plugin-alias')).default(packageJson.browser)
-                );
-            }
-        }
-    }
-
-    const result = await esbuild.build({
-        ...entryOptions,
-        globalName,
-        outfile: hasOutputFile ? output : undefined,
-        outdir: hasOutputFile ? undefined : output,
-        entryNames,
-        assetNames,
-        chunkNames,
-        splitting: format === 'esm' && !hasOutputFile,
-        target,
-        bundle: true,
-        sourcemap,
-        minify,
-        platform,
-        format,
-        external,
-        metafile: metafile || !!manifest || !!entrypoints,
-        jsxFactory,
-        jsxFragment,
-        mainFields: [
-            'module',
-            'esnext',
-            'jsnext',
-            'jsnext:main',
-            ...(platform === 'browser' ? ['browser'] : []),
-            'main',
-        ],
-        loader: loaders,
-        watch: watch && {
-            onRebuild(error, result) {
-                if (error) {
-                    // eslint-disable-next-line
-                    console.error(error);
-                }
-
-                if (manifest && result) {
-                    saveManifestJson(result, typeof manifest === 'string' ? manifest : outputDir, publicPath);
-                }
-                if (entrypoints && result) {
-                    saveEntrypointsJson(entryOptions.entryPoints, result, root, typeof entrypoints === 'string' ? entrypoints : outputDir, publicPath, format);
-                }
-            },
-        },
-        plugins: [
-            (await import('@chialab/esbuild-plugin-any-file')).default(),
-            (await import('@chialab/esbuild-plugin-env')).default(),
-            (await import('@chialab/esbuild-plugin-jsx-import')).default({ jsxModule, jsxExport }),
-            ...plugins,
-            (await import('@chialab/esbuild-plugin-transform')).start(),
-            (await import('@chialab/esbuild-plugin-commonjs')).default({ esbuild }),
-            (await import('@chialab/esbuild-plugin-require-resolve')).default(),
-            (await import('@chialab/esbuild-plugin-webpack-include')).default(),
-            (await import('@chialab/esbuild-plugin-meta-url')).default(),
-            ...extraTransformPlugins,
-            ...transformPlugins,
-            (await import('@chialab/esbuild-plugin-transform')).end(),
-        ],
-    });
-
-    if (manifest && result) {
-        saveManifestJson(result, typeof manifest === 'string' ? manifest : outputDir, publicPath);
-    }
-    if (entrypoints && result) {
-        saveEntrypointsJson(entryOptions.entryPoints, result, root, typeof entrypoints === 'string' ? entrypoints : outputDir, publicPath, format);
-    }
-
-    return result;
-}
+export * from './loaders.js';
+export * from './transform.js';
+export * from './build.js';
+export { loadPlugins, loadTransformPlugins, saveManifestJson, saveEntrypointsJson, saveDevEntrypointsJson };
 
 /**
  * @param {import('commander').Command} program
@@ -210,44 +45,6 @@ export function command(program) {
             async (input, { output, format = 'esm', platform, bundle, minify, name, watch, manifest, entrypoints, target, public: publicPath, entryNames, chunkNames, assetNames, clean, external, map, jsxFactory, jsxFragment, jsxModule, jsxExport }) => {
                 const { default: esbuild } = await import('esbuild');
 
-                /**
-                 * @type {import('esbuild').Plugin[]}
-                 */
-                const plugins = [];
-
-                try {
-                    plugins.push((await import('@chialab/esbuild-plugin-html')).default({ esbuild }));
-                } catch (err) {
-                    //
-                }
-
-                try {
-                    plugins.push((await import('@chialab/esbuild-plugin-postcss')).default());
-                } catch (err) {
-                    //
-                }
-
-                /**
-                 * @type {import('esbuild').Plugin[]}
-                 */
-                const transformPlugins = [];
-
-                const loadBabelPlugin = async () => {
-                    try {
-                        return (await import('@chialab/esbuild-plugin-swc')).default();
-                    } catch (err) {
-                        //
-                    }
-
-                    return (await import('@chialab/esbuild-plugin-babel')).default();
-                };
-
-                try {
-                    transformPlugins.push(await loadBabelPlugin());
-                } catch (err) {
-                    //
-                }
-
                 await build({
                     input: input.map((entry) => path.resolve(entry)),
                     output: path.resolve(output),
@@ -271,8 +68,11 @@ export function command(program) {
                     jsxFragment,
                     jsxModule,
                     jsxExport,
-                    plugins,
-                    transformPlugins,
+                    plugins: await loadPlugins({
+                        html: { esbuild },
+                        postcss: { relative: false },
+                    }),
+                    transformPlugins: await loadTransformPlugins(),
                 });
             }
         );

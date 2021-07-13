@@ -35,9 +35,9 @@
   },
   "dependencies": {
     "@chialab/esbuild-plugin-transform": "^0.8.4",
+    "@chialab/node-resolve": "^0.8.0",
     "esbuild": "^0.12.0",
-    "magic-string": "^0.25.7",
-    "resolve": "^1.20.0"
+    "magic-string": "^0.25.7"
   },
   "devDependencies": {
     "typescript": "^4.2.3"

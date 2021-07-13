@@ -1,23 +1,8 @@
 import { promises } from 'fs';
 import path from 'path';
 import MagicString from 'magic-string';
-import nodeResolve from 'resolve';
+import { createResolver } from '@chialab/node-resolve';
 import { getTransformOptions } from '@chialab/esbuild-plugin-transform';
-
-const { readFile } = promises;
-
-const RESOLVE_REGEX = /(require\.resolve\s*\()\s*['"]([^'"]*)['"]\s*\s*(\))/g;
-
-/**
- * @param {string} spec
- * @param {string} importer
- */
-function resolve(spec, importer) {
-    return new Promise((resolve, reject) => nodeResolve(spec, {
-        basedir: path.dirname(importer),
-        preserveSymlinks: true,
-    }, (err, data) => (err ? reject(err) : resolve(data))));
-}
 
 /**
  * Instantiate a plugin that converts URL references into static import
@@ -25,6 +10,10 @@ function resolve(spec, importer) {
  * @return An esbuild plugin.
  */
 export default function() {
+    const { readFile } = promises;
+    const resolve = createResolver();
+    const RESOLVE_REGEX = /(require\.resolve\s*\()\s*['"]([^'"]*)['"]\s*\s*(\))/g;
+
     /**
      * @type {import('esbuild').Plugin}
      */
@@ -53,7 +42,7 @@ export default function() {
                     const len = match[0].length;
                     const value = match[2];
 
-                    const entryPoint = await resolve(value, args.path);
+                    const entryPoint = await resolve(value, path.dirname(args.path));
                     const identifier = `_${value.replace(/[^a-zA-Z0-9]/g, '_')}`;
                     if (entry.code.startsWith('#!')) {
                         magicCode.appendRight(entry.code.indexOf('\n') + 1, `var ${identifier} = require('${entryPoint}.requirefile');\n`);
@@ -65,15 +54,16 @@ export default function() {
                     match = RESOLVE_REGEX.exec(entry.code);
                 }
 
-                const map = JSON.parse(magicCode.generateMap({
-                    source: args.path,
-                    hires: true,
-                    includeContent: true,
-                }).toString());
-                entry.code = magicCode.toString();
-                entry.mappings.push(map);
-
-                return buildEntry(args.path);
+                return buildEntry(args.path, {
+                    code: magicCode.toString(),
+                    map: JSON.parse(
+                        magicCode.generateMap({
+                            source: args.path,
+                            hires: true,
+                            includeContent: true,
+                        }).toString()
+                    ),
+                });
             });
         },
     };

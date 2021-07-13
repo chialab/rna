@@ -47,7 +47,7 @@ export function sauceReporter({ user, key }) {
     let updates = [];
 
     /**
-     * @type {import('@web/test-runner').Reporter}
+     * @type {import('@chialab/rna-browser-test-runner').Reporter}
      */
     const reporter = {
         start(args) {

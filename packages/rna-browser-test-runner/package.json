@@ -34,7 +34,7 @@
     "node": ">=13"
   },
   "peerDependencies": {
-    "@chialab/wds-plugin-legacy": "^0.8.0"
+    "@chialab/wds-plugin-legacy": "^0.9.0"
   },
   "peerDependenciesMeta": {
     "@chialab/wds-plugin-legacy": {
@@ -42,18 +42,10 @@
     }
   },
   "dependencies": {
-    "@chialab/esbuild-plugin-env": "^0.8.13",
-    "@chialab/wds-plugin-commonjs": "^0.8.14",
-    "@chialab/wds-plugin-postcss": "^0.8.13",
-    "@koa/cors": "^3.1.0",
-    "@web/dev-server-esbuild": "^0.2.11",
-    "@web/test-runner": "^0.12.15",
-    "koa-range": "^0.3.0",
-    "pkg-up": "^3.1.0"
+    "@chialab/rna-dev-server": "^0.8.0",
+    "@web/test-runner-core": "^0.10.18"
   },
   "devDependencies": {
-    "@types/koa-range": "^0.3.2",
-    "@types/koa__cors": "^3.0.2",
     "commander": "^7.2.0",
     "typescript": "^4.2.3"
   }

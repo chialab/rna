@@ -50,15 +50,16 @@ export default function() {
                     match = WEBPACK_INCLUDE_REGEX.exec(entry.code);
                 }
 
-                const map = JSON.parse(magicCode.generateMap({
-                    source: args.path,
-                    hires: true,
-                    includeContent: true,
-                }).toString());
-                entry.code = magicCode.toString();
-                entry.mappings.push(map);
-
-                return buildEntry(args.path);
+                return buildEntry(args.path, {
+                    code: magicCode.toString(),
+                    map: JSON.parse(
+                        magicCode.generateMap({
+                            source: args.path,
+                            hires: true,
+                            includeContent: true,
+                        }).toString()
+                    ),
+                });
             });
         },
     };

@@ -70,7 +70,6 @@
     "forceConsistentCasingInFileNames": true        /* Disallow inconsistently-cased references to the same file. */
   },
   "include": [
-    "packages",
-    "modules.d.ts"
+    "packages"
   ]
 }

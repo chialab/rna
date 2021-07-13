@@ -2,14 +2,14 @@
  * Start the test runner.
  * @param {import('@chialab/rna-browser-test-runner').TestRunnerConfig} config
  * @param {import('saucelabs').SauceLabsOptions} sauceOptions
- * @return {Promise<import('@web/test-runner').TestRunner|undefined>} The test runner instance.
+ * @return {Promise<import('@chialab/rna-browser-test-runner').TestRunner>} The test runner instance.
  */
 export async function test(config, sauceOptions) {
     const { default: path } = await import('path');
     const { promises: { readFile } } = await import('fs');
     const { default: pkgUp } = await import('pkg-up');
     const { createSauceLabsLauncher } = await import('@web/test-runner-saucelabs');
-    const { test: coreTest, defaultReporter } = await import('@chialab/rna-browser-test-runner');
+    const { test: coreTest } = await import('@chialab/rna-browser-test-runner');
     const { fixLauncher } = await import('./fixLauncher.js');
     const { testName, testJob } = await import('./info.js');
     const { sauceReporter } = await import('./reporter.js');
@@ -60,10 +60,10 @@ export async function test(config, sauceOptions) {
     config.testsStartTimeout = Math.max(3 * 60 * 1000, config.testsStartTimeout || 0);
     config.testsFinishTimeout = Math.max(3 * 60 * 1000, config.testsFinishTimeout || 0);
     config.reporters = [
-        defaultReporter({
-            reportTestProgress: true,
-            reportTestResults: true,
-        }),
+        // defaultReporter({
+        //     reportTestProgress: true,
+        //     reportTestResults: true,
+        // }),
         sauceReporter(sauceOptions),
     ];
 

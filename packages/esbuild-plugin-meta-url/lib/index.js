@@ -2,23 +2,8 @@ import { promises } from 'fs';
 import path from 'path';
 import esbuildModule from 'esbuild';
 import MagicString from 'magic-string';
-import nodeResolve from 'resolve';
+import { createResolver } from '@chialab/node-resolve';
 import { SCRIPT_LOADERS, getTransformOptions } from '@chialab/esbuild-plugin-transform';
-
-const { readFile } = promises;
-
-const URL_REGEX = /(new\s+(?:window\.|self\.|globalThis\.)?URL\s*\()\s*['"]([^'"]*)['"]\s*\s*,\s*import\.meta\.url\s*(\))/g;
-
-/**
- * @param {string} spec
- * @param {string} importer
- */
-function resolve(spec, importer) {
-    return new Promise((resolve, reject) => nodeResolve(spec, {
-        basedir: path.dirname(importer),
-        preserveSymlinks: true,
-    }, (err, data) => (err ? reject(err) : resolve(data))));
-}
 
 /**
  * Instantiate a plugin that converts URL references into static import
@@ -26,6 +11,12 @@ function resolve(spec, importer) {
  * @return An esbuild plugin.
  */
 export default function({ esbuild = esbuildModule } = {}) {
+    const { readFile } = promises;
+    const URL_REGEX = /(new\s+(?:window\.|self\.|globalThis\.)?URL\s*\()\s*['"]([^'"]*)['"]\s*\s*,\s*import\.meta\.url\s*(\))/g;
+    const resolve = createResolver({
+        exportsFields: [],
+        mainFields: [],
+    });
     /**
      * @type {import('esbuild').Plugin}
      */
@@ -71,7 +62,7 @@ export default function({ esbuild = esbuildModule } = {}) {
                     } else if (options.platform === 'node' && options.format !== 'esm') {
                         baseUrl = '\'file://\' + __filename';
                     }
-                    const entryPoint = await resolve(value, args.path);
+                    const entryPoint = await resolve(value, path.dirname(args.path));
                     if (SCRIPT_LOADERS.includes(loader) || loader === 'css') {
                         /** @type {import('esbuild').BuildOptions} */
                         const config = {
@@ -106,15 +97,16 @@ export default function({ esbuild = esbuildModule } = {}) {
                     match = URL_REGEX.exec(code);
                 }
 
-                const map = JSON.parse(magicCode.generateMap({
-                    source: args.path,
-                    hires: true,
-                    includeContent: true,
-                }).toString());
-                entry.code = magicCode.toString();
-                entry.mappings.push(map);
-
-                return buildEntry(args.path);
+                return buildEntry(args.path, {
+                    code: magicCode.toString(),
+                    map: JSON.parse(
+                        magicCode.generateMap({
+                            source: args.path,
+                            hires: true,
+                            includeContent: true,
+                        }).toString()
+                    ),
+                });
             });
         },
     };

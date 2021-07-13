@@ -12,6 +12,17 @@ export const ESM_KEYWORDS = /((?:^\s*|;\s*)(\bimport\s*(\{.*?\}\s*from|\s[\w$]+\
 export const CJS_KEYWORDS = /\b(module\.exports|exports|require)\b/;
 
 /**
+ * @typedef {Object} SourceMap
+ * @property {number} version
+ * @property {string[]} sources
+ * @property {string[]} names
+ * @property {string} [sourceRoot]
+ * @property {string[]} [sourcesContent]
+ * @property {string} mappings
+ * @property {string} file
+ */
+
+/**
  * @param {string} contents
  * @param {{ source?: string, sourceMap?: boolean|'inline'|'both', ignore?(specifier: string): boolean }} options
  * @return {{ code: string, map?: SourceMap }}

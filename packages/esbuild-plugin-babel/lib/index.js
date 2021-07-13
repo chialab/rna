@@ -1,25 +1,15 @@
-import path from 'path';
 import babel from '@babel/core';
-import nodeResolve from 'resolve';
+import { createResolver } from '@chialab/node-resolve';
 import esbuildModule from 'esbuild';
-import { TARGETS, getTransformOptions } from '@chialab/esbuild-plugin-transform';
-
-/**
- * @param {string} spec
- * @param {string} importer
- */
-function resolve(spec, importer) {
-    return new Promise((resolve, reject) => nodeResolve(spec, {
-        basedir: path.dirname(importer.replace('file://', '')),
-        preserveSymlinks: true,
-    }, (err, data) => (err ? reject(err) : resolve(data))));
-}
+import { TARGETS, getTransformOptions, transpileEntry } from '@chialab/esbuild-plugin-transform';
 
 /**
  * @param {{ presets?: import('@babel/core').PluginItem[], plugins?: import('@babel/core').PluginItem[], esbuild?: typeof esbuildModule }} plugins
  * @return An esbuild plugin.
  */
 export default function({ presets = [], plugins = [], esbuild = esbuildModule } = {}) {
+    const resolve = createResolver();
+
     /**
      * @type {import('esbuild').Plugin}
      */
@@ -27,7 +17,6 @@ export default function({ presets = [], plugins = [], esbuild = esbuildModule } 
         name: 'babel',
         setup(build) {
             const options = build.initialOptions;
-            const loaders = options.loader || {};
             const { filter, getEntry, buildEntry } = getTransformOptions(build);
 
             build.onResolve({ filter: /@babel\/runtime/ }, async (args) => ({
@@ -41,22 +30,7 @@ export default function({ presets = [], plugins = [], esbuild = esbuildModule } 
                 }
 
                 const entry = await await getEntry(args.path);
-
-                if (entry.target === TARGETS.typescript) {
-                    const { code, map } = await esbuild.transform(entry.code, {
-                        sourcefile: args.path,
-                        sourcemap: true,
-                        loader: loaders[path.extname(args.path)] === 'ts' ? 'ts' : 'tsx',
-                        format: 'esm',
-                        target: TARGETS.es2020,
-                        jsxFactory: options.jsxFactory,
-                        jsxFragment: options.jsxFragment,
-                    });
-                    entry.code = code;
-                    entry.target = TARGETS.es2020;
-                    entry.mappings.push(JSON.parse(map));
-                    entry.loader = entry.loader || 'js';
-                }
+                const { code, map, loader } = await transpileEntry(entry, esbuild, options);
 
                 /** @type {import('@babel/core').TransformOptions} */
                 const config = {
@@ -68,8 +42,14 @@ export default function({ presets = [], plugins = [], esbuild = esbuildModule } 
                     plugins,
                 };
 
-                const { default: jsx } = await import('@babel/plugin-syntax-jsx');
-                const { default: runtimePlugin } = await import('@babel/plugin-transform-runtime');
+                const [
+                    { default: jsx },
+                    { default: runtimePlugin },
+                ] = await Promise.all([
+                    import('@babel/plugin-syntax-jsx'),
+                    import('@babel/plugin-transform-runtime'),
+                ]);
+
                 plugins.unshift(
                     jsx,
                     [runtimePlugin, {
@@ -107,12 +87,15 @@ export default function({ presets = [], plugins = [], esbuild = esbuildModule } 
                     }]);
                 }
 
-                const result = /** @type {import('@babel/core').BabelFileResult} */ (await babel.transformAsync(entry.code, config));
-                entry.code = /** @type {string} */ (result.code);
-                entry.mappings.push(/** @type {SourceMap} */(result.map));
-                entry.loader = entry.loader || 'jsx';
-
-                return buildEntry(args.path);
+                const result = /** @type {import('@babel/core').BabelFileResult} */ (await babel.transformAsync(code, config));
+                return buildEntry(args.path, {
+                    code: /** @type {string} */ (result.code),
+                    map: /** @type {import('@chialab/esbuild-plugin-transform').SourceMap[]} */ ([
+                        map,
+                        result.map,
+                    ].filter(Boolean)),
+                    loader: loader || 'jsx',
+                });
             });
         },
     };

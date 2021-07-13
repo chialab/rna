@@ -31,10 +31,15 @@ async function loadPostcssConfig() {
 }
 
 /**
+ * @typedef {import('postcss').ProcessOptions & { relative?: boolean }} PluginOptions
+ */
+
+/**
  * Instantiate a plugin that runs postcss across css files.
+ * @param {PluginOptions} options
  * @return An esbuild plugin.
  */
-export default function(opts = {}) {
+export default function(options = {}) {
     /**
      * @type {import('esbuild').Plugin}
      */
@@ -43,19 +48,19 @@ export default function(opts = {}) {
         setup(build) {
             build.onLoad({ filter: /\.css$/, namespace: 'file' }, async ({ path: filePath }) => {
                 const contents = await readFile(filePath, 'utf-8');
-                const options = await loadPostcssConfig();
+                const config = await loadPostcssConfig();
                 const plugins = [
-                    urlRebase(),
-                    ...(options.plugins || [preset()]),
+                    urlRebase({ root: build.initialOptions.sourceRoot, relative: options.relative }),
+                    ...(config.plugins || [preset()]),
                 ];
 
-                const config = {
+                const finalConfig = {
                     from: filePath,
                     map: true,
-                    ...(options.options || {}),
-                    ...opts,
+                    ...(config.options || {}),
+                    ...options,
                 };
-                const result = await postcss(plugins).process(contents, config);
+                const result = await postcss(plugins).process(contents, finalConfig);
 
                 return {
                     contents: result.css.toString(),

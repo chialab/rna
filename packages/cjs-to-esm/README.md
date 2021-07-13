@@ -1,5 +1,5 @@
 <p align="center">
-    <strong>CommonJS to ESM</strong> • A commonjs to esm converter, inspired by [WMR](https://github.com/preactjs/wmr).
+    <strong>CommonJS to ESM</strong> • A commonjs to esm converter, inspired by <a href="https://github.com/preactjs/wmr">WMR</a>.
 </p>
 
 <p align="center">

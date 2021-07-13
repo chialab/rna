@@ -1,25 +1,15 @@
-import path from 'path';
 import swc from '@swc/core';
-import nodeResolve from 'resolve';
 import esbuildModule from 'esbuild';
-import { TARGETS, getTransformOptions } from '@chialab/esbuild-plugin-transform';
-
-/**
- * @param {string} spec
- * @param {string} importer
- */
-function resolve(spec, importer) {
-    return new Promise((resolve, reject) => nodeResolve(spec, {
-        basedir: path.dirname(importer.replace('file://', '')),
-        preserveSymlinks: true,
-    }, (err, data) => (err ? reject(err) : resolve(data))));
-}
+import { createResolver } from '@chialab/node-resolve';
+import { TARGETS, getTransformOptions, transpileEntry } from '@chialab/esbuild-plugin-transform';
 
 /**
  * @param {{ plugins?: import('@swc/core').Plugin[], pipe?: boolean, cache?: Map<string, *>, esbuild?: typeof esbuildModule }} plugins
  * @return An esbuild plugin.
  */
 export default function({ plugins = [], esbuild = esbuildModule } = {}) {
+    const resolve = createResolver();
+
     /**
      * @type {import('esbuild').Plugin}
      */
@@ -27,7 +17,6 @@ export default function({ plugins = [], esbuild = esbuildModule } = {}) {
         name: 'swc',
         setup(build) {
             const options = build.initialOptions;
-            const loaders = options.loader || {};
             const { filter, getEntry, buildEntry } = getTransformOptions(build);
 
             build.onResolve({ filter: /@swc\/helpers/ }, async () => ({
@@ -40,22 +29,7 @@ export default function({ plugins = [], esbuild = esbuildModule } = {}) {
                 }
 
                 const entry = await await getEntry(args.path);
-
-                if (entry.target === TARGETS.typescript) {
-                    const { code, map } = await esbuild.transform(entry.code, {
-                        sourcefile: args.path,
-                        sourcemap: true,
-                        loader: loaders[path.extname(args.path)] === 'ts' ? 'ts' : 'tsx',
-                        format: 'esm',
-                        target: TARGETS.es2020,
-                        jsxFactory: options.jsxFactory,
-                        jsxFragment: options.jsxFragment,
-                    });
-                    entry.code = code;
-                    entry.target = TARGETS.es2020;
-                    entry.mappings.push(JSON.parse(map));
-                    entry.loader = entry.loader || 'js';
-                }
+                const { code, map, loader } = await transpileEntry(entry, esbuild, options);
 
                 /** @type {import('@swc/core').Options} */
                 const config = {
@@ -101,12 +75,16 @@ export default function({ plugins = [], esbuild = esbuildModule } = {}) {
 
                 config.plugin = swc.plugins(plugins);
 
-                const { code, map } = await swc.transform(entry.code, config);
-                entry.code = code;
-                entry.mappings.push(JSON.parse(/** @type {string} */(map)));
-                entry.loader = entry.loader || 'jsx';
+                const result = await swc.transform(code, config);
 
-                return buildEntry(args.path);
+                return buildEntry(args.path, {
+                    code: result.code,
+                    map: /** @type {import('@chialab/esbuild-plugin-transform').SourceMap[]} */ ([
+                        map,
+                        JSON.parse(/** @type {string} */(result.map)),
+                    ].filter(Boolean)),
+                    loader: loader || 'jsx',
+                });
             });
         },
     };

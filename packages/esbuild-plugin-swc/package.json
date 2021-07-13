@@ -1,7 +1,7 @@
 {
   "name": "@chialab/esbuild-plugin-swc",
   "type": "module",
-  "version": "0.8.13",
+  "version": "0.9.0",
   "description": "A pluggable esbuild plugin that runs swc for es5 transpilation.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",
@@ -34,15 +34,15 @@
     "node": ">=13"
   },
   "dependencies": {
-    "@chialab/esbuild-plugin-transform": "^0.8.4",
-    "@chialab/node-resolve": "^0.8.0",
-    "@chialab/swc-plugin-htm": "^0.8.13",
+    "@chialab/esbuild-plugin-transform": "^0.9.0",
+    "@chialab/node-resolve": "^0.9.0",
+    "@chialab/swc-plugin-htm": "^0.9.0",
     "@swc/core": "^1.2.54",
     "@swc/helpers": "^0.2.10",
     "esbuild": "^0.12.0"
   },
   "devDependencies": {
-    "@chialab/swc-types": "^0.8.13",
+    "@chialab/swc-types": "^0.9.0",
     "typescript": "^4.2.3"
   }
 }

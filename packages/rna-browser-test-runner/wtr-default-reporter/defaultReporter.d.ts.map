@@ -1,0 +1,1 @@
+{"version":3,"file":"defaultReporter.d.ts","sourceRoot":"","sources":["../../src/reporter/defaultReporter.ts"],"names":[],"mappings":"AAAA,OAAO,EAAU,QAAQ,EAAgC,MAAM,uBAAuB,CAAC;AAKvF,MAAM,WAAW,mBAAmB;IAClC,iBAAiB,CAAC,EAAE,OAAO,CAAC;IAC5B,kBAAkB,CAAC,EAAE,OAAO,CAAC;CAC9B;AASD,wBAAgB,eAAe,CAAC,EAC9B,iBAAwB,EACxB,kBAAyB,GAC1B,GAAE,mBAAwB,GAAG,QAAQ,CAoDrC"}

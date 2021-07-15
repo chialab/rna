@@ -34,9 +34,11 @@
     "node": ">=13"
   },
   "dependencies": {
-    "enhanced-resolve": "^5.8.2"
+    "enhanced-resolve": "^5.8.2",
+    "is-core-module": "^2.5.0"
   },
   "devDependencies": {
+    "@types/is-core-module": "^2.2.0",
     "typescript": "^4.2.3"
   }
 }

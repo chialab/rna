@@ -1,3 +1,11 @@
+import path from 'path';
+import { createRequire } from 'module';
+import coreReporter from '../wtr-default-reporter/defaultReporter.js';
+
+const require = createRequire(import.meta.url);
+
+export const defaultReporter = coreReporter.defaultReporter;
+
 /**
  * @typedef {Partial<Omit<import('@web/test-runner-core').TestRunnerCoreConfig, 'browsers'>> & { browsers?: string[]|import('@web/test-runner-core').BrowserLauncher[] }} TestRunnerConfig
  */
@@ -25,22 +33,25 @@
 /**
  * Start the test runner.
  * @param {TestRunnerConfig} config
- * @return {Promise<TestRunner>} The test runner instance.
  */
 export async function startTestRunner(config) {
     const [
-        { TestRunner },
+        { TestRunner, TestRunnerCli },
         { buildMiddlewares, buildPlugins },
+        { createLogger },
+        // { specReporter },
     ] = await Promise.all([
         import('@web/test-runner-core'),
         import('@chialab/rna-dev-server'),
+        import('./createLogger.js'),
+        // import('./specReporter.js'),
     ]);
-    // const { defaultReporter } = await import('@web/test-runner-core');
     const testFramework =
         /**
          * @type {TestFramework}
          */
         ({
+            path: path.relative(process.cwd(), require.resolve('@web/test-runner-mocha/dist/autorun.js')),
             config: {
                 ui: 'bdd',
                 timeout: '10000',
@@ -51,22 +62,34 @@ export async function startTestRunner(config) {
      * @type {import('@web/test-runner-core').TestRunnerCoreConfig}
      */
     const runnerConfig = {
+        rootDir: process.cwd(),
+        protocol: 'http:',
+        hostname: 'localhost',
+        logger: createLogger(),
         browserStartTimeout: 2 * 60 * 1000,
+        testsStartTimeout: 20 * 1000,
+        testsFinishTimeout: 2 * 60 * 1000,
         concurrency: 2,
         concurrentBrowsers: 2,
         files: [
             'test/**/*.test.js',
             'test/**/*.spec.js',
         ],
-        // reporters: [
-        //     defaultReporter({
-        //         reportTestProgress: true,
-        //         reportTestResults: true,
-        //     }),
-        // ],
+        coverageConfig: {
+            exclude: ['**/node_modules/**/*', '**/web_modules/**/*'],
+            threshold: { statements: 0, functions: 0, branches: 0, lines: 0 },
+            report: true,
+            reportDir: 'coverage',
+            reporters: ['lcov'],
+        },
+        reporters: [
+            defaultReporter(),
+        ],
         testFramework,
         open: false,
+        browserLogs: true,
         ...(/** @type {*} */ (config)),
+        port: config.port || 8080,
         middleware: [
             ...(await buildMiddlewares()),
             ...(config.middleware || []),
@@ -77,7 +100,13 @@ export async function startTestRunner(config) {
         ],
     };
 
-    return new TestRunner(runnerConfig);
+    const runner = new TestRunner(runnerConfig);
+    const cli = new TestRunnerCli(runnerConfig, runner);
+
+    return {
+        runner,
+        cli,
+    };
 }
 
 /**
@@ -86,9 +115,10 @@ export async function startTestRunner(config) {
  * @return {Promise<TestRunner>} The test runner instance.
  */
 export async function test(config) {
-    const runner = await startTestRunner(config);
+    const { runner, cli } = await startTestRunner(config);
 
     await runner.start();
+    cli.start();
 
     process.on('uncaughtException', error => {
         // eslint-disable-next-line no-console
@@ -138,6 +168,9 @@ export function command(program) {
                     manual: manual || open === true,
                     open,
                     plugins,
+                    browsers: [
+                        (await import('@web/test-runner-chrome')).chromeLauncher(),
+                    ],
                 };
 
                 if (specs.length) {

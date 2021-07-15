@@ -39,9 +39,9 @@
     "@babel/preset-env": "^7.13.15",
     "@babel/runtime": "^7.13.17",
     "@chialab/esbuild-plugin-transform": "^0.9.0",
+    "@chialab/estransform": "^0.9.0",
     "@chialab/node-resolve": "^0.9.0",
-    "babel-plugin-htm": "^3.0.0",
-    "esbuild": "^0.12.0"
+    "babel-plugin-htm": "^3.0.0"
   },
   "devDependencies": {
     "@types/babel__core": "^7.1.14",

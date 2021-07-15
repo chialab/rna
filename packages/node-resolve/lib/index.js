@@ -1,4 +1,5 @@
 import nodeResolve from 'enhanced-resolve';
+import isCore from 'is-core-module';
 
 /**
  * @typedef {Object} ResolveOptions
@@ -39,3 +40,5 @@ export function createResolver(options = {}) {
 
     return resolve;
 }
+
+export { isCore };

@@ -24,6 +24,7 @@
     "prepack": "npm run types"
   },
   "files": [
+    "wtr-default-reporter",
     "lib",
     "types",
     "package.json",
@@ -43,7 +44,10 @@
   },
   "dependencies": {
     "@chialab/rna-dev-server": "^0.9.1",
-    "@web/test-runner-core": "^0.10.18"
+    "@web/test-runner-chrome": "^0.10.0",
+    "@web/test-runner-core": "^0.10.18",
+    "@web/test-runner-mocha": "^0.7.3",
+    "chalk": "^4.1.1"
   },
   "devDependencies": {
     "commander": "^7.2.0",

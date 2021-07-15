@@ -1,12 +1,16 @@
-import esbuildModule from 'esbuild';
-import { transform, ESM_KEYWORDS, CJS_KEYWORDS } from '@chialab/cjs-to-esm';
-import { getTransformOptions, transpileEntry } from '@chialab/esbuild-plugin-transform';
+import { createTransform, ESM_KEYWORDS, CJS_KEYWORDS } from '@chialab/cjs-to-esm';
+import { pipe } from '@chialab/estransform';
+import { getTransformOptions } from '@chialab/esbuild-plugin-transform';
 
 /**
- * @param {{ esbuild?: typeof esbuildModule }} plugins
+ * @typedef {import('@chialab/cjs-to-esm').Options} PluginOptions
+ */
+
+/**
+ * @param {PluginOptions} [config]
  * @return An esbuild plugin.
  */
-export default function({ esbuild = esbuildModule } = {}) {
+export default function(config = {}) {
     /**
      * @type {import('esbuild').Plugin}
      */
@@ -27,19 +31,12 @@ export default function({ esbuild = esbuildModule } = {}) {
                     return;
                 }
 
-                const { code, map, loader } = await transpileEntry(entry, esbuild, options);
-                const result = transform(code, {
+                await pipe(entry, {
                     source: args.path,
-                });
+                    sourcesContent: options.sourcesContent,
+                }, createTransform(config));
 
-                return buildEntry(args.path, {
-                    code: result.code,
-                    map: /** @type {import('@chialab/esbuild-plugin-transform').SourceMap[]} */ ([
-                        map,
-                        result.map,
-                    ].filter(Boolean)),
-                    loader,
-                });
+                return buildEntry(args.path);
             });
         },
     };

@@ -54,6 +54,7 @@ export async function build(config) {
         watch = false,
         plugins = [],
         transformPlugins = [],
+        ...others
     } = config;
 
     const hasOutputFile = !!path.extname(output);
@@ -152,14 +153,11 @@ export async function build(config) {
             (await import('@chialab/esbuild-plugin-jsx-import')).default({ jsxModule, jsxExport }),
             ...plugins,
             (await import('@chialab/esbuild-plugin-transform')).default([
-                (await import('@chialab/esbuild-plugin-commonjs')).default({ esbuild }),
-                (await import('@chialab/esbuild-plugin-require-resolve')).default(),
-                (await import('@chialab/esbuild-plugin-webpack-include')).default(),
-                (await import('@chialab/esbuild-plugin-meta-url')).default(),
                 ...extraTransformPlugins,
                 ...transformPlugins,
             ]),
         ],
+        ...others,
     });
 
     if (manifest && result) {

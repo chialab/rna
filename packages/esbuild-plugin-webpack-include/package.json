@@ -34,8 +34,8 @@
   },
   "dependencies": {
     "@chialab/esbuild-plugin-transform": "^0.9.0",
-    "fast-glob": "^3.2.5",
-    "magic-string": "^0.25.7"
+    "@chialab/estransform": "^0.9.0",
+    "fast-glob": "^3.2.5"
   },
   "devDependencies": {
     "esbuild": "^0.12.0",

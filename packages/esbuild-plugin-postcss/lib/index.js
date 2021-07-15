@@ -46,11 +46,13 @@ export default function(options = {}) {
     const plugin = {
         name: 'postcss',
         setup(build) {
+            const { sourceRoot } = build.initialOptions;
+
             build.onLoad({ filter: /\.css$/, namespace: 'file' }, async ({ path: filePath }) => {
                 const contents = await readFile(filePath, 'utf-8');
                 const config = await loadPostcssConfig();
                 const plugins = [
-                    urlRebase({ root: build.initialOptions.sourceRoot, relative: options.relative }),
+                    urlRebase({ root: sourceRoot, relative: options.relative }),
                     ...(config.plugins || [preset()]),
                 ];
 

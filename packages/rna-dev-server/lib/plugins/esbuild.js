@@ -1,6 +1,7 @@
 import path from 'path';
 import { getRequestFilePath } from '@web/dev-server-core';
 import { transform, transformLoaders, loadPlugins, loadTransformPlugins, JS_EXTENSIONS, JSON_EXTENSIONS, CSS_EXTENSIONS } from '@chialab/rna-bundler';
+import { isCore } from '@chialab/node-resolve';
 
 /**
  * @typedef {import('@web/dev-server-core').Plugin} Plugin
@@ -59,21 +60,27 @@ export class EsbuildPlugin {
             input: filePath,
             ...this.transformConfig,
             sourcemap: 'inline',
+            absWorkingDir: path.dirname(filePath),
             sourcesContent: true,
-            root: this.config.rootDir,
+            root: path.dirname(filePath),
             code: /** @type {string} */ (context.body),
             target: 'es2020',
+            logLevel: 'error',
             loader,
             plugins: [
                 ...(await loadPlugins({ postcss: {} })),
                 ...(this.transformConfig.plugins || []),
             ],
             transformPlugins: [
-                ...(await loadTransformPlugins()),
+                ...(await loadTransformPlugins({
+                    commonjs: {
+                        ignore: (specifier) => isCore(specifier),
+                    },
+                })),
                 (await import('@chialab/esbuild-plugin-node-resolve')).default({
                     extensions: JS_EXTENSIONS,
                     conditionNames: ['default', 'module', 'import', 'browser'],
-                    mainFields: ['module', 'esnext', 'jsnext', 'jsnext:main', 'browser', 'main'],
+                    mainFields: ['umd:main', 'module', 'esnext', 'jsnext', 'jsnext:main', 'browser', 'main'],
                 }),
                 ...(this.transformConfig.transformPlugins || []),
             ],

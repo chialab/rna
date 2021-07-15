@@ -31,7 +31,7 @@
     "node": ">=13"
   },
   "dependencies": {
-    "magic-string": "^0.25.7"
+    "@chialab/estransform": "^0.9.0"
   },
   "devDependencies": {
     "typescript": "^4.2.3"

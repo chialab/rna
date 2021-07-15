@@ -1,13 +1,18 @@
+import path from 'path';
 import swc from '@swc/core';
-import esbuildModule from 'esbuild';
 import { createResolver } from '@chialab/node-resolve';
-import { TARGETS, getTransformOptions, transpileEntry } from '@chialab/esbuild-plugin-transform';
+import { TARGETS, parseSourcemap, createTypeScriptTransform, pipe } from '@chialab/estransform';
+import { getTransformOptions } from '@chialab/esbuild-plugin-transform';
 
 /**
- * @param {{ plugins?: import('@swc/core').Plugin[], pipe?: boolean, cache?: Map<string, *>, esbuild?: typeof esbuildModule }} plugins
+ * @typedef {{ plugins?: import('@swc/core').Plugin[], pipe?: boolean, cache?: Map<string, *> }} PluginOptions
+ */
+
+/**
+ * @param {PluginOptions} [options]
  * @return An esbuild plugin.
  */
-export default function({ plugins = [], esbuild = esbuildModule } = {}) {
+export default function({ plugins = [] } = {}) {
     const resolve = createResolver();
 
     /**
@@ -28,63 +33,78 @@ export default function({ plugins = [], esbuild = esbuildModule } = {}) {
                     return;
                 }
 
-                const entry = await await getEntry(args.path);
-                const { code, map, loader } = await transpileEntry(entry, esbuild, options);
+                const entry = await getEntry(args.path);
 
-                /** @type {import('@swc/core').Options} */
-                const config = {
-                    sourceFileName: args.path,
-                    sourceMaps: true,
-                    jsc: {
-                        parser: {
-                            syntax: 'ecmascript',
-                            jsx: true,
-                            dynamicImport: true,
-                            privateMethod: true,
-                            functionBind: true,
-                            exportDefaultFrom: true,
-                            exportNamespaceFrom: true,
-                            decoratorsBeforeExport: true,
-                            importMeta: true,
-                            decorators: true,
-                        },
-                        externalHelpers: true,
-                        target: /** @type {import('@swc/core').JscTarget} */ (options.target || 'es2020'),
-                        transform: {
-                            optimizer: undefined,
-                        },
-                    },
-                };
-
-                if (options.target === 'es5') {
-                    config.env = {
-                        targets: {
-                            ie: '11',
-                        },
-                        shippedProposals: true,
-                    };
-                    entry.target = TARGETS.es5;
-                }
-
-                if (options.jsxFactory) {
-                    plugins.push((await import('@chialab/swc-plugin-htm')).plugin({
-                        tag: 'html',
-                        pragma: options.jsxFactory,
+                if (entry.target === TARGETS.typescript) {
+                    await pipe(entry, {
+                        source: path.basename(args.path),
+                        sourcesContent: options.sourcesContent,
+                    }, createTypeScriptTransform({
+                        loader: entry.loader,
+                        jsxFactory: options.jsxFactory,
+                        jsxFragment: options.jsxFragment,
                     }));
                 }
 
-                config.plugin = swc.plugins(plugins);
+                await pipe(entry, {
+                    source: path.basename(args.path),
+                    sourcesContent: options.sourcesContent,
+                }, async (magicCode, code) => {
+                    /** @type {import('@swc/core').Options} */
+                    const config = {
+                        filename: args.path,
+                        sourceFileName: args.path,
+                        sourceMaps: true,
+                        jsc: {
+                            parser: {
+                                syntax: 'ecmascript',
+                                jsx: true,
+                                dynamicImport: true,
+                                privateMethod: true,
+                                functionBind: true,
+                                exportDefaultFrom: true,
+                                exportNamespaceFrom: true,
+                                decoratorsBeforeExport: true,
+                                importMeta: true,
+                                decorators: true,
+                            },
+                            externalHelpers: true,
+                            target: /** @type {import('@swc/core').JscTarget} */ (options.target || 'es2020'),
+                            transform: {
+                                optimizer: undefined,
+                            },
+                        },
+                    };
 
-                const result = await swc.transform(code, config);
+                    if (options.target === 'es5') {
+                        config.env = {
+                            targets: {
+                                ie: '11',
+                            },
+                            shippedProposals: true,
+                        };
+                        entry.target = TARGETS.es5;
+                    }
 
-                return buildEntry(args.path, {
-                    code: result.code,
-                    map: /** @type {import('@chialab/esbuild-plugin-transform').SourceMap[]} */ ([
+                    if (options.jsxFactory) {
+                        plugins.push((await import('@chialab/swc-plugin-htm')).plugin({
+                            tag: 'html',
+                            pragma: options.jsxFactory,
+                        }));
+                    }
+
+                    config.plugin = swc.plugins(plugins);
+
+                    const result = await swc.transform(code, config);
+                    const map = parseSourcemap(/** @type {string} */(result.map));
+
+                    return {
+                        code: result.code,
                         map,
-                        JSON.parse(/** @type {string} */(result.map)),
-                    ].filter(Boolean)),
-                    loader: loader || 'jsx',
+                    };
                 });
+
+                return buildEntry(args.path);
             });
         },
     };

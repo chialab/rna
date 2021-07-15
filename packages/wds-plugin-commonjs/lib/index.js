@@ -29,10 +29,10 @@ export function commonjsPlugin() {
                     return;
                 }
                 return {
-                    body: transform(body, {
+                    body: (await transform(body, {
                         source: filePath,
-                        sourceMap: 'inline',
-                    }).code,
+                        sourcemap: 'inline',
+                    })).code,
                 };
             }
         },

@@ -64,6 +64,7 @@ export function command(program) {
                     chunkNames,
                     assetNames,
                     sourcemap: map,
+                    sourcesContent: true,
                     jsxFactory,
                     jsxFragment,
                     jsxModule,
@@ -72,7 +73,7 @@ export function command(program) {
                         html: { esbuild },
                         postcss: { relative: false },
                     }),
-                    transformPlugins: await loadTransformPlugins(),
+                    transformPlugins: await loadTransformPlugins({}),
                 });
             }
         );

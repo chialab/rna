@@ -35,7 +35,7 @@
   "dependencies": {
     "@chialab/cjs-to-esm": "^0.9.0",
     "@chialab/esbuild-plugin-transform": "^0.9.0",
-    "esbuild": "^0.12.0"
+    "@chialab/estransform": "^0.9.0"
   },
   "devDependencies": {
     "typescript": "^4.2.3"

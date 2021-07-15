@@ -71,5 +71,8 @@
   },
   "include": [
     "packages"
+  ],
+  "exclude": [
+    "packages/rna-browser-test-runner/wtr-default-reporter"
   ]
 }

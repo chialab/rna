@@ -33,9 +33,10 @@ export async function transform(config) {
         target = format === 'iife' ? 'es5' : 'es2020',
         plugins = [],
         transformPlugins = [],
+        ...others
     } = config;
 
-    const { outputFiles: [file], warnings } = await esbuild.build({
+    const { outputFiles, warnings } = await esbuild.build({
         stdin: {
             contents: code,
             loader: /** @type {import('esbuild').Loader} */ (`${loader}`),
@@ -57,16 +58,18 @@ export async function transform(config) {
             (await import('@chialab/esbuild-plugin-jsx-import')).default({ jsxModule, jsxExport }),
             ...plugins,
             (await import('@chialab/esbuild-plugin-transform')).default([
-                (await import('@chialab/esbuild-plugin-commonjs')).default({ esbuild }),
-                (await import('@chialab/esbuild-plugin-require-resolve')).default(),
-                (await import('@chialab/esbuild-plugin-webpack-include')).default(),
                 ...transformPlugins,
             ]),
         ],
+        ...others,
     });
 
+    if (!outputFiles) {
+        throw new Error(`Failed to transform "${input}"`);
+    }
+
     return {
-        code: file.text,
+        code: outputFiles[0].text,
         map: '',
         warnings,
     };

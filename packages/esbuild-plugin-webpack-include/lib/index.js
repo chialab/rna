@@ -18,43 +18,52 @@ export default function() {
         setup(build) {
             const options = build.initialOptions;
 
-            build.onLoad({ filter: createFilter(build), namespace: 'file' }, async (args) => {
-                const entry = await getEntry(build, args.path);
-
-                if (!entry.code.match(WEBPACK_INCLUDE_REGEX)) {
+            build.onLoad({ filter: createFilter(build), namespace: 'file' }, (args) => {
+                /**
+                 * @type {import('@chialab/estransform').Pipeline}
+                 */
+                const entry = args.pluginData;
+                if (entry && !entry.code.match(WEBPACK_INCLUDE_REGEX)) {
                     return;
                 }
 
-                await pipe(entry, {
-                    source: path.basename(args.path),
-                    sourcesContent: options.sourcesContent,
-                }, async (magicCode) => {
-                    let match = WEBPACK_INCLUDE_REGEX.exec(entry.code);
-                    while (match) {
-                        const include = new RegExp(match[1].substr(1, match[1].length - 2));
-                        const exclude = match[2] && new RegExp(match[2].substr(1, match[2].length - 2));
-                        const initial = match[3] || './';
-                        const identifier = match[4];
-                        const map = (await glob(`${initial}*`, {
-                            cwd: path.dirname(args.path),
-                        }))
-                            .filter((name) => name.match(include) && (!exclude || !name.match(exclude)))
-                            .reduce((map, name) => {
-                                map[name.replace(include, '')] = `./${path.join(initial, name)}`;
-                                return map;
-                            }, /** @type {{ [key: string]: string }} */ ({}));
+                return getEntry(build, args.path)
+                    .then(async (entry) => {
+                        if (!entry.code.match(WEBPACK_INCLUDE_REGEX)) {
+                            return;
+                        }
 
-                        magicCode.overwrite(
-                            match.index,
-                            match.index + match[0].length,
-                            `({ ${Object.keys(map).map((key) => `'${key}': () => import('${map[key]}')`).join(', ')} })[${identifier}]()`
-                        );
+                        await pipe(entry, {
+                            source: path.basename(args.path),
+                            sourcesContent: options.sourcesContent,
+                        }, async (magicCode) => {
+                            let match = WEBPACK_INCLUDE_REGEX.exec(entry.code);
+                            while (match) {
+                                const include = new RegExp(match[1].substr(1, match[1].length - 2));
+                                const exclude = match[2] && new RegExp(match[2].substr(1, match[2].length - 2));
+                                const initial = match[3] || './';
+                                const identifier = match[4];
+                                const map = (await glob(`${initial}*`, {
+                                    cwd: path.dirname(args.path),
+                                }))
+                                    .filter((name) => name.match(include) && (!exclude || !name.match(exclude)))
+                                    .reduce((map, name) => {
+                                        map[name.replace(include, '')] = `./${path.join(initial, name)}`;
+                                        return map;
+                                    }, /** @type {{ [key: string]: string }} */({}));
 
-                        match = WEBPACK_INCLUDE_REGEX.exec(entry.code);
-                    }
-                });
+                                magicCode.overwrite(
+                                    match.index,
+                                    match.index + match[0].length,
+                                    `({ ${Object.keys(map).map((key) => `'${key}': () => import('${map[key]}')`).join(', ')} })[${identifier}]()`
+                                );
 
-                return finalizeEntry(build, args.path);
+                                match = WEBPACK_INCLUDE_REGEX.exec(entry.code);
+                            }
+                        });
+
+                        return finalizeEntry(build, args.path);
+                    });
             });
         },
     };

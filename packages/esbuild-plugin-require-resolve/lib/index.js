@@ -29,35 +29,45 @@ export default function() {
                 contents: await readFile(filePath),
                 loader: 'file',
             }));
-            build.onLoad({ filter: createFilter(build), namespace: 'file' }, async (args) => {
-                const entry = await getEntry(build, args.path);
-                if (!entry.code.match(RESOLVE_REGEX)) {
+            build.onLoad({ filter: createFilter(build), namespace: 'file' }, (args) => {
+                /**
+                 * @type {import('@chialab/estransform').Pipeline}
+                 */
+                const entry = args.pluginData;
+                if (entry && !entry.code.match(RESOLVE_REGEX)) {
                     return;
                 }
 
-                await pipe(entry, {
-                    source: path.basename(args.path),
-                    sourcesContent: options.sourcesContent,
-                }, async (magicCode) => {
-                    let match = RESOLVE_REGEX.exec(entry.code);
-                    while (match) {
-                        const len = match[0].length;
-                        const value = match[2];
-
-                        const entryPoint = await resolve(value, path.dirname(args.path));
-                        const identifier = `_${value.replace(/[^a-zA-Z0-9]/g, '_')}`;
-                        if (entry.code.startsWith('#!')) {
-                            magicCode.appendRight(entry.code.indexOf('\n') + 1, `var ${identifier} = require('${entryPoint}.requirefile');\n`);
-                        } else {
-                            magicCode.prepend(`var ${identifier} = require('${entryPoint}.requirefile');\n`);
+                return getEntry(build, args.path)
+                    .then(async (entry) => {
+                        if (!entry.code.match(RESOLVE_REGEX)) {
+                            return;
                         }
-                        magicCode.overwrite(match.index, match.index + len, `${match[1]}${identifier}${match[3]}`);
 
-                        match = RESOLVE_REGEX.exec(entry.code);
-                    }
-                });
+                        await pipe(entry, {
+                            source: path.basename(args.path),
+                            sourcesContent: options.sourcesContent,
+                        }, async (magicCode) => {
+                            let match = RESOLVE_REGEX.exec(entry.code);
+                            while (match) {
+                                const len = match[0].length;
+                                const value = match[2];
 
-                return finalizeEntry(build, args.path);
+                                const entryPoint = await resolve(value, path.dirname(args.path));
+                                const identifier = `_${value.replace(/[^a-zA-Z0-9]/g, '_')}`;
+                                if (entry.code.startsWith('#!')) {
+                                    magicCode.appendRight(entry.code.indexOf('\n') + 1, `var ${identifier} = require('${entryPoint}.requirefile');\n`);
+                                } else {
+                                    magicCode.prepend(`var ${identifier} = require('${entryPoint}.requirefile');\n`);
+                                }
+                                magicCode.overwrite(match.index, match.index + len, `${match[1]}${identifier}${match[3]}`);
+
+                                match = RESOLVE_REGEX.exec(entry.code);
+                            }
+                        });
+
+                        return finalizeEntry(build, args.path);
+                    });
             });
         },
     };

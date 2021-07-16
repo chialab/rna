@@ -7,6 +7,16 @@ import { getEntry, finalizeEntry, createFilter } from '@chialab/esbuild-plugin-t
  */
 
 /**
+ * @param {string} code
+ */
+function matchCommonjs(code) {
+    if (code.match(ESM_KEYWORDS) || !code.match(CJS_KEYWORDS)) {
+        return false;
+    }
+    return true;
+}
+
+/**
  * @param {PluginOptions} [config]
  * @return An esbuild plugin.
  */
@@ -22,19 +32,28 @@ export default function(config = {}) {
                 return;
             }
 
-            build.onLoad({ filter: createFilter(build), namespace: 'file' }, async (args) => {
-                const entry = await getEntry(build, args.path);
-
-                if (entry.code.match(ESM_KEYWORDS) || !entry.code.match(CJS_KEYWORDS)) {
+            build.onLoad({ filter: createFilter(build), namespace: 'file' }, (args) => {
+                /**
+                 * @type {import('@chialab/estransform').Pipeline}
+                 */
+                const entry = args.pluginData;
+                if (entry && !matchCommonjs(entry.code)) {
                     return;
                 }
 
-                await pipe(entry, {
-                    source: args.path,
-                    sourcesContent: options.sourcesContent,
-                }, createTransform(config));
+                return getEntry(build, args.path)
+                    .then(async (entry) => {
+                        if (!matchCommonjs(entry.code)) {
+                            return;
+                        }
 
-                return finalizeEntry(build, args.path);
+                        await pipe(entry, {
+                            source: args.path,
+                            sourcesContent: options.sourcesContent,
+                        }, createTransform(config));
+
+                        return finalizeEntry(build, args.path);
+                    });
             });
         },
     };

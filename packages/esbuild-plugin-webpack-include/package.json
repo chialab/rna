@@ -1,7 +1,7 @@
 {
   "name": "@chialab/esbuild-plugin-webpack-include",
   "type": "module",
-  "version": "0.9.3",
+  "version": "0.9.4",
   "description": "A plugin for esbuild that converts the webpackInclude syntax.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",
@@ -33,7 +33,7 @@
     "node": ">=13"
   },
   "dependencies": {
-    "@chialab/esbuild-plugin-transform": "^0.9.3",
+    "@chialab/esbuild-plugin-transform": "^0.9.4",
     "@chialab/estransform": "^0.9.3",
     "fast-glob": "^3.2.5"
   },

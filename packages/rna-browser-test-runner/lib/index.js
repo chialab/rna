@@ -127,9 +127,18 @@ export async function test(config) {
         console.error(error);
     });
 
+    process.on('exit', async () => {
+        await runner.stop();
+        process.exit(0);
+    });
+
     process.on('SIGINT', async () => {
         await runner.stop();
         process.exit(0);
+    });
+
+    runner.on('stopped', (passed) => {
+        process.exit(passed ? 0 : 1);
     });
 
     return runner;

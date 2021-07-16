@@ -77,11 +77,6 @@ export class EsbuildPlugin {
                         ignore: (specifier) => isCore(specifier),
                     },
                 })),
-                (await import('@chialab/esbuild-plugin-node-resolve')).default({
-                    extensions: JS_EXTENSIONS,
-                    conditionNames: ['default', 'module', 'import', 'browser'],
-                    mainFields: ['umd:main', 'module', 'esnext', 'jsnext', 'jsnext:main', 'browser', 'main'],
-                }),
                 ...(this.transformConfig.transformPlugins || []),
             ],
         });

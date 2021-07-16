@@ -26,9 +26,16 @@ export async function buildMiddlewares() {
 }
 
 export async function buildPlugins() {
-    const { esbuildPlugin } = await import('./plugins/esbuild.js');
+    const [
+        { resolvePlugin },
+        { esbuildPlugin },
+    ] = await Promise.all([
+        import('./plugins/resolve.js'),
+        import('./plugins/esbuild.js'),
+    ]);
 
     return [
+        resolvePlugin(),
         esbuildPlugin(),
     ];
 }

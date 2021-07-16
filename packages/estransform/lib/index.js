@@ -6,6 +6,7 @@ import esbuild from 'esbuild';
 
 const { readFile } = promises;
 const { default: SourceMapNode } = sourcemap;
+const SOURCEMAP_REGEX = /(?:(\/\*+[\s\S]*?sourceMappingURL\s*=)([\s\S]*?)(\*\/))|(?:(\/\/.*?sourceMappingURL\s*=)(.*?)([\r\n]))/;
 
 /**
  * @typedef {Object} SourceMap
@@ -27,12 +28,13 @@ export function parseSourcemap(map) {
 }
 
 /**
- * @param {string} contents
+ * @param {string} code
  * @param {string} [filePath]
  */
-export async function loadSourcemap(contents, filePath) {
-    const [code, mapUrl] = contents.trimEnd().split(/\n\/\/#\s*sourceMappingURL=/);
-    if (mapUrl) {
+export async function loadSourcemap(code, filePath) {
+    const match = code.match(SOURCEMAP_REGEX);
+    if (match) {
+        const mapUrl = match[2] || match[5];
         try {
             let content;
             if (mapUrl.startsWith('data:')) {
@@ -65,6 +67,13 @@ export async function loadSourcemap(contents, filePath) {
  * @param {SourceMap[]} sourceMaps
  */
 export function mergeSourcemaps(sourceMaps) {
+    if (sourceMaps.length === 1) {
+        return {
+            version: 3,
+            ...sourceMaps[0],
+        };
+    }
+
     const sourceMap = sourceMaps.reduce(
         /**
          * @param {InstanceType<SourceMapNode>|null} sourceMap
@@ -73,11 +82,7 @@ export function mergeSourcemaps(sourceMaps) {
          */
         (sourceMap, map) => {
             const mergedMap = new SourceMapNode();
-            mergedMap.addVLQMap({
-                version: 3,
-                ...map,
-                mappings: map.mappings.replace(/;*$/, ''),
-            });
+            mergedMap.addVLQMap(map);
             if (sourceMap) {
                 mergedMap.extends(sourceMap.toBuffer());
             }
@@ -179,7 +184,7 @@ export function createTypeScriptTransform(config = {}) {
  * @typedef {Object} Pipeline
  * @property {string} contents
  * @property {string} code
- * @property {(SourceMap|null)[]} sourceMaps
+ * @property {SourceMap[]} sourceMaps
  * @property {string} target
  * @property {import('esbuild').Loader} loader
  */
@@ -220,9 +225,9 @@ export async function createPipeline(contents, { source }) {
 export async function pipe(pipeline, options, callback) {
     const { code, map, loader, target } = await transform(pipeline.code, options, callback);
 
-    if (code !== pipeline.code) {
+    pipeline.code = code;
+    if (map && code !== pipeline.code) {
         pipeline.sourceMaps.push(map);
-        pipeline.code = code;
     }
 
     if (loader) {
@@ -239,7 +244,13 @@ export async function pipe(pipeline, options, callback) {
  * @param {SourceMap} sourceMap
  */
 export function inlineSourcemap(code, sourceMap) {
-    return `${code}\n//# sourceMappingURL=data:application/json;base64,${Buffer.from(JSON.stringify(sourceMap)).toString('base64')}`;
+    const match = code.match(SOURCEMAP_REGEX);
+    const url = `data:application/json;base64,${Buffer.from(JSON.stringify(sourceMap)).toString('base64')}`;
+    if (!match) {
+        return `${code}\n//# sourceMappingURL=${url}\n`;
+    }
+
+    return code.replace(SOURCEMAP_REGEX, (full, arg1, arg2, arg3, arg4, arg5, arg6) => `${arg1 || arg4}${url}${arg3 || arg6}`);
 }
 
 /**
@@ -247,8 +258,8 @@ export function inlineSourcemap(code, sourceMap) {
  * @param {TransformOptions} options
  * @return {Promise<TransformResult>}
  */
-export async function finalize(pipeline, { source, sourcemap = true, sourcesContent = true}) {
-    if (pipeline.sourceMaps.length < 2 || pipeline.code === pipeline.contents || !sourcemap) {
+export async function finalize(pipeline, { source, sourcemap = true, sourcesContent = true }) {
+    if (!pipeline.sourceMaps.length || pipeline.code === pipeline.contents || !sourcemap) {
         return {
             code: pipeline.code,
             map: null,
@@ -256,8 +267,7 @@ export async function finalize(pipeline, { source, sourcemap = true, sourcesCont
         };
     }
 
-    const maps = /** @type {SourceMap[]} */ (pipeline.sourceMaps.filter((map) => !!map));
-    const finalMap = mergeSourcemaps(maps);
+    const finalMap = mergeSourcemaps(pipeline.sourceMaps);
     if (!finalMap) {
         return {
             code: pipeline.code,

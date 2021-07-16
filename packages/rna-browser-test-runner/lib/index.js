@@ -39,12 +39,10 @@ export async function startTestRunner(config) {
         { TestRunner, TestRunnerCli },
         { buildMiddlewares, buildPlugins },
         { createLogger },
-        // { specReporter },
     ] = await Promise.all([
         import('@web/test-runner-core'),
         import('@chialab/rna-dev-server'),
         import('./createLogger.js'),
-        // import('./specReporter.js'),
     ]);
     const testFramework =
         /**
@@ -76,7 +74,11 @@ export async function startTestRunner(config) {
             'test/**/*.spec.js',
         ],
         coverageConfig: {
-            exclude: ['**/node_modules/**/*', '**/web_modules/**/*'],
+            exclude: [
+                '**/node_modules/**/*',
+                '**/web_modules/**/*',
+                '**/__wds-outside-root__/**',
+            ],
             threshold: { statements: 0, functions: 0, branches: 0, lines: 0 },
             report: true,
             reportDir: 'coverage',

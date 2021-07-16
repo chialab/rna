@@ -1,11 +1,3 @@
-import { promises } from 'fs';
-import postcss from 'postcss';
-import preset from '@chialab/postcss-preset-chialab';
-import urlRebase from '@chialab/postcss-url-rebase';
-import postcssrc from 'postcss-load-config';
-
-const { readFile } = promises;
-
 /**
  * @typedef {Object} PostcssConfig
  * @property {import('postcss').ProcessOptions} [options]
@@ -17,6 +9,7 @@ const { readFile } = promises;
  * @return {Promise<PostcssConfig>}
  */
 async function loadPostcssConfig() {
+    const { default: postcssrc } = await import('postcss-load-config');
     try {
         /**
          * @type {any}
@@ -45,10 +38,22 @@ export default function(options = {}) {
      */
     const plugin = {
         name: 'postcss',
-        setup(build) {
+        async setup(build) {
             const { sourceRoot } = build.initialOptions;
 
             build.onLoad({ filter: /\.css$/, namespace: 'file' }, async ({ path: filePath }) => {
+                const [
+                    { promises: { readFile } },
+                    { default: postcss },
+                    { default: preset },
+                    { default: urlRebase },
+                ] = await Promise.all([
+                    import('fs'),
+                    import('postcss'),
+                    import('@chialab/postcss-preset-chialab'),
+                    import('@chialab/postcss-url-rebase'),
+                ]);
+
                 const contents = await readFile(filePath, 'utf-8');
                 const config = await loadPostcssConfig();
                 const plugins = [

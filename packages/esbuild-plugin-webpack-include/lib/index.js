@@ -1,7 +1,7 @@
 import path from 'path';
 import glob from 'fast-glob';
 import { pipe } from '@chialab/estransform';
-import { getTransformOptions } from '@chialab/esbuild-plugin-transform';
+import { getEntry, finalizeEntry, createFilter } from '@chialab/esbuild-plugin-transform';
 
 const WEBPACK_INCLUDE_REGEX = /import\(\s*\/\*\s*webpackInclude:\s*([^\s]+)\s\*\/(?:\s*\/\*\s*webpackExclude:\s*([^\s]+)\s\*\/)?[^`]*`([^$]*)\${([^}]*)}[^`]*`\)/g;
 
@@ -17,10 +17,9 @@ export default function() {
         name: 'webpack-include',
         setup(build) {
             const options = build.initialOptions;
-            const { filter, getEntry, buildEntry } = getTransformOptions(build);
 
-            build.onLoad({ filter, namespace: 'file' }, async (args) => {
-                const entry = await getEntry(args.path);
+            build.onLoad({ filter: createFilter(build), namespace: 'file' }, async (args) => {
+                const entry = await getEntry(build, args.path);
 
                 if (!entry.code.match(WEBPACK_INCLUDE_REGEX)) {
                     return;
@@ -55,7 +54,7 @@ export default function() {
                     }
                 });
 
-                return buildEntry(args.path);
+                return finalizeEntry(build, args.path);
             });
         },
     };

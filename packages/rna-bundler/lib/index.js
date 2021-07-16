@@ -70,9 +70,9 @@ export function command(program) {
                     jsxModule,
                     jsxExport,
                     plugins: await loadPlugins({
-                        html: { esbuild },
+                        html: {},
                         postcss: { relative: false },
-                    }),
+                    }, esbuild),
                     transformPlugins: await loadTransformPlugins({}),
                 });
             }

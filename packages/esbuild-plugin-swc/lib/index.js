@@ -1,8 +1,8 @@
 import path from 'path';
 import swc from '@swc/core';
-import { createResolver } from '@chialab/node-resolve';
+import { resolve } from '@chialab/node-resolve';
 import { TARGETS, parseSourcemap, createTypeScriptTransform, pipe } from '@chialab/estransform';
-import { getTransformOptions } from '@chialab/esbuild-plugin-transform';
+import { getEntry, finalizeEntry, createFilter } from '@chialab/esbuild-plugin-transform';
 
 /**
  * @typedef {{ plugins?: import('@swc/core').Plugin[], pipe?: boolean, cache?: Map<string, *> }} PluginOptions
@@ -13,8 +13,6 @@ import { getTransformOptions } from '@chialab/esbuild-plugin-transform';
  * @return An esbuild plugin.
  */
 export default function({ plugins = [] } = {}) {
-    const resolve = createResolver();
-
     /**
      * @type {import('esbuild').Plugin}
      */
@@ -22,18 +20,17 @@ export default function({ plugins = [] } = {}) {
         name: 'swc',
         setup(build) {
             const options = build.initialOptions;
-            const { filter, getEntry, buildEntry } = getTransformOptions(build);
 
             build.onResolve({ filter: /@swc\/helpers/ }, async () => ({
                 path: await resolve('@swc/helpers', import.meta.url),
             }));
-            build.onLoad({ filter, namespace: 'file' }, async (args) => {
+            build.onLoad({ filter: createFilter(build), namespace: 'file' }, async (args) => {
                 if (args.path.includes('@swc/helpers/') ||
                     args.path.includes('regenerator-runtime')) {
                     return;
                 }
 
-                const entry = await getEntry(args.path);
+                const entry = await getEntry(build, args.path);
 
                 if (entry.target === TARGETS.typescript) {
                     await pipe(entry, {
@@ -104,7 +101,7 @@ export default function({ plugins = [] } = {}) {
                     };
                 });
 
-                return buildEntry(args.path);
+                return finalizeEntry(build, args.path);
             });
         },
     };

@@ -1,22 +1,18 @@
 import { promises } from 'fs';
 import path from 'path';
-import esbuildModule from 'esbuild';
-import { createResolver } from '@chialab/node-resolve';
 import { pipe } from '@chialab/estransform';
-import { SCRIPT_LOADERS, getTransformOptions } from '@chialab/esbuild-plugin-transform';
+import { SCRIPT_LOADERS, getEntry, finalizeEntry, createFilter } from '@chialab/esbuild-plugin-transform';
 
 /**
  * Instantiate a plugin that converts URL references into static import
  * in order to handle assets bundling.
+ * @param {typeof import('esbuild')} [esbuild]
  * @return An esbuild plugin.
  */
-export default function({ esbuild = esbuildModule } = {}) {
+export default function(esbuild) {
     const { readFile } = promises;
     const URL_REGEX = /(new\s+(?:window\.|self\.|globalThis\.)?URL\s*\()\s*['"]([^'"]*)['"]\s*\s*,\s*import\.meta\.url\s*(\))/g;
-    const resolve = createResolver({
-        exportsFields: [],
-        mainFields: [],
-    });
+
     /**
      * @type {import('esbuild').Plugin}
      */
@@ -24,7 +20,6 @@ export default function({ esbuild = esbuildModule } = {}) {
         name: 'meta-url',
         setup(build) {
             const options = build.initialOptions;
-            const { filter, getEntry, buildEntry } = getTransformOptions(build);
 
             build.onResolve({ filter: /\.urlfile$/ }, async ({ path: filePath }) => ({
                 path: filePath.replace(/\.urlfile$/, ''),
@@ -36,12 +31,13 @@ export default function({ esbuild = esbuildModule } = {}) {
                 loader: 'file',
             }));
 
-            build.onLoad({ filter, namespace: 'file' }, async (args) => {
-                const entry = await getEntry(args.path);
+            build.onLoad({ filter: createFilter(build), namespace: 'file' }, async (args) => {
+                const entry = await getEntry(build, args.path);
                 if (!entry.code.match(URL_REGEX)) {
                     return;
                 }
 
+                const { fileResolve } = await import('@chialab/node-resolve');
                 const outdir = options.outdir || (options.outfile && path.dirname(options.outfile)) || process.cwd();
                 const loaders = options.loader || {};
 
@@ -66,8 +62,9 @@ export default function({ esbuild = esbuildModule } = {}) {
                         } else if (options.platform === 'node' && options.format !== 'esm') {
                             baseUrl = '\'file://\' + __filename';
                         }
-                        const entryPoint = await resolve(value, path.dirname(args.path));
+                        const entryPoint = await fileResolve(value, path.dirname(args.path));
                         if (SCRIPT_LOADERS.includes(loader) || loader === 'css') {
+                            esbuild = esbuild || await import('esbuild');
                             /** @type {import('esbuild').BuildOptions} */
                             const config = {
                                 ...options,
@@ -102,7 +99,7 @@ export default function({ esbuild = esbuildModule } = {}) {
                     }
                 });
 
-                return buildEntry(args.path);
+                return finalizeEntry(build, args.path);
             });
         },
     };

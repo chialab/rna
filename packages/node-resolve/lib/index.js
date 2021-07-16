@@ -42,3 +42,16 @@ export function createResolver(options = {}) {
 }
 
 export { isCore };
+
+export const resolve = createResolver();
+
+export const fileResolve = createResolver({
+    exportsFields: [],
+    mainFields: [],
+});
+
+export const styleResolve = createResolver({
+    extensions: ['.css'],
+    exportsFields: [],
+    mainFields: ['style'],
+});

@@ -31,11 +31,12 @@ export async function loadTransformPlugins({
      * @type {import('esbuild').Plugin[]}
      */
     const transformPlugins = [
+        (await import('@chialab/esbuild-plugin-webpack-include')).default(),
         (await import('@chialab/esbuild-plugin-commonjs')).default({
             ...commonjs,
         }),
         (await import('@chialab/esbuild-plugin-require-resolve')).default(),
-        (await import('@chialab/esbuild-plugin-webpack-include')).default(),
+        (await import('@chialab/esbuild-plugin-meta-url')).default(),
     ];
 
     try {
@@ -49,9 +50,10 @@ export async function loadTransformPlugins({
 
 /**
  * @param {{ html?: import('@chialab/esbuild-plugin-html').PluginOptions, postcss?: import('@chialab/esbuild-plugin-postcss').PluginOptions }} options
+ * @param {typeof import('esbuild')} [esbuild]
  * @returns
  */
-export async function loadPlugins({ html, postcss } = {}) {
+export async function loadPlugins({ html, postcss } = {}, esbuild) {
     /**
      * @type {import('esbuild').Plugin[]}
      */
@@ -59,7 +61,7 @@ export async function loadPlugins({ html, postcss } = {}) {
 
     if (html) {
         try {
-            plugins.push((await import('@chialab/esbuild-plugin-html')).default(html));
+            plugins.push((await import('@chialab/esbuild-plugin-html')).default(html, esbuild));
         } catch (err) {
             //
         }

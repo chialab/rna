@@ -1,11 +1,9 @@
 import { promises } from 'fs';
 import path from 'path';
-import sourcemap from '@parcel/source-map';
 import MagicString from 'magic-string';
 import esbuild from 'esbuild';
 
 const { readFile } = promises;
-const { default: SourceMapNode } = sourcemap;
 const SOURCEMAP_REGEX = /(?:(\/\*+[\s\S]*?sourceMappingURL\s*=)([\s\S]*?)(\*\/))|(?:(\/\/.*?sourceMappingURL\s*=)(.*?)([\r\n]))/;
 
 /**
@@ -39,40 +37,33 @@ export async function loadSourcemap(code, filePath) {
             let content;
             if (mapUrl.startsWith('data:')) {
                 content = Buffer.from(mapUrl.split(',')[1]).toString('base64');
-                return {
-                    code,
-                    map: parseSourcemap(content),
-                };
+                return parseSourcemap(content);
             }
 
             if (filePath) {
                 content = await readFile(path.resolve(path.dirname(filePath), mapUrl), 'utf-8');
-                return {
-                    code,
-                    map: parseSourcemap(content),
-                };
+                return parseSourcemap(content);
             }
         } catch {
             //
         }
     }
 
-    return {
-        code,
-        map: null,
-    };
+    return null;
 }
 
 /**
  * @param {SourceMap[]} sourceMaps
  */
-export function mergeSourcemaps(sourceMaps) {
+export async function mergeSourcemaps(sourceMaps) {
     if (sourceMaps.length === 1) {
         return {
             version: 3,
             ...sourceMaps[0],
         };
     }
+
+    const { default: { default: SourceMapNode } } = await import('@parcel/source-map');
 
     const sourceMap = sourceMaps.reduce(
         /**
@@ -131,13 +122,13 @@ export async function transform(contents, options, callback) {
     const magicCode = new MagicString(contents);
     return await callback(magicCode, contents, options) || {
         code: magicCode.toString(),
-        map: parseSourcemap(
+        map: options.sourcemap ? parseSourcemap(
             magicCode.generateMap({
                 hires: true,
                 source: options.source,
                 includeContent: options.sourcesContent,
             }).toString()
-        ),
+        ) : null,
     };
 }
 
@@ -184,20 +175,23 @@ export function createTypeScriptTransform(config = {}) {
  * @typedef {Object} Pipeline
  * @property {string} contents
  * @property {string} code
- * @property {SourceMap[]} sourceMaps
+ * @property {SourceMap[]|null} sourceMaps
  * @property {string} target
  * @property {import('esbuild').Loader} loader
  */
 
 /**
  * @param {string} contents
- * @param {{ source?: string }} options
+ * @param {{ sourcemap?: boolean, source?: string }} [options]
  */
-export async function createPipeline(contents, { source }) {
+export async function createPipeline(contents, { sourcemap = true, source } = {}) {
     const sourceMaps = [];
-    const { code, map } = await loadSourcemap(contents, source);
-    if (map) {
-        sourceMaps.push(map);
+
+    if (sourcemap) {
+        const map = await loadSourcemap(contents, source);
+        if (map) {
+            sourceMaps.push(map);
+        }
     }
 
     const target = source && source.match(/\.tsx?$/) ? TARGETS.typescript : TARGETS.unknown;
@@ -208,8 +202,8 @@ export async function createPipeline(contents, { source }) {
      */
     const pipeline = {
         contents,
-        code,
-        sourceMaps,
+        code: contents,
+        sourceMaps: sourcemap ? sourceMaps : null,
         target,
         loader,
     };
@@ -223,10 +217,13 @@ export async function createPipeline(contents, { source }) {
  * @param {TransformCallack} callback
  */
 export async function pipe(pipeline, options, callback) {
-    const { code, map, loader, target } = await transform(pipeline.code, options, callback);
+    const { code, map, loader, target } = await transform(pipeline.code, {
+        sourcemap: !!pipeline.sourceMaps,
+        ...options,
+    }, callback);
 
     pipeline.code = code;
-    if (map && code !== pipeline.code) {
+    if (pipeline.sourceMaps && map && code !== pipeline.code) {
         pipeline.sourceMaps.push(map);
     }
 
@@ -259,7 +256,7 @@ export function inlineSourcemap(code, sourceMap) {
  * @return {Promise<TransformResult>}
  */
 export async function finalize(pipeline, { source, sourcemap = true, sourcesContent = true }) {
-    if (!pipeline.sourceMaps.length || pipeline.code === pipeline.contents || !sourcemap) {
+    if (!pipeline.sourceMaps || !pipeline.sourceMaps.length || pipeline.code === pipeline.contents || !sourcemap) {
         return {
             code: pipeline.code,
             map: null,
@@ -267,7 +264,7 @@ export async function finalize(pipeline, { source, sourcemap = true, sourcesCont
         };
     }
 
-    const finalMap = mergeSourcemaps(pipeline.sourceMaps);
+    const finalMap = await mergeSourcemaps(pipeline.sourceMaps);
     if (!finalMap) {
         return {
             code: pipeline.code,

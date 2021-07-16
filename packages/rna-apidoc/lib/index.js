@@ -1,10 +1,3 @@
-import path from 'path';
-import { promises } from 'fs';
-import TypeDoc from 'typedoc';
-import markdown from './renderers/markdown.js';
-
-const { writeFile, mkdir } = promises;
-
 /**
  * Generate documentation for typescript files.
  * @param {string[]} entryPoints Entrypoints to documentate.
@@ -12,6 +5,18 @@ const { writeFile, mkdir } = promises;
  * @param {string} [output] Output path.
  */
 export async function generate(entryPoints, format = 'json', output = undefined) {
+    const [
+        { default: path },
+        { promises: { writeFile, mkdir } },
+        { default: TypeDoc },
+        { default: markdown },
+    ] = await Promise.all([
+        import('path'),
+        import('fs'),
+        import('typedoc'),
+        import('./renderers/markdown.js'),
+    ]);
+
     const app = new TypeDoc.Application();
     app.options.addReader(new TypeDoc.TSConfigReader());
     app.options.addReader(new TypeDoc.TypeDocReader());

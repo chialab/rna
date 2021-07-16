@@ -1,16 +1,3 @@
-import path from 'path';
-import crypto from 'crypto';
-import { promises } from 'fs';
-import esbuildModule from 'esbuild';
-import $ from 'cheerio';
-import { collectStyles } from './collectStyles.js';
-import { collectScripts } from './collectScripts.js';
-import { collectAssets } from './collectAssets.js';
-import { collectWebManifest } from './collectWebManifest.js';
-import { collectIcons } from './collectIcons.js';
-
-const { readFile, writeFile, mkdir } = promises;
-
 /**
  * @typedef {Object} Entrypoint
  * @property {import('esbuild').Loader} [loader] The loader to use.
@@ -19,15 +6,16 @@ const { readFile, writeFile, mkdir } = promises;
  */
 
 /**
- * @typedef {{ esbuild?: typeof esbuildModule, scriptsTarget?: string, modulesTarget?: string }} PluginOptions
+ * @typedef {{ scriptsTarget?: string, modulesTarget?: string }} PluginOptions
  */
 
 /**
  * A HTML loader plugin for esbuild.
  * @param {PluginOptions} options
+ * @param {typeof import('esbuild')} [esbuild]
  * @return An esbuild plugin.
  */
-export default function({ esbuild = esbuildModule, scriptsTarget = 'es6', modulesTarget = 'es2020' } = {}) {
+export default function({ scriptsTarget = 'es6', modulesTarget = 'es2020' } = {}, esbuild) {
     /**
      * @type {import('esbuild').Plugin}
      */
@@ -37,6 +25,30 @@ export default function({ esbuild = esbuildModule, scriptsTarget = 'es6', module
             const options = build.initialOptions;
 
             build.onLoad({ filter: /\.html$/ }, async ({ path: filePath }) => {
+                const [
+                    { default: path },
+                    { default: crypto },
+                    { promises: { readFile, writeFile, mkdir } },
+                    { default: $ },
+                    { collectStyles },
+                    { collectScripts },
+                    { collectAssets },
+                    { collectWebManifest },
+                    { collectIcons },
+                ] = await Promise.all([
+                    import('path'),
+                    import('crypto'),
+                    import('fs'),
+                    import('cheerio'),
+                    import('./collectStyles.js'),
+                    import('./collectScripts.js'),
+                    import('./collectAssets.js'),
+                    import('./collectWebManifest.js'),
+                    import('./collectIcons.js'),
+                ]);
+
+                esbuild = esbuild || await import('esbuild');
+
                 const contents = await readFile(filePath, 'utf-8');
                 const basePath = path.dirname(filePath);
                 const outdir = /** @type {string} */ (options.outdir || (options.outfile && path.dirname(options.outfile)));

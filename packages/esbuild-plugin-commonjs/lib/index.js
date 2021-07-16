@@ -1,6 +1,6 @@
 import { createTransform, ESM_KEYWORDS, CJS_KEYWORDS } from '@chialab/cjs-to-esm';
 import { pipe } from '@chialab/estransform';
-import { getTransformOptions } from '@chialab/esbuild-plugin-transform';
+import { getEntry, finalizeEntry, createFilter } from '@chialab/esbuild-plugin-transform';
 
 /**
  * @typedef {import('@chialab/cjs-to-esm').Options} PluginOptions
@@ -22,10 +22,8 @@ export default function(config = {}) {
                 return;
             }
 
-            const { filter, getEntry, buildEntry } = getTransformOptions(build);
-
-            build.onLoad({ filter, namespace: 'file' }, async (args) => {
-                const entry = await getEntry(args.path);
+            build.onLoad({ filter: createFilter(build), namespace: 'file' }, async (args) => {
+                const entry = await getEntry(build, args.path);
 
                 if (entry.code.match(ESM_KEYWORDS) || !entry.code.match(CJS_KEYWORDS)) {
                     return;
@@ -36,7 +34,7 @@ export default function(config = {}) {
                     sourcesContent: options.sourcesContent,
                 }, createTransform(config));
 
-                return buildEntry(args.path);
+                return finalizeEntry(build, args.path);
             });
         },
     };

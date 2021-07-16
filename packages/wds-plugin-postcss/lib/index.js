@@ -2,7 +2,7 @@ import path from 'path';
 import postcss from 'postcss';
 import postcssrc from 'postcss-load-config';
 import { getRequestFilePath } from '@web/dev-server-core';
-import { createResolver } from '@chialab/node-resolve';
+import { styleResolve } from '@chialab/node-resolve';
 
 /**
  * @typedef {Object} PostcssConfig
@@ -29,11 +29,6 @@ async function loadPostcssConfig() {
 }
 
 function rebase({ rootDir = process.cwd(), filePath = '' } = {}) {
-    const resolve = createResolver({
-        extensions: ['.css'],
-        exportsFields: [],
-        mainFields: ['style'],
-    });
     /**
      * @type {import('postcss').Plugin}
      */
@@ -58,7 +53,7 @@ function rebase({ rootDir = process.cwd(), filePath = '' } = {}) {
                     source = source.substring(1);
                 }
 
-                let resolvedImportPath = await resolve(source, decl.source?.input.file ?? rootDir);
+                let resolvedImportPath = await styleResolve(source, decl.source?.input.file ?? rootDir);
                 if (path.extname(resolvedImportPath) !== '.css') {
                     return;
                 }

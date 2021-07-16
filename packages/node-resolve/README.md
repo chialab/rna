@@ -18,9 +18,7 @@ $ yarn add @chialab/node-resolve -D
 ## Usage
 
 ```js
-import { createResolver } from '@chialab/node-resolve';
-
-const resolve = createResolver();
+import { resolve } from '@chialab/node-resolve';
 
 await resolve('lit', '/path/to/www/js');
 ```

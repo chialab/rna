@@ -1,8 +1,8 @@
 import path from 'path';
 import babel from '@babel/core';
-import { createResolver } from '@chialab/node-resolve';
+import { resolve } from '@chialab/node-resolve';
 import { createTypeScriptTransform, pipe, TARGETS } from '@chialab/estransform';
-import { getTransformOptions } from '@chialab/esbuild-plugin-transform';
+import { getEntry, finalizeEntry, createFilter } from '@chialab/esbuild-plugin-transform';
 
 /**
  * @typedef {{ presets?: import('@babel/core').PluginItem[], plugins?: import('@babel/core').PluginItem[] }} PluginOptions
@@ -13,8 +13,6 @@ import { getTransformOptions } from '@chialab/esbuild-plugin-transform';
  * @return An esbuild plugin.
  */
 export default function({ presets = [], plugins = [] } = {}) {
-    const resolve = createResolver();
-
     /**
      * @type {import('esbuild').Plugin}
      */
@@ -22,19 +20,19 @@ export default function({ presets = [], plugins = [] } = {}) {
         name: 'babel',
         setup(build) {
             const options = build.initialOptions;
-            const { filter, getEntry, buildEntry } = getTransformOptions(build);
 
             build.onResolve({ filter: /@babel\/runtime/ }, async (args) => ({
                 path: await resolve(args.path, import.meta.url),
             }));
-            build.onLoad({ filter, namespace: 'file' }, async (args) => {
+
+            build.onLoad({ filter: createFilter(build), namespace: 'file' }, async (args) => {
                 if (args.path.includes('/@babel/runtime/') ||
                     args.path.includes('/core-js/') ||
                     args.path.includes('regenerator-runtime')) {
                     return;
                 }
 
-                const entry = await getEntry(args.path);
+                const entry = await getEntry(build, args.path);
 
                 if (entry.target === TARGETS.typescript) {
                     await pipe(entry, {
@@ -115,7 +113,7 @@ export default function({ presets = [], plugins = [] } = {}) {
                     };
                 });
 
-                return buildEntry(args.path);
+                return finalizeEntry(build, args.path);
             });
         },
     };

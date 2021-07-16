@@ -1,8 +1,8 @@
 import { promises } from 'fs';
 import path from 'path';
-import { createResolver } from '@chialab/node-resolve';
+import { resolve } from '@chialab/node-resolve';
 import { pipe } from '@chialab/estransform';
-import { getTransformOptions } from '@chialab/esbuild-plugin-transform';
+import { getEntry, finalizeEntry, createFilter } from '@chialab/esbuild-plugin-transform';
 
 /**
  * Instantiate a plugin that converts URL references into static import
@@ -11,7 +11,6 @@ import { getTransformOptions } from '@chialab/esbuild-plugin-transform';
  */
 export default function() {
     const { readFile } = promises;
-    const resolve = createResolver();
     const RESOLVE_REGEX = /(require\.resolve\s*\()\s*['"]([^'"]*)['"]\s*\s*(\))/g;
 
     /**
@@ -21,7 +20,6 @@ export default function() {
         name: 'require-resolve',
         setup(build) {
             const options = build.initialOptions;
-            const { filter, getEntry, buildEntry } = getTransformOptions(build);
 
             build.onResolve({ filter: /\.requirefile$/ }, async ({ path: filePath }) => ({
                 path: filePath.replace(/\.requirefile$/, ''),
@@ -31,8 +29,8 @@ export default function() {
                 contents: await readFile(filePath),
                 loader: 'file',
             }));
-            build.onLoad({ filter, namespace: 'file' }, async (args) => {
-                const entry = await getEntry(args.path);
+            build.onLoad({ filter: createFilter(build), namespace: 'file' }, async (args) => {
+                const entry = await getEntry(build, args.path);
                 if (!entry.code.match(RESOLVE_REGEX)) {
                     return;
                 }
@@ -59,7 +57,7 @@ export default function() {
                     }
                 });
 
-                return buildEntry(args.path);
+                return finalizeEntry(build, args.path);
             });
         },
     };

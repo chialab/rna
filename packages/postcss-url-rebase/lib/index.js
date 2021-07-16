@@ -1,5 +1,5 @@
 import path from 'path';
-import { createResolver } from '@chialab/node-resolve';
+import { styleResolve } from '@chialab/node-resolve';
 
 /**
  * @typedef {Object} UrlRebasePluginOptions
@@ -12,12 +12,6 @@ import { createResolver } from '@chialab/node-resolve';
  * @param {UrlRebasePluginOptions} options
  */
 export default function urlRebase({ root = process.cwd(), relative } = {}) {
-    const resolve = createResolver({
-        extensions: ['.css'],
-        exportsFields: [],
-        mainFields: ['style'],
-    });
-
     relative = typeof relative === 'boolean' ? relative : true;
 
     /**
@@ -40,7 +34,7 @@ export default function urlRebase({ root = process.cwd(), relative } = {}) {
                     return;
                 }
 
-                const resolvedImportPath = await resolve(source, decl.source?.input.file ?? root);
+                const resolvedImportPath = await styleResolve(source, decl.source?.input.file ?? root);
                 if (path.extname(resolvedImportPath) !== '.css') {
                     return;
                 }

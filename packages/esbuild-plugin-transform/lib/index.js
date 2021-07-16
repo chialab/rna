@@ -7,19 +7,11 @@ const { readFile } = promises;
 export const SCRIPT_LOADERS = ['tsx', 'ts', 'jsx', 'js'];
 
 /**
- * @typedef {(filePath: string, contents?: string) => Promise<import('@chialab/estransform').Pipeline>} GetEntry
- */
-
-/**
- * @typedef {(filePath: string) => Promise<import('esbuild').OnLoadResult|undefined>} BuildFactory
- */
-
-/**
  * @typedef {Map<string, import('@chialab/estransform').Pipeline>} Store
  */
 
 /**
- * @typedef {{ entry?: import('@chialab/estransform').Pipeline, filter: RegExp, store: Store, getEntry: GetEntry, buildEntry: BuildFactory }} TransformOptions
+ * @typedef {{ entry?: import('@chialab/estransform').Pipeline, filter: RegExp, store: Store }} TransformOptions
  */
 
 /**
@@ -27,9 +19,15 @@ export const SCRIPT_LOADERS = ['tsx', 'ts', 'jsx', 'js'];
  */
 
 /**
- * @param {import('esbuild').BuildOptions} options
+ * @param {import('esbuild').PluginBuild} build
  */
-export function createFilter(options) {
+export function createFilter(build) {
+    const options = build.initialOptions;
+    const transformOptions = /** @type {BuildTransformOptions} */ (options).transform;
+    if (transformOptions && transformOptions.filter) {
+        return transformOptions.filter;
+    }
+
     const loaders = options.loader || {};
     const keys = Object.keys(loaders);
     const tsxExtensions = keys.filter((key) => SCRIPT_LOADERS.includes(loaders[key]));
@@ -38,72 +36,41 @@ export function createFilter(options) {
 
 /**
  * @param {import('esbuild').PluginBuild} build
- * @return {TransformOptions}
+ * @param {string} filePath
+ * @param {string} [contents]
+ * @return {Promise<import('@chialab/estransform').Pipeline>}
  */
-export function getTransformOptions(build) {
-    const options = /** @type {BuildTransformOptions} */ (build.initialOptions);
-    if (options.transform) {
-        return options.transform;
+export async function getEntry(build, filePath, contents) {
+    const options = /** @type {BuildTransformOptions} */ (build.initialOptions).transform;
+    const entry = options?.store.get(filePath) || await createPipeline(contents || await readFile(filePath, 'utf-8'), {
+        source: filePath,
+    });
+    options?.store.set(filePath, entry);
+    return entry;
+}
+
+/**
+ * @param {import('esbuild').PluginBuild} build
+ * @param {string} filePath
+ * @return {Promise<import('esbuild').OnLoadResult|undefined>}
+ */
+export async function finalizeEntry(build, filePath) {
+    const options = /** @type {BuildTransformOptions} */ (build.initialOptions).transform;
+    if (options) {
+        return;
     }
+
+    const entry = await getEntry(build, filePath);
+    const { code, loader } = await finalize(entry, {
+        sourcemap: 'inline',
+        source: path.basename(filePath),
+        sourcesContent: build.initialOptions.sourcesContent,
+    });
 
     return {
-        store: new Map(),
-        filter: createFilter(options),
-        getEntry: getEntryFactory(build),
-        buildEntry: buildEntryFactory(build, options),
+        contents: code,
+        loader,
     };
-}
-
-/**
- * @param {import('esbuild').PluginBuild} build
- * @return {GetEntry}
- */
-function getEntryFactory(build) {
-    /**
-     * @type {GetEntry}
-     */
-    async function getEntry(filePath, contents) {
-        const { store } = getTransformOptions(build);
-        const entry = store.get(filePath) || await createPipeline(contents || await readFile(filePath, 'utf-8'), { source: filePath });
-        store.set(filePath, entry);
-        return entry;
-    }
-
-    return getEntry;
-}
-
-/**
- * @param {import('esbuild').PluginBuild} build
- * @param {import('esbuild').BuildOptions} options
- */
-function buildEntryFactory(build, options, shouldReturn = true) {
-    /**
-     * @type {BuildFactory}
-     */
-    async function buildEntry(filePath) {
-        const { store } = getTransformOptions(build);
-        const entry = store.get(filePath);
-        if (!entry) {
-            return;
-        }
-
-        if (!shouldReturn) {
-            return;
-        }
-
-        const { code, loader } = await finalize(entry, {
-            sourcemap: 'inline',
-            source: path.basename(filePath),
-            sourcesContent: options.sourcesContent,
-        });
-
-        return {
-            contents: code,
-            loader,
-        };
-    }
-
-    return buildEntry;
 }
 
 /**
@@ -125,12 +92,8 @@ export default function(plugins = []) {
              * @type {Store}
              */
             const store = new Map();
-            const options = /** @type {BuildTransformOptions} */ (build.initialOptions);
-            const filter = createFilter(options);
-
-            const getEntry = getEntryFactory(build);
-            const buildEntry = buildEntryFactory(build, options, false);
-            const finishEntry = buildEntryFactory(build, options);
+            const options = build.initialOptions;
+            const filter = createFilter(build);
 
             const { stdin } = options;
             const input = stdin ? (stdin.sourcefile || 'stdin.js') : undefined;
@@ -145,15 +108,13 @@ export default function(plugins = []) {
                 enumerable: false,
                 writable: false,
                 value: {
-                    filter,
                     store,
-                    getEntry,
-                    buildEntry,
+                    filter,
                 },
             });
 
             /**
-             * @type {Array<[import('esbuild').OnLoadOptions, LoadCallback]>}
+             * @type {LoadCallback[]}
              */
             const onLoad = [];
             for (let i = 0; i < plugins.length; i++) {
@@ -167,8 +128,9 @@ export default function(plugins = []) {
                      * @param {LoadCallback} callback
                      */
                     onLoad(options, callback) {
-                        if (options.namespace === 'file') {
-                            onLoad.push([options, callback]);
+                        if (options.namespace === 'file' &&
+                            options.filter === filter) {
+                            onLoad.push(callback);
                         } else {
                             build.onLoad(options, callback);
                         }
@@ -176,21 +138,31 @@ export default function(plugins = []) {
                 });
             }
 
-            build.onLoad({ filter, namespace: 'file' }, async (args) => {
-                if (args.path === input && stdin) {
-                    await getEntry(args.path, stdin.contents);
-                }
-
-                for (let i = 0; i < onLoad.length; i++) {
-                    const [{ filter, namespace }, callback] = onLoad[i];
-                    if (!filter.test(args.path) || (namespace && namespace !== args.namespace)) {
-                        continue;
+            if (onLoad.length) {
+                build.onLoad({ filter, namespace: 'file' }, async (args) => {
+                    let entry;
+                    if (args.path === input && stdin) {
+                        entry = await getEntry(build, args.path, stdin.contents);
+                    } else {
+                        entry = await getEntry(build, args.path);
                     }
-                    await callback(args);
-                }
 
-                return finishEntry(args.path);
-            });
+                    for (let i = 0; i < onLoad.length; i++) {
+                        await onLoad[i](args);
+                    }
+
+                    const { code, loader } = await finalize(entry, {
+                        sourcemap: 'inline',
+                        source: path.basename(args.path),
+                        sourcesContent: options.sourcesContent,
+                    });
+
+                    return {
+                        contents: code,
+                        loader,
+                    };
+                });
+            }
         },
     };
 

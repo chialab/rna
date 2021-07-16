@@ -70,7 +70,7 @@ export async function transform(config) {
 
     return {
         code: outputFiles[0].text,
-        map: '',
+        map: outputFiles[1] ? outputFiles[1].text : '',
         warnings,
     };
 }

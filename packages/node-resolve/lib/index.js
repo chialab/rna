@@ -16,7 +16,7 @@ import isCore from 'is-core-module';
  */
 export function createResolver(options = {}) {
     const resolver = nodeResolve.create({
-        symlinks: true,
+        symlinks: false,
         ...options,
     });
 

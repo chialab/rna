@@ -36,7 +36,6 @@ export async function loadTransformPlugins({
             ...commonjs,
         }),
         (await import('@chialab/esbuild-plugin-require-resolve')).default(),
-        (await import('@chialab/esbuild-plugin-meta-url')).default(),
     ];
 
     try {

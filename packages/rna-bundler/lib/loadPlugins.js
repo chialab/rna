@@ -28,7 +28,7 @@ export async function loadTransformPlugins({
     babel,
 } = {}) {
     /**
-     * @type {Promise<import('esbuild').Plugin>[]}
+     * @type {Promise<import('esbuild').Plugin|false>[]}
      */
     const transformPlugins = [
         import('@chialab/esbuild-plugin-webpack-include').then(({ default: plugin }) => plugin()),
@@ -37,44 +37,38 @@ export async function loadTransformPlugins({
         })),
     ];
 
-    try {
-        transformPlugins.push(loadBabelPlugin(babel));
-    } catch (err) {
-        //
-    }
+    transformPlugins.push(
+        loadBabelPlugin(babel).catch(() => false)
+    );
 
-    return Promise.all(transformPlugins);
+    return /** @type {import('esbuild').Plugin[]} */ ((await Promise.all(transformPlugins)).filter((plugin) => !!plugin));
 }
 
 /**
  * @param {{ html?: import('@chialab/esbuild-plugin-html').PluginOptions, postcss?: import('@chialab/esbuild-plugin-postcss').PluginOptions }} options
  * @param {typeof import('esbuild')} [esbuild]
- * @returns
  */
 export async function loadPlugins({ html, postcss } = {}, esbuild) {
     /**
-     * @type {Promise<import('esbuild').Plugin>[]}
+     * @type {Promise<import('esbuild').Plugin|false>[]}
      */
     const plugins = [];
 
     if (html) {
-        try {
-            plugins.push(
-                import('@chialab/esbuild-plugin-html').then(({ default: plugin }) => plugin(html, esbuild)));
-        } catch (err) {
-            //
-        }
+        plugins.push(
+            import('@chialab/esbuild-plugin-html')
+                .then(({ default: plugin }) => plugin(html, esbuild))
+                .catch(() => false)
+        );
     }
 
     if (postcss) {
-        try {
-            plugins.push(
-                import('@chialab/esbuild-plugin-postcss').then(({ default: plugin }) => plugin(postcss))
-            );
-        } catch (err) {
-            //
-        }
+        plugins.push(
+            import('@chialab/esbuild-plugin-postcss')
+                .then(({ default: plugin }) => plugin(postcss))
+                .catch(() => false)
+        );
     }
 
-    return Promise.all(plugins);
+    return /** @type {import('esbuild').Plugin[]} */ ((await Promise.all(plugins)).filter((plugin) => !!plugin));
 }

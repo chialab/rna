@@ -34,6 +34,9 @@
   },
   "dependencies": {
     "@parcel/source-map": "^2.0.0-rc.4",
+    "acorn": "^8.4.1",
+    "acorn-jsx": "^5.3.2",
+    "acorn-walk": "^8.1.1",
     "esbuild": "^0.12.15",
     "magic-string": "^0.25.7"
   },

@@ -28,23 +28,22 @@ export async function loadTransformPlugins({
     babel,
 } = {}) {
     /**
-     * @type {import('esbuild').Plugin[]}
+     * @type {Promise<import('esbuild').Plugin>[]}
      */
     const transformPlugins = [
-        (await import('@chialab/esbuild-plugin-webpack-include')).default(),
-        (await import('@chialab/esbuild-plugin-commonjs')).default({
+        import('@chialab/esbuild-plugin-webpack-include').then(({ default: plugin }) => plugin()),
+        import('@chialab/esbuild-plugin-commonjs').then(({ default: plugin }) => plugin({
             ...commonjs,
-        }),
-        (await import('@chialab/esbuild-plugin-require-resolve')).default(),
+        })),
     ];
 
     try {
-        transformPlugins.push(await loadBabelPlugin(babel));
+        transformPlugins.push(loadBabelPlugin(babel));
     } catch (err) {
         //
     }
 
-    return transformPlugins;
+    return Promise.all(transformPlugins);
 }
 
 /**
@@ -54,13 +53,14 @@ export async function loadTransformPlugins({
  */
 export async function loadPlugins({ html, postcss } = {}, esbuild) {
     /**
-     * @type {import('esbuild').Plugin[]}
+     * @type {Promise<import('esbuild').Plugin>[]}
      */
     const plugins = [];
 
     if (html) {
         try {
-            plugins.push((await import('@chialab/esbuild-plugin-html')).default(html, esbuild));
+            plugins.push(
+                import('@chialab/esbuild-plugin-html').then(({ default: plugin }) => plugin(html, esbuild)));
         } catch (err) {
             //
         }
@@ -68,11 +68,13 @@ export async function loadPlugins({ html, postcss } = {}, esbuild) {
 
     if (postcss) {
         try {
-            plugins.push((await import('@chialab/esbuild-plugin-postcss')).default(postcss));
+            plugins.push(
+                import('@chialab/esbuild-plugin-postcss').then(({ default: plugin }) => plugin(postcss))
+            );
         } catch (err) {
             //
         }
     }
 
-    return plugins;
+    return Promise.all(plugins);
 }

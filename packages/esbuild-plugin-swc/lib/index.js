@@ -24,85 +24,84 @@ export default function({ plugins = [] } = {}) {
             build.onResolve({ filter: /@swc\/helpers/ }, async () => ({
                 path: await resolve('@swc/helpers', import.meta.url),
             }));
-            build.onLoad({ filter: createFilter(build), namespace: 'file' }, (args) => {
+            build.onLoad({ filter: createFilter(build), namespace: 'file' }, async (args) => {
                 if (args.path.includes('@swc/helpers/') ||
                     args.path.includes('regenerator-runtime')) {
                     return;
                 }
 
-                return getEntry(build, args.path)
-                    .then(async (entry) => {
-                        if (entry.target === TARGETS.typescript) {
-                            await pipe(entry, {
-                                source: path.basename(args.path),
-                                sourcesContent: options.sourcesContent,
-                            }, createTypeScriptTransform({
-                                loader: entry.loader,
-                                jsxFactory: options.jsxFactory,
-                                jsxFragment: options.jsxFragment,
-                            }));
-                        }
+                const entry = args.pluginData || getEntry(build, args.path);
 
-                        await pipe(entry, {
-                            source: path.basename(args.path),
-                            sourcesContent: options.sourcesContent,
-                        }, async (magicCode, code) => {
-                            /** @type {import('@swc/core').Options} */
-                            const config = {
-                                filename: args.path,
-                                sourceFileName: args.path,
-                                sourceMaps: true,
-                                jsc: {
-                                    parser: {
-                                        syntax: 'ecmascript',
-                                        jsx: true,
-                                        dynamicImport: true,
-                                        privateMethod: true,
-                                        functionBind: true,
-                                        exportDefaultFrom: true,
-                                        exportNamespaceFrom: true,
-                                        decoratorsBeforeExport: true,
-                                        importMeta: true,
-                                        decorators: true,
-                                    },
-                                    externalHelpers: true,
-                                    target: /** @type {import('@swc/core').JscTarget} */ (options.target || 'es2020'),
-                                    transform: {
-                                        optimizer: undefined,
-                                    },
-                                },
-                            };
+                if (entry.target === TARGETS.typescript) {
+                    await pipe(entry, {
+                        source: path.basename(args.path),
+                        sourcesContent: options.sourcesContent,
+                    }, createTypeScriptTransform({
+                        loader: entry.loader,
+                        jsxFactory: options.jsxFactory,
+                        jsxFragment: options.jsxFragment,
+                    }));
+                }
 
-                            if (options.target === 'es5') {
-                                config.env = {
-                                    targets: {
-                                        ie: '11',
-                                    },
-                                    shippedProposals: true,
-                                };
-                                entry.target = TARGETS.es5;
-                            }
+                await pipe(entry, {
+                    source: path.basename(args.path),
+                    sourcesContent: options.sourcesContent,
+                }, async ({ code }) => {
+                    /** @type {import('@swc/core').Options} */
+                    const config = {
+                        filename: args.path,
+                        sourceFileName: args.path,
+                        sourceMaps: true,
+                        jsc: {
+                            parser: {
+                                syntax: 'ecmascript',
+                                jsx: true,
+                                dynamicImport: true,
+                                privateMethod: true,
+                                functionBind: true,
+                                exportDefaultFrom: true,
+                                exportNamespaceFrom: true,
+                                decoratorsBeforeExport: true,
+                                importMeta: true,
+                                decorators: true,
+                            },
+                            externalHelpers: true,
+                            target: /** @type {import('@swc/core').JscTarget} */ (options.target || 'es2020'),
+                            transform: {
+                                optimizer: undefined,
+                            },
+                        },
+                    };
 
-                            if (options.jsxFactory) {
-                                plugins.push((await import('@chialab/swc-plugin-htm')).plugin({
-                                    tag: 'html',
-                                    pragma: options.jsxFactory,
-                                }));
-                            }
+                    if (options.target === 'es5') {
+                        config.env = {
+                            targets: {
+                                ie: '11',
+                            },
+                            shippedProposals: true,
+                        };
+                        entry.target = TARGETS.es5;
+                    }
 
-                            config.plugin = swc.plugins(plugins);
+                    if (options.jsxFactory) {
+                        plugins.push((await import('@chialab/swc-plugin-htm')).plugin({
+                            tag: 'html',
+                            pragma: options.jsxFactory,
+                        }));
+                    }
 
-                            const result = await swc.transform(code, config);
-                            const map = parseSourcemap(/** @type {string} */(result.map));
+                    config.plugin = swc.plugins(plugins);
 
-                            return {
-                                code: result.code,
-                                map,
-                            };
-                        });
+                    const result = await swc.transform(code, config);
+                    const map = parseSourcemap(/** @type {string} */(result.map));
 
-                        return finalizeEntry(build, args.path);
-                    });
+                    return {
+                        code: result.code,
+                        map,
+                    };
+                });
+
+                return finalizeEntry(build, args.path);
             });
         },
     };

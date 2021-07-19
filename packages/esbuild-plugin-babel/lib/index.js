@@ -48,7 +48,7 @@ export default function({ presets = [], plugins = [] } = {}) {
                 await pipe(entry, {
                     source: path.basename(args.path),
                     sourcesContent: options.sourcesContent,
-                }, async (magicCode, code) => {
+                }, async ({ code }) => {
                     /** @type {import('@babel/core').TransformOptions} */
                     const config = {
                         ast: false,

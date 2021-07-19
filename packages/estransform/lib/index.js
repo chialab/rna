@@ -2,9 +2,47 @@ import { promises } from 'fs';
 import path from 'path';
 import MagicString from 'magic-string';
 import esbuild from 'esbuild';
+import { Parser as AcornParser } from 'acorn';
+import jsx from 'acorn-jsx';
+import { simple as walk } from 'acorn-walk';
 
 const { readFile } = promises;
 const SOURCEMAP_REGEX = /(?:(\/\*+[\s\S]*?sourceMappingURL\s*=)([\s\S]*?)(\*\/))|(?:(\/\/.*?sourceMappingURL\s*=)(.*?)([\r\n]))/;
+
+const Parser = AcornParser.extend(/** @type {*} */ (jsx()));
+
+export { walk };
+
+/**
+ * @param {string} contents
+ */
+export function parse(contents) {
+    return Parser.parse(contents, {
+        ecmaVersion: 'latest',
+        sourceType: 'module',
+        locations: true,
+    });
+}
+
+/**
+ * @param {string} code
+ * @param {number} line
+ * @param {number} column
+ */
+export function getOffsetFromLocation(code, line, column) {
+    let offest = 0;
+
+    const lines = code.split('\n');
+    for (let i = 0; i < line; i++) {
+        if (i === line - 1) {
+            offest += column;
+            return offest;
+        }
+        offest += lines[i].length + 1;
+    }
+
+    return -1;
+}
 
 /**
  * @typedef {Object} SourceMap
@@ -102,14 +140,14 @@ export async function mergeSourcemaps(sourceMaps) {
 
 /**
  * @typedef {Object} TransformResult
- * @property {string} code
- * @property {SourceMap|null} map
+ * @property {string} [code]
+ * @property {SourceMap|null} [map]
  * @property {import('esbuild').Loader} [loader]
  * @property {string} [target]
  */
 
 /**
- * @typedef {(magicCode: MagicString, code: string, options: TransformOptions) => Promise<TransformResult|void>|TransformResult|void} TransformCallack
+ * @typedef {(data: { ast: acorn.Node, magicCode: MagicString, code: string }, options: TransformOptions) => Promise<TransformResult|void>|TransformResult|void} TransformCallack
  */
 
 /**
@@ -119,16 +157,37 @@ export async function mergeSourcemaps(sourceMaps) {
  * @return {Promise<TransformResult>}
  */
 export async function transform(contents, options, callback) {
-    const magicCode = new MagicString(contents);
-    return await callback(magicCode, contents, options) || {
-        code: magicCode.toString(),
-        map: options.sourcemap ? parseSourcemap(
+    /**
+     * @type {MagicString|undefined}
+     */
+    let magicCode;
+    /**
+     * @type {acorn.Node|undefined}
+     */
+    let ast;
+    return await callback({
+        code: contents,
+        get ast() {
+            if (!ast) {
+                ast = parse(contents);
+            }
+            return ast;
+        },
+        get magicCode() {
+            if (!magicCode) {
+                magicCode = new MagicString(contents);
+            }
+            return magicCode;
+        },
+    }, options) || {
+        code: magicCode ? magicCode.toString() : undefined,
+        map: options.sourcemap && magicCode ? parseSourcemap(
             magicCode.generateMap({
                 hires: true,
                 source: options.source,
                 includeContent: options.sourcesContent,
             }).toString()
-        ) : null,
+        ) : undefined,
     };
 }
 
@@ -150,8 +209,8 @@ export const TARGETS = {
  * @return {TransformCallack}
  */
 export function createTypeScriptTransform(config = {}) {
-    return async function transpileTypescript(magicCode, contents, options) {
-        const { code, map } = await esbuild.transform(contents, {
+    return async function transpileTypescript({ code }, options) {
+        const { code: finalCode, map } = await esbuild.transform(code, {
             tsconfigRaw: {},
             sourcemap: true,
             format: 'esm',
@@ -163,7 +222,7 @@ export function createTypeScriptTransform(config = {}) {
         });
 
         return {
-            code,
+            code: finalCode,
             map: parseSourcemap(map),
             target: TARGETS.es2020,
             loader: 'js',
@@ -222,9 +281,11 @@ export async function pipe(pipeline, options, callback) {
         ...options,
     }, callback);
 
-    pipeline.code = code;
-    if (pipeline.sourceMaps && map && code !== pipeline.code) {
-        pipeline.sourceMaps.push(map);
+    if (code) {
+        pipeline.code = code;
+        if (pipeline.sourceMaps && map && code !== pipeline.code) {
+            pipeline.sourceMaps.push(map);
+        }
     }
 
     if (loader) {

@@ -1,6 +1,5 @@
-import { inlineSourcemap, transform as esTransform } from '@chialab/estransform';
+import { inlineSourcemap, transform as esTransform, walk, getOffsetFromLocation } from '@chialab/estransform';
 
-const COMMENTS_REGEX = /\/\*[\s\S]*?\*\//g;
 export const REQUIRE_REGEX = /([^.\w$]|^)require\s*\((['"])(.*?)\2\)/g;
 export const UMD_REGEXES = [
     /\btypeof\s+exports\s*===?\s*['|"]object['|"]/,
@@ -25,58 +24,64 @@ export function createTransform({ ignore = () => false }) {
     /**
      * @type {import('@chialab/estransform').TransformCallack}
      */
-    const transform = (magicCode, contents) => {
-        let match = COMMENTS_REGEX.exec(contents);
-        while (match) {
-            magicCode.overwrite(match.index, match.index + match[0].length, '');
-            match = COMMENTS_REGEX.exec(contents);
-        }
-
-        const isUmd = UMD_REGEXES.every((regex) => regex.test(contents));
+    const transform = (data) => {
+        const { magicCode, code } = data;
+        const isUmd = UMD_REGEXES.every((regex) => regex.test(code));
         let insertHelper = false;
         if (!isUmd) {
-            match = REQUIRE_REGEX.exec(contents);
-            while (match) {
-                const [str, before, quote, specifier] = match;
-                let spec = specs.get(specifier);
-                if (!spec) {
-                    let id = `$cjs$${specifier.replace(/[^\w_$]+/g, '_')}`;
-                    const count = (ns.get(id) || 0) + 1;
-                    ns.set(id, count);
-                    if (count > 1) {
-                        id += count;
+            const ast = data.ast;
+            walk(ast, {
+                /**
+                 * @param {*} node
+                 */
+                CallExpression(node) {
+                    if (!node.callee || node.callee.type !== 'Identifier' || node.callee.name !== 'require') {
+                        return;
                     }
-                    if (ignore(specifier)) {
-                        match = REQUIRE_REGEX.exec(contents);
-                        continue;
-                    }
-                    spec = { id, specifier: quote + specifier + quote };
-                    specs.set(specifier, spec);
-                }
 
-                insertHelper = true;
-                magicCode.overwrite(
-                    match.index,
-                    match.index + str.length,
-                    `${before}$$cjs_default$$(${spec.id})`
-                );
-                match = REQUIRE_REGEX.exec(contents);
-            }
+                    if (node.arguments.length !== 1 || node.arguments[0].type !== 'Literal') {
+                        return;
+                    }
+
+                    const specifier = node.arguments[0].value;
+                    let spec = specs.get(specifier);
+                    if (!spec) {
+                        let id = `$cjs$${specifier.replace(/[^\w_$]+/g, '_')}`;
+                        const count = (ns.get(id) || 0) + 1;
+                        ns.set(id, count);
+                        if (count > 1) {
+                            id += count;
+                        }
+                        if (ignore(specifier)) {
+                            return;
+                        }
+                        spec = { id, specifier };
+                        specs.set(specifier, spec);
+                    }
+
+                    insertHelper = true;
+                    magicCode.overwrite(
+                        getOffsetFromLocation(code, node.loc.start.line, node.loc.start.column),
+                        getOffsetFromLocation(code, node.loc.end.line, node.loc.end.column),
+                        `$$cjs_default$$(${spec.id})`
+                    );
+                },
+            });
         }
 
         if (isUmd) {
-            let endDefinition = contents.indexOf('\'use strict\';');
+            let endDefinition = code.indexOf('\'use strict\';');
             if (endDefinition === -1) {
-                endDefinition = contents.indexOf('"use strict";');
+                endDefinition = code.indexOf('"use strict";');
             }
             if (endDefinition === -1) {
-                endDefinition = contents.length;
+                endDefinition = code.length;
             }
 
             let varName = '';
             UMD_GLOBALS.forEach((name, index) => {
                 const regex = UMD_GLOBALS_REGEXES[index];
-                const match = contents.match(regex);
+                const match = code.match(regex);
                 if (match && match.index != null && match.index < endDefinition) {
                     if (varName) {
                         magicCode.overwrite(match.index, match.index + match[0].length, 'false');
@@ -104,7 +109,7 @@ export function createTransform({ ignore = () => false }) {
         }
 
         specs.forEach(spec => {
-            magicCode.prepend(`import * as ${spec.id} from ${spec.specifier};\n`);
+            magicCode.prepend(`import * as ${spec.id} from "${spec.specifier}";\n`);
         });
     };
 
@@ -129,7 +134,7 @@ export async function transform(contents, { source, sourcemap = true, sourcesCon
         };
     }
 
-    if (sourcemap === 'inline') {
+    if (sourcemap === 'inline' && code) {
         return {
             code: inlineSourcemap(code, map),
             map,

@@ -1,6 +1,6 @@
 import { promises } from 'fs';
 import path from 'path';
-import { pipe } from '@chialab/estransform';
+import { pipe, walk, getOffsetFromLocation } from '@chialab/estransform';
 import { SCRIPT_LOADERS, getEntry, finalizeEntry, createFilter } from '@chialab/esbuild-plugin-transform';
 
 /**
@@ -31,39 +31,56 @@ export default function(esbuild) {
                 loader: 'file',
             }));
 
-            build.onLoad({ filter: createFilter(build), namespace: 'file' }, (args) => {
+            build.onLoad({ filter: createFilter(build), namespace: 'file' }, async (args) => {
                 /**
                  * @type {import('@chialab/estransform').Pipeline}
                  */
-                const entry = args.pluginData;
-                if (entry && !entry.code.match(URL_REGEX)) {
+                const entry = args.pluginData || await getEntry(build, args.path);
+                if (!entry.code.match(URL_REGEX)) {
                     return;
                 }
 
-                return getEntry(build, args.path)
-                    .then(async (entry) => {
-                        if (!entry.code.match(URL_REGEX)) {
-                            return;
-                        }
+                const { fileResolve } = await import('@chialab/node-resolve');
+                const outdir = options.outdir || (options.outfile && path.dirname(options.outfile)) || process.cwd();
+                const loaders = options.loader || {};
 
-                        const { fileResolve } = await import('@chialab/node-resolve');
-                        const outdir = options.outdir || (options.outfile && path.dirname(options.outfile)) || process.cwd();
-                        const loaders = options.loader || {};
+                await pipe(entry, {
+                    source: path.basename(args.path),
+                    sourcesContent: options.sourcesContent,
+                }, async ({ magicCode, code, ast }) => {
+                    /**
+                     * @type {{ [key: string]: string }}
+                     */
+                    const ids = {};
 
-                        await pipe(entry, {
-                            source: path.basename(args.path),
-                            sourcesContent: options.sourcesContent,
-                        }, async (magicCode, code) => {
-                            /**
-                             * @type {{ [key: string]: string }}
-                             */
-                            const ids = {};
+                    /**
+                     * @type {Promise<void>[]}
+                     */
+                    const promises = [];
 
-                            let match = URL_REGEX.exec(code);
-                            while (match) {
-                                const len = match[0].length;
-                                const value = match[2];
+                    walk(ast, {
+                        /**
+                         * @param {*} node
+                         */
+                        NewExpression(node) {
+                            if (!node.callee || node.callee.type !== 'Identifier' || node.callee.name !== 'URL') {
+                                return;
+                            }
 
+                            if (node.arguments.length !== 2 ||
+                                node.arguments[0].type !== 'Literal' ||
+                                node.arguments[1].type !== 'MemberExpression') {
+                                return;
+                            }
+
+                            if (node.arguments[1].object.type !== 'MetaProperty' ||
+                                node.arguments[1].property.type !== 'Identifier' ||
+                                node.arguments[1].property.name !== 'url') {
+                                return;
+                            }
+
+                            promises.push((async () => {
+                                const value = node.arguments[0].value;
                                 const loader = loaders[path.extname(value)];
                                 let baseUrl = 'import.meta.url';
                                 if (options.platform === 'browser' && options.format !== 'esm') {
@@ -72,6 +89,9 @@ export default function(esbuild) {
                                     baseUrl = '\'file://\' + __filename';
                                 }
                                 const entryPoint = await fileResolve(value, path.dirname(args.path));
+                                const startOffset = getOffsetFromLocation(code, node.loc.start.line, node.loc.start.column);
+                                const endOffset = getOffsetFromLocation(code, node.loc.end.line, node.loc.end.column);
+
                                 if (SCRIPT_LOADERS.includes(loader) || loader === 'css') {
                                     esbuild = esbuild || await import('esbuild');
                                     /** @type {import('esbuild').BuildOptions} */
@@ -90,7 +110,8 @@ export default function(esbuild) {
                                             .filter((output) => !output.endsWith('.map'))
                                             .filter((output) => outputs[output].entryPoint)
                                             .find((output) => entryPoint === path.resolve(/** @type {string} */(outputs[output].entryPoint))) || outputFiles[0];
-                                        magicCode.overwrite(match.index, match.index + len, `${match[1]}'./${path.basename(outputFile)}', ${baseUrl}${match[3]}`);
+
+                                        magicCode.overwrite(startOffset, endOffset, `new URL('./${path.basename(outputFile)}', ${baseUrl})`);
                                     }
                                 } else {
                                     if (!ids[entryPoint]) {
@@ -101,15 +122,16 @@ export default function(esbuild) {
                                             magicCode.prepend(`import ${identifier} from '${entryPoint}.urlfile';\n`);
                                         }
                                     }
-                                    magicCode.overwrite(match.index, match.index + len, `${match[1]}${ids[entryPoint]}, ${baseUrl}${match[3]}`);
+                                    magicCode.overwrite(startOffset, endOffset, `new URL(${ids[entryPoint]}, ${baseUrl})`);
                                 }
-
-                                match = URL_REGEX.exec(code);
-                            }
-                        });
-
-                        return finalizeEntry(build, args.path);
+                            })());
+                        },
                     });
+
+                    await Promise.all(promises);
+                });
+
+                return finalizeEntry(build, args.path);
             });
         },
     };

@@ -1,6 +1,6 @@
 import path from 'path';
 import glob from 'fast-glob';
-import { pipe } from '@chialab/estransform';
+import { pipe, walk, getOffsetFromLocation } from '@chialab/estransform';
 import { getEntry, finalizeEntry, createFilter } from '@chialab/esbuild-plugin-transform';
 
 const WEBPACK_INCLUDE_REGEX = /import\(\s*\/\*\s*webpackInclude:\s*([^\s]+)\s\*\/(?:\s*\/\*\s*webpackExclude:\s*([^\s]+)\s\*\/)?[^`]*`([^$]*)\${([^}]*)}[^`]*`\)/g;
@@ -18,31 +18,64 @@ export default function() {
         setup(build) {
             const options = build.initialOptions;
 
-            build.onLoad({ filter: createFilter(build), namespace: 'file' }, (args) => {
+            build.onLoad({ filter: createFilter(build), namespace: 'file' }, async (args) => {
                 /**
                  * @type {import('@chialab/estransform').Pipeline}
                  */
-                const entry = args.pluginData;
-                if (entry && !entry.code.match(WEBPACK_INCLUDE_REGEX)) {
+                const entry = args.pluginData || await getEntry(build, args.path);
+                if (!entry.code.match(WEBPACK_INCLUDE_REGEX)) {
                     return;
                 }
 
-                return getEntry(build, args.path)
-                    .then(async (entry) => {
-                        if (!entry.code.match(WEBPACK_INCLUDE_REGEX)) {
-                            return;
-                        }
+                await pipe(entry, {
+                    source: path.basename(args.path),
+                    sourcesContent: options.sourcesContent,
+                }, async ({ ast, magicCode, code }) => {
+                    /**
+                     * @type {Promise<void>[]}
+                     */
+                    const promises = [];
 
-                        await pipe(entry, {
-                            source: path.basename(args.path),
-                            sourcesContent: options.sourcesContent,
-                        }, async (magicCode) => {
-                            let match = WEBPACK_INCLUDE_REGEX.exec(entry.code);
-                            while (match) {
-                                const include = new RegExp(match[1].substr(1, match[1].length - 2));
-                                const exclude = match[2] && new RegExp(match[2].substr(1, match[2].length - 2));
-                                const initial = match[3] || './';
-                                const identifier = match[4];
+                    walk(ast, {
+                        /**
+                         * @param {*} node
+                         */
+                        CallExpression(node) {
+                            if (!node.callee || node.callee.type !== 'ImportExpression') {
+                                return;
+                            }
+
+                            if (node.arguments.length !== 1 ||
+                                node.arguments[0].type !== 'TemplateLiteral' ||
+                                !node.arguments[0].leadingComments ||
+                                !node.arguments[0].leadingComments.length) {
+                                return;
+                            }
+
+                            const comments = node.arguments[0].leadingComments;
+                            const included = comments.find(
+                                /**
+                                 * @param {*} param0
+                                 * @returns
+                                 */
+                                ({ value }) => value.startsWith('webpackInclude:')
+                            );
+                            if (!included) {
+                                return;
+                            }
+
+                            promises.push((async () => {
+                                const excluded = comments.find(
+                                    /**
+                                     * @param {*} param0
+                                     * @returns
+                                     */
+                                    ({ value }) => value.startsWith('webpackExclude:')
+                                );
+                                const include = new RegExp(included.replace('webpackInclude:', '').trim());
+                                const exclude = excluded && new RegExp(excluded.replace('webpackExclude:', '').trim());
+                                const initial = node.arguments[0].quasis[0].value.raw;
+                                const identifier = node.arguments[0].expressions[0].name;
                                 const map = (await glob(`${initial}*`, {
                                     cwd: path.dirname(args.path),
                                 }))
@@ -52,18 +85,21 @@ export default function() {
                                         return map;
                                     }, /** @type {{ [key: string]: string }} */({}));
 
+                                const startOffset = getOffsetFromLocation(code, node.loc.start.line, node.loc.start.column);
+                                const endOffset = getOffsetFromLocation(code, node.loc.end.line, node.loc.end.column);
                                 magicCode.overwrite(
-                                    match.index,
-                                    match.index + match[0].length,
+                                    startOffset,
+                                    endOffset,
                                     `({ ${Object.keys(map).map((key) => `'${key}': () => import('${map[key]}')`).join(', ')} })[${identifier}]()`
                                 );
-
-                                match = WEBPACK_INCLUDE_REGEX.exec(entry.code);
-                            }
-                        });
-
-                        return finalizeEntry(build, args.path);
+                            })());
+                        },
                     });
+
+                    await Promise.all(promises);
+                });
+
+                return finalizeEntry(build, args.path);
             });
         },
     };

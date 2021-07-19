@@ -155,6 +155,7 @@ export async function build(config) {
             (await import('@chialab/esbuild-plugin-transform')).default([
                 ...extraTransformPlugins,
                 ...transformPlugins,
+                (await import('@chialab/esbuild-plugin-require-resolve')).default(),
                 (await import('@chialab/esbuild-plugin-meta-url')).default(),
             ]),
         ],

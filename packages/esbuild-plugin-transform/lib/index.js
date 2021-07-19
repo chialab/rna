@@ -140,11 +140,9 @@ export default function(plugins = []) {
 
             if (onLoad.length) {
                 build.onLoad({ filter, namespace: 'file' }, async (args) => {
-                    let transformed = false;
                     let entry;
                     if (args.path === input && stdin) {
                         entry = await getEntry(build, args.path, stdin.contents);
-                        transformed = true;
                     } else {
                         entry = await getEntry(build, args.path);
                     }
@@ -152,14 +150,10 @@ export default function(plugins = []) {
                     args.pluginData = entry;
 
                     for (let i = 0; i < onLoad.length; i++) {
-                        const result = onLoad[i](args);
-                        if (result) {
-                            transformed = true;
-                            await result;
-                        }
+                        await onLoad[i](args);
                     }
 
-                    if (!transformed) {
+                    if (entry.code === entry.contents) {
                         return {
                             contents: entry.code,
                             loader: entry.loader,

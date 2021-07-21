@@ -25,6 +25,7 @@ export function createResolver(options = {}) {
      * @param {string} importer
      */
     const resolve = function(spec, importer) {
+        importer = importer.replace(/^file:\/\//, '');
         return new Promise((resolve, reject) => resolver(
             {},
             importer,

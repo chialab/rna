@@ -1,15 +1,15 @@
 import path from 'path';
-import $ from 'cheerio';
 
 /**
  * Collect and bundle each <script> reference.
+ * @param {import('cheerio').CheerioAPI} $ The cheerio selector.
  * @param {import('cheerio').Cheerio<import('cheerio').Document>} dom The DOM element.
  * @param {string} base The base dir.
  * @param {string} outdir The output dir.
  * @param {import('esbuild').BuildOptions} options Build options.
  * @return {import('./index').Entrypoint[]} A list of entrypoints.
  */
-export function collectScripts(dom, base, outdir, targets = { scriptsTarget: 'es6', modulesTarget: 'es2020' }, options) {
+export function collectScripts($, dom, base, outdir, targets = { scriptsTarget: 'es6', modulesTarget: 'es2020' }, options) {
     return [
         ...dom.find('script[src][type="module"]')
             .get()

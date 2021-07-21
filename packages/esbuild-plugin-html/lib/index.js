@@ -15,7 +15,7 @@
  * @param {typeof import('esbuild')} [esbuild]
  * @return An esbuild plugin.
  */
-export default function({ scriptsTarget = 'es6', modulesTarget = 'es2020' } = {}, esbuild) {
+export default function({ scriptsTarget = 'es2015', modulesTarget = 'es2020' } = {}, esbuild) {
     /**
      * @type {import('esbuild').Plugin}
      */
@@ -29,7 +29,7 @@ export default function({ scriptsTarget = 'es6', modulesTarget = 'es2020' } = {}
                     { default: path },
                     { default: crypto },
                     { promises: { readFile, writeFile, mkdir } },
-                    { default: $ },
+                    { load },
                     { collectStyles },
                     { collectScripts },
                     { collectAssets },
@@ -52,15 +52,15 @@ export default function({ scriptsTarget = 'es6', modulesTarget = 'es2020' } = {}
                 const contents = await readFile(filePath, 'utf-8');
                 const basePath = path.dirname(filePath);
                 const outdir = /** @type {string} */ (options.outdir || (options.outfile && path.dirname(options.outfile)));
-                const dom = $.load(contents);
-                const root = dom.root();
+                const $ = load(contents);
+                const root = $.root();
 
                 const entrypoints = /** @type {Entrypoint[]} */ ([
-                    ...collectIcons(root, basePath, outdir),
-                    ...collectWebManifest(root, basePath, outdir),
-                    ...collectStyles(root, basePath, outdir, options),
-                    ...collectScripts(root, basePath, outdir, { scriptsTarget, modulesTarget }, options),
-                    ...collectAssets(root, basePath, outdir, options),
+                    ...collectIcons($, root, basePath, outdir),
+                    ...collectWebManifest($, root, basePath, outdir),
+                    ...collectStyles($, root, basePath, outdir, options),
+                    ...collectScripts($, root, basePath, outdir, { scriptsTarget, modulesTarget }, options),
+                    ...collectAssets($, root, basePath, outdir, options),
                 ]);
 
                 for (let i = 0; i < entrypoints.length; i++) {
@@ -121,7 +121,7 @@ export default function({ scriptsTarget = 'es6', modulesTarget = 'es2020' } = {}
                 }
 
                 return {
-                    contents: dom.html(),
+                    contents: $.html(),
                     loader: 'file',
                 };
             });

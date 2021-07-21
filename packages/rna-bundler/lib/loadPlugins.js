@@ -7,13 +7,13 @@
  * @returns
  */
 export async function loadBabelPlugin(config) {
-    try {
-        return (await import('@chialab/esbuild-plugin-swc')).default(
-            /** @type {import('@chialab/esbuild-plugin-swc').PluginOptions} */(config || {})
-        );
-    } catch (err) {
-        //
-    }
+    // try {
+    //     return (await import('@chialab/esbuild-plugin-swc')).default(
+    //         /** @type {import('@chialab/esbuild-plugin-swc').PluginOptions} */(config || {})
+    //     );
+    // } catch (err) {
+    //     //
+    // }
 
     return (await import('@chialab/esbuild-plugin-babel')).default(
         /** @type {import('@chialab/esbuild-plugin-babel').PluginOptions} */(config || {})
@@ -35,11 +35,8 @@ export async function loadTransformPlugins({
         import('@chialab/esbuild-plugin-commonjs').then(({ default: plugin }) => plugin({
             ...commonjs,
         })),
+        loadBabelPlugin(babel).catch(() => false),
     ];
-
-    transformPlugins.push(
-        loadBabelPlugin(babel).catch(() => false)
-    );
 
     return /** @type {import('esbuild').Plugin[]} */ ((await Promise.all(transformPlugins)).filter((plugin) => !!plugin));
 }

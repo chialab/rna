@@ -1,18 +1,18 @@
 import { promises } from 'fs';
 import path from 'path';
-import $ from 'cheerio';
 import { SUPPORTED_MIME_TYPES, generateIcon } from './generateIcon.js';
 
 const { readFile, writeFile, mkdir } = promises;
 
 /**
  * Collect and bundle webmanifests.
+ * @param {import('cheerio').CheerioAPI} $ The cheerio selector.
  * @param {import('cheerio').Cheerio<import('cheerio').Document>} dom The DOM element.
  * @param {string} base The base dir.
  * @param {string} outdir The output dir.
  * @return {import('./index').Entrypoint[]} A list of entrypoints.
  */
-export function collectWebManifest(dom, base, outdir) {
+export function collectWebManifest($, dom, base, outdir) {
     const htmlElement = dom.find('html');
     const baseElement = dom.find('base');
     const titleElement = dom.find('title');

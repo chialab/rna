@@ -1,15 +1,15 @@
 import path from 'path';
-import $ from 'cheerio';
 
 /**
  * Collect and bundle each <link> reference.
+ * @param {import('cheerio').CheerioAPI} $ The cheerio selector.
  * @param {import('cheerio').Cheerio<import('cheerio').Document>} dom The DOM element.
  * @param {string} base The base dir.
  * @param {string} outdir The output dir.
  * @param {import('esbuild').BuildOptions} options Build options.
  * @return {import('./index').Entrypoint[]} A list of entrypoints.
  */
-export function collectStyles(dom, base, outdir, options) {
+export function collectStyles($, dom, base, outdir, options) {
     return [
         ...dom
             .find('link[href][rel="stylesheet"]')

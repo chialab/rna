@@ -3,7 +3,7 @@ import { inject } from '@chialab/wds-plugin-polyfill';
 import { checkEsmSupport } from './checkEsmSupport.js';
 import { readFile } from './readFile.js';
 import { transform } from './transform.js';
-import $ from 'cheerio';
+import { load } from 'cheerio';
 
 const require = createRequire(import.meta.url);
 
@@ -63,8 +63,8 @@ export function legacyPlugin(config = {}) {
             }
             if (context.response.is('html')) {
                 const body = /** @type {string} */ (context.body);
-                const dom = $.load(body);
-                const root = dom.root();
+                const $ = load(body);
+                const root = $.root();
 
                 const scripts = root.find('script[type="module"]');
                 for (let i = 0; i < scripts.length; i++) {
@@ -96,7 +96,7 @@ export function legacyPlugin(config = {}) {
                 head.prepend('<script src="/system.js"></script>');
                 head.prepend('<script src="/regenerator-runtime.js"></script>');
 
-                context.body = dom.html();
+                context.body = $.html();
             }
         },
     };

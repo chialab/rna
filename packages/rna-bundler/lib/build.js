@@ -6,7 +6,7 @@ import { camelize } from './camelize.js';
 import { saveManifestJson } from './saveManifestJson.js';
 import { saveEntrypointsJson } from './saveEntrypointsJson.js';
 
-const { readFile } = promises;
+const { readFile, rename } = promises;
 
 /**
  * @typedef {Omit<import('esbuild').BuildOptions, 'loader'> & { output: string, root?: string, input?: string|string[], code?: string, loader?: import('esbuild').Loader, jsxModule?: string, jsxExport?: 'default'|'named'|'namespace', transformPlugins?: import('esbuild').Plugin[], manifest?: boolean|string, entrypoints?: boolean|string, clean?: boolean }} BuildConfig
@@ -47,7 +47,6 @@ export async function build(config) {
         assetNames,
         chunkNames,
         external = [],
-        metafile = false,
         manifest = false,
         entrypoints = false,
         clean = false,
@@ -120,7 +119,7 @@ export async function build(config) {
         platform,
         format,
         external,
-        metafile: metafile || !!manifest || !!entrypoints,
+        metafile: true,
         jsxFactory,
         jsxFragment,
         mainFields: [
@@ -167,6 +166,30 @@ export async function build(config) {
     }
     if (entrypoints && result) {
         saveEntrypointsJson(entryOptions.entryPoints, result, root, typeof entrypoints === 'string' ? entrypoints : outputDir, publicPath, format);
+    }
+
+    if (result.metafile) {
+        for (const outputKey in result.metafile.outputs) {
+            const output = result.metafile.outputs[outputKey];
+            if (path.extname(outputKey) !== '.html') {
+                continue;
+            }
+            if (!output.inputs) {
+                continue;
+            }
+            for (const inputKey in output.inputs) {
+                if (path.extname(inputKey) !== '.html') {
+                    continue;
+                }
+
+                await rename(
+                    outputKey,
+                    path.join(path.dirname(outputKey), path.basename(inputKey))
+                );
+
+                break;
+            }
+        }
     }
 
     return result;

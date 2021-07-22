@@ -3,8 +3,6 @@ import glob from 'fast-glob';
 import { pipe, walk, getOffsetFromLocation } from '@chialab/estransform';
 import { getEntry, finalizeEntry, createFilter } from '@chialab/esbuild-plugin-transform';
 
-const WEBPACK_INCLUDE_REGEX = /import\(\s*\/\*\s*webpackInclude:\s*([^\s]+)\s\*\/(?:\s*\/\*\s*webpackExclude:\s*([^\s]+)\s\*\/)?[^`]*`([^$]*)\${([^}]*)}[^`]*`\)/g;
-
 /**
  * A plugin that converts the `webpackInclude` syntax.
  * @return An esbuild plugin.
@@ -23,7 +21,7 @@ export default function() {
                  * @type {import('@chialab/estransform').Pipeline}
                  */
                 const entry = args.pluginData || await getEntry(build, args.path);
-                if (!entry.code.match(WEBPACK_INCLUDE_REGEX)) {
+                if (!entry.code.includes('webpackInclude:')) {
                     return;
                 }
 

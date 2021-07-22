@@ -11,7 +11,6 @@ import { getEntry, finalizeEntry, createFilter } from '@chialab/esbuild-plugin-t
  */
 export default function() {
     const { readFile } = promises;
-    const RESOLVE_REGEX = /(require\.resolve\s*\()\s*['"]([^'"]*)['"]\s*\s*(\))/g;
 
     /**
      * @type {import('esbuild').Plugin}
@@ -34,7 +33,7 @@ export default function() {
                  * @type {import('@chialab/estransform').Pipeline}
                  */
                 const entry = args.pluginData || await getEntry(build, args.path);
-                if (!entry.code.match(RESOLVE_REGEX)) {
+                if (!entry.code.includes('require.resolve(')) {
                     return;
                 }
 

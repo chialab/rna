@@ -11,6 +11,14 @@ export const ESM_KEYWORDS = /((?:^\s*|;\s*)(\bimport\s*(\{.*?\}\s*from|\s[\w$]+\
 export const CJS_KEYWORDS = /\b(module\.exports|exports|require)\b/;
 
 /**
+ * Check if there is chanches that the provided code is a commonjs module.
+ * @param {string} code
+ */
+export function maybeCommonjsModule(code) {
+    return !ESM_KEYWORDS.test(code) && CJS_KEYWORDS.test(code);
+}
+
+/**
  * @typedef {{ source?: string, sourcemap?: boolean|'inline', sourcesContent?: boolean, ignore?(specifier: string): boolean }} Options
  */
 

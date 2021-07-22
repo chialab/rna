@@ -1,4 +1,4 @@
-import { createTransform, ESM_KEYWORDS, CJS_KEYWORDS } from '@chialab/cjs-to-esm';
+import { createTransform, maybeCommonjsModule } from '@chialab/cjs-to-esm';
 import { pipe } from '@chialab/estransform';
 import { getEntry, finalizeEntry, createFilter } from '@chialab/esbuild-plugin-transform';
 
@@ -27,7 +27,7 @@ export default function(config = {}) {
                  * @type {import('@chialab/estransform').Pipeline}
                  */
                 const entry = args.pluginData || await getEntry(build, args.path);
-                if (entry.code.match(ESM_KEYWORDS) || !entry.code.match(CJS_KEYWORDS)) {
+                if (!maybeCommonjsModule(entry.code)) {
                     return;
                 }
 

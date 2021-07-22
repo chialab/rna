@@ -11,7 +11,6 @@ import { SCRIPT_LOADERS, getEntry, finalizeEntry, createFilter } from '@chialab/
  */
 export default function(esbuild) {
     const { readFile } = promises;
-    const URL_REGEX = /(new\s+(?:window\.|self\.|globalThis\.)?URL\s*\()\s*['"]([^'"]*)['"]\s*\s*,\s*import\.meta\.url\s*(\))/g;
 
     /**
      * @type {import('esbuild').Plugin}
@@ -36,7 +35,8 @@ export default function(esbuild) {
                  * @type {import('@chialab/estransform').Pipeline}
                  */
                 const entry = args.pluginData || await getEntry(build, args.path);
-                if (!entry.code.match(URL_REGEX)) {
+                if (!entry.code.includes('import.meta.url') ||
+                    !entry.code.includes('URL(')) {
                     return;
                 }
 

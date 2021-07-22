@@ -6,7 +6,7 @@ import { camelize } from './camelize.js';
 import { saveManifestJson } from './saveManifestJson.js';
 import { saveEntrypointsJson } from './saveEntrypointsJson.js';
 
-const { readFile, rename } = promises;
+const { readFile, rename, rm } = promises;
 
 /**
  * @typedef {Omit<import('esbuild').BuildOptions, 'loader'> & { output: string, root?: string, input?: string|string[], code?: string, loader?: import('esbuild').Loader, jsxModule?: string, jsxExport?: 'default'|'named'|'namespace', transformPlugins?: import('esbuild').Plugin[], manifest?: boolean|string, entrypoints?: boolean|string, clean?: boolean }} BuildConfig
@@ -168,12 +168,12 @@ export async function build(config) {
     }
 
     if (result.metafile) {
-        for (const outputKey in result.metafile.outputs) {
-            const output = result.metafile.outputs[outputKey];
+        const outputs = { ...result.metafile.outputs };
+        for (const outputKey in outputs) {
+            const output = outputs[outputKey];
             if (path.extname(outputKey) !== '.html') {
-                continue;
-            }
-            if (!output.inputs) {
+                await rm(outputKey);
+                delete result.metafile.outputs[outputKey];
                 continue;
             }
             for (const inputKey in output.inputs) {
@@ -181,10 +181,14 @@ export async function build(config) {
                     continue;
                 }
 
+                const newOutputKey = path.join(path.dirname(outputKey), path.basename(inputKey));
                 await rename(
                     outputKey,
-                    path.join(path.dirname(outputKey), path.basename(inputKey))
+                    newOutputKey
                 );
+
+                result.metafile.outputs[newOutputKey] = output;
+                delete result.metafile.outputs[outputKey];
 
                 break;
             }

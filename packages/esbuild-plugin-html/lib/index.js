@@ -12,10 +12,10 @@
 /**
  * A HTML loader plugin for esbuild.
  * @param {PluginOptions} options
- * @param {typeof import('esbuild')} [esbuild]
+ * @param {typeof import('esbuild')} [esbuildModule]
  * @return An esbuild plugin.
  */
-export default function({ scriptsTarget = 'es2015', modulesTarget = 'es2020' } = {}, esbuild) {
+export default function({ scriptsTarget = 'es2015', modulesTarget = 'es2020' } = {}, esbuildModule) {
     /**
      * @type {import('esbuild').Plugin}
      */
@@ -29,12 +29,13 @@ export default function({ scriptsTarget = 'es2015', modulesTarget = 'es2020' } =
                     { default: path },
                     { default: crypto },
                     { promises: { readFile, writeFile, mkdir } },
-                    { load },
+                    cheerio,
                     { collectStyles },
                     { collectScripts },
                     { collectAssets },
                     { collectWebManifest },
                     { collectIcons },
+                    esbuild,
                 ] = await Promise.all([
                     import('path'),
                     import('crypto'),
@@ -45,9 +46,13 @@ export default function({ scriptsTarget = 'es2015', modulesTarget = 'es2020' } =
                     import('./collectAssets.js'),
                     import('./collectWebManifest.js'),
                     import('./collectIcons.js'),
+                    esbuildModule || import('esbuild'),
                 ]);
 
-                esbuild = esbuild || await import('esbuild');
+                /**
+                 * Cheerio esm support is unstable for some Node versions.
+                 */
+                const load = /** typeof cheerio.load */ (cheerio.load || cheerio.default?.load);
 
                 const contents = await readFile(filePath, 'utf-8');
                 const basePath = path.dirname(filePath);

@@ -3,9 +3,14 @@ import { inject } from '@chialab/wds-plugin-polyfill';
 import { checkEsmSupport } from './checkEsmSupport.js';
 import { readFile } from './readFile.js';
 import { transform } from './transform.js';
-import { load } from 'cheerio';
+import * as cheerio from 'cheerio';
 
 const require = createRequire(import.meta.url);
+
+/**
+ * Cheerio esm support is unstable for some Node versions.
+ */
+const load = /** typeof cheerio.load */ (cheerio.load || cheerio.default?.load);
 
 /**
  * Convert esm modules to the SystemJS module format.

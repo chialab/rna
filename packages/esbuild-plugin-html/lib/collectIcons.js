@@ -1,9 +1,7 @@
 import { promises } from 'fs';
 import path from 'path';
-import { SUPPORTED_MIME_TYPES, generateIcon } from './generateIcon.js';
-import { generateLaunch } from './generateLaunch.js';
 
-const { writeFile, mkdir } = promises;
+const { mkdir } = promises;
 
 const FAVICONS = [
     {
@@ -87,18 +85,16 @@ const APPLE_LAUNCH_SCREENS = [
 ];
 
 /**
- * @param {string} icon
- * @param {string} mimeType
+ * @param {import('./generator').Image} image The base icon buffer.
  * @param {string} outputDir
  * @param {typeof FAVICONS} favicons
  */
-function generateFavicons(icon, mimeType, outputDir, favicons) {
+async function generateFavicons(image, outputDir, favicons) {
+    const { generateIcon } = await import('./generateIcon.js');
     return Promise.all(
         favicons.map(async ({ name, size }) => {
             const outputFile = path.join(outputDir, name);
-            const buffer = await generateIcon(icon, size, 0, { r: 255, g: 255, b: 255, a: 1 }, mimeType);
-            await writeFile(outputFile, buffer);
-
+            await generateIcon(image, size, 0, { r: 255, g: 255, b: 255, a: 1 }, outputFile);
             return {
                 name,
                 size,
@@ -109,17 +105,16 @@ function generateFavicons(icon, mimeType, outputDir, favicons) {
 }
 
 /**
- * @param {string} icon
- * @param {string} mimeType
+ * @param {import('./generator').Image} image The base icon buffer.
  * @param {string} outputDir
  * @param {typeof APPLE_ICONS} icons
  */
-function generateAppleIcons(icon, mimeType, outputDir, icons) {
+async function generateAppleIcons(image, outputDir, icons) {
+    const { generateIcon } = await import('./generateIcon.js');
     return Promise.all(
         icons.map(async ({ name, size, gutter, background }) => {
             const outputFile = path.join(outputDir, name);
-            const buffer = await generateIcon(icon, size, gutter, background, mimeType);
-            await writeFile(outputFile, buffer);
+            await generateIcon(image, size, gutter, background, outputFile);
             return {
                 name,
                 size,
@@ -132,17 +127,16 @@ function generateAppleIcons(icon, mimeType, outputDir, icons) {
 }
 
 /**
- * @param {string} icon
- * @param {string} mimeType
+ * @param {import('./generator').Image} image The base icon buffer.
  * @param {string} outputDir
  * @param {typeof APPLE_LAUNCH_SCREENS} launchScreens
  */
-function generateAppleLaunchScreens(icon, mimeType, outputDir, launchScreens) {
+async function generateAppleLaunchScreens(image, outputDir, launchScreens) {
+    const { generateLaunch } = await import('./generateLaunch.js');
     return Promise.all(
         launchScreens.map(async ({ name, width, height, query }) => {
             const outputFile = path.join(outputDir, name);
-            const buffer = await generateLaunch(icon, width, height, 0, { r: 255, g: 255, b: 255, a: 1 }, mimeType);
-            await writeFile(outputFile, buffer);
+            await generateLaunch(image, width, height, 0, { r: 255, g: 255, b: 255, a: 1 }, outputFile);
             return {
                 name,
                 width,
@@ -164,19 +158,12 @@ function generateAppleLaunchScreens(icon, mimeType, outputDir, launchScreens) {
  */
 export function collectIcons($, dom, base, outdir) {
     const iconElement = dom.find('link[rel*="icon"]');
-    const element = dom
-        .find('link[rel*="icon"]')
-        .get()
-        .filter((element) => $(element).attr('href'))[0];
-    if (!element) {
-        return [];
-    }
-
     const iconHref = iconElement.attr('href') || '';
     if (!iconHref) {
         return [];
     }
 
+    const iconRel = (iconElement.attr('rel') || '').split(' ');
     const entryPoint = path.resolve(base, iconHref);
 
     return [
@@ -191,6 +178,7 @@ export function collectIcons($, dom, base, outdir) {
                 assetNames: '[name]',
             },
             async finisher() {
+                const { default: Jimp, SUPPORTED_MIME_TYPES } = await import('./generator.js');
                 const iconsDir = path.join(outdir, 'icons');
                 const mimeType = iconElement.attr('type') || 'image/png';
                 if (!SUPPORTED_MIME_TYPES.includes(mimeType)) {
@@ -204,14 +192,15 @@ export function collectIcons($, dom, base, outdir) {
                 }
 
                 const iconFile = path.resolve(base, iconHref);
+                const image = await Jimp.read(iconFile);
                 const [
                     favicons,
                     appleIcons,
                     appleLaunchScreens,
                 ] = await Promise.all([
-                    generateFavicons(iconFile, mimeType, iconsDir, FAVICONS),
-                    generateAppleIcons(iconFile, mimeType, iconsDir, APPLE_ICONS),
-                    generateAppleLaunchScreens(iconFile, mimeType, iconsDir, APPLE_LAUNCH_SCREENS),
+                    generateFavicons(image, iconsDir, FAVICONS),
+                    generateAppleIcons(image, iconsDir, APPLE_ICONS),
+                    iconRel.includes('apple-touch-startup-image') ? generateAppleLaunchScreens(image, iconsDir, APPLE_LAUNCH_SCREENS) : [],
                 ]);
 
                 favicons.forEach(({ size, file }) => {
@@ -219,16 +208,16 @@ export function collectIcons($, dom, base, outdir) {
                         const link = $('<link>');
                         link.attr('rel', 'shortcut icon');
                         link.attr('href', path.relative(outdir, file));
-                        link.insertBefore($(element));
-                        $(element).before('\n    ');
+                        link.insertBefore($(iconElement));
+                        $(iconElement).before('\n    ');
                     }
 
                     const link = $('<link>');
                     link.attr('rel', 'icon');
                     link.attr('sizes', `${size}x${size}`);
                     link.attr('href', path.relative(outdir, file));
-                    link.insertBefore($(element));
-                    $(element).before('\n    ');
+                    link.insertBefore($(iconElement));
+                    $(iconElement).before('\n    ');
                 });
 
                 appleIcons.forEach(({ size, file }) => {
@@ -236,8 +225,8 @@ export function collectIcons($, dom, base, outdir) {
                     link.attr('rel', 'apple-touch-icon');
                     link.attr('sizes', `${size}x${size}`);
                     link.attr('href', path.relative(outdir, file));
-                    link.insertBefore($(element));
-                    $(element).before('\n    ');
+                    link.insertBefore($(iconElement));
+                    $(iconElement).before('\n    ');
                 });
 
                 appleLaunchScreens.forEach(({ query, file }, index, arr) => {
@@ -245,13 +234,13 @@ export function collectIcons($, dom, base, outdir) {
                     link.attr('rel', 'apple-touch-startup-image');
                     link.attr('media', query);
                     link.attr('href', path.relative(outdir, file));
-                    link.insertBefore($(element));
+                    link.insertBefore($(iconElement));
                     if (index !== arr.length - 1) {
-                        $(element).before('\n    ');
+                        $(iconElement).before('\n    ');
                     }
                 });
 
-                $(element).remove();
+                $(iconElement).remove();
             },
         },
     ];

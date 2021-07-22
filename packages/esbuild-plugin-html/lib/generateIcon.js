@@ -1,24 +1,19 @@
-export const SUPPORTED_MIME_TYPES = [
-    'image/png',
-    'image/jpeg',
-];
+import Jimp from './generator.js';
 
 /**
  * Generate icon image buffer.
- * @param {string} fileName The base icon file.
+ * @param {import('./generator').Image} image The base icon buffer.
  * @param {number} size The icon size.
  * @param {number} gutter The gutter size.
  * @param {import('@jimp/core').RGBA} background The background color to use.
- * @param {string} [mime] The mimetype.
- * @return Icon buffer.
+ * @param {string} outputFile The out file.
  */
-export async function generateIcon(fileName, size, gutter, background, mime = 'image/png') {
-    const { default: Jimp } = await import('./generator.js');
-    const image = await Jimp.read(fileName);
+export async function generateIcon(image, size, gutter, background, outputFile) {
+    image = image.clone();
     const gutterAlpha = image.hasAlpha() ? (gutter || 0) : 0;
     const backgroundColor = image.hasAlpha() ? { r: 255, g: 255, b: 255, a: 0 } : background;
     const color = `rgba(${backgroundColor.r}, ${backgroundColor.g}, ${backgroundColor.b}, ${backgroundColor.a})`;
     const iconBuffer = new Jimp(size, size, color);
-    iconBuffer.composite(image.resize(size - (gutterAlpha || 0), size - (gutterAlpha || 0)), (gutterAlpha || 0) / 2, (gutterAlpha || 0) / 2);
-    return iconBuffer.getBufferAsync(mime);
+    iconBuffer.composite(image.resize(size - (gutterAlpha || 0), size - (gutterAlpha || 0), 'bezierInterpolation'), (gutterAlpha || 0) / 2, (gutterAlpha || 0) / 2);
+    await iconBuffer.writeAsync(outputFile);
 }

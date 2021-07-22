@@ -1,6 +1,5 @@
 import { promises } from 'fs';
 import path from 'path';
-import { SUPPORTED_MIME_TYPES, generateIcon } from './generateIcon.js';
 
 const { readFile, writeFile, mkdir } = promises;
 
@@ -55,6 +54,14 @@ export function collectWebManifest($, dom, base, outdir) {
 
                 const iconHref = iconElement.attr('href');
                 icon: if (iconHref) {
+                    const [
+                        { default: Jimp, SUPPORTED_MIME_TYPES },
+                        { generateIcon },
+                    ] = await Promise.all([
+                        import('./generator.js'),
+                        await import('./generateIcon.js'),
+                    ]);
+
                     const iconsDir = path.join(outdir, 'icons');
                     const mimeType = iconElement.attr('type') || 'image/png';
                     if (!SUPPORTED_MIME_TYPES.includes(mimeType)) {
@@ -66,7 +73,9 @@ export function collectWebManifest($, dom, base, outdir) {
                     } catch (err) {
                         //
                     }
+
                     const iconFile = path.resolve(base, iconHref);
+                    const image = await Jimp.read(iconFile);
                     json.icons = await Promise.all(
                         [
                             {
@@ -107,8 +116,7 @@ export function collectWebManifest($, dom, base, outdir) {
                             },
                         ].map(async ({ name, size }) => {
                             const outputFile = path.join(iconsDir, name);
-                            const buffer = await generateIcon(iconFile, size, 0, { r: 255, g: 255, b: 255, a: 1 }, mimeType);
-                            await writeFile(outputFile, buffer);
+                            await generateIcon(image, size, 0, { r: 255, g: 255, b: 255, a: 1 }, outputFile);
                             return {
                                 src: path.relative(outdir, outputFile),
                                 sizes: `${size}x${size}`,

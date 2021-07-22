@@ -87,6 +87,74 @@ const APPLE_LAUNCH_SCREENS = [
 ];
 
 /**
+ * @param {string} icon
+ * @param {string} mimeType
+ * @param {string} outputDir
+ * @param {typeof FAVICONS} favicons
+ */
+function generateFavicons(icon, mimeType, outputDir, favicons) {
+    return Promise.all(
+        favicons.map(async ({ name, size }) => {
+            const outputFile = path.join(outputDir, name);
+            const buffer = await generateIcon(icon, size, 0, { r: 255, g: 255, b: 255, a: 1 }, mimeType);
+            await writeFile(outputFile, buffer);
+
+            return {
+                name,
+                size,
+                file: outputFile,
+            };
+        })
+    );
+}
+
+/**
+ * @param {string} icon
+ * @param {string} mimeType
+ * @param {string} outputDir
+ * @param {typeof APPLE_ICONS} icons
+ */
+function generateAppleIcons(icon, mimeType, outputDir, icons) {
+    return Promise.all(
+        icons.map(async ({ name, size, gutter, background }) => {
+            const outputFile = path.join(outputDir, name);
+            const buffer = await generateIcon(icon, size, gutter, background, mimeType);
+            await writeFile(outputFile, buffer);
+            return {
+                name,
+                size,
+                gutter,
+                background,
+                file: outputFile,
+            };
+        })
+    );
+}
+
+/**
+ * @param {string} icon
+ * @param {string} mimeType
+ * @param {string} outputDir
+ * @param {typeof APPLE_LAUNCH_SCREENS} launchScreens
+ */
+function generateAppleLaunchScreens(icon, mimeType, outputDir, launchScreens) {
+    return Promise.all(
+        launchScreens.map(async ({ name, width, height, query }) => {
+            const outputFile = path.join(outputDir, name);
+            const buffer = await generateLaunch(icon, width, height, 0, { r: 255, g: 255, b: 255, a: 1 }, mimeType);
+            await writeFile(outputFile, buffer);
+            return {
+                name,
+                width,
+                height,
+                query,
+                file: outputFile,
+            };
+        })
+    );
+}
+
+/**
  * Collect and bundle favicons.
  * @param {import('cheerio').CheerioAPI} $ The cheerio selector.
  * @param {import('cheerio').Cheerio<import('cheerio').Document>} dom The DOM element.
@@ -136,15 +204,21 @@ export function collectIcons($, dom, base, outdir) {
                 }
 
                 const iconFile = path.resolve(base, iconHref);
-                for (let i = 0; i < FAVICONS.length; i++) {
-                    const { name, size } = FAVICONS[i];
-                    const outputFile = path.join(iconsDir, name);
-                    const buffer = await generateIcon(iconFile, size, 0, { r: 255, g: 255, b: 255, a: 1 }, mimeType);
-                    await writeFile(outputFile, buffer);
+                const [
+                    favicons,
+                    appleIcons,
+                    appleLaunchScreens,
+                ] = await Promise.all([
+                    generateFavicons(iconFile, mimeType, iconsDir, FAVICONS),
+                    generateAppleIcons(iconFile, mimeType, iconsDir, APPLE_ICONS),
+                    generateAppleLaunchScreens(iconFile, mimeType, iconsDir, APPLE_LAUNCH_SCREENS),
+                ]);
+
+                favicons.forEach(({ size, file }) => {
                     if (size === 196) {
                         const link = $('<link>');
                         link.attr('rel', 'shortcut icon');
-                        link.attr('href', path.relative(outdir, outputFile));
+                        link.attr('href', path.relative(outdir, file));
                         link.insertBefore($(element));
                         $(element).before('\n    ');
                     }
@@ -152,38 +226,30 @@ export function collectIcons($, dom, base, outdir) {
                     const link = $('<link>');
                     link.attr('rel', 'icon');
                     link.attr('sizes', `${size}x${size}`);
-                    link.attr('href', path.relative(outdir, outputFile));
+                    link.attr('href', path.relative(outdir, file));
                     link.insertBefore($(element));
                     $(element).before('\n    ');
-                }
+                });
 
-                for (let i = 0; i < APPLE_ICONS.length; i++) {
-                    const { name, size, gutter, background } = APPLE_ICONS[i];
-                    const outputFile = path.join(iconsDir, name);
-                    const buffer = await generateIcon(iconFile, size, gutter, background, mimeType);
-                    await writeFile(outputFile, buffer);
+                appleIcons.forEach(({ size, file }) => {
                     const link = $('<link>');
                     link.attr('rel', 'apple-touch-icon');
                     link.attr('sizes', `${size}x${size}`);
-                    link.attr('href', path.relative(outdir, outputFile));
+                    link.attr('href', path.relative(outdir, file));
                     link.insertBefore($(element));
                     $(element).before('\n    ');
-                }
+                });
 
-                for (let i = 0; i < APPLE_LAUNCH_SCREENS.length; i++) {
-                    const { name, query, width, height } = APPLE_LAUNCH_SCREENS[i];
-                    const outputFile = path.join(iconsDir, name);
-                    const buffer = await generateLaunch(iconFile, width, height, 0, { r: 255, g: 255, b: 255, a: 1 }, mimeType);
-                    await writeFile(outputFile, buffer);
+                appleLaunchScreens.forEach(({ query, file }, index, arr) => {
                     const link = $('<link>');
                     link.attr('rel', 'apple-touch-startup-image');
                     link.attr('media', query);
-                    link.attr('href', path.relative(outdir, outputFile));
+                    link.attr('href', path.relative(outdir, file));
                     link.insertBefore($(element));
-                    if (i !== APPLE_LAUNCH_SCREENS.length - 1) {
+                    if (index !== arr.length - 1) {
                         $(element).before('\n    ');
                     }
-                }
+                });
 
                 $(element).remove();
             },

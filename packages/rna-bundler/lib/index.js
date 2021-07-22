@@ -73,7 +73,10 @@ export function command(program) {
                         html: {},
                         postcss: { relative: false },
                     }, esbuild),
-                    transformPlugins: await loadTransformPlugins({}),
+                    transformPlugins: await loadTransformPlugins({
+                        commonjs: {},
+                        babel: target === 'es5' ? {} : undefined,
+                    }),
                 });
             }
         );

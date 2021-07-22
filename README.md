@@ -66,11 +66,9 @@ Read more about the [cli module](./packages/rna).
 | [@chialab/rna-node-test-runner](./packages/rna-node-test-runner) | A test runner for node based on mocha. | [<img src="https://img.shields.io/npm/v/@chialab/rna-node-test-runner" alt="npm" />](https://www.npmjs.com/package/@chialab/rna-node-test-runner) |
 | [@chialab/rna-saucelabs-test-runner](./packages/rna-saucelabs-test-runner) | A test runner for Saucelabs based on on Web Test Runner. | [<img src="https://img.shields.io/npm/v/@chialab/rna-saucelabs-test-runner" alt="npm" />](https://www.npmjs.com/package/@chialab/rna-saucelabs-test-runner) |
 | [@chialab/rna-dev-server](./packages/rna-dev-server) | A webapp server based on Web Dev Server. | [<img src="https://img.shields.io/npm/v/@chialab/rna-dev-server" alt="npm" />](https://www.npmjs.com/package/@chialab/rna-dev-server) |
-| [@chialab/wds-plugin-commonjs](./packages/wds-plugin-commonjs) | A commonjs to esm transformer for the web dev server. | [<img src="https://img.shields.io/npm/v/@chialab/wds-plugin-commonjs" alt="npm" />](https://www.npmjs.com/package/@chialab/wds-plugin-commonjs) |
 | [@chialab/wds-plugin-hmr-css](./packages/wds-plugin-hmr-css) | Enable CSS hmr for the web dev server. | [<img src="https://img.shields.io/npm/v/@chialab/wds-plugin-hmr-css" alt="npm" />](https://www.npmjs.com/package/@chialab/wds-plugin-hmr-css) |
 | [@chialab/wds-plugin-legacy](./packages/wds-plugin-legacy) | Transform esm modules served by the web dev server into SystemJS modules for legacy browser compatibility. | [<img src="https://img.shields.io/npm/v/@chialab/wds-plugin-legacy" alt="npm" />](https://www.npmjs.com/package/@chialab/wds-plugin-legacy) |
 | [@chialab/wds-plugin-polyfill](./packages/wds-plugin-polyfill) | Inject polyfills to HTML responses served by the web dev server. | [<img src="https://img.shields.io/npm/v/@chialab/wds-plugin-polyfill" alt="npm" />](https://www.npmjs.com/package/@chialab/wds-plugin-polyfill) |
-| [@chialab/wds-plugin-postcss](./packages/wds-plugin-postcss) | A CSS loader plugin for the Web Dev Server that uses postcss as preprocessor. | [<img src="https://img.shields.io/npm/v/@chialab/wds-plugin-postcss" alt="npm" />](https://www.npmjs.com/package/@chialab/wds-plugin-postcss) |
 
 ---
 

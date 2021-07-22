@@ -35,8 +35,8 @@ export async function buildPlugins() {
     ]);
 
     return [
-        resolvePlugin(),
         esbuildPlugin(),
+        resolvePlugin(),
     ];
 }
 
@@ -66,7 +66,7 @@ export async function buildDevPlugins() {
 export async function startDevServer(config) {
     const { DevServer } = await import('@web/dev-server-core');
 
-    const root = config.rootDir || process.cwd();
+    const root = config.rootDir ? path.resolve(config.rootDir) : process.cwd();
     const appIndex = path.join(root, 'index.html');
     let index = false;
     try {
@@ -167,7 +167,7 @@ export function command(program) {
                 // eslint-disable-next-line no-console
                 console.log(`rna dev server started...
 
-  Root dir: ${config.rootDir},
+  Root dir: ${config.rootDir}
   Local:    http://${server.config.hostname}:${server.config.port}/
 `);
             }

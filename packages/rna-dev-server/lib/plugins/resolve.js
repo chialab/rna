@@ -1,7 +1,9 @@
 import path from 'path';
+import postcss from 'postcss';
 import { getRequestFilePath, PluginSyntaxError, PluginError } from '@web/dev-server-core';
 import { JS_EXTENSIONS } from '@chialab/rna-bundler';
 import { createResolver } from '@chialab/node-resolve';
+import urlRebase from '@chialab/postcss-url-rebase';
 
 /**
  * @typedef {import('@web/dev-server-core').Plugin} Plugin
@@ -58,6 +60,54 @@ export class ResolvePlugin {
      */
     async serverStart({ config }) {
         this.rootDir = config.rootDir;
+    }
+
+    /**
+     * @param {import('@web/dev-server-core').Context} context
+     */
+    async transform(context) {
+        if (context.response.is('css')) {
+            const rootDir = this.rootDir;
+            const filePath = getRequestFilePath(context.url, rootDir);
+            /**
+             * @type {import('postcss').ProcessOptions}
+             */
+            const config = {
+                map: {
+                    inline: true,
+                },
+                from: filePath,
+            };
+
+            const result = await postcss([
+                urlRebase({
+                    root: rootDir,
+                    transform(importPath) {
+                        if (importPath.includes('/__wds-outside-root__/')) {
+                            return;
+                        }
+
+                        const normalizedPath = path.resolve(filePath, importPath);
+                        if (normalizedPath.startsWith(rootDir)) {
+                            return;
+                        }
+
+                        const relativePath = path.relative(rootDir, normalizedPath);
+                        const dirUp = `..${path.sep}`;
+                        const lastDirUpIndex = relativePath.lastIndexOf(dirUp) + 3;
+                        const dirUpStrings = relativePath.substring(0, lastDirUpIndex).split(path.sep);
+                        if (dirUpStrings.length === 0 || dirUpStrings.some(str => !['..', ''].includes(str))) {
+                            throw new Error(`Unable to resolve ${importPath}`);
+                        }
+
+                        const importRelativePath = relativePath.substring(lastDirUpIndex).split(path.sep).join('/');
+                        return `/__wds-outside-root__/${dirUpStrings.length - 1}/${importRelativePath}`;
+                    },
+                }),
+            ]).process(/** @type {string} */ (context.body), config);
+
+            return { body: result.css.toString() };
+        }
     }
 
     /**

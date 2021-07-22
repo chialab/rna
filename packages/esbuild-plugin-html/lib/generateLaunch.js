@@ -9,7 +9,7 @@
  * @return Launch screen buffer.
  */
 export async function generateLaunch(fileName, width, height, gutter, background, mime = 'image/png') {
-    const { default: Jimp } = await import('jimp');
+    const { default: Jimp } = await import('./generator.js');
     const image = await Jimp.read(fileName);
     const gutterAlpha = image.hasAlpha() ? (gutter || 0) : 0;
     const launchBackground = (() => {

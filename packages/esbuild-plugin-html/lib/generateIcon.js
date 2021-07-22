@@ -13,7 +13,7 @@ export const SUPPORTED_MIME_TYPES = [
  * @return Icon buffer.
  */
 export async function generateIcon(fileName, size, gutter, background, mime = 'image/png') {
-    const { default: Jimp } = await import('jimp');
+    const { default: Jimp } = await import('./generator.js');
     const image = await Jimp.read(fileName);
     const gutterAlpha = image.hasAlpha() ? (gutter || 0) : 0;
     const backgroundColor = image.hasAlpha() ? { r: 255, g: 255, b: 255, a: 0 } : background;

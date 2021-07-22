@@ -6,6 +6,8 @@
     <a href="https://www.npmjs.com/package/@chialab/esbuild-plugin-swc"><img alt="NPM" src="https://img.shields.io/npm/v/@chialab/esbuild-plugin-swc.svg?style=flat-square"></a>
 </p>
 
+> ⚠️ The development of this plugin has been suspended for maintenance reasons after an initial trial period. Developments will follow when the swc project will be more stable.
+
 ---
 
 ## Install

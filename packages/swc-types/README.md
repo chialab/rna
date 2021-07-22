@@ -6,11 +6,10 @@
     <a href="https://www.npmjs.com/package/@chialab/swc-types"><img alt="NPM" src="https://img.shields.io/npm/v/@chialab/swc-types.svg?style=flat-square"></a>
 </p>
 
----
-
-> 👷‍♂️👷 This project is a work in progress.
+> ⚠️ The development of this plugin has been suspended for maintenance reasons after an initial trial period. Developments will follow when the swc project will be more stable.
 
 ---
+
 
 ## Install
 

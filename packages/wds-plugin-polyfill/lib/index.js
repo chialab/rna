@@ -1,6 +1,6 @@
 import polyfillLibrary from 'polyfill-library';
 
-/** @typedef {import('polyfill-library').Config} Config */
+/** @typedef {Partial<import('polyfill-library').Config>} Config */
 
 const DEFAULT_FEATURES = {
     'es6': {},
@@ -51,7 +51,7 @@ export function inject(plugin, config) {
 /**
  * @param {Config} config
  */
-export function polyfillPlugin(config = { features: {}}) {
+export function polyfillPlugin(config = {}) {
     /**
      * @type {import('@web/dev-server-core').Plugin}
      */

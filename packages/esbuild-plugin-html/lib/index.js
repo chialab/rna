@@ -84,15 +84,14 @@ export default function({ scriptsTarget = 'es2015', modulesTarget = 'es2020' } =
                         const basename = path.basename(file, ext);
                         const buffer = await readFile(file);
                         const assetNames = entrypoint.options.assetNames || options.assetNames || '[name]';
-                        let computedName = assetNames
+                        const computedName = assetNames
                             .replace('[name]', basename)
                             .replace('[hash]', () => {
                                 const hash = crypto.createHash('sha1');
                                 hash.update(buffer);
                                 return hash.digest('hex').substr(0, 8);
                             });
-                        computedName += ext;
-                        outputFile = path.join(outdir, computedName);
+                        outputFile = path.join(outdir, `${computedName}${ext}`);
                         await mkdir(path.dirname(outputFile), {
                             recursive: true,
                         });

@@ -1,10 +1,8 @@
 import path from 'path';
 import { createRequire } from 'module';
-import coreReporter from '../wtr-default-reporter/defaultReporter.js';
+import { mochaReporter } from '@chialab/wtr-mocha-reporter';
 
 const require = createRequire(import.meta.url);
-
-export const defaultReporter = coreReporter.defaultReporter;
 
 /**
  * @typedef {Partial<Omit<import('@web/test-runner-core').TestRunnerCoreConfig, 'browsers'>> & { browsers?: string[]|import('@web/test-runner-core').BrowserLauncher[] }} TestRunnerConfig
@@ -85,7 +83,7 @@ export async function startTestRunner(config) {
             reporters: ['lcov'],
         },
         reporters: [
-            defaultReporter(),
+            mochaReporter(),
         ],
         testFramework,
         open: false,

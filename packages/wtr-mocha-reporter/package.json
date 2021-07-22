@@ -1,0 +1,42 @@
+{
+  "name": "@chialab/wtr-mocha-reporter",
+  "type": "module",
+  "version": "0.9.0",
+  "description": "A mocha reporter interface for the Web Test Runner.",
+  "main": "lib/index.js",
+  "typings": "./types/index.d.ts",
+  "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chialab/rna",
+    "directory": "packages/wds-plugin-commonjs"
+  },
+  "keywords": [
+    "dev-server",
+    "reporter",
+    "mocha"
+  ],
+  "scripts": {
+    "types": "tsc",
+    "prepack": "npm run types"
+  },
+  "files": [
+    "lib",
+    "types",
+    "package.json",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=13"
+  },
+  "dependencies": {
+    "@web/test-runner-core": "^0.10.19",
+    "chalk": "^4.1.1",
+    "mocha": "^9.0.2"
+  },
+  "devDependencies": {
+    "typescript": "^4.2.3"
+  }
+}

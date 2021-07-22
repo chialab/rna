@@ -20,7 +20,7 @@ export class Visitor extends BaseVisitor {
      */
     visitTsEnumDeclaration(n) {
         n.id = this.visitIdentifier(n.id);
-        (/** @type {*} */ (n)).members = n.member = this.visitTsEnumMembers(n.member || (/** @type {*} */ (n)).members);
+        (/** @type {*} */ (n)).members = (/** @type {*} */ (n)).member = this.visitTsEnumMembers((/** @type {*} */ (n)).member || (/** @type {*} */ (n)).members);
         return n;
     }
 

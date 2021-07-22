@@ -172,8 +172,10 @@ export async function build(config) {
         for (const outputKey in outputs) {
             const output = outputs[outputKey];
             if (path.extname(outputKey) !== '.html') {
-                await rm(outputKey);
-                delete result.metafile.outputs[outputKey];
+                if (output.entryPoint && path.extname(output.entryPoint) === '.html') {
+                    await rm(outputKey);
+                    delete result.metafile.outputs[outputKey];
+                }
                 continue;
             }
             for (const inputKey in output.inputs) {

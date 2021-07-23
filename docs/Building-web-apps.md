@@ -99,4 +99,40 @@ will output
 
 ## Icons
 
+Browsers have various support for favicons and *added-to-home* websites. If a `rel="icon"` is defined in the HTML file, RNA will generate common icon files as well as their references:
+
+```html
+<link rel="icon" href="icon.png">
+```
+
+becomes
+
+```html
+<link rel="icon" sizes="16x16" href="icons/favicon-16x16.png">
+<link rel="icon" sizes="32x32" href="icons/favicon-32x32.png">
+<link rel="icon" sizes="48x48" href="icons/favicon-48x48.png">
+<link rel="shortcut icon" href="icons/favicon-196x196.png">
+<link rel="icon" sizes="196x196" href="icons/favicon-196x196.png">
+<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
+<link rel="apple-touch-icon" sizes="167x167" href="icons/apple-touch-icon-ipad.png">
+```
+
+You can also instruct RNA to generate iOS launch screens using the icon by adding the `apple-touch-startup-image` to the rel list:
+
+```html
+<link rel="icon apple-touch-startup-image" href="icon.png">
+```
+
+adds
+
+```html
+<link rel="apple-touch-startup-image" media="..." href="icons/apple-launch-iphonex.png">
+<link rel="apple-touch-startup-image" media="..." href="icons/apple-launch-iphone8.png">
+<link rel="apple-touch-startup-image" media="..." href="icons/apple-launch-iphone8-plus.png">
+<link rel="apple-touch-startup-image" media="..." href="icons/apple-launch-iphone5.png">
+<link rel="apple-touch-startup-image" media="..." href="icons/apple-launch-ipadair.png">
+<link rel="apple-touch-startup-image" media="..." href="icons/apple-launch-ipadpro10.png">
+<link rel="apple-touch-startup-image" media="..." href="icons/apple-launch-ipadpro12.png">
+```
+
 ## Webmanifest

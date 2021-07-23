@@ -36,12 +36,12 @@ const { readFile } = promises;
     };
 
     await Promise.all([
-        await loadCommand('build', '@chialab/rna-bundler'),
-        await loadCommand('serve', '@chialab/rna-dev-server'),
-        await loadCommand('test:browser', '@chialab/rna-browser-test-runner'),
-        await loadCommand('test:node', '@chialab/rna-node-test-runner'),
-        await loadCommand('test:saucelabs', '@chialab/rna-saucelabs-test-runner'),
-        await loadCommand('apidoc', '@chialab/rna-apidoc'),
+        loadCommand('build', '@chialab/rna-bundler'),
+        loadCommand('serve', '@chialab/rna-dev-server'),
+        loadCommand('test:browser', '@chialab/rna-browser-test-runner'),
+        loadCommand('test:node', '@chialab/rna-node-test-runner'),
+        loadCommand('test:saucelabs', '@chialab/rna-saucelabs-test-runner'),
+        loadCommand('apidoc', '@chialab/rna-apidoc'),
     ]);
 
     program

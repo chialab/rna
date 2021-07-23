@@ -1,5 +1,5 @@
 import mocha from 'mocha';
-import { createRunner, reportMochaSuite } from './mochaRunner';
+import { createRunner, reportMochaSuite } from './mochaRunner.js';
 import { printCoverage } from './printCoverage.js';
 
 /**

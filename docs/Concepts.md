@@ -14,4 +14,4 @@ Lately, some bundler scopes are very close to framework ones. You can build webs
 
 ## 🧰 Incremental toolchain
 
-Not all projects needs to bundle, serve and test using the RNA toolchain. For example, a project that uses Storybook as development environment does not likely need the RNA dev server, as well as a PHP based frontend may not need the node test runner. That's why every feature have to be installed along the cli in order to work. This helps us to keep the node modules lighter, providing an easier path for dependencies updates and making faster and more optimized CI builds.
+Not all projects needs to bundle, serve and test using the RNA toolchain. For example, a project that uses Storybook as development environment does not likely need the RNA dev server, as well as a PHP frontend may not need the node test runner. That's why every feature have to be installed along the cli in order to work. This helps us to keep the node modules lighter, providing an easier path for dependencies updates and making faster and more optimized CI builds.

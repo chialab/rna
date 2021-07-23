@@ -49,11 +49,9 @@ const document = typeof window !== undefined ? window.document : new jsdom.JSOM(
 
 ```json
 {
-    // ...
     "browser": {
         "jsdom": false
     }
-    // ...
 }
 ```
 
@@ -68,8 +66,8 @@ const document = typeof window !== undefined ? window.document : undefined;
 Node is also a first class output. Specifying the `cjs` format, RNA will automatically target the `node` platform, converting every `import` statements to `require` invokations.
 
 ```sh
-$ npx rna build src/index.js --output public/index.js --format cjs
-$ yarn rna build src/index.js --output public/index.js --format cjs
+$ npx rna build src/index.js --output public/index.js --format cjs --platform node
+$ yarn rna build src/index.js --output public/index.js --format cjs --platform node
 ```
 
 **input**
@@ -96,7 +94,47 @@ $ yarn rna build src/index.js --output public/index.js --format esm --platform n
 
 ## Modules resolution
 
-TODO
+Esbuild supports both the old fashioned `main` fields as well the `exports` field using a Node-like resolution algorithm.  
+
+### Using exports field
+
+When a module defines conditions as follow in the package.json:
+
+```json
+{
+    "type": "module",
+    "exports": {
+        "browser": "path/to/browser/index.js",
+        "require": "path/to/cjs/index.cjs",
+        "default": "path/to/esm/index.js"
+    }
+}
+```
+
+Esbuild will
+* resolve to `exports.browser` if `--platform browser`
+* resolve to `exports.require` if `--format cjs`
+* resolve to `exports.default` otherwise
+
+### Using main fields
+
+When a module defines entrypoints as follow in the package.json:
+
+```json
+{
+    "main": "path/to/cjs/index.js",
+    "module": "path/to/esm/index.js",
+    "browser": "path/to/browser/index.js"
+}
+```
+
+Esbuild will
+* resolve to `browser` if `--platform browser`
+* resolve to `main` if `--format cjs`
+* resolve to `module` if defined
+* resolve to `main` otherwise
+
+Read more about the [esbuild resolution algorithm](https://esbuild.github.io/api/#conditions) and [node specifications](https://nodejs.org/api/packages.html).
 
 ## Code splitting
 
@@ -146,14 +184,12 @@ const response = await fetch('/data.json');
 if (process.env.NODE_ENV !== 'production') {
     console.log('DEBUG', response);
 }
-...
 ```
 
 **Output**
 
 ```javascript
 const response = await fetch('/data.json');
-...
 ```
 
 The console statement will be removed because of dead code elimination. 
@@ -174,7 +210,6 @@ Accordingly to its [concepts](./Concepts), RNA encourages and supports for asset
 const IMAGE_URL = new URL('./assets/logo.png', import.meta.url).href;
 const response = await fetch(IMAGE_URL);
 const blob = await response.blob();
-...
 ```
 
 This kind of reference is natively supported by browser and Node. During the build, RNA will convert those references to esbuild's imports statements in order to correctly update the path for distribution files.
@@ -222,7 +257,6 @@ $ yarn add -D @chialab/esbuild-plugin-babel
 ```
 
 This will install Babel core packages, its [env preset](https://babeljs.io/docs/en/babel-preset-env) and an adapter for esbuild. You can configure the output using a [browserslist query](https://babeljs.io/docs/en/babel-preset-env#browserslist-integration) or specifying a Babel's [config file](https://babeljs.io/docs/en/config-files) in the root of your project.
-```
 
 ---
 

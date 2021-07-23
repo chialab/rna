@@ -10,11 +10,19 @@
 
 ---
 
-Full documentation at [Chialab.io](https://www.chialab.io/p/rna) and [Github Wiki](https://github.com/chialab/rna/wiki).
+⚡️ Transpile and bundle JavaScript, TypeScript, JSX, CSS and HTML with [esbuild](https://esbuild.github.io/).
+
+🧭 Serve unbundled modules on demand with livereload and HMR using the [Web Dev Server](https://modern-web.dev/docs/dev-server/overview/).
+
+🦠 Run tests in browser and node environments using the [Web Test Runner](https://modern-web.dev/docs/test-runner/overview/) and [mocha](https://mochajs.org/).
+
+📺 Legacy support with [Babel](https://babeljs.io/) and [PostCSS](https://postcss.org/).
 
 ---
 
 ## Quick usage
+
+Full documentation at [Chialab.io](https://www.chialab.io/p/rna) and [Github Wiki](https://github.com/chialab/rna/wiki).
 
 ```sh
 $ npm i -D \
@@ -40,6 +48,8 @@ Read more about the [cli module](./packages/rna).
 ---
 
 ## Packages
+
+The RNA ecosystem provides a set of plugins and addons for core tools designed to be used even outside the `rna` cli.
 
 | **Package** | **Description** | **Version** |
 | ----------- | --------------- | --------------- |

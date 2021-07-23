@@ -70,7 +70,7 @@ will generate the **webroot/entrypoints.json** file with contents:
         "css": [
             "http://localhost:3000/index.css"
         ]
-    },
+    }
 }
 ```
 

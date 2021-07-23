@@ -82,6 +82,7 @@ const document = typeof window !== undefined ? window.document : new jsdom.JSOM(
 
 ```javascript
 const jsdom = require('jsdom');
+
 const document = typeof window !== undefined ? window.document : new jsdom.JSOM().window.document;
 ```
 
@@ -138,7 +139,36 @@ Read more about the [esbuild resolution algorithm](https://esbuild.github.io/api
 
 ## Code splitting
 
-TODO
+Dynamic imports and URL assets can be used to split the code into multiple chunks that are loaded on demand. This is useful for loading pages on routing or for importing that large image manipulation library.
+
+For example:
+
+**app.js**
+
+```js
+import { route } from 'router';
+import { render } from 'view';
+
+route('/profile', async () => {
+    const { Profile } = await import('./pages/Profile.js');
+    render(Profile);
+});
+```
+
+**Profile.js**
+
+```js
+import { render } from 'view';
+
+export function Profile() {
+    render('Hello world');
+}
+```
+
+The build step of this app will generate 3 chunks:
+* **vendors.js** that includes the `view` dependency
+* **entrypoint.js** that imports **vendors.js** and includes `router` dependency and **app.js** source 
+* **chunk.js** that imports **vendors.js** and includes **Profile.js** source 
 
 ## Optimizations
 
@@ -236,7 +266,7 @@ render(<div>Hello world!</div>, document.body);
 ```javascript
 import { render, h } from '@chialab/dna';
 
-render(h('div', nullm, 'Hello world!'), document.body);
+render(h('div', null, 'Hello world!'), document.body);
 ```
 
 <div class="note">
@@ -281,13 +311,22 @@ We also provide our configuration preset:
 $ npm i -D @chialab/eslint-config
 ```
 
-**.eslintrc.json**
+**.eslintrc.json for JavaScript projects**
 
 ```json
 {
     "extends": [
         "@chialab/eslint-config/javascript"
-        // "@chialab/eslint-config/typescript"
+    ]
+}
+```
+
+**.eslintrc.json for TypeScript projects**
+
+```json
+{
+    "extends": [
+        "@chialab/eslint-config/typescript"
     ]
 }
 ```

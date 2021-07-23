@@ -366,7 +366,7 @@ Since version 4, TypeScript improved JSDoc support and its compiler can now chec
         "checkJs": true
     },
     "include": [
-        "src/**/*.ts"
+        "src/**/*.ts",
         "src/**/*.js"
     ]
 }
@@ -396,4 +396,39 @@ The pros of this solution is that you can skip the transpilation step if you are
 
 ### Type imports
 
-TODO
+During the build step, esbuild removes type references and it is smart enough to detect side effects imports, but sometimes circular dependencies can cause imports order and dead code elimination issues.
+
+Since version 4, TypeScript introduced the `import type` statement that instructs the bundlers how a reference is used.  
+It is recommended to use this feature to import interfaces, types and references used as type only.
+
+For example:
+
+**Parent.js**
+
+```typescript
+import { Child } from './Child';
+
+export class Parent {
+    children: Child[] = [];
+
+    addChild(name: string) {
+        this.children.push(new Child(name, this));
+    }
+}
+```
+
+**Child.js**
+
+```typescript
+import type { Parent } from './Parent';
+
+export class Child {
+    name: string;
+    parent: Parent;
+
+    constructor(name: string, parent: Parent) {
+        this.name = name;
+        this.parent = parent;
+    }
+}
+```

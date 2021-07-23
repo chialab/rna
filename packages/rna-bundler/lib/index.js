@@ -1,4 +1,5 @@
 import path from 'path';
+import fs from 'fs';
 import { build } from './build.js';
 import { saveManifestJson } from './saveManifestJson.js';
 import { saveEntrypointsJson, saveDevEntrypointsJson } from './saveEntrypointsJson.js';
@@ -8,6 +9,24 @@ export * from './loaders.js';
 export * from './transform.js';
 export * from './build.js';
 export { loadPlugins, loadTransformPlugins, saveManifestJson, saveEntrypointsJson, saveDevEntrypointsJson };
+
+/**
+ * Writes a JSON file with the metafile contents, for bundle analysis.
+ *
+ * @param {import('esbuild').Metafile[]} bundleFiles Array of metafiles for all bundle's generated files
+ * @param {string} filePath Path of the JSON file to generate
+ * @return {void}
+ */
+const writeMetafile = (bundleFiles, filePath) => {
+    const bundle = bundleFiles.reduce((bundle, /** @type {import('esbuild').Metafile} */ metaFile) => {
+        bundle.inputs = { ...bundle.inputs, ...metaFile.inputs };
+        bundle.outputs = { ...bundle.outputs, ...metaFile.outputs };
+
+        return bundle;
+    }, { inputs: {}, outputs: {} });
+
+    fs.writeFileSync(filePath, JSON.stringify(bundle));
+};
 
 /**
  * Print bundle size information to console.
@@ -88,6 +107,7 @@ export function command(program) {
         .option('--name <identifier>', 'the iife global name')
         .option('--external [modules]', 'comma separated external packages')
         .option('--no-map', 'do not generate sourcemaps')
+        .option('--metafile <path>', 'write JSON metadata file about the build')
         .option('--jsxFactory <identifier>', 'jsx pragma')
         .option('--jsxFragment <identifier>', 'jsx fragment')
         .option('--jsxModule <name>', 'jsx module name')
@@ -95,9 +115,9 @@ export function command(program) {
         .action(
             /**
              * @param {string[]} input
-             * @param {{ output: string, format?: import('esbuild').Format, platform: import('esbuild').Platform, bundle?: boolean, minify?: boolean, name?: string, watch?: boolean, manifest?: boolean|string, entrypoints?: boolean|string, target?: string, public?: string, entryNames?: string, chunkNames?: string, assetNames?: string, clean?: boolean, external?: string, map?: boolean, jsxFactory?: string, jsxFragment?: string, jsxModule?: string, jsxExport?: 'named'|'namespace'|'default' }} options
+             * @param {{ output: string, format?: import('esbuild').Format, platform: import('esbuild').Platform, bundle?: boolean, minify?: boolean, name?: string, watch?: boolean, manifest?: boolean|string, entrypoints?: boolean|string, target?: string, public?: string, entryNames?: string, chunkNames?: string, assetNames?: string, clean?: boolean, external?: string, map?: boolean, metafile?: string, jsxFactory?: string, jsxFragment?: string, jsxModule?: string, jsxExport?: 'named'|'namespace'|'default' }} options
              */
-            async (input, { output, format = 'esm', platform, bundle, minify, name, watch, manifest, entrypoints, target, public: publicPath, entryNames, chunkNames, assetNames, clean, external, map, jsxFactory, jsxFragment, jsxModule, jsxExport }) => {
+            async (input, { output, format = 'esm', platform, bundle, minify, name, watch, manifest, entrypoints, target, public: publicPath, entryNames, chunkNames, assetNames, clean, external, map, metafile, jsxFactory, jsxFragment, jsxModule, jsxExport }) => {
                 const { default: esbuild } = await import('esbuild');
                 /** @type {import('esbuild').Metafile[]} */
                 const bundleMetafiles = [];
@@ -139,6 +159,9 @@ export function command(program) {
                 });
 
                 printBundleSize(bundleMetafiles);
+                if (typeof metafile === 'string') {
+                    writeMetafile(bundleMetafiles, path.relative(process.cwd(), metafile));
+                }
             }
         );
 }

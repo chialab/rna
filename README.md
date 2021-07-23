@@ -14,7 +14,7 @@
 
 🧭 Serve unbundled modules on demand with livereload and HMR using the [Web Dev Server](https://modern-web.dev/docs/dev-server/overview/).
 
-🦠 Run tests in browser and node environments using the [Web Test Runner](https://modern-web.dev/docs/test-runner/overview/) and [mocha](https://mochajs.org/).
+🦠 Run tests in browser and node environments using the [Web Test Runner](https://modern-web.dev/docs/test-runner/overview/) and [Mocha](https://mochajs.org/).
 
 📺 Legacy support with [Babel](https://babeljs.io/) and [PostCSS](https://postcss.org/).
 

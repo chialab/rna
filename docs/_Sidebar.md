@@ -8,7 +8,6 @@
     * [Bundling for Node](./Building-javascript#bundling-for-node)
     * [Modules resolution](./Building-javascript#modules-resolution)
     * [Code splitting](./Building-javascript#code-splitting)
-    * [Optimizations](./Building-javascript#optimizations)
     * [TypeScript](./Building-javascript#typescript)
     * [ENV variables](./Building-javascript#env-variables)
     * [Assets](./Building-javascript#assets)

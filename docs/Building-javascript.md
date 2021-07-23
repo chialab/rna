@@ -170,10 +170,6 @@ The build step of this app will generate 3 chunks:
 * **entrypoint.js** that imports **vendors.js** and includes `router` dependency and **app.js** source 
 * **chunk.js** that imports **vendors.js** and includes **Profile.js** source 
 
-## Optimizations
-
-TODO
-
 ## TypeScript
 
 TypeScript syntax is supported out of the box from esbuild, also respecting your **tsconfig.json** file.  

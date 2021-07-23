@@ -4,6 +4,18 @@ import path from 'path';
 const { readFile, writeFile, mkdir } = promises;
 
 /**
+ * @param {string} filePath
+ */
+async function load(filePath, fallback = {}) {
+    try {
+        const contents = await readFile(filePath, 'utf-8');
+        return JSON.parse(contents);
+    } catch {
+        return fallback;
+    }
+}
+
+/**
  * Collect and bundle webmanifests.
  * @param {import('cheerio').CheerioAPI} $ The cheerio selector.
  * @param {import('cheerio').Cheerio<import('cheerio').Document>} dom The DOM element.
@@ -18,15 +30,13 @@ export function collectWebManifest($, dom, base, outdir) {
     const descriptionElement = dom.find('meta[name="description"]');
     const themeElement = dom.find('meta[name="theme"]');
     const iconElement = dom.find('link[rel*="icon"]');
-    const element = dom
-        .find('link[rel="manifest"]')
-        .get()
-        .filter((element) => $(element).attr('href'))[0];
-    if (!element) {
+    const element = dom.find('link[rel="manifest"]');
+    const href = /** @type {string} */($(element).attr('href'));
+    if (!href) {
         return [];
     }
 
-    const entryPoint = path.resolve(base, /** @type {string} */($(element).attr('href')));
+    const entryPoint = path.resolve(base, href);
     return [
         {
             loader: 'file',
@@ -39,8 +49,7 @@ export function collectWebManifest($, dom, base, outdir) {
                 assetNames: '[name]',
             },
             async finisher(filePath) {
-                const contents = await readFile(filePath, 'utf-8');
-                const json = JSON.parse(contents);
+                const json = await load(filePath);
                 json.name = json.name || titleElement.text() || undefined;
                 json.short_name = json.short_name || json.name || titleElement.text() || undefined;
                 json.description = json.description || descriptionElement.attr('content') || undefined;

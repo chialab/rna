@@ -21,7 +21,7 @@
     * [Collecting scripts](./Building-web-apps#collecting-scripts)
     * [Collecting styles](./Building-web-apps#collecting-styles)
     * [Icons](./Building-web-apps#icons)
-    * [Webmanifest](./Building-web-apps#webmanifest)
+    * [Web manifest](./Building-web-apps#web-manifest)
 
 ### Dev Server
 

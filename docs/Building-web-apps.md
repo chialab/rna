@@ -135,4 +135,30 @@ adds
 <link rel="apple-touch-startup-image" media="..." href="icons/apple-launch-ipadpro12.png">
 ```
 
-## Webmanifest
+## Web manifest
+
+RNA can update a [Web manifest](https://developer.mozilla.org/en-US/docs/Web/Manifest) (`rel="manifest"`) using HTML data.
+
+If the referenced manifest does not exists, RNA will start from a blank JSON file. Otherwise, it will update only missing fields.
+
+```html
+<link rel="manifest" href="app.webmanifest">
+```
+
+**app.webmanifest**
+
+```js
+{
+    name,             // <title></title>
+    description,      // <meta name="description" content="">
+    start_url,        // <base href="">
+    scope,            // <base href="">
+    display,          // standalone
+    orientation,      // any
+    theme_color,      // <meta name="theme" content="">
+    background_color, // #fff
+    lang,             // <html lang="">
+    icons,            // <link rel="icon" href="">
+}
+```
+

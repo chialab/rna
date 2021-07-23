@@ -10,6 +10,61 @@ export * from './build.js';
 export { loadPlugins, loadTransformPlugins, saveManifestJson, saveEntrypointsJson, saveDevEntrypointsJson };
 
 /**
+ * Print bundle size information to console.
+ *
+ * @param {import('esbuild').Metafile[]} bundleFiles Array of metafiles for all bundle's generated files
+ * @return {void}
+ */
+const printBundleSize = (bundleFiles) => {
+    const totalSize = bundleFiles.reduce((total, /** @type {import('esbuild').Metafile} */ metaFile) => total + Object.values(metaFile.outputs).reduce((total, output) => total + output.bytes, 0), 0);
+    const longestFilename = bundleFiles.reduce((longest, /** @type {import('esbuild').Metafile} */ metaFile) => {
+        const metaFileLongest = Object.keys(metaFile.outputs).reduce((longest, path) => {
+            if (longest > path.length) {
+                return longest;
+            }
+
+            return path.length;
+        }, 0);
+
+        if (longest > metaFileLongest) {
+            return longest;
+        }
+
+        return metaFileLongest;
+    }, 0);
+    process.stdout.write('Generated bundle files:\n');
+    bundleFiles.forEach((/** @type {import('esbuild').Metafile} */ metaFile) => {
+        Object.entries(metaFile.outputs).forEach(([path, output]) => {
+            process.stdout.write(`\t${path.padEnd(longestFilename, ' ')}\t(${toReadableSize(output.bytes)})\n`);
+        });
+    });
+    process.stdout.write(`Total bundle size: ${toReadableSize(totalSize)}\n`);
+};
+
+/**
+ * Convert a number of bytes to human-readable text.
+ *
+ * @param {number} byteSize
+ * @return {string}
+ */
+const toReadableSize = (byteSize) => {
+    if (byteSize === undefined || byteSize < 0) {
+        return 'invalid size';
+    }
+    if (byteSize === 0) {
+        return '0 B';
+    }
+
+    const units = ['B', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB'];
+    const log2 = Math.log2(byteSize);
+    const unitIdx = Math.floor(log2 / 10);
+    const normalizedSize = byteSize / (1 << (unitIdx * 10));
+
+    return `${normalizedSize.toFixed(2)} ${units[unitIdx]}`;
+};
+
+
+/**
  * @param {import('commander').Command} program
  */
 export function command(program) {
@@ -44,6 +99,8 @@ export function command(program) {
              */
             async (input, { output, format = 'esm', platform, bundle, minify, name, watch, manifest, entrypoints, target, public: publicPath, entryNames, chunkNames, assetNames, clean, external, map, jsxFactory, jsxFragment, jsxModule, jsxExport }) => {
                 const { default: esbuild } = await import('esbuild');
+                /** @type {import('esbuild').Metafile[]} */
+                const bundleMetafiles = [];
 
                 await build({
                     input: input.map((entry) => path.resolve(entry)),
@@ -70,7 +127,9 @@ export function command(program) {
                     jsxModule,
                     jsxExport,
                     plugins: await loadPlugins({
-                        html: {},
+                        html: {
+                            addBundleMetafile: (/** @type {import('esbuild').Metafile} */ meta) => bundleMetafiles.push(meta),
+                        },
                         postcss: { relative: false },
                     }, esbuild),
                     transformPlugins: await loadTransformPlugins({
@@ -78,6 +137,8 @@ export function command(program) {
                         babel: target === 'es5' ? {} : undefined,
                     }),
                 });
+
+                printBundleSize(bundleMetafiles);
             }
         );
 }

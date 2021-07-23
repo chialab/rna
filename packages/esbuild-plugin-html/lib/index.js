@@ -6,7 +6,7 @@
  */
 
 /**
- * @typedef {{ scriptsTarget?: string, modulesTarget?: string }} PluginOptions
+ * @typedef {{ scriptsTarget?: string, modulesTarget?: string, addBundleMetafile?: (meta: import('esbuild').Metafile) => number|void }} PluginOptions
  */
 
 /**
@@ -15,7 +15,7 @@
  * @param {typeof import('esbuild')} [esbuildModule]
  * @return An esbuild plugin.
  */
-export default function({ scriptsTarget = 'es2015', modulesTarget = 'es2020' } = {}, esbuildModule) {
+export default function({ scriptsTarget = 'es2015', modulesTarget = 'es2020', addBundleMetafile = () => {} } = {}, esbuildModule) {
     /**
      * @type {import('esbuild').Plugin}
      */
@@ -98,6 +98,11 @@ export default function({ scriptsTarget = 'es2015', modulesTarget = 'es2020' } =
                         await writeFile(outputFile, buffer);
                         outputFile = path.relative(process.cwd(), outputFile);
                         outputFiles.push(outputFile);
+                        addBundleMetafile({
+                            outputs: {
+                                [outputFile]: { bytes: Buffer.byteLength(buffer) },
+                            },
+                        });
                     } else {
                         /** @type {import('esbuild').BuildOptions} */
                         const config = {
@@ -120,6 +125,7 @@ export default function({ scriptsTarget = 'es2015', modulesTarget = 'es2020' } =
                             .filter((output) => !output.endsWith('.map'))
                             .filter((output) => outputs[output].entryPoint)
                             .find((output) => inputFiles.includes(path.resolve(/** @type {string} */(outputs[output].entryPoint)))) || outputFiles[0];
+                        addBundleMetafile(result.metafile);
                     }
                     await entrypoint.finisher(outputFile, outputFiles);
                 }

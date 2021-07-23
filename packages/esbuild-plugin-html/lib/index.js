@@ -99,8 +99,22 @@ export default function({ scriptsTarget = 'es2015', modulesTarget = 'es2020', ad
                         outputFile = path.relative(process.cwd(), outputFile);
                         outputFiles.push(outputFile);
                         addBundleMetafile({
+                            inputs: {
+                                [path.relative(process.cwd(), file)]: {
+                                    bytes: Buffer.byteLength(buffer),
+                                    imports: [],
+                                },
+                            },
                             outputs: {
-                                [outputFile]: { bytes: Buffer.byteLength(buffer) },
+                                [outputFile]: {
+                                    bytes: Buffer.byteLength(buffer),
+                                    imports: [],
+                                    entryPoint: path.relative(process.cwd(), file),
+                                    exports: [],
+                                    inputs: {
+                                        [path.relative(process.cwd(), file)]: { bytesInOutput: Buffer.byteLength(buffer) },
+                                    },
+                                },
                             },
                         });
                     } else {

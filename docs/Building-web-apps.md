@@ -20,6 +20,7 @@ $ yarn rna build src/index.html --output public
 
 ## Collecting scripts
 
+Scripts are bundled following the conventions describe in the [Building JavaScript](./Building-javascript) page.  
 There are two kinds of script: plain and module.
 
 **Module scripts** can use ESM import/export statements and they are referenced in the HTML file using a script with `type="module"`. Source can be inline:
@@ -62,6 +63,39 @@ or a file reference:
 Plain scripts will output using `iife` format and `es5` target if the `@chialab/esbuild-plugin-babel` module is installed, and they will be respectively inlined or referenced.
 
 ## Collecting styles
+
+Styles can be imported as file using a `<link rel="stylesheet">` or inlined using the `style` tag. Both will resolve `@import` statements and collect `url()` files, following the conventions describe in the [Building CSS](./Building-css) page.
+
+For example:
+
+```html
+<link rel="stylesheet" href="style/style.css">
+
+<style>
+    @import url('normalize.css');
+
+    .scale {
+        transform: scale(2);
+    }
+</style>
+```
+
+will output
+
+```html
+<link rel="stylesheet" href="style/style-XXXXX.css">
+
+<style>
+    body { margin: 0; padding: 0 };
+
+    /* other stuff */
+
+    .scale {
+        transform: scale(2);
+        -webkit-transform: scale(2);
+    }
+</style>
+```
 
 ## Icons
 

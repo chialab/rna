@@ -20,6 +20,47 @@ $ yarn rna build src/index.html --output public
 
 ## Collecting scripts
 
+There are two kinds of script: plain and module.
+
+**Module scripts** can use ESM import/export statements and they are referenced in the HTML file using a script with `type="module"`. Source can be inline:
+
+```html
+<script type="module">
+    import { route } from 'router';
+
+    route('/profile', () => {});
+</script>
+```
+
+or external:
+
+```html
+<script type="module" src="js/index.js"></script>
+```
+
+External files are regularly bundled, while inline scripts are loaded and builded as virtual modules. At the end, the will both result in externally loaded `esm` modules and `es2017` target:
+
+```html
+<script type="module" src="js/inline-XXXXXX.js"></script>
+<script type="module" src="js/index-XXXXXX.js"></script>
+```
+
+**Plain scripts** can also be inlined:
+
+```html
+<script>
+    $('#app').html('Loading...');
+</script>
+```
+
+or a file reference:
+
+```html
+<script src="js/index.js"></script>
+```
+
+Plain scripts will output using `iife` format and `es5` target if the `@chialab/esbuild-plugin-babel` module is installed, and they will be respectively inlined or referenced.
+
 ## Collecting styles
 
 ## Icons

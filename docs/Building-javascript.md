@@ -330,14 +330,69 @@ $ npm i -D @chialab/eslint-config
 Also, do not forget to install the linter extension for your IDE:
 * [VSCode](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint)
 
-
 ### Tagged templates
 
-TODO
+Template Strings came with ES2015. They can be used to interpolate texts but also to execute more complex string manipulation using a "tag":
+
+```js
+return tag`Hello ${name || 'world'}!`;
+```
+
+Since then, a lot of libraries, such as `lit-html` and `uhtml`, have been released to generate views using Tagged Templates.  
+Tagged Templates are similar to JSX: they have typings support, colorized syntax, autocomplete, hints and more but they are 100% standard JavaScript, so they don't need a transpilation step before landing the browser.
+
+Furthermore, the [htm](https://github.com/developit/htm) module can be used to bring Tagged Templates support to those libraries that export the JSX pragma only:
+
+```js
+import React from 'react';
+import ReactDOM from 'react-dom';
+import htm from 'htm';
+
+const html = htm.bind(React.createElement);
+ReactDOM.render(html`<a href="/">Hello!</a>`, document.body);
+```
 
 ### JSDoc typechecking
 
-TODO
+You don't need TypeScipt to typecheck JavaScript, or better to say, you can use the `typescript` module to check JavaScript syntax without using its syntax.  
+Since version 4, TypeScript improved JSDoc support and its compiler can now check JavaScript sources as well as generate `.d.ts` declarations.
+
+**tsconfig.json**
+
+```json
+{
+    "compilerOptions": {
+        "allowJs": true,
+        "checkJs": true
+    },
+    "include": [
+        "src/**/*.ts"
+        "src/**/*.js"
+    ]
+}
+```
+
+**index.ts**
+
+```typescript
+function sum(a: number, b: number) {
+    return a + b;
+}
+```
+
+**index.js** (equivalent)
+
+```js
+/**
+ * @param {number} a
+ * @param {number} b
+ */
+function sum(a, b) {
+    return a + b;
+}
+```
+
+The pros of this solution is that you can skip the transpilation step if you are using standard JavaScript while still performing a typecheck, the cons are a more verbose syntax and the lack of TypeScript features such as decorators.
 
 ### Type imports
 

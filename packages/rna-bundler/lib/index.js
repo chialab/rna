@@ -1,5 +1,6 @@
 import path from 'path';
 import fs from 'fs';
+import gzipSize from 'gzip-size';
 import { build } from './build.js';
 import { saveManifestJson } from './saveManifestJson.js';
 import { saveEntrypointsJson, saveDevEntrypointsJson } from './saveEntrypointsJson.js';
@@ -32,32 +33,33 @@ const writeMetafile = (bundleFiles, filePath) => {
  * Print bundle size information to console.
  *
  * @param {import('esbuild').Metafile[]} bundleFiles Array of metafiles for all bundle's generated files
- * @return {void}
+ * @return {Promise<void>}
  */
-const printBundleSize = (bundleFiles) => {
-    const totalSize = bundleFiles.reduce((total, /** @type {import('esbuild').Metafile} */ metaFile) => total + Object.values(metaFile.outputs).reduce((total, output) => total + output.bytes, 0), 0);
-    const longestFilename = bundleFiles.reduce((longest, /** @type {import('esbuild').Metafile} */ metaFile) => {
-        const metaFileLongest = Object.keys(metaFile.outputs).reduce((longest, path) => {
-            if (longest > path.length) {
-                return longest;
-            }
+const printBundleSize = async (bundleFiles) => {
+    /** @type {{ [path: string]: [number, number] }} */
+    const fileSizes = bundleFiles.reduce((fileSizesMap, /** @type {import('esbuild').Metafile} */ metaFile) => Object.entries(metaFile.outputs)
+        .reduce((/** @type {{ [path: string]: [number, number?] }} */ map, [path, output]) => {
+            map[path] = [output.bytes];
 
-            return path.length;
-        }, 0);
+            return map;
+        }, fileSizesMap), {});
+    await Promise.all(Object.keys(fileSizes)
+        .map((path) => gzipSize.file(path)
+            .then((size) => fileSizes[path].push(size))
+            .catch(() => fileSizes[path].push(0))));
+    /** @type {[number, number]} */
+    const totalSizes = Object.values(fileSizes)
+        .reduce((/** @type {[number, number]} */ totals, /** @type {[number, number]} */ sizes) => {
+            totals[0] += sizes[0];
+            totals[1] += sizes[1] || 0;
 
-        if (longest > metaFileLongest) {
-            return longest;
-        }
-
-        return metaFileLongest;
-    }, 0);
+            return totals;
+        }, [0, 0]);
+    const longestFilename = Object.keys(fileSizes).reduce((longest, path) => Math.max(longest, path.length), 0);
     process.stdout.write('Generated bundle files:\n');
-    bundleFiles.forEach((/** @type {import('esbuild').Metafile} */ metaFile) => {
-        Object.entries(metaFile.outputs).forEach(([path, output]) => {
-            process.stdout.write(`\t${path.padEnd(longestFilename, ' ')}\t(${toReadableSize(output.bytes)})\n`);
-        });
-    });
-    process.stdout.write(`Total bundle size: ${toReadableSize(totalSize)}\n`);
+    Object.entries(fileSizes)
+        .forEach(([path, sizes]) => process.stdout.write(`\t${path.padEnd(longestFilename, ' ')}\t${toReadableSize(sizes[0])}\t(${toReadableSize(sizes[1])} gzipped)\n`));
+    process.stdout.write(`Total bundle size: ${toReadableSize(totalSizes[0])} (${toReadableSize(totalSizes[1])} gzipped)\n`);
 };
 
 /**
@@ -158,7 +160,7 @@ export function command(program) {
                     }),
                 });
 
-                printBundleSize(bundleMetafiles);
+                await printBundleSize(bundleMetafiles);
                 if (typeof metafile === 'string') {
                     writeMetafile(bundleMetafiles, path.relative(process.cwd(), metafile));
                 }

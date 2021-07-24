@@ -1,5 +1,5 @@
 import path from 'path';
-import fs from 'fs';
+import { writeFile } from 'fs/promises';
 import gzipSize from 'gzip-size';
 import { build } from './build.js';
 import { saveManifestJson } from './saveManifestJson.js';
@@ -15,8 +15,8 @@ export { loadPlugins, loadTransformPlugins, saveManifestJson, saveEntrypointsJso
  * Writes a JSON file with the metafile contents, for bundle analysis.
  *
  * @param {import('esbuild').Metafile[]} bundleFiles Array of metafiles for all bundle's generated files
- * @param {string} filePath Path of the JSON file to generate
- * @return {void}
+ * @param {string} filePath Path of the JSON file to generate, relative to CWD
+ * @return {Promise<void>}
  */
 const writeMetafile = (bundleFiles, filePath) => {
     const bundle = bundleFiles.reduce((bundle, /** @type {import('esbuild').Metafile} */ metaFile) => {
@@ -26,7 +26,15 @@ const writeMetafile = (bundleFiles, filePath) => {
         return bundle;
     }, { inputs: {}, outputs: {} });
 
-    fs.writeFileSync(filePath, JSON.stringify(bundle));
+    return writeFile(filePath, JSON.stringify(bundle))
+        .then((err) => {
+            if (err !== undefined) {
+                process.stderr.write('Error writing JSON metafile\n');
+                throw err;
+            }
+
+            process.stdout.write(`Bundle metafile written to: ${filePath}\n`);
+        });
 };
 
 /**
@@ -162,7 +170,7 @@ export function command(program) {
 
                 await printBundleSize(bundleMetafiles);
                 if (typeof metafile === 'string') {
-                    writeMetafile(bundleMetafiles, path.relative(process.cwd(), metafile));
+                    await writeMetafile(bundleMetafiles, path.relative(process.cwd(), metafile));
                 }
             }
         );

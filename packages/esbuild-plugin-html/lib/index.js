@@ -1,5 +1,3 @@
-import { Metafile } from 'esbuild';
-
 /**
  * @typedef {Object} Entrypoint
  * @property {import('esbuild').Loader} [loader] The loader to use.

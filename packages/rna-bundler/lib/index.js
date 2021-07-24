@@ -27,13 +27,12 @@ const writeMetafile = (bundleFiles, filePath) => {
     }, { inputs: {}, outputs: {} });
 
     return writeFile(filePath, JSON.stringify(bundle))
-        .then((err) => {
-            if (err !== undefined) {
-                process.stderr.write('Error writing JSON metafile\n');
-                throw err;
-            }
-
+        .then(() => {
             process.stdout.write(`Bundle metafile written to: ${filePath}\n`);
+        })
+        .catch((err) => {
+            process.stderr.write('Error writing JSON metafile\n');
+            throw err;
         });
 };
 

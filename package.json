@@ -8,7 +8,8 @@
   "license": "MIT",
   "scripts": {
     "types": "lerna run types",
-    "lint": "eslint 'packages/*/lib/**/*.js'"
+    "lint": "eslint 'packages/*/lib/**/*.js'",
+    "new": "plop --plopfile internals/generators/plopfile.cjs module"
   },
   "repository": {
     "type": "git",
@@ -18,6 +19,7 @@
     "@chialab/eslint-config": "^2.2.0",
     "eslint": "^7.19.0",
     "lerna": "^4.0.0",
+    "plop": "^2.7.4",
     "typescript": "^4.2.3"
   },
   "workspaces": [

@@ -1,6 +1,6 @@
 import path from 'path';
-import { writeFile } from 'fs/promises';
-import gzipSize from 'gzip-size';
+import { writeFile, readFile } from 'fs/promises';
+import { brotliCompress, gzip } from 'zlib';
 import { build } from './build.js';
 import { saveManifestJson } from './saveManifestJson.js';
 import { saveEntrypointsJson, saveDevEntrypointsJson } from './saveEntrypointsJson.js';
@@ -40,33 +40,69 @@ const writeMetafile = (bundleFiles, filePath) => {
  * Print bundle size information to console.
  *
  * @param {import('esbuild').Metafile[]} bundleFiles Array of metafiles for all bundle's generated files
+ * @param {string[]} compressed Show size compressed with these algorithms. Supports gzip and brotli
  * @return {Promise<void>}
  */
-const printBundleSize = async (bundleFiles) => {
-    /** @type {{ [path: string]: [number, number] }} */
+const printBundleSize = async (bundleFiles, compressed = []) => {
+    /** @type {{ [path: string]: { [compression: string]: number } }} */
     const fileSizes = bundleFiles.reduce((fileSizesMap, /** @type {import('esbuild').Metafile} */ metaFile) => Object.entries(metaFile.outputs)
-        .reduce((/** @type {{ [path: string]: [number, number?] }} */ map, [path, output]) => {
-            map[path] = [output.bytes];
+        .reduce((/** @type {{ [path: string]: { [compression: string]: number } } }} */ map, [path, output]) => {
+            map[path] = { default: output.bytes };
 
             return map;
         }, fileSizesMap), {});
-    await Promise.all(Object.keys(fileSizes)
-        .map((path) => gzipSize.file(path)
-            .then((size) => fileSizes[path].push(size))
-            .catch(() => fileSizes[path].push(0))));
-    /** @type {[number, number]} */
-    const totalSizes = Object.values(fileSizes)
-        .reduce((/** @type {[number, number]} */ totals, /** @type {[number, number]} */ sizes) => {
-            totals[0] += sizes[0];
-            totals[1] += sizes[1] || 0;
+    await Promise.all(
+        Object.keys(fileSizes)
+            .filter((path) => /\.(js|html|css|svg)$/.test(path))
+            .map(async (path) => {
+                const buffer = await readFile(path);
+                await Promise.all(compressed.map(async (algo) => {
+                    try {
+                        fileSizes[path][algo] = await compressFileSize(buffer, algo);
+                    } catch (err) {
+                        process.stderr.write(`Error while calculating compressed size for file "${path}" with algorithm ${algo}: ${err}\n`);
+                        fileSizes[path][algo] = 0;
+                    }
+                }));
+            })
+    );
+    const totalSizes = /** @type {{ [compression: string]: number }} */ Object.values(fileSizes)
+        .reduce((/** @type {{ [compression: string]: number }} */ totals, /** @type {{ [compression: string]: number }} */ sizes) => {
+            for (const compression in sizes) {
+                if (!totals[compression]) {
+                    totals[compression] = 0;
+                }
+
+                totals[compression] += sizes[compression];
+            }
 
             return totals;
-        }, [0, 0]);
+        }, {});
     const longestFilename = Object.keys(fileSizes).reduce((longest, path) => Math.max(longest, path.length), 0);
+    /**
+     * Format compression sizes for output.
+     * Skips 'default' size.
+     *
+     * @param {{ [compression: string]: number }} sizes
+     * @return string[]
+     */
+    const formatSizes = (sizes) => {
+        const formatted = [];
+        for (const compression of Object.keys(sizes).sort()) {
+            if (compression === 'default') {
+                continue;
+            }
+
+            formatted.push(`${toReadableSize(sizes[compression])} ${compression}`);
+        }
+
+        return formatted;
+    };
+
     process.stdout.write('Generated bundle files:\n');
     Object.entries(fileSizes)
-        .forEach(([path, sizes]) => process.stdout.write(`\t${path.padEnd(longestFilename, ' ')}\t${toReadableSize(sizes[0])}\t(${toReadableSize(sizes[1])} gzipped)\n`));
-    process.stdout.write(`Total bundle size: ${toReadableSize(totalSizes[0])} (${toReadableSize(totalSizes[1])} gzipped)\n`);
+        .forEach(([path, sizes]) => process.stdout.write(`\t${path.padEnd(longestFilename, ' ')}\t${toReadableSize(sizes.default || 0)}\t${formatSizes(sizes).join(', ')}\n`));
+    process.stdout.write(`Total bundle size: ${[toReadableSize(totalSizes.default || 0)].concat(formatSizes(totalSizes)).join(', ')}\n`);
 };
 
 /**
@@ -90,6 +126,44 @@ const toReadableSize = (byteSize) => {
 
     return `${normalizedSize.toFixed(2)} ${units[unitIdx]}`;
 };
+
+/**
+ * Get the compressed size of a file.
+ *
+ * @param {Buffer} buffer File content
+ * @param {string} algorithm Compression algorithm to use, one of `gzip` or `brotli`
+ * @param {import('zlib').ZlibOptions|import('zlib').BrotliOptions} options Options to tune the compression algorithm
+ * @return {Promise<number>} The file size in bytes
+ */
+const compressFileSize = (buffer, algorithm = 'gzip', options = {}) => new Promise((resolve, reject) => {
+    /** @type {(buf: import('zlib').InputType, options: import('zlib').BrotliOptions|import('zlib').ZlibOptions, callback: import('zlib').CompressCallback) => void} */
+    let compressFunction;
+    switch (algorithm) {
+        case 'gzip':
+            options = { level: 5, ...options };
+            compressFunction = gzip;
+            break;
+
+        case 'brotli':
+            compressFunction = brotliCompress;
+            break;
+
+        default:
+            reject(`Compression algorithm ${algorithm} not implemented`);
+            return;
+    }
+
+    compressFunction(buffer, options, (err, result) => {
+        if (err) {
+            process.stderr.write(`Error compressing file "${path}"\n`);
+            reject(err);
+
+            return;
+        }
+
+        resolve(result.length);
+    });
+});
 
 
 /**
@@ -117,6 +191,7 @@ export function command(program) {
         .option('--external [modules]', 'comma separated external packages')
         .option('--no-map', 'do not generate sourcemaps')
         .option('--metafile <path>', 'write JSON metadata file about the build')
+        .option('--show-compressed <names>', 'show compressed size of files in build summary; comma separated list, currently supports gzip and brotli', (value) => value.split(','))
         .option('--jsxFactory <identifier>', 'jsx pragma')
         .option('--jsxFragment <identifier>', 'jsx fragment')
         .option('--jsxModule <name>', 'jsx module name')
@@ -124,9 +199,9 @@ export function command(program) {
         .action(
             /**
              * @param {string[]} input
-             * @param {{ output: string, format?: import('esbuild').Format, platform: import('esbuild').Platform, bundle?: boolean, minify?: boolean, name?: string, watch?: boolean, manifest?: boolean|string, entrypoints?: boolean|string, target?: string, public?: string, entryNames?: string, chunkNames?: string, assetNames?: string, clean?: boolean, external?: string, map?: boolean, metafile?: string, jsxFactory?: string, jsxFragment?: string, jsxModule?: string, jsxExport?: 'named'|'namespace'|'default' }} options
+             * @param {{ output: string, format?: import('esbuild').Format, platform: import('esbuild').Platform, bundle?: boolean, minify?: boolean, name?: string, watch?: boolean, manifest?: boolean|string, entrypoints?: boolean|string, target?: string, public?: string, entryNames?: string, chunkNames?: string, assetNames?: string, clean?: boolean, external?: string, map?: boolean, metafile?: string, showCompressed?: string[], jsxFactory?: string, jsxFragment?: string, jsxModule?: string, jsxExport?: 'named'|'namespace'|'default' }} options
              */
-            async (input, { output, format = 'esm', platform, bundle, minify, name, watch, manifest, entrypoints, target, public: publicPath, entryNames, chunkNames, assetNames, clean, external, map, metafile, jsxFactory, jsxFragment, jsxModule, jsxExport }) => {
+            async (input, { output, format = 'esm', platform, bundle, minify, name, watch, manifest, entrypoints, target, public: publicPath, entryNames, chunkNames, assetNames, clean, external, map, metafile, showCompressed, jsxFactory, jsxFragment, jsxModule, jsxExport }) => {
                 const { default: esbuild } = await import('esbuild');
                 /** @type {import('esbuild').Metafile[]} */
                 const bundleMetafiles = [];
@@ -167,7 +242,7 @@ export function command(program) {
                     }),
                 });
 
-                await printBundleSize(bundleMetafiles);
+                await printBundleSize(bundleMetafiles, showCompressed);
                 if (typeof metafile === 'string') {
                     await writeMetafile(bundleMetafiles, path.relative(process.cwd(), metafile));
                 }

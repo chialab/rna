@@ -66,14 +66,11 @@ import path from 'path';
 
 /**
  * @typedef {Object} ProjectConfig
+ * @property {Entrypoint[]} [entrypoints]
  * @property {string} [root]
  * @property {string} [publicPath]
  * @property {string} [manifestPath]
  * @property {string} [entrypointsPath]
- */
-
-/**
- * @typedef {ProjectConfig & { entrypoints: Entrypoint[] }} RootConfig
  */
 
 /**
@@ -167,4 +164,68 @@ export function getEntryBuildConfig(entrypoint, config) {
         ...entrypoint,
         globalName: entrypoint.globalName || entrypoint.name || camelize(entrypoint.output),
     }, config));
+}
+
+/**
+ * @param {Config[]} entries
+ * @return {Config}
+ */
+export function mergeConfig(...entries) {
+    return entries
+        .reduce((config, entry) => ({
+            ...config,
+            ...entry,
+            entrypoints: [
+                ...(config.entrypoints || []),
+                ...(entry.entrypoints || []),
+            ],
+            external: [
+                ...(config.external || []),
+                ...(entry.external || []),
+            ],
+            plugins: [
+                ...(config.plugins || []),
+                ...(entry.plugins || []),
+            ],
+            transformPlugins: [
+                ...(config.transformPlugins || []),
+                ...(entry.transformPlugins || []),
+            ],
+        }), {});
+}
+
+/**
+ * @typedef {Config|Promise<Config>|((input: Config) => Config|Promise<Config>)} InputConfig
+ */
+
+/**
+ * @param {string} configFile
+ * @param {Config} inputConfig
+ * @param {string} [cwd]
+ * @return {Promise<Config>}
+ */
+export async function readConfigFile(configFile, inputConfig, cwd = process.cwd()) {
+    configFile = `./${configFile}`;
+    const url = new URL(configFile, cwd);
+    const configModule = await import(url.href);
+
+    /**
+     * @type {InputConfig}
+     */
+    let config = configModule.default;
+
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+        if (typeof config === 'function') {
+            config = config(inputConfig);
+            continue;
+        }
+
+        if (config instanceof Promise) {
+            config = await config;
+            continue;
+        }
+
+        return config || {};
+    }
 }

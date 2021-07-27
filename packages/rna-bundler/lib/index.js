@@ -1,5 +1,5 @@
 import path from 'path';
-import { getEntryBuildConfig } from '@chialab/rna-config-loader';
+import { getEntryBuildConfig, mergeConfig, readConfigFile } from '@chialab/rna-config-loader';
 import { build } from './build.js';
 import { saveManifestJson } from './saveManifestJson.js';
 import { saveEntrypointsJson, saveDevEntrypointsJson } from './saveEntrypointsJson.js';
@@ -17,6 +17,7 @@ export function command(program) {
     program
         .command('build [entry...]', { isDefault: true })
         .description('Compile JS and CSS modules using esbuild (https://esbuild.github.io/). It can output multiple module formats and it can be used to build a single module or to bundle all dependencies of an application.')
+        .option('-C, --config <path>', 'the config file')
         .option('-O, --output <path>', 'output directory or file')
         .option('--format <type>', 'bundle format')
         .option('--platform <type>', 'platform destination')
@@ -40,29 +41,31 @@ export function command(program) {
         .action(
             /**
              * @param {string[]} input
-             * @param {{ output: string, format?: import('@chialab/rna-config-loader').Format, target?: import('@chialab/rna-config-loader').Target, platform: import('@chialab/rna-config-loader').Platform, bundle?: boolean, minify?: boolean, name?: string, manifest?: boolean|string, entrypoints?: boolean|string, public?: string, entryNames?: string, chunkNames?: string, assetNames?: string, clean?: boolean, external?: string, map?: boolean, jsxFactory?: string, jsxFragment?: string, jsxModule?: string, jsxExport?: 'named'|'namespace'|'default' }} options
+             * @param {{ config?: string, output: string, format?: import('@chialab/rna-config-loader').Format, target?: import('@chialab/rna-config-loader').Target, platform: import('@chialab/rna-config-loader').Platform, bundle?: boolean, minify?: boolean, name?: string, manifest?: boolean|string, entrypoints?: boolean|string, public?: string, entryNames?: string, chunkNames?: string, assetNames?: string, clean?: boolean, external?: string, map?: boolean, jsxFactory?: string, jsxFragment?: string, jsxModule?: string, jsxExport?: 'named'|'namespace'|'default' }} options
              */
-            async (input, { output, format = 'esm', platform, bundle, minify, name, manifest, entrypoints, target, public: publicPath, entryNames, chunkNames, assetNames, clean, external, map, jsxFactory, jsxFragment, jsxModule, jsxExport }) => {
+            async (input, { config: configFile, output, format = 'esm', platform, bundle, minify, name, manifest, entrypoints, target, public: publicPath, entryNames, chunkNames, assetNames, clean, external: externalString, map: sourcemap, jsxFactory, jsxFragment, jsxModule, jsxExport }) => {
                 const { default: esbuild } = await import('esbuild');
-                const config = getEntryBuildConfig({
-                    input: input.map((entry) => path.resolve(entry)),
-                    output: path.resolve(output),
-                    globalName: name,
-                    bundle,
-                }, {
+                const manifestPath = typeof manifest === 'string' ? manifest : path.join(output, 'manifest.json');
+                const entrypointsPath = typeof entrypoints === 'string' ? entrypoints : path.join(output, 'entrypoints.json');
+                const external = externalString ? externalString.split(',') : [];
+
+                /**
+                 * @type {import('@chialab/rna-config-loader').Config}
+                 */
+                const inputConfig = {
                     format,
                     platform,
                     minify,
                     target,
                     clean,
-                    manifestPath: typeof manifest === 'string' ? manifest : path.join(output, 'manifest.json'),
-                    entrypointsPath: typeof entrypoints === 'string' ? entrypoints : path.join(output, 'entrypoints.json'),
-                    external: external ? external.split(',') : undefined,
+                    manifestPath,
+                    entrypointsPath,
+                    external,
                     publicPath,
                     entryNames,
                     chunkNames,
                     assetNames,
-                    sourcemap: map,
+                    sourcemap,
                     jsxFactory,
                     jsxFragment,
                     jsxModule,
@@ -75,9 +78,28 @@ export function command(program) {
                         commonjs: {},
                         babel: target === 'es5' ? {} : undefined,
                     }),
-                });
+                };
 
-                await build(config);
+                /**
+                 * @type {import('@chialab/rna-config-loader').Config}
+                 */
+                const config = mergeConfig(configFile ? await readConfigFile(configFile, inputConfig) : {}, inputConfig, input && input.length ? {
+                    entrypoints: [{
+                        input: input.map((entry) => path.resolve(entry)),
+                        output: path.resolve(output),
+                        globalName: name,
+                        bundle,
+                    }],
+                    ...inputConfig,
+                } : {});
+
+                if (!config.entrypoints) {
+                    throw new Error('Missing entrypoints.');
+                }
+
+                for (const entrypoint of config.entrypoints) {
+                    await build(getEntryBuildConfig(entrypoint, config));
+                }
             }
         );
 }

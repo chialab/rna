@@ -1,7 +1,7 @@
 {
   "name": "@chialab/esbuild-plugin-env",
   "type": "module",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "description": "Define all environement variables for esbuild.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",

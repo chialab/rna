@@ -1,7 +1,7 @@
 {
   "name": "@chialab/wds-plugin-postcss",
   "type": "module",
-  "version": "0.9.10",
+  "version": "0.10.0",
   "description": "A CSS loader plugin for the Web Dev Server that uses postcss as preprocessor.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",
@@ -35,7 +35,7 @@
     "node": ">=13"
   },
   "dependencies": {
-    "@chialab/node-resolve": "^0.9.8",
+    "@chialab/node-resolve": "^0.10.0",
     "@web/dev-server-core": "^0.3.8",
     "postcss": "^8.2.5",
     "postcss-load-config": "^3.0.1"

@@ -97,3 +97,7 @@ Then, you can read this file and load resources in your PHP application:
     <link rel="stylesheet" href="{{ link }}">
 {% endfor %}
 ```
+
+Here is a list of RNA helpers for common frameworks:
+
+* [Cake](https://github.com/chialab/rna/packages/rna-dev-server/examples/cakephp/RnaHelper.php)

@@ -1,9 +1,11 @@
+import os from 'os';
 import path from 'path';
 import { getEntryBuildConfig, mergeConfig, readConfigFile } from '@chialab/rna-config-loader';
 import { build } from './build.js';
 import { saveManifestJson } from './saveManifestJson.js';
 import { saveEntrypointsJson, saveDevEntrypointsJson } from './saveEntrypointsJson.js';
 import { loadPlugins, loadTransformPlugins } from './loadPlugins.js';
+import { Queue } from './Queue.js';
 
 export * from './loaders.js';
 export * from './transform.js';
@@ -45,8 +47,8 @@ export function command(program) {
              */
             async (input, { config: configFile, output, format = 'esm', platform, bundle, minify, name, manifest, entrypoints, target, public: publicPath, entryNames, chunkNames, assetNames, clean, external: externalString, map: sourcemap, jsxFactory, jsxFragment, jsxModule, jsxExport }) => {
                 const { default: esbuild } = await import('esbuild');
-                const manifestPath = typeof manifest === 'string' ? manifest : path.join(output, 'manifest.json');
-                const entrypointsPath = typeof entrypoints === 'string' ? entrypoints : path.join(output, 'entrypoints.json');
+                const manifestPath = manifest ? (typeof manifest === 'string' ? manifest : path.join(output, 'manifest.json')) : undefined;
+                const entrypointsPath = entrypoints ? (typeof entrypoints === 'string' ? entrypoints : path.join(output, 'entrypoints.json')) : undefined;
                 const external = externalString ? externalString.split(',') : [];
 
                 /**
@@ -58,6 +60,7 @@ export function command(program) {
                     minify,
                     target,
                     clean,
+                    bundle,
                     manifestPath,
                     entrypointsPath,
                     external,
@@ -88,7 +91,6 @@ export function command(program) {
                         input: input.map((entry) => path.resolve(entry)),
                         output: path.resolve(output),
                         globalName: name,
-                        bundle,
                     }],
                     ...inputConfig,
                 } : {});
@@ -97,9 +99,12 @@ export function command(program) {
                     throw new Error('Missing entrypoints.');
                 }
 
+                const queue = new Queue();
                 for (const entrypoint of config.entrypoints) {
-                    await build(getEntryBuildConfig(entrypoint, config));
+                    queue.add(async () => build(getEntryBuildConfig(entrypoint, config)));
                 }
+
+                await queue.run(os.cpus().length);
             }
         );
 }

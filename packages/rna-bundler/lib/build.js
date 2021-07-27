@@ -24,12 +24,15 @@ export async function build(config) {
         input,
         output,
         root,
+        code,
+        loader,
         publicPath,
         format,
         target,
         platform,
         sourcemap,
         minify,
+        bundle,
         globalName,
         entryNames,
         chunkNames,
@@ -44,15 +47,16 @@ export async function build(config) {
         manifestPath,
         entrypointsPath,
         logLevel,
+        clean,
     } = config;
 
     const hasOutputFile = !!path.extname(output);
 
     const entryOptions = {};
-    if (config.code) {
+    if (code) {
         entryOptions.stdin = {
-            contents: config.code,
-            loader: config.loader,
+            contents: code,
+            loader,
             resolveDir: root,
             sourcefile: Array.isArray(input) ? input[0] : input,
         };
@@ -61,13 +65,13 @@ export async function build(config) {
     }
 
     const outputDir = hasOutputFile ? path.dirname(output) : output;
-    if (config.clean) {
+    if (clean) {
         await emptyDir(outputDir);
     }
 
     const extraTransformPlugins = [];
 
-    if (!config.bundle) {
+    if (!bundle) {
         const packageFile = await pkgUp({
             cwd: root,
         });
@@ -80,6 +84,7 @@ export async function build(config) {
             );
         }
     }
+
     if (platform === 'browser') {
         const packageFile = await pkgUp({
             cwd: root,
@@ -108,6 +113,7 @@ export async function build(config) {
         chunkNames,
         assetNames,
         splitting: format === 'esm' && !hasOutputFile,
+        bundle: true,
         external,
         mainFields: [
             'module',

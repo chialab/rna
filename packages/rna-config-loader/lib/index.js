@@ -43,6 +43,7 @@ import path from 'path';
  * @property {string} [jsxModule]
  * @property {'default'|'named'|'namespace'} [jsxExport]
  * @property {boolean} minify
+ * @property {boolean} bundle
  * @property {boolean} clean
  * @property {Plugin[]} plugins
  * @property {Plugin[]} transformPlugins
@@ -58,6 +59,7 @@ import path from 'path';
  * @property {string} [globalName]
  * @property {string} [name]
  * @property {string} [code]
+ * @property {string} [root]
  */
 
 /**
@@ -102,7 +104,7 @@ export function camelize(file) {
  * @return {EntrypointFinalConfig}
  */
 export function getEntryConfig(entrypoint, config) {
-    const root = config.root || process.cwd();
+    const root = entrypoint.root || config.root || process.cwd();
     const publicPath = config.publicPath || root;
     const format = entrypoint.format || config.format || 'esm';
     const target = entrypoint.target || config.target || (format === 'iife' ? 'es5' : 'es2020');
@@ -124,6 +126,7 @@ export function getEntryConfig(entrypoint, config) {
         target,
         platform,
         sourcemap: entrypoint.sourcemap ?? config.sourcemap ?? true,
+        bundle: entrypoint.bundle ?? config.bundle ?? false,
         minify: entrypoint.minify ?? config.minify ?? false,
         clean: entrypoint.clean ?? config.clean ?? false,
         globalName: entrypoint.globalName || entrypoint.name || camelize(Array.isArray(entrypoint.input) ? entrypoint.input[0] : entrypoint.input),
@@ -172,26 +175,42 @@ export function getEntryBuildConfig(entrypoint, config) {
  */
 export function mergeConfig(...entries) {
     return entries
-        .reduce((config, entry) => ({
-            ...config,
-            ...entry,
-            entrypoints: [
-                ...(config.entrypoints || []),
-                ...(entry.entrypoints || []),
-            ],
-            external: [
-                ...(config.external || []),
-                ...(entry.external || []),
-            ],
-            plugins: [
-                ...(config.plugins || []),
-                ...(entry.plugins || []),
-            ],
-            transformPlugins: [
-                ...(config.transformPlugins || []),
-                ...(entry.transformPlugins || []),
-            ],
-        }), {});
+        .reduce((config, entry) => {
+            const keys = /** @type {(keyof Config)[]} */ (Object.keys(entry));
+
+            /**
+             * @type {Config}
+             */
+            const clone = keys
+                .reduce((config, key) => {
+                    if (entry[key] != null) {
+                        config[key] = entry[key];
+                    }
+
+                    return config;
+                }, /** @type {*} */ ({}));
+
+            return {
+                ...config,
+                ...clone,
+                entrypoints: [
+                    ...(config.entrypoints || []),
+                    ...(clone.entrypoints || []),
+                ],
+                external: [
+                    ...(config.external || []),
+                    ...(clone.external || []),
+                ],
+                plugins: [
+                    ...(config.plugins || []),
+                    ...(clone.plugins || []),
+                ],
+                transformPlugins: [
+                    ...(config.transformPlugins || []),
+                    ...(clone.transformPlugins || []),
+                ],
+            };
+        }, {});
 }
 
 /**
@@ -206,8 +225,7 @@ export function mergeConfig(...entries) {
  */
 export async function readConfigFile(configFile, inputConfig, cwd = process.cwd()) {
     configFile = `./${configFile}`;
-    const url = new URL(configFile, cwd);
-    const configModule = await import(url.href);
+    const configModule = await import(path.resolve(cwd, configFile));
 
     /**
      * @type {InputConfig}

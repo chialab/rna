@@ -6,7 +6,7 @@
  */
 
 /**
- * @typedef {{ scriptsTarget?: string, modulesTarget?: string }} PluginOptions
+ * @typedef {{ scriptsTarget?: string, modulesTarget?: string, addBundleMetafile?: (meta: import('esbuild').Metafile) => number|void }} PluginOptions
  */
 
 /**
@@ -15,7 +15,7 @@
  * @param {typeof import('esbuild')} [esbuildModule]
  * @return An esbuild plugin.
  */
-export default function({ scriptsTarget = 'es2015', modulesTarget = 'es2020' } = {}, esbuildModule) {
+export default function({ scriptsTarget = 'es2015', modulesTarget = 'es2020', addBundleMetafile = () => {} } = {}, esbuildModule) {
     /**
      * @type {import('esbuild').Plugin}
      */
@@ -74,6 +74,8 @@ export default function({ scriptsTarget = 'es2015', modulesTarget = 'es2020' } =
                     const outputFiles = [];
                     /** @type {string} */
                     let outputFile;
+                    /** @type {import('esbuild').Metafile} */
+                    let metafile;
                     if (entrypoint.loader === 'file') {
                         const files = /** @type {string[]|undefined}} */ (entrypoint.options.entryPoints);
                         const file = files && files[0];
@@ -98,6 +100,28 @@ export default function({ scriptsTarget = 'es2015', modulesTarget = 'es2020' } =
                         await writeFile(outputFile, buffer);
                         outputFile = path.relative(process.cwd(), outputFile);
                         outputFiles.push(outputFile);
+                        // manually build metafile data
+                        const inputFile = path.relative(process.cwd(), file);
+                        const bytes = Buffer.byteLength(buffer);
+                        metafile = {
+                            inputs: {
+                                [inputFile]: {
+                                    bytes,
+                                    imports: [],
+                                },
+                            },
+                            outputs: {
+                                [outputFile]: {
+                                    bytes,
+                                    imports: [],
+                                    entryPoint: inputFile,
+                                    exports: [],
+                                    inputs: {
+                                        [inputFile]: { bytesInOutput: bytes },
+                                    },
+                                },
+                            },
+                        };
                     } else {
                         /** @type {import('esbuild').BuildOptions} */
                         const config = {
@@ -120,7 +144,9 @@ export default function({ scriptsTarget = 'es2015', modulesTarget = 'es2020' } =
                             .filter((output) => !output.endsWith('.map'))
                             .filter((output) => outputs[output].entryPoint)
                             .find((output) => inputFiles.includes(path.resolve(/** @type {string} */(outputs[output].entryPoint)))) || outputFiles[0];
+                        metafile = result.metafile;
                     }
+                    addBundleMetafile(metafile);
                     await entrypoint.finisher(outputFile, outputFiles);
                 }
 

@@ -1,11 +1,9 @@
-import { promises } from 'fs';
+import { readFile, rename, rm } from 'fs/promises';
 import path from 'path';
 import { loaders } from './loaders.js';
 import { emptyDir } from './emptyDir.js';
 import { saveManifestJson } from './saveManifestJson.js';
 import { saveEntrypointsJson } from './saveEntrypointsJson.js';
-
-const { readFile, rename, rm } = promises;
 
 /**
  * @typedef {import('esbuild').BuildResult & { outputFiles?: import('esbuild').OutputFile[] }} BuildResult

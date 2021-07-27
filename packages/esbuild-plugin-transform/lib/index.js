@@ -1,8 +1,6 @@
 import path from 'path';
-import { promises } from 'fs';
+import { readFile } from 'fs/promises';
 import { createPipeline, finalize } from '@chialab/estransform';
-
-const { readFile } = promises;
 
 export const SCRIPT_LOADERS = ['tsx', 'ts', 'jsx', 'js'];
 

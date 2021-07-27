@@ -1,4 +1,4 @@
-import { promises } from 'fs';
+import { readFile } from 'fs/promises';
 import path from 'path';
 import MagicString from 'magic-string';
 import esbuild from 'esbuild';
@@ -6,7 +6,6 @@ import { Parser as AcornParser } from 'acorn';
 import jsx from 'acorn-jsx';
 import { simple as walk } from 'acorn-walk';
 
-const { readFile } = promises;
 const SOURCEMAP_REGEX = /(?:(\/\*+[\s\S]*?sourceMappingURL\s*=)([\s\S]*?)(\*\/))|(?:(\/\/.*?sourceMappingURL\s*=)(.*?)([\r\n]))/;
 
 const Parser = AcornParser.extend(/** @type {*} */ (jsx()));

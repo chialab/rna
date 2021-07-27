@@ -1,11 +1,10 @@
-import { promises } from 'fs';
+import { readFile as fsReadFile } from 'fs/promises';
 
 /**
  * Memoize fs `readFile` results.
  * @return A function with the same `readFile` signature.
  */
 const memoReadFile = function() {
-    const { readFile } = promises;
     /**
      * @type {{ [key: string]: Promise<string> }}
      */
@@ -14,7 +13,7 @@ const memoReadFile = function() {
      * @param {string} fileName
      */
     const memo = async function memo(fileName) {
-        files[fileName] = files[fileName] || readFile(fileName, 'utf-8');
+        files[fileName] = files[fileName] || fsReadFile(fileName, 'utf-8');
         return await files[fileName];
     };
 

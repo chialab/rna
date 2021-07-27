@@ -1,4 +1,4 @@
-import { promises } from 'fs';
+import { readFile } from 'fs/promises';
 import path from 'path';
 import { resolve } from '@chialab/node-resolve';
 import { pipe, walk, getOffsetFromLocation } from '@chialab/estransform';
@@ -10,8 +10,6 @@ import { getEntry, finalizeEntry, createFilter } from '@chialab/esbuild-plugin-t
  * @return An esbuild plugin.
  */
 export default function() {
-    const { readFile } = promises;
-
     /**
      * @type {import('esbuild').Plugin}
      */

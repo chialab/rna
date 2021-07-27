@@ -1,9 +1,7 @@
 #!/usr/bin/env node
 
-import { promises } from 'fs';
+import { readFile } from 'fs/promises';
 import commander from 'commander';
-
-const { readFile } = promises;
 
 (async () => {
     const { program } = commander;

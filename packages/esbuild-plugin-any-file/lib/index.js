@@ -1,7 +1,5 @@
-import { promises } from 'fs';
+import { readFile } from 'fs/promises';
 import path from 'path';
-
-const { readFile } = promises;
 
 /**
  * Load any unkown refrence as file.

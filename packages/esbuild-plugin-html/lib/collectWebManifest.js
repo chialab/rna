@@ -1,7 +1,5 @@
-import { promises } from 'fs';
+import { readFile, writeFile, mkdir } from 'fs/promises';
 import path from 'path';
-
-const { readFile, writeFile, mkdir } = promises;
 
 /**
  * @param {string} filePath

@@ -1,7 +1,5 @@
-import { promises } from 'fs';
+import { mkdir } from 'fs/promises';
 import path from 'path';
-
-const { mkdir } = promises;
 
 const FAVICONS = [
     {

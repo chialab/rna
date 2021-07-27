@@ -1,9 +1,7 @@
+import { stat } from 'fs/promises';
 import path from 'path';
-import { promises } from 'fs';
 import { readConfigFile, locateConfigFile } from '@chialab/rna-config-loader';
 import { createLogger } from '@chialab/rna-logger';
-
-const { stat } = promises;
 
 /**
  * @typedef {Partial<import('@web/dev-server-core').DevServerCoreConfig> & { logger?: import('@chialab/rna-logger').Logger, entrypoints?: import('@chialab/rna-config-loader').Entrypoint[], entrypointsPath?: string }} DevServerConfig

@@ -1,7 +1,5 @@
+import { readdir, stat, unlink, rmdir } from 'fs/promises';
 import path from 'path';
-import { promises } from 'fs';
-
-const { readdir, stat, unlink, rmdir } = promises;
 
 /**
  * Empty a directory (if exists).

@@ -1,7 +1,5 @@
 import path from 'path';
-import { promises } from 'fs';
-
-const { writeFile } = promises;
+import { writeFile } from 'fs/promises';
 
 /**
  * Write manifest.json

@@ -1,8 +1,6 @@
+import { writeFile } from 'fs/promises';
 import path from 'path';
-import { promises } from 'fs';
 import { loaders } from './loaders.js';
-
-const { writeFile } = promises;
 
 /**
  * Write entrypoints.json

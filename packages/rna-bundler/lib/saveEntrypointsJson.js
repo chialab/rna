@@ -11,7 +11,7 @@ const { writeFile } = promises;
  * @param {string} rootDir The root dir.
  * @param {string} outputFile The output file or dir.
  * @param {string} publicPath The public path.
- * @param {import('esbuild').Format} format The output format.
+ * @param {import('@chialab/rna-config-loader').Format} format The output format.
  */
 export async function saveEntrypointsJson(entrypoints, result, rootDir, outputFile, publicPath = '/', format) {
     const { metafile } = result;
@@ -67,7 +67,7 @@ export async function saveEntrypointsJson(entrypoints, result, rootDir, outputFi
  * @param {string[]} entrypoints The build entrypoints.
  * @param {string} outputFile The output file or dir.
  * @param {import('@web/dev-server-core').DevServer} server The server instance.
- * @param {import('esbuild').Format} format The output format.
+ * @param {import('@chialab/rna-config-loader').Format} format The output format.
  */
 export async function saveDevEntrypointsJson(entrypoints, outputFile, server, format) {
     const { config } = server;

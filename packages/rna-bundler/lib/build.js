@@ -2,15 +2,10 @@ import { promises } from 'fs';
 import path from 'path';
 import { loaders } from './loaders.js';
 import { emptyDir } from './emptyDir.js';
-import { camelize } from './camelize.js';
 import { saveManifestJson } from './saveManifestJson.js';
 import { saveEntrypointsJson } from './saveEntrypointsJson.js';
 
 const { readFile, rename, rm } = promises;
-
-/**
- * @typedef {Omit<import('esbuild').BuildOptions, 'loader'> & { output: string, root?: string, input?: string|string[], code?: string, loader?: import('esbuild').Loader, jsxModule?: string, jsxExport?: 'default'|'named'|'namespace', transformPlugins?: import('esbuild').Plugin[], manifest?: boolean|string, entrypoints?: boolean|string, clean?: boolean }} BuildConfig
- */
 
 /**
  * @typedef {import('esbuild').BuildResult & { outputFiles?: import('esbuild').OutputFile[] }} BuildResult
@@ -18,7 +13,7 @@ const { readFile, rename, rm } = promises;
 
 /**
  * Build and bundle sources.
- * @param {BuildConfig} config
+ * @param {import('@chialab/rna-config-loader').EntrypointFinalBuildConfig} config
  * @return {Promise<BuildResult>} The esbuild bundle result.
  */
 export async function build(config) {
@@ -26,47 +21,38 @@ export async function build(config) {
     const { default: pkgUp } = await import('pkg-up');
 
     const {
-        root = process.cwd(),
         input,
-        code,
         output,
-        bundle = false,
-        sourcemap = true,
-        minify = false,
-        loader = 'tsx',
-        format = 'esm',
-        platform = format === 'cjs' ? 'node' : 'browser',
-        globalName = format === 'iife' ? camelize(output) : undefined,
+        root,
+        publicPath,
+        format,
+        target,
+        platform,
+        sourcemap,
+        minify,
+        globalName,
+        entryNames,
+        chunkNames,
+        assetNames,
+        external,
         jsxFactory,
         jsxFragment,
         jsxModule,
         jsxExport,
-        target = format === 'iife' ? 'es5' : 'es2020',
-        publicPath,
-        entryNames,
-        assetNames,
-        chunkNames,
-        external = [],
-        manifest = false,
-        entrypoints = false,
-        clean = false,
-        watch = false,
-        plugins = [],
-        transformPlugins = [],
-        ...others
+        plugins,
+        transformPlugins,
+        manifestPath,
+        entrypointsPath,
+        logLevel,
     } = config;
 
     const hasOutputFile = !!path.extname(output);
-    const outputDir = hasOutputFile ? path.dirname(output) : output;
-    if (clean) {
-        await emptyDir(outputDir);
-    }
 
     const entryOptions = {};
-    if (code) {
+    if (config.code) {
         entryOptions.stdin = {
-            contents: code,
-            loader: /** @type {import('esbuild').Loader} */ (`${loader}`),
+            contents: config.code,
+            loader: config.loader,
             resolveDir: root,
             sourcefile: Array.isArray(input) ? input[0] : input,
         };
@@ -74,9 +60,14 @@ export async function build(config) {
         entryOptions.entryPoints = Array.isArray(input) ? input : [input];
     }
 
+    const outputDir = hasOutputFile ? path.dirname(output) : output;
+    if (config.clean) {
+        await emptyDir(outputDir);
+    }
+
     const extraTransformPlugins = [];
 
-    if (!bundle) {
+    if (!config.bundle) {
         const packageFile = await pkgUp({
             cwd: root,
         });
@@ -105,23 +96,19 @@ export async function build(config) {
 
     const result = await esbuild.build({
         ...entryOptions,
-        globalName,
         outfile: hasOutputFile ? output : undefined,
         outdir: hasOutputFile ? undefined : output,
-        entryNames,
-        assetNames,
-        chunkNames,
-        splitting: format === 'esm' && !hasOutputFile,
+        format,
         target,
-        bundle: true,
+        platform,
         sourcemap,
         minify,
-        platform,
-        format,
+        globalName,
+        entryNames,
+        chunkNames,
+        assetNames,
+        splitting: format === 'esm' && !hasOutputFile,
         external,
-        metafile: true,
-        jsxFactory,
-        jsxFragment,
         mainFields: [
             'module',
             'esnext',
@@ -130,22 +117,10 @@ export async function build(config) {
             ...(platform === 'browser' ? ['browser'] : []),
             'main',
         ],
+        jsxFactory,
+        jsxFragment,
         loader: loaders,
-        watch: watch && {
-            onRebuild(error, result) {
-                if (error) {
-                    // eslint-disable-next-line
-                    console.error(error);
-                }
-
-                if (manifest && result) {
-                    saveManifestJson(result, typeof manifest === 'string' ? manifest : outputDir, publicPath);
-                }
-                if (entrypoints && result) {
-                    saveEntrypointsJson(entryOptions.entryPoints, result, root, typeof entrypoints === 'string' ? entrypoints : outputDir, publicPath, format);
-                }
-            },
-        },
+        sourcesContent: true,
         plugins: [
             (await import('@chialab/esbuild-plugin-any-file')).default(),
             (await import('@chialab/esbuild-plugin-env')).default(),
@@ -157,14 +132,14 @@ export async function build(config) {
                 (await import('@chialab/esbuild-plugin-meta-url')).default(),
             ]),
         ],
-        ...others,
+        logLevel,
     });
 
-    if (manifest && result) {
-        saveManifestJson(result, typeof manifest === 'string' ? manifest : outputDir, publicPath);
+    if (manifestPath && result) {
+        saveManifestJson(result, manifestPath, publicPath);
     }
-    if (entrypoints && result) {
-        saveEntrypointsJson(entryOptions.entryPoints, result, root, typeof entrypoints === 'string' ? entrypoints : outputDir, publicPath, format);
+    if (entrypointsPath && result) {
+        saveEntrypointsJson(entryOptions.entryPoints, result, root, entrypointsPath, publicPath, format);
     }
 
     if (result.metafile) {

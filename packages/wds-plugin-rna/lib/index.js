@@ -1,4 +1,5 @@
 import path from 'path';
+import { getEntryConfig } from '@chialab/rna-config-loader';
 import { getRequestFilePath, PluginSyntaxError, PluginError } from '@web/dev-server-core';
 import { transform, transformLoaders, loadPlugins, loadTransformPlugins, JS_EXTENSIONS, JSON_EXTENSIONS, CSS_EXTENSIONS } from '@chialab/rna-bundler';
 import { createResolver, isCore } from '@chialab/node-resolve';
@@ -49,7 +50,7 @@ export class RnaPlugin {
     });
 
     /**
-     * @param {Partial<import('@chialab/rna-bundler').TransformConfig>} transformConfig
+     * @param {Partial<import('@chialab/rna-config-loader').CoreTransformConfig>} transformConfig
      */
     constructor(transformConfig = {}) {
         this.transformConfig = transformConfig;
@@ -92,17 +93,14 @@ export class RnaPlugin {
 
         const rootDir = this.config.rootDir;
         const filePath = getRequestFilePath(context.url, rootDir);
-        const { code } = await transform({
+        const transformConfig = getEntryConfig({
             input: filePath,
-            ...this.transformConfig,
-            sourcemap: 'inline',
-            absWorkingDir: path.dirname(filePath),
-            sourcesContent: true,
-            root: path.dirname(filePath),
             code: /** @type {string} */ (context.body),
-            target: 'es2020',
-            logLevel: 'error',
             loader,
+        }, {
+            root: path.dirname(filePath),
+            sourcemap: 'inline',
+            target: 'es2020',
             plugins: [
                 ...(await loadPlugins({
                     postcss: {
@@ -139,7 +137,10 @@ export class RnaPlugin {
                 })),
                 ...(this.transformConfig.transformPlugins || []),
             ],
+            logLevel: 'error',
         });
+
+        const { code } = await transform(transformConfig);
 
         return code;
     }
@@ -204,7 +205,7 @@ export class RnaPlugin {
 }
 
 /**
- * @param {Partial<import('@chialab/rna-bundler').TransformConfig>} [config]
+ * @param {Partial<import('@chialab/rna-config-loader').CoreTransformConfig>} [config]
  */
 export default function(config) {
     return new RnaPlugin(config);

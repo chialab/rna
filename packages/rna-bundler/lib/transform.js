@@ -1,9 +1,4 @@
-import { camelize } from './camelize.js';
 import { transformLoaders } from './loaders.js';
-
-/**
- * @typedef {Omit<import('esbuild').BuildOptions, 'loader'> & { root: string, input?: string, code: string, loader?: import('esbuild').Loader, jsxModule?: string, jsxExport?: 'default'|'named'|'namespace', transformPlugins?: import('esbuild').Plugin[] }} TransformConfig
- */
 
 /**
  * @typedef {import('esbuild').TransformResult} TransformResult
@@ -11,37 +6,42 @@ import { transformLoaders } from './loaders.js';
 
 /**
  * Build and bundle sources.
- * @param {TransformConfig} config
+ * @param {import('@chialab/rna-config-loader').EntrypointFinalConfig} config
  * @return {Promise<TransformResult>} The esbuild bundle result.
  */
 export async function transform(config) {
     const { default: esbuild } = await import('esbuild');
 
     const {
-        root = process.cwd(),
         input,
         code,
-        sourcemap = true,
-        minify = false,
-        loader = 'tsx',
-        format = 'esm',
-        globalName = format === 'iife' && input ? camelize(input) : undefined,
+        root,
+        loader,
+        format,
+        target,
+        sourcemap,
+        minify,
+        globalName,
         jsxFactory,
         jsxFragment,
         jsxModule,
         jsxExport,
-        target = format === 'iife' ? 'es5' : 'es2020',
-        plugins = [],
-        transformPlugins = [],
-        ...others
+        plugins,
+        transformPlugins,
+        logLevel,
     } = config;
 
+    if (!code) {
+        throw new Error('Missing required `code` option');
+    }
+
+    const sourceFile = Array.isArray(input) ? input[0] : input;
     const { outputFiles, warnings } = await esbuild.build({
         stdin: {
             contents: code,
-            loader: /** @type {import('esbuild').Loader} */ (`${loader}`),
+            loader,
             resolveDir: root,
-            sourcefile: input,
+            sourcefile: sourceFile,
         },
         bundle: false,
         write: false,
@@ -53,6 +53,8 @@ export async function transform(config) {
         jsxFactory,
         jsxFragment,
         loader: transformLoaders,
+        sourcesContent: true,
+        absWorkingDir: root,
         plugins: [
             (await import('@chialab/esbuild-plugin-env')).default(),
             (await import('@chialab/esbuild-plugin-jsx-import')).default({ jsxModule, jsxExport }),
@@ -61,7 +63,7 @@ export async function transform(config) {
                 ...transformPlugins,
             ]),
         ],
-        ...others,
+        logLevel,
     });
 
     if (!outputFiles) {

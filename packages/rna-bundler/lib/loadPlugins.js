@@ -6,7 +6,7 @@ export async function loadTransformPlugins({
     babel,
 } = {}) {
     /**
-     * @type {Promise<import('esbuild').Plugin>[]}
+     * @type {Promise<import('@chialab/rna-config-loader').Plugin>[]}
      */
     const transformPlugins = [
         import('@chialab/esbuild-plugin-webpack-include').then(({ default: plugin }) => plugin()),
@@ -37,7 +37,7 @@ yarn add -D @chialab/esbuild-plugin-babel
         );
     }
 
-    return /** @type {import('esbuild').Plugin[]} */ ((await Promise.all(transformPlugins)).filter((plugin) => !!plugin));
+    return /** @type {import('@chialab/rna-config-loader').Plugin[]} */ ((await Promise.all(transformPlugins)).filter((plugin) => !!plugin));
 }
 
 /**
@@ -66,5 +66,5 @@ export async function loadPlugins({ html, postcss } = {}, esbuild) {
         );
     }
 
-    return /** @type {import('esbuild').Plugin[]} */ ((await Promise.all(plugins)).filter((plugin) => !!plugin));
+    return /** @type {import('@chialab/rna-config-loader').Plugin[]} */ ((await Promise.all(plugins)).filter((plugin) => !!plugin));
 }

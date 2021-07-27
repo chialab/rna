@@ -1,4 +1,5 @@
 import path from 'path';
+import { getEntryBuildConfig } from '@chialab/rna-config-loader';
 import { build } from './build.js';
 import { saveManifestJson } from './saveManifestJson.js';
 import { saveEntrypointsJson, saveDevEntrypointsJson } from './saveEntrypointsJson.js';
@@ -14,22 +15,21 @@ export { loadPlugins, loadTransformPlugins, saveManifestJson, saveEntrypointsJso
  */
 export function command(program) {
     program
-        .command('build <entry...>', { isDefault: true })
+        .command('build [entry...]', { isDefault: true })
         .description('Compile JS and CSS modules using esbuild (https://esbuild.github.io/). It can output multiple module formats and it can be used to build a single module or to bundle all dependencies of an application.')
-        .requiredOption('-O, --output <path>', 'output directory or file')
+        .option('-O, --output <path>', 'output directory or file')
         .option('--format <type>', 'bundle format')
         .option('--platform <type>', 'platform destination')
         .option('--bundle', 'bundle dependencies')
         .option('--minify', 'minify the build')
-        .option('--watch', 'keep build alive')
         .option('--public <path>', 'public path')
         .option('--target <query>', 'output targets (es5, es2015, es2020)')
         .option('--entryNames <pattern>', 'output file names')
         .option('--chunkNames <pattern>', 'output chunk names')
         .option('--assetNames <pattern>', 'output asset names')
         .option('--clean', 'cleanup output path')
-        .option('--manifest [path]', 'generate manifest file')
-        .option('--entrypoints [path]', 'generate entrypoints file')
+        .option('--manifest <path>', 'generate manifest file')
+        .option('--entrypoints <path>', 'generate entrypoints file')
         .option('--name <identifier>', 'the iife global name')
         .option('--external [modules]', 'comma separated external packages')
         .option('--no-map', 'do not generate sourcemaps')
@@ -40,31 +40,29 @@ export function command(program) {
         .action(
             /**
              * @param {string[]} input
-             * @param {{ output: string, format?: import('esbuild').Format, platform: import('esbuild').Platform, bundle?: boolean, minify?: boolean, name?: string, watch?: boolean, manifest?: boolean|string, entrypoints?: boolean|string, target?: string, public?: string, entryNames?: string, chunkNames?: string, assetNames?: string, clean?: boolean, external?: string, map?: boolean, jsxFactory?: string, jsxFragment?: string, jsxModule?: string, jsxExport?: 'named'|'namespace'|'default' }} options
+             * @param {{ output: string, format?: import('@chialab/rna-config-loader').Format, target?: import('@chialab/rna-config-loader').Target, platform: import('@chialab/rna-config-loader').Platform, bundle?: boolean, minify?: boolean, name?: string, manifest?: boolean|string, entrypoints?: boolean|string, public?: string, entryNames?: string, chunkNames?: string, assetNames?: string, clean?: boolean, external?: string, map?: boolean, jsxFactory?: string, jsxFragment?: string, jsxModule?: string, jsxExport?: 'named'|'namespace'|'default' }} options
              */
-            async (input, { output, format = 'esm', platform, bundle, minify, name, watch, manifest, entrypoints, target, public: publicPath, entryNames, chunkNames, assetNames, clean, external, map, jsxFactory, jsxFragment, jsxModule, jsxExport }) => {
+            async (input, { output, format = 'esm', platform, bundle, minify, name, manifest, entrypoints, target, public: publicPath, entryNames, chunkNames, assetNames, clean, external, map, jsxFactory, jsxFragment, jsxModule, jsxExport }) => {
                 const { default: esbuild } = await import('esbuild');
-
-                await build({
+                const config = getEntryBuildConfig({
                     input: input.map((entry) => path.resolve(entry)),
                     output: path.resolve(output),
-                    format,
-                    platform,
                     globalName: name,
                     bundle,
+                }, {
+                    format,
+                    platform,
                     minify,
                     target,
                     clean,
-                    watch,
-                    manifest,
-                    entrypoints,
+                    manifestPath: typeof manifest === 'string' ? manifest : path.join(output, 'manifest.json'),
+                    entrypointsPath: typeof entrypoints === 'string' ? entrypoints : path.join(output, 'entrypoints.json'),
                     external: external ? external.split(',') : undefined,
                     publicPath,
                     entryNames,
                     chunkNames,
                     assetNames,
                     sourcemap: map,
-                    sourcesContent: true,
                     jsxFactory,
                     jsxFragment,
                     jsxModule,
@@ -78,6 +76,8 @@ export function command(program) {
                         babel: target === 'es5' ? {} : undefined,
                     }),
                 });
+
+                await build(config);
             }
         );
 }

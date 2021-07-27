@@ -4,7 +4,7 @@ export const CSS_EXTENSIONS = ['.css', '.scss', '.sass', '.less'];
 export const HTML_EXTENSIONS = ['.html', '.htm'];
 
 /**
- * @type {{[ext: string]: import('esbuild').Loader}}
+ * @type {{[ext: string]: import('@chialab/rna-config-loader').Loader}}
  */
 export const loaders = {
     '.cjs': 'tsx',
@@ -21,7 +21,7 @@ export const loaders = {
 };
 
 /**
- * @type {{[ext: string]: import('esbuild').Loader}}
+ * @type {{[ext: string]: import('@chialab/rna-config-loader').Loader}}
  */
 export const transformLoaders = {
     '.cjs': 'tsx',

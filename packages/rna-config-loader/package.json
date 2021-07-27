@@ -1,8 +1,8 @@
 {
-  "name": "@chialab/wds-plugin-rna",
+  "name": "@chialab/rna-config-loader",
   "type": "module",
   "version": "0.9.0",
-  "description": "A plugin for the Web Dev Server to transpile sources using the RNA bundler.",
+  "description": "Load and setup RNA configuration object.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",
   "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
@@ -10,7 +10,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/chialab/rna",
-    "directory": "packages/wds-plugin-rna"
+    "directory": "packages/rna-config-loader"
   },
   "keywords": [],
   "scripts": {
@@ -27,13 +27,7 @@
   "engines": {
     "node": ">=13"
   },
-  "dependencies": {
-    "@chialab/esbuild-plugin-postcss": "^0.9.10",
-    "@chialab/rna-config-loader": "^0.9.0",
-    "@chialab/node-resolve": "^0.9.8",
-    "@chialab/rna-bundler": "^0.9.12",
-    "@web/dev-server-core": "^0.3.8"
-  },
+  "dependencies": {},
   "devDependencies": {
     "typescript": "^4.2.3"
   }

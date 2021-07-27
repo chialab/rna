@@ -30,6 +30,7 @@ export function command(program) {
         .option('--minify', 'minify the build')
         .option('--public <path>', 'public path')
         .option('--target <query>', 'output targets (es5, es2015, es2020)')
+        .option('--no-map', 'do not generate sourcemaps')
         .option('--entryNames <pattern>', 'output file names')
         .option('--chunkNames <pattern>', 'output chunk names')
         .option('--assetNames <pattern>', 'output asset names')

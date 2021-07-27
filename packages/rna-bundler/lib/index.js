@@ -1,6 +1,6 @@
 import os from 'os';
 import path from 'path';
-import { getEntryBuildConfig, mergeConfig, readConfigFile } from '@chialab/rna-config-loader';
+import { getEntryBuildConfig, mergeConfig, readConfigFile, locateConfigFile } from '@chialab/rna-config-loader';
 import { build } from './build.js';
 import { saveManifestJson } from './saveManifestJson.js';
 import { saveEntrypointsJson, saveDevEntrypointsJson } from './saveEntrypointsJson.js';
@@ -82,6 +82,8 @@ export function command(program) {
                         babel: target === 'es5' ? {} : undefined,
                     }),
                 };
+
+                configFile = configFile || await locateConfigFile();
 
                 /**
                  * @type {import('@chialab/rna-config-loader').Config}

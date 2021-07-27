@@ -1,3 +1,4 @@
+import { access } from 'fs/promises';
 import path from 'path';
 
 /**
@@ -246,4 +247,21 @@ export async function readConfigFile(configFile, inputConfig, cwd = process.cwd(
 
         return config || {};
     }
+}
+
+/**
+ * Find the config file of the project.
+ * @param {string} root The root dir to check.
+ * @return {Promise<string|undefined>} The path of the config file.
+ */
+export async function locateConfigFile(root = process.cwd()) {
+    const file = path.join(root, 'rna.config.js');
+    try {
+        await access(file);
+        return file;
+    } catch {
+        //
+    }
+
+    return;
 }

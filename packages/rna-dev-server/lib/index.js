@@ -1,6 +1,6 @@
 import path from 'path';
 import { promises } from 'fs';
-import { readConfigFile } from '@chialab/rna-config-loader';
+import { readConfigFile, locateConfigFile } from '@chialab/rna-config-loader';
 import { createLogger } from './createLogger.js';
 
 const { stat } = promises;
@@ -151,6 +151,8 @@ export function command(program) {
              * @param {{ port?: string, config?: string }} options
              */
             async (root = process.cwd(), { port, config: configFile }) => {
+                configFile = configFile || await locateConfigFile();
+
                 /**
                  * @type {import('@chialab/rna-config-loader').Config}
                  */

@@ -33,8 +33,8 @@ Please note that HTML and CSS loaders are separated plugins that needs to be ins
 import { build } from '@chialab/rna';
 
 await build({
-    output: 'dist/esm/index.js',
     input: 'index.js',
+    output: 'dist/esm/index.js',
     // code: '...',
     // rootDir: '.',
     platform: 'browser' // 'node',
@@ -52,21 +52,23 @@ $ npm i @chialab/rna @chialab/rna-bundler @chialab/esbuild-plugin-html @chialab/
 ```
 
 ```
-build [options] <entry...>
+rna build [options] [entry...]
 
 Options:
+  -C, --config <path>         the rna config file
   -O, --output <path>         output directory or file
   --format <type>             bundle format
   --platform <type>           platform destination
   --bundle                    bundle dependencies
   --minify                    minify the build
-  --watch                     keep build alive
   --public <path>             public path
   --target <query>            output targets (es5, es2015, es2020)
   --entryNames <pattern>      output file names
+  --chunkNames <pattern>      output chunk names
+  --assetNames <pattern>      output asset names
   --clean                     cleanup output path
-  --manifest [path]           generate manifest file
-  --entrypoints [path]        generate entrypoints file
+  --manifest <path>           generate manifest file
+  --entrypoints <path>        generate entrypoints file
   --name <identifier>         the iife global name
   --external [modules]        comma separated external packages
   --no-map                    do not generate sourcemaps

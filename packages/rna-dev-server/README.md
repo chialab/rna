@@ -45,12 +45,12 @@ $ npm i @chialab/rna @chialab/rna-dev-server -D
 ```
 
 ```
-serve [options] [root]
+rna serve [options] [root]
 
 Options:
-  -P, --port <number>   server port number
-  --entrypoints [path]  generate and serve entrypoints
-  -h, --help            display help for command
+  -P, --port <number>  server port number
+  -C, --config <path>  the rna config file
+  -h, --help           display help for command
 ```
 
 **Samples**

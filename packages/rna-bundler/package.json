@@ -43,6 +43,7 @@
     "@chialab/esbuild-plugin-transform": "^0.9.6",
     "@chialab/esbuild-plugin-webpack-include": "^0.9.10",
     "@chialab/rna-config-loader": "^0.9.0",
+    "@chialab/rna-logger": "^0.9.0",
     "esbuild": "^0.12.0",
     "pkg-up": "^3.1.0"
   },

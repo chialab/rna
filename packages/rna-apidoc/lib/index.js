@@ -1,3 +1,5 @@
+import { createLogger } from '@chialab/rna-logger';
+
 /**
  * Generate documentation for typescript files.
  * @param {string[]} entryPoints Entrypoints to documentate.
@@ -39,9 +41,9 @@ export async function generate(entryPoints, format = 'json', output = undefined)
         const outputDir = path.extname(output) ? path.dirname(output) : output;
         await mkdir(outputDir, { recursive: true });
         await writeFile(outputFile, data);
-    } else {
-        process.stdout.write(data);
     }
+
+    return data;
 }
 
 /**
@@ -59,7 +61,11 @@ export function command(program) {
              * @param {{ output?: string, format?: 'json'|'markdown' }} options
              */
             async (files, { format, output }) => {
-                await generate(files, format, output);
+                const data = await generate(files, format, output);
+                if (!output) {
+                    const logger = createLogger();
+                    logger.log(data);
+                }
             }
         );
 }

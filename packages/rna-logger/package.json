@@ -1,8 +1,8 @@
 {
-  "name": "@chialab/rna-apidoc",
+  "name": "@chialab/rna-logger",
   "type": "module",
-  "version": "0.9.3",
-  "description": "Generate api documentation using TypeScript symbols.",
+  "version": "0.9.0",
+  "description": "A logging helper for the RNA cli.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",
   "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
@@ -10,16 +10,9 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/chialab/rna",
-    "directory": "packages/rna-apidoc"
+    "directory": "packages/rna-logger"
   },
-  "keywords": [
-    "api",
-    "typescript",
-    "tsdoc",
-    "jsdoc",
-    "documentation",
-    "docs"
-  ],
+  "keywords": [],
   "scripts": {
     "types": "tsc",
     "prepack": "npm run types"
@@ -35,11 +28,10 @@
     "node": ">=13"
   },
   "dependencies": {
-    "@chialab/rna-logger": "^0.9.0",
-    "typedoc": "^0.20.36"
+    "debug": "^4.3.2"
   },
   "devDependencies": {
-    "commander": "^7.2.0",
+    "@types/debug": "^4.1.6",
     "typescript": "^4.2.3"
   }
 }

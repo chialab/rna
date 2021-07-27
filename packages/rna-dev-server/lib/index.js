@@ -1,14 +1,12 @@
 import path from 'path';
 import { promises } from 'fs';
 import { readConfigFile, locateConfigFile } from '@chialab/rna-config-loader';
-import { createLogger } from './createLogger.js';
+import { createLogger } from '@chialab/rna-logger';
 
 const { stat } = promises;
 
-export { createLogger };
-
 /**
- * @typedef {Partial<import('@web/dev-server-core').DevServerCoreConfig> & { entrypoints?: import('@chialab/rna-config-loader').Entrypoint[], entrypointsPath?: string }} DevServerConfig
+ * @typedef {Partial<import('@web/dev-server-core').DevServerCoreConfig> & { logger?: import('@chialab/rna-logger').Logger, entrypoints?: import('@chialab/rna-config-loader').Entrypoint[], entrypointsPath?: string }} DevServerConfig
  */
 
 export async function buildMiddlewares() {
@@ -88,7 +86,7 @@ export async function startDevServer(config) {
             ...(await buildDevPlugins()),
             ...(config.plugins || []),
         ],
-    }, createLogger());
+    }, config.logger || createLogger());
 
     return server;
 }
@@ -124,8 +122,7 @@ export async function serve(config) {
     await server.start();
 
     process.on('uncaughtException', error => {
-        // eslint-disable-next-line no-console
-        console.error(error);
+        config.logger?.error(error);
     });
 
     process.on('SIGINT', async () => {
@@ -153,6 +150,8 @@ export function command(program) {
             async (root = process.cwd(), { port, config: configFile }) => {
                 configFile = configFile || await locateConfigFile();
 
+                const logger = createLogger();
+
                 /**
                  * @type {import('@chialab/rna-config-loader').Config}
                  */
@@ -173,6 +172,7 @@ export function command(program) {
                     port: port ? parseInt(port) : undefined,
                     entrypointsPath: config.entrypointsPath,
                     entrypoints: config.entrypoints,
+                    logger,
                 };
                 try {
                     const { legacyPlugin } = await import('@chialab/wds-plugin-legacy');
@@ -185,8 +185,7 @@ export function command(program) {
 
                 const server = await serve(serveConfig);
 
-                // eslint-disable-next-line no-console
-                console.log(`rna dev server started...
+                logger.log(`rna dev server started...
 
   Root dir: ${serveConfig.rootDir}
   Local:    http://${server.config.hostname}:${server.config.port}/

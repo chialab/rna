@@ -1,14 +1,9 @@
 import debug from 'debug';
 
-const logger = debug('rna dev server');
+export function createLogger(name = 'rna') {
+    const logger = debug(name);
 
-export function createLogger() {
     return {
-        /**
-         * @type {Map<string, import('@web/dev-server-core').ErrorWithLocation[]>}
-         */
-        loggedSyntaxErrors: new Map(),
-
         /**
          * @param  {any[]} messages
          */
@@ -48,25 +43,12 @@ export function createLogger() {
          * @param {import('@web/dev-server-core').ErrorWithLocation} error
          */
         logSyntaxError(error) {
-            const { message, code, filePath, column, line } = error;
-            const errors = this.loggedSyntaxErrors.get(filePath);
-            if (!errors) {
-                this.loggedSyntaxErrors.set(filePath, [error]);
-                return;
-            }
-            if (
-                errors.find((err) => err.code === code &&
-                    err.message === message &&
-                    err.column === column &&
-                    err.line === line)
-            ) {
-                return;
-            }
-            errors.push(error);
-        },
-
-        clearLoggedSyntaxErrors() {
-            this.loggedSyntaxErrors = new Map();
+            // eslint-disable-next-line no-console
+            console.error(error);
         },
     };
 }
+
+/**
+ * @typedef {ReturnType<createLogger>} Logger
+ */

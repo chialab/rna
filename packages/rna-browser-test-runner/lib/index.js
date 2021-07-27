@@ -1,5 +1,6 @@
 import path from 'path';
 import { createRequire } from 'module';
+import { createLogger } from '@chialab/rna-logger';
 import { mochaReporter } from '@chialab/wtr-mocha-reporter';
 
 const require = createRequire(import.meta.url);
@@ -36,11 +37,9 @@ export async function startTestRunner(config) {
     const [
         { TestRunner, TestRunnerCli },
         { buildMiddlewares, buildPlugins },
-        { createLogger },
     ] = await Promise.all([
         import('@web/test-runner-core'),
         import('@chialab/rna-dev-server'),
-        import('./createLogger.js'),
     ]);
     const testFramework =
         /**
@@ -61,7 +60,7 @@ export async function startTestRunner(config) {
         rootDir: process.cwd(),
         protocol: 'http:',
         hostname: 'localhost',
-        logger: createLogger(),
+        logger: config.logger,
         browserStartTimeout: 2 * 60 * 1000,
         testsStartTimeout: 20 * 1000,
         testsFinishTimeout: 2 * 60 * 1000,
@@ -121,8 +120,7 @@ export async function test(config) {
     cli.start();
 
     process.on('uncaughtException', error => {
-        // eslint-disable-next-line no-console
-        console.error(error);
+        config.logger?.error(error);
     });
 
     process.on('exit', async () => {
@@ -166,6 +164,8 @@ export function command(program) {
                  */
                 const plugins = [];
 
+                const logger = createLogger();
+
                 /**
                  * @type {TestRunnerConfig}
                  */
@@ -177,6 +177,7 @@ export function command(program) {
                     manual: manual || open === true,
                     open,
                     plugins,
+                    logger,
                     browsers: [
                         (await import('@web/test-runner-chrome')).chromeLauncher(),
                     ],

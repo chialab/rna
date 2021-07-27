@@ -1,4 +1,7 @@
 import debug from 'debug';
+import chalk from 'chalk';
+
+export const colors = chalk;
 
 export function createLogger(name = 'rna') {
     const logger = debug(name);
@@ -31,6 +34,69 @@ export function createLogger(name = 'rna') {
             // eslint-disable-next-line no-console
             console.warn(...messages);
         },
+        /**
+         * @param {*} tabularData
+         * @param {string[]} [properties]
+         */
+        table(tabularData, properties) {
+            // eslint-disable-next-line no-console
+            console.table(tabularData, properties);
+        },
+        /**
+         * @param {{ [key: string]: * }} files
+         * @param {string[]} properties
+         * @param {{ [key: string]: (input: *) => string }} formatters
+         */
+        files(files, properties = [], formatters = {}) {
+            /**
+             * @param {string} key
+             * @param {*} value
+             */
+            const format = (key, value) => (formatters[key] ? formatters[key](value) : `${value}`);
+
+            const columns = Object.keys(files)
+                .reduce((acc, key) => {
+                    const fileColumn = acc.filename = acc.filename || {
+                        values: [],
+                        length: 0,
+                    };
+                    fileColumn.values.push(key);
+                    fileColumn.length = Math.max(fileColumn.length || 0, key.length);
+
+                    const file = files[key];
+                    properties.forEach((propKey) => {
+                        const realValue = file[propKey];
+                        const propValue = format(propKey, realValue);
+                        const propColumn = acc[propKey] = acc[propKey] || {
+                            values: [],
+                            length: 0,
+                            total: 0,
+                        };
+
+                        if (typeof realValue === 'number') {
+                            propColumn.total += realValue;
+                            propColumn.length = Math.max(propColumn.length || 0, format(propKey, propColumn.total).length);
+                        }
+
+                        propColumn.values.push(propValue);
+                        propColumn.length = Math.max(propColumn.length || 0, propValue.length);
+                    });
+
+                    return acc;
+                }, /** @type {*} */({}));
+
+            this.log(Object.keys(columns).map((name) => colors.white.bold(name[0].toUpperCase() + name.substr(1).padEnd(columns[name].length - 1, ' '))).join('\t'));
+
+            Object.keys(files).forEach((fileName, index) => {
+                this.log(Object.keys(columns).map((name, colIndex) => (colIndex === 0 ? colors.blue : colors.gray)((columns[name].values[index] || '').padEnd(columns[name].length, ' '))).join('\t'));
+            });
+
+            const hasTotal = Object.keys(columns).some((name) => columns[name].total);
+            if (hasTotal) {
+                this.log(Object.keys(columns).map((name) => ''.padEnd(columns[name].length, columns[name].total ? '_' : ' ')).join('\t'));
+                this.log(Object.keys(columns).map((name) => colors.yellow.bold((columns[name].total ? format(name, columns[name].total) : '').padEnd(columns[name].length, ' '))).join('\t'));
+            }
+        },
         group() {
             // eslint-disable-next-line no-console
             console.group();
@@ -59,8 +125,11 @@ export function createLogger(name = 'rna') {
  * @param {number} byteSize
  * @return {string}
  */
-export function toReadableSize(byteSize) {
-    if (byteSize === undefined || byteSize < 0) {
+export function readableSize(byteSize) {
+    if (byteSize === undefined) {
+        return '-';
+    }
+    if (byteSize < 0) {
         return 'invalid size';
     }
     if (byteSize === 0) {

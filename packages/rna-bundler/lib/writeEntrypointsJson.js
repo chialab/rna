@@ -11,7 +11,7 @@ import { loaders } from './loaders.js';
  * @param {string} publicPath The public path.
  * @param {import('@chialab/rna-config-loader').Format} format The output format.
  */
-export async function saveEntrypointsJson(entrypoints, result, rootDir, outputFile, publicPath = '/', format) {
+export async function writeEntrypointsJson(entrypoints, result, rootDir, outputFile, publicPath = '/', format) {
     const { metafile } = result;
     if (!metafile) {
         return;
@@ -68,7 +68,7 @@ export async function saveEntrypointsJson(entrypoints, result, rootDir, outputFi
  * @param {import('@web/dev-server-core').DevServer} server The server instance.
  * @param {import('@chialab/rna-config-loader').Format} format The output format.
  */
-export async function saveDevEntrypointsJson(entrypoints, outputFile, server, format) {
+export async function writeDevEntrypointsJson(entrypoints, outputFile, server, format) {
     const { config } = server;
     const base = `http${config.http2 ? 's' : ''}://${config.hostname ?? 'localhost'}:${config.port}`;
     const outputDir = path.extname(outputFile) ? path.dirname(outputFile) : outputFile;

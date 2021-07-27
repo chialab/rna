@@ -7,7 +7,7 @@ import { writeFile } from 'fs/promises';
  * @param {string} outputFile The output file or dir.
  * @param {string} publicPath The public path.
  */
-export async function saveManifestJson(result, outputFile, publicPath = '/') {
+export async function writeManifestJson(result, outputFile, publicPath = '/') {
     const { metafile } = result;
     if (!metafile) {
         return;

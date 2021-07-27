@@ -1,7 +1,7 @@
 import { stat } from 'fs/promises';
 import path from 'path';
 import { readConfigFile, mergeConfig, locateConfigFile } from '@chialab/rna-config-loader';
-import { createLogger } from '@chialab/rna-logger';
+import { createLogger, colors } from '@chialab/rna-logger';
 
 /**
  * @typedef {Partial<import('@web/dev-server-core').DevServerCoreConfig> & { logger?: import('@chialab/rna-logger').Logger, entrypoints?: import('@chialab/rna-config-loader').Entrypoint[], entrypointsPath?: string }} DevServerConfig
@@ -169,10 +169,11 @@ export function command(program) {
 
                 const server = await serve(serveConfig);
 
-                logger.log(`rna dev server started...
+                logger.log(`
+  rna dev server started
 
-  Root dir: ${serveConfig.rootDir}
-  Local:    http://${server.config.hostname}:${server.config.port}/
+  Root:     ${colors.blue.bold(serveConfig.rootDir || root)}
+  Local:    ${colors.blue.bold(`http://${server.config.hostname}:${server.config.port}/`)}
 `);
             }
         );

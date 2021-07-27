@@ -1,8 +1,8 @@
 import { readFile, rename, rm } from 'fs/promises';
 import path from 'path';
 import { loaders } from './loaders.js';
-import { saveManifestJson } from './saveManifestJson.js';
-import { saveEntrypointsJson } from './saveEntrypointsJson.js';
+import { writeManifestJson } from './writeManifestJson.js';
+import { writeEntrypointsJson } from './writeEntrypointsJson.js';
 
 /**
  * @typedef {import('esbuild').BuildResult & { outputFiles?: import('esbuild').OutputFile[] }} BuildResult
@@ -140,10 +140,10 @@ export async function build(config) {
     });
 
     if (manifestPath && result) {
-        saveManifestJson(result, manifestPath, publicPath);
+        writeManifestJson(result, manifestPath, publicPath);
     }
     if (entrypointsPath && result) {
-        saveEntrypointsJson(entryOptions.entryPoints, result, root, entrypointsPath, publicPath, format);
+        writeEntrypointsJson(entryOptions.entryPoints, result, root, entrypointsPath, publicPath, format);
     }
 
     if (result.metafile) {

@@ -1,43 +1,20 @@
 /**
- * @param {{ commonjs?: import('@chialab/esbuild-plugin-commonjs').PluginOptions, babel?: import('@chialab/esbuild-plugin-babel').PluginOptions }} [config]
+ * @param {{ commonjs?: import('@chialab/esbuild-plugin-commonjs').PluginOptions }} [config]
  */
 export async function loadTransformPlugins({
-    commonjs,
-    babel,
+    commonjs = {},
 } = {}) {
     /**
      * @type {Promise<import('@chialab/rna-config-loader').Plugin>[]}
      */
     const transformPlugins = [
         import('@chialab/esbuild-plugin-webpack-include').then(({ default: plugin }) => plugin()),
+        import('@chialab/esbuild-plugin-commonjs').then(({ default: plugin }) => plugin({
+            ...commonjs,
+        })),
     ];
 
-    if (commonjs) {
-        transformPlugins.push(
-            import('@chialab/esbuild-plugin-commonjs').then(({ default: plugin }) => plugin({
-                ...commonjs,
-            }))
-        );
-    }
-
-    if (babel) {
-        transformPlugins.push(
-            import('@chialab/esbuild-plugin-babel')
-                .catch(() => {
-                    throw new Error(`Cannot import the "@chialab/esbuild-plugin-babel" plugin.
-Did you foget to install it? Please run:
-
-npm i -D @chialab/esbuild-plugin-babel
-yarn add -D @chialab/esbuild-plugin-babel
-`);
-                })
-                .then(({ default: plugin }) => plugin({
-                    ...babel,
-                }))
-        );
-    }
-
-    return /** @type {import('@chialab/rna-config-loader').Plugin[]} */ ((await Promise.all(transformPlugins)).filter((plugin) => !!plugin));
+    return Promise.all(transformPlugins);
 }
 
 /**

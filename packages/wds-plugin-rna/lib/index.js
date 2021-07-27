@@ -1,7 +1,7 @@
 import path from 'path';
 import { getEntryConfig } from '@chialab/rna-config-loader';
 import { getRequestFilePath, PluginSyntaxError, PluginError } from '@web/dev-server-core';
-import { transform, transformLoaders, loadPlugins, loadTransformPlugins, saveDevEntrypointsJson, JS_EXTENSIONS, JSON_EXTENSIONS, CSS_EXTENSIONS } from '@chialab/rna-bundler';
+import { transform, transformLoaders, loadPlugins, loadTransformPlugins, writeDevEntrypointsJson, JS_EXTENSIONS, JSON_EXTENSIONS, CSS_EXTENSIONS } from '@chialab/rna-bundler';
 import { createResolver, isCore } from '@chialab/node-resolve';
 
 /**
@@ -235,7 +235,7 @@ export function entrypointsPlugin(entrypoints = [], entrypointsPath) {
                         return acc;
                     }, /** @type {string[]} */ ([]));
 
-                await saveDevEntrypointsJson(files, entrypointsPath, /** @type {import('@web/dev-server-core').DevServer} */ (/** @type {unknown} */ (args)), 'esm');
+                await writeDevEntrypointsJson(files, entrypointsPath, /** @type {import('@web/dev-server-core').DevServer} */ (/** @type {unknown} */ (args)), 'esm');
             }
         },
     };

@@ -6,7 +6,7 @@ import { mochaReporter } from '@chialab/wtr-mocha-reporter';
 const require = createRequire(import.meta.url);
 
 /**
- * @typedef {Partial<Omit<import('@web/test-runner-core').TestRunnerCoreConfig, 'browsers'>> & { browsers?: string[]|import('@web/test-runner-core').BrowserLauncher[] }} TestRunnerConfig
+ * @typedef {Partial<Omit<import('@web/test-runner-core').TestRunnerCoreConfig, 'browsers'>> & { logger?: import('@chialab/rna-logger').Logger, browsers?: string[]|import('@web/test-runner-core').BrowserLauncher[] }} TestRunnerConfig
  */
 
 /**

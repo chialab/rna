@@ -1,43 +1,19 @@
 import os from 'os';
 import path from 'path';
-import { writeFile } from 'fs/promises';
 import { getEntryBuildConfig, mergeConfig, readConfigFile, locateConfigFile } from '@chialab/rna-config-loader';
+import { createLogger, readableSize } from '@chialab/rna-logger';
 import { build } from './build.js';
-import { saveManifestJson } from './saveManifestJson.js';
-import { saveEntrypointsJson, saveDevEntrypointsJson } from './saveEntrypointsJson.js';
+import { writeManifestJson } from './writeManifestJson.js';
+import { writeEntrypointsJson, writeDevEntrypointsJson } from './writeEntrypointsJson.js';
 import { loadPlugins, loadTransformPlugins } from './loadPlugins.js';
 import { Queue } from './Queue.js';
-import { printBundleSize } from './printBundleSize.js';
+import { writeMetafile } from './writeMetafile.js';
+import { bundleSize } from './bundleSize.js';
 
 export * from './loaders.js';
 export * from './transform.js';
 export * from './build.js';
-export { loadPlugins, loadTransformPlugins, saveManifestJson, saveEntrypointsJson, saveDevEntrypointsJson };
-
-/**
- * Writes a JSON file with the metafile contents, for bundle analysis.
- *
- * @param {import('esbuild').Metafile[]} bundleFiles Array of metafiles for all bundle's generated files
- * @param {string} filePath Path of the JSON file to generate, relative to CWD
- * @return {Promise<void>}
- */
-const writeMetafile = (bundleFiles, filePath) => {
-    const bundle = bundleFiles.reduce((bundle, /** @type {import('esbuild').Metafile} */ metaFile) => {
-        bundle.inputs = { ...bundle.inputs, ...metaFile.inputs };
-        bundle.outputs = { ...bundle.outputs, ...metaFile.outputs };
-
-        return bundle;
-    }, { inputs: {}, outputs: {} });
-
-    return writeFile(filePath, JSON.stringify(bundle))
-        .then(() => {
-            process.stdout.write(`Bundle metafile written to: ${filePath}\n`);
-        })
-        .catch((err) => {
-            process.stderr.write('Error writing JSON metafile\n');
-            throw err;
-        });
-};
+export { loadPlugins, loadTransformPlugins, writeManifestJson, writeEntrypointsJson, writeDevEntrypointsJson };
 
 /**
  * @param {import('commander').Command} program
@@ -62,7 +38,6 @@ export function command(program) {
         .option('--entrypoints <path>', 'generate entrypoints file')
         .option('--name <identifier>', 'the iife global name')
         .option('--external [modules]', 'comma separated external packages')
-        .option('--no-map', 'do not generate sourcemaps')
         .option('--metafile <path>', 'write JSON metadata file about the build')
         .option('--show-compressed', 'show compressed size of files in build summary')
         .option('--jsxFactory <identifier>', 'jsx pragma')
@@ -75,6 +50,11 @@ export function command(program) {
              * @param {{ config?: string, output: string, format?: import('@chialab/rna-config-loader').Format, target?: import('@chialab/rna-config-loader').Target, platform: import('@chialab/rna-config-loader').Platform, bundle?: boolean, minify?: boolean, name?: string, manifest?: boolean|string, entrypoints?: boolean|string, public?: string, entryNames?: string, chunkNames?: string, assetNames?: string, clean?: boolean, external?: string, map?: boolean, jsxFactory?: string, jsxFragment?: string, jsxModule?: string, jsxExport?: 'named'|'namespace'|'default', metafile?: string, showCompressed?: boolean }} options
              */
             async (input, { config: configFile, output, format = 'esm', platform, bundle, minify, name, manifest, entrypoints, target, public: publicPath, entryNames, chunkNames, assetNames, clean, external: externalString, map: sourcemap, jsxFactory, jsxFragment, jsxModule, jsxExport, metafile, showCompressed }) => {
+                if (sourcemap === true) {
+                    sourcemap = undefined;
+                }
+
+                const logger = createLogger();
                 const { default: esbuild } = await import('esbuild');
                 const manifestPath = manifest ? (typeof manifest === 'string' ? manifest : path.join(output, 'manifest.json')) : undefined;
                 const entrypointsPath = entrypoints ? (typeof entrypoints === 'string' ? entrypoints : path.join(output, 'entrypoints.json')) : undefined;
@@ -111,10 +91,7 @@ export function command(program) {
                         },
                         postcss: { relative: false },
                     }, esbuild),
-                    transformPlugins: await loadTransformPlugins({
-                        commonjs: {},
-                        babel: target === 'es5' ? {} : undefined,
-                    }),
+                    transformPlugins: await loadTransformPlugins(),
                 };
 
                 configFile = configFile || await locateConfigFile();
@@ -138,8 +115,19 @@ export function command(program) {
                 const queue = new Queue();
                 for (const entrypoint of config.entrypoints) {
                     queue.add(async () => {
-                        await build(getEntryBuildConfig(entrypoint, config));
-                        await printBundleSize(bundleMetafiles, showCompressed);
+                        const result = await build(getEntryBuildConfig(entrypoint, config));
+                        const sizes = await bundleSize([
+                            /** @type {import('esbuild').Metafile} */ (result.metafile),
+                            ...bundleMetafiles,
+                        ], showCompressed);
+
+                        logger.log('Generated bundle files:\n');
+                        logger.files(sizes, showCompressed ? ['size', 'gzip', 'brotli'] : ['size'], {
+                            size: readableSize,
+                            gzip: readableSize,
+                            brotli: readableSize,
+                        });
+
                         if (typeof metafile === 'string') {
                             await writeMetafile(bundleMetafiles, path.relative(process.cwd(), metafile));
                         }

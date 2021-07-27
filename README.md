@@ -78,6 +78,7 @@ The RNA ecosystem provides a set of plugins and addons for core tools designed t
 | [@chialab/wds-plugin-hmr-css](./packages/wds-plugin-hmr-css) | Enable CSS hmr for the web dev server. | [<img src="https://img.shields.io/npm/v/@chialab/wds-plugin-hmr-css" alt="npm" />](https://www.npmjs.com/package/@chialab/wds-plugin-hmr-css) |
 | [@chialab/wds-plugin-legacy](./packages/wds-plugin-legacy) | Transform esm modules served by the web dev server into SystemJS modules for legacy browser compatibility. | [<img src="https://img.shields.io/npm/v/@chialab/wds-plugin-legacy" alt="npm" />](https://www.npmjs.com/package/@chialab/wds-plugin-legacy) |
 | [@chialab/wds-plugin-polyfill](./packages/wds-plugin-polyfill) | Inject polyfills to HTML responses served by the web dev server. | [<img src="https://img.shields.io/npm/v/@chialab/wds-plugin-polyfill" alt="npm" />](https://www.npmjs.com/package/@chialab/wds-plugin-polyfill) |
+| [@chialab/wds-plugin-rna](./packages/wds-plugin-rna) | A plugin for the Web Dev Server to transpile sources using the RNA bundler. | [<img src="https://img.shields.io/npm/v/@chialab/wds-plugin-rna" alt="npm" />](https://www.npmjs.com/package/@chialab/wds-plugin-rna) |
 | [@chialab/wtr-mocha-reporter](./packages/wtr-mocha-reporter) | A Mocha reporter interface for the Web Test Runner. | [<img src="https://img.shields.io/npm/v/@chialab/wtr-mocha-reporter" alt="npm" />](https://www.npmjs.com/package/@chialab/wtr-mocha-reporter) |
 
 ---

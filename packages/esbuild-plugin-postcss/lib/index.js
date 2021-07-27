@@ -24,7 +24,11 @@ async function loadPostcssConfig() {
 }
 
 /**
- * @typedef {import('postcss').ProcessOptions & { relative?: boolean }} PluginOptions
+ * @typedef {import('@chialab/postcss-url-rebase').UrlRebasePluginOptions} UrlRebasePluginOptions
+ */
+
+/**
+ * @typedef {import('postcss').ProcessOptions & { relative?: UrlRebasePluginOptions['relative'], transform?: UrlRebasePluginOptions['transform'] }} PluginOptions
  */
 
 /**
@@ -57,7 +61,11 @@ export default function(options = {}) {
                 const contents = await readFile(filePath, 'utf-8');
                 const config = await loadPostcssConfig();
                 const plugins = [
-                    urlRebase({ root: sourceRoot, relative: options.relative }),
+                    urlRebase({
+                        root: sourceRoot,
+                        relative: options.relative,
+                        transform: options.transform,
+                    }),
                     ...(config.plugins || [preset()]),
                 ];
 

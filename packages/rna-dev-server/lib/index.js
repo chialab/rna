@@ -27,16 +27,13 @@ export async function buildMiddlewares() {
 
 export async function buildPlugins() {
     const [
-        { resolvePlugin },
-        { esbuildPlugin },
+        { default: rnaPlugin },
     ] = await Promise.all([
-        import('./plugins/resolve.js'),
-        import('./plugins/esbuild.js'),
+        import('@chialab/wds-plugin-rna'),
     ]);
 
     return [
-        esbuildPlugin(),
-        resolvePlugin(),
+        rnaPlugin(),
     ];
 }
 

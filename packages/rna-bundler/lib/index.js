@@ -1,6 +1,7 @@
 import path from 'path';
-import { writeFile, readFile } from 'fs/promises';
-import { brotliCompress, gzip } from 'zlib';
+import { writeFile } from 'fs/promises';
+import { createReadStream } from 'fs';
+import { createGzip, createBrotliCompress } from 'zlib';
 import { build } from './build.js';
 import { saveManifestJson } from './saveManifestJson.js';
 import { saveEntrypointsJson, saveDevEntrypointsJson } from './saveEntrypointsJson.js';
@@ -53,18 +54,15 @@ const printBundleSize = async (bundleFiles, compressed = []) => {
         }, fileSizesMap), {});
     await Promise.all(
         Object.keys(fileSizes)
-            .filter((path) => /\.(js|html|css|svg)$/.test(path))
-            .map(async (path) => {
-                const buffer = await readFile(path);
-                await Promise.all(compressed.map(async (algo) => {
-                    try {
-                        fileSizes[path][algo] = await compressFileSize(buffer, algo);
-                    } catch (err) {
-                        process.stderr.write(`Error while calculating compressed size for file "${path}" with algorithm ${algo}: ${err}\n`);
-                        fileSizes[path][algo] = 0;
-                    }
-                }));
-            })
+            .filter((path) => /\.(js|html|css|svg|json)$/.test(path))
+            .map((path) => Promise.all(compressed.map(async (algo) => {
+                try {
+                    fileSizes[path][algo] = await compressFileSize(path, algo);
+                } catch (err) {
+                    process.stderr.write(`Error while calculating compressed size for file "${path}" with algorithm ${algo}: ${err}\n`);
+                    fileSizes[path][algo] = 0;
+                }
+            })))
     );
     const totalSizes = /** @type {{ [compression: string]: number }} */ Object.values(fileSizes)
         .reduce((/** @type {{ [compression: string]: number }} */ totals, /** @type {{ [compression: string]: number }} */ sizes) => {
@@ -130,22 +128,33 @@ const toReadableSize = (byteSize) => {
 /**
  * Get the compressed size of a file.
  *
- * @param {Buffer} buffer File content
+ * @param {string} path File path
  * @param {string} algorithm Compression algorithm to use, one of `gzip` or `brotli`
  * @param {import('zlib').ZlibOptions|import('zlib').BrotliOptions} options Options to tune the compression algorithm
  * @return {Promise<number>} The file size in bytes
  */
-const compressFileSize = (buffer, algorithm = 'gzip', options = {}) => new Promise((resolve, reject) => {
-    /** @type {(buf: import('zlib').InputType, options: import('zlib').BrotliOptions|import('zlib').ZlibOptions, callback: import('zlib').CompressCallback) => void} */
-    let compressFunction;
+const compressFileSize = (path, algorithm = 'gzip', options = {}) => new Promise((resolve, reject) => {
+    /**
+     * Handle compression and stream errors.
+     *
+     * @param {Error} err
+     */
+    const handleError = (err) => {
+        process.stderr.write(`Error compressing file "${path}": ${err.message}\n`);
+        compressMethod.destroy();
+        stream.destroy();
+        reject(err);
+    };
+
+    /** @type {import('zlib').Gzip|import('zlib').BrotliCompress} */
+    let compressMethod;
     switch (algorithm) {
         case 'gzip':
-            options = { level: 5, ...options };
-            compressFunction = gzip;
+            compressMethod = createGzip({  level: 6, ...options });
             break;
 
         case 'brotli':
-            compressFunction = brotliCompress;
+            compressMethod = createBrotliCompress(options);
             break;
 
         default:
@@ -153,16 +162,17 @@ const compressFileSize = (buffer, algorithm = 'gzip', options = {}) => new Promi
             return;
     }
 
-    compressFunction(buffer, options, (err, result) => {
-        if (err) {
-            process.stderr.write(`Error compressing file "${path}"\n`);
-            reject(err);
-
-            return;
-        }
-
-        resolve(result.length);
-    });
+    let size = 0;
+    const stream = createReadStream(path);
+    stream.on('error', handleError);
+    compressMethod.on('error', handleError);
+    compressMethod.on('data', (buf) => size += buf.length);
+    stream.pipe(compressMethod)
+        .on('end', () => {
+            compressMethod.destroy();
+            stream.destroy();
+            resolve(size);
+        });
 });
 
 

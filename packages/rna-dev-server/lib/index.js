@@ -24,15 +24,19 @@ export async function buildMiddlewares() {
     ];
 }
 
-export async function buildPlugins() {
+/**
+ * @param {DevServerConfig} config
+ */
+export async function buildPlugins(config) {
     const [
-        { default: rnaPlugin },
+        { default: rnaPlugin, entrypointsPlugin },
     ] = await Promise.all([
         import('@chialab/wds-plugin-rna'),
     ]);
 
     return [
         rnaPlugin(),
+        entrypointsPlugin(config.entrypoints, config.entrypointsPath),
     ];
 }
 
@@ -59,7 +63,7 @@ export async function buildDevPlugins() {
  * @param {DevServerConfig} config
  * @return {Promise<import('@web/dev-server-core').DevServer>} The dev server instance.
  */
-export async function startDevServer(config) {
+export async function createDevServer(config) {
     const { DevServer } = await import('@web/dev-server-core');
 
     const root = config.rootDir ? path.resolve(config.rootDir) : process.cwd();
@@ -82,7 +86,7 @@ export async function startDevServer(config) {
             ...(config.middleware || []),
         ],
         plugins: [
-            ...(await buildPlugins()),
+            ...(await buildPlugins(config)),
             ...(await buildDevPlugins()),
             ...(config.plugins || []),
         ],
@@ -98,25 +102,10 @@ export async function startDevServer(config) {
  */
 export async function serve(config) {
     const root = config.rootDir || process.cwd();
-    const server = await startDevServer({
+    const server = await createDevServer({
         ...config,
         rootDir: root,
     });
-
-    if (config.entrypoints && config.entrypointsPath) {
-        const { saveDevEntrypointsJson } = await import('@chialab/rna-bundler');
-        const files = config.entrypoints
-            .reduce((acc, { input }) => {
-                if (Array.isArray(input)) {
-                    acc.push(...input);
-                } else {
-                    acc.push(input);
-                }
-
-                return acc;
-            }, /** @type {string[]} */ ([]));
-        await saveDevEntrypointsJson(files, config.entrypointsPath, server, 'esm');
-    }
 
     await server.start();
 

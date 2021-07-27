@@ -1,7 +1,7 @@
 import path from 'path';
 import { getEntryConfig } from '@chialab/rna-config-loader';
 import { getRequestFilePath, PluginSyntaxError, PluginError } from '@web/dev-server-core';
-import { transform, transformLoaders, loadPlugins, loadTransformPlugins, JS_EXTENSIONS, JSON_EXTENSIONS, CSS_EXTENSIONS } from '@chialab/rna-bundler';
+import { transform, transformLoaders, loadPlugins, loadTransformPlugins, saveDevEntrypointsJson, JS_EXTENSIONS, JSON_EXTENSIONS, CSS_EXTENSIONS } from '@chialab/rna-bundler';
 import { createResolver, isCore } from '@chialab/node-resolve';
 
 /**
@@ -57,7 +57,7 @@ export class RnaPlugin {
     }
 
     /**
-     * @param {{ config: import('@web/dev-server-core').DevServerCoreConfig }} param0
+     * @param {{ config: import('@web/dev-server-core').DevServerCoreConfig }} args
      */
     async serverStart({ config }) {
         this.config = config;
@@ -209,4 +209,36 @@ export class RnaPlugin {
  */
 export default function(config) {
     return new RnaPlugin(config);
+}
+
+/**
+ * @param {import('@chialab/rna-config-loader').Entrypoint[]} [entrypoints]
+ * @param {string} [entrypointsPath]
+ */
+export function entrypointsPlugin(entrypoints = [], entrypointsPath) {
+    /**
+     * @type {Plugin}
+     */
+    const plugin = {
+        name: 'rna-entrypoints',
+
+        async serverStart(args) {
+            if (entrypoints && entrypointsPath) {
+                const files = entrypoints
+                    .reduce((acc, { input }) => {
+                        if (Array.isArray(input)) {
+                            acc.push(...input);
+                        } else {
+                            acc.push(input);
+                        }
+
+                        return acc;
+                    }, /** @type {string[]} */ ([]));
+
+                await saveDevEntrypointsJson(files, entrypointsPath, /** @type {import('@web/dev-server-core').DevServer} */ (/** @type {unknown} */ (args)), 'esm');
+            }
+        },
+    };
+
+    return plugin;
 }

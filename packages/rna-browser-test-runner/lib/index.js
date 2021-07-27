@@ -94,7 +94,7 @@ export async function startTestRunner(config) {
             ...(config.middleware || []),
         ],
         plugins: [
-            ...(await buildPlugins()),
+            ...(await buildPlugins(config)),
             ...(config.plugins || []),
         ],
     };

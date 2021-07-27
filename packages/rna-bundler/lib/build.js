@@ -1,7 +1,6 @@
 import { readFile, rename, rm } from 'fs/promises';
 import path from 'path';
 import { loaders } from './loaders.js';
-import { emptyDir } from './emptyDir.js';
 import { saveManifestJson } from './saveManifestJson.js';
 import { saveEntrypointsJson } from './saveEntrypointsJson.js';
 
@@ -64,7 +63,7 @@ export async function build(config) {
 
     const outputDir = hasOutputFile ? path.dirname(output) : output;
     if (clean) {
-        await emptyDir(outputDir);
+        await rm(outputDir, { recursive: true, force: true });
     }
 
     const extraTransformPlugins = [];

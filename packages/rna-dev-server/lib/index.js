@@ -1,6 +1,6 @@
 import { stat } from 'fs/promises';
 import path from 'path';
-import { readConfigFile, locateConfigFile } from '@chialab/rna-config-loader';
+import { readConfigFile, mergeConfig, locateConfigFile } from '@chialab/rna-config-loader';
 import { createLogger } from '@chialab/rna-logger';
 
 /**
@@ -141,9 +141,7 @@ export function command(program) {
                 /**
                  * @type {import('@chialab/rna-config-loader').Config}
                  */
-                const config = configFile ? await readConfigFile(configFile, {}) : {
-                    root,
-                };
+                const config = mergeConfig({ root }, configFile ? await readConfigFile(configFile, { root }, 'serve') : {});
 
                 /**
                  * @type {import('@web/dev-server-core').Plugin[]}

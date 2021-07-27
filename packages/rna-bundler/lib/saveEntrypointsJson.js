@@ -1,4 +1,4 @@
-import { writeFile } from 'fs/promises';
+import { mkdir, writeFile } from 'fs/promises';
 import path from 'path';
 import { loaders } from './loaders.js';
 
@@ -54,8 +54,9 @@ export async function saveEntrypointsJson(entrypoints, result, rootDir, outputFi
         }
 
         return json;
-    }, /** @type {{[file: string]: { js: string[], css: string[] }}} */ ({}));
+    }, /** @type {{[file: string]: { js: string[], css: string[] }}} */({}));
 
+    await mkdir(path.dirname(outputFile), { recursive: true });
     await writeFile(outputFile, JSON.stringify({ entrypoints: entrypointsJson }, null, 2));
 }
 
@@ -102,5 +103,6 @@ export async function saveDevEntrypointsJson(entrypoints, outputFile, server, fo
         return json;
     }, /** @type {{[file: string]: { js: string[], css: string[] }}} */ ({}));
 
+    await mkdir(path.dirname(outputFile), { recursive: true });
     await writeFile(outputFile, JSON.stringify({ entrypoints: entrypointsJson }, null, 2));
 }

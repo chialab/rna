@@ -215,17 +215,22 @@ export function mergeConfig(...entries) {
 }
 
 /**
- * @typedef {Config|Promise<Config>|((input: Config) => Config|Promise<Config>)} InputConfig
+ * @typedef {'build'|'serve'} Mode
+ */
+
+/**
+ * @typedef {Config|Promise<Config>|((input: Config, mode: Mode) => Config|Promise<Config>)} InputConfig
  */
 
 /**
  * @param {string} configFile
  * @param {Config} inputConfig
+ * @param {Mode} [mode]
  * @param {string} [cwd]
  * @return {Promise<Config>}
  */
-export async function readConfigFile(configFile, inputConfig, cwd = process.cwd()) {
-    configFile = `./${configFile}`;
+export async function readConfigFile(configFile, inputConfig, mode = 'build', cwd = process.cwd()) {
+    configFile = path.isAbsolute(configFile) ? configFile : `./${configFile}`;
     const configModule = await import(path.resolve(cwd, configFile));
 
     /**
@@ -236,7 +241,7 @@ export async function readConfigFile(configFile, inputConfig, cwd = process.cwd(
     // eslint-disable-next-line no-constant-condition
     while (true) {
         if (typeof config === 'function') {
-            config = config(inputConfig);
+            config = config(inputConfig, mode);
             continue;
         }
 

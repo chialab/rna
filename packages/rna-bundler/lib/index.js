@@ -88,7 +88,7 @@ export function command(program) {
                 /**
                  * @type {import('@chialab/rna-config-loader').Config}
                  */
-                const config = mergeConfig(configFile ? await readConfigFile(configFile, inputConfig) : {}, inputConfig, input && input.length ? {
+                const config = mergeConfig(configFile ? await readConfigFile(configFile, inputConfig, 'build') : {}, inputConfig, input && input.length ? {
                     entrypoints: [{
                         input: input.map((entry) => path.resolve(entry)),
                         output: path.resolve(output),
@@ -103,7 +103,7 @@ export function command(program) {
 
                 const queue = new Queue();
                 for (const entrypoint of config.entrypoints) {
-                    queue.add(async () => build(getEntryBuildConfig(entrypoint, config)));
+                    queue.add(() => build(getEntryBuildConfig(entrypoint, config)));
                 }
 
                 await queue.run(os.cpus().length);

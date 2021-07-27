@@ -1,5 +1,6 @@
 import path from 'path';
 import { promises } from 'fs';
+import { readConfigFile } from '@chialab/rna-config-loader';
 import { createLogger } from './createLogger.js';
 
 const { stat } = promises;
@@ -7,7 +8,7 @@ const { stat } = promises;
 export { createLogger };
 
 /**
- * @typedef {Partial<import('@web/dev-server-core').DevServerCoreConfig> & { entries?: string[], entrypoints?: boolean|string }} DevServerConfig
+ * @typedef {Partial<import('@web/dev-server-core').DevServerCoreConfig> & { entrypoints?: import('@chialab/rna-config-loader').Entrypoint[], entrypointsPath?: string }} DevServerConfig
  */
 
 export async function buildMiddlewares() {
@@ -98,12 +99,26 @@ export async function startDevServer(config) {
  * @return {Promise<import('@web/dev-server-core').DevServer>} The dev server instance.
  */
 export async function serve(config) {
-    const server = await startDevServer(config);
+    const root = config.rootDir || process.cwd();
+    const server = await startDevServer({
+        ...config,
+        rootDir: root,
+    });
 
     if (config.entrypoints) {
         const { saveDevEntrypointsJson } = await import('@chialab/rna-bundler');
-        const dir = typeof config.entrypoints === 'string' ? config.entrypoints : (config.rootDir || process.cwd());
-        await saveDevEntrypointsJson(config.entries || [], dir, server, 'esm');
+        const dir = config.entrypointsPath ? config.entrypointsPath : root;
+        const files = config.entrypoints
+            .reduce((acc, { input }) => {
+                if (Array.isArray(input)) {
+                    acc.push(...input);
+                } else {
+                    acc.push(input);
+                }
+
+                return acc;
+            }, /** @type {string[]} */ ([]));
+        await saveDevEntrypointsJson(files, dir, server, 'esm');
     }
 
     await server.start();
@@ -126,16 +141,23 @@ export async function serve(config) {
  */
 export function command(program) {
     program
-        .command('serve [root...]')
+        .command('serve [root]')
         .description('Start a web dev server (https://modern-web.dev/docs/dev-server/overview/) that transforms ESM imports for node resolution on demand. It also uses esbuild (https://esbuild.github.io/) to compile non standard JavaScript syntax.')
         .option('-P, --port <number>', 'server port number')
-        .option('--entrypoints [path]', 'generate and serve entrypoints')
+        .option('-C, --config <path>', 'the rna config file')
         .action(
             /**
-             * @param {string[]} entries
-             * @param {{ port?: string, entrypoints?: boolean|string }} options
+             * @param {string} root
+             * @param {{ port?: string, config?: string }} options
              */
-            async (entries, { port, entrypoints }) => {
+            async (root = process.cwd(), { port, config: configFile }) => {
+                /**
+                 * @type {import('@chialab/rna-config-loader').Config}
+                 */
+                const config = configFile ? await readConfigFile(configFile, {}) : {
+                    root,
+                };
+
                 /**
                  * @type {import('@web/dev-server-core').Plugin[]}
                  */
@@ -144,11 +166,11 @@ export function command(program) {
                 /**
                  * @type {DevServerConfig}
                  */
-                const config = {
-                    rootDir: entrypoints ? process.cwd() : (entries[0] || process.cwd()),
+                const serveConfig = {
+                    rootDir: config.root,
                     port: port ? parseInt(port) : undefined,
-                    entries,
-                    entrypoints,
+                    entrypointsPath: config.entrypointsPath,
+                    entrypoints: config.entrypoints,
                 };
                 try {
                     const { legacyPlugin } = await import('@chialab/wds-plugin-legacy');
@@ -159,12 +181,12 @@ export function command(program) {
                     //
                 }
 
-                const server = await serve(config);
+                const server = await serve(serveConfig);
 
                 // eslint-disable-next-line no-console
                 console.log(`rna dev server started...
 
-  Root dir: ${config.rootDir}
+  Root dir: ${serveConfig.rootDir}
   Local:    http://${server.config.hostname}:${server.config.port}/
 `);
             }

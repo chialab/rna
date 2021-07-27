@@ -49,12 +49,24 @@ $ yarn add -D @chialab/wds-plugin-legacy
 
 ## Dev server as service
 
-The Dev Server can be used as a service for other server. Using the `--entrypoints` flags you can print to a json file a set of references that you inject in your page, with live reload support.  
-For example, the following command:
+The Dev Server can be used as a service for other stacks. The `serve` command loads a RNA config object (using the `--config` flag or looking for `rna.config.js` file in the project) and reads the `entrypoints` option in order to generate a JSON files with all the required references.
+
+For example, the following configuration:
+
+```ts
+export default {
+    entrypoints: [
+        { input: 'webroot/index.js' },
+        { input: 'webroot/index.css' },
+    ],
+    format: 'esm',
+    entrypointsPath: 'webroot/entrypoints.json',
+}
+```
 
 ```sh
-$ npx rna serve src/index.js src/index.css --entrypoints webroot/entrypoints.json --port 3000
-$ yarn rna serve src/index.js src/index.css --entrypoints webroot/entrypoints.json --port 3000
+$ npx rna serve --port 3000
+$ yarn rna serve --port 3000
 ```
 
 will generate the **webroot/entrypoints.json** file with contents:

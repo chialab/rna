@@ -113,6 +113,7 @@ export async function build(config) {
         chunkNames,
         assetNames,
         splitting: format === 'esm' && !hasOutputFile,
+        metafile: true,
         bundle: true,
         external,
         mainFields: [

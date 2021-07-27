@@ -58,7 +58,6 @@ Options:
 ```sh
 $ rna serve
 $ rna serve public --port 3000
-$ rna serve src/index.js --entrypoints webroot/entrypoints.json
 ```
 
 ---

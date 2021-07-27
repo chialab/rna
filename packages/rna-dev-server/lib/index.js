@@ -103,9 +103,8 @@ export async function serve(config) {
         rootDir: root,
     });
 
-    if (config.entrypoints) {
+    if (config.entrypoints && config.entrypointsPath) {
         const { saveDevEntrypointsJson } = await import('@chialab/rna-bundler');
-        const dir = config.entrypointsPath ? config.entrypointsPath : root;
         const files = config.entrypoints
             .reduce((acc, { input }) => {
                 if (Array.isArray(input)) {
@@ -116,7 +115,7 @@ export async function serve(config) {
 
                 return acc;
             }, /** @type {string[]} */ ([]));
-        await saveDevEntrypointsJson(files, dir, server, 'esm');
+        await saveDevEntrypointsJson(files, config.entrypointsPath, server, 'esm');
     }
 
     await server.start();

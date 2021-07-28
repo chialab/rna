@@ -87,15 +87,19 @@ export function createLogger(name = 'rna') {
 
             this.log(Object.keys(columns).map((name) => colors.white.bold(name[0].toUpperCase() + name.substr(1).padEnd(columns[name].length - 1, ' '))).join('\t'));
 
-            Object.keys(files).forEach((fileName, index) => {
+            const fileNames = Object.keys(files);
+            fileNames.forEach((fileName, index) => {
                 this.log(Object.keys(columns).map((name, colIndex) => (colIndex === 0 ? colors.blue : colors.gray)((columns[name].values[index] || '').padEnd(columns[name].length, ' '))).join('\t'));
             });
 
-            const hasTotal = Object.keys(columns).some((name) => columns[name].total);
-            if (hasTotal) {
-                this.log(Object.keys(columns).map((name) => ''.padEnd(columns[name].length, columns[name].total ? '—' : ' ')).join('\t'));
-                this.log(Object.keys(columns).map((name) => colors.yellow.bold((columns[name].total ? format(name, columns[name].total) : '').padEnd(columns[name].length, ' '))).join('\t'));
+            if (fileNames.length > 1) {
+                const hasTotal = Object.keys(columns).some((name) => columns[name].total);
+                if (hasTotal) {
+                    this.log(Object.keys(columns).map((name) => ''.padEnd(columns[name].length, columns[name].total ? '—' : ' ')).join('\t'));
+                    this.log(Object.keys(columns).map((name) => colors.yellow.bold((columns[name].total ? format(name, columns[name].total) : '').padEnd(columns[name].length, ' '))).join('\t'));
+                }
             }
+            this.log();
         },
         group() {
             // eslint-disable-next-line no-console

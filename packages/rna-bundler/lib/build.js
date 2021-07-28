@@ -126,7 +126,12 @@ export async function build(config) {
         loader: loaders,
         sourcesContent: true,
         plugins: [
-            (await import('@chialab/esbuild-plugin-any-file')).default(),
+            (await import('@chialab/esbuild-plugin-any-file')).default({
+                fsCheck: true,
+                shouldThrow(args) {
+                    return !args.path.includes('/node_modules/');
+                },
+            }),
             (await import('@chialab/esbuild-plugin-env')).default(),
             (await import('@chialab/esbuild-plugin-jsx-import')).default({ jsxModule, jsxExport }),
             ...plugins,

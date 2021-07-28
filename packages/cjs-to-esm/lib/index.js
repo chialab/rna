@@ -1,4 +1,5 @@
 import { inlineSourcemap, transform as esTransform, walk, getOffsetFromLocation } from '@chialab/estransform';
+import { init, parse } from 'cjs-module-lexer';
 
 export const REQUIRE_REGEX = /([^.\w$]|^)require\s*\((['"])(.*?)\2\)/g;
 export const UMD_REGEXES = [
@@ -30,9 +31,14 @@ export function createTransform({ ignore = () => false }) {
     const ns = new Map();
 
     /**
+     * @type {Promise<void>}
+     */
+    let initialize;
+
+    /**
      * @type {import('@chialab/estransform').TransformCallack}
      */
-    const transform = (data) => {
+    const transform = async (data) => {
         const { magicCode, code } = data;
         const isUmd = UMD_REGEXES.every((regex) => regex.test(code));
         let insertHelper = false;
@@ -108,8 +114,21 @@ export function createTransform({ ignore = () => false }) {
             magicCode.append('\nif (__umdExport && typeof globalThis !== \'undefined\') globalThis[__umdExport] = __umd[__umdExport];');
             magicCode.append('\nexport default (__umdExport ? __umd[__umdExport] : __umd);');
         } else {
+            initialize = initialize || init();
+            await initialize;
+            const { exports, reexports } = parse(code);
             magicCode.prepend('var module = { exports: {} }, exports = module.exports;\n');
             magicCode.append('\nexport default ((typeof module.exports === \'object\' && \'default\' in module.exports) ? module.exports.default : module.exports);');
+            const named = exports.filter((entry) => entry !== '__esModule' && entry !== 'default');
+            if (named.length) {
+                named.forEach((name, index) => {
+                    magicCode.append(`\nconst __export${index} = module.exports['${name}']`);
+                });
+                magicCode.append(`\nexport { ${named.map((name, index) => `__export${index} as ${name}`).join(', ')} }`);
+            }
+            reexports.forEach((reexport) => {
+                magicCode.append(`\nexport * from '${reexport}';`);
+            });
         }
 
         if (insertHelper) {

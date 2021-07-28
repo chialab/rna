@@ -91,7 +91,9 @@ export function command(program) {
                         html: {
                             addBundleMetafile: (/** @type {import('esbuild').Metafile} */ meta) => bundleMetafiles.push(meta),
                         },
-                        postcss: { relative: false },
+                        postcss: {
+                            relative: false,
+                        },
                     }, esbuild),
                     transformPlugins: await loadTransformPlugins(),
                 };

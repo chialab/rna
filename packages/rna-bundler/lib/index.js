@@ -9,6 +9,7 @@ import { loadPlugins, loadTransformPlugins } from './loadPlugins.js';
 import { Queue } from './Queue.js';
 import { writeMetafile } from './writeMetafile.js';
 import { bundleSize } from './bundleSize.js';
+import { mergeMetafiles } from './mergeMetafiles.js';
 
 export * from './loaders.js';
 export * from './transform.js';
@@ -117,25 +118,26 @@ export function command(program) {
                 for (const entrypoint of config.entrypoints) {
                     queue.add(async () => {
                         const result = await build(getEntryBuildConfig(entrypoint, config));
-                        const sizes = await bundleSize([
-                            /** @type {import('esbuild').Metafile} */ (result.metafile),
-                            ...bundleMetafiles,
-                        ], showCompressed);
-
-                        logger.log('Generated bundle files:\n');
-                        logger.files(sizes, showCompressed ? ['size', 'gzip', 'brotli'] : ['size'], {
-                            size: readableSize,
-                            gzip: readableSize,
-                            brotli: readableSize,
-                        });
-
-                        if (typeof metafile === 'string') {
-                            await writeMetafile(bundleMetafiles, path.relative(process.cwd(), metafile));
+                        if (result.metafile) {
+                            bundleMetafiles.push(result.metafile);
                         }
                     });
                 }
 
                 await queue.run(os.cpus().length);
+
+                const finalMetafile = mergeMetafiles(...bundleMetafiles);
+                if (typeof metafile === 'string') {
+                    await writeMetafile(finalMetafile, path.resolve(process.cwd(), metafile));
+                }
+
+                const sizes = await bundleSize(finalMetafile, showCompressed);
+                logger.log('Generated bundle files:\n');
+                logger.files(sizes, showCompressed ? ['size', 'gzip', 'brotli'] : ['size'], {
+                    size: readableSize,
+                    gzip: readableSize,
+                    brotli: readableSize,
+                });
             }
         );
 }

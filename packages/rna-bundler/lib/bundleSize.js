@@ -59,25 +59,18 @@ export function compressFileSize(path, compressMethod) {
 /**
  * Get output bundle size.
  *
- * @param {import('esbuild').Metafile[]} bundleFiles Array of metafiles for all bundle's generated files
+ * @param {import('esbuild').Metafile} metafile The metafile for all bundle's generated files
  * @param {boolean} compressed Show size compressed with these algorithms. Supports gzip and brotli.
  */
-export async function bundleSize(bundleFiles, compressed = false) {
-    /** @type {{ [path: string]: { [compression: string]: number } }} */
-    const fileSizes = bundleFiles
-        .reduce(
-            (fileSizesMap, metaFile) =>
-                Object.entries(metaFile.outputs)
-                    .reduce((map, [path, output]) => {
-                        if (!path.endsWith('.map')) {
-                            map[path] = { size: output.bytes };
-                        }
+export async function bundleSize(metafile, compressed = false) {
+    const fileSizes = Object.entries(metafile.outputs)
+        .reduce((map, [path, output]) => {
+            if (!path.endsWith('.map')) {
+                map[path] = { size: output.bytes };
+            }
 
-                        return map;
-                    }, fileSizesMap),
-            /** @type {{ [path: string]: { [compression: string]: number } } }} */
-            ({})
-        );
+            return map;
+        }, /** @type {{ [path: string]: { size: number, brotli?: number, gzip?: number } } }} */ ({}));
 
     if (compressed) {
         await Promise.all(

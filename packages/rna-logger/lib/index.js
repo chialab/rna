@@ -93,7 +93,7 @@ export function createLogger(name = 'rna') {
 
             const hasTotal = Object.keys(columns).some((name) => columns[name].total);
             if (hasTotal) {
-                this.log(Object.keys(columns).map((name) => ''.padEnd(columns[name].length, columns[name].total ? '_' : ' ')).join('\t'));
+                this.log(Object.keys(columns).map((name) => ''.padEnd(columns[name].length, columns[name].total ? '—' : ' ')).join('\t'));
                 this.log(Object.keys(columns).map((name) => colors.yellow.bold((columns[name].total ? format(name, columns[name].total) : '').padEnd(columns[name].length, ' '))).join('\t'));
             }
         },

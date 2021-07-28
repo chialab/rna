@@ -51,15 +51,15 @@ export function command(program) {
              * @param {string[]} input
              * @param {{ config?: string, output: string, format?: import('@chialab/rna-config-loader').Format, target?: import('@chialab/rna-config-loader').Target, platform: import('@chialab/rna-config-loader').Platform, bundle?: boolean, minify?: boolean, name?: string, manifest?: boolean|string, entrypoints?: boolean|string, public?: string, entryNames?: string, chunkNames?: string, assetNames?: string, clean?: boolean, external?: string, map?: boolean, jsxFactory?: string, jsxFragment?: string, jsxModule?: string, jsxExport?: 'named'|'namespace'|'default', metafile?: string, showCompressed?: boolean }} options
              */
-            async (input, { config: configFile, output, format = 'esm', platform, bundle, minify, name, manifest, entrypoints, target, public: publicPath, entryNames, chunkNames, assetNames, clean, external: externalString, map: sourcemap, jsxFactory, jsxFragment, jsxModule, jsxExport, metafile, showCompressed }) => {
+            async (input, { config: configFile, output, format = 'esm', platform, bundle, minify, name, manifest: manifestFile, entrypoints: entrypointsFile, target, public: publicPath, entryNames, chunkNames, assetNames, clean, external: externalString, map: sourcemap, jsxFactory, jsxFragment, jsxModule, jsxExport, metafile, showCompressed }) => {
                 if (sourcemap === true) {
                     sourcemap = undefined;
                 }
 
                 const logger = createLogger();
                 const { default: esbuild } = await import('esbuild');
-                const manifestPath = manifest ? (typeof manifest === 'string' ? manifest : path.join(output, 'manifest.json')) : undefined;
-                const entrypointsPath = entrypoints ? (typeof entrypoints === 'string' ? entrypoints : path.join(output, 'entrypoints.json')) : undefined;
+                const manifestPath = manifestFile ? (typeof manifestFile === 'string' ? manifestFile : path.join(output, 'manifest.json')) : undefined;
+                const entrypointsPath = entrypointsFile ? (typeof entrypointsFile === 'string' ? entrypointsFile : path.join(output, 'entrypoints.json')) : undefined;
                 const external = externalString ? externalString.split(',') : [];
 
                 /** @type {import('esbuild').Metafile[]} */
@@ -110,16 +110,19 @@ export function command(program) {
                     ...inputConfig,
                 } : {});
 
-                if (!config.entrypoints) {
+                const { entrypoints } = config;
+
+                if (!entrypoints) {
                     throw new Error('Missing entrypoints.');
                 }
 
                 const queue = new Queue();
-                for (const entrypoint of config.entrypoints) {
+                for (let i = 0; i < entrypoints.length; i++) {
+                    const entrypoint = entrypoints[i];
                     queue.add(async () => {
                         const result = await build(getEntryBuildConfig(entrypoint, config));
                         if (result.metafile) {
-                            bundleMetafiles.push(result.metafile);
+                            bundleMetafiles[i] = result.metafile;
                         }
                     });
                 }

@@ -10,7 +10,6 @@ export class Queue {
      * Create a ConcurrentJobs instance.
      */
     constructor() {
-        this.count = 1;
         this.total = 0;
         /**
          * @type {Task[]}
@@ -47,20 +46,23 @@ export class Queue {
      * Exec the queue
      * @param {number} count The maximum number of running tasks.
      */
-    run(count = 1) {
+    async run(count = 1) {
         const promises = [];
         while (this.runNext(count)) {
             const task = /** @type {Task} */ (this.todo.shift());
             const promise = task.call(null);
-            promise.then(() => {
-                const runningTask = /** @type {Task} */ (this.running[this.running.indexOf(task)]);
-                this.complete.push(runningTask);
-                return this.run(count);
-            });
-            promises.push(promise);
+            promises.push(
+                promise.then(() => {
+                    const io = this.running.indexOf(task);
+                    const runningTask = /** @type {Task} */ (this.running[io]);
+                    this.running.splice(io, 1);
+                    this.complete.push(runningTask);
+                    return this.run(count);
+                })
+            );
             this.running.push(task);
         }
 
-        return Promise.all(promises);
+        await Promise.all(promises);
     }
 }

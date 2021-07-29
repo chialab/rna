@@ -42,6 +42,7 @@ export async function getEntry(build, filePath, contents) {
     const options = /** @type {BuildTransformOptions} */ (build.initialOptions).transform;
     const entry = options?.store.get(filePath) || await createPipeline(contents || await readFile(filePath, 'utf-8'), {
         source: filePath,
+        sourcemap: !!build.initialOptions.sourcemap,
     });
     options?.store.set(filePath, entry);
     return entry;

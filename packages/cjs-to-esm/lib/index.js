@@ -114,28 +114,60 @@ export function createTransform({ ignore = () => false }) {
             magicCode.append('\nif (__umdExport && typeof globalThis !== \'undefined\') globalThis[__umdExport] = __umd[__umdExport];');
             magicCode.append('\nexport default (__umdExport ? __umd[__umdExport] : __umd);');
         } else {
+            magicCode.prepend('var module = { exports: {} }, exports = module.exports;\n');
             initialize = initialize || init();
             await initialize;
+            /**
+             * This is very ugly, but there are a lot of React stuff out there
+             * @type {{ [key: string]: string }}
+             */
+            const replacements = process.env.NODE_ENV === 'production' ? {
+                './cjs/react.development.js': './cjs/react.production.min.js',
+                './cjs/react-dom.development.js': './cjs/react-dom.production.min.js',
+            } : {};
             const { exports, reexports } = parse(code);
-            magicCode.prepend('var module = { exports: {} }, exports = module.exports;\n');
-            magicCode.append('\nexport default ((typeof module.exports === \'object\' && \'default\' in module.exports) ? module.exports.default : module.exports);');
             const named = exports.filter((entry) => entry !== '__esModule' && entry !== 'default');
+            const isEsModule = exports.includes('__esModule');
+            const hasDefault = exports.includes('default');
             if (named.length) {
+                const conditions = ['typeof module.exports === \'object\''];
+                if (named.length === 1 && !hasDefault && !isEsModule) {
+                    // add an extra conditions for some edge cases not handled by the cjs lexer
+                    // such as an object exports that has a function as first member.
+                    conditions.push(`typeof module.exports['${named[0]}'] !== 'function'`);
+                }
                 named.forEach((name, index) => {
-                    magicCode.append(`\nconst __export${index} = module.exports['${name}']`);
+                    magicCode.append(`\nconst __export${index} = ${conditions.join(' && ')} ? module.exports['${name}'] : undefined;`);
                 });
                 magicCode.append(`\nexport { ${named.map((name, index) => `__export${index} as ${name}`).join(', ')} }`);
             }
+            if (isEsModule) {
+                if (hasDefault) {
+                    magicCode.append('\nexport default (module.exports != null && typeof module.exports === \'object\' && \'default\' in module.exports ? module.exports.default : module.exports);');
+                }
+            } else {
+                magicCode.append('\nexport default module.exports;');
+            }
+
             reexports.forEach((reexport) => {
+                for (const key in replacements) {
+                    if (reexport === key) {
+                        const spec = specs.get(reexport);
+                        reexport = replacements[key];
+                        if (spec) {
+                            spec.specifier = reexport;
+                        }
+                    }
+                }
                 magicCode.append(`\nexport * from '${reexport}';`);
             });
         }
 
         if (insertHelper) {
-            magicCode.prepend('function $$cjs_default$$(m, i) { for (i in m) if (i != \'default\') return m; if (typeof m == \'object\' && \'default\' in m) return m.default; return m; }\n');
+            magicCode.prepend('function $$cjs_default$$(m) { if (!m) return m; if (typeof m !== \'object\') return m; for (var i in m) if (i != \'default\' && i != \'__esModule\' && m[i] != null) return m; if (\'default\' in m) return m.default; return m; }\n');
         }
 
-        specs.forEach(spec => {
+        specs.forEach((spec) => {
             magicCode.prepend(`import * as ${spec.id} from "${spec.specifier}";\n`);
         });
     };

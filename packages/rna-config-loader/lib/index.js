@@ -38,6 +38,7 @@ import path from 'path';
  * @property {string} entryNames
  * @property {string} chunkNames
  * @property {string} assetNames
+ * @property {{ [key: string]: string }} define
  * @property {string[]} external
  * @property {string} [jsxFactory]
  * @property {string} [jsxFragment]
@@ -134,6 +135,10 @@ export function getEntryConfig(entrypoint, config) {
         entryNames: entrypoint.entryNames || config.entryNames || '[name]',
         chunkNames: entrypoint.chunkNames || config.chunkNames || '[name]',
         assetNames: entrypoint.assetNames || config.assetNames || '[name]',
+        define: {
+            ...(entrypoint.define || {}),
+            ...(config.define || {}),
+        },
         external: [
             ...(entrypoint.external || []),
             ...(config.external || []),

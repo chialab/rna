@@ -6,7 +6,7 @@ import { Parser as AcornParser } from 'acorn';
 import jsx from 'acorn-jsx';
 import { simple as walk } from 'acorn-walk';
 
-const SOURCEMAP_REGEX = /(?:(\/\*+[\s\S]*?sourceMappingURL\s*=)([\s\S]*?)(\*\/))|(?:(\/\/.*?sourceMappingURL\s*=)(.*?)([\r\n]))/;
+const SOURCEMAP_REGEX = /(?:(\/\*+\s*?sourceMappingURL\s*=)([\s\S]*?)(\*\/))|(?:(\/\/\s*?sourceMappingURL\s*=)(.*?)([\r\n]))/;
 
 const Parser = AcornParser.extend(/** @type {*} */ (jsx()));
 
@@ -281,10 +281,10 @@ export async function pipe(pipeline, options, callback) {
     }, callback);
 
     if (code) {
-        pipeline.code = code;
         if (pipeline.sourceMaps && map && code !== pipeline.code) {
             pipeline.sourceMaps.push(map);
         }
+        pipeline.code = code;
     }
 
     if (loader) {

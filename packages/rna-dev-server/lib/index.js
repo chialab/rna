@@ -172,7 +172,7 @@ export function command(program) {
                 logger.log(`
   rna dev server started
 
-  Root:     ${colors.blue.bold(serveConfig.rootDir || root)}
+  Root:     ${colors.blue.bold(path.resolve(serveConfig.rootDir || root))}
   Local:    ${colors.blue.bold(`http://${server.config.hostname}:${server.config.port}/`)}
 `);
             }

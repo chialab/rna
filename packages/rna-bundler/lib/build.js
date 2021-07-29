@@ -34,6 +34,7 @@ export async function build(config) {
         entryNames,
         chunkNames,
         assetNames,
+        define,
         external,
         jsxFactory,
         jsxFragment,
@@ -112,6 +113,7 @@ export async function build(config) {
         splitting: format === 'esm' && !hasOutputFile,
         metafile: true,
         bundle: true,
+        define,
         external,
         mainFields: [
             'module',

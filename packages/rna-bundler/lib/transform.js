@@ -32,8 +32,12 @@ export async function transform(config) {
         logLevel,
     } = config;
 
-    if (!code) {
+    if (code == null) {
         throw new Error('Missing required `code` option');
+    }
+
+    if (!code) {
+        return { code: '', map: '', warnings: [] };
     }
 
     const sourceFile = Array.isArray(input) ? input[0] : input;

@@ -98,7 +98,7 @@ export default function(plugins = []) {
             const input = stdin ? (stdin.sourcefile || 'stdin.js') : undefined;
             if (stdin && input) {
                 const regex = new RegExp(input.replace(/([()[\]{}\\\-+.*?^$])/g, '\\$1'));
-                build.onResolve({ filter: regex }, () => ({ path: input, namespace: 'file' }));
+                build.onResolve({ filter: regex }, () => ({ path: path.resolve(options.sourceRoot || process.cwd(), input), namespace: 'file' }));
                 delete options.stdin;
                 options.entryPoints = [input];
             }

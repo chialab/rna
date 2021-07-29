@@ -97,7 +97,7 @@ import path from 'path';
  */
 export function camelize(file) {
     const filename = path.basename(file, path.extname(file));
-    return filename.replace(/(^[a-z0-9]|[-_]([a-z0-9]))/g, (g) => (g[1] || g[0]).toUpperCase());
+    return filename.replace(/(^[a-z0-9]|[-_]([a-z0-9]))/g, (g) => (g[1] || g[0]).toUpperCase()).replace(/[^a-zA-Z0-9]/g, '');
 }
 
 /**

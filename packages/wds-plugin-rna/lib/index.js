@@ -46,7 +46,7 @@ export class RnaPlugin {
     resolver = createResolver({
         extensions: JS_EXTENSIONS,
         conditionNames: ['default', 'module', 'import', 'browser'],
-        mainFields: ['umd:main', 'module', 'esnext', 'jsnext', 'jsnext:main', 'browser', 'main'],
+        mainFields: ['module', 'esnext', 'jsnext', 'jsnext:main', 'browser', 'main'],
     });
 
     /**
@@ -85,6 +85,11 @@ export class RnaPlugin {
             return;
         }
 
+        if (context.path.includes('__web-dev-server__web-socket') ||
+            context.path.includes('__web-test-runner__')) {
+            return;
+        }
+
         const fileExtension = path.posix.extname(context.path);
         const loader = transformLoaders[fileExtension];
         if (!loader) {
@@ -94,7 +99,8 @@ export class RnaPlugin {
         const rootDir = this.config.rootDir;
         const filePath = getRequestFilePath(context.url, rootDir);
         const transformConfig = getEntryConfig({
-            input: filePath,
+            root: rootDir,
+            input: `./${path.relative(rootDir, filePath)}`,
             code: /** @type {string} */ (context.body),
             loader,
         }, {
@@ -132,7 +138,15 @@ export class RnaPlugin {
             transformPlugins: [
                 ...(await loadTransformPlugins({
                     commonjs: {
-                        ignore: (specifier) => isCore(specifier),
+                        ignore: async (specifier) => {
+                            try {
+                                await this.resolver(specifier, filePath);
+                            } catch (err) {
+                                return isCore(specifier);
+                            }
+
+                            return false;
+                        },
                     },
                 })),
                 ...(this.transformConfig.transformPlugins || []),

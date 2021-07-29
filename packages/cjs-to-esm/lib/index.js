@@ -20,7 +20,7 @@ export function maybeCommonjsModule(code) {
 }
 
 /**
- * @typedef {{ source?: string, sourcemap?: boolean|'inline', sourcesContent?: boolean, ignore?(specifier: string): boolean }} Options
+ * @typedef {{ source?: string, sourcemap?: boolean|'inline', sourcesContent?: boolean, ignore?(specifier: string): boolean|Promise<boolean> }} Options
  */
 
 /**
@@ -43,6 +43,10 @@ export function createTransform({ ignore = () => false }) {
         const isUmd = UMD_REGEXES.every((regex) => regex.test(code));
         let insertHelper = false;
         if (!isUmd) {
+            /**
+             * @type {Promise<any>}
+             */
+            let specPromise = Promise.resolve();
             const ast = data.ast;
             walk(ast, {
                 /**
@@ -57,30 +61,37 @@ export function createTransform({ ignore = () => false }) {
                         return;
                     }
 
-                    const specifier = node.arguments[0].value;
-                    let spec = specs.get(specifier);
-                    if (!spec) {
-                        let id = `$cjs$${specifier.replace(/[^\w_$]+/g, '_')}`;
-                        const count = (ns.get(id) || 0) + 1;
-                        ns.set(id, count);
-                        if (count > 1) {
-                            id += count;
-                        }
-                        if (ignore(specifier)) {
-                            return;
-                        }
-                        spec = { id, specifier };
-                        specs.set(specifier, spec);
-                    }
+                    specPromise = specPromise
+                        .then(async () => {
+                            const specifier = node.arguments[0].value;
+                            let spec = specs.get(specifier);
+                            if (!spec) {
+                                let id = `$cjs$${specifier.replace(/[^\w_$]+/g, '_')}`;
+                                const count = (ns.get(id) || 0) + 1;
+                                ns.set(id, count);
+                                if (count > 1) {
+                                    id += count;
+                                }
 
-                    insertHelper = true;
-                    magicCode.overwrite(
-                        getOffsetFromLocation(code, node.loc.start.line, node.loc.start.column),
-                        getOffsetFromLocation(code, node.loc.end.line, node.loc.end.column),
-                        `$$cjs_default$$(${spec.id})`
-                    );
+                                if (await ignore(specifier)) {
+                                    return;
+                                }
+
+                                spec = { id, specifier };
+                                specs.set(specifier, spec);
+                            }
+
+                            insertHelper = true;
+                            magicCode.overwrite(
+                                getOffsetFromLocation(code, node.loc.start.line, node.loc.start.column),
+                                getOffsetFromLocation(code, node.loc.end.line, node.loc.end.column),
+                                `$$cjs_default$$(${spec.id})`
+                            );
+                        });
                 },
             });
+
+            await specPromise;
         }
 
         if (isUmd) {
@@ -114,7 +125,7 @@ export function createTransform({ ignore = () => false }) {
             magicCode.append('\nif (__umdExport && typeof globalThis !== \'undefined\') globalThis[__umdExport] = __umd[__umdExport];');
             magicCode.append('\nexport default (__umdExport ? __umd[__umdExport] : __umd);');
         } else {
-            magicCode.prepend('var module = { exports: {} }, exports = module.exports;\n');
+            magicCode.prepend('var global = globalThis; var module = { exports: {} }, exports = module.exports;\n');
             initialize = initialize || init();
             await initialize;
             /**
@@ -164,7 +175,7 @@ export function createTransform({ ignore = () => false }) {
         }
 
         if (insertHelper) {
-            magicCode.prepend('function $$cjs_default$$(m) { if (!m) return m; if (typeof m !== \'object\') return m; for (var i in m) if (i != \'default\' && i != \'__esModule\' && m[i] != null) return m; if (\'default\' in m) return m.default; return m; }\n');
+            magicCode.prepend('function $$cjs_default$$(r) { var m = { __esModule: true }; for (var k in r) m[k] = r[k]; if (!m) return m; if (typeof m !== \'object\') return m; for (var i in m) if (i != \'default\' && i != \'__esModule\' && m[i] != null) return m; if (\'default\' in m) return m.default; return m; }\n');
         }
 
         specs.forEach((spec) => {

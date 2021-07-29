@@ -1,6 +1,5 @@
 import mocha from 'mocha';
 import { createRunner, reportMochaSuite } from './mochaRunner.js';
-import { printCoverage } from './printCoverage.js';
 
 /**
  * Bind the WTR reporter to a Mocha reporter.
@@ -18,16 +17,10 @@ export function mochaReporter(MochaReporter = mocha.reporters.Spec) {
     let startTime;
 
     /**
-     * @type {import('@web/test-runner-core').TestRunnerCoreConfig}
-     */
-    let runnerConfig;
-
-    /**
      * @type {import('@web/test-runner-core').Reporter}
      */
     const reporter = {
         start({ config }) {
-            runnerConfig = config;
             runner = createRunner();
             new MochaReporter(
                 runner,
@@ -38,15 +31,11 @@ export function mochaReporter(MochaReporter = mocha.reporters.Spec) {
             runner.emit(mocha.Runner.constants.EVENT_RUN_BEGIN);
         },
 
-        onTestRunFinished({ testCoverage }) {
+        onTestRunFinished() {
             if (runner.stats) {
                 runner.stats.duration = Date.now() - startTime;
             }
             runner.emit(mocha.Runner.constants.EVENT_RUN_END);
-
-            if (testCoverage) {
-                printCoverage(testCoverage, runnerConfig.logger, runnerConfig.watch, runnerConfig.coverageConfig);
-            }
         },
 
         async reportTestFileResults({ sessionsForTestFile }) {

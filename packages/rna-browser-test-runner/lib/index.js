@@ -79,7 +79,7 @@ export async function startTestRunner(config) {
             threshold: { statements: 0, functions: 0, branches: 0, lines: 0 },
             report: true,
             reportDir: 'coverage',
-            reporters: ['lcov'],
+            reporters: ['lcov', 'text-summary'],
         },
         reporters: [
             mochaReporter(),
@@ -170,7 +170,7 @@ export function command(program) {
                  * @type {TestRunnerConfig}
                  */
                 const config = {
-                    port,
+                    port: port || 8765,
                     watch,
                     concurrentBrowsers: concurrency || 2,
                     coverage,

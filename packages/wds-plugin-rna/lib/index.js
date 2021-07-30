@@ -1,8 +1,9 @@
 import path from 'path';
 import { getEntryConfig } from '@chialab/rna-config-loader';
-import { getRequestFilePath, PluginSyntaxError, PluginError } from '@web/dev-server-core';
+import { getRequestFilePath } from '@web/dev-server-core';
 import { transform, transformLoaders, loadPlugins, loadTransformPlugins, writeDevEntrypointsJson, JS_EXTENSIONS, JSON_EXTENSIONS, CSS_EXTENSIONS } from '@chialab/rna-bundler';
-import { createResolver, isCore } from '@chialab/node-resolve';
+import { isCore } from '@chialab/node-resolve';
+import { resolve, resolveImport, resolveRelativeImport } from './resolveImport.js';
 
 /**
  * @typedef {import('@web/dev-server-core').Plugin} Plugin
@@ -30,24 +31,13 @@ function isOutsideRootDir(path) {
     return path.startsWith('/__wds-outside-root__/');
 }
 
-/**
- * @param {string} filePath
- */
-function toBrowserPath(filePath) {
-    return filePath.split(path.sep).join('/');
-}
+export { resolve, resolveImport, resolveRelativeImport };
 
 /**
  * @implements {Plugin}
  */
 export class RnaPlugin {
     name = 'rna';
-
-    resolver = createResolver({
-        extensions: JS_EXTENSIONS,
-        conditionNames: ['default', 'module', 'import', 'browser'],
-        mainFields: ['module', 'esnext', 'jsnext', 'jsnext:main', 'browser', 'main'],
-    });
 
     /**
      * @param {Partial<import('@chialab/rna-config-loader').CoreTransformConfig>} transformConfig
@@ -111,7 +101,7 @@ export class RnaPlugin {
                 ...(await loadPlugins({
                     postcss: {
                         transform(importPath) {
-                            if (importPath.includes('/__wds-outside-root__/')) {
+                            if (isOutsideRootDir(importPath)) {
                                 return;
                             }
 
@@ -120,16 +110,7 @@ export class RnaPlugin {
                                 return;
                             }
 
-                            const relativePath = path.relative(rootDir, normalizedPath);
-                            const dirUp = `..${path.sep}`;
-                            const lastDirUpIndex = relativePath.lastIndexOf(dirUp) + 3;
-                            const dirUpStrings = relativePath.substring(0, lastDirUpIndex).split(path.sep);
-                            if (dirUpStrings.length === 0 || dirUpStrings.some(str => !['..', ''].includes(str))) {
-                                throw new Error(`Unable to resolve ${importPath}`);
-                            }
-
-                            const importRelativePath = relativePath.substring(lastDirUpIndex).split(path.sep).join('/');
-                            return `/__wds-outside-root__/${dirUpStrings.length - 1}/${importRelativePath}`;
+                            return resolveRelativeImport(normalizedPath, filePath, rootDir);
                         },
                     },
                 })),
@@ -140,7 +121,7 @@ export class RnaPlugin {
                     commonjs: {
                         ignore: async (specifier) => {
                             try {
-                                await this.resolver(specifier, filePath);
+                                await resolve(specifier, filePath);
                             } catch (err) {
                                 return isCore(specifier);
                             }
@@ -166,8 +147,8 @@ export class RnaPlugin {
         source,
         context,
         code,
-        column,
         line,
+        column,
     }) {
         if (!this.config) {
             return;
@@ -189,32 +170,7 @@ export class RnaPlugin {
 
         const rootDir = this.config.rootDir;
         const filePath = getRequestFilePath(context.url, rootDir);
-        const resolvedPath = await this.resolver(source, path.dirname(filePath));
-
-        if (resolvedPath.startsWith(rootDir)) {
-            return `./${path.relative(path.dirname(filePath), resolvedPath)}`;
-        }
-
-        const relativePath = path.relative(rootDir, resolvedPath);
-        const dirUp = `..${path.sep}`;
-        const lastDirUpIndex = relativePath.lastIndexOf(dirUp) + 3;
-        const dirUpStrings = relativePath.substring(0, lastDirUpIndex).split(path.sep);
-        if (dirUpStrings.length === 0 || dirUpStrings.some(str => !['..', ''].includes(str))) {
-            // we expect the relative part to consist of only ../ or ..\\
-            const errorMessage = 'This path could not be converted to a browser path. Please file an issue with a reproduction.';
-            if (
-                typeof code === 'string' &&
-                typeof column === 'number' &&
-                typeof line === 'number'
-            ) {
-                throw new PluginSyntaxError(errorMessage, filePath, code, column, line);
-            } else {
-                throw new PluginError(errorMessage);
-            }
-        }
-
-        const importPath = toBrowserPath(relativePath.substring(lastDirUpIndex));
-        return `/__wds-outside-root__/${dirUpStrings.length - 1}/${importPath}`;
+        return await resolveImport(source, filePath, rootDir, { code, line, column });
     }
 }
 

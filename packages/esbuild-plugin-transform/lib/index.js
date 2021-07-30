@@ -94,8 +94,9 @@ export default function(plugins = []) {
             const options = build.initialOptions;
             const filter = createFilter(build);
 
-            const { stdin } = options;
+            const { stdin, sourceRoot } = options;
             const input = stdin ? (stdin.sourcefile || 'stdin.js') : undefined;
+            const fullInput = input && path.resolve(sourceRoot || process.cwd(), input);
             if (stdin && input) {
                 const regex = new RegExp(input.replace(/([()[\]{}\\\-+.*?^$])/g, '\\$1'));
                 build.onResolve({ filter: regex }, () => ({ path: path.resolve(options.sourceRoot || process.cwd(), input), namespace: 'file' }));
@@ -140,7 +141,7 @@ export default function(plugins = []) {
             if (onLoad.length) {
                 build.onLoad({ filter, namespace: 'file' }, async (args) => {
                     let entry;
-                    if (args.path === input && stdin) {
+                    if (args.path === fullInput && stdin) {
                         entry = await getEntry(build, args.path, stdin.contents);
                     } else {
                         entry = await getEntry(build, args.path);

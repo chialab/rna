@@ -1,7 +1,7 @@
 {
   "name": "@chialab/esbuild-plugin-transform",
   "type": "module",
-  "version": "0.10.5",
+  "version": "0.10.6",
   "description": "Pipe transformation plugin for esbuild.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",

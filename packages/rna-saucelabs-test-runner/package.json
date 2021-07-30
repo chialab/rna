@@ -1,7 +1,7 @@
 {
   "name": "@chialab/rna-saucelabs-test-runner",
   "type": "module",
-  "version": "0.10.5",
+  "version": "0.10.6",
   "description": "A test runner for Saucelabs based on Web Test Runner.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",
@@ -34,7 +34,7 @@
     "node": ">=13"
   },
   "dependencies": {
-    "@chialab/rna-browser-test-runner": "^0.10.5",
+    "@chialab/rna-browser-test-runner": "^0.10.6",
     "@chialab/wds-plugin-legacy": "^0.10.0",
     "@web/test-runner-saucelabs": "^0.5.0"
   },

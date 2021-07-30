@@ -1,5 +1,5 @@
-import { inlineSourcemap, transform as esTransform, walk, getOffsetFromLocation } from '@chialab/estransform';
 import { init, parse } from 'cjs-module-lexer';
+import { inlineSourcemap, transform as esTransform, walk, getOffsetFromLocation } from '@chialab/estransform';
 
 export const REQUIRE_REGEX = /([^.\w$]|^)require\s*\((['"])(.*?)\2\)/g;
 export const UMD_REGEXES = [
@@ -10,6 +10,70 @@ export const UMD_GLOBALS = ['globalThis', 'global', 'self', 'window'];
 export const UMD_GLOBALS_REGEXES = UMD_GLOBALS.map((varName) => new RegExp(`\\btypeof\\s+(${varName})\\s*!==?\\s*['|"]undefined['|"]`));
 export const ESM_KEYWORDS = /((?:^\s*|;\s*)(\bimport\s*(\{.*?\}\s*from|\s[\w$]+\s+from|\*\s*as\s+[^\s]+\s+from)?\s*['"])|((?:^\s*|;\s*)export(\s+(default|const|var|let|function|class)[^\w$]|\s*\{)))/m;
 export const CJS_KEYWORDS = /\b(module\.exports|exports|require)\b/;
+
+export const REQUIRE_HELPER = `// Require helper for interop
+function $$cjs_default$$(requiredModule) {
+    var isEsModule = false;
+    var specifiers = Object.create(null);
+    var hasNamedExports = false;
+    var hasDefaultExport = false;
+
+    Object.defineProperty(specifiers, '__esModule', {
+        value: true,
+        enumerable: false,
+        configurable: true,
+    });
+
+    if (requiredModule) {
+        var names = Object.getOwnPropertyNames(requiredModule);;
+        names.forEach(function(k) {
+            if (k === 'default') {
+                hasDefaultExport = true;
+            } else if (!hasNamedExports && k != '__esModule') {
+                try {
+                    hasNamedExports = requiredModule[k] != null;
+                } catch (err) {
+                    //
+                }
+            }
+            Object.defineProperty(specifiers, k, {
+                get: function () {
+                    return requiredModule[k];
+                },
+                enumerable: true,
+                configurable: false,
+            });
+        });
+        if (Object.getOwnPropertySymbols) {
+            var symbols = Object.getOwnPropertySymbols(requiredModule);
+            symbols.forEach(function(k) {
+                Object.defineProperty(specifiers, k, {
+                    get: function () {
+                        return requiredModule[k];
+                    },
+                    enumerable: false,
+                    configurable: false,
+                });
+            });
+        }
+
+        Object.preventExtensions(specifiers);
+        Object.seal(specifiers);
+        if (Object.freeze) {
+            Object.freeze(specifiers);
+        }
+    }
+
+    if (typeof specifiers !== 'object' || hasNamedExports) {
+        return specifiers;
+    }
+
+    if (hasDefaultExport) {
+        return specifiers.default;
+    }
+
+    return specifiers;
+}`;
 
 /**
  * Check if there is chanches that the provided code is a commonjs module.
@@ -175,7 +239,7 @@ export function createTransform({ ignore = () => false }) {
         }
 
         if (insertHelper) {
-            magicCode.prepend('function $$cjs_default$$(r) { var m = { __esModule: true }; for (var k in r) m[k] = r[k]; if (!m) return m; if (typeof m !== \'object\') return m; for (var i in m) if (i != \'default\' && i != \'__esModule\' && m[i] != null) return m; if (\'default\' in m) return m.default; return m; }\n');
+            magicCode.prepend(REQUIRE_HELPER);
         }
 
         specs.forEach((spec) => {

@@ -84,9 +84,9 @@ export async function createDevServer(config) {
             ...(config.middleware || []),
         ],
         plugins: [
+            ...(config.plugins || []),
             ...(await buildPlugins(config)),
             ...(await buildDevPlugins()),
-            ...(config.plugins || []),
         ],
     }, config.logger || createLogger());
 
@@ -146,7 +146,7 @@ export function command(program) {
                 /**
                  * @type {import('@web/dev-server-core').Plugin[]}
                  */
-                const plugins = [];
+                const plugins = config.servePlugins || [];
 
                 /**
                  * @type {DevServerConfig}
@@ -157,6 +157,7 @@ export function command(program) {
                     entrypointsPath: config.entrypointsPath,
                     entrypoints: config.entrypoints,
                     logger,
+                    plugins,
                 };
                 try {
                     const { legacyPlugin } = await import('@chialab/wds-plugin-legacy');

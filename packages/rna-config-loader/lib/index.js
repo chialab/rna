@@ -75,6 +75,7 @@ import path from 'path';
  * @property {string} [publicPath]
  * @property {string} [manifestPath]
  * @property {string} [entrypointsPath]
+ * @property {Plugin[]} [servePlugins]
  */
 
 /**
@@ -214,6 +215,10 @@ export function mergeConfig(...entries) {
                 transformPlugins: [
                     ...(config.transformPlugins || []),
                     ...(clone.transformPlugins || []),
+                ],
+                servePlugins: [
+                    ...(config.servePlugins || []),
+                    ...(clone.servePlugins || []),
                 ],
             };
         }, {});

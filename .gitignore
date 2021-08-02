@@ -1,4 +1,5 @@
 /node_modules
+/internals/packages/*/node_modules
 /packages/*/node_modules
 /packages/*/types
 /packages/*/dist

@@ -40,6 +40,7 @@ import path from 'path';
  * @property {string} assetNames
  * @property {{ [key: string]: string }} define
  * @property {string[]} external
+ * @property {{ [key: string]: string|false }} alias
  * @property {string} [jsxFactory]
  * @property {string} [jsxFragment]
  * @property {string} [jsxModule]
@@ -117,10 +118,6 @@ export function getEntryConfig(entrypoint, config) {
         throw new Error('Missing required `input` option');
     }
 
-    if (Array.isArray(entrypoint.input) && !entrypoint.input.length) {
-        throw new Error('Invalid empty `input` option');
-    }
-
     return {
         ...entrypoint,
         root,
@@ -144,6 +141,10 @@ export function getEntryConfig(entrypoint, config) {
             ...(entrypoint.external || []),
             ...(config.external || []),
         ],
+        alias: {
+            ...(entrypoint.alias || {}),
+            ...(config.alias || {}),
+        },
         jsxFactory: entrypoint.jsxFactory || config.jsxFactory,
         jsxFragment: entrypoint.jsxFragment || config.jsxFragment,
         jsxModule: entrypoint.jsxModule || config.jsxModule,

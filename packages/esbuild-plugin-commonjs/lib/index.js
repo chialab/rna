@@ -23,11 +23,14 @@ export default function(config = {}) {
             }
 
             build.onLoad({ filter: createFilter(build), namespace: 'file' }, async (args) => {
+                if (args.path.includes('regenerator-runtime/runtime')) {
+                    return;
+                }
                 /**
                  * @type {import('@chialab/estransform').Pipeline}
                  */
                 const entry = args.pluginData || await getEntry(build, args.path);
-                if (!maybeCommonjsModule(entry.code)) {
+                if (!(await maybeCommonjsModule(entry.code))) {
                     return;
                 }
 

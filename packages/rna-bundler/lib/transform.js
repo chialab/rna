@@ -18,6 +18,7 @@ export async function transform(config) {
         root,
         loader,
         format,
+        platform,
         target,
         sourcemap,
         minify,
@@ -40,6 +41,18 @@ export async function transform(config) {
         return { code: '', map: '', warnings: [] };
     }
 
+    const finalPlugins = await Promise.all([
+        import('@chialab/esbuild-plugin-env').then(({ default: plugin }) => plugin()),
+        import('@chialab/esbuild-plugin-jsx-import').then(({ default: plugin }) => plugin({ jsxModule, jsxExport })),
+        ...plugins,
+        import('@chialab/esbuild-plugin-transform')
+            .then(async ({ default: plugin }) =>
+                plugin([
+                    ...transformPlugins,
+                ])
+            ),
+    ]);
+
     const sourceFile = Array.isArray(input) ? input[0] : input;
     const { outputFiles, warnings } = await esbuild.build({
         stdin: {
@@ -52,6 +65,7 @@ export async function transform(config) {
         write: false,
         globalName,
         target,
+        platform,
         sourcemap,
         minify,
         format,
@@ -61,14 +75,7 @@ export async function transform(config) {
         loader: transformLoaders,
         sourcesContent: true,
         absWorkingDir: root,
-        plugins: [
-            (await import('@chialab/esbuild-plugin-env')).default(),
-            (await import('@chialab/esbuild-plugin-jsx-import')).default({ jsxModule, jsxExport }),
-            ...plugins,
-            (await import('@chialab/esbuild-plugin-transform')).default([
-                ...transformPlugins,
-            ]),
-        ],
+        plugins: finalPlugins,
         logLevel,
     });
 

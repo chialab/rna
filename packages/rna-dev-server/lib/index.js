@@ -4,7 +4,16 @@ import { readConfigFile, mergeConfig, locateConfigFile } from '@chialab/rna-conf
 import { createLogger, colors } from '@chialab/rna-logger';
 
 /**
- * @typedef {Partial<import('@web/dev-server-core').DevServerCoreConfig> & { logger?: import('@chialab/rna-logger').Logger, entrypoints?: import('@chialab/rna-config-loader').Entrypoint[], entrypointsPath?: string }} DevServerConfig
+ * @typedef {Object} DevServerCoreConfig
+ * @property {import('@chialab/rna-logger').Logger} [logger]
+ * @property {import('@chialab/rna-config-loader').Entrypoint[]} [entrypoints]
+ * @property {string} [entrypointsPath]
+ * @property {{ [key: string]: string|false }} [alias]
+ * @property {import('esbuild').Plugin[]} [transformPlugins]
+ */
+
+/**
+ * @typedef {Partial<import('@web/dev-server-core').DevServerCoreConfig> & DevServerCoreConfig} DevServerConfig
  */
 
 export async function buildMiddlewares() {
@@ -33,7 +42,10 @@ export async function buildPlugins(config) {
     ]);
 
     return [
-        rnaPlugin(),
+        rnaPlugin({
+            alias: config.alias,
+            transformPlugins: config.transformPlugins,
+        }),
         entrypointsPlugin(config.entrypoints, config.entrypointsPath),
     ];
 }
@@ -156,9 +168,12 @@ export function command(program) {
                     port: port ? parseInt(port) : undefined,
                     entrypointsPath: config.entrypointsPath,
                     entrypoints: config.entrypoints,
+                    alias: config.alias,
                     logger,
                     plugins,
+                    transformPlugins: config.transformPlugins,
                 };
+
                 try {
                     const { legacyPlugin } = await import('@chialab/wds-plugin-legacy');
                     plugins.push(legacyPlugin({

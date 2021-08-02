@@ -35,6 +35,7 @@
     "@web/dev-server-core": "^0.3.8"
   },
   "devDependencies": {
-    "typescript": "^4.2.3"
+    "@chialab/rna-dev-server": "^0.10.0",
+    "typescript": "^4.3.0"
   }
 }

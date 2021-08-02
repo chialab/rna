@@ -39,6 +39,6 @@
   "devDependencies": {
     "@swc/core": "^1.2.54",
     "esbuild": "^0.12.0",
-    "typescript": "^4.2.3"
+    "typescript": "^4.3.0"
   }
 }

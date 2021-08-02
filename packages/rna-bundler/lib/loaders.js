@@ -1,8 +1,3 @@
-export const JS_EXTENSIONS = ['.cjs', '.mjs', '.js', '.jsx', '.ts', '.tsx'];
-export const JSON_EXTENSIONS = ['.json', '.geojson'];
-export const CSS_EXTENSIONS = ['.css', '.scss', '.sass', '.less'];
-export const HTML_EXTENSIONS = ['.html', '.htm'];
-
 /**
  * @type {{[ext: string]: import('@chialab/rna-config-loader').Loader}}
  */

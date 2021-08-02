@@ -1,4 +1,3 @@
-import { init, parse } from 'cjs-module-lexer';
 import { inlineSourcemap, transform as esTransform, walk, getOffsetFromLocation } from '@chialab/estransform';
 
 export const REQUIRE_REGEX = /([^.\w$]|^)require\s*\((['"])(.*?)\2\)/g;
@@ -10,6 +9,41 @@ export const UMD_GLOBALS = ['globalThis', 'global', 'self', 'window'];
 export const UMD_GLOBALS_REGEXES = UMD_GLOBALS.map((varName) => new RegExp(`\\btypeof\\s+(${varName})\\s*!==?\\s*['|"]undefined['|"]`));
 export const ESM_KEYWORDS = /((?:^\s*|;\s*)(\bimport\s*(\{.*?\}\s*from|\s[\w$]+\s+from|\*\s*as\s+[^\s]+\s+from)?\s*['"])|((?:^\s*|;\s*)export(\s+(default|const|var|let|function|class)[^\w$]|\s*\{)))/m;
 export const CJS_KEYWORDS = /\b(module\.exports|exports|require)\b/;
+
+/**
+ * @type {Promise<typeof import('cjs-module-lexer')>}
+ */
+let initializeCjs;
+
+/**
+ * @param {string} code
+ */
+export async function parseCommonjs(code) {
+    initializeCjs = initializeCjs || import('cjs-module-lexer')
+        .then(({ init, parse }) =>
+            init()
+                .then(() => ({ init, parse }))
+        );
+    const { parse } = await initializeCjs;
+    return parse(code);
+}
+
+/**
+ * @type {Promise<typeof import('es-module-lexer')>}
+ */
+let initializeEsm;
+
+/**
+ * @param {string} code
+ */
+export async function parseEsm(code) {
+    initializeEsm = initializeEsm || import('es-module-lexer')
+        .then(({ init, parse }) =>
+            init.then(() => ({ init, parse }))
+        );
+    const { parse } = await initializeEsm;
+    return parse(code);
+}
 
 export const REQUIRE_HELPER = `// Require helper for interop
 function $$cjs_default$$(requiredModule) {
@@ -64,27 +98,40 @@ function $$cjs_default$$(requiredModule) {
         }
     }
 
-    if (typeof specifiers !== 'object' || hasNamedExports) {
+    if (hasNamedExports) {
         return specifiers;
     }
 
     if (hasDefaultExport) {
+        if (Object.isExtensible(specifiers.default) && !('default' in specifiers.default)) {
+            Object.defineProperty(specifiers.default, 'default', {
+                value: specifiers.default,
+                configurable: false,
+                enumerable: false,
+            })
+        }
         return specifiers.default;
     }
 
     return specifiers;
-}`;
+}
+`;
 
 /**
  * Check if there is chanches that the provided code is a commonjs module.
  * @param {string} code
  */
-export function maybeCommonjsModule(code) {
-    return !ESM_KEYWORDS.test(code) && CJS_KEYWORDS.test(code);
+export async function maybeCommonjsModule(code) {
+    if (!CJS_KEYWORDS.test(code)) {
+        return false;
+    }
+
+    const [imports, exports] = await parseEsm(code);
+    return imports.length === 0 && exports.length === 0;
 }
 
 /**
- * @typedef {{ source?: string, sourcemap?: boolean|'inline', sourcesContent?: boolean, ignore?(specifier: string): boolean|Promise<boolean> }} Options
+ * @typedef {{ source?: string, sourcemap?: boolean|'inline', sourcesContent?: boolean, ignore?(specifier: string, options: Options): boolean|Promise<boolean> }} Options
  */
 
 /**
@@ -95,14 +142,9 @@ export function createTransform({ ignore = () => false }) {
     const ns = new Map();
 
     /**
-     * @type {Promise<void>}
-     */
-    let initialize;
-
-    /**
      * @type {import('@chialab/estransform').TransformCallack}
      */
-    const transform = async (data) => {
+    const transform = async (data, options) => {
         const { magicCode, code } = data;
         const isUmd = UMD_REGEXES.every((regex) => regex.test(code));
         let insertHelper = false;
@@ -137,7 +179,7 @@ export function createTransform({ ignore = () => false }) {
                                     id += count;
                                 }
 
-                                if (await ignore(specifier)) {
+                                if (await ignore(specifier, options)) {
                                     return;
                                 }
 
@@ -167,31 +209,26 @@ export function createTransform({ ignore = () => false }) {
                 endDefinition = code.length;
             }
 
-            let varName = '';
-            UMD_GLOBALS.forEach((name, index) => {
-                const regex = UMD_GLOBALS_REGEXES[index];
-                const match = code.match(regex);
-                if (match && match.index != null && match.index < endDefinition) {
-                    if (varName) {
-                        magicCode.overwrite(match.index, match.index + match[0].length, 'false');
-                    } else {
-                        varName = name;
-                    }
-                }
-            });
-            magicCode.prepend(`var __umd = {}; (function(${varName || '_'}) {\n`);
-            magicCode.append('\n }).call(__umd, __umd);');
+            magicCode.prepend(`var __umdGlobal = (
+    (typeof window !== 'undefined' && window) ||
+    (typeof self !== 'undefined' && self) ||
+    (typeof global !== 'undefined' && global) ||
+    (typeof globalThis !== 'undefined' && globalThis) ||
+    {}
+);
+var __umd = { __proto__: __umdGlobal }; (function(window, global, globalThis, self, module, exports) {
+`);
+            magicCode.append('\n }).call(__umd, __umd, __umd, __umd, undefined, undefined);');
             magicCode.append('\nvar __umdKeys = Object.keys(__umd);');
             magicCode.append('\nvar __umdExport = __umdKeys.length === 1 ? __umdKeys[0] : false;');
-            magicCode.append('\nif (__umdExport && typeof window !== \'undefined\') window[__umdExport] = __umd[__umdExport];');
-            magicCode.append('\nif (__umdExport && typeof self !== \'undefined\') self[__umdExport] = __umd[__umdExport];');
-            magicCode.append('\nif (__umdExport && typeof global !== \'undefined\') global[__umdExport] = __umd[__umdExport];');
-            magicCode.append('\nif (__umdExport && typeof globalThis !== \'undefined\') globalThis[__umdExport] = __umd[__umdExport];');
+            magicCode.append('\nif (__umdExport) __umdGlobal[__umdExport] = __umd[__umdExport];');
             magicCode.append('\nexport default (__umdExport ? __umd[__umdExport] : __umd);');
         } else {
-            magicCode.prepend('var global = globalThis; var module = { exports: {} }, exports = module.exports;\n');
-            initialize = initialize || init();
-            await initialize;
+            magicCode.prepend(`var global = globalThis;
+var module = { exports: {} };
+var exports = module.exports;
+`);
+
             /**
              * This is very ugly, but there are a lot of React stuff out there
              * @type {{ [key: string]: string }}
@@ -199,21 +236,24 @@ export function createTransform({ ignore = () => false }) {
             const replacements = process.env.NODE_ENV === 'production' ? {
                 './cjs/react.development.js': './cjs/react.production.min.js',
                 './cjs/react-dom.development.js': './cjs/react-dom.production.min.js',
+                './cjs/react-is.development.js': './cjs/react-is.production.min.js',
             } : {};
-            const { exports, reexports } = parse(code);
+            const { exports, reexports } = await parseCommonjs(code);
             const named = exports.filter((entry) => entry !== '__esModule' && entry !== 'default');
             const isEsModule = exports.includes('__esModule');
             const hasDefault = exports.includes('default');
             if (named.length) {
-                const conditions = ['typeof module.exports === \'object\''];
+                const conditions = ['Object.isExtensible(module.exports)'];
                 if (named.length === 1 && !hasDefault && !isEsModule) {
                     // add an extra conditions for some edge cases not handled by the cjs lexer
                     // such as an object exports that has a function as first member.
                     conditions.push(`typeof module.exports['${named[0]}'] !== 'function'`);
                 }
-                named.forEach((name, index) => {
-                    magicCode.append(`\nconst __export${index} = ${conditions.join(' && ')} ? module.exports['${name}'] : undefined;`);
-                });
+
+                magicCode.append(`\nvar ${named.map((name, index) => `__export${index}`).join(', ')};
+if (${conditions.join(' && ')}) {
+    ${named.map((name, index) => `__export${index} = module.exports['${name}'];`).join('\n    ')}
+}`);
                 magicCode.append(`\nexport { ${named.map((name, index) => `__export${index} as ${name}`).join(', ')} }`);
             }
             if (isEsModule) {

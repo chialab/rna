@@ -1,5 +1,6 @@
 import os from 'os';
 import path from 'path';
+import { browserResolve, isCore } from '@chialab/node-resolve';
 import { getEntryBuildConfig, mergeConfig, readConfigFile, locateConfigFile } from '@chialab/rna-config-loader';
 import { createLogger, readableSize } from '@chialab/rna-logger';
 import { build } from './build.js';
@@ -87,15 +88,6 @@ export function command(program) {
                     jsxFragment,
                     jsxModule,
                     jsxExport,
-                    plugins: await loadPlugins({
-                        html: {
-                            addBundleMetafile: (/** @type {import('esbuild').Metafile} */ meta) => bundleMetafiles.push(meta),
-                        },
-                        postcss: {
-                            relative: false,
-                        },
-                    }, esbuild),
-                    transformPlugins: await loadTransformPlugins(),
                 };
 
                 configFile = configFile || await locateConfigFile();
@@ -103,7 +95,7 @@ export function command(program) {
                 /**
                  * @type {import('@chialab/rna-config-loader').Config}
                  */
-                const config = mergeConfig(configFile ? await readConfigFile(configFile, inputConfig, 'build') : {}, inputConfig, input && input.length ? {
+                const userConfig = mergeConfig(configFile ? await readConfigFile(configFile, inputConfig, 'build') : {}, inputConfig, input && input.length ? {
                     entrypoints: [{
                         input: input.map((entry) => path.resolve(entry)),
                         output: path.resolve(output),
@@ -111,6 +103,34 @@ export function command(program) {
                     }],
                     ...inputConfig,
                 } : {});
+
+                /**
+                 * @type {import('@chialab/rna-config-loader').Config}
+                 */
+                const config = mergeConfig(userConfig, {
+                    plugins: await loadPlugins({
+                        html: {},
+                        postcss: {
+                            relative: false,
+                        },
+                    }, esbuild),
+                    transformPlugins: await loadTransformPlugins({
+                        commonjs: userConfig.platform === 'browser' ? {
+                            ignore: async (specifier, { source }) => {
+                                if (source) {
+                                    try {
+                                        await browserResolve(specifier, source);
+                                        return false;
+                                    } catch (err) {
+                                        //
+                                    }
+                                }
+
+                                return isCore(specifier);
+                            },
+                        } : {},
+                    }),
+                });
 
                 const { entrypoints } = config;
 
@@ -136,13 +156,17 @@ export function command(program) {
                     await writeMetafile(finalMetafile, path.resolve(process.cwd(), metafile));
                 }
 
-                const sizes = await bundleSize(finalMetafile, showCompressed);
-                logger.log('Generated bundle files:\n');
-                logger.files(sizes, showCompressed ? ['size', 'gzip', 'brotli'] : ['size'], {
-                    size: readableSize,
-                    gzip: readableSize,
-                    brotli: readableSize,
-                });
+                if (Object.keys(finalMetafile.outputs).length) {
+                    const sizes = await bundleSize(finalMetafile, showCompressed);
+                    logger.log('Generated bundle files:\n');
+                    logger.files(sizes, showCompressed ? ['size', 'gzip', 'brotli'] : ['size'], {
+                        size: readableSize,
+                        gzip: readableSize,
+                        brotli: readableSize,
+                    });
+                } else {
+                    logger.log('Empty bundle.');
+                }
             }
         );
 }

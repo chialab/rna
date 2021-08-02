@@ -1,19 +1,21 @@
 import path from 'path';
 import { PluginSyntaxError, PluginError } from '@web/dev-server-core';
-import { createResolver } from '@chialab/node-resolve';
-import { JS_EXTENSIONS } from '@chialab/rna-bundler';
-
-export const resolve = createResolver({
-    extensions: JS_EXTENSIONS,
-    conditionNames: ['default', 'module', 'import', 'browser'],
-    mainFields: ['module', 'esnext', 'jsnext', 'jsnext:main', 'browser', 'main'],
-});
+import { normalizeImportMetaUrl, browserResolve } from '@chialab/node-resolve';
 
 /**
  * @param {string} filePath
  */
 function toBrowserPath(filePath) {
     return filePath.split(path.sep).join('/');
+}
+
+const OUTSIDE_ROOT_KEY = '/__wds-outside-root__/';
+
+/**
+ * @param {string} browserPath
+ */
+export function isOutsideRootDir(browserPath) {
+    return browserPath.startsWith(OUTSIDE_ROOT_KEY);
 }
 
 /**
@@ -52,8 +54,16 @@ export function resolveRelativeImport(fullSpec, importer, serveDir, { code, line
  * @param {{ code?: string, line?: number, column?: number }} [info]
  */
 export async function resolveImport(spec, importer, serveDir, { code, line, column } = {}) {
-    const fullSpec = await resolve(spec, path.dirname(importer));
+    importer = normalizeImportMetaUrl(importer);
+
+    const fullSpec = path.isAbsolute(spec) ? spec : await browserResolve(spec, path.dirname(importer));
+    if (!fullSpec) {
+        return '/__rna-empty__.js';
+    }
     if (fullSpec.startsWith(serveDir)) {
+        if (!importer.startsWith(serveDir)) {
+            return `/${path.relative(serveDir, fullSpec)}`;
+        }
         return `./${path.relative(path.dirname(importer), fullSpec)}`;
     }
 

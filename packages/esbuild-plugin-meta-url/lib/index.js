@@ -1,6 +1,6 @@
 import { readFile } from 'fs/promises';
 import path from 'path';
-import { pipe, walk, getOffsetFromLocation } from '@chialab/estransform';
+import { TARGETS, pipe, walk, createTypeScriptTransform, getOffsetFromLocation } from '@chialab/estransform';
 import { SCRIPT_LOADERS, getEntry, finalizeEntry, createFilter } from '@chialab/esbuild-plugin-transform';
 
 /**
@@ -36,6 +36,17 @@ export default function(esbuild) {
                 if (!entry.code.includes('import.meta.url') ||
                     !entry.code.includes('URL(')) {
                     return;
+                }
+
+                if (entry.target === TARGETS.typescript) {
+                    await pipe(entry, {
+                        source: path.basename(args.path),
+                        sourcesContent: options.sourcesContent,
+                    }, createTypeScriptTransform({
+                        loader: entry.loader,
+                        jsxFactory: options.jsxFactory,
+                        jsxFragment: options.jsxFragment,
+                    }));
                 }
 
                 const { fileResolve } = await import('@chialab/node-resolve');

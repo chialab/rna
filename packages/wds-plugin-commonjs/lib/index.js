@@ -25,7 +25,7 @@ export function commonjsPlugin() {
             if (context.response.is('js')) {
                 const filePath = getRequestFilePath(context.url, rootDir);
                 const body = /** @type {string} */ (context.body);
-                if (!maybeCommonjsModule(body)) {
+                if (!(await maybeCommonjsModule(body))) {
                     return;
                 }
                 return {

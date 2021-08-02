@@ -1,12 +1,14 @@
 {
   "name": "@chialab/rna",
   "private": true,
-  "version": "0.8.0",
+  "type": "module",
+  "version": "0.10.0",
   "description": "A bundler, a server and a test runner for modern modules and applications.",
-  "main": "lib/index.js",
   "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
   "license": "MIT",
   "scripts": {
+    "clean": "rimraf 'node_modules' 'packages/*/node_modules' 'package-lock.json'",
+    "build-storybook": "./packages/rna/lib/index.js build -C ./internals/packages/storybook/rna.config.js",
     "types": "lerna run types",
     "lint": "eslint 'packages/*/lib/**/*.js'",
     "new": "plop --plopfile internals/generators/plopfile.cjs module"
@@ -20,7 +22,8 @@
     "eslint": "^7.19.0",
     "lerna": "^4.0.0",
     "plop": "^2.7.4",
-    "typescript": "^4.2.3"
+    "rimraf": "^3.0.2",
+    "typescript": "^4.3.0"
   },
   "workspaces": [
     "packages/*"

@@ -1,3 +1,7 @@
+import path from 'path';
+import { readFile, writeFile, mkdir } from 'fs/promises';
+import crypto from 'crypto';
+
 /**
  * @typedef {Object} Entrypoint
  * @property {import('esbuild').Loader} [loader] The loader to use.
@@ -6,7 +10,7 @@
  */
 
 /**
- * @typedef {{ scriptsTarget?: string, modulesTarget?: string, addBundleMetafile?: (meta: import('esbuild').Metafile) => number|void }} PluginOptions
+ * @typedef {{ scriptsTarget?: string, modulesTarget?: string }} PluginOptions
  */
 
 /**
@@ -15,7 +19,7 @@
  * @param {typeof import('esbuild')} [esbuildModule]
  * @return An esbuild plugin.
  */
-export default function({ scriptsTarget = 'es2015', modulesTarget = 'es2020', addBundleMetafile = () => {} } = {}, esbuildModule) {
+export default function({ scriptsTarget = 'es2015', modulesTarget = 'es2020' } = {}, esbuildModule) {
     /**
      * @type {import('esbuild').Plugin}
      */
@@ -23,12 +27,38 @@ export default function({ scriptsTarget = 'es2015', modulesTarget = 'es2020', ad
         name: 'html',
         setup(build) {
             const options = build.initialOptions;
+            const { stdin, sourceRoot } = options;
+            const input = stdin ? stdin.sourcefile : undefined;
+            const fullInput = input && path.resolve(sourceRoot || process.cwd(), input);
+
+            /**
+             * @type {import('esbuild').BuildResult[]}
+             */
+            let results = [];
+
+            build.onStart(() => {
+                results = [];
+            });
+
+            build.onEnd((result) => {
+                results.forEach((res) => {
+                    result.errors.push(...res.errors);
+                    result.warnings.push(...res.warnings);
+                    if (result.metafile && res.metafile) {
+                        result.metafile.inputs = {
+                            ...result.metafile.inputs,
+                            ...res.metafile.inputs,
+                        };
+                        result.metafile.outputs = {
+                            ...result.metafile.outputs,
+                            ...res.metafile.outputs,
+                        };
+                    }
+                });
+            });
 
             build.onLoad({ filter: /\.html$/ }, async ({ path: filePath }) => {
                 const [
-                    { default: path },
-                    { default: crypto },
-                    { promises: { readFile, writeFile, mkdir } },
                     cheerio,
                     { collectStyles },
                     { collectScripts },
@@ -37,9 +67,6 @@ export default function({ scriptsTarget = 'es2015', modulesTarget = 'es2020', ad
                     { collectIcons },
                     esbuild,
                 ] = await Promise.all([
-                    import('path'),
-                    import('crypto'),
-                    import('fs'),
                     import('cheerio'),
                     import('./collectStyles.js'),
                     import('./collectScripts.js'),
@@ -54,7 +81,7 @@ export default function({ scriptsTarget = 'es2015', modulesTarget = 'es2020', ad
                  */
                 const load = /** typeof cheerio.load */ (cheerio.load || cheerio.default?.load);
 
-                const contents = await readFile(filePath, 'utf-8');
+                const contents = filePath === fullInput && stdin ? stdin.contents : await readFile(filePath, 'utf-8');
                 const basePath = path.dirname(filePath);
                 const outdir = /** @type {string} */ (options.outdir || (options.outfile && path.dirname(options.outfile)));
                 const $ = load(contents);
@@ -74,8 +101,6 @@ export default function({ scriptsTarget = 'es2015', modulesTarget = 'es2020', ad
                     const outputFiles = [];
                     /** @type {string} */
                     let outputFile;
-                    /** @type {import('esbuild').Metafile} */
-                    let metafile;
                     if (entrypoint.loader === 'file') {
                         const files = /** @type {string[]|undefined}} */ (entrypoint.options.entryPoints);
                         const file = files && files[0];
@@ -103,25 +128,29 @@ export default function({ scriptsTarget = 'es2015', modulesTarget = 'es2020', ad
                         // manually build metafile data
                         const inputFile = path.relative(process.cwd(), file);
                         const bytes = Buffer.byteLength(buffer);
-                        metafile = {
-                            inputs: {
-                                [inputFile]: {
-                                    bytes,
-                                    imports: [],
+                        results.push({
+                            errors: [],
+                            warnings: [],
+                            metafile: {
+                                inputs: {
+                                    [inputFile]: {
+                                        bytes,
+                                        imports: [],
+                                    },
                                 },
-                            },
-                            outputs: {
-                                [outputFile]: {
-                                    bytes,
-                                    imports: [],
-                                    entryPoint: inputFile,
-                                    exports: [],
-                                    inputs: {
-                                        [inputFile]: { bytesInOutput: bytes },
+                                outputs: {
+                                    [outputFile]: {
+                                        bytes,
+                                        imports: [],
+                                        entryPoint: inputFile,
+                                        exports: [],
+                                        inputs: {
+                                            [inputFile]: { bytesInOutput: bytes },
+                                        },
                                     },
                                 },
                             },
-                        };
+                        });
                     } else {
                         /** @type {import('esbuild').BuildOptions} */
                         const config = {
@@ -144,9 +173,8 @@ export default function({ scriptsTarget = 'es2015', modulesTarget = 'es2020', ad
                             .filter((output) => !output.endsWith('.map'))
                             .filter((output) => outputs[output].entryPoint)
                             .find((output) => inputFiles.includes(path.resolve(/** @type {string} */(outputs[output].entryPoint)))) || outputFiles[0];
-                        metafile = result.metafile;
+                        results.push(result);
                     }
-                    addBundleMetafile(metafile);
                     await entrypoint.finisher(outputFile, outputFiles);
                 }
 

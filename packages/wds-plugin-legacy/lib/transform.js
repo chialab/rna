@@ -26,10 +26,12 @@ export async function babelTransform(content, url) {
     } else {
         plugins.push(system);
     }
+
     const result = await transformAsync(content, {
         sourceMaps: false,
         babelrc: false,
         compact: false,
+        sourceType: 'module',
         presets,
         plugins,
     });

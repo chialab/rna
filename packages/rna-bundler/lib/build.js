@@ -36,6 +36,7 @@ export async function build(config) {
         assetNames,
         define,
         external,
+        alias,
         jsxFactory,
         jsxFragment,
         jsxModule,
@@ -64,9 +65,12 @@ export async function build(config) {
 
     const outputDir = hasOutputFile ? path.dirname(output) : output;
     if (clean) {
-        await rm(outputDir, { recursive: true, force: true });
+        await rm(path.resolve(root, outputDir), { recursive: true, force: true });
     }
 
+    /**
+     * @type {import('esbuild').Plugin[]}
+     */
     const extraTransformPlugins = [];
 
     if (!bundle) {
@@ -90,12 +94,39 @@ export async function build(config) {
         if (packageFile) {
             const packageJson = JSON.parse(await readFile(packageFile, 'utf-8'));
             if (typeof packageJson.browser === 'object') {
-                extraTransformPlugins.push(
-                    (await import('@chialab/esbuild-plugin-alias')).default(packageJson.browser)
-                );
+                Object.assign(alias, packageJson.browser);
             }
         }
     }
+
+    if (Object.keys(alias).length) {
+        extraTransformPlugins.push(
+            (await import('@chialab/esbuild-plugin-alias')).default(alias)
+        );
+    }
+
+    const finalPlugins = await Promise.all([
+        import('@chialab/esbuild-plugin-any-file')
+            .then(({ default: plugin }) =>
+                plugin({
+                    fsCheck: true,
+                    shouldThrow(args) {
+                        return !args.path.includes('/node_modules/');
+                    },
+                })
+            ),
+        import('@chialab/esbuild-plugin-env').then(({ default: plugin }) => plugin()),
+        import('@chialab/esbuild-plugin-jsx-import').then(({ default: plugin }) => plugin({ jsxModule, jsxExport })),
+        ...plugins,
+        import('@chialab/esbuild-plugin-transform')
+            .then(async ({ default: plugin }) =>
+                plugin([
+                    ...extraTransformPlugins,
+                    ...transformPlugins,
+                    (await import('@chialab/esbuild-plugin-meta-url')).default(),
+                ])
+            ),
+    ]);
 
     const result = await esbuild.build({
         ...entryOptions,
@@ -113,6 +144,7 @@ export async function build(config) {
         splitting: format === 'esm' && !hasOutputFile,
         metafile: true,
         bundle: true,
+        treeShaking: minify ? true : undefined,
         define,
         external,
         mainFields: [
@@ -127,23 +159,9 @@ export async function build(config) {
         jsxFragment,
         loader: loaders,
         sourcesContent: true,
-        plugins: [
-            (await import('@chialab/esbuild-plugin-any-file')).default({
-                fsCheck: true,
-                shouldThrow(args) {
-                    return !args.path.includes('/node_modules/');
-                },
-            }),
-            (await import('@chialab/esbuild-plugin-env')).default(),
-            (await import('@chialab/esbuild-plugin-jsx-import')).default({ jsxModule, jsxExport }),
-            ...plugins,
-            (await import('@chialab/esbuild-plugin-transform')).default([
-                ...extraTransformPlugins,
-                ...transformPlugins,
-                (await import('@chialab/esbuild-plugin-meta-url')).default(),
-            ]),
-        ],
+        plugins: finalPlugins,
         logLevel,
+        absWorkingDir: root,
     });
 
     if (manifestPath && result) {
@@ -170,13 +188,17 @@ export async function build(config) {
                 }
 
                 const newOutputKey = path.join(path.dirname(outputKey), path.basename(inputKey));
+                if (newOutputKey === outputKey) {
+                    continue;
+                }
+
                 await rename(
                     outputKey,
                     newOutputKey
                 );
 
-                result.metafile.outputs[newOutputKey] = output;
                 delete result.metafile.outputs[outputKey];
+                result.metafile.outputs[newOutputKey] = output;
 
                 break;
             }

@@ -2,7 +2,7 @@
   "name": "@chialab/rna",
   "private": true,
   "type": "module",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "description": "A bundler, a server and a test runner for modern modules and applications.",
   "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
   "license": "MIT",

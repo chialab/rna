@@ -1,6 +1,6 @@
 import path from 'path';
 import { getRequestFilePath } from '@web/dev-server-core';
-import { browserResolve, fsResolve, isCss, isJson } from '@chialab/node-resolve';
+import { browserResolve, isCss, isJson } from '@chialab/node-resolve';
 import { isValidUrl, resolveImport } from '@chialab/wds-plugin-node-resolve';
 import { loadAddons } from './loadAddons.js';
 import { findStories } from './findStories.js';
@@ -44,7 +44,7 @@ export function servePlugin({ type, stories: storiesPattern, essentials = false,
         '@storybook/theming': 'theming',
         '@storybook/addon-docs': 'docs',
         '@storybook/addon-docs/blocks': 'docs',
-        '@storybook/essentials/register': 'essentials.register',
+        '@storybook/essentials/register': 'essentials/register',
         '@storybook/essentials': 'essentials',
     };
 
@@ -128,7 +128,7 @@ export function servePlugin({ type, stories: storiesPattern, essentials = false,
             }
 
             if (bundledModules.includes(source)) {
-                const url = await fsResolve(`../storybook/${bundledModulesMap[source]}.js`, import.meta.url);
+                const url = await browserResolve(`@chialab/storybook-prebuilt/${bundledModulesMap[source]}`, import.meta.url);
                 return await resolveImport(url, filePath, rootDir);
             }
         },

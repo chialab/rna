@@ -9,6 +9,7 @@ export const UMD_GLOBALS = ['globalThis', 'global', 'self', 'window'];
 export const UMD_GLOBALS_REGEXES = UMD_GLOBALS.map((varName) => new RegExp(`\\btypeof\\s+(${varName})\\s*!==?\\s*['|"]undefined['|"]`));
 export const ESM_KEYWORDS = /((?:^\s*|;\s*)(\bimport\s*(\{.*?\}\s*from|\s[\w$]+\s+from|\*\s*as\s+[^\s]+\s+from)?\s*['"])|((?:^\s*|;\s*)export(\s+(default|const|var|let|function|class)[^\w$]|\s*\{)))/m;
 export const CJS_KEYWORDS = /\b(module\.exports|exports|require)\b/;
+export const THIS_PARAM = /(}\s*\()this(,|\))/g;
 
 /**
  * @type {Promise<typeof import('cjs-module-lexer')>}
@@ -223,6 +224,13 @@ var __umd = { __proto__: __umdGlobal }; (function(window, global, globalThis, se
             magicCode.append('\nvar __umdExport = __umdKeys.length === 1 ? __umdKeys[0] : false;');
             magicCode.append('\nif (__umdExport) __umdGlobal[__umdExport] = __umd[__umdExport];');
             magicCode.append('\nexport default (__umdExport ? __umd[__umdExport] : __umd);');
+
+            // replace the usage of `this` as global object because is not supported in esm
+            let thisMatch = THIS_PARAM.exec(code);
+            while (thisMatch) {
+                magicCode.overwrite(thisMatch.index, thisMatch.index + thisMatch[0].length, `${thisMatch[1]}this || __umdGlobal${thisMatch[2]}`);
+                thisMatch = THIS_PARAM.exec(code);
+            }
         } else {
             magicCode.prepend(`var global = globalThis;
 var module = { exports: {} };

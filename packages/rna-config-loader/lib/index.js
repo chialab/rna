@@ -129,7 +129,7 @@ export function getEntryConfig(entrypoint, config) {
         bundle: entrypoint.bundle ?? config.bundle ?? false,
         minify: entrypoint.minify ?? config.minify ?? false,
         clean: entrypoint.clean ?? config.clean ?? false,
-        globalName: entrypoint.globalName || entrypoint.name || camelize(Array.isArray(entrypoint.input) ? entrypoint.input[0] : entrypoint.input),
+        globalName: entrypoint.globalName || entrypoint.name || (format === 'iife' ? camelize(Array.isArray(entrypoint.input) ? entrypoint.input[0] : entrypoint.input) : undefined),
         entryNames: entrypoint.entryNames || config.entryNames || '[name]',
         chunkNames: entrypoint.chunkNames || config.chunkNames || '[name]',
         assetNames: entrypoint.assetNames || config.assetNames || '[name]',

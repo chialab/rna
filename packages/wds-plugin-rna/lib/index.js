@@ -1,13 +1,87 @@
 import path from 'path';
-import { getEntryConfig } from '@chialab/rna-config-loader';
 import { getRequestFilePath } from '@web/dev-server-core';
-import { browserResolve, isCore, isJs, isJson, isCss } from '@chialab/node-resolve';
+import { getEntryConfig } from '@chialab/rna-config-loader';
+import { browserResolve, isCore, isJs, isJson, isCss, fsResolve } from '@chialab/node-resolve';
 import { isHelperImport, isOutsideRootDir, resolveRelativeImport } from '@chialab/wds-plugin-node-resolve';
+import { REQUEST_PARAM as FILE_REQUEST_PARAM, appendFileParam } from '@chialab/esbuild-plugin-meta-url';
+import { REQUEST_PARAM as WORKER_REQUEST_PARAM, appendWorkerParam } from '@chialab/esbuild-plugin-worker';
 import { transform, transformLoaders, loadPlugins, loadTransformPlugins, writeDevEntrypointsJson } from '@chialab/rna-bundler';
 
 /**
  * @typedef {import('@web/dev-server-core').Plugin} Plugin
  */
+
+/**
+ * @param {import('@web/dev-server-core').Context} context
+ */
+export function isFileRequest(context) {
+    return context.URL.searchParams.get(FILE_REQUEST_PARAM.name) === FILE_REQUEST_PARAM.value;
+}
+
+/**
+ * @param {import('@web/dev-server-core').Context} context
+ */
+export function isWorkerRequest(context) {
+    return context.URL.searchParams.get(WORKER_REQUEST_PARAM.name) === WORKER_REQUEST_PARAM.value;
+}
+
+/**
+ * @param {import('@web/dev-server-core').Context} context
+ */
+export function isCssModuleRequest(context) {
+    return context.URL.searchParams.get('loader') === 'css';
+}
+
+/**
+ * @param {import('@web/dev-server-core').Context} context
+ */
+export function isJsonModuleRequest(context) {
+    return context.URL.searchParams.get('loader') === 'json';
+}
+
+/**
+ * @param {string} source
+ */
+export function appendCssModuleParam(source) {
+    if (source.match(/(\?|&)loader=css/)) {
+        return source;
+    }
+    if (source.includes('?')) {
+        return `${source}&loader=css`;
+    }
+    return `${source}?loader=css`;
+}
+
+/**
+ * @param {string} source
+ */
+export function appendJsonModuleParam(source) {
+    if (source.match(/(\?|&)loader=json/)) {
+        return source;
+    }
+    if (source.includes('?')) {
+        return `${source}&loader=json`;
+    }
+    return `${source}?loader=json`;
+}
+
+/**
+ * @param {string} source
+ */
+export function convertCssToJsModule(source) {
+    return `var link = document.createElement('link');
+link.rel = 'stylesheet';
+link.href = '${source}';
+document.head.appendChild(link);
+`;
+}
+
+/**
+ * @param {string} source
+ */
+export function convertFileToJsModule(source) {
+    return `export default new URL('${source}', import.meta.url).href;`;
+}
 
 /**
  * @param {Partial<import('@chialab/rna-config-loader').CoreTransformConfig>} config
@@ -29,11 +103,32 @@ export default function(config) {
         },
 
         resolveMimeType(context) {
-            if (isJs(context.path) || isJson(context.path)) {
+            if (isJs(context.path) ||
+                isJson(context.path) ||
+                isCssModuleRequest(context) ||
+                isFileRequest(context) ||
+                isWorkerRequest(context)) {
                 return 'js';
             }
             if (isCss(context.path)) {
                 return 'css';
+            }
+        },
+
+        serve(context) {
+            if (isFileRequest(context)) {
+                const { rootDir } = serverConfig;
+                const filePath = getRequestFilePath(context.url, rootDir);
+                if (!context.body) {
+                    context.body = convertFileToJsModule(resolveRelativeImport(filePath, context.path, rootDir));
+                    context.headers['content-type'] = 'text/javascript';
+                    return;
+                }
+            }
+            if (isCssModuleRequest(context)) {
+                context.body = convertCssToJsModule(context.path);
+                context.headers['content-type'] = 'text/javascript';
+                return;
             }
         },
 
@@ -42,17 +137,12 @@ export default function(config) {
                 return;
             }
 
-            if (typeof context.body === 'string' && context.URL.searchParams.get('module') === 'style') {
-                return {
-                    body: `var link = document.createElement('link');
-link.rel = 'stylesheet';
-link.href = '${context.path}';
-document.head.appendChild(link);
-`,
-                    headers: {
-                        'Content-Type': 'text/javascript',
-                    },
-                };
+            if (isCssModuleRequest(context) ||
+                isFileRequest(context) ||
+                isWorkerRequest(context)
+            ) {
+                // do not transpile to js module
+                return;
             }
 
             const fileExtension = path.posix.extname(context.path);
@@ -61,10 +151,9 @@ document.head.appendChild(link);
                 return;
             }
 
-            if (loader === 'json') {
-                if (context.URL.searchParams.get('module') !== 'json') {
-                    return;
-                }
+            if (loader === 'json' && !isJsonModuleRequest(context)) {
+                // do not transpile to js module
+                return;
             }
 
             const { rootDir } = serverConfig;
@@ -82,17 +171,16 @@ document.head.appendChild(link);
                 plugins: [
                     ...(await loadPlugins({
                         postcss: {
-                            transform(importPath) {
+                            async transform(importPath) {
                                 if (isOutsideRootDir(importPath)) {
                                     return;
                                 }
 
-                                const normalizedPath = path.resolve(filePath, importPath);
-                                if (normalizedPath.startsWith(rootDir)) {
-                                    return;
-                                }
-
-                                return resolveRelativeImport(normalizedPath, filePath, rootDir);
+                                return resolveRelativeImport(
+                                    await fsResolve(importPath, filePath),
+                                    filePath,
+                                    rootDir
+                                );
                             },
                         },
                     })),
@@ -100,6 +188,16 @@ document.head.appendChild(link);
                 ],
                 transformPlugins: [
                     ...(await loadTransformPlugins({
+                        metaUrl: {
+                            transformUrl(specifier, importer) {
+                                return resolveRelativeImport(specifier, importer, rootDir);
+                            },
+                        },
+                        worker: {
+                            transformUrl(specifier, importer) {
+                                return appendWorkerParam(resolveRelativeImport(specifier, importer, rootDir));
+                            },
+                        },
                         commonjs: {
                             ignore: async (specifier) => {
                                 try {
@@ -123,11 +221,16 @@ document.head.appendChild(link);
         },
 
         async transformImport({ source }) {
-            if (source.endsWith('.json')) {
-                if (source.includes('?')) {
-                    return `${source}&module=json`;
-                }
-                return `${source}?module=json`;
+            if (isJson(source)) {
+                return appendJsonModuleParam(source);
+            }
+
+            if (isCss(source)) {
+                return appendCssModuleParam(source);
+            }
+
+            if (!isJs(source)) {
+                return appendFileParam(source);
             }
         },
     };

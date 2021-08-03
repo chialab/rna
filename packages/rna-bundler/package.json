@@ -42,15 +42,16 @@
     "@chialab/esbuild-plugin-meta-url": "^0.10.6",
     "@chialab/esbuild-plugin-transform": "^0.10.6",
     "@chialab/esbuild-plugin-webpack-include": "^0.10.6",
+    "@chialab/esbuild-plugin-worker": "^0.10.0",
     "@chialab/rna-config-loader": "^0.10.6",
     "@chialab/rna-logger": "^0.10.3",
     "esbuild": "^0.12.0",
     "pkg-up": "^3.1.0"
   },
   "peerDependencies": {
-    "@chialab/esbuild-plugin-babel": "^0.11.0",
-    "@chialab/esbuild-plugin-html": "^0.11.0",
-    "@chialab/esbuild-plugin-postcss": "^0.11.0"
+    "@chialab/esbuild-plugin-babel": "^0.10.0",
+    "@chialab/esbuild-plugin-html": "^0.10.0",
+    "@chialab/esbuild-plugin-postcss": "^0.10.0"
   },
   "peerDependenciesMeta": {
     "@chialab/esbuild-plugin-babel": {

@@ -1,8 +1,8 @@
 {
-  "name": "@chialab/rna-storybook",
+  "name": "@chialab/esbuild-plugin-worker",
   "type": "module",
   "version": "0.10.0",
-  "description": "A Storybook integration with the RNA bundler and server.",
+  "description": "Collect and transpile Web Workers with esbuild.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",
   "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
@@ -10,7 +10,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/chialab/rna",
-    "directory": "packages/rna-storybook"
+    "directory": "packages/esbuild-plugin-worker"
   },
   "keywords": [],
   "scripts": {
@@ -19,7 +19,6 @@
   },
   "files": [
     "lib",
-    "storybook",
     "types",
     "package.json",
     "README.md",
@@ -28,14 +27,8 @@
   "engines": {
     "node": ">=13"
   },
-  "dependencies": {
-    "@chialab/node-resolve": "^0.10.0",
-    "@chialab/wds-plugin-rna": "^0.10.0",
-    "@chialab/wds-plugin-node-resolve": "^0.10.0",
-    "@custom-elements-manifest/analyzer": "^0.4.16",
-    "@storybook/csf-tools": "^6.3.6",
-    "esbuild": "^0.12.17",
-    "fast-glob": "^3.2.7",
+  "dependencies": {},
+  "devDependencies": {
     "typescript": "^4.3.0"
   }
 }

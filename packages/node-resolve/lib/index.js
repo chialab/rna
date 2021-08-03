@@ -26,12 +26,13 @@ export function createResolver(options = {}) {
      * @param {string} specifier
      * @param {string} importer
      */
-    const resolve = function(specifier, importer) {
+    const resolve = async function(specifier, importer) {
+        const chunks = specifier.split('?');
         importer = getBasePath(importer);
-        return new Promise((resolve, reject) => resolver(
+        const resolved = await new Promise((resolve, reject) => resolver(
             {},
             importer,
-            specifier,
+            chunks.shift(),
             {},
             /**
              * @param {Error} err
@@ -39,6 +40,12 @@ export function createResolver(options = {}) {
              */
             (err, data) => (err ? reject(err) : resolve(data)))
         );
+
+        if (chunks.length) {
+            return `${resolved}?${chunks.join('?')}`;
+        }
+
+        return resolved;
     };
 
     return resolve;
@@ -56,7 +63,7 @@ export const HTML_EXTENSIONS = ['.html', '.htm'];
  * @param {string} filePath
  */
 export function isJs(filePath) {
-    return JS_EXTENSIONS.includes(path.posix.extname(filePath));
+    return JS_EXTENSIONS.includes(path.posix.extname(getFileName(filePath)));
 }
 
 /**
@@ -64,7 +71,7 @@ export function isJs(filePath) {
  * @param {string} filePath
  */
 export function isJson(filePath) {
-    return JSON_EXTENSIONS.includes(path.posix.extname(filePath));
+    return JSON_EXTENSIONS.includes(path.posix.extname(getFileName(filePath)));
 }
 
 /**
@@ -72,7 +79,7 @@ export function isJson(filePath) {
  * @param {string} filePath
  */
 export function isCss(filePath) {
-    return CSS_EXTENSIONS.includes(path.posix.extname(filePath));
+    return CSS_EXTENSIONS.includes(path.posix.extname(getFileName(filePath)));
 }
 
 /**
@@ -80,7 +87,7 @@ export function isCss(filePath) {
  * @param {string} filePath
  */
 export function isHtml(filePath) {
-    return HTML_EXTENSIONS.includes(path.posix.extname(filePath));
+    return HTML_EXTENSIONS.includes(path.posix.extname(getFileName(filePath)));
 }
 
 /**
@@ -119,14 +126,36 @@ export async function fsResolve(specifier, importer) {
 }
 
 /**
+ * Remove the file protocol from a path (the resolver cannot handle it) and search params.
+ * @param {string} filePath
+ */
+export function getFileName(filePath) {
+    filePath = filePath.replace('file://', '');
+    return filePath.split('?')[0];
+}
+
+/**
  * Remove the file protocol from a path (the resolver cannot handle it)
  * and return the closest directory for resolution.
  * @param {string} filePath
  */
 export function getBasePath(filePath) {
-    filePath = filePath.replace('file://', '');
+    filePath = getFileName(filePath);
     if (path.extname(filePath)) {
         return path.dirname(filePath);
     }
     return filePath;
+}
+
+/**
+ * Check if the given path is a valid url.
+ * @param {string} url
+ */
+export function isUrl(url) {
+    try {
+        return !!(new URL(url));
+    } catch (err) {
+        //
+    }
+    return false;
 }

@@ -1,7 +1,9 @@
 import path from 'path';
+import { readFile } from 'fs/promises';
 import { getRequestFilePath } from '@web/dev-server-core';
-import { browserResolve, isCss, isJson } from '@chialab/node-resolve';
-import { isValidUrl, resolveImport } from '@chialab/wds-plugin-node-resolve';
+import { browserResolve, isCss, isJson, isUrl } from '@chialab/node-resolve';
+import { resolveImport } from '@chialab/wds-plugin-node-resolve';
+import { appendCssModuleParam, appendJsonModuleParam } from '@chialab/wds-plugin-rna';
 import { loadAddons } from './loadAddons.js';
 import { findStories } from './findStories.js';
 import { createManagerHtml, createManagerScript, createManagerStyle } from './createManager.js';
@@ -13,6 +15,32 @@ const regexpReplaceWebsocket = /<!-- injected by web-dev-server -->(.|\s)*<\/scr
 /**
  * @typedef {import('@web/dev-server-core').Plugin} Plugin
  */
+
+/**
+ * @param {string} source
+ */
+export function appendManagerParam(source) {
+    if (source.match(/(\?|&)manager=true/)) {
+        return source;
+    }
+    if (source.includes('?')) {
+        return `${source}&manager=true`;
+    }
+    return `${source}?manager=true`;
+}
+
+/**
+ * @param {string} source
+ */
+export function appendPreviewParam(source) {
+    if (source.match(/(\?|&)preview=true/)) {
+        return source;
+    }
+    if (source.includes('?')) {
+        return `${source}&preview=true`;
+    }
+    return `${source}?preview=true`;
+}
 
 /**
  * @param {import('./createPlugin').StorybookConfig} options
@@ -62,28 +90,17 @@ export function servePlugin({ type, stories: storiesPattern, essentials = false,
         },
 
         resolveMimeType(context) {
-            if (context.URL.searchParams.get('story') !== 'true') {
-                return;
-            }
-
             if (context.path.endsWith('.mdx')) {
                 return 'js';
             }
         },
 
         transformImport({ source, context }) {
-            if (context.response.is('js') && isCss(source)) {
-                if (source.includes('?')) {
-                    return `${source}&module=style`;
-                }
-                return `${source}?module=style`;
-            }
-
-            if (isJson(source)) {
+            if (isJson(source) || isCss(source)) {
                 return;
             }
 
-            if (isValidUrl(source)) {
+            if (isUrl(source)) {
                 return;
             }
 
@@ -92,20 +109,22 @@ export function servePlugin({ type, stories: storiesPattern, essentials = false,
                 source = source.replace('/dist/esm/', '/dist/cjs/');
             }
 
+            if (isCss(source)) {
+                source = appendCssModuleParam(source);
+            }
+
+            if (isJson(source)) {
+                source = appendJsonModuleParam(source);
+            }
+
             if (context.path === '/manager.js' || context.URL.searchParams.has('manager')) {
-                if (source.includes('?')) {
-                    return `${source}&manager=true`;
-                }
-                return `${source}?manager=true`;
+                return appendManagerParam(source);
             }
 
             if (context.path === '/preview.js' ||
                 context.URL.searchParams.has('preview') ||
                 context.URL.searchParams.has('story')) {
-                if (source.includes('?')) {
-                    return `${source}&preview=true`;
-                }
-                return `${source}?preview=true`;
+                return appendPreviewParam(source);
             }
         },
 
@@ -134,22 +153,10 @@ export function servePlugin({ type, stories: storiesPattern, essentials = false,
         },
 
         async transform(context) {
-            if (typeof context.body !== 'string') {
-                return;
-            }
-
             if (context.path === '/') {
                 // replace the injected websocket script to avoid reloading the manager in watch mode
-                context.body = context.body.replace(regexpReplaceWebsocket, '');
+                context.body = (/** @type {string} */ (context.body)).replace(regexpReplaceWebsocket, '');
                 return;
-            }
-
-            const { rootDir } = serverConfig;
-            if (context.URL.searchParams.get('story') === 'true') {
-                const filePath = getRequestFilePath(context.url, rootDir);
-                if (context.path.endsWith('.mdx')) {
-                    context.body = await transformMdxToCsf(context.body, filePath);
-                }
             }
         },
 
@@ -228,6 +235,13 @@ export function servePlugin({ type, stories: storiesPattern, essentials = false,
 
             if (context.path.startsWith('/preview.css')) {
                 return createPreviewStyle();
+            }
+
+            if (context.path.endsWith('.mdx')) {
+                const { rootDir } = serverConfig;
+                const filePath = decodeURIComponent(getRequestFilePath(context.url, rootDir));
+                const body = await readFile(filePath, 'utf-8');
+                context.body = await transformMdxToCsf(body, filePath);
             }
         },
     };

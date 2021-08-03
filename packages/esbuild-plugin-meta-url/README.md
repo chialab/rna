@@ -37,7 +37,7 @@ import metaUrlPlugin from '@chialab/esbuild-plugin-meta-url';
 
 await esbuild.build({
     plugins: [
-        metaUrlPlugin(),
+        metaUrlPlugin({ mode: 'collect' /* or just "resolve" */ }),
     ],
 });
 ```

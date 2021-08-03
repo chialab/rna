@@ -1,6 +1,6 @@
 import path from 'path';
 import { getRequestFilePath, PluginSyntaxError, PluginError } from '@web/dev-server-core';
-import { browserResolve } from '@chialab/node-resolve';
+import { browserResolve, isUrl } from '@chialab/node-resolve';
 
 /**
  * @typedef {import('@web/dev-server-core').Plugin} Plugin
@@ -17,25 +17,12 @@ export const OUTSIDE_ROOT_KEY = '/__wds-outside-root__/';
 export const EMPTY_KEY = '/__web-dev-server__empty.js';
 
 /**
- * Check if the given path is a valid url.
- * @param {string} url
- */
-export function isValidUrl(url) {
-    try {
-        return !!(new URL(url));
-    } catch (err) {
-        //
-    }
-    return false;
-}
-
-/**
  * Check if the given path needs to be resolved.
  * Relative and valid urls should not be resolved.
  * @param {string} url
  */
 export function skipResolve(url) {
-    return !path.isAbsolute(url) && isValidUrl(url);
+    return !path.isAbsolute(url) && isUrl(url);
 }
 
 /**

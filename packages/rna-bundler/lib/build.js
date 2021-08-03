@@ -123,7 +123,6 @@ export async function build(config) {
                 plugin([
                     ...extraTransformPlugins,
                     ...transformPlugins,
-                    (await import('@chialab/esbuild-plugin-meta-url')).default(),
                 ])
             ),
     ]);
@@ -145,7 +144,10 @@ export async function build(config) {
         metafile: true,
         bundle: true,
         treeShaking: minify ? true : undefined,
-        define,
+        define: {
+            this: platform === 'browser' ? 'window' : 'undefined',
+            ...define,
+        },
         external,
         mainFields: [
             'module',

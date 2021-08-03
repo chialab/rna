@@ -1,8 +1,8 @@
 import { readFile } from 'fs/promises';
 import path from 'path';
-import { resolve as defaultResolve, isUrl } from '@chialab/node-resolve';
+import { resolve as defaultResolve } from '@chialab/node-resolve';
 import { TARGETS, pipe, walk, createTypeScriptTransform, getOffsetFromLocation } from '@chialab/estransform';
-import { SCRIPT_LOADERS, getEntry, finalizeEntry, createFilter } from '@chialab/esbuild-plugin-transform';
+import { getEntry, finalizeEntry, createFilter } from '@chialab/esbuild-plugin-transform';
 
 /**
  * @typedef {{ resolve?: typeof defaultResolve, transformUrl?: (filePath: string, importer: string) => string|void }} PluginOptions
@@ -10,25 +10,24 @@ import { SCRIPT_LOADERS, getEntry, finalizeEntry, createFilter } from '@chialab/
 
 export const REQUEST_PARAM = {
     name: 'loader',
-    value: 'file',
+    value: 'worker',
 };
 
 /**
  * @param {string} source
  */
-export function appendFileParam(source) {
-    if (source.match(/(\?|&)loader=file/)) {
+export function appendWorkerParam(source) {
+    if (source.match(/(\?|&)loader=worker/)) {
         return source;
     }
     if (source.includes('?')) {
-        return `${source}&loader=file`;
+        return `${source}&loader=worker`;
     }
-    return `${source}?loader=file`;
+    return `${source}?loader=worker`;
 }
 
 /**
- * Instantiate a plugin that converts URL references into static import
- * in order to handle assets bundling.
+ * Instantiate a plugin that collect and builds Web Workers.
  * @param {PluginOptions} [options]
  * @param {typeof import('esbuild')} [esbuild]
  * @return An esbuild plugin.
@@ -38,39 +37,37 @@ export default function({ resolve = defaultResolve, transformUrl } = {}, esbuild
      * @type {import('esbuild').Plugin}
      */
     const plugin = {
-        name: 'meta-url',
+        name: 'worker',
         setup(build) {
             const options = build.initialOptions;
             const outdir = options.outdir || (options.outfile && path.dirname(options.outfile)) || process.cwd();
-            const loaders = options.loader || {};
 
-            build.onResolve({ filter: /(\?|&)loader=file$/ }, async ({ path: filePath }) => ({
+            build.onResolve({ filter: /(\?|&)loader=worker$/ }, async ({ path: filePath }) => ({
                 path: filePath.split('?')[0],
-                namespace: 'meta-url',
+                namespace: 'worker',
             }));
 
-            build.onLoad({ filter: /\./, namespace: 'meta-url' }, async ({ path: filePath }) => {
-                const loader = loaders[path.extname(filePath)];
-                if (SCRIPT_LOADERS.includes(loader) || loader === 'css') {
-                    esbuild = esbuild || await import('esbuild');
-                    /** @type {import('esbuild').BuildOptions} */
-                    const config = {
-                        ...options,
-                        entryPoints: [filePath],
-                        outfile: undefined,
-                        outdir,
-                        metafile: true,
-                    };
-                    const result = await esbuild.build(config);
-                    if (result.metafile) {
-                        const outputs = result.metafile.outputs;
-                        const outputFiles = Object.keys(outputs);
-                        filePath = outputFiles
-                            .filter((output) => !output.endsWith('.map'))
-                            .filter((output) => outputs[output].entryPoint)
-                            .find((output) => filePath === path.resolve(/** @type {string} */(outputs[output].entryPoint))) || outputFiles[0];
-                    }
+            build.onLoad({ filter: /\./, namespace: 'worker' }, async ({ path: filePath }) => {
+                esbuild = esbuild || await import('esbuild');
+                /** @type {import('esbuild').BuildOptions} */
+                const config = {
+                    ...options,
+                    entryPoints: [filePath],
+                    outfile: undefined,
+                    outdir,
+                    metafile: true,
+                    format: 'iife',
+                };
+                const result = await esbuild.build(config);
+                if (result.metafile) {
+                    const outputs = result.metafile.outputs;
+                    const outputFiles = Object.keys(outputs);
+                    filePath = outputFiles
+                        .filter((output) => !output.endsWith('.map'))
+                        .filter((output) => outputs[output].entryPoint)
+                        .find((output) => filePath === path.resolve(/** @type {string} */(outputs[output].entryPoint))) || outputFiles[0];
                 }
+
                 return {
                     contents: await readFile(filePath),
                     loader: 'file',
@@ -82,8 +79,7 @@ export default function({ resolve = defaultResolve, transformUrl } = {}, esbuild
                  * @type {import('@chialab/estransform').Pipeline}
                  */
                 const entry = args.pluginData || await getEntry(build, args.path);
-                if (!entry.code.includes('import.meta.url') ||
-                    !entry.code.includes('URL(')) {
+                if (!entry.code.includes('Worker')) {
                     return;
                 }
 
@@ -117,48 +113,47 @@ export default function({ resolve = defaultResolve, transformUrl } = {}, esbuild
                          * @param {*} node
                          */
                         NewExpression(node) {
-                            if (!node.callee || node.callee.type !== 'Identifier' || node.callee.name !== 'URL') {
+                            let callee = node.callee;
+                            if (callee.type === 'MemberExpression') {
+                                if (callee.object.name !== 'window' &&
+                                    callee.object.name !== 'self' &&
+                                    callee.object.name !== 'globalThis') {
+                                    return;
+                                }
+                                callee = callee.property;
+                            }
+                            if (callee.type !== 'Identifier' || callee.name !== 'Worker') {
+                                return;
+                            }
+                            if (!node.arguments.length) {
+                                return;
+                            }
+                            if (typeof node.arguments[0].value !== 'string') {
                                 return;
                             }
 
-                            if (node.arguments.length !== 2 ||
-                                node.arguments[0].type !== 'Literal' ||
-                                node.arguments[1].type !== 'MemberExpression') {
-                                return;
-                            }
-
-                            if (node.arguments[1].object.type !== 'MetaProperty' ||
-                                node.arguments[1].property.type !== 'Identifier' ||
-                                node.arguments[1].property.name !== 'url') {
-                                return;
-                            }
-
-                            const value = node.arguments[0].value;
-                            if (value.startsWith('/') || isUrl(value)) {
-                                return;
-                            }
-
-                            promises.push((async () => {
+                            promises.push(Promise.resolve().then(async () => {
+                                const value = node.arguments[0].value;
                                 const entryPoint = await resolve(value, args.path);
                                 const startOffset = getOffsetFromLocation(code, node.loc.start.line, node.loc.start.column);
                                 const endOffset = getOffsetFromLocation(code, node.loc.end.line, node.loc.end.column);
                                 const transformedUrl = transformUrl && transformUrl(entryPoint, args.path);
                                 if (transformedUrl) {
-                                    magicCode.overwrite(startOffset, endOffset, `new URL('${transformedUrl}', import.meta.url)`);
+                                    magicCode.overwrite(startOffset, endOffset, `new Worker(new URL('${transformedUrl}', import.meta.url).href)`);
                                     return;
                                 }
 
                                 if (!ids[entryPoint]) {
                                     const identifier = ids[entryPoint] = `_${value.replace(/[^a-zA-Z0-9]/g, '_')}`;
                                     if (code.startsWith('#!')) {
-                                        magicCode.appendRight(code.indexOf('\n') + 1, `import ${identifier} from '${appendFileParam(entryPoint)}';\n`);
+                                        magicCode.appendRight(code.indexOf('\n') + 1, `import ${identifier} from '${appendWorkerParam(entryPoint)}';\n`);
                                     } else {
-                                        magicCode.prepend(`import ${identifier} from '${appendFileParam(entryPoint)}';\n`);
+                                        magicCode.prepend(`import ${identifier} from '${appendWorkerParam(entryPoint)}';\n`);
                                     }
                                 }
 
-                                magicCode.overwrite(startOffset, endOffset, `new URL(${ids[entryPoint]}, import.meta.url)`);
-                            })());
+                                magicCode.overwrite(startOffset, endOffset, `new Worker(new URL(${ids[entryPoint]}, import.meta.url).href)`);
+                            }));
                         },
                     });
 

@@ -5,7 +5,7 @@ import { styleResolve } from '@chialab/node-resolve';
  * @typedef {Object} UrlRebasePluginOptions
  * @property {string} [root] The root dir of the build.
  * @property {boolean} [relative] Should use relative paths.
- * @property {(filePath: string, decl: import('postcss').AtRule) => string|void} [transform] A transform function for the import.
+ * @property {(filePath: string, decl: import('postcss').AtRule) => string|void|Promise<string|void>} [transform] A transform function for the import.
  */
 
 /**
@@ -45,7 +45,7 @@ export default function urlRebase({ root = process.cwd(), relative, transform } 
                 }
 
                 if (transform) {
-                    resolvedImportPath = transform(resolvedImportPath, decl) || resolvedImportPath;
+                    resolvedImportPath = await transform(resolvedImportPath, decl) || resolvedImportPath;
                 }
 
                 resolvedImportPath = (decl.source?.input.file && relative && path.isAbsolute(resolvedImportPath)) ? `./${path.relative(decl.source.input.file, resolvedImportPath)}` : resolvedImportPath;

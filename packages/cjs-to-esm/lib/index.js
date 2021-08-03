@@ -217,13 +217,14 @@ export function createTransform({ ignore = () => false }) {
     (typeof globalThis !== 'undefined' && globalThis) ||
     {}
 );
-var __umd = { __proto__: __umdGlobal }; (function(window, global, globalThis, self, module, exports) {
+var __umdKeys = Object.keys(__umdGlobal);
+(function(window, global, globalThis, self, module, exports) {
 `);
-            magicCode.append('\n }).call(__umd, __umd, __umd, __umd, undefined, undefined);');
-            magicCode.append('\nvar __umdKeys = Object.keys(__umd);');
-            magicCode.append('\nvar __umdExport = __umdKeys.length === 1 ? __umdKeys[0] : false;');
-            magicCode.append('\nif (__umdExport) __umdGlobal[__umdExport] = __umd[__umdExport];');
-            magicCode.append('\nexport default (__umdExport ? __umd[__umdExport] : __umd);');
+            magicCode.append(`
+}).call(__umdGlobal, __umdGlobal, __umdGlobal, __umdGlobal, __umdGlobal, undefined, undefined);
+
+var __newUmdKeys = Object.keys(__umdGlobal).slice(__umdKeys.length);
+export default (__newUmdKeys.length ? __umdGlobal[__newUmdKeys[0]] : undefined);`);
 
             // replace the usage of `this` as global object because is not supported in esm
             let thisMatch = THIS_PARAM.exec(code);
@@ -237,15 +238,6 @@ var module = { exports: {} };
 var exports = module.exports;
 `);
 
-            /**
-             * This is very ugly, but there are a lot of React stuff out there
-             * @type {{ [key: string]: string }}
-             */
-            const replacements = process.env.NODE_ENV === 'production' ? {
-                './cjs/react.development.js': './cjs/react.production.min.js',
-                './cjs/react-dom.development.js': './cjs/react-dom.production.min.js',
-                './cjs/react-is.development.js': './cjs/react-is.production.min.js',
-            } : {};
             const { exports, reexports } = await parseCommonjs(code);
             const named = exports.filter((entry) => entry !== '__esModule' && entry !== 'default');
             const isEsModule = exports.includes('__esModule');
@@ -273,15 +265,6 @@ if (${conditions.join(' && ')}) {
             }
 
             reexports.forEach((reexport) => {
-                for (const key in replacements) {
-                    if (reexport === key) {
-                        const spec = specs.get(reexport);
-                        reexport = replacements[key];
-                        if (spec) {
-                            spec.specifier = reexport;
-                        }
-                    }
-                }
                 magicCode.append(`\nexport * from '${reexport}';`);
             });
         }

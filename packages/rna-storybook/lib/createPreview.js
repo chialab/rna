@@ -19,7 +19,7 @@
 export async function createPreviewScript({ type, stories = [], previewEntries = [] }) {
     return `import { configure, registerPreviewEntry } from '@storybook/${type}';
 ${previewEntries.map((previewScript, index) => `import * as preview${index} from '${previewScript}';`).join('\n')}
-${stories.map((s, i) => `import * as stories${i} from '${s}';`).join('\n')}
+${stories.map((story, i) => `import * as stories${i} from '${story}';`).join('\n')}
 
 ${previewEntries.map((previewScript, index) => `registerPreviewEntry(preview${index});`).join('\n')}
 

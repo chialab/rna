@@ -36,14 +36,18 @@ export async function buildMiddlewares() {
  */
 export async function buildPlugins(config) {
     const [
+        { default: nodeResolvePlugin },
         { default: rnaPlugin, entrypointsPlugin },
     ] = await Promise.all([
+        import('@chialab/wds-plugin-node-resolve'),
         import('@chialab/wds-plugin-rna'),
     ]);
 
     return [
-        rnaPlugin({
+        nodeResolvePlugin({
             alias: config.alias,
+        }),
+        rnaPlugin({
             transformPlugins: config.transformPlugins,
         }),
         entrypointsPlugin(config.entrypoints, config.entrypointsPath),

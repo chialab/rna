@@ -30,7 +30,7 @@
   },
   "dependencies": {
     "@chialab/node-resolve": "^0.10.0",
-    "@chialab/wds-plugin-rna": "^0.10.0",
+    "@chialab/wds-plugin-node-resolve": "^0.10.0",
     "@custom-elements-manifest/analyzer": "^0.4.16",
     "@storybook/csf-tools": "^6.3.6",
     "esbuild": "^0.12.17",

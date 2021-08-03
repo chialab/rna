@@ -1,7 +1,7 @@
 import path from 'path';
 import { readFile } from 'fs/promises';
 import esbuild from 'esbuild';
-import { resolveToImportMetaUrl } from '@chialab/node-resolve';
+import { fsResolve } from '@chialab/node-resolve';
 import { createManagerHtml, createManagerScript, createManagerStyle } from './createManager.js';
 import { findStories } from './findStories.js';
 import { createPreviewHtml, createPreviewScript, createPreviewStyle } from './createPreview.js';
@@ -11,14 +11,14 @@ import { transformMdxToCsf } from './transformMdxToCsf.js';
  * @param {string} type
  */
 function storybookModulesPlugin(type) {
-    const storybookDir = resolveToImportMetaUrl(import.meta.url, '../storybook');
-
     /**
      * @type {import('esbuild').Plugin}
      */
     const plugin = {
         name: 'storybook-modules',
         async setup(build) {
+            const storybookDir = await fsResolve('../storybook', import.meta.url);
+
             build.onResolve({ filter: /^@storybook\/manager$/ }, () => ({
                 path: path.resolve(storybookDir, 'manager/index.js'),
             }));
@@ -42,7 +42,7 @@ function storybookModulesPlugin(type) {
             }));
 
             build.onLoad({ filter: /\.mdx$/ }, async (args) => ({
-                contents: await transformMdxToCsf(type, await readFile(args.path, 'utf-8'), args.path),
+                contents: await transformMdxToCsf(type, await readFile(args.path, 'utf-8')),
                 loader: 'js',
             }));
         },

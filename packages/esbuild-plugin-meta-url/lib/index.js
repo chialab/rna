@@ -1,5 +1,6 @@
 import { readFile } from 'fs/promises';
 import path from 'path';
+import { fsResolve } from '@chialab/node-resolve';
 import { TARGETS, pipe, walk, createTypeScriptTransform, getOffsetFromLocation } from '@chialab/estransform';
 import { SCRIPT_LOADERS, getEntry, finalizeEntry, createFilter } from '@chialab/esbuild-plugin-transform';
 
@@ -49,7 +50,6 @@ export default function(esbuild) {
                     }));
                 }
 
-                const { fileResolve } = await import('@chialab/node-resolve');
                 const outdir = options.outdir || (options.outfile && path.dirname(options.outfile)) || process.cwd();
                 const loaders = options.loader || {};
 
@@ -97,7 +97,7 @@ export default function(esbuild) {
                                 } else if (options.platform === 'node' && options.format !== 'esm') {
                                     baseUrl = '\'file://\' + __filename';
                                 }
-                                const entryPoint = await fileResolve(value, path.dirname(args.path));
+                                const entryPoint = await fsResolve(value, args.path);
                                 const startOffset = getOffsetFromLocation(code, node.loc.start.line, node.loc.start.column);
                                 const endOffset = getOffsetFromLocation(code, node.loc.end.line, node.loc.end.column);
 

@@ -23,15 +23,15 @@ export function createResolver(options = {}) {
     });
 
     /**
-     * @param {string} spec
+     * @param {string} specifier
      * @param {string} importer
      */
-    const resolve = function(spec, importer) {
-        importer = importer.replace(/^file:\/\//, '');
+    const resolve = function(specifier, importer) {
+        importer = getBasePath(importer);
         return new Promise((resolve, reject) => resolver(
             {},
             importer,
-            spec,
+            specifier,
             {},
             /**
              * @param {Error} err
@@ -51,19 +51,57 @@ export const JSON_EXTENSIONS = ['.json', '.geojson'];
 export const CSS_EXTENSIONS = ['.css', '.scss', '.sass', '.less'];
 export const HTML_EXTENSIONS = ['.html', '.htm'];
 
+/**
+ * Check if a file is a JavaSript source.
+ * @param {string} filePath
+ */
+export function isJs(filePath) {
+    return JS_EXTENSIONS.includes(path.posix.extname(filePath));
+}
+
+/**
+ * Check if a file is a JSON source.
+ * @param {string} filePath
+ */
+export function isJson(filePath) {
+    return JSON_EXTENSIONS.includes(path.posix.extname(filePath));
+}
+
+/**
+ * Check if a file is a CSS source.
+ * @param {string} filePath
+ */
+export function isCss(filePath) {
+    return CSS_EXTENSIONS.includes(path.posix.extname(filePath));
+}
+
+/**
+ * Check if a file is an HTML source.
+ * @param {string} filePath
+ */
+export function isHtml(filePath) {
+    return HTML_EXTENSIONS.includes(path.posix.extname(filePath));
+}
+
+/**
+ * Generic node resolver.
+ */
 export const resolve = createResolver();
 
-export const fileResolve = createResolver({
-    exportsFields: [],
-    mainFields: [],
-});
-
+/**
+ * A style specific resolver.
+ * It refers to the style field in the package json.
+ */
 export const styleResolve = createResolver({
     extensions: ['.css'],
     exportsFields: [],
     mainFields: ['style'],
 });
 
+/**
+ * A browser specific resolver.
+ * It prioritizes esm resolutions and handle browser fields in the package json.
+ */
 export const browserResolve = createResolver({
     extensions: JS_EXTENSIONS,
     conditionNames: ['default', 'module', 'import', 'browser'],
@@ -72,16 +110,23 @@ export const browserResolve = createResolver({
 });
 
 /**
- * @param {string} metaUrl
- * @param {string} relativePath
+ * Resolve module using the fs.
+ * @param {string} specifier
+ * @param {string} importer
  */
-export function resolveToImportMetaUrl(metaUrl, relativePath) {
-    return path.resolve(path.dirname(normalizeImportMetaUrl(metaUrl)), relativePath);
+export async function fsResolve(specifier, importer) {
+    return path.resolve(getBasePath(importer), specifier);
 }
 
 /**
- * @param {string} metaUrl
+ * Remove the file protocol from a path (the resolver cannot handle it)
+ * and return the closest directory for resolution.
+ * @param {string} filePath
  */
-export function normalizeImportMetaUrl(metaUrl) {
-    return metaUrl.replace('file://', '');
+export function getBasePath(filePath) {
+    filePath = filePath.replace('file://', '');
+    if (path.extname(filePath)) {
+        return path.dirname(filePath);
+    }
+    return filePath;
 }

@@ -1,7 +1,7 @@
 import path from 'path';
 import { getRequestFilePath } from '@web/dev-server-core';
-import { browserResolve, CSS_EXTENSIONS, JSON_EXTENSIONS, resolveToImportMetaUrl } from '@chialab/node-resolve';
-import { resolveImport } from '@chialab/wds-plugin-rna';
+import { browserResolve, fsResolve, isCss, isJson } from '@chialab/node-resolve';
+import { isValidUrl, resolveImport } from '@chialab/wds-plugin-node-resolve';
 import { loadAddons } from './loadAddons.js';
 import { findStories } from './findStories.js';
 import { createManagerHtml, createManagerScript, createManagerStyle } from './createManager.js';
@@ -13,17 +13,6 @@ const regexpReplaceWebsocket = /<!-- injected by web-dev-server -->(.|\s)*<\/scr
 /**
  * @typedef {import('@web/dev-server-core').Plugin} Plugin
  */
-
-/**
- * @param {string} url
- */
-function isAbsoluteUrl(url) {
-    try {
-        return !!new URL(url);
-    } catch {
-        return false;
-    }
-}
 
 /**
  * @param {import('./createPlugin').StorybookConfig} options
@@ -83,19 +72,18 @@ export function servePlugin({ type, stories: storiesPattern, essentials = false,
         },
 
         transformImport({ source, context }) {
-            if (context.response.is('js') &&
-                CSS_EXTENSIONS.includes(path.extname(source))) {
+            if (context.response.is('js') && isCss(source)) {
                 if (source.includes('?')) {
                     return `${source}&module=style`;
                 }
                 return `${source}?module=style`;
             }
 
-            if (JSON_EXTENSIONS.includes(path.extname(source))) {
+            if (isJson(source)) {
                 return;
             }
 
-            if (isAbsoluteUrl(source)) {
+            if (isValidUrl(source)) {
                 return;
             }
 
@@ -122,26 +110,26 @@ export function servePlugin({ type, stories: storiesPattern, essentials = false,
         },
 
         async resolveImport({ source, context, code, line, column }) {
+            const { rootDir } = serverConfig;
+            const filePath = getRequestFilePath(context.url, rootDir);
+
             if (type === 'web-components') {
                 if (source === 'lit-html') {
-                    const filePath = getRequestFilePath(context.url, serverConfig.rootDir);
-                    const url = await browserResolve(source, serverConfig.rootDir);
-                    return await resolveImport(url, filePath, serverConfig.rootDir, { code, line, column });
+                    const url = await browserResolve(source, rootDir);
+                    return await resolveImport(url, filePath, rootDir, { code, line, column });
                 }
             }
 
             if (type === 'dna') {
                 if (source === '@chialab/dna') {
-                    const filePath = getRequestFilePath(context.url, serverConfig.rootDir);
-                    const url = await browserResolve(source, serverConfig.rootDir);
-                    return await resolveImport(url, filePath, serverConfig.rootDir, { code, line, column });
+                    const url = await browserResolve(source, rootDir);
+                    return await resolveImport(url, filePath, rootDir, { code, line, column });
                 }
             }
 
             if (bundledModules.includes(source)) {
-                const filePath = getRequestFilePath(context.url, serverConfig.rootDir);
-                const url = resolveToImportMetaUrl(import.meta.url, `../storybook/${bundledModulesMap[source]}.js`);
-                return resolveImport(url, filePath, serverConfig.rootDir);
+                const url = await fsResolve(`../storybook/${bundledModulesMap[source]}.js`, import.meta.url);
+                return await resolveImport(url, filePath, rootDir);
             }
         },
 
@@ -156,8 +144,9 @@ export function servePlugin({ type, stories: storiesPattern, essentials = false,
                 return;
             }
 
+            const { rootDir } = serverConfig;
             if (context.URL.searchParams.get('story') === 'true') {
-                const filePath = getRequestFilePath(context.url, serverConfig.rootDir);
+                const filePath = getRequestFilePath(context.url, rootDir);
                 if (context.path.endsWith('.mdx')) {
                     context.body = await transformMdxToCsf(context.body, filePath);
                 }
@@ -218,8 +207,9 @@ export function servePlugin({ type, stories: storiesPattern, essentials = false,
             }
 
             if (context.path.startsWith('/preview.js')) {
+                const { rootDir } = serverConfig;
                 const [, preview] = await addonsLoader;
-                const stories = await findStories(serverConfig.rootDir, storiesPattern);
+                const stories = await findStories(rootDir, storiesPattern);
                 return createPreviewScript({
                     type,
                     stories: stories

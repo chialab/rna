@@ -29,10 +29,9 @@ export function appendWorkerParam(source) {
 /**
  * Instantiate a plugin that collect and builds Web Workers.
  * @param {PluginOptions} [options]
- * @param {typeof import('esbuild')} [esbuild]
  * @return An esbuild plugin.
  */
-export default function({ resolve = defaultResolve, transformUrl } = {}, esbuild) {
+export default function({ resolve = defaultResolve, transformUrl } = {}) {
     /**
      * @type {import('esbuild').Plugin}
      */
@@ -40,39 +39,18 @@ export default function({ resolve = defaultResolve, transformUrl } = {}, esbuild
         name: 'worker',
         setup(build) {
             const options = build.initialOptions;
-            const outdir = options.outdir || (options.outfile && path.dirname(options.outfile)) || process.cwd();
 
             build.onResolve({ filter: /(\?|&)loader=worker$/ }, async ({ path: filePath }) => ({
                 path: filePath.split('?')[0],
                 namespace: 'worker',
             }));
 
-            build.onLoad({ filter: /\./, namespace: 'worker' }, async ({ path: filePath }) => {
-                esbuild = esbuild || await import('esbuild');
-                /** @type {import('esbuild').BuildOptions} */
-                const config = {
-                    ...options,
-                    entryPoints: [filePath],
-                    outfile: undefined,
-                    outdir,
-                    metafile: true,
-                    format: 'iife',
-                };
-                const result = await esbuild.build(config);
-                if (result.metafile) {
-                    const outputs = result.metafile.outputs;
-                    const outputFiles = Object.keys(outputs);
-                    filePath = outputFiles
-                        .filter((output) => !output.endsWith('.map'))
-                        .filter((output) => outputs[output].entryPoint)
-                        .find((output) => filePath === path.resolve(/** @type {string} */(outputs[output].entryPoint))) || outputFiles[0];
-                }
-
-                return {
+            build.onLoad({ filter: /\./, namespace: 'worker' }, async ({ path: filePath }) => (
+                {
                     contents: await readFile(filePath),
                     loader: 'file',
-                };
-            });
+                }
+            ));
 
             build.onLoad({ filter: createFilter(build), namespace: 'file' }, async (args) => {
                 /**

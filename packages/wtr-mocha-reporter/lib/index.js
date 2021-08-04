@@ -1,5 +1,7 @@
 import mocha from 'mocha';
 import { createRunner, reportMochaSuite } from './mochaRunner.js';
+import { reportBrowserLogs } from './reportBrowserLogs.js';
+import { reportRequest404s } from './reportRequest404s.js';
 
 /**
  * Bind the WTR reporter to a Mocha reporter.
@@ -38,7 +40,7 @@ export function mochaReporter(MochaReporter = mocha.reporters.Spec) {
             runner.emit(mocha.Runner.constants.EVENT_RUN_END);
         },
 
-        async reportTestFileResults({ sessionsForTestFile }) {
+        async reportTestFileResults({ sessionsForTestFile, logger }) {
             sessionsForTestFile.forEach((session) => {
                 if (session.status !== 'FINISHED') {
                     return;
@@ -48,6 +50,9 @@ export function mochaReporter(MochaReporter = mocha.reporters.Spec) {
                     reportMochaSuite(runner, session.testResults);
                 }
             });
+
+            reportBrowserLogs(logger, sessionsForTestFile);
+            reportRequest404s(logger, sessionsForTestFile);
         },
     };
 

@@ -1,3 +1,5 @@
+import { readConfigFile, mergeConfig, locateConfigFile } from '@chialab/rna-config-loader';
+
 /**
  * Start the test runner.
  * @param {import('@chialab/rna-browser-test-runner').TestRunnerConfig} config
@@ -82,14 +84,15 @@ export function command(program) {
         .option('--manual', 'manual test mode')
         .option('--open', 'open the browser')
         .option('--coverage', 'add coverage to tests')
+        .option('-C, --config <path>', 'the rna config file')
         .option('-U, --user <string>', 'sauce username')
         .option('-K, --key <string>', 'sauce access key')
         .action(
             /**
              * @param {string[]} specs
-             * @param {{ port?: number, watch?: boolean, concurrency?: number, coverage?: boolean, manual?: boolean; open?: boolean, browsers?: string[], user?: string, key?: string }} options
+             * @param {{ port?: number, watch?: boolean, concurrency?: number, coverage?: boolean, manual?: boolean; open?: boolean, browsers?: string[], config?: string, user?: string, key?: string }} options
              */
-            async (specs, { port, watch, concurrency, coverage, manual, open, browsers, user = process.env.SAUCE_USERNAME, key = process.env.SAUCE_ACCESS_KEY }) => {
+            async (specs, { port, watch, concurrency, coverage, manual, open, browsers, config: configFile, user = process.env.SAUCE_USERNAME, key = process.env.SAUCE_ACCESS_KEY }) => {
                 if (!user) {
                     throw new Error('Missing saucelabs username. Did you forget to set the `SAUCE_USERNAME` environment variable?');
                 }
@@ -97,18 +100,27 @@ export function command(program) {
                     throw new Error('Missing saucelabs access key. Did you forget to set the `SAUCE_ACCESS_KEY` environment variable?');
                 }
 
+                const root = process.cwd();
+                configFile = configFile || await locateConfigFile();
+
+                /**
+                 * @type {import('@chialab/rna-config-loader').Config}
+                 */
+                const config = mergeConfig({ root }, configFile ? await readConfigFile(configFile, { root }, 'serve') : {});
+
                 const { legacyPlugin } = await import('@chialab/wds-plugin-legacy');
 
                 /**
                  * @type {import('@chialab/rna-browser-test-runner').TestRunnerConfig}
                  */
-                const config = {
+                const testRunnerConfig = {
                     port,
                     watch,
                     concurrentBrowsers: concurrency || 2,
                     coverage,
                     manual: manual || open === true,
                     open,
+                    alias: config.alias,
                     browsers,
                     plugins: [
                         legacyPlugin({
@@ -118,10 +130,10 @@ export function command(program) {
                 };
 
                 if (specs.length) {
-                    config.files = specs;
+                    testRunnerConfig.files = specs;
                 }
 
-                await test(config, { user, key });
+                await test(testRunnerConfig, { user, key });
             }
         );
 }

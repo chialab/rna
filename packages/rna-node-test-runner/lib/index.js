@@ -1,7 +1,10 @@
+import { readConfigFile, mergeConfig, locateConfigFile } from '@chialab/rna-config-loader';
+
 /**
  * @typedef {Object} TestRunnerConfig
  * @property {string[]} [files] A list or a glob of files to test.
  * @property {boolean} [coverage] Should collect coverage data.
+ * @property {import('@chialab/rna-config-loader').AliasMap} [alias]
  */
 
 /**
@@ -79,22 +82,32 @@ export function command(program) {
         .command('test:node [specs...]')
         .description('Start a node test runner based on mocha.')
         .option('--coverage', 'collect code coverage')
+        .option('-C, --config <path>', 'the rna config file')
         .action(
             /**
              * @param {string[]} specs
-             * @param {{ coverage?: boolean }} options
+             * @param {{ coverage?: boolean, config?: string }} options
              */
-            async (specs, { coverage }) => {
+            async (specs, { coverage, config: configFile }) => {
+                const root = process.cwd();
+                configFile = configFile || await locateConfigFile();
+
+                /**
+                 * @type {import('@chialab/rna-config-loader').Config}
+                 */
+                const config = mergeConfig({ root }, configFile ? await readConfigFile(configFile, { root }, 'serve') : {});
+
                 /**
                  * @type {TestRunnerConfig}
                  */
-                const config = {
+                const testRunnerConfig = {
+                    alias: config.alias,
                     coverage,
                 };
                 if (specs.length) {
-                    config.files = specs;
+                    testRunnerConfig.files = specs;
                 }
-                await test(config);
+                await test(testRunnerConfig);
             }
         );
 }

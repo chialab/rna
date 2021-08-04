@@ -30,21 +30,37 @@ import path from 'path';
  */
 
 /**
+ * @typedef {boolean|'external'|'inline'|'both'} SourcemapType
+ */
+
+/**
+ * @typedef {{ [key: string]: string }} DefineMap
+ */
+
+/**
+ * @typedef {{ [key: string]: string|false }} AliasMap
+ */
+
+/**
+ * @typedef {'default'|'named'|'namespace'} ExportType
+ */
+
+/**
  * @typedef {Object} CoreTransformConfig
  * @property {Format} format
  * @property {Target} target
  * @property {Platform} platform
- * @property {boolean|'external'|'inline'|'both'} sourcemap
+ * @property {SourcemapType} sourcemap
  * @property {string} entryNames
  * @property {string} chunkNames
  * @property {string} assetNames
- * @property {{ [key: string]: string }} define
+ * @property {DefineMap} define
  * @property {string[]} external
- * @property {{ [key: string]: string|false }} alias
+ * @property {AliasMap} alias
  * @property {string} [jsxFactory]
  * @property {string} [jsxFragment]
  * @property {string} [jsxModule]
- * @property {'default'|'named'|'namespace'} [jsxExport]
+ * @property {ExportType} [jsxExport]
  * @property {boolean} minify
  * @property {boolean} bundle
  * @property {boolean} clean

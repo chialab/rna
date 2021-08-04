@@ -1,12 +1,21 @@
 import path from 'path';
 import { createRequire } from 'module';
+import { readConfigFile, mergeConfig, locateConfigFile } from '@chialab/rna-config-loader';
 import { createLogger } from '@chialab/rna-logger';
 import { mochaReporter } from '@chialab/wtr-mocha-reporter';
+import { FRAMEWORK_ALIASES } from './frameworks.js';
 
 const require = createRequire(import.meta.url);
 
 /**
- * @typedef {Partial<Omit<import('@web/test-runner-core').TestRunnerCoreConfig, 'browsers'>> & { logger?: import('@chialab/rna-logger').Logger, browsers?: string[]|import('@web/test-runner-core').BrowserLauncher[] }} TestRunnerConfig
+ * @typedef {Object} TestRunnerCoreConfig
+ * @property {import('@chialab/rna-logger').Logger} [logger]
+ * @property {string[]|import('@web/test-runner-core').BrowserLauncher[]} [browsers]
+ * @property {import('@chialab/rna-config-loader').AliasMap} [alias]
+ */
+
+/**
+ * @typedef {Partial<Omit<import('@web/test-runner-core').TestRunnerCoreConfig, 'browsers'>> & TestRunnerCoreConfig} TestRunnerConfig
  */
 
 /**
@@ -57,7 +66,6 @@ export async function startTestRunner(config) {
      * @type {import('@web/test-runner-core').TestRunnerCoreConfig}
      */
     const runnerConfig = {
-        rootDir: process.cwd(),
         protocol: 'http:',
         hostname: 'localhost',
         logger: config.logger,
@@ -94,7 +102,13 @@ export async function startTestRunner(config) {
             ...(config.middleware || []),
         ],
         plugins: [
-            ...(await buildPlugins(config)),
+            ...(await buildPlugins({
+                ...config,
+                alias: {
+                    ...FRAMEWORK_ALIASES,
+                    ...(config.alias || {}),
+                },
+            })),
             ...(config.plugins || []),
         ],
     };
@@ -119,18 +133,17 @@ export async function test(config) {
     await runner.start();
     cli.start();
 
-    process.on('uncaughtException', error => {
+    process.on('uncaughtException', (error) => {
         config.logger?.error(error);
+        runner.stop();
     });
 
-    process.on('exit', async () => {
-        await runner.stop();
-        process.exit(0);
+    process.on('exit', () => {
+        runner.stop();
     });
 
-    process.on('SIGINT', async () => {
-        await runner.stop();
-        process.exit(0);
+    process.on('SIGINT', () => {
+        runner.stop();
     });
 
     runner.on('stopped', (passed) => {
@@ -153,29 +166,40 @@ export function command(program) {
         .option('--manual', 'manual test mode')
         .option('--open', 'open the browser')
         .option('--coverage', 'add coverage to tests')
+        .option('-C, --config <path>', 'the rna config file')
         .action(
             /**
              * @param {string[]} specs
-             * @param {{ port?: number, watch?: boolean, concurrency?: number, coverage?: boolean, manual?: boolean; open?: boolean }} options
+             * @param {{ port?: number, watch?: boolean, concurrency?: number, coverage?: boolean, manual?: boolean; open?: boolean, config?: string }} options
              */
-            async (specs, { port, watch, concurrency, coverage, manual, open }) => {
+            async (specs, { port, watch, concurrency, coverage, manual, open, config: configFile }) => {
+                const root = process.cwd();
+                configFile = configFile || await locateConfigFile();
+
+                const logger = createLogger();
+
+                /**
+                 * @type {import('@chialab/rna-config-loader').Config}
+                 */
+                const config = mergeConfig({ root }, configFile ? await readConfigFile(configFile, { root }, 'serve') : {});
+
                 /**
                  * @type {TestRunnerPlugin[]}
                  */
                 const plugins = [];
 
-                const logger = createLogger();
-
                 /**
                  * @type {TestRunnerConfig}
                  */
-                const config = {
+                const testRunnerConfig = {
+                    rootDir: config.root,
                     port: port || 8765,
                     watch,
                     concurrentBrowsers: concurrency || 2,
                     coverage,
                     manual: manual || open === true,
                     open,
+                    alias: config.alias,
                     plugins,
                     logger,
                     browsers: [
@@ -184,7 +208,7 @@ export function command(program) {
                 };
 
                 if (specs.length) {
-                    config.files = specs;
+                    testRunnerConfig.files = specs;
                 }
 
                 try {
@@ -196,7 +220,7 @@ export function command(program) {
                     //
                 }
 
-                await test(config);
+                await test(testRunnerConfig);
             }
         );
 }

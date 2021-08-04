@@ -234,8 +234,15 @@ export default (__newUmdKeys.length ? __umdGlobal[__newUmdKeys[0]] : undefined);
             }
         } else {
             magicCode.prepend(`var global = globalThis;
-var module = { exports: {} };
-var exports = module.exports;
+var exports = {};
+var module = {
+    get exports() {
+        return exports;
+    },
+    set exports(value) {
+        exports = value;
+    },
+};
 `);
 
             const { exports, reexports } = await parseCommonjs(code);

@@ -3,9 +3,10 @@ import { mkdir, readFile, writeFile } from 'fs/promises';
 import esbuild from 'esbuild';
 import { escapeRegexBody } from '@chialab/estransform';
 import { browserResolve } from '@chialab/node-resolve';
-import { createManagerHtml, createManagerScript, createManagerStyle } from './createManager.js';
+import { indexHtml, iframeHtml, managerCss, previewCss } from '@chialab/storybook-prebuilt';
+import { createManagerScript } from './createManager.js';
 import { findStories } from './findStories.js';
-import { createPreviewHtml, createPreviewScript, createPreviewStyle } from './createPreview.js';
+import { createPreviewScript } from './createPreview.js';
 import { transformMdxToCsf } from './transformMdxToCsf.js';
 import { createBundleMap } from './bundleMap.js';
 import { loadAddons } from './loadAddons.js';
@@ -91,6 +92,7 @@ export function buildPlugin(config) {
                 ...options,
                 plugins,
                 loader,
+                globalName: 'Storybook',
                 target: 'es6',
                 platform: 'browser',
                 format: 'iife',
@@ -109,7 +111,7 @@ export function buildPlugin(config) {
                     esbuild.build({
                         ...childOptions,
                         stdin: {
-                            contents: createManagerStyle(),
+                            contents: await managerCss(),
                             sourcefile: '__storybook-manager__.css',
                             loader: 'css',
                         },
@@ -117,7 +119,7 @@ export function buildPlugin(config) {
                     esbuild.build({
                         ...childOptions,
                         stdin: {
-                            contents: createPreviewStyle(),
+                            contents: await previewCss(),
                             sourcefile: '__storybook-preview__.css',
                             loader: 'css',
                         },
@@ -162,8 +164,8 @@ export function buildPlugin(config) {
                     esbuild.build({
                         ...childOptions,
                         stdin: {
-                            contents: createManagerHtml({
-                                managerHead,
+                            contents: await indexHtml({
+                                managerHead: managerHead || '',
                                 css: {
                                     path: '__storybook-manager__.css',
                                 },
@@ -179,9 +181,9 @@ export function buildPlugin(config) {
                     esbuild.build({
                         ...childOptions,
                         stdin: {
-                            contents: await createPreviewHtml({
-                                previewHead,
-                                previewBody,
+                            contents: await iframeHtml({
+                                previewHead: previewHead || '',
+                                previewBody: previewBody || '',
                                 css: {
                                     path: '__storybook-preview__.css',
                                 },

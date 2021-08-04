@@ -3,11 +3,12 @@ import { readFile } from 'fs/promises';
 import { getRequestFilePath } from '@web/dev-server-core';
 import { browserResolve, isCss, isJson, isUrl, appendSearchParam } from '@chialab/node-resolve';
 import { resolveImport } from '@chialab/wds-plugin-node-resolve';
+import { indexHtml, iframeHtml, managerCss, previewCss } from '@chialab/storybook-prebuilt';
 import { appendCssModuleParam, appendJsonModuleParam } from '@chialab/wds-plugin-rna';
 import { loadAddons } from './loadAddons.js';
 import { findStories } from './findStories.js';
-import { createManagerHtml, createManagerScript, createManagerStyle } from './createManager.js';
-import { createPreviewHtml, createPreviewScript, createPreviewStyle } from './createPreview.js';
+import { createManagerScript } from './createManager.js';
+import { createPreviewScript } from './createPreview.js';
 import { transformMdxToCsf } from './transformMdxToCsf.js';
 import { createBundleMap } from './bundleMap.js';
 
@@ -127,8 +128,8 @@ export function servePlugin({ type, stories: storiesPattern, static: staticFiles
             }
 
             if (context.path === '/') {
-                return createManagerHtml({
-                    managerHead,
+                return indexHtml({
+                    managerHead: managerHead || '',
                     css: {
                         path: '/__storybook-manager__.css',
                     },
@@ -140,20 +141,17 @@ export function servePlugin({ type, stories: storiesPattern, static: staticFiles
             }
 
             if (context.path === '/iframe.html') {
-                return {
-                    type: 'html',
-                    body: await createPreviewHtml({
-                        previewHead,
-                        previewBody,
-                        css: {
-                            path: '/__storybook-preview__.css',
-                        },
-                        js: {
-                            path: '/__storybook-preview__.js',
-                            type: 'module',
-                        },
-                    }),
-                };
+                return iframeHtml({
+                    previewHead: previewHead || '',
+                    previewBody: previewBody || '',
+                    css: {
+                        path: '/__storybook-preview__.css',
+                    },
+                    js: {
+                        path: '/__storybook-preview__.js',
+                        type: 'module',
+                    },
+                });
             }
 
             if (context.path.startsWith('/__storybook-manager__.js')) {
@@ -171,7 +169,7 @@ export function servePlugin({ type, stories: storiesPattern, static: staticFiles
             }
 
             if (context.path.startsWith('/__storybook-manager__.css')) {
-                return createManagerStyle();
+                return managerCss();
             }
 
             if (context.path.startsWith('/__storybook-preview__.js')) {
@@ -195,7 +193,7 @@ export function servePlugin({ type, stories: storiesPattern, static: staticFiles
             }
 
             if (context.path.startsWith('/__storybook-preview__.css')) {
-                return createPreviewStyle();
+                return previewCss();
             }
 
             const { rootDir } = serverConfig;

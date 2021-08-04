@@ -171,9 +171,11 @@ export function getEntryBuildConfig(entrypoint, config) {
         throw new Error('Missing required `output` path');
     }
 
+    const format = entrypoint.format || config.format;
+
     return /** @type {EntrypointFinalBuildConfig} */ (getEntryConfig({
         ...entrypoint,
-        globalName: entrypoint.globalName || entrypoint.name || camelize(entrypoint.output),
+        globalName: entrypoint.globalName || entrypoint.name || (format === 'iife' ? camelize(entrypoint.output) : undefined),
     }, config));
 }
 

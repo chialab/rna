@@ -8,7 +8,6 @@
   "license": "MIT",
   "scripts": {
     "clean": "rimraf 'node_modules' 'packages/*/node_modules' 'package-lock.json'",
-    "build-storybook": "./packages/rna/lib/index.js build -C ./internals/packages/storybook/rna.config.js",
     "types": "lerna run types",
     "lint": "eslint 'packages/*/lib/**/*.js'",
     "new": "plop --plopfile internals/generators/plopfile.cjs module"

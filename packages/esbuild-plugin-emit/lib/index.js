@@ -5,7 +5,7 @@ import { appendSearchParam, getSearchParam, getSearchParams, hasSearchParam } fr
 /**
  * The namespace for emitted files.
  */
- const EMIT_FILE_NS = 'emit-chunk';
+const EMIT_FILE_NS = 'emit-chunk';
 
 /**
  * The filter regex for file imports.

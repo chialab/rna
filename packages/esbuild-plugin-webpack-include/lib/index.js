@@ -38,42 +38,38 @@ export default function() {
                         /**
                          * @param {*} node
                          */
-                        CallExpression(node) {
-                            if (!node.callee || node.callee.type !== 'ImportExpression') {
+                        ImportExpression(node) {
+                            if (node.source.type !== 'TemplateLiteral') {
                                 return;
                             }
 
-                            if (node.arguments.length !== 1 ||
-                                node.arguments[0].type !== 'TemplateLiteral' ||
-                                !node.arguments[0].leadingComments ||
-                                !node.arguments[0].leadingComments.length) {
+                            const matched = code
+                                .substr(node.start, node.end - node.start)
+                                .match(/\/\*\s*([^*]+)\*\//g);
+                            if (!matched) {
                                 return;
                             }
 
-                            const comments = node.arguments[0].leadingComments;
-                            const included = comments.find(
-                                /**
-                                 * @param {*} param0
-                                 * @returns
-                                 */
-                                ({ value }) => value.startsWith('webpackInclude:')
+                            const comments = matched.map((comment) => comment
+                                .replace(/\/\*\s*/, '')
+                                .replace(/\s*\*\//, '')
                             );
+                            if (!comments) {
+                                return;
+                            }
+
+                            const included = comments.find((value) => value.startsWith('webpackInclude:'));
                             if (!included) {
                                 return;
                             }
 
+                            const excluded = comments.find((value) => value.startsWith('webpackExclude:'));
+                            const include = new RegExp(included.replace('webpackInclude:', '').trim().replace(/^\//, '').replace(/\/$/, ''));
+                            const exclude = excluded && new RegExp(excluded.replace('webpackExclude:', '').trim().replace(/^\//, '').replace(/\/$/, ''));
+                            const initial = node.source.quasis[0].value.raw;
+                            const identifier = node.source.expressions[0].name;
+
                             promises.push((async () => {
-                                const excluded = comments.find(
-                                    /**
-                                     * @param {*} param0
-                                     * @returns
-                                     */
-                                    ({ value }) => value.startsWith('webpackExclude:')
-                                );
-                                const include = new RegExp(included.replace('webpackInclude:', '').trim());
-                                const exclude = excluded && new RegExp(excluded.replace('webpackExclude:', '').trim());
-                                const initial = node.arguments[0].quasis[0].value.raw;
-                                const identifier = node.arguments[0].expressions[0].name;
                                 const map = (await glob(`${initial}*`, {
                                     cwd: path.dirname(args.path),
                                 }))

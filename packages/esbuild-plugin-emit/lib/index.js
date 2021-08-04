@@ -3,6 +3,11 @@ import { readFile } from 'fs/promises';
 import { appendSearchParam, getSearchParam, getSearchParams, hasSearchParam } from '@chialab/node-resolve';
 
 /**
+ * The namespace for emitted files.
+ */
+ const EMIT_FILE_NS = 'emit-chunk';
+
+/**
  * The filter regex for file imports.
  */
 const EMIT_FILE_REGEX = /(\?|&)emit=file/;
@@ -118,6 +123,12 @@ export default function(esbuild) {
 
             build.onResolve({ filter: EMIT_FILE_REGEX }, (args) => ({
                 path: getSearchParams(args.path).path,
+                namespace: EMIT_FILE_NS,
+            }));
+
+            build.onLoad({ filter: /./, namespace: EMIT_FILE_NS }, async (args) => ({
+                contents: await readFile(args.path, 'utf-8'),
+                loader: 'file',
             }));
 
             build.onResolve({ filter: EMIT_CHUNK_REGEX }, (args) => ({

@@ -27,12 +27,12 @@ export function createResolver(options = {}) {
      * @param {string} importer
      */
     const resolve = async function(specifier, importer) {
-        const chunks = specifier.split('?');
+        const { path, searchParams } = getSearchParams(specifier);
         importer = getBasePath(importer);
         const resolved = await new Promise((resolve, reject) => resolver(
             {},
             importer,
-            chunks.shift(),
+            path,
             {},
             /**
              * @param {Error} err
@@ -41,11 +41,11 @@ export function createResolver(options = {}) {
             (err, data) => (err ? reject(err) : resolve(data)))
         );
 
-        if (chunks.length) {
-            return `${resolved}?${chunks.join('?')}`;
+        if (!resolved) {
+            return resolved;
         }
 
-        return resolved;
+        return `${resolved}${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
     };
 
     return resolve;
@@ -131,7 +131,7 @@ export async function fsResolve(specifier, importer) {
  */
 export function getFileName(filePath) {
     filePath = filePath.replace('file://', '');
-    return filePath.split('?')[0];
+    return getSearchParams(filePath).path;
 }
 
 /**
@@ -158,4 +158,68 @@ export function isUrl(url) {
         //
     }
     return false;
+}
+
+/**
+ * Extract search params from a url.
+ * @param {string} source The source url.
+ */
+export function getSearchParams(source) {
+    const [path, ...chunks] = source.split('?');
+    const searchParams = new URLSearchParams(chunks.join('?'));
+
+    return {
+        path,
+        searchParams,
+    };
+}
+
+/**
+ * Append a search param to the url.
+ * @param {string} source
+ * @param {string} param
+ * @param {string} value
+ */
+export function appendSearchParam(source, param, value) {
+    const { path, searchParams } = getSearchParams(source);
+    if (searchParams.has(param)) {
+        searchParams.delete(param);
+    }
+    searchParams.append(param, value);
+    return `${path}?${searchParams.toString()}`;
+}
+
+/**
+ * Check if a search param is available in the url.
+ * @param {string} source
+ * @param {string} param
+ */
+export function hasSearchParam(source, param) {
+    const { searchParams } = getSearchParams(source);
+    return searchParams.has(param);
+}
+
+/**
+ * Delete a search param (if available) in the url.
+ * @param {string} source
+ * @param {string} param
+ */
+export function removeSearchParam(source, param) {
+    const { path, searchParams } = getSearchParams(source);
+    if (searchParams.has(param)) {
+        searchParams.delete(param);
+    }
+    searchParams.delete(param);
+    const newSearch = searchParams.toString();
+    return `${path}${newSearch ? `?${newSearch}` : ''}`;
+}
+
+/**
+ * Get a search param (if available) in the url.
+ * @param {string} source
+ * @param {string} param
+ */
+export function getSearchParam(source, param) {
+    const { searchParams } = getSearchParams(source);
+    return searchParams.get(param) || null;
 }

@@ -1,37 +1,22 @@
 import { readFile } from 'fs/promises';
 import path from 'path';
 import { resolve as defaultResolve } from '@chialab/node-resolve';
+import { emitChunk } from '@chialab/esbuild-plugin-emit';
 import { TARGETS, pipe, walk, createTypeScriptTransform, getOffsetFromLocation } from '@chialab/estransform';
 import { getEntry, finalizeEntry, createFilter } from '@chialab/esbuild-plugin-transform';
 
 /**
- * @typedef {{ resolve?: typeof defaultResolve, transformUrl?: (filePath: string, importer: string) => string|void }} PluginOptions
+ * @typedef {{ resolve?: typeof defaultResolve }} PluginOptions
  */
-
-export const REQUEST_PARAM = {
-    name: 'loader',
-    value: 'worker',
-};
-
-/**
- * @param {string} source
- */
-export function appendWorkerParam(source) {
-    if (source.match(/(\?|&)loader=worker/)) {
-        return source;
-    }
-    if (source.includes('?')) {
-        return `${source}&loader=worker`;
-    }
-    return `${source}?loader=worker`;
-}
 
 /**
  * Instantiate a plugin that collect and builds Web Workers.
- * @param {PluginOptions} [options]
+ * @param {PluginOptions} options
  * @return An esbuild plugin.
  */
-export default function({ resolve = defaultResolve, transformUrl } = {}) {
+export default function({ resolve = defaultResolve } = {}) {
+    const Identifiers = ['Worker', 'SharedWorker'];
+
     /**
      * @type {import('esbuild').Plugin}
      */
@@ -45,19 +30,17 @@ export default function({ resolve = defaultResolve, transformUrl } = {}) {
                 namespace: 'worker',
             }));
 
-            build.onLoad({ filter: /\./, namespace: 'worker' }, async ({ path: filePath }) => (
-                {
-                    contents: await readFile(filePath),
-                    loader: 'file',
-                }
-            ));
+            build.onLoad({ filter: /\./, namespace: 'worker' }, async ({ path: filePath }) => ({
+                contents: await readFile(filePath),
+                loader: 'file',
+            }));
 
             build.onLoad({ filter: createFilter(build), namespace: 'file' }, async (args) => {
                 /**
                  * @type {import('@chialab/estransform').Pipeline}
                  */
                 const entry = args.pluginData || await getEntry(build, args.path);
-                if (!entry.code.includes('Worker')) {
+                if (Identifiers.every((Id) => !entry.code.includes(Id))) {
                     return;
                 }
 
@@ -77,21 +60,9 @@ export default function({ resolve = defaultResolve, transformUrl } = {}) {
                     sourcesContent: options.sourcesContent,
                 }, async ({ magicCode, code, ast }) => {
                     /**
-                     * @type {{ [key: string]: string }}
-                     */
-                    const ids = {};
-
-                    /**
                      * @type {Promise<void>[]}
                      */
                     const promises = [];
-
-                    let baseUrl = 'import.meta.url';
-                    if (options.platform === 'browser' && options.format !== 'esm') {
-                        baseUrl = 'document.baseURI';
-                    } else if (options.platform === 'node' && options.format !== 'esm') {
-                        baseUrl = '\'file://\' + __filename';
-                    }
 
                     walk(ast, {
                         /**
@@ -107,7 +78,8 @@ export default function({ resolve = defaultResolve, transformUrl } = {}) {
                                 }
                                 callee = callee.property;
                             }
-                            if (callee.type !== 'Identifier' || callee.name !== 'Worker') {
+                            const Ctr = callee.name;
+                            if (callee.type !== 'Identifier' || !Identifiers.includes(Ctr)) {
                                 return;
                             }
                             if (!node.arguments.length) {
@@ -119,25 +91,13 @@ export default function({ resolve = defaultResolve, transformUrl } = {}) {
 
                             promises.push(Promise.resolve().then(async () => {
                                 const value = node.arguments[0].value;
-                                const entryPoint = await resolve(value, args.path);
+                                const resolvedPath = await resolve(value, args.path);
+                                const entryPoint = emitChunk(resolvedPath, {
+                                    format: 'iife',
+                                });
                                 const startOffset = getOffsetFromLocation(code, node.loc.start.line, node.loc.start.column);
                                 const endOffset = getOffsetFromLocation(code, node.loc.end.line, node.loc.end.column);
-                                const transformedUrl = transformUrl && transformUrl(entryPoint, args.path);
-                                if (transformedUrl) {
-                                    magicCode.overwrite(startOffset, endOffset, `new Worker(new URL('${transformedUrl}', ${baseUrl}).href)`);
-                                    return;
-                                }
-
-                                if (!ids[entryPoint]) {
-                                    const identifier = ids[entryPoint] = `_${value.replace(/[^a-zA-Z0-9]/g, '_')}`;
-                                    if (code.startsWith('#!')) {
-                                        magicCode.appendRight(code.indexOf('\n') + 1, `import ${identifier} from '${appendWorkerParam(entryPoint)}';\n`);
-                                    } else {
-                                        magicCode.prepend(`import ${identifier} from '${appendWorkerParam(entryPoint)}';\n`);
-                                    }
-                                }
-
-                                magicCode.overwrite(startOffset, endOffset, `new Worker(new URL(${ids[entryPoint]}, ${baseUrl}).href)`);
+                                magicCode.overwrite(startOffset, endOffset, `new ${Ctr}(new URL('${entryPoint}', import.meta.url).href)`);
                             }));
                         },
                     });

@@ -1,7 +1,7 @@
 import path from 'path';
 import { getRequestFilePath, PluginSyntaxError, PluginError } from '@web/dev-server-core';
 import { createEmptyModule } from '@chialab/estransform';
-import { browserResolve, isUrl } from '@chialab/node-resolve';
+import { browserResolve, getSearchParams, isUrl } from '@chialab/node-resolve';
 
 /**
  * @typedef {import('@web/dev-server-core').Plugin} Plugin
@@ -61,18 +61,23 @@ export function isOutsideRootDir(browserPath) {
  * @param {{ code?: string, line?: number, column?: number }} [info]
  */
 export function resolveRelativeImport(specifier, importer, serveDir, { code, line, column } = {}) {
+    const { path: importerPathname } = getSearchParams(importer);
+    const { path: specifierPathname, searchParams } = getSearchParams(specifier);
+    const search = searchParams.toString() ? `?${searchParams.toString()}` : '';
+    importer = importerPathname;
+    specifier = specifierPathname;
     if (specifier.startsWith(serveDir)) {
         if (!importer.startsWith(serveDir)) {
-            return `/${path.relative(serveDir, specifier)}`;
+            return `/${path.relative(serveDir, specifier)}${search}`;
         }
-        return `./${path.relative(path.dirname(importer), specifier)}`;
+        return `./${path.relative(path.dirname(importer), specifier)}${search}`;
     }
 
     const relativePath = path.relative(serveDir, specifier);
     const dirUp = `..${path.sep}`;
     const lastDirUpIndex = relativePath.lastIndexOf(dirUp) + 3;
     const dirUpStrings = relativePath.substring(0, lastDirUpIndex).split(path.sep);
-    if (dirUpStrings.length === 0 || dirUpStrings.some(str => !['..', ''].includes(str))) {
+    if (dirUpStrings.length === 0 || dirUpStrings.some((str) => !['..', ''].includes(str))) {
         // we expect the relative part to consist of only ../ or ..\\
         const errorMessage = 'This path could not be converted to a browser path. Please file an issue with a reproduction.';
         if (
@@ -87,7 +92,7 @@ export function resolveRelativeImport(specifier, importer, serveDir, { code, lin
     }
 
     const importPath = toBrowserPath(relativePath.substring(lastDirUpIndex));
-    return `${OUTSIDE_ROOT_KEY}${dirUpStrings.length - 1}/${importPath}`;
+    return `${OUTSIDE_ROOT_KEY}${dirUpStrings.length - 1}/${importPath}${search}`;
 }
 
 /**
@@ -98,9 +103,8 @@ export function resolveRelativeImport(specifier, importer, serveDir, { code, lin
  * @param {{ code?: string, line?: number, column?: number }} [info]
  */
 export async function resolveImport(specifier, importer, serveDir, { code, line, column } = {}) {
-    const resolved = path.isAbsolute(specifier) ? specifier : await browserResolve(specifier, importer);
+    const resolved = await browserResolve(specifier, importer);
     if (!resolved) {
-        console.log(importer, specifier)
         return EMPTY_KEY;
     }
 
@@ -130,7 +134,7 @@ export default function(config = {}) {
         async serve(context) {
             if (context.path.includes(EMPTY_KEY)) {
                 // return an empty module
-                return '';
+                return createEmptyModule();
             }
         },
 
@@ -143,7 +147,7 @@ export default function(config = {}) {
             if (source in alias) {
                 const aliased = alias[source];
                 if (!aliased) {
-                    return createEmptyModule();
+                    return EMPTY_KEY;
                 }
                 source = aliased;
             }

@@ -14,11 +14,11 @@ export async function loadTransformPlugins({
         import('@chialab/esbuild-plugin-commonjs').then(({ default: plugin }) => plugin({
             ...commonjs,
         })),
-        import('@chialab/esbuild-plugin-meta-url').then(({ default: plugin }) => plugin({
-            ...metaUrl,
-        })),
         import('@chialab/esbuild-plugin-worker').then(({ default: plugin }) => plugin({
             ...worker,
+        })),
+        import('@chialab/esbuild-plugin-meta-url').then(({ default: plugin }) => plugin({
+            ...metaUrl,
         })),
     ];
 

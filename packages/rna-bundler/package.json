@@ -37,6 +37,7 @@
     "@chialab/esbuild-plugin-alias": "^0.10.0",
     "@chialab/esbuild-plugin-any-file": "^0.10.3",
     "@chialab/esbuild-plugin-commonjs": "^0.10.6",
+    "@chialab/esbuild-plugin-emit": "^0.10.0",
     "@chialab/esbuild-plugin-env": "^0.10.0",
     "@chialab/esbuild-plugin-jsx-import": "^0.10.0",
     "@chialab/esbuild-plugin-meta-url": "^0.10.6",

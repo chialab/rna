@@ -1,7 +1,7 @@
 import path from 'path';
 import { readFile } from 'fs/promises';
 import { getRequestFilePath } from '@web/dev-server-core';
-import { browserResolve, isCss, isJson, isUrl } from '@chialab/node-resolve';
+import { browserResolve, isCss, isJson, isUrl, appendSearchParam } from '@chialab/node-resolve';
 import { resolveImport } from '@chialab/wds-plugin-node-resolve';
 import { appendCssModuleParam, appendJsonModuleParam } from '@chialab/wds-plugin-rna';
 import { loadAddons } from './loadAddons.js';
@@ -21,26 +21,14 @@ const regexpReplaceWebsocket = /<!-- injected by web-dev-server -->(.|\s)*<\/scr
  * @param {string} source
  */
 export function appendManagerParam(source) {
-    if (source.match(/(\?|&)manager=true/)) {
-        return source;
-    }
-    if (source.includes('?')) {
-        return `${source}&manager=true`;
-    }
-    return `${source}?manager=true`;
+    return appendSearchParam(source, 'manager', 'true');
 }
 
 /**
  * @param {string} source
  */
 export function appendPreviewParam(source) {
-    if (source.match(/(\?|&)preview=true/)) {
-        return source;
-    }
-    if (source.includes('?')) {
-        return `${source}&preview=true`;
-    }
-    return `${source}?preview=true`;
+    return appendSearchParam(source, 'preview', 'true');
 }
 
 /**

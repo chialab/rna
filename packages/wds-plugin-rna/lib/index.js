@@ -1,10 +1,9 @@
 import path from 'path';
 import { getRequestFilePath } from '@web/dev-server-core';
+import { getChunkOptions } from '@chialab/esbuild-plugin-emit';
 import { getEntryConfig } from '@chialab/rna-config-loader';
-import { browserResolve, isCore, isJs, isJson, isCss, fsResolve } from '@chialab/node-resolve';
+import { browserResolve, isCore, isJs, isJson, isCss, fsResolve, getSearchParam, appendSearchParam, removeSearchParam, getSearchParams } from '@chialab/node-resolve';
 import { isHelperImport, isOutsideRootDir, resolveRelativeImport } from '@chialab/wds-plugin-node-resolve';
-import { REQUEST_PARAM as FILE_REQUEST_PARAM, appendFileParam } from '@chialab/esbuild-plugin-meta-url';
-import { REQUEST_PARAM as WORKER_REQUEST_PARAM, appendWorkerParam } from '@chialab/esbuild-plugin-worker';
 import { transform, transformLoaders, loadPlugins, loadTransformPlugins, writeDevEntrypointsJson } from '@chialab/rna-bundler';
 
 /**
@@ -12,63 +11,52 @@ import { transform, transformLoaders, loadPlugins, loadTransformPlugins, writeDe
  */
 
 /**
- * @param {import('@web/dev-server-core').Context} context
+ * @param {string} url
  */
-export function isFileRequest(context) {
-    return context.URL.searchParams.get(FILE_REQUEST_PARAM.name) === FILE_REQUEST_PARAM.value;
+export function isFileRequest(url) {
+    return ['file', 'chunk'].includes(getSearchParam(url, 'emit') || '') || getSearchParam(url, 'loader') === 'file';
 }
 
 /**
- * @param {import('@web/dev-server-core').Context} context
+ * @param {string} url
  */
-export function isWorkerRequest(context) {
-    return context.URL.searchParams.get(WORKER_REQUEST_PARAM.name) === WORKER_REQUEST_PARAM.value;
+export function isCssModuleRequest(url) {
+    return getSearchParam(url, 'loader') === 'css';
 }
 
 /**
- * @param {import('@web/dev-server-core').Context} context
+ * @param {string} url
  */
-export function isCssModuleRequest(context) {
-    return context.URL.searchParams.get('loader') === 'css';
-}
-
-/**
- * @param {import('@web/dev-server-core').Context} context
- */
-export function isJsonModuleRequest(context) {
-    return context.URL.searchParams.get('loader') === 'json';
+export function isJsonModuleRequest(url) {
+    return getSearchParam(url, 'loader') === 'json';
 }
 
 /**
  * @param {string} source
  */
 export function appendCssModuleParam(source) {
-    if (source.match(/(\?|&)loader=css/)) {
-        return source;
-    }
-    if (source.includes('?')) {
-        return `${source}&loader=css`;
-    }
-    return `${source}?loader=css`;
+    return appendSearchParam(source, 'loader', 'css');
 }
 
 /**
  * @param {string} source
  */
 export function appendJsonModuleParam(source) {
-    if (source.match(/(\?|&)loader=json/)) {
-        return source;
-    }
-    if (source.includes('?')) {
-        return `${source}&loader=json`;
-    }
-    return `${source}?loader=json`;
+    return appendSearchParam(source, 'loader', 'json');
+}
+
+/**
+ * @param {string} source
+ */
+export function appendFileParam(source) {
+    return appendSearchParam(source, 'loader', 'file');
 }
 
 /**
  * @param {string} source
  */
 export function convertCssToJsModule(source) {
+    source = removeSearchParam(source, 'loader');
     return `var link = document.createElement('link');
 link.rel = 'stylesheet';
 link.href = '${source}';
@@ -80,6 +68,8 @@ document.head.appendChild(link);
  * @param {string} source
  */
 export function convertFileToJsModule(source) {
+    source = removeSearchParam(source, 'emit');
+    source = removeSearchParam(source, 'loader');
     return `export default new URL('${source}', import.meta.url).href;`;
 }
 
@@ -105,9 +95,8 @@ export default function(config) {
         resolveMimeType(context) {
             if (isJs(context.path) ||
                 isJson(context.path) ||
-                isCssModuleRequest(context) ||
-                isFileRequest(context) ||
-                isWorkerRequest(context)) {
+                isCssModuleRequest(context.url) ||
+                isFileRequest(context.url)) {
                 return 'js';
             }
             if (isCss(context.path)) {
@@ -116,17 +105,18 @@ export default function(config) {
         },
 
         serve(context) {
-            if (isFileRequest(context)) {
-                const { rootDir } = serverConfig;
-                const filePath = getRequestFilePath(context.url, rootDir);
+            if (isFileRequest(context.url)) {
                 if (!context.body) {
-                    context.body = convertFileToJsModule(resolveRelativeImport(filePath, context.path, rootDir));
+                    const { rootDir } = serverConfig;
+                    const { path: pathname, searchParams } = getSearchParams(context.url);
+                    const filePath = resolveRelativeImport(getRequestFilePath(pathname, rootDir), context.url, rootDir);
+                    context.body = convertFileToJsModule(`${filePath}?${searchParams.toString()}`);
                     context.headers['content-type'] = 'text/javascript';
                     return;
                 }
             }
-            if (isCssModuleRequest(context)) {
-                context.body = convertCssToJsModule(context.path);
+            if (isCssModuleRequest(context.url)) {
+                context.body = convertCssToJsModule(context.url);
                 context.headers['content-type'] = 'text/javascript';
                 return;
             }
@@ -137,9 +127,8 @@ export default function(config) {
                 return;
             }
 
-            if (isCssModuleRequest(context) ||
-                isFileRequest(context) ||
-                isWorkerRequest(context)
+            if (isCssModuleRequest(context.url) ||
+                isFileRequest(context.url)
             ) {
                 // do not transpile to js module
                 return;
@@ -151,7 +140,7 @@ export default function(config) {
                 return;
             }
 
-            if (loader === 'json' && !isJsonModuleRequest(context)) {
+            if (loader === 'json' && !isJsonModuleRequest(context.url)) {
                 // do not transpile to js module
                 return;
             }
@@ -163,6 +152,7 @@ export default function(config) {
                 input: `./${path.relative(rootDir, filePath)}`,
                 code: /** @type {string} */ (context.body),
                 loader,
+                ...getChunkOptions(context.url),
             }, {
                 root: path.dirname(filePath),
                 sourcemap: 'inline',
@@ -188,16 +178,6 @@ export default function(config) {
                 ],
                 transformPlugins: [
                     ...(await loadTransformPlugins({
-                        metaUrl: {
-                            transformUrl(specifier, importer) {
-                                return resolveRelativeImport(specifier, importer, rootDir);
-                            },
-                        },
-                        worker: {
-                            transformUrl(specifier, importer) {
-                                return appendWorkerParam(resolveRelativeImport(specifier, importer, rootDir));
-                            },
-                        },
                         commonjs: {
                             ignore: async (specifier) => {
                                 try {

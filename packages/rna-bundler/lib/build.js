@@ -106,6 +106,7 @@ export async function build(config) {
     }
 
     const finalPlugins = await Promise.all([
+        import('@chialab/esbuild-plugin-emit').then(({ default: plugin }) => plugin()),
         import('@chialab/esbuild-plugin-any-file')
             .then(({ default: plugin }) =>
                 plugin({

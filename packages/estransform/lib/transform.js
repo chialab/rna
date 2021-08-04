@@ -19,7 +19,14 @@ import { parseSourcemap, loadSourcemap, mergeSourcemaps, inlineSourcemap } from 
  */
 
 /**
- * @typedef {(data: { ast: acorn.Node, magicCode: MagicString, code: string }, options: TransformOptions) => Promise<TransformResult|void>|TransformResult|void} TransformCallack
+ * @typedef {Object} TransformData
+ * @property {acorn.Node} ast The acorn node.
+ * @property {MagicString} magicCode The magic code instance.
+ * @property {string} code The original source code.
+ */
+
+/**
+ * @typedef {(data: TransformData, options: TransformOptions) => Promise<TransformResult|void>|TransformResult|void} TransformCallack
  */
 
 /**

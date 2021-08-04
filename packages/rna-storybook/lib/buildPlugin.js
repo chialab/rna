@@ -85,11 +85,6 @@ export function buildPlugin(config) {
             ];
 
             /**
-             * @type {import('esbuild').BuildResult[]}
-             */
-            let results = [];
-
-            /**
              * @type {import('esbuild').BuildOptions}
              */
             const childOptions = {
@@ -104,8 +99,13 @@ export function buildPlugin(config) {
                 logLevel: 'error',
             };
 
+            /**
+             * @type {Promise<import('esbuild').BuildResult[]>}
+             */
+            let resultsPromise;
+
             build.onStart(async () => {
-                results = await Promise.all([
+                resultsPromise = Promise.all([
                     esbuild.build({
                         ...childOptions,
                         stdin: {
@@ -246,6 +246,7 @@ export function buildPlugin(config) {
             });
 
             build.onEnd(async (result) => {
+                const results = await resultsPromise;
                 results.forEach((res) => {
                     result.errors.push(...res.errors);
                     result.warnings.push(...res.warnings);

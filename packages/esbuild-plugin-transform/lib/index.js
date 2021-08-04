@@ -73,6 +73,17 @@ export async function finalizeEntry(build, filePath) {
 }
 
 /**
+ * @param {import('esbuild').PluginBuild} build
+ * @param {string} filePath
+ * @param {import('esbuild').Loader} [defaultValue]
+ */
+export function getTransformLoader(build, filePath, defaultValue = 'file') {
+    const loaders = build.initialOptions.loader || {};
+    const ext = path.extname(filePath);
+    return loaders[ext] || defaultValue;
+}
+
+/**
  * @typedef {(args: import('esbuild').OnLoadArgs) => import('esbuild').OnLoadResult} LoadCallback
  */
 
@@ -94,12 +105,13 @@ export default function(plugins = []) {
             const options = build.initialOptions;
             const filter = createFilter(build);
 
-            const { stdin, sourceRoot } = options;
+            const { stdin, sourceRoot, absWorkingDir } = options;
             const input = stdin ? (stdin.sourcefile || 'stdin.js') : undefined;
-            const fullInput = input && path.resolve(sourceRoot || process.cwd(), input);
+            const rootDir = sourceRoot || absWorkingDir || process.cwd();
+            const fullInput = input && path.resolve(rootDir, input);
             if (stdin && input) {
                 const regex = new RegExp(escapeRegexBody(input));
-                build.onResolve({ filter: regex }, () => ({ path: path.resolve(options.sourceRoot || process.cwd(), input), namespace: 'file' }));
+                build.onResolve({ filter: regex }, () => ({ path: path.resolve(rootDir, input), namespace: 'file' }));
                 delete options.stdin;
                 options.entryPoints = [input];
             }

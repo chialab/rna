@@ -42,11 +42,11 @@ body {
  */
 export function createManagerHtml({
     managerHead = '',
-    css = { path: 'manager.css' },
-    js = { path: 'manager.js', type: 'text/javascript' },
+    css = { path: '__storybook-manager__.css' },
+    js = { path: '__storybook-manager__.js', type: 'text/javascript' },
 } = {}) {
     return `<!DOCTYPE html>
-<html>
+<html lang="en">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1" />

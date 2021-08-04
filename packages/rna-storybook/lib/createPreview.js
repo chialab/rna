@@ -143,11 +143,11 @@ export function createPreviewStyle() {
 export async function createPreviewHtml({
     previewHead = '',
     previewBody = '',
-    css = { path: 'preview.css' },
-    js = { path: 'preview.js', type: 'text/javascript' },
+    css = { path: '__storybook-preview__.css' },
+    js = { path: '__storybook-preview__.js', type: 'text/javascript' },
 } = {}) {
     return `<!DOCTYPE html>
-<html>
+<html lang="en">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1" />

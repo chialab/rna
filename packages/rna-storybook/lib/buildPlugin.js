@@ -1,48 +1,52 @@
 import path from 'path';
-import { readFile } from 'fs/promises';
+import { mkdir, readFile, writeFile } from 'fs/promises';
 import esbuild from 'esbuild';
-import { fsResolve } from '@chialab/node-resolve';
+import { escapeRegexBody } from '@chialab/estransform';
+import { browserResolve } from '@chialab/node-resolve';
 import { createManagerHtml, createManagerScript, createManagerStyle } from './createManager.js';
 import { findStories } from './findStories.js';
 import { createPreviewHtml, createPreviewScript, createPreviewStyle } from './createPreview.js';
 import { transformMdxToCsf } from './transformMdxToCsf.js';
+import { createBundleMap } from './bundleMap.js';
+import { loadAddons } from './loadAddons.js';
 
 /**
- * @param {string} type
+ * @param {import('./createPlugins').StorybookConfig} options
  */
-function storybookModulesPlugin(type) {
+function storybookModulesPlugin({ type }) {
+    const { map, modules, resolutions } = createBundleMap(type);
+    const MDX_FILTER_REGEX = /\.mdx$/;
+
     /**
      * @type {import('esbuild').Plugin}
      */
     const plugin = {
         name: 'storybook-modules',
         async setup(build) {
-            const storybookDir = await fsResolve('../storybook', import.meta.url);
+            const options = build.initialOptions;
+            const { sourceRoot, absWorkingDir } = options;
+            const rootDir = sourceRoot || absWorkingDir || process.cwd();
 
-            build.onResolve({ filter: /^@storybook\/manager$/ }, () => ({
-                path: path.resolve(storybookDir, 'manager/index.js'),
-            }));
-
-            build.onResolve({ filter: new RegExp(`^@storybook\\/${type}$`) }, () => ({
-                path: path.resolve(storybookDir, `${type}/index.js`),
-            }));
-
-            build.onResolve({ filter: /^@storybook\/addon-docs$/ }, () => ({
-                path: path.resolve(storybookDir, `${type}/index.js`),
-            }));
-
-            if (type === 'web-components') {
-                build.onResolve({ filter: /^lit-html$/ }, () => ({
-                    path: path.resolve(storybookDir, `${type}/index.js`),
+            modules.forEach((modName) => {
+                const filter = new RegExp(`^${escapeRegexBody(modName)}$`);
+                build.onResolve({ filter }, async () => ({
+                    path: await browserResolve(map[modName], import.meta.url),
                 }));
-            }
+            });
 
-            build.onResolve({ filter: /\.mdx$/ }, (args) => ({
+            resolutions.forEach((resolution) => {
+                const filter = new RegExp(`^${escapeRegexBody(resolution)}$`);
+                build.onResolve({ filter }, async () => ({
+                    path: await browserResolve(resolution, rootDir),
+                }));
+            });
+
+            build.onResolve({ filter: MDX_FILTER_REGEX }, (args) => ({
                 path: args.path,
             }));
 
-            build.onLoad({ filter: /\.mdx$/ }, async (args) => ({
-                contents: await transformMdxToCsf(type, await readFile(args.path, 'utf-8')),
+            build.onLoad({ filter: MDX_FILTER_REGEX }, async (args) => ({
+                contents: await transformMdxToCsf(await readFile(args.path, 'utf-8'), args.path),
                 loader: 'js',
             }));
         },
@@ -52,10 +56,12 @@ function storybookModulesPlugin(type) {
 }
 
 /**
- * @param {import('./createPlugin').StorybookConfig} options Storybook options.
+ * @param {import('./createPlugins').StorybookConfig} config Storybook options.
  * @return An esbuild plugin.
  */
-export function buildPlugin({ type, stories: storiesPattern, addons, managerHead, previewHead, previewBody }) {
+export function buildPlugin(config) {
+    const { type, stories: storiesPattern = [], static: staticFiles = {}, essentials = false, addons = [], managerEntries = [], previewEntries = [], managerHead, previewHead, previewBody } = config;
+
     /**
      * @type {import('esbuild').Plugin}
      */
@@ -63,16 +69,19 @@ export function buildPlugin({ type, stories: storiesPattern, addons, managerHead
         name: 'storybook',
         async setup(build) {
             const options = build.initialOptions;
-            const rootDir = options.sourceRoot || process.cwd();
+            const { sourceRoot, absWorkingDir, outdir, outfile } = options;
+            const rootDir = sourceRoot || absWorkingDir || process.cwd();
+            const outDir = outdir || (outfile && path.dirname(outfile)) || rootDir;
             const stories = await findStories(rootDir, storiesPattern);
             const loader = {
                 ...options.loader,
             };
             delete loader['.html'];
+            const addonsLoader = loadAddons(addons, rootDir);
 
             const plugins = [
-                storybookModulesPlugin(type),
-                ...(options.plugins || []).filter((plugin) => plugin.name !== 'storybook' && plugin.name !== 'html'),
+                storybookModulesPlugin(config),
+                ...(options.plugins || []).filter((plugin) => !['storybook', 'html'].includes(plugin.name)),
             ];
 
             /**
@@ -87,6 +96,8 @@ export function buildPlugin({ type, stories: storiesPattern, addons, managerHead
                 ...options,
                 plugins,
                 loader,
+                target: 'es6',
+                platform: 'browser',
                 format: 'iife',
                 splitting: false,
                 bundle: true,
@@ -99,7 +110,7 @@ export function buildPlugin({ type, stories: storiesPattern, addons, managerHead
                         ...childOptions,
                         stdin: {
                             contents: createManagerStyle(),
-                            sourcefile: 'manager.css',
+                            sourcefile: '__storybook-manager__.css',
                             loader: 'css',
                         },
                     }),
@@ -107,36 +118,59 @@ export function buildPlugin({ type, stories: storiesPattern, addons, managerHead
                         ...childOptions,
                         stdin: {
                             contents: createPreviewStyle(),
-                            sourcefile: 'preview.css',
+                            sourcefile: '__storybook-preview__.css',
                             loader: 'css',
                         },
                     }),
-                    esbuild.build({
-                        ...childOptions,
-                        stdin: {
-                            contents: createManagerScript({
-                                addons,
-                            }),
-                            sourcefile: path.join(rootDir, 'manager.js'),
-                            loader: 'tsx',
-                        },
-                    }),
-                    esbuild.build({
-                        ...childOptions,
-                        stdin: {
-                            contents: await createPreviewScript({
-                                type,
-                                stories,
-                            }),
-                            sourcefile: path.join(rootDir, 'preview.js'),
-                            loader: 'tsx',
-                        },
-                    }),
+                    addonsLoader.then(([manager]) =>
+                        esbuild.build({
+                            ...childOptions,
+                            stdin: {
+                                contents: createManagerScript({
+                                    addons: [
+                                        ...(essentials ? ['@storybook/essentials/register'] : []),
+                                        ...addons,
+                                    ],
+                                    managerEntries: [
+                                        ...manager,
+                                        ...managerEntries,
+                                    ],
+                                }),
+                                sourcefile: path.join(rootDir, '__storybook-manager__.js'),
+                                loader: 'tsx',
+                            },
+                        })
+                    ),
+                    addonsLoader.then(async ([, preview]) =>
+                        esbuild.build({
+                            ...childOptions,
+                            stdin: {
+                                contents: await createPreviewScript({
+                                    type,
+                                    stories,
+                                    previewEntries: [
+                                        ...previewEntries,
+                                        ...(essentials ? ['@storybook/essentials'] : []),
+                                        ...preview,
+                                    ],
+                                }),
+                                sourcefile: path.join(rootDir, '__storybook-preview__.js'),
+                                loader: 'tsx',
+                            },
+                        })
+                    ),
                     esbuild.build({
                         ...childOptions,
                         stdin: {
                             contents: createManagerHtml({
                                 managerHead,
+                                css: {
+                                    path: '__storybook-manager__.css',
+                                },
+                                js: {
+                                    path: '__storybook-manager__.js',
+                                    type: 'text/javascript',
+                                },
                             }),
                             sourcefile: path.join(rootDir, 'index.html'),
                             loader: 'file',
@@ -148,14 +182,68 @@ export function buildPlugin({ type, stories: storiesPattern, addons, managerHead
                             contents: await createPreviewHtml({
                                 previewHead,
                                 previewBody,
+                                css: {
+                                    path: '__storybook-preview__.css',
+                                },
+                                js: {
+                                    path: '__storybook-preview__.js',
+                                    type: 'text/javascript',
+                                },
                             }),
                             sourcefile: path.join(rootDir, 'iframe.html'),
                             loader: 'file',
                         },
                     }),
+                    ...Object.keys(staticFiles).map(async (outFile) => {
+                        const input = path.resolve(rootDir, staticFiles[outFile]);
+                        const output = path.join(outDir, outFile);
+                        const extName = path.extname(input);
+                        if (extName in loader) {
+                            return esbuild.build({
+                                ...childOptions,
+                                entryPoints: [input],
+                                outfile: output,
+                                outdir: undefined,
+                            });
+                        }
+
+                        const buffer = await readFile(input);
+                        await mkdir(outDir, { recursive: true });
+                        await writeFile(output, buffer);
+
+                        return {
+                            errors: [],
+                            warnings: [],
+                            outputFiles: [{
+                                path: output,
+                                contents: buffer,
+                                text: '',
+                            }],
+                            metafile: {
+                                inputs: {
+                                    [input]: {
+                                        bytes: buffer.byteLength,
+                                        imports: [],
+                                    },
+                                },
+                                outputs: {
+                                    [output]: {
+                                        bytes: buffer.byteLength,
+                                        inputs: {
+                                            [input]: {
+                                                bytesInOutput: buffer.byteLength,
+                                            },
+                                        },
+                                        imports: [],
+                                        exports: [],
+                                        entryPoint: input,
+                                    },
+                                },
+                            },
+                        };
+                    }),
                 ]);
             });
-
 
             build.onEnd(async (result) => {
                 results.forEach((res) => {

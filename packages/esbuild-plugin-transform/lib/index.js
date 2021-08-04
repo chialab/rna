@@ -1,6 +1,6 @@
 import path from 'path';
 import { readFile } from 'fs/promises';
-import { createPipeline, finalize } from '@chialab/estransform';
+import { createPipeline, finalize, escapeRegexBody } from '@chialab/estransform';
 
 export const SCRIPT_LOADERS = ['tsx', 'ts', 'jsx', 'js'];
 
@@ -98,7 +98,7 @@ export default function(plugins = []) {
             const input = stdin ? (stdin.sourcefile || 'stdin.js') : undefined;
             const fullInput = input && path.resolve(sourceRoot || process.cwd(), input);
             if (stdin && input) {
-                const regex = new RegExp(input.replace(/([()[\]{}\\\-+.*?^$])/g, '\\$1'));
+                const regex = new RegExp(escapeRegexBody(input));
                 build.onResolve({ filter: regex }, () => ({ path: path.resolve(options.sourceRoot || process.cwd(), input), namespace: 'file' }));
                 delete options.stdin;
                 options.entryPoints = [input];

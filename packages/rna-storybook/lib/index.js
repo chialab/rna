@@ -4,5 +4,5 @@ export * from './createPreview.js';
 export * from './transformMdxToCsf.js';
 export * from './buildPlugin.js';
 export * from './servePlugin.js';
-export * from './createPlugin.js';
+export * from './createPlugins.js';
 export { default as cemAnalyzer } from './cemAnalyzer.js';

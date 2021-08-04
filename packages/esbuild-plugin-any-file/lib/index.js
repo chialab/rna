@@ -14,8 +14,8 @@ export default function({ fsCheck = true, shouldThrow = () => true } = {}) {
         name: 'any-file',
         setup(build) {
             const options = build.initialOptions;
-            const { stdin, sourceRoot } = options;
-            const rootDir = sourceRoot || process.cwd();
+            const { stdin, sourceRoot, absWorkingDir } = options;
+            const rootDir = sourceRoot || absWorkingDir || process.cwd();
             const input = stdin ? stdin.sourcefile : undefined;
             const fullInput = input && path.resolve(rootDir, input);
             const loaders = options.loader || {};

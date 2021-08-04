@@ -9,6 +9,7 @@ import { findStories } from './findStories.js';
 import { createManagerHtml, createManagerScript, createManagerStyle } from './createManager.js';
 import { createPreviewHtml, createPreviewScript, createPreviewStyle } from './createPreview.js';
 import { transformMdxToCsf } from './transformMdxToCsf.js';
+import { createBundleMap } from './bundleMap.js';
 
 const regexpReplaceWebsocket = /<!-- injected by web-dev-server -->(.|\s)*<\/script>/m;
 
@@ -43,9 +44,9 @@ export function appendPreviewParam(source) {
 }
 
 /**
- * @param {import('./createPlugin').StorybookConfig} options
+ * @param {import('./createPlugins').StorybookConfig} options
  */
-export function servePlugin({ type, stories: storiesPattern, essentials = false, addons = [], managerEntries = [], previewEntries = [], managerHead, previewHead, previewBody }) {
+export function servePlugin({ type, stories: storiesPattern, static: staticFiles = {}, essentials = false, addons = [], managerEntries = [], previewEntries = [], managerHead, previewHead, previewBody }) {
     /**
      * @type {import('@web/dev-server-core').DevServerCoreConfig}
      */
@@ -56,27 +57,7 @@ export function servePlugin({ type, stories: storiesPattern, essentials = false,
      */
     let addonsLoader;
 
-    const bundledModulesMap = {
-        'react': 'react',
-        'react-dom': 'react',
-        'react-is': 'react',
-        '@mdx-js/react': 'mdx',
-        '@storybook/manager': 'manager',
-        [`@storybook/${type}`]: type,
-        '@storybook/api': 'api',
-        '@storybook/addons': 'addons',
-        '@storybook/client-api': 'client-api',
-        '@storybook/client-logger': 'client-logger',
-        '@storybook/components': 'components',
-        '@storybook/core-events': 'core-events',
-        '@storybook/theming': 'theming',
-        '@storybook/addon-docs': 'docs',
-        '@storybook/addon-docs/blocks': 'docs',
-        '@storybook/essentials/register': 'essentials/register',
-        '@storybook/essentials': 'essentials',
-    };
-
-    const bundledModules = Object.keys(bundledModulesMap);
+    const { map, modules, resolutions } = createBundleMap(type);
 
     /**
      * @type {Plugin}
@@ -117,11 +98,12 @@ export function servePlugin({ type, stories: storiesPattern, essentials = false,
                 source = appendJsonModuleParam(source);
             }
 
-            if (context.path === '/manager.js' || context.URL.searchParams.has('manager')) {
+            if (context.path === '/__storybook-manager__.js' ||
+                context.URL.searchParams.has('manager')) {
                 return appendManagerParam(source);
             }
 
-            if (context.path === '/preview.js' ||
+            if (context.path === '/__storybook-preview__.js' ||
                 context.URL.searchParams.has('preview') ||
                 context.URL.searchParams.has('story')) {
                 return appendPreviewParam(source);
@@ -132,23 +114,14 @@ export function servePlugin({ type, stories: storiesPattern, essentials = false,
             const { rootDir } = serverConfig;
             const filePath = getRequestFilePath(context.url, rootDir);
 
-            if (type === 'web-components') {
-                if (source === 'lit-html') {
-                    const url = await browserResolve(source, rootDir);
-                    return await resolveImport(url, filePath, rootDir, { code, line, column });
-                }
-            }
-
-            if (type === 'dna') {
-                if (source === '@chialab/dna') {
-                    const url = await browserResolve(source, rootDir);
-                    return await resolveImport(url, filePath, rootDir, { code, line, column });
-                }
-            }
-
-            if (bundledModules.includes(source)) {
-                const url = await browserResolve(`@chialab/storybook-prebuilt/${bundledModulesMap[source]}`, import.meta.url);
+            if (modules.includes(source)) {
+                const url = await browserResolve(map[source], import.meta.url);
                 return await resolveImport(url, filePath, rootDir);
+            }
+
+            if (resolutions.includes(source)) {
+                const url = await browserResolve(source, rootDir);
+                return await resolveImport(url, filePath, rootDir, { code, line, column });
             }
         },
 
@@ -169,10 +142,10 @@ export function servePlugin({ type, stories: storiesPattern, essentials = false,
                 return createManagerHtml({
                     managerHead,
                     css: {
-                        path: '/manager.css',
+                        path: '/__storybook-manager__.css',
                     },
                     js: {
-                        path: '/manager.js',
+                        path: '/__storybook-manager__.js',
                         type: 'module',
                     },
                 });
@@ -185,17 +158,17 @@ export function servePlugin({ type, stories: storiesPattern, essentials = false,
                         previewHead,
                         previewBody,
                         css: {
-                            path: '/preview.css',
+                            path: '/__storybook-preview__.css',
                         },
                         js: {
-                            path: '/preview.js',
+                            path: '/__storybook-preview__.js',
                             type: 'module',
                         },
                     }),
                 };
             }
 
-            if (context.path.startsWith('/manager.js')) {
+            if (context.path.startsWith('/__storybook-manager__.js')) {
                 const [manager] = await addonsLoader;
                 return createManagerScript({
                     addons: [
@@ -209,11 +182,11 @@ export function servePlugin({ type, stories: storiesPattern, essentials = false,
                 });
             }
 
-            if (context.path.startsWith('/manager.css')) {
+            if (context.path.startsWith('/__storybook-manager__.css')) {
                 return createManagerStyle();
             }
 
-            if (context.path.startsWith('/preview.js')) {
+            if (context.path.startsWith('/__storybook-preview__.js')) {
                 const { rootDir } = serverConfig;
                 const [, preview] = await addonsLoader;
                 const stories = await findStories(rootDir, storiesPattern);
@@ -233,15 +206,21 @@ export function servePlugin({ type, stories: storiesPattern, essentials = false,
                 });
             }
 
-            if (context.path.startsWith('/preview.css')) {
+            if (context.path.startsWith('/__storybook-preview__.css')) {
                 return createPreviewStyle();
             }
 
+            const { rootDir } = serverConfig;
+            const filePath = decodeURIComponent(getRequestFilePath(context.url, rootDir));
+            const fileName = path.basename(filePath);
+
             if (context.path.endsWith('.mdx')) {
-                const { rootDir } = serverConfig;
-                const filePath = decodeURIComponent(getRequestFilePath(context.url, rootDir));
                 const body = await readFile(filePath, 'utf-8');
                 context.body = await transformMdxToCsf(body, filePath);
+            }
+
+            if (fileName in staticFiles) {
+                return await readFile(path.resolve(rootDir, staticFiles[fileName]), 'utf-8');
             }
         },
     };

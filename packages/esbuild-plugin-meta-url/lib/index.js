@@ -112,6 +112,13 @@ export default function({ resolve = defaultResolve, transformUrl } = {}, esbuild
                      */
                     const promises = [];
 
+                    let baseUrl = 'import.meta.url';
+                    if (options.platform === 'browser' && options.format !== 'esm') {
+                        baseUrl = 'document.baseURI';
+                    } else if (options.platform === 'node' && options.format !== 'esm') {
+                        baseUrl = '\'file://\' + __filename';
+                    }
+
                     walk(ast, {
                         /**
                          * @param {*} node
@@ -144,7 +151,7 @@ export default function({ resolve = defaultResolve, transformUrl } = {}, esbuild
                                 const endOffset = getOffsetFromLocation(code, node.loc.end.line, node.loc.end.column);
                                 const transformedUrl = transformUrl && transformUrl(entryPoint, args.path);
                                 if (transformedUrl) {
-                                    magicCode.overwrite(startOffset, endOffset, `new URL('${transformedUrl}', import.meta.url)`);
+                                    magicCode.overwrite(startOffset, endOffset, `new URL('${transformedUrl}', ${baseUrl})`);
                                     return;
                                 }
 
@@ -157,7 +164,7 @@ export default function({ resolve = defaultResolve, transformUrl } = {}, esbuild
                                     }
                                 }
 
-                                magicCode.overwrite(startOffset, endOffset, `new URL(${ids[entryPoint]}, import.meta.url)`);
+                                magicCode.overwrite(startOffset, endOffset, `new URL(${ids[entryPoint]}, ${baseUrl})`);
                             })());
                         },
                     });

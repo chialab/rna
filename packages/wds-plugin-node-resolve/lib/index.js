@@ -1,5 +1,6 @@
 import path from 'path';
 import { getRequestFilePath, PluginSyntaxError, PluginError } from '@web/dev-server-core';
+import { createEmptyModule } from '@chialab/estransform';
 import { browserResolve, isUrl } from '@chialab/node-resolve';
 
 /**
@@ -99,6 +100,7 @@ export function resolveRelativeImport(specifier, importer, serveDir, { code, lin
 export async function resolveImport(specifier, importer, serveDir, { code, line, column } = {}) {
     const resolved = path.isAbsolute(specifier) ? specifier : await browserResolve(specifier, importer);
     if (!resolved) {
+        console.log(importer, specifier)
         return EMPTY_KEY;
     }
 
@@ -141,7 +143,7 @@ export default function(config = {}) {
             if (source in alias) {
                 const aliased = alias[source];
                 if (!aliased) {
-                    return 'export default {}\n//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIiJdLCJtYXBwaW5ncyI6IkEifQ==';
+                    return createEmptyModule();
                 }
                 source = aliased;
             }

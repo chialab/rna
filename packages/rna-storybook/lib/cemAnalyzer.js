@@ -22,7 +22,8 @@ export default function({ framework = '@storybook/web-components', plugins = [] 
         name: 'rna-storybook-cem',
         setup(build) {
             const options = build.initialOptions;
-            const rootDir = options.sourceRoot || process.cwd();
+            const { sourceRoot, absWorkingDir } = options;
+            const rootDir = sourceRoot || absWorkingDir || process.cwd();
 
             build.onLoad({ filter: createFilter(build), namespace: 'file' }, async (args) => {
                 if (args.path.includes('/node_modules/') ||

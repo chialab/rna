@@ -1,4 +1,5 @@
 import { resolve } from '@chialab/node-resolve';
+import { createEmptyModule, escapeRegexBody } from '@chialab/estransform';
 
 /**
  * A plugin for esbuild that resolves aliases or empty modules.
@@ -16,10 +17,12 @@ export default function(modules = {}) {
     const plugin = {
         name: 'alias',
         setup(build) {
-            const rootDir = build.initialOptions.sourceRoot || build.initialOptions.absWorkingDir || process.cwd();
+            const options = build.initialOptions;
+            const { sourceRoot, absWorkingDir } = options;
+            const rootDir = sourceRoot || absWorkingDir || process.cwd();
             if (aliases.length) {
                 aliases.forEach((alias) => {
-                    const regexBody = alias.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                    const regexBody = escapeRegexBody(alias);
                     const aliasFilter = new RegExp(`^${regexBody}$`);
                     build.onResolve({ filter: aliasFilter }, async (args) => ({
                         path: await resolve(/** @type {string} */(modules[args.path]), args.importer || rootDir),
@@ -28,7 +31,8 @@ export default function(modules = {}) {
             }
 
             if (empty.length) {
-                const emptyFilter = new RegExp(`(^|\\/)${empty.map((alias) => alias.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')}(\\/|$)`);
+                const regexBody = empty.map(escapeRegexBody).join('|');
+                const emptyFilter = new RegExp(`(^|\\/)${regexBody}(\\/|$)`);
 
                 build.onResolve({ filter: emptyFilter }, (args) => ({
                     path: args.path,
@@ -36,7 +40,7 @@ export default function(modules = {}) {
                 }));
 
                 build.onLoad({ filter: emptyFilter, namespace: 'empty' }, () => ({
-                    contents: 'export default {}\n//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIiJdLCJtYXBwaW5ncyI6IkEifQ==',
+                    contents: createEmptyModule(),
                 }));
             }
         },

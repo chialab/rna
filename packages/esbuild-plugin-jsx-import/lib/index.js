@@ -1,3 +1,5 @@
+import { escapeRegexBody, createEmptySourcemapComment } from '@chialab/estransform';
+
 /**
  * A plugin for esbuild that enables automatic injection of the jsx module import.
  * @param {{ jsxModule?: string, jsxExport?: 'named'|'namespace'|'default' }} opts
@@ -5,6 +7,7 @@
  */
 export default function(opts = {}) {
     const RUNTIME_ALIAS = '__jsx-runtime__.js';
+    const RUNTIME_REGEX = new RegExp(escapeRegexBody(RUNTIME_ALIAS));
 
     /**
      * @type {import('esbuild').Plugin}
@@ -32,7 +35,7 @@ export default function(opts = {}) {
                 specs.push(jsxFragment.split('.')[0]);
             }
 
-            build.onLoad({ filter: new RegExp(RUNTIME_ALIAS) }, () => {
+            build.onLoad({ filter: RUNTIME_REGEX }, () => {
                 let contents = '';
                 if (opts.jsxExport === 'default') {
                     contents = `export { default as ${identifier} } from '${opts.jsxModule}';`;
@@ -42,7 +45,7 @@ export default function(opts = {}) {
                     contents = `export { ${specs.join(',')} } from '${opts.jsxModule}';`;
                 }
 
-                contents += '\n//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIiJdLCJtYXBwaW5ncyI6IkEifQ==';
+                contents += createEmptySourcemapComment();
 
                 return {
                     contents,

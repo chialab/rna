@@ -1,7 +1,7 @@
 {
   "name": "@chialab/rna-node-test-runner",
   "type": "module",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "description": "A test runner for node based on mocha.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",

@@ -1,7 +1,7 @@
 {
   "name": "@chialab/esbuild-plugin-postcss",
   "type": "module",
-  "version": "0.11.0",
+  "version": "0.11.5",
   "description": "A CSS loader plugin for esbuild that uses postcss as preprocessor.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",
@@ -33,8 +33,8 @@
     "node": ">=13"
   },
   "dependencies": {
-    "@chialab/postcss-preset-chialab": "^0.11.0",
-    "@chialab/postcss-url-rebase": "^0.11.0",
+    "@chialab/postcss-preset-chialab": "^0.11.5",
+    "@chialab/postcss-url-rebase": "^0.11.5",
     "postcss": "^8.2.5",
     "postcss-load-config": "^3.0.1"
   },

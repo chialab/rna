@@ -1,7 +1,7 @@
 {
   "name": "@chialab/postcss-url-rebase",
   "type": "module",
-  "version": "0.11.0",
+  "version": "0.11.5",
   "description": "A postcss plugin for url() rebasing before import.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",

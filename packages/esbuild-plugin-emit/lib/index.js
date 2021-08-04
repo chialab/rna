@@ -112,7 +112,9 @@ export default function(esbuild) {
         name: 'emitter',
         setup(build) {
             const options = build.initialOptions;
-            const outdir = options.outdir || path.dirname(/** @type {string} */(options.outfile));
+            const { sourceRoot, absWorkingDir, outdir, outfile } = options;
+            const rootDir = sourceRoot || absWorkingDir || process.cwd();
+            const outDir = outdir || path.dirname(/** @type {string} */(outfile));
 
             build.onResolve({ filter: EMIT_FILE_REGEX }, (args) => ({
                 path: getSearchParams(args.path).path,
@@ -133,18 +135,18 @@ export default function(esbuild) {
                     ...pluginData,
                     entryPoints: [filePath],
                     outfile: undefined,
-                    outdir,
+                    outdir: outDir,
                     metafile: true,
                 };
 
                 const result = await esbuild.build(config);
                 if (result.metafile) {
                     const outputs = result.metafile.outputs;
-                    const outputFiles = Object.keys(outputs);
-                    filePath = outputFiles
+                    const outputFiles = Object.keys(outputs)
                         .filter((output) => !output.endsWith('.map'))
                         .filter((output) => outputs[output].entryPoint)
-                        .find((output) => filePath === path.resolve(/** @type {string} */(outputs[output].entryPoint))) || outputFiles[0];
+                        .map((output) => path.resolve(rootDir, /** @type {string} */ (outputs[output].entryPoint)));
+                    filePath = outputFiles.find((output) => filePath === output) || outputFiles[0];
                 }
 
                 return {

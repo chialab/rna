@@ -19,7 +19,7 @@ async function load(filePath, fallback = {}) {
  * @param {import('cheerio').Cheerio<import('cheerio').Document>} dom The DOM element.
  * @param {string} base The base dir.
  * @param {string} outdir The output dir.
- * @return {import('./index').Entrypoint[]} A list of entrypoints.
+ * @return {import('./index').Build[]} A list of builds.
  */
 export function collectWebManifest($, dom, base, outdir) {
     const htmlElement = dom.find('html');

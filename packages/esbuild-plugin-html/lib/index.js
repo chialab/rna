@@ -1,9 +1,9 @@
 import path from 'path';
-import { readFile, writeFile, mkdir } from 'fs/promises';
-import crypto from 'crypto';
+import { readFile } from 'fs/promises';
+import { createResult, assignToResult, getMainOutput, esbuildFile } from '@chialab/estransform';
 
 /**
- * @typedef {Object} Entrypoint
+ * @typedef {Object} Build
  * @property {import('esbuild').Loader} [loader] The loader to use.
  * @property {Partial<import('esbuild').BuildOptions>} options The file name of the referenced file.
  * @property {(filePath: string, outputFiles: string[]) => Promise<void>|void} finisher A callback function to invoke when output file has been generated.
@@ -27,34 +27,22 @@ export default function({ scriptsTarget = 'es2015', modulesTarget = 'es2020' } =
         name: 'html',
         setup(build) {
             const options = build.initialOptions;
-            const { stdin, sourceRoot } = options;
+            const { stdin, sourceRoot, absWorkingDir } = options;
+            const rootDir = sourceRoot || absWorkingDir || process.cwd();
             const input = stdin ? stdin.sourcefile : undefined;
             const fullInput = input && path.resolve(sourceRoot || process.cwd(), input);
 
             /**
-             * @type {import('esbuild').BuildResult[]}
+             * @type {import('esbuild').BuildResult}
              */
-            let results = [];
+            let collectedResult;
 
             build.onStart(() => {
-                results = [];
+                collectedResult = createResult();
             });
 
             build.onEnd((result) => {
-                results.forEach((res) => {
-                    result.errors.push(...res.errors);
-                    result.warnings.push(...res.warnings);
-                    if (result.metafile && res.metafile) {
-                        result.metafile.inputs = {
-                            ...result.metafile.inputs,
-                            ...res.metafile.inputs,
-                        };
-                        result.metafile.outputs = {
-                            ...result.metafile.outputs,
-                            ...res.metafile.outputs,
-                        };
-                    }
-                });
+                assignToResult(result, collectedResult);
             });
 
             build.onLoad({ filter: /\.html$/ }, async ({ path: filePath }) => {
@@ -79,7 +67,7 @@ export default function({ scriptsTarget = 'es2015', modulesTarget = 'es2020' } =
                 /**
                  * Cheerio esm support is unstable for some Node versions.
                  */
-                const load = /** typeof cheerio.load */ (cheerio.load || cheerio.default?.load);
+                const load = /** @type {typeof cheerio.load} */ (cheerio.load || cheerio.default?.load);
 
                 const contents = filePath === fullInput && stdin ? stdin.contents : await readFile(filePath, 'utf-8');
                 const basePath = path.dirname(filePath);
@@ -87,7 +75,7 @@ export default function({ scriptsTarget = 'es2015', modulesTarget = 'es2020' } =
                 const $ = load(contents);
                 const root = $.root();
 
-                const entrypoints = /** @type {Entrypoint[]} */ ([
+                const builds = /** @type {Build[]} */ ([
                     ...collectIcons($, root, basePath, outdir),
                     ...collectWebManifest($, root, basePath, outdir),
                     ...collectStyles($, root, basePath, outdir, options),
@@ -95,92 +83,57 @@ export default function({ scriptsTarget = 'es2015', modulesTarget = 'es2020' } =
                     ...collectAssets($, root, basePath, outdir, options),
                 ]);
 
-                for (let i = 0; i < entrypoints.length; i++) {
-                    const entrypoint = entrypoints[i];
+                for (let i = 0; i < builds.length; i++) {
+                    const build = builds[i];
+
                     /** @type {string[]} */
                     const outputFiles = [];
-                    /** @type {string} */
-                    let outputFile;
-                    if (entrypoint.loader === 'file') {
-                        const files = /** @type {string[]|undefined}} */ (entrypoint.options.entryPoints);
-                        const file = files && files[0];
-                        if (!file) {
-                            continue;
-                        }
-                        const ext = path.extname(file);
-                        const basename = path.basename(file, ext);
-                        const buffer = await readFile(file);
-                        const assetNames = entrypoint.options.assetNames || options.assetNames || '[name]';
-                        const computedName = assetNames
-                            .replace('[name]', basename)
-                            .replace('[hash]', () => {
-                                const hash = crypto.createHash('sha1');
-                                hash.update(buffer);
-                                return hash.digest('hex').substr(0, 8);
-                            });
-                        outputFile = path.join(outdir, `${computedName}${ext}`);
-                        await mkdir(path.dirname(outputFile), {
-                            recursive: true,
-                        });
-                        await writeFile(outputFile, buffer);
-                        outputFile = path.relative(process.cwd(), outputFile);
-                        outputFiles.push(outputFile);
-                        // manually build metafile data
-                        const inputFile = path.relative(process.cwd(), file);
-                        const bytes = Buffer.byteLength(buffer);
-                        results.push({
-                            errors: [],
-                            warnings: [],
-                            metafile: {
-                                inputs: {
-                                    [inputFile]: {
-                                        bytes,
-                                        imports: [],
-                                    },
-                                },
-                                outputs: {
-                                    [outputFile]: {
-                                        bytes,
-                                        imports: [],
-                                        entryPoint: inputFile,
-                                        exports: [],
-                                        inputs: {
-                                            [inputFile]: { bytesInOutput: bytes },
-                                        },
-                                    },
-                                },
-                            },
-                        });
-                    } else {
-                        /** @type {import('esbuild').BuildOptions} */
-                        const config = {
-                            ...options,
-                            outfile: undefined,
-                            outdir,
-                            metafile: true,
-                            external: [],
-                            ...entrypoint.options,
-                        };
-                        const result = await esbuild.build(config);
-                        if (!result.metafile) {
-                            continue;
-                        }
 
-                        const inputFiles = /** @type {string[]} */ (entrypoint.options.entryPoints || []);
-                        const outputs = result.metafile.outputs;
-                        const outputFiles = Object.keys(outputs);
-                        outputFile = outputFiles
-                            .filter((output) => !output.endsWith('.map'))
-                            .filter((output) => outputs[output].entryPoint)
-                            .find((output) => inputFiles.includes(path.resolve(/** @type {string} */(outputs[output].entryPoint)))) || outputFiles[0];
-                        results.push(result);
+                    const entryPoints = /** @type {string[]|undefined}} */ (build.options.entryPoints);
+                    if (!entryPoints || entryPoints.length === 0) {
+                        continue;
                     }
-                    await entrypoint.finisher(outputFile, outputFiles);
+
+                    if (build.loader === 'file') {
+                        const file = entryPoints[0];
+
+                        const { result, outputFile } = await esbuildFile(file, {
+                            ...options,
+                            ...build.options,
+                        });
+
+                        outputFiles.push(outputFile);
+                        assignToResult(collectedResult, result);
+
+                        await build.finisher(outputFile, outputFiles);
+                        continue;
+                    }
+
+                    /** @type {import('esbuild').BuildOptions} */
+                    const config = {
+                        ...options,
+                        outfile: undefined,
+                        outdir,
+                        metafile: true,
+                        external: [],
+                        ...build.options,
+                    };
+
+                    const result = await esbuild.build(config);
+                    const outputFile = getMainOutput(entryPoints, /** @type {import('esbuild').Metafile} */ (result.metafile), rootDir);
+
+                    assignToResult(collectedResult, result);
+
+                    await build.finisher(outputFile, outputFiles);
                 }
 
                 return {
                     contents: $.html(),
                     loader: 'file',
+                    watchFiles: builds.reduce((acc, build) => [
+                        ...acc,
+                        ...(/** @type {string[]} */ (build.options.entryPoints) || []),
+                    ], /** @type {string[]} */ ([])),
                 };
             });
         },

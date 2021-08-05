@@ -1,6 +1,7 @@
 import os from 'os';
 import path from 'path';
 import { browserResolve, isCore } from '@chialab/node-resolve';
+import { assignToResult, createResult } from '@chialab/estransform';
 import { getEntryBuildConfig, mergeConfig, readConfigFile, locateConfigFile } from '@chialab/rna-config-loader';
 import { createLogger, readableSize } from '@chialab/rna-logger';
 import { build } from './build.js';
@@ -10,7 +11,6 @@ import { loadPlugins, loadTransformPlugins } from './loadPlugins.js';
 import { Queue } from './Queue.js';
 import { writeMetafile } from './writeMetafile.js';
 import { bundleSize } from './bundleSize.js';
-import { mergeMetafiles } from './mergeMetafiles.js';
 
 export * from './loaders.js';
 export * from './transform.js';
@@ -52,7 +52,7 @@ export function command(program) {
              * @param {string[]} input
              * @param {{ config?: string, output: string, format?: import('@chialab/rna-config-loader').Format, target?: import('@chialab/rna-config-loader').Target, platform: import('@chialab/rna-config-loader').Platform, bundle?: boolean, minify?: boolean, name?: string, manifest?: boolean|string, entrypoints?: boolean|string, public?: string, entryNames?: string, chunkNames?: string, assetNames?: string, clean?: boolean, external?: string, map?: boolean, jsxFactory?: string, jsxFragment?: string, jsxModule?: string, jsxExport?: 'named'|'namespace'|'default', metafile?: string, showCompressed?: boolean }} options
              */
-            async (input, { config: configFile, output, format = 'esm', platform, bundle, minify, name, manifest: manifestFile, entrypoints: entrypointsFile, target, public: publicPath, entryNames, chunkNames, assetNames, clean, external: externalString, map: sourcemap, jsxFactory, jsxFragment, jsxModule, jsxExport, metafile, showCompressed }) => {
+            async (input, { config: configFile, output, format = 'esm', platform, bundle, minify, name, manifest: manifestFile, entrypoints: entrypointsFile, target, public: publicPath, entryNames, chunkNames, assetNames, clean, external: externalString, map: sourcemap, jsxFactory, jsxFragment, jsxModule, jsxExport, metafile: metafilePath, showCompressed }) => {
                 if (sourcemap === true) {
                     sourcemap = undefined;
                 }
@@ -62,9 +62,6 @@ export function command(program) {
                 const manifestPath = manifestFile ? (typeof manifestFile === 'string' ? manifestFile : path.join(output, 'manifest.json')) : undefined;
                 const entrypointsPath = entrypointsFile ? (typeof entrypointsFile === 'string' ? entrypointsFile : path.join(output, 'entrypoints.json')) : undefined;
                 const external = externalString ? externalString.split(',') : [];
-
-                /** @type {import('esbuild').Metafile[]} */
-                const bundleMetafiles = [];
 
                 /**
                  * @type {import('@chialab/rna-config-loader').Config}
@@ -141,23 +138,21 @@ export function command(program) {
                 const queue = new Queue();
                 for (let i = 0; i < entrypoints.length; i++) {
                     const entrypoint = entrypoints[i];
-                    queue.add(async () => {
-                        const result = await build(getEntryBuildConfig(entrypoint, config));
-                        if (result.metafile) {
-                            bundleMetafiles[i] = result.metafile;
-                        }
-                    });
+                    queue.add(() => build(getEntryBuildConfig(entrypoint, config)));
                 }
 
-                await queue.run(os.cpus().length);
+                const buildResult = createResult();
+                const buildResults = await queue.run(os.cpus().length);
+                buildResults.forEach((result) => assignToResult(buildResult, result));
 
-                const finalMetafile = mergeMetafiles(...bundleMetafiles);
-                if (typeof metafile === 'string') {
-                    await writeMetafile(finalMetafile, path.resolve(process.cwd(), metafile));
+                const metafile = /** @type {import('esbuild').Metafile} */ (buildResult.metafile);
+
+                if (typeof metafilePath === 'string') {
+                    await writeMetafile(metafile, path.resolve(process.cwd(), metafilePath));
                 }
 
-                if (Object.keys(finalMetafile.outputs).length) {
-                    const sizes = await bundleSize(finalMetafile, showCompressed);
+                if (Object.keys(metafile.outputs).length) {
+                    const sizes = await bundleSize(metafile, showCompressed);
                     logger.log('Generated bundle files:\n');
                     logger.files(sizes, showCompressed ? ['size', 'gzip', 'brotli'] : ['size'], {
                         size: readableSize,

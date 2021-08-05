@@ -7,7 +7,7 @@ import path from 'path';
  * @param {string} base The base dir.
  * @param {string} outdir The output dir.
  * @param {import('esbuild').BuildOptions} options Build options.
- * @return {import('./index').Entrypoint[]} A list of entrypoints.
+ * @return {import('./index').Build[]} A list of builds.
  */
 export function collectAssets($, dom, base, outdir, options) {
     return [

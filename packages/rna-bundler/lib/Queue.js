@@ -6,31 +6,34 @@
  * Run async jobs concurrently.
  */
 export class Queue {
+    total = 0;
+
     /**
-     * Create a ConcurrentJobs instance.
+     * @type {Task[]}
      */
-    constructor() {
-        this.total = 0;
-        /**
-         * @type {Task[]}
-         */
-        this.todo = [];
-        /**
-         * @type {Task[]}
-         */
-        this.running = [];
-        /**
-         * @type {Task[]}
-         */
-        this.complete = [];
-    }
+    tasks = [];
+
+    /**
+     * @type {Task[]}
+     */
+    running = [];
+
+    /**
+     * @type {Task[]}
+     */
+    todo = [];
+
+    /**
+     * @type {Task[]}
+     */
+    complete = [];
 
     /**
      * Add a task to the queue.
      * @param {Task} task The task to run.
      */
     add(task) {
-        this.total = this.todo.push(task);
+        this.total = this.tasks.push(task);
     }
 
     /**
@@ -45,24 +48,40 @@ export class Queue {
     /**
      * Exec the queue
      * @param {number} count The maximum number of running tasks.
+     * @param {any[]} [results] List of results.
+     * @return A list of queue results.
      */
-    async run(count = 1) {
+    async run(count = 1, results) {
         const promises = [];
+
+        if (!results) {
+            // main request
+            results = [];
+            this.todo = this.tasks.slice(0);
+            this.running = [];
+            this.complete = [];
+        }
+
         while (this.runNext(count)) {
             const task = /** @type {Task} */ (this.todo.shift());
             const promise = task.call(null);
             promises.push(
-                promise.then(() => {
+                promise.then((result) => {
+                    if (results) {
+                        results[this.tasks.indexOf(task)] = result;
+                    }
                     const io = this.running.indexOf(task);
                     const runningTask = /** @type {Task} */ (this.running[io]);
                     this.running.splice(io, 1);
                     this.complete.push(runningTask);
-                    return this.run(count);
+                    return this.run(count, results);
                 })
             );
             this.running.push(task);
         }
 
         await Promise.all(promises);
+
+        return results;
     }
 }

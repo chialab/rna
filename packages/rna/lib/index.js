@@ -2,6 +2,7 @@
 
 import { readFile } from 'fs/promises';
 import commander from 'commander';
+import { createLogger, colors } from '@chialab/rna-logger';
 
 (async () => {
     const { program } = commander;
@@ -21,11 +22,19 @@ import commander from 'commander';
             command(program);
         } catch (err) {
             if (err.code === 'ERR_MODULE_NOT_FOUND') {
+                const logger = createLogger();
                 return program
                     .command(name)
                     .allowUnknownOption()
                     .action(() => {
-                        throw new Error(`Command not installed, please run:\n\nnpm install ${source} -D\nyarn add ${source} -D\n`);
+                        logger.error(colors.red(colors.bold('Command not found.')));
+                        logger.error(`
+${colors.yellow('Please install the corresponding module in order to use this command:')}
+${colors.white(`npm install -D ${colors.blue(source)}`)}
+${colors.white(`yarn add -D ${colors.blue(source)}`)}
+`);
+
+                        process.exitCode = 1;
                     });
             }
 

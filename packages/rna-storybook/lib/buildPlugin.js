@@ -1,7 +1,7 @@
 import path from 'path';
-import { mkdir, readFile, writeFile } from 'fs/promises';
+import { readFile } from 'fs/promises';
 import esbuild from 'esbuild';
-import { escapeRegexBody } from '@chialab/estransform';
+import { escapeRegexBody, esbuildFile } from '@chialab/estransform';
 import { browserResolve } from '@chialab/node-resolve';
 import { indexHtml, iframeHtml, managerCss, previewCss } from '@chialab/storybook-prebuilt';
 import { createManagerScript } from './createManager.js';
@@ -209,40 +209,8 @@ export function buildPlugin(config) {
                             });
                         }
 
-                        const buffer = await readFile(input);
-                        await mkdir(outDir, { recursive: true });
-                        await writeFile(output, buffer);
-
-                        return {
-                            errors: [],
-                            warnings: [],
-                            outputFiles: [{
-                                path: output,
-                                contents: buffer,
-                                text: '',
-                            }],
-                            metafile: {
-                                inputs: {
-                                    [input]: {
-                                        bytes: buffer.byteLength,
-                                        imports: [],
-                                    },
-                                },
-                                outputs: {
-                                    [output]: {
-                                        bytes: buffer.byteLength,
-                                        inputs: {
-                                            [input]: {
-                                                bytesInOutput: buffer.byteLength,
-                                            },
-                                        },
-                                        imports: [],
-                                        exports: [],
-                                        entryPoint: input,
-                                    },
-                                },
-                            },
-                        };
+                        const { result } = await esbuildFile(input, options);
+                        return result;
                     }),
                 ]);
             });

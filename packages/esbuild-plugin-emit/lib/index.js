@@ -1,5 +1,6 @@
 import path from 'path';
 import { readFile } from 'fs/promises';
+import { getMainOutput } from '@chialab/estransform';
 import { appendSearchParam, getSearchParam, getSearchParams, hasSearchParam } from '@chialab/node-resolve';
 
 /**
@@ -151,14 +152,7 @@ export default function(esbuild) {
                 };
 
                 const result = await esbuild.build(config);
-                if (result.metafile) {
-                    const outputs = result.metafile.outputs;
-                    const outputFiles = Object.keys(outputs)
-                        .filter((output) => !output.endsWith('.map'))
-                        .filter((output) => outputs[output].entryPoint)
-                        .map((output) => path.resolve(rootDir, /** @type {string} */ (outputs[output].entryPoint)));
-                    filePath = outputFiles.find((output) => filePath === output) || outputFiles[0];
-                }
+                filePath = getMainOutput([filePath], /** @type {import('esbuild').Metafile} */ (result.metafile), rootDir);
 
                 return {
                     contents: await readFile(filePath),

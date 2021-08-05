@@ -152,7 +152,7 @@ async function generateAppleLaunchScreens(image, outputDir, launchScreens) {
  * @param {import('cheerio').Cheerio<import('cheerio').Document>} dom The DOM element.
  * @param {string} base The base dir.
  * @param {string} outdir The output dir.
- * @return {import('./index').Entrypoint[]} A list of entrypoints.
+ * @return {import('./index').Build[]} A list of builds.
  */
 export function collectIcons($, dom, base, outdir) {
     const iconElement = dom.find('link[rel*="icon"]');

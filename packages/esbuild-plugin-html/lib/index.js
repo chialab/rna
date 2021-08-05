@@ -1,6 +1,6 @@
 import path from 'path';
 import { readFile } from 'fs/promises';
-import { createResult, assignToResult, getMainOutput, esbuildFile } from '@chialab/estransform';
+import { createResult, assignToResult, getMainOutput, esbuildFile } from '@chialab/esbuild-helpers';
 
 /**
  * @typedef {Object} Build

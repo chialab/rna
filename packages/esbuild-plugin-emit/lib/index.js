@@ -1,6 +1,6 @@
 import path from 'path';
 import { readFile } from 'fs/promises';
-import { getMainOutput } from '@chialab/estransform';
+import { getMainOutput } from '@chialab/esbuild-helpers';
 import { appendSearchParam, getSearchParam, getSearchParams, hasSearchParam } from '@chialab/node-resolve';
 
 /**

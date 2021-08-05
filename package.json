@@ -7,7 +7,7 @@
   "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
   "license": "MIT",
   "scripts": {
-    "clean": "rimraf 'node_modules' 'packages/*/node_modules' 'package-lock.json'",
+    "clear": "rimraf 'node_modules' 'packages/*/node_modules' 'package-lock.json' 'yarn.lock'",
     "types": "lerna run types",
     "lint": "eslint 'packages/*/lib/**/*.js'",
     "new": "plop --plopfile internals/generators/plopfile.cjs module"

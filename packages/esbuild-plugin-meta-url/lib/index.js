@@ -1,8 +1,8 @@
 import path from 'path';
 import { resolve as defaultResolve, isUrl } from '@chialab/node-resolve';
 import { emitFile, getBaseUrl, prependImportStatement } from '@chialab/esbuild-plugin-emit';
-import { TARGETS, pipe, walk, createTypeScriptTransform, getOffsetFromLocation } from '@chialab/estransform';
-import { getEntry, finalizeEntry, createFilter } from '@chialab/esbuild-plugin-transform';
+import { TARGETS, pipe, walk, getOffsetFromLocation } from '@chialab/estransform';
+import { getEntry, finalizeEntry, createFilter, createTypeScriptTransform } from '@chialab/esbuild-plugin-transform';
 
 /**
  * @typedef {{ resolve?: typeof defaultResolve }} PluginOptions

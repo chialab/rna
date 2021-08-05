@@ -1,7 +1,7 @@
 import path from 'path';
 import { readFile } from 'fs/promises';
 import esbuild from 'esbuild';
-import { escapeRegexBody, esbuildFile } from '@chialab/estransform';
+import { escapeRegexBody, esbuildFile } from '@chialab/esbuild-helpers';
 import { browserResolve } from '@chialab/node-resolve';
 import { indexHtml, iframeHtml, managerCss, previewCss } from '@chialab/storybook-prebuilt';
 import { createManagerScript } from './createManager.js';

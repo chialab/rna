@@ -1,5 +1,4 @@
 import MagicString from 'magic-string';
-import esbuild from 'esbuild';
 import { parse } from './parser.js';
 import { parseSourcemap, loadSourcemap, mergeSourcemaps, inlineSourcemap } from './sourcemaps.js';
 
@@ -81,33 +80,6 @@ export const TARGETS = {
     es2015: 'es2015',
     es5: 'es5',
 };
-
-/**
- * Transpile entry to standard js.
- * @param {import('esbuild').TransformOptions} [config]
- * @return {TransformCallack}
- */
-export function createTypeScriptTransform(config = {}) {
-    return async function transpileTypescript({ code }, options) {
-        const { code: finalCode, map } = await esbuild.transform(code, {
-            tsconfigRaw: {},
-            sourcemap: true,
-            format: 'esm',
-            target: TARGETS.es2020,
-            sourcefile: options.source,
-            loader: config.loader,
-            jsxFactory: config.jsxFactory,
-            jsxFragment: config.jsxFragment,
-        });
-
-        return {
-            code: finalCode,
-            map: parseSourcemap(map),
-            target: TARGETS.es2020,
-            loader: 'js',
-        };
-    };
-}
 
 /**
  * @typedef {Object} Pipeline

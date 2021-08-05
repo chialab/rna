@@ -2,8 +2,8 @@ import path from 'path';
 import { readFile } from 'fs/promises';
 import { resolve as defaultResolve } from '@chialab/node-resolve';
 import { emitChunk } from '@chialab/esbuild-plugin-emit';
-import { TARGETS, pipe, walk, createTypeScriptTransform, getOffsetFromLocation } from '@chialab/estransform';
-import { getEntry, finalizeEntry, createFilter } from '@chialab/esbuild-plugin-transform';
+import { TARGETS, pipe, walk, getOffsetFromLocation } from '@chialab/estransform';
+import { getEntry, finalizeEntry, createFilter, createTypeScriptTransform } from '@chialab/esbuild-plugin-transform';
 
 /**
  * @typedef {{ resolve?: typeof defaultResolve, constructors?: string[] }} PluginOptions

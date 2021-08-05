@@ -15,7 +15,7 @@
   "keywords": [],
   "scripts": {
     "types": "tsc",
-    "prepack": "npm run types"
+    "prepack": "yarn types"
   },
   "files": [
     "lib",

@@ -1,8 +1,8 @@
 {
-  "name": "@chialab/esbuild-plugin-html",
+  "name": "@chialab/esbuild-helpers",
   "type": "module",
   "version": "0.11.0",
-  "description": "A HTML loader plugin for esbuild.",
+  "description": "A set of helpers for esbuild and plugins.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",
   "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
@@ -10,15 +10,9 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/chialab/rna",
-    "directory": "packages/esbuild-plugin-html"
+    "directory": "packages/esbuild-helpers"
   },
-  "keywords": [
-    "esbuild",
-    "plugin",
-    "html",
-    "webapp",
-    "bundle"
-  ],
+  "keywords": [],
   "scripts": {
     "types": "tsc",
     "prepack": "yarn types"
@@ -34,12 +28,6 @@
     "node": ">=13"
   },
   "dependencies": {
-    "@chialab/esbuild-helpers": "^0.11.0",
-    "@jimp/custom": "^0.16.1",
-    "@jimp/jpeg": "^0.16.1",
-    "@jimp/plugin-resize": "^0.16.1",
-    "@jimp/png": "^0.16.1",
-    "cheerio": "^1.0.0-rc.9",
     "esbuild": "^0.12.0"
   },
   "devDependencies": {

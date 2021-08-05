@@ -1,8 +1,8 @@
 import path from 'path';
 import babel from '@babel/core';
 import { resolve } from '@chialab/node-resolve';
-import { createTypeScriptTransform, pipe, TARGETS } from '@chialab/estransform';
-import { getEntry, finalizeEntry, createFilter } from '@chialab/esbuild-plugin-transform';
+import { pipe, TARGETS } from '@chialab/estransform';
+import { getEntry, finalizeEntry, createFilter, createTypeScriptTransform } from '@chialab/esbuild-plugin-transform';
 
 /**
  * @typedef {{ presets?: import('@babel/core').PluginItem[], plugins?: import('@babel/core').PluginItem[] }} PluginOptions

@@ -1,8 +1,8 @@
 import path from 'path';
 import swc from '@swc/core';
 import { resolve } from '@chialab/node-resolve';
-import { TARGETS, parseSourcemap, createTypeScriptTransform, pipe } from '@chialab/estransform';
-import { getEntry, finalizeEntry, createFilter } from '@chialab/esbuild-plugin-transform';
+import { TARGETS, parseSourcemap, pipe } from '@chialab/estransform';
+import { getEntry, finalizeEntry, createFilter, createTypeScriptTransform } from '@chialab/esbuild-plugin-transform';
 
 /**
  * @typedef {{ plugins?: import('@swc/core').Plugin[], pipe?: boolean, cache?: Map<string, *> }} PluginOptions

@@ -21,7 +21,7 @@
   ],
   "scripts": {
     "types": "tsc",
-    "prepack": "npm run types"
+    "prepack": "yarn types"
   },
   "bin": {
     "rna": "./lib/index.js"

@@ -15,7 +15,7 @@
   "keywords": [],
   "scripts": {
     "types": "tsc",
-    "prepack": "npm run types"
+    "prepack": "yarn types"
   },
   "files": [
     "lib",
@@ -29,6 +29,7 @@
     "node": ">=13"
   },
   "dependencies": {
+    "@chialab/esbuild-helpers": "^0.11.0",
     "@chialab/estransform": "^0.11.0",
     "@chialab/node-resolve": "^0.11.0",
     "@chialab/storybook-prebuilt": "^6.4.0-alpha.23",

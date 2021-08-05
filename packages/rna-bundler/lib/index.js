@@ -1,7 +1,7 @@
 import os from 'os';
 import path from 'path';
 import { browserResolve, isCore } from '@chialab/node-resolve';
-import { assignToResult, createResult } from '@chialab/estransform';
+import { assignToResult, createResult } from '@chialab/esbuild-helpers';
 import { getEntryBuildConfig, mergeConfig, readConfigFile, locateConfigFile } from '@chialab/rna-config-loader';
 import { createLogger, readableSize } from '@chialab/rna-logger';
 import { build } from './build.js';

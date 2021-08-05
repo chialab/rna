@@ -1,8 +1,11 @@
 import path from 'path';
 import { readFile } from 'fs/promises';
-import { createPipeline, finalize, escapeRegexBody } from '@chialab/estransform';
+import { createPipeline, finalize } from '@chialab/estransform';
+import { escapeRegexBody } from '@chialab/esbuild-helpers';
 
 export const SCRIPT_LOADERS = ['tsx', 'ts', 'jsx', 'js'];
+
+export * from './typescriptTransform.js';
 
 /**
  * @typedef {Map<string, import('@chialab/estransform').Pipeline>} Store

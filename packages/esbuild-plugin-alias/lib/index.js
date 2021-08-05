@@ -1,5 +1,6 @@
 import { resolve } from '@chialab/node-resolve';
-import { createEmptyModule, escapeRegexBody } from '@chialab/estransform';
+import { createEmptyModule } from '@chialab/estransform';
+import { escapeRegexBody } from '@chialab/esbuild-helpers';
 
 /**
  * A plugin for esbuild that resolves aliases or empty modules.

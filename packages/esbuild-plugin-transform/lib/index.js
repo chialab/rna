@@ -12,7 +12,7 @@ export * from './typescriptTransform.js';
  */
 
 /**
- * @typedef {{ entry?: import('@chialab/estransform').Pipeline, filter: RegExp, store: Store }} TransformOptions
+ * @typedef {{ entry?: import('@chialab/estransform').Pipeline, filter: RegExp, store: Store, parent: import('esbuild').PluginBuild }} TransformOptions
  */
 
 /**
@@ -87,6 +87,20 @@ export function getTransformLoader(build, filePath, defaultValue = 'file') {
 }
 
 /**
+ * @param {import('esbuild').PluginBuild} build
+ * @return {import('esbuild').PluginBuild|null}
+ */
+export function getParentBuild(build) {
+    const options = build.initialOptions;
+    const transformOptions = /** @type {BuildTransformOptions} */ (options).transform;
+    if (!transformOptions) {
+        return null;
+    }
+
+    return transformOptions.parent;
+}
+
+/**
  * @typedef {(args: import('esbuild').OnLoadArgs) => import('esbuild').OnLoadResult} LoadCallback
  */
 
@@ -100,7 +114,7 @@ export default function(plugins = []) {
      */
     const plugin = {
         name: 'transform',
-        setup(build) {
+        async setup(build) {
             /**
              * @type {Store}
              */
@@ -119,13 +133,26 @@ export default function(plugins = []) {
                 options.entryPoints = [input];
             }
 
+            const childOptions = {
+                ...build.initialOptions,
+                plugins,
+            };
+
+            const transformData = {
+                store,
+                filter,
+                parent: build,
+            };
+
             Object.defineProperty(options, 'transform', {
                 enumerable: false,
                 writable: false,
-                value: {
-                    store,
-                    filter,
-                },
+                value: transformData,
+            });
+            Object.defineProperty(childOptions, 'transform', {
+                enumerable: false,
+                writable: false,
+                value: transformData,
             });
 
             /**
@@ -133,8 +160,8 @@ export default function(plugins = []) {
              */
             const onLoad = [];
             for (let i = 0; i < plugins.length; i++) {
-                plugins[i].setup({
-                    initialOptions: build.initialOptions,
+                await plugins[i].setup({
+                    initialOptions: childOptions,
                     onStart: build.onStart.bind(build),
                     onEnd: build.onEnd.bind(build),
                     onResolve: build.onResolve.bind(build),

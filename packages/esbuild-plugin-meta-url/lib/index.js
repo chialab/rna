@@ -1,8 +1,9 @@
 import path from 'path';
 import { resolve as defaultResolve, isUrl } from '@chialab/node-resolve';
-import { emitFile, getBaseUrl, prependImportStatement } from '@chialab/esbuild-plugin-emit';
+import { dependencies } from '@chialab/esbuild-helpers';
+import emitPlugin, { emitFile, getBaseUrl, prependImportStatement } from '@chialab/esbuild-plugin-emit';
 import { TARGETS, pipe, walk, getOffsetFromLocation } from '@chialab/estransform';
-import { getEntry, finalizeEntry, createFilter, createTypeScriptTransform } from '@chialab/esbuild-plugin-transform';
+import { getEntry, finalizeEntry, createFilter, createTypeScriptTransform, getParentBuild } from '@chialab/esbuild-plugin-transform';
 
 /**
  * @typedef {{ resolve?: typeof defaultResolve }} PluginOptions
@@ -20,7 +21,11 @@ export default function({ resolve = defaultResolve } = {}) {
      */
     const plugin = {
         name: 'meta-url',
-        setup(build) {
+        async setup(build) {
+            await dependencies(getParentBuild(build) || build, this, [
+                emitPlugin(),
+            ]);
+
             const options = build.initialOptions;
 
             build.onLoad({ filter: createFilter(build), namespace: 'file' }, async (args) => {

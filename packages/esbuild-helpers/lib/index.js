@@ -2,6 +2,8 @@ import path from 'path';
 import crypto from 'crypto';
 import { readFile, writeFile, mkdir } from 'fs/promises';
 
+export * from './dependencies.js';
+
 /**
  * Escape RegExp modifiers in a string.
  * @param {string} source

@@ -1,9 +1,11 @@
 import path from 'path';
 import { readFile } from 'fs/promises';
 import { resolve as defaultResolve } from '@chialab/node-resolve';
-import { emitChunk } from '@chialab/esbuild-plugin-emit';
+import emitPlugin, { emitChunk } from '@chialab/esbuild-plugin-emit';
+import { dependencies } from '@chialab/esbuild-helpers';
 import { TARGETS, pipe, walk, getOffsetFromLocation } from '@chialab/estransform';
-import { getEntry, finalizeEntry, createFilter, createTypeScriptTransform } from '@chialab/esbuild-plugin-transform';
+import { getEntry, finalizeEntry, createFilter, createTypeScriptTransform, getParentBuild } from '@chialab/esbuild-plugin-transform';
+import metaUrlPlugin from '@chialab/esbuild-plugin-meta-url';
 
 /**
  * @typedef {{ resolve?: typeof defaultResolve, constructors?: string[] }} PluginOptions
@@ -20,7 +22,11 @@ export default function({ resolve = defaultResolve, constructors = ['Worker', 'S
      */
     const plugin = {
         name: 'worker',
-        setup(build) {
+        async setup(build) {
+            await dependencies(getParentBuild(build) || build, this, [
+                emitPlugin(),
+            ]);
+
             const options = build.initialOptions;
 
             build.onResolve({ filter: /(\?|&)loader=worker$/ }, async ({ path: filePath }) => ({
@@ -106,6 +112,10 @@ export default function({ resolve = defaultResolve, constructors = ['Worker', 'S
 
                 return finalizeEntry(build, args.path);
             });
+
+            await dependencies(build, this, [
+                metaUrlPlugin({ resolve }),
+            ], 'after');
         },
     };
 

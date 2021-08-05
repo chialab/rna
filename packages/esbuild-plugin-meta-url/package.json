@@ -34,6 +34,7 @@
     "node": ">=13"
   },
   "dependencies": {
+    "@chialab/esbuild-helpers": "^0.11.0",
     "@chialab/esbuild-plugin-emit": "^0.11.5",
     "@chialab/esbuild-plugin-transform": "^0.11.0",
     "@chialab/estransform": "^0.11.0",

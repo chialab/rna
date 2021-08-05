@@ -1,5 +1,5 @@
-import { readFile } from 'fs/promises';
 import path from 'path';
+import { readFile } from 'fs/promises';
 import { resolve } from '@chialab/node-resolve';
 import { pipe, walk, getOffsetFromLocation } from '@chialab/estransform';
 import { getEntry, finalizeEntry, createFilter } from '@chialab/esbuild-plugin-transform';
@@ -65,7 +65,7 @@ export default function() {
 
                             promises.push((async () => {
                                 const value = node.arguments[0].value;
-                                const entryPoint = await resolve(value, path.dirname(args.path));
+                                const entryPoint = await resolve(value, args.path);
                                 const identifier = `_${value.replace(/[^a-zA-Z0-9]/g, '_')}`;
 
                                 if (entry.code.startsWith('#!')) {
@@ -74,8 +74,8 @@ export default function() {
                                     magicCode.prepend(`var ${identifier} = require('${entryPoint}.requirefile');\n`);
                                 }
                                 magicCode.overwrite(
-                                    getOffsetFromLocation(code, node.loc.start.line, node.loc.start.column),
-                                    getOffsetFromLocation(code, node.loc.end.line, node.loc.end.column),
+                                    getOffsetFromLocation(code, node.loc.start),
+                                    getOffsetFromLocation(code, node.loc.end),
                                     identifier
                                 );
                             })());

@@ -1,12 +1,12 @@
-import { readFile } from 'fs/promises';
 import path from 'path';
+import { readFile } from 'fs/promises';
 import { resolve as defaultResolve } from '@chialab/node-resolve';
 import { emitChunk } from '@chialab/esbuild-plugin-emit';
 import { TARGETS, pipe, walk, createTypeScriptTransform, getOffsetFromLocation } from '@chialab/estransform';
 import { getEntry, finalizeEntry, createFilter } from '@chialab/esbuild-plugin-transform';
 
 /**
- * @typedef {{ resolve?: typeof defaultResolve }} PluginOptions
+ * @typedef {{ resolve?: typeof defaultResolve, constructors?: string[] }} PluginOptions
  */
 
 /**
@@ -14,9 +14,7 @@ import { getEntry, finalizeEntry, createFilter } from '@chialab/esbuild-plugin-t
  * @param {PluginOptions} options
  * @return An esbuild plugin.
  */
-export default function({ resolve = defaultResolve } = {}) {
-    const Identifiers = ['Worker', 'SharedWorker'];
-
+export default function({ resolve = defaultResolve, constructors = ['Worker', 'SharedWorker'] } = {}) {
     /**
      * @type {import('esbuild').Plugin}
      */
@@ -40,7 +38,7 @@ export default function({ resolve = defaultResolve } = {}) {
                  * @type {import('@chialab/estransform').Pipeline}
                  */
                 const entry = args.pluginData || await getEntry(build, args.path);
-                if (Identifiers.every((Id) => !entry.code.includes(Id))) {
+                if (constructors.every((ctr) => !entry.code.includes(ctr))) {
                     return;
                 }
 
@@ -79,24 +77,25 @@ export default function({ resolve = defaultResolve } = {}) {
                                 callee = callee.property;
                             }
                             const Ctr = callee.name;
-                            if (callee.type !== 'Identifier' || !Identifiers.includes(Ctr)) {
+                            if (callee.type !== 'Identifier' || !constructors.includes(Ctr)) {
                                 return;
                             }
                             if (!node.arguments.length) {
                                 return;
                             }
-                            if (typeof node.arguments[0].value !== 'string') {
+
+                            const value = node.arguments[0].value;
+                            if (typeof value !== 'string') {
                                 return;
                             }
 
                             promises.push(Promise.resolve().then(async () => {
-                                const value = node.arguments[0].value;
                                 const resolvedPath = await resolve(value, args.path);
                                 const entryPoint = emitChunk(resolvedPath, {
                                     format: 'iife',
                                 });
-                                const startOffset = getOffsetFromLocation(code, node.loc.start.line, node.loc.start.column);
-                                const endOffset = getOffsetFromLocation(code, node.loc.end.line, node.loc.end.column);
+                                const startOffset = getOffsetFromLocation(code, node.loc.start);
+                                const endOffset = getOffsetFromLocation(code, node.loc.end);
                                 magicCode.overwrite(startOffset, endOffset, `new ${Ctr}(new URL('${entryPoint}', import.meta.url).href)`);
                             }));
                         },

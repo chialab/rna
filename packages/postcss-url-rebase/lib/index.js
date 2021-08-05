@@ -46,8 +46,8 @@ export default function urlRebase({ root = process.cwd(), relative, transform } 
 
                 if (transform) {
                     resolvedImportPath = await transform(resolvedImportPath, decl) || resolvedImportPath;
-                } else {
-                    resolvedImportPath = (decl.source?.input.file && relative && path.isAbsolute(resolvedImportPath)) ? `./${path.relative(decl.source.input.file, resolvedImportPath)}` : resolvedImportPath;
+                } else if (decl.source?.input.file && relative && path.isAbsolute(resolvedImportPath)) {
+                    resolvedImportPath = `./${path.relative(decl.source.input.file, resolvedImportPath)}`;
                 }
 
                 decl.params = `url('${resolvedImportPath}')`;

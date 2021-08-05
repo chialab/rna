@@ -190,8 +190,8 @@ export function createTransform({ ignore = () => false }) {
 
                             insertHelper = true;
                             magicCode.overwrite(
-                                getOffsetFromLocation(code, node.loc.start.line, node.loc.start.column),
-                                getOffsetFromLocation(code, node.loc.end.line, node.loc.end.column),
+                                getOffsetFromLocation(code, node.loc.start),
+                                getOffsetFromLocation(code, node.loc.end),
                                 `$$cjs_default$$(${spec.id})`
                             );
                         });

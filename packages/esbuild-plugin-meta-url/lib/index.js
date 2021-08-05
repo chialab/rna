@@ -80,14 +80,14 @@ export default function({ resolve = defaultResolve } = {}) {
                             }
 
                             const value = node.arguments[0].value;
-                            if (isUrl(value)) {
+                            if (typeof value !== 'string' || isUrl(value)) {
                                 return;
                             }
 
                             promises.push((async () => {
                                 const resolvedPath = await resolve(value, args.path);
-                                const startOffset = getOffsetFromLocation(code, node.loc.start.line, node.loc.start.column);
-                                const endOffset = getOffsetFromLocation(code, node.loc.end.line, node.loc.end.column);
+                                const startOffset = getOffsetFromLocation(code, node.loc.start);
+                                const endOffset = getOffsetFromLocation(code, node.loc.end);
                                 if (!ids[resolvedPath]) {
                                     const entryPoint = emitFile(resolvedPath);
                                     const { identifier } = prependImportStatement({ ast, magicCode, code }, entryPoint, value);

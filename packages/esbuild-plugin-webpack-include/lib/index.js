@@ -1,6 +1,6 @@
 import path from 'path';
 import glob from 'fast-glob';
-import { pipe, walk, getOffsetFromLocation } from '@chialab/estransform';
+import { pipe, walk, getOffsetFromLocation, parseComments } from '@chialab/estransform';
 import { getEntry, finalizeEntry, createFilter } from '@chialab/esbuild-plugin-transform';
 
 /**
@@ -43,21 +43,8 @@ export default function() {
                                 return;
                             }
 
-                            const matched = code
-                                .substr(node.start, node.end - node.start)
-                                .match(/\/\*\s*([^*]+)\*\//g);
-                            if (!matched) {
-                                return;
-                            }
-
-                            const comments = matched.map((comment) => comment
-                                .replace(/\/\*\s*/, '')
-                                .replace(/\s*\*\//, '')
-                            );
-                            if (!comments) {
-                                return;
-                            }
-
+                            const chunk = code.substr(node.start, node.end - node.start);
+                            const comments = parseComments(chunk);
                             const included = comments.find((value) => value.startsWith('webpackInclude:'));
                             if (!included) {
                                 return;
@@ -79,8 +66,8 @@ export default function() {
                                         return map;
                                     }, /** @type {{ [key: string]: string }} */({}));
 
-                                const startOffset = getOffsetFromLocation(code, node.loc.start.line, node.loc.start.column);
-                                const endOffset = getOffsetFromLocation(code, node.loc.end.line, node.loc.end.column);
+                                const startOffset = getOffsetFromLocation(code, node.loc.start);
+                                const endOffset = getOffsetFromLocation(code, node.loc.end);
                                 magicCode.overwrite(
                                     startOffset,
                                     endOffset,

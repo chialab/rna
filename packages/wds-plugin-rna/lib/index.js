@@ -158,6 +158,10 @@ export default function(config) {
                 sourcemap: 'inline',
                 target: 'es2020',
                 platform: 'browser',
+                jsxFactory: config.jsxFactory,
+                jsxFragment: config.jsxFragment,
+                jsxModule: config.jsxModule,
+                jsxExport: config.jsxExport,
                 plugins: [
                     ...(await loadPlugins({
                         postcss: {

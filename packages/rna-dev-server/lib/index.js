@@ -10,6 +10,10 @@ import { createLogger, colors } from '@chialab/rna-logger';
  * @property {string} [entrypointsPath]
  * @property {{ [key: string]: string|false }} [alias]
  * @property {import('esbuild').Plugin[]} [transformPlugins]
+ * @property {string} [jsxFactory]
+ * @property {string} [jsxFragment]
+ * @property {string} [jsxModule]
+ * @property {import('@chialab/rna-config-loader').ExportType} [jsxExport]
  */
 
 /**
@@ -48,6 +52,10 @@ export async function buildPlugins(config) {
             alias: config.alias,
         }),
         rnaPlugin({
+            jsxFactory: config.jsxFactory,
+            jsxFragment: config.jsxFragment,
+            jsxModule: config.jsxModule,
+            jsxExport: config.jsxExport,
             transformPlugins: config.transformPlugins,
         }),
         entrypointsPlugin(config.entrypoints, config.entrypointsPath),
@@ -175,6 +183,10 @@ export function command(program) {
                     alias: config.alias,
                     logger,
                     plugins,
+                    jsxFactory: config.jsxFactory,
+                    jsxFragment: config.jsxFragment,
+                    jsxModule: config.jsxModule,
+                    jsxExport: config.jsxExport,
                     transformPlugins: config.transformPlugins,
                 };
 

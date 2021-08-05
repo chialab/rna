@@ -120,7 +120,6 @@ export default function(esbuild) {
             const options = build.initialOptions;
             const { sourceRoot, absWorkingDir, outdir, outfile } = options;
             const rootDir = sourceRoot || absWorkingDir || process.cwd();
-            const outDir = outdir || path.dirname(/** @type {string} */(outfile));
 
             build.onResolve({ filter: EMIT_FILE_REGEX }, (args) => ({
                 path: getSearchParams(args.path).path,
@@ -140,6 +139,7 @@ export default function(esbuild) {
 
             build.onLoad({ filter: /./, namespace: EMIT_CHUNK_NS }, async ({ path: filePath, pluginData }) => {
                 esbuild = esbuild || await import('esbuild');
+                const outDir = outdir || path.dirname(/** @type {string} */(outfile));
 
                 /** @type {import('esbuild').BuildOptions} */
                 const config = {

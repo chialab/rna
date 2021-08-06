@@ -57,12 +57,10 @@ export function assignToResult(context, result) {
  */
 export function getMainOutput(entryPoints, metafile, rootDir = process.cwd()) {
     const outputs = metafile.outputs;
-    const outputEntryPoints = Object.keys(outputs)
+    return /** @type {string} */(Object.keys(outputs)
         .filter((output) => !output.endsWith('.map'))
         .filter((output) => outputs[output].entryPoint)
-        .map((output) => path.resolve(rootDir, /** @type {string} */(outputs[output].entryPoint)));
-
-    return outputEntryPoints.find((output) => entryPoints.includes(output)) || outputEntryPoints[0];
+        .find((output) => entryPoints.includes(path.resolve(rootDir, /** @type {string} */(outputs[output].entryPoint)))));
 }
 
 /**

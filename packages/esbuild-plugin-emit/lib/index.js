@@ -4,11 +4,6 @@ import { getMainOutput } from '@chialab/esbuild-helpers';
 import { appendSearchParam, getSearchParam, getSearchParams, hasSearchParam } from '@chialab/node-resolve';
 
 /**
- * The namespace for emitted files.
- */
-const EMIT_FILE_NS = 'emit-file';
-
-/**
  * The filter regex for file imports.
  */
 const EMIT_FILE_REGEX = /(\?|&)emit=file/;
@@ -131,14 +126,21 @@ export default function(esbuild) {
                 }
                 return {
                     path: realPath,
-                    namespace: EMIT_FILE_NS,
+                    pluginData: {
+                        loader: 'file',
+                    },
                 };
             });
 
-            build.onLoad({ filter: /./, namespace: EMIT_FILE_NS }, async (args) => ({
-                contents: await readFile(args.path, 'utf-8'),
-                loader: 'file',
-            }));
+            build.onLoad({ filter: /./ }, async (args) => {
+                if (args.pluginData?.loader !== 'file') {
+                    return;
+                }
+                return {
+                    contents: await readFile(args.path, 'utf-8'),
+                    loader: 'file',
+                };
+            });
 
             build.onResolve({ filter: EMIT_CHUNK_REGEX }, (args) => ({
                 path: getSearchParams(args.path).path,

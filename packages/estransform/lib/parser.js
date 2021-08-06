@@ -58,7 +58,7 @@ export function getOffsetFromLocation(code, { line, column }) {
  * @return {string[]} A list of comments.
  */
 export function parseComments(code) {
-    const matches = code.match(/(\/\*[\w'\s\r\n*]*\*\/)|(\/\/[\w\s']*)/g);
+    const matches = code.match(/\/\*[\s\S]*?\*\/|(?:[^\\:]|^)\/\/.*$/gm);
     if (!matches) {
         return [];
     }

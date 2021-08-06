@@ -1,7 +1,7 @@
 {
   "name": "@chialab/wds-plugin-commonjs",
   "type": "module",
-  "version": "0.11.8",
+  "version": "0.11.10",
   "description": "A commonjs to esm transformer for the web dev server.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",
@@ -34,7 +34,7 @@
     "node": ">=13"
   },
   "dependencies": {
-    "@chialab/cjs-to-esm": "^0.11.8",
+    "@chialab/cjs-to-esm": "^0.11.10",
     "@web/dev-server-core": "^0.3.8"
   },
   "devDependencies": {

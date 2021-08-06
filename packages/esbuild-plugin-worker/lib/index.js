@@ -23,7 +23,7 @@ export default function({ resolve = defaultResolve, constructors = ['Worker', 'S
     const plugin = {
         name: 'worker',
         async setup(build) {
-            await dependencies(getParentBuild(build) || build, this, [
+            await dependencies(getParentBuild(build) || build, plugin, [
                 emitPlugin(),
             ]);
 
@@ -113,7 +113,7 @@ export default function({ resolve = defaultResolve, constructors = ['Worker', 'S
                 return finalizeEntry(build, args.path);
             });
 
-            await dependencies(build, this, [
+            await dependencies(build, plugin, [
                 metaUrlPlugin({ resolve }),
             ], 'after');
         },

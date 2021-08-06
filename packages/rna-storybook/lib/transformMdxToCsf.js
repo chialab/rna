@@ -17,6 +17,5 @@ ${body}`;
     body = body.replace(/import\.meta\.url/g, 'import$meta$url');
     body = await mdx(body, { compilers, filepath: filePath });
     body = body.replace(/import\$meta\$url/g, 'import.meta.url');
-    const { code } = await esbuild.transform(body, { loader: 'jsx', sourcemap: false, tsconfigRaw: '{}' });
-    return code;
+    return esbuild.transform(body, { loader: 'jsx', sourcemap: false, tsconfigRaw: '{}' });
 }

@@ -12,7 +12,11 @@ export * from './typescriptTransform.js';
  */
 
 /**
- * @typedef {{ entry?: import('@chialab/estransform').Pipeline, filter: RegExp, store: Store, parent: import('esbuild').PluginBuild }} TransformOptions
+ * @typedef {Object} TransformOptions
+ * @property {import('@chialab/estransform').Pipeline} [entry]
+ * @property {RegExp} filter
+ * @property {Store} store
+ * @property {import('esbuild').PluginBuild} parent
  */
 
 /**
@@ -101,7 +105,35 @@ export function getParentBuild(build) {
 }
 
 /**
+ * @param {import('esbuild').PluginBuild} build
+ * @param {import('esbuild').Plugin} plugin
+ * @param {'start'|'end'} [where]
+ */
+export async function addTransformationPlugin(build, plugin, where = 'end') {
+    const options = build.initialOptions;
+    if (!options.plugins) {
+        throw new Error('Transform plugin is not initialized');
+    }
+
+    const transformPlugin = options.plugins.find(({ name }) => name === 'transform');
+    if (!transformPlugin) {
+        throw new Error('Transform plugin is not initialized');
+    }
+
+    const plugins = (/** @type {TransformPlugin} */ (transformPlugin)).plugins;
+    if (where === 'start') {
+        plugins.unshift(plugin);
+    } else {
+        plugins.push(plugin);
+    }
+}
+
+/**
  * @typedef {(args: import('esbuild').OnLoadArgs) => import('esbuild').OnLoadResult} LoadCallback
+ */
+
+/**
+ * @typedef {import('esbuild').Plugin & { plugins: import('esbuild').Plugin[] }} TransformPlugin
  */
 
 /**
@@ -133,34 +165,43 @@ export default function(plugins = []) {
                 options.entryPoints = [input];
             }
 
+            const transformPlugins = (/** @type {TransformPlugin} */ (plugin)).plugins;
+
             const childOptions = {
                 ...build.initialOptions,
-                plugins,
+                plugins: transformPlugins,
             };
 
+            /**
+             * @type {TransformOptions}
+             */
             const transformData = {
                 store,
                 filter,
                 parent: build,
             };
 
+            /**
+             * @type {Map<import('esbuild').Plugin, LoadCallback>}
+             */
+            const onLoadCallbacks = new Map();
+
             Object.defineProperty(options, 'transform', {
+                configurable: true,
                 enumerable: false,
                 writable: false,
                 value: transformData,
             });
             Object.defineProperty(childOptions, 'transform', {
+                configurable: true,
                 enumerable: false,
                 writable: false,
                 value: transformData,
             });
 
-            /**
-             * @type {LoadCallback[]}
-             */
-            const onLoad = [];
-            for (let i = 0; i < plugins.length; i++) {
-                await plugins[i].setup({
+            for (let i = 0; i < transformPlugins.length; i++) {
+                const transfromPlugin = transformPlugins[i];
+                await transfromPlugin.setup({
                     initialOptions: childOptions,
                     onStart: build.onStart.bind(build),
                     onEnd: build.onEnd.bind(build),
@@ -172,7 +213,7 @@ export default function(plugins = []) {
                     onLoad(options, callback) {
                         if (options.namespace === 'file' &&
                             options.filter === filter) {
-                            onLoad.push(callback);
+                            onLoadCallbacks.set(transfromPlugin, callback);
                         } else {
                             build.onLoad(options, callback);
                         }
@@ -180,42 +221,54 @@ export default function(plugins = []) {
                 });
             }
 
-            if (onLoad.length) {
-                build.onLoad({ filter, namespace: 'file' }, async (args) => {
-                    let entry;
-                    if (args.path === fullInput && stdin) {
-                        entry = await getEntry(build, args.path, stdin.contents);
-                    } else {
-                        entry = await getEntry(build, args.path);
+            build.onLoad({ filter, namespace: 'file' }, async (args) => {
+                if (!onLoadCallbacks.size) {
+                    return;
+                }
+
+                let entry;
+                if (args.path === fullInput && stdin) {
+                    entry = await getEntry(build, args.path, stdin.contents);
+                } else {
+                    entry = await getEntry(build, args.path);
+                }
+
+                args.pluginData = entry;
+
+                for (let i = 0; i < transformPlugins.length; i++) {
+                    const transformPlugin = transformPlugins[i];
+                    const onLoad = onLoadCallbacks.get(transformPlugin);
+                    if (onLoad) {
+                        await onLoad(args);
                     }
+                }
 
-                    args.pluginData = entry;
-
-                    for (let i = 0; i < onLoad.length; i++) {
-                        await onLoad[i](args);
-                    }
-
-                    if (entry.code === entry.contents) {
-                        return {
-                            contents: entry.code,
-                            loader: entry.loader,
-                        };
-                    }
-
-                    const { code, loader } = await finalize(entry, {
-                        sourcemap: 'inline',
-                        source: path.basename(args.path),
-                        sourcesContent: options.sourcesContent,
-                    });
-
+                if (entry.code === entry.contents) {
                     return {
-                        contents: code,
-                        loader,
+                        contents: entry.code,
+                        loader: entry.loader,
                     };
+                }
+
+                const { code, loader } = await finalize(entry, {
+                    sourcemap: 'inline',
+                    source: path.basename(args.path),
+                    sourcesContent: options.sourcesContent,
                 });
-            }
+
+                return {
+                    contents: code,
+                    loader,
+                };
+            });
         },
     };
+
+    Object.defineProperty(plugin, 'plugins', {
+        enumerable: false,
+        writable: false,
+        value: [...plugins],
+    });
 
     return plugin;
 }

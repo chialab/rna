@@ -22,7 +22,7 @@ export default function({ resolve = defaultResolve } = {}) {
     const plugin = {
         name: 'meta-url',
         async setup(build) {
-            await dependencies(getParentBuild(build) || build, this, [
+            await dependencies(getParentBuild(build) || build, plugin, [
                 emitPlugin(),
             ]);
 

@@ -1,60 +1,14 @@
 import path from 'path';
-import { readFile } from 'fs/promises';
 import esbuild from 'esbuild';
-import { escapeRegexBody, esbuildFile } from '@chialab/esbuild-helpers';
-import { browserResolve } from '@chialab/node-resolve';
+import { esbuildFile, dependencies } from '@chialab/esbuild-helpers';
+import transformPlugin, { addTransformationPlugin } from '@chialab/esbuild-plugin-transform';
 import { indexHtml, iframeHtml, managerCss, previewCss } from '@chialab/storybook-prebuilt';
 import { createManagerScript } from './createManager.js';
 import { findStories } from './findStories.js';
 import { createPreviewScript } from './createPreview.js';
-import { transformMdxToCsf } from './transformMdxToCsf.js';
-import { createBundleMap } from './bundleMap.js';
 import { loadAddons } from './loadAddons.js';
-
-/**
- * @param {import('./createPlugins').StorybookConfig} options
- */
-function storybookModulesPlugin({ type }) {
-    const { map, modules, resolutions } = createBundleMap(type);
-    const MDX_FILTER_REGEX = /\.mdx$/;
-
-    /**
-     * @type {import('esbuild').Plugin}
-     */
-    const plugin = {
-        name: 'storybook-modules',
-        async setup(build) {
-            const options = build.initialOptions;
-            const { sourceRoot, absWorkingDir } = options;
-            const rootDir = sourceRoot || absWorkingDir || process.cwd();
-
-            modules.forEach((modName) => {
-                const filter = new RegExp(`^${escapeRegexBody(modName)}$`);
-                build.onResolve({ filter }, async () => ({
-                    path: await browserResolve(map[modName], import.meta.url),
-                }));
-            });
-
-            resolutions.forEach((resolution) => {
-                const filter = new RegExp(`^${escapeRegexBody(resolution)}$`);
-                build.onResolve({ filter }, async () => ({
-                    path: await browserResolve(resolution, rootDir),
-                }));
-            });
-
-            build.onResolve({ filter: MDX_FILTER_REGEX }, (args) => ({
-                path: args.path,
-            }));
-
-            build.onLoad({ filter: MDX_FILTER_REGEX }, async (args) => ({
-                contents: await transformMdxToCsf(await readFile(args.path, 'utf-8'), args.path),
-                loader: 'js',
-            }));
-        },
-    };
-
-    return plugin;
-}
+import { mdxPlugin } from './mdxPlugin.js';
+import { aliasPlugin } from './aliasPlugin.js';
 
 /**
  * @param {import('./createPlugins').StorybookConfig} config Storybook options.
@@ -69,7 +23,14 @@ export function buildPlugin(config) {
     const plugin = {
         name: 'storybook',
         async setup(build) {
+            await dependencies(build, plugin, [transformPlugin([])], 'before');
+            await addTransformationPlugin(build, mdxPlugin(), 'start');
+
             const options = build.initialOptions;
+            if (options.loader) {
+                options.loader['.mdx'] = 'tsx';
+            }
+
             const { sourceRoot, absWorkingDir, outdir, outfile } = options;
             const rootDir = sourceRoot || absWorkingDir || process.cwd();
             const outDir = outdir || (outfile && path.dirname(outfile)) || rootDir;
@@ -81,7 +42,7 @@ export function buildPlugin(config) {
             const addonsLoader = loadAddons(addons, rootDir);
 
             const plugins = [
-                storybookModulesPlugin(config),
+                aliasPlugin(config),
                 ...(options.plugins || []).filter((plugin) => !['storybook', 'html'].includes(plugin.name)),
             ];
 

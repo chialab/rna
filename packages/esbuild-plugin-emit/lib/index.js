@@ -6,7 +6,7 @@ import { appendSearchParam, getSearchParam, getSearchParams, hasSearchParam } fr
 /**
  * The namespace for emitted files.
  */
-const EMIT_FILE_NS = 'emit-chunk';
+const EMIT_FILE_NS = 'emit-file';
 
 /**
  * The filter regex for file imports.
@@ -118,13 +118,22 @@ export default function(esbuild) {
         name: 'emitter',
         setup(build) {
             const options = build.initialOptions;
-            const { sourceRoot, absWorkingDir, outdir, outfile } = options;
+            const { sourceRoot, absWorkingDir, outdir, outfile, loader = {} } = options;
             const rootDir = sourceRoot || absWorkingDir || process.cwd();
 
-            build.onResolve({ filter: EMIT_FILE_REGEX }, (args) => ({
-                path: getSearchParams(args.path).path,
-                namespace: EMIT_FILE_NS,
-            }));
+            build.onResolve({ filter: EMIT_FILE_REGEX }, (args) => {
+                const realPath = getSearchParams(args.path).path;
+                const ext = path.extname(realPath);
+                if (!loader[ext] || loader[ext] === 'file') {
+                    return {
+                        path: realPath,
+                    };
+                }
+                return {
+                    path: realPath,
+                    namespace: EMIT_FILE_NS,
+                };
+            });
 
             build.onLoad({ filter: /./, namespace: EMIT_FILE_NS }, async (args) => ({
                 contents: await readFile(args.path, 'utf-8'),

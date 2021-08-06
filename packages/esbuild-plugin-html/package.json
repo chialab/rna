@@ -1,7 +1,7 @@
 {
   "name": "@chialab/esbuild-plugin-html",
   "type": "module",
-  "version": "0.11.8",
+  "version": "0.11.9",
   "description": "A HTML loader plugin for esbuild.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",
@@ -34,7 +34,7 @@
     "node": ">=13"
   },
   "dependencies": {
-    "@chialab/esbuild-helpers": "^0.11.8",
+    "@chialab/esbuild-helpers": "^0.11.9",
     "@jimp/custom": "^0.16.1",
     "@jimp/jpeg": "^0.16.1",
     "@jimp/plugin-resize": "^0.16.1",

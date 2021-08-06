@@ -57,10 +57,10 @@ export function assignToResult(context, result) {
  */
 export function getMainOutput(entryPoints, metafile, rootDir = process.cwd()) {
     const outputs = metafile.outputs;
-    return /** @type {string} */(Object.keys(outputs)
+    return path.resolve(rootDir, /** @type {string} */(Object.keys(outputs)
         .filter((output) => !output.endsWith('.map'))
         .filter((output) => outputs[output].entryPoint)
-        .find((output) => entryPoints.includes(path.resolve(rootDir, /** @type {string} */(outputs[output].entryPoint)))));
+        .find((output) => entryPoints.includes(path.resolve(rootDir, /** @type {string} */(outputs[output].entryPoint))))));
 }
 
 /**
@@ -118,5 +118,39 @@ export async function esbuildFile(from, options = {}) {
                 },
             }
         ),
+    };
+}
+
+/**
+ * @param {import('esbuild').BuildResult} result
+ * @param {string} from
+ * @param {string} to
+ * @return {import('esbuild').BuildResult}
+ */
+export function remapResult(result, from, to) {
+    if (!result.metafile) {
+        return { ...result };
+    }
+
+    const inputs = result.metafile.inputs;
+    const outputs = result.metafile.outputs;
+
+    return {
+        errors: result.errors,
+        warnings: result.warnings,
+        metafile: {
+            inputs: Object.keys(inputs)
+                .reduce((acc, input) => {
+                    const newPath = path.relative(to, path.resolve(from, input));
+                    acc[newPath] = inputs[input];
+                    return acc;
+                }, /** @type {import('esbuild').Metafile['inputs']} */({})),
+            outputs: Object.keys(outputs)
+                .reduce((acc, output) => {
+                    const newPath = path.relative(to, path.resolve(from, output));
+                    acc[newPath] = outputs[output];
+                    return acc;
+                }, /** @type {import('esbuild').Metafile['outputs']} */ ({})),
+        },
     };
 }

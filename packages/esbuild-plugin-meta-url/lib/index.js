@@ -1,7 +1,7 @@
 import path from 'path';
 import { resolve as defaultResolve, isUrl } from '@chialab/node-resolve';
 import { dependencies } from '@chialab/esbuild-helpers';
-import emitPlugin, { emitFile, getBaseUrl, prependImportStatement } from '@chialab/esbuild-plugin-emit';
+import emitPlugin, { emitFileOrChunk, getBaseUrl, prependImportStatement } from '@chialab/esbuild-plugin-emit';
 import { TARGETS, pipe, walk, getOffsetFromLocation } from '@chialab/estransform';
 import { getEntry, finalizeEntry, createFilter, createTypeScriptTransform, getParentBuild } from '@chialab/esbuild-plugin-transform';
 
@@ -94,7 +94,7 @@ export default function({ resolve = defaultResolve } = {}) {
                                 const startOffset = getOffsetFromLocation(code, node.loc.start);
                                 const endOffset = getOffsetFromLocation(code, node.loc.end);
                                 if (!ids[resolvedPath]) {
-                                    const entryPoint = emitFile(resolvedPath);
+                                    const entryPoint = emitFileOrChunk(build, resolvedPath);
                                     const { identifier } = prependImportStatement({ ast, magicCode, code }, entryPoint, value);
                                     ids[resolvedPath] = identifier;
                                 }

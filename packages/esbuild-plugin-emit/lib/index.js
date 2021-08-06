@@ -28,10 +28,6 @@ const EMIT_CHUNK_REGEX = /(\?|&)emit=chunk/;
  * @param {string} source The path of the file.
  */
 export function emitFile(source) {
-    if (hasSearchParam(source, 'emit')) {
-        return source;
-    }
-
     return appendSearchParam(source, 'emit', 'file');
 }
 
@@ -42,6 +38,23 @@ export function emitFile(source) {
  */
 export function emitChunk(source, options = {}) {
     return appendSearchParam(appendSearchParam(source, 'emit', 'chunk'), 'transform', JSON.stringify(options));
+}
+
+/**
+ * @param {import('esbuild').PluginBuild} build
+ * @param {string} source
+ */
+export function emitFileOrChunk(build, source) {
+    if (hasSearchParam(source, 'emit')) {
+        return source;
+    }
+
+    const loaders = build.initialOptions.loader || {};
+    const loader = loaders[path.extname(source)] || 'file';
+    if (loader !== 'file') {
+        return emitChunk(source);
+    }
+    return emitFile(source);
 }
 
 /**

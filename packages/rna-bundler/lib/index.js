@@ -1,7 +1,7 @@
 import os from 'os';
 import path from 'path';
 import { browserResolve, isCore } from '@chialab/node-resolve';
-import { assignToResult, createResult } from '@chialab/esbuild-helpers';
+import { assignToResult, createResult, remapResult } from '@chialab/esbuild-helpers';
 import { getEntryBuildConfig, mergeConfig, readConfigFile, locateConfigFile } from '@chialab/rna-config-loader';
 import { createLogger, readableSize } from '@chialab/rna-logger';
 import { build } from './build.js';
@@ -136,9 +136,18 @@ export function command(program) {
                 }
 
                 const queue = new Queue();
+                const cwd = process.cwd();
                 for (let i = 0; i < entrypoints.length; i++) {
                     const entrypoint = entrypoints[i];
-                    queue.add(() => build(getEntryBuildConfig(entrypoint, config)));
+                    queue.add(async () => {
+                        const buildConfig = getEntryBuildConfig(entrypoint, config);
+                        const buildDir = buildConfig.root;
+                        const result = await build(buildConfig);
+                        if (cwd !== buildDir) {
+                            return remapResult(result, buildDir, cwd);
+                        }
+                        return result;
+                    });
                 }
 
                 const buildResult = createResult();
@@ -148,7 +157,7 @@ export function command(program) {
                 const metafile = /** @type {import('esbuild').Metafile} */ (buildResult.metafile);
 
                 if (typeof metafilePath === 'string') {
-                    await writeMetafile(metafile, path.resolve(process.cwd(), metafilePath));
+                    await writeMetafile(metafile, path.resolve(cwd, metafilePath));
                 }
 
                 if (Object.keys(metafile.outputs).length) {

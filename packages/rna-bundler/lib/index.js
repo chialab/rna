@@ -200,7 +200,7 @@ export function command(program) {
                         const result = await build({
                             ...buildConfig,
                             watch: buildConfig.watch && {
-                                onRebuild(error, result) {
+                                async onRebuild(error, result) {
                                     if (error) {
                                         logger.error(error);
                                     } else if (result) {
@@ -208,7 +208,10 @@ export function command(program) {
                                             result = remapResult(result, buildDir, cwd);
                                         }
                                         buildResults[i] = result;
-                                        onBuildEnd(true);
+                                        await onBuildEnd(true);
+                                        if (result.rebuild) {
+                                            result.rebuild.dispose();
+                                        }
                                     }
                                 },
                             },

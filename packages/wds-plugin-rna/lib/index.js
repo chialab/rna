@@ -154,7 +154,6 @@ export default function(config) {
                 loader,
                 ...getChunkOptions(context.url),
             }, {
-                root: path.dirname(filePath),
                 sourcemap: 'inline',
                 target: 'es2020',
                 platform: 'browser',

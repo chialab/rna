@@ -1,3 +1,4 @@
+import path from 'path';
 import { transformLoaders } from './loaders.js';
 
 /**
@@ -53,7 +54,7 @@ export async function transform(config) {
             ),
     ]);
 
-    const sourceFile = Array.isArray(input) ? input[0] : input;
+    const sourceFile = path.resolve(root, Array.isArray(input) ? input[0] : input);
     const { outputFiles, warnings } = await esbuild.build({
         stdin: {
             contents: code,
@@ -73,8 +74,9 @@ export async function transform(config) {
         jsxFactory,
         jsxFragment,
         loader: transformLoaders,
+        preserveSymlinks: true,
         sourcesContent: true,
-        absWorkingDir: root,
+        absWorkingDir: path.dirname(sourceFile),
         plugins: finalPlugins,
         logLevel,
     });

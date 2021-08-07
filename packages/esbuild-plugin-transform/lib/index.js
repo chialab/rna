@@ -160,7 +160,10 @@ export default function(plugins = []) {
             const fullInput = input && path.resolve(rootDir, input);
             if (stdin && input) {
                 const regex = new RegExp(escapeRegexBody(input));
-                build.onResolve({ filter: regex }, () => ({ path: path.resolve(rootDir, input), namespace: 'file' }));
+                build.onResolve({ filter: regex }, () => ({
+                    path: path.resolve(rootDir, input),
+                    namespace: 'file',
+                }));
                 delete options.stdin;
                 options.entryPoints = [input];
             }

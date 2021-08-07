@@ -217,6 +217,7 @@ export async function build(config) {
         jsxFactory,
         jsxFragment,
         loader: loaders,
+        preserveSymlinks: true,
         sourcesContent: true,
         plugins: finalPlugins,
         logLevel,

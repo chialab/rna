@@ -1,7 +1,7 @@
 {
   "name": "@chialab/esbuild-plugin-commonjs",
   "type": "module",
-  "version": "0.11.12",
+  "version": "0.11.13",
   "description": "A commonjs to esm converter for esbuild.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",
@@ -33,9 +33,9 @@
     "node": ">=13"
   },
   "dependencies": {
-    "@chialab/cjs-to-esm": "^0.11.10",
-    "@chialab/esbuild-plugin-transform": "^0.11.12",
-    "@chialab/estransform": "^0.11.10"
+    "@chialab/cjs-to-esm": "^0.11.13",
+    "@chialab/esbuild-plugin-transform": "^0.11.13",
+    "@chialab/estransform": "^0.11.13"
   },
   "devDependencies": {
     "typescript": "^4.3.0"

@@ -33,11 +33,14 @@ $ yarn add @chialab/esbuild-plugin-meta-url -D
 
 ```js
 import esbuild from 'esbuild';
+import transfrom from '@chialab/esbuild-plugin-transform';
 import metaUrlPlugin from '@chialab/esbuild-plugin-meta-url';
 
 await esbuild.build({
     plugins: [
-        metaUrlPlugin({ mode: 'collect' /* or just "resolve" */ }),
+        transfrom([
+            metaUrlPlugin(),
+        ]),
     ],
 });
 ```

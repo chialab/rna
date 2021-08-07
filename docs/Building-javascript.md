@@ -240,6 +240,24 @@ const blob = await response.blob();
 
 This kind of reference is natively supported by browser and Node. During the build, RNA will convert those references to esbuild's imports statements in order to correctly update the path for distribution files.
 
+## Workers
+
+In a vary similar way, RNA collects builds `new Worker()` reference along the main build:
+
+```javascript
+const worker = new Worker('./path/to/worker.js');
+```
+
+Please note that RNA does not generate a `Worker` class to instantiate like webpack does, but it will just correctly update the import reference. If you need a `Worker` class, you have to wrap it yourself:
+
+```javascript
+const workerClass = function() {
+    return new Worker('./path/to/worker.js');
+};
+```
+
+⚠️ At the moment the Worker plugin does not collect `importScript()` statements and does treat workers as modules, but we have plan to support the `{ type: "module" }` option in the near future.
+
 ## JSX
 
 Although JSX is not part of EcmaScript standards, it is largerly used by many projects and the benifits it brings are real, even if [you may not need it](#Tagged-templates).  

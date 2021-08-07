@@ -18,6 +18,34 @@ export * from './build.js';
 export { loadPlugins, loadTransformPlugins, writeManifestJson, writeEntrypointsJson, writeDevEntrypointsJson };
 
 /**
+ * @typedef {Object} BuildCommandOptions
+ * @property {string} output
+ * @property {string} [config]
+ * @property {import('@chialab/rna-config-loader').Format} [format]
+ * @property {import('@chialab/rna-config-loader').Target} [target]
+ * @property {import('@chialab/rna-config-loader').Platform} [platform]
+ * @property {boolean} [bundle]
+ * @property {boolean} [minify]
+ * @property {string} [name]
+ * @property {boolean|string} [manifest]
+ * @property {boolean|string} [entrypoints]
+ * @property {string} [public]
+ * @property {string} [entryNames]
+ * @property {string} [chunkNames]
+ * @property {string} [assetNames]
+ * @property {boolean} [clean]
+ * @property {string} [external]
+ * @property {boolean} [map]
+ * @property {string} [jsxFactory]
+ * @property {string} [jsxFragment]
+ * @property {string} [jsxModule]
+ * @property {import('@chialab/rna-config-loader').ExportType} [jsxExport]
+ * @property {string} [metafile]
+ * @property {boolean} [showCompressed]
+ * @property {boolean} [watch]
+ */
+
+/**
  * @param {import('commander').Command} program
  */
 export function command(program) {
@@ -47,12 +75,38 @@ export function command(program) {
         .option('--jsxFragment <identifier>', 'jsx fragment')
         .option('--jsxModule <name>', 'jsx module name')
         .option('--jsxExport <type>', 'jsx export mode')
+        .option('-W, --watch', 'live re-build on sources changes')
         .action(
             /**
              * @param {string[]} input
-             * @param {{ config?: string, output: string, format?: import('@chialab/rna-config-loader').Format, target?: import('@chialab/rna-config-loader').Target, platform: import('@chialab/rna-config-loader').Platform, bundle?: boolean, minify?: boolean, name?: string, manifest?: boolean|string, entrypoints?: boolean|string, public?: string, entryNames?: string, chunkNames?: string, assetNames?: string, clean?: boolean, external?: string, map?: boolean, jsxFactory?: string, jsxFragment?: string, jsxModule?: string, jsxExport?: 'named'|'namespace'|'default', metafile?: string, showCompressed?: boolean }} options
+             * @param {BuildCommandOptions} options
              */
-            async (input, { config: configFile, output, format = 'esm', platform, bundle, minify, name, manifest: manifestFile, entrypoints: entrypointsFile, target, public: publicPath, entryNames, chunkNames, assetNames, clean, external: externalString, map: sourcemap, jsxFactory, jsxFragment, jsxModule, jsxExport, metafile: metafilePath, showCompressed }) => {
+            async (input, {
+                config: configFile,
+                output,
+                format = 'esm',
+                platform,
+                bundle,
+                minify,
+                name,
+                manifest: manifestFile,
+                entrypoints: entrypointsFile,
+                target,
+                public: publicPath,
+                entryNames,
+                chunkNames,
+                assetNames,
+                clean,
+                external: externalString,
+                map: sourcemap,
+                jsxFactory,
+                jsxFragment,
+                jsxModule,
+                jsxExport,
+                metafile: metafilePath,
+                showCompressed,
+                watch,
+            }) => {
                 if (sourcemap === true) {
                     sourcemap = undefined;
                 }
@@ -85,6 +139,7 @@ export function command(program) {
                     jsxFragment,
                     jsxModule,
                     jsxExport,
+                    watch,
                 };
 
                 configFile = configFile || await locateConfigFile();
@@ -142,7 +197,22 @@ export function command(program) {
                     queue.add(async () => {
                         const buildConfig = getEntryBuildConfig(entrypoint, config);
                         const buildDir = buildConfig.root;
-                        const result = await build(buildConfig);
+                        const result = await build({
+                            ...buildConfig,
+                            watch: buildConfig.watch && {
+                                onRebuild(error, result) {
+                                    if (error) {
+                                        logger.error(error);
+                                    } else if (result) {
+                                        if (cwd !== buildDir) {
+                                            result = remapResult(result, buildDir, cwd);
+                                        }
+                                        buildResults[i] = result;
+                                        onBuildEnd(true);
+                                    }
+                                },
+                            },
+                        });
                         if (cwd !== buildDir) {
                             return remapResult(result, buildDir, cwd);
                         }
@@ -152,25 +222,35 @@ export function command(program) {
 
                 const buildResult = createResult();
                 const buildResults = await queue.run(os.cpus().length);
-                buildResults.forEach((result) => assignToResult(buildResult, result));
 
-                const metafile = /** @type {import('esbuild').Metafile} */ (buildResult.metafile);
+                /**
+                 * @param {boolean} [rebuild]
+                 */
+                const onBuildEnd = async (rebuild = false) => {
+                    buildResults.forEach((result) => assignToResult(buildResult, result));
 
-                if (typeof metafilePath === 'string') {
-                    await writeMetafile(metafile, path.resolve(cwd, metafilePath));
-                }
+                    const metafile = /** @type {import('esbuild').Metafile} */ (buildResult.metafile);
 
-                if (Object.keys(metafile.outputs).length) {
-                    const sizes = await bundleSize(metafile, showCompressed);
-                    logger.log('Generated bundle files:\n');
-                    logger.files(sizes, showCompressed ? ['size', 'gzip', 'brotli'] : ['size'], {
-                        size: readableSize,
-                        gzip: readableSize,
-                        brotli: readableSize,
-                    });
-                } else {
-                    logger.log('Empty bundle.');
-                }
+                    if (typeof metafilePath === 'string') {
+                        await writeMetafile(metafile, path.resolve(cwd, metafilePath));
+                    }
+
+                    if (Object.keys(metafile.outputs).length) {
+                        const sizes = await bundleSize(metafile, showCompressed);
+                        if (!rebuild) {
+                            logger.log('Generated bundle files:\n');
+                        }
+                        logger.files(sizes, showCompressed ? ['size', 'gzip', 'brotli'] : ['size'], {
+                            size: readableSize,
+                            gzip: readableSize,
+                            brotli: readableSize,
+                        });
+                    } else {
+                        logger.log('Empty bundle.');
+                    }
+                };
+
+                onBuildEnd();
             }
         );
 }

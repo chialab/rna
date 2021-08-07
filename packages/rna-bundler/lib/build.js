@@ -1,5 +1,6 @@
-import { readFile, rename, rm } from 'fs/promises';
 import path from 'path';
+import { readFile, rename, rm } from 'fs/promises';
+import { createLogger } from '@chialab/rna-logger';
 import { loaders } from './loaders.js';
 import { writeManifestJson } from './writeManifestJson.js';
 import { writeEntrypointsJson } from './writeEntrypointsJson.js';
@@ -9,6 +10,62 @@ import { writeEntrypointsJson } from './writeEntrypointsJson.js';
  */
 
 /**
+ * @param {import('@chialab/rna-config-loader').EntrypointFinalBuildConfig} config
+ * @param {{ stdin?: import('esbuild').StdinOptions; entryPoints?: string[] }} entryOptions
+ * @param {import('esbuild').BuildResult} result
+ */
+async function onBuildEnd(config, entryOptions, result) {
+    const {
+        root,
+        publicPath,
+        format,
+        manifestPath,
+        entrypointsPath,
+    } = config;
+
+    if (manifestPath && result) {
+        writeManifestJson(result, manifestPath, publicPath);
+    }
+    if (entrypointsPath && entryOptions.entryPoints && result) {
+        writeEntrypointsJson(entryOptions.entryPoints, result, root, entrypointsPath, publicPath, format);
+    }
+
+    if (result.metafile) {
+        const outputs = { ...result.metafile.outputs };
+        for (const outputKey in outputs) {
+            const output = outputs[outputKey];
+            if (path.extname(outputKey) !== '.html') {
+                if (output.entryPoint && path.extname(output.entryPoint) === '.html') {
+                    await rm(outputKey);
+                    delete result.metafile.outputs[outputKey];
+                }
+                continue;
+            }
+            for (const inputKey in output.inputs) {
+                if (path.extname(inputKey) !== '.html') {
+                    continue;
+                }
+
+                const newOutputKey = path.join(path.dirname(outputKey), path.basename(inputKey));
+                if (newOutputKey === outputKey) {
+                    continue;
+                }
+
+                await rename(
+                    outputKey,
+                    newOutputKey
+                );
+
+                delete result.metafile.outputs[outputKey];
+                result.metafile.outputs[newOutputKey] = output;
+
+                break;
+            }
+        }
+    }
+}
+
+/**
  * Build and bundle sources.
  * @param {import('@chialab/rna-config-loader').EntrypointFinalBuildConfig} config
  * @return {Promise<BuildResult>} The esbuild bundle result.
@@ -16,6 +73,7 @@ import { writeEntrypointsJson } from './writeEntrypointsJson.js';
 export async function build(config) {
     const { default: esbuild } = await import('esbuild');
     const { default: pkgUp } = await import('pkg-up');
+    const logger = createLogger();
 
     const {
         input,
@@ -23,7 +81,6 @@ export async function build(config) {
         root,
         code,
         loader,
-        publicPath,
         format,
         target,
         platform,
@@ -43,10 +100,9 @@ export async function build(config) {
         jsxExport,
         plugins,
         transformPlugins,
-        manifestPath,
-        entrypointsPath,
         logLevel,
         clean,
+        watch,
     } = config;
 
     const hasOutputFile = !!path.extname(output);
@@ -165,48 +221,22 @@ export async function build(config) {
         plugins: finalPlugins,
         logLevel,
         absWorkingDir: root,
+        watch: watch && {
+            onRebuild(error, result) {
+                if (result) {
+                    onBuildEnd(config, entryOptions, result);
+                }
+                if (typeof watch === 'object' &&
+                    typeof watch.onRebuild === 'function') {
+                    return watch.onRebuild(error, result);
+                } else if (error) {
+                    logger.error(error);
+                }
+            },
+        },
     });
 
-    if (manifestPath && result) {
-        writeManifestJson(result, manifestPath, publicPath);
-    }
-    if (entrypointsPath && result) {
-        writeEntrypointsJson(entryOptions.entryPoints, result, root, entrypointsPath, publicPath, format);
-    }
-
-    if (result.metafile) {
-        const outputs = { ...result.metafile.outputs };
-        for (const outputKey in outputs) {
-            const output = outputs[outputKey];
-            if (path.extname(outputKey) !== '.html') {
-                if (output.entryPoint && path.extname(output.entryPoint) === '.html') {
-                    await rm(outputKey);
-                    delete result.metafile.outputs[outputKey];
-                }
-                continue;
-            }
-            for (const inputKey in output.inputs) {
-                if (path.extname(inputKey) !== '.html') {
-                    continue;
-                }
-
-                const newOutputKey = path.join(path.dirname(outputKey), path.basename(inputKey));
-                if (newOutputKey === outputKey) {
-                    continue;
-                }
-
-                await rename(
-                    outputKey,
-                    newOutputKey
-                );
-
-                delete result.metafile.outputs[outputKey];
-                result.metafile.outputs[newOutputKey] = output;
-
-                break;
-            }
-        }
-    }
+    await onBuildEnd(config, entryOptions, result);
 
     return result;
 }

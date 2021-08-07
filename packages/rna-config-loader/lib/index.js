@@ -67,6 +67,7 @@ import path from 'path';
  * @property {Plugin[]} plugins
  * @property {Plugin[]} transformPlugins
  * @property {LogLevel} logLevel
+ * @property {boolean|import('esbuild').WatchMode} [watch]
  */
 
 /**
@@ -174,6 +175,7 @@ export function getEntryConfig(entrypoint, config) {
             ...(config.transformPlugins || []),
         ],
         logLevel: config.logLevel || 'warning',
+        watch: config.watch,
     };
 }
 

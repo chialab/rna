@@ -106,6 +106,19 @@ export function getParentBuild(build) {
 
 /**
  * @param {import('esbuild').PluginBuild} build
+ */
+export function cleanUp(build) {
+    const options = build.initialOptions;
+    const transformOptions = /** @type {BuildTransformOptions} */ (options).transform;
+    if (!transformOptions) {
+        return null;
+    }
+
+    transformOptions.store.clear();
+}
+
+/**
+ * @param {import('esbuild').PluginBuild} build
  * @param {import('esbuild').Plugin} plugin
  * @param {'start'|'end'} [where]
  */
@@ -200,6 +213,10 @@ export default function(plugins = []) {
                 enumerable: false,
                 writable: false,
                 value: transformData,
+            });
+
+            build.onEnd(() => {
+                cleanUp(build);
             });
 
             for (let i = 0; i < transformPlugins.length; i++) {

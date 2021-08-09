@@ -144,18 +144,24 @@ export async function serve(config) {
 }
 
 /**
+ * @typedef {Object} ServeCommandOptions
+ * @property {number} [port]
+ * @property {string} [config]
+ */
+
+/**
  * @param {import('commander').Command} program
  */
 export function command(program) {
     program
         .command('serve [root]')
         .description('Start a web dev server (https://modern-web.dev/docs/dev-server/overview/) that transforms ESM imports for node resolution on demand. It also uses esbuild (https://esbuild.github.io/) to compile non standard JavaScript syntax.')
-        .option('-P, --port <number>', 'server port number')
+        .option('-P, --port <number>', 'server port number', parseInt)
         .option('-C, --config <path>', 'the rna config file')
         .action(
             /**
              * @param {string} root
-             * @param {{ port?: string, config?: string }} options
+             * @param {ServeCommandOptions} options
              */
             async (root = process.cwd(), { port, config: configFile }) => {
                 configFile = configFile || await locateConfigFile();
@@ -177,7 +183,7 @@ export function command(program) {
                  */
                 const serveConfig = {
                     rootDir: config.root,
-                    port: port ? parseInt(port) : undefined,
+                    port,
                     entrypointsPath: config.entrypointsPath,
                     entrypoints: config.entrypoints,
                     alias: config.alias,

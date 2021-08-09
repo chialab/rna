@@ -154,13 +154,24 @@ export async function test(config) {
 }
 
 /**
+ * @typedef {Object} TestBrowserCommandOptions
+ * @property {number} [port]
+ * @property {boolean} [watch]
+ * @property {number} [concurrency]
+ * @property {boolean} [coverage]
+ * @property {boolean} [manual]
+ * @property {boolean} [open]
+ * @property {string} [config]
+ */
+
+/**
  * @param {import('commander').Command} program
  */
 export function command(program) {
     program
         .command('test:browser [specs...]')
         .description('Start a browser test runner (https://modern-web.dev/docs/test-runner/overview/) based on the web dev server. It uses mocha (https://mochajs.org/) but you still need to import an assertion library (recommended https://open-wc.org/docs/testing/testing-package/).')
-        .option('-P, --port', 'dev server port')
+        .option('-P, --port <number>', 'dev server port', parseInt)
         .option('--watch', 'watch test files')
         .option('--concurrency <number>', 'number of concurrent browsers', parseInt)
         .option('--manual', 'manual test mode')
@@ -170,9 +181,17 @@ export function command(program) {
         .action(
             /**
              * @param {string[]} specs
-             * @param {{ port?: number, watch?: boolean, concurrency?: number, coverage?: boolean, manual?: boolean; open?: boolean, config?: string }} options
+             * @param {TestBrowserCommandOptions} options
              */
-            async (specs, { port, watch, concurrency, coverage, manual, open, config: configFile }) => {
+            async (specs, {
+                port,
+                watch,
+                concurrency,
+                coverage,
+                manual,
+                open,
+                config: configFile,
+            }) => {
                 const root = process.cwd();
                 configFile = configFile || await locateConfigFile();
 

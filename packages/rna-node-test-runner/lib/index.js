@@ -75,6 +75,12 @@ export async function test(config) {
 }
 
 /**
+ * @typedef {Object} TestNodeCommandOptions
+ * @property {boolean} [coverage]
+ * @property {string} [config]
+ */
+
+/**
  * @param {import('commander').Command} program
  */
 export function command(program) {
@@ -86,7 +92,7 @@ export function command(program) {
         .action(
             /**
              * @param {string[]} specs
-             * @param {{ coverage?: boolean, config?: string }} options
+             * @param {TestNodeCommandOptions} options
              */
             async (specs, { coverage, config: configFile }) => {
                 const root = process.cwd();

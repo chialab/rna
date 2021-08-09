@@ -47,6 +47,12 @@ export async function generate(entryPoints, format = 'json', output = undefined)
 }
 
 /**
+ * @typedef {Object} ApidocCommandOptions
+ * @property {string} [output]
+ * @property {'json'|'markdown'} [format]
+ */
+
+/**
  * @param {import('commander').Command} program
  */
 export function command(program) {
@@ -58,7 +64,7 @@ export function command(program) {
         .action(
             /**
              * @param {string[]} files
-             * @param {{ output?: string, format?: 'json'|'markdown' }} options
+             * @param {ApidocCommandOptions} options
              */
             async (files, { format, output }) => {
                 const data = await generate(files, format, output);

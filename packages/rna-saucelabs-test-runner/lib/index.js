@@ -72,13 +72,27 @@ export async function test(config, sauceOptions) {
 }
 
 /**
+ * @typedef {Object} TestSaucelabsCommandOptions
+ * @property {number} [port]
+ * @property {boolean} [watch]
+ * @property {number} [concurrency]
+ * @property {boolean} [coverage]
+ * @property {boolean} [manual]
+ * @property {boolean} [open]
+ * @property {string[]} [browsers]
+ * @property {string} [config]
+ * @property {string} [user]
+ * @property {string} [key]
+ */
+
+/**
  * @param {import('commander').Command} program
  */
 export function command(program) {
     program
         .command('test:saucelabs [specs...]')
         .description('Start a Saucelabs browser test runner (https://modern-web.dev/docs/test-runner/overview/) based on the web dev server. It uses mocha (https://mochajs.org/) but you still need to import an assertion library (recommended https://open-wc.org/docs/testing/testing-package/).')
-        .option('-P, --port', 'dev server port')
+        .option('-P, --port <number>', 'dev server port', parseInt)
         .option('--browsers [browsers...]', 'saucelabs browsers list')
         .option('--watch', 'watch test files')
         .option('--concurrency <number>', 'number of concurrent browsers', parseInt)
@@ -91,9 +105,20 @@ export function command(program) {
         .action(
             /**
              * @param {string[]} specs
-             * @param {{ port?: number, watch?: boolean, concurrency?: number, coverage?: boolean, manual?: boolean; open?: boolean, browsers?: string[], config?: string, user?: string, key?: string }} options
+             * @param {TestSaucelabsCommandOptions} options
              */
-            async (specs, { port, watch, concurrency, coverage, manual, open, browsers, config: configFile, user = process.env.SAUCE_USERNAME, key = process.env.SAUCE_ACCESS_KEY }) => {
+            async (specs, {
+                port,
+                watch,
+                concurrency,
+                coverage,
+                manual,
+                open,
+                browsers,
+                config: configFile,
+                user = process.env.SAUCE_USERNAME,
+                key = process.env.SAUCE_ACCESS_KEY,
+            }) => {
                 if (!user) {
                     throw new Error('Missing saucelabs username. Did you forget to set the `SAUCE_USERNAME` environment variable?');
                 }
@@ -117,7 +142,8 @@ export function command(program) {
                  * @type {import('@chialab/rna-browser-test-runner').TestRunnerConfig}
                  */
                 const testRunnerConfig = {
-                    port,
+                    rootDir: config.root,
+                    port: port || 8765,
                     watch,
                     logger,
                     concurrentBrowsers: concurrency || 2,

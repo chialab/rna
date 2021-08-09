@@ -74,7 +74,9 @@ export default function(options = {}) {
 
                 const finalConfig = {
                     from: filePath,
-                    map: true,
+                    map: {
+                        from: path.basename(filePath),
+                    },
                     ...(config.options || {}),
                     ...options,
                 };

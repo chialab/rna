@@ -1,3 +1,5 @@
+import path from 'path';
+import { writeFile, mkdir } from 'fs/promises';
 import { createLogger } from '@chialab/rna-logger';
 
 /**
@@ -8,13 +10,9 @@ import { createLogger } from '@chialab/rna-logger';
  */
 export async function generate(entryPoints, format = 'json', output = undefined) {
     const [
-        { default: path },
-        { promises: { writeFile, mkdir } },
         { default: TypeDoc },
         { default: markdown },
     ] = await Promise.all([
-        import('path'),
-        import('fs'),
         import('typedoc'),
         import('./renderers/markdown.js'),
     ]);

@@ -1,4 +1,5 @@
 import { readConfigFile, mergeConfig, locateConfigFile } from '@chialab/rna-config-loader';
+import { createLogger } from '@chialab/rna-logger';
 
 /**
  * Start the test runner.
@@ -103,6 +104,8 @@ export function command(program) {
                 const root = process.cwd();
                 configFile = configFile || await locateConfigFile();
 
+                const logger = createLogger();
+
                 /**
                  * @type {import('@chialab/rna-config-loader').Config}
                  */
@@ -116,6 +119,7 @@ export function command(program) {
                 const testRunnerConfig = {
                     port,
                     watch,
+                    logger,
                     concurrentBrowsers: concurrency || 2,
                     coverage,
                     manual: manual || open === true,

@@ -75,15 +75,20 @@ export default function(options = {}) {
                 const finalConfig = {
                     from: filePath,
                     map: {
-                        from: path.basename(filePath),
+                        inline: false,
+                        sourceContents: true,
                     },
                     ...(config.options || {}),
                     ...options,
                 };
                 const result = await postcss(plugins).process(contents, finalConfig);
+                const sourceMap = result.map.toJSON();
+                sourceMap.sources = [path.basename(filePath)];
+                delete sourceMap.file;
+                const url = `data:application/json;base64,${Buffer.from(JSON.stringify(sourceMap)).toString('base64')}`;
 
                 return {
-                    contents: result.css.toString(),
+                    contents: `${result.css.toString()}\n/*# sourceMappingURL=${url} */\n`,
                     loader: 'css',
                 };
             });

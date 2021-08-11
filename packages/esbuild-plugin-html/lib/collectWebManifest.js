@@ -1,5 +1,6 @@
 import { readFile, writeFile, mkdir } from 'fs/promises';
 import path from 'path';
+import { isRelativeUrl } from '@chialab/node-resolve';
 
 /**
  * @param {string} filePath
@@ -30,7 +31,7 @@ export function collectWebManifest($, dom, base, outdir) {
     const iconElement = dom.find('link[rel*="icon"]');
     const element = dom.find('link[rel="manifest"]');
     const href = /** @type {string} */($(element).attr('href'));
-    if (!href) {
+    if (!isRelativeUrl(href)) {
         return [];
     }
 

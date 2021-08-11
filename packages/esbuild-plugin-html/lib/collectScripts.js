@@ -1,4 +1,5 @@
 import path from 'path';
+import { isRelativeUrl } from '@chialab/node-resolve';
 
 /**
  * Collect and bundle each <script> reference.
@@ -13,7 +14,7 @@ export function collectScripts($, dom, base, outdir, targets = { scriptsTarget: 
     return [
         ...dom.find('script[src][type="module"]')
             .get()
-            .filter((element) => $(element).attr('src'))
+            .filter((element) => isRelativeUrl($(element).attr('src')))
             .map((element) => ({
                 options: {
                     entryPoints: [
@@ -64,7 +65,7 @@ export function collectScripts($, dom, base, outdir, targets = { scriptsTarget: 
             }),
         ...dom.find('script[src]:not([type]), script[src][type="text/javascript"], script[src][type="application/javascript"]')
             .get()
-            .filter((element) => $(element).attr('src'))
+            .filter((element) => isRelativeUrl($(element).attr('src')))
             .map((element) => ({
                 options: {
                     entryPoints: [

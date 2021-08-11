@@ -30,7 +30,7 @@ export default function({ scriptsTarget = 'es2015', modulesTarget = 'es2020' } =
             const { stdin, sourceRoot, absWorkingDir } = options;
             const rootDir = sourceRoot || absWorkingDir || process.cwd();
             const input = stdin ? stdin.sourcefile : undefined;
-            const fullInput = input && path.resolve(sourceRoot || process.cwd(), input);
+            const fullInput = input && path.resolve(rootDir, input);
 
             /**
              * @type {import('esbuild').BuildResult}

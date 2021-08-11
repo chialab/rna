@@ -161,6 +161,14 @@ export function isUrl(url) {
 }
 
 /**
+ * Check if the given source is a relative url.
+ * @param {string|undefined} url The source to check.
+ */
+export function isRelativeUrl(url) {
+    return !!url && !isUrl(url) && !path.isAbsolute(url);
+}
+
+/**
  * Extract search params from a url.
  * @param {string} source The source url.
  */

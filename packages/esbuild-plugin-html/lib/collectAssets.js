@@ -1,4 +1,5 @@
 import path from 'path';
+import { isRelativeUrl } from '@chialab/node-resolve';
 
 /**
  * Collect and bundle each node with a src reference.
@@ -14,7 +15,7 @@ export function collectAssets($, dom, base, outdir, options) {
         ...dom
             .find('[src]:not(script)')
             .get()
-            .filter((element) => $(element).attr('src'))
+            .filter((element) => isRelativeUrl($(element).attr('src')))
             .map((element) => ({
                 loader: /** @type {import('esbuild').Loader} */ ('file'),
                 options: {
@@ -35,7 +36,7 @@ export function collectAssets($, dom, base, outdir, options) {
         ...dom
             .find('link[href]:not([rel="stylesheet"]):not([rel="manifest"]):not([rel*="icon"]), a[download][href], iframe[href]')
             .get()
-            .filter((element) => $(element).attr('href'))
+            .filter((element) => isRelativeUrl($(element).attr('href')))
             .map((element) => ({
                 loader: /** @type {import('esbuild').Loader} */ ('file'),
                 options: {

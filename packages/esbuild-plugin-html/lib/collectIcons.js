@@ -1,5 +1,6 @@
 import { mkdir } from 'fs/promises';
 import path from 'path';
+import { isRelativeUrl } from '@chialab/node-resolve';
 
 const FAVICONS = [
     {
@@ -157,7 +158,7 @@ async function generateAppleLaunchScreens(image, outputDir, launchScreens) {
 export function collectIcons($, dom, base, outdir) {
     const iconElement = dom.find('link[rel*="icon"]');
     const iconHref = iconElement.attr('href') || '';
-    if (!iconHref) {
+    if (!isRelativeUrl(iconHref)) {
         return [];
     }
 

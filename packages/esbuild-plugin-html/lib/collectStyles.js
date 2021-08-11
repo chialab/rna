@@ -1,4 +1,5 @@
 import path from 'path';
+import { isRelativeUrl } from '@chialab/node-resolve';
 
 /**
  * Collect and bundle each <link> reference.
@@ -14,7 +15,7 @@ export function collectStyles($, dom, base, outdir, options) {
         ...dom
             .find('link[href][rel="stylesheet"]')
             .get()
-            .filter((element) => $(element).attr('href'))
+            .filter((element) => isRelativeUrl($(element).attr('href')))
             .map((element) => ({
                 loader: /** @type {import('esbuild').Loader} */ ('css'),
                 options: {

@@ -1,4 +1,5 @@
-import path from 'path';
+import path from "path";
+import { collect } from "./collect.js";
 
 /**
  * Collect and bundle each <link> reference.
@@ -11,51 +12,58 @@ import path from 'path';
  */
 export function collectStyles($, dom, base, outdir, options) {
     return [
-        ...dom
-            .find('link[href][rel="stylesheet"]')
-            .get()
-            .filter((element) => $(element).attr('href'))
-            .map((element) => ({
-                loader: /** @type {import('esbuild').Loader} */ ('css'),
+        ...collect($, dom, 'link[href][rel="stylesheet"]', "href").map(
+            (element) => ({
+                loader: /** @type {import('esbuild').Loader} */ ("css"),
                 options: {
                     entryPoints: [
-                        path.resolve(base, /** @type {string} */ ($(element).attr('href'))),
+                        path.resolve(
+                            base,
+                            /** @type {string} */ ($(element).attr("href"))
+                        ),
                     ],
-                    entryNames: `css/${options.entryNames || '[name]'}`,
-                    chunkNames: `css/${options.chunkNames || '[name]'}`,
-                    assetNames: `css/assets/${options.assetNames || '[name]'}`,
+                    entryNames: `css/${options.entryNames || "[name]"}`,
+                    chunkNames: `css/${options.chunkNames || "[name]"}`,
+                    assetNames: `css/assets/${options.assetNames || "[name]"}`,
                 },
                 /**
                  * @param {string} filePath
                  */
                 finisher(filePath) {
-                    $(element).attr('href', path.relative(outdir, filePath));
+                    $(element).attr("href", path.relative(outdir, filePath));
                 },
-            })),
+            })
+        ),
         ...dom
-            .find('style')
+            .find("style")
             .get()
             .map((element) => {
                 const code = /** @type {string} */ ($(element).html());
                 return {
-                    loader: /** @type {import('esbuild').Loader} */ ('css'),
+                    loader: /** @type {import('esbuild').Loader} */ ("css"),
                     options: {
                         entryPoints: undefined,
                         stdin: {
                             contents: code,
-                            loader: /** @type {import('esbuild').Loader} */ ('css'),
+                            loader: /** @type {import('esbuild').Loader} */ (
+                                "css"
+                            ),
                             resolveDir: base,
-                            sourcefile: path.join(base, 'inline.css'),
+                            sourcefile: path.join(base, "inline.css"),
                         },
-                        entryNames: `css/${options.entryNames || '[name]'}`,
-                        chunkNames: `css/${options.chunkNames || '[name]'}`,
-                        assetNames: `css/assets/${options.assetNames || '[name]'}`,
+                        entryNames: `css/${options.entryNames || "[name]"}`,
+                        chunkNames: `css/${options.chunkNames || "[name]"}`,
+                        assetNames: `css/assets/${
+                            options.assetNames || "[name]"
+                        }`,
                     },
                     /**
                      * @param {string} filePath
                      */
                     finisher(filePath) {
-                        $(element).text(`@import url('${path.relative(outdir, filePath)}');`);
+                        $(element).text(
+                            `@import url('${path.relative(outdir, filePath)}');`
+                        );
                     },
                 };
             }),

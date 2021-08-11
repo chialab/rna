@@ -70,7 +70,10 @@ export async function transform(config) {
         sourcemap,
         minify,
         format,
-        define,
+        define: {
+            this: platform === 'browser' ? 'window' : 'undefined',
+            ...define,
+        },
         jsxFactory,
         jsxFragment,
         loader: transformLoaders,

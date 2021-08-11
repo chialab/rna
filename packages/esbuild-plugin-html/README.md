@@ -136,27 +136,6 @@ The target of the plain scripts build (`type="text/javascript"`).
 
 The target of the ES modules build (`type="module"`).
 
-#### `entryNames`, `chunkNames` and `assetNames`
-
-Configure the hashing strategy for output references.
-
-Since esbuild will save the html entrypoints using the file loader, the following setup is recommended in order to prevent hashing for `index.html`:
-
-```js
-esbuild.build({
-    entryNames: '[name]',
-    chunkNames: '[name]',
-    assetNames: '[name]',
-    plugins: [
-        htmlPlugin({
-            entryNames: '[name]-[hash]',
-            chunkNames: '[name]-[hash]',
-            assetNames: '[name]-[hash]',
-        }),
-    ],
-});
-```
-
 ---
 
 ## License

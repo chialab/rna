@@ -29,40 +29,6 @@ async function onBuildEnd(config, entryOptions, result) {
     if (entrypointsPath && entryOptions.entryPoints && result) {
         writeEntrypointsJson(entryOptions.entryPoints, result, root, entrypointsPath, publicPath, format);
     }
-
-    if (result.metafile) {
-        const outputs = { ...result.metafile.outputs };
-        for (const outputKey in outputs) {
-            const output = outputs[outputKey];
-            if (path.extname(outputKey) !== '.html') {
-                if (output.entryPoint && path.extname(output.entryPoint) === '.html') {
-                    await rm(outputKey);
-                    delete result.metafile.outputs[outputKey];
-                }
-                continue;
-            }
-            for (const inputKey in output.inputs) {
-                if (path.extname(inputKey) !== '.html') {
-                    continue;
-                }
-
-                const newOutputKey = path.join(path.dirname(outputKey), path.basename(inputKey));
-                if (newOutputKey === outputKey) {
-                    continue;
-                }
-
-                await rename(
-                    outputKey,
-                    newOutputKey
-                );
-
-                delete result.metafile.outputs[outputKey];
-                result.metafile.outputs[newOutputKey] = output;
-
-                break;
-            }
-        }
-    }
 }
 
 /**

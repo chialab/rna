@@ -1,5 +1,5 @@
 import path from 'path';
-import { readFile } from 'fs/promises';
+import { readFile, rename, rm } from 'fs/promises';
 import * as cheerio from 'cheerio';
 import { createResult, assignToResult, getMainOutput, esbuildFile } from '@chialab/esbuild-helpers';
 
@@ -33,9 +33,6 @@ const load = /** @type {typeof cheerio.load} */ (cheerio.load || cheerio.default
 export default function({
     scriptsTarget = 'es2015',
     modulesTarget = 'es2020',
-    entryNames,
-    chunkNames,
-    assetNames,
 } = {}, esbuildModule) {
     /**
      * @type {import('esbuild').Plugin}
@@ -44,6 +41,8 @@ export default function({
         name: 'html',
         setup(build) {
             const options = build.initialOptions;
+            // force metafile in order to collect output data.
+            options.metafile = options.write !== false;
             const { stdin, sourceRoot, absWorkingDir } = options;
             const rootDir = sourceRoot || absWorkingDir || process.cwd();
             const input = stdin ? stdin.sourcefile : undefined;
@@ -58,7 +57,45 @@ export default function({
                 collectedResult = createResult();
             });
 
-            build.onEnd((result) => {
+            build.onEnd(async (result) => {
+                if (result.metafile && options.write !== false) {
+                    const outputs = { ...result.metafile.outputs };
+                    for (const outputKey in outputs) {
+                        const output = outputs[outputKey];
+                        if (path.extname(outputKey) !== '.html') {
+                            if (output.entryPoint && path.extname(output.entryPoint) === '.html') {
+                                await rm(outputKey);
+                                try {
+                                    await rm(`${outputKey}.map`);
+                                } catch(err) {
+                                    //
+                                }
+                                delete result.metafile.outputs[outputKey];
+                            }
+                            continue;
+                        }
+                        for (const inputKey in output.inputs) {
+                            if (path.extname(inputKey) !== '.html') {
+                                continue;
+                            }
+
+                            const newOutputKey = path.join(path.dirname(outputKey), path.basename(inputKey));
+                            if (newOutputKey === outputKey) {
+                                continue;
+                            }
+
+                            await rename(
+                                outputKey,
+                                newOutputKey
+                            );
+
+                            delete result.metafile.outputs[outputKey];
+                            result.metafile.outputs[newOutputKey] = output;
+
+                            break;
+                        }
+                    }
+                }
                 assignToResult(result, collectedResult);
             });
 
@@ -84,19 +121,13 @@ export default function({
                 const outdir = /** @type {string} */ (options.outdir || (options.outfile && path.dirname(options.outfile)));
                 const $ = load(contents);
                 const root = $.root();
-                const childOptions = {
-                    ...options,
-                    entryNames: entryNames || options.entryNames,
-                    chunkNames: chunkNames || options.chunkNames,
-                    assetNames: assetNames || options.assetNames,
-                };
 
                 const builds = /** @type {Build[]} */ ([
                     ...collectIcons($, root, basePath, outdir),
                     ...collectWebManifest($, root, basePath, outdir),
-                    ...collectStyles($, root, basePath, outdir, childOptions),
-                    ...collectScripts($, root, basePath, outdir, { scriptsTarget, modulesTarget }, childOptions),
-                    ...collectAssets($, root, basePath, outdir, childOptions),
+                    ...collectStyles($, root, basePath, outdir, options),
+                    ...collectScripts($, root, basePath, outdir, { scriptsTarget, modulesTarget }, options),
+                    ...collectAssets($, root, basePath, outdir, options),
                 ]);
 
                 for (let i = 0; i < builds.length; i++) {

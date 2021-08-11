@@ -106,19 +106,23 @@ export default function(config) {
 
         serve(context) {
             if (isFileRequest(context.url)) {
-                if (!context.body) {
-                    const { rootDir } = serverConfig;
-                    const { path: pathname, searchParams } = getSearchParams(context.url);
-                    const filePath = resolveRelativeImport(getRequestFilePath(pathname, rootDir), context.url, rootDir);
-                    context.body = convertFileToJsModule(`${filePath}?${searchParams.toString()}`);
-                    context.headers['content-type'] = 'text/javascript';
-                    return;
-                }
+                const { rootDir } = serverConfig;
+                const { path: pathname, searchParams } = getSearchParams(context.url);
+                const filePath = resolveRelativeImport(getRequestFilePath(pathname, rootDir), context.url, rootDir);
+                return {
+                    body: convertFileToJsModule(`${filePath}?${searchParams.toString()}`),
+                    headers: {
+                        'content-type': 'text/javascript',
+                    },
+                };
             }
             if (isCssModuleRequest(context.url)) {
-                context.body = convertCssToJsModule(context.url);
-                context.headers['content-type'] = 'text/javascript';
-                return;
+                return {
+                    body: convertCssToJsModule(context.url),
+                    headers: {
+                        'content-type': 'text/javascript',
+                    },
+                };
             }
         },
 

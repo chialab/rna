@@ -1,6 +1,12 @@
 import path from 'path';
 import { readFile } from 'fs/promises';
+import * as cheerio from 'cheerio';
 import { createResult, assignToResult, getMainOutput, esbuildFile } from '@chialab/esbuild-helpers';
+
+/**
+ * Cheerio esm support is unstable for some Node versions.
+ */
+const load = /** @type {typeof cheerio.load} */ (cheerio.load || cheerio.default?.load);
 
 /**
  * @typedef {Object} Build
@@ -10,7 +16,12 @@ import { createResult, assignToResult, getMainOutput, esbuildFile } from '@chial
  */
 
 /**
- * @typedef {{ scriptsTarget?: string, modulesTarget?: string }} PluginOptions
+ * @typedef {Object} PluginOptions
+ * @property {import('@chialab/rna-config-loader').Target} [scriptsTarget]
+ * @property {import('@chialab/rna-config-loader').Target} [modulesTarget]
+ * @property {string} [entryNames]
+ * @property {string} [chunkNames]
+ * @property {string} [assetNames]
  */
 
 /**
@@ -19,7 +30,13 @@ import { createResult, assignToResult, getMainOutput, esbuildFile } from '@chial
  * @param {typeof import('esbuild')} [esbuildModule]
  * @return An esbuild plugin.
  */
-export default function({ scriptsTarget = 'es2015', modulesTarget = 'es2020' } = {}, esbuildModule) {
+export default function({
+    scriptsTarget = 'es2015',
+    modulesTarget = 'es2020',
+    entryNames,
+    chunkNames,
+    assetNames,
+} = {}, esbuildModule) {
     /**
      * @type {import('esbuild').Plugin}
      */
@@ -47,7 +64,6 @@ export default function({ scriptsTarget = 'es2015', modulesTarget = 'es2020' } =
 
             build.onLoad({ filter: /\.html$/ }, async ({ path: filePath }) => {
                 const [
-                    cheerio,
                     { collectStyles },
                     { collectScripts },
                     { collectAssets },
@@ -55,7 +71,6 @@ export default function({ scriptsTarget = 'es2015', modulesTarget = 'es2020' } =
                     { collectIcons },
                     esbuild,
                 ] = await Promise.all([
-                    import('cheerio'),
                     import('./collectStyles.js'),
                     import('./collectScripts.js'),
                     import('./collectAssets.js'),
@@ -64,23 +79,24 @@ export default function({ scriptsTarget = 'es2015', modulesTarget = 'es2020' } =
                     esbuildModule || import('esbuild'),
                 ]);
 
-                /**
-                 * Cheerio esm support is unstable for some Node versions.
-                 */
-                const load = /** @type {typeof cheerio.load} */ (cheerio.load || cheerio.default?.load);
-
                 const contents = filePath === fullInput && stdin ? stdin.contents : await readFile(filePath, 'utf-8');
                 const basePath = path.dirname(filePath);
                 const outdir = /** @type {string} */ (options.outdir || (options.outfile && path.dirname(options.outfile)));
                 const $ = load(contents);
                 const root = $.root();
+                const childOptions = {
+                    ...options,
+                    entryNames: entryNames || options.entryNames,
+                    chunkNames: chunkNames || options.chunkNames,
+                    assetNames: assetNames || options.assetNames,
+                };
 
                 const builds = /** @type {Build[]} */ ([
                     ...collectIcons($, root, basePath, outdir),
                     ...collectWebManifest($, root, basePath, outdir),
-                    ...collectStyles($, root, basePath, outdir, options),
-                    ...collectScripts($, root, basePath, outdir, { scriptsTarget, modulesTarget }, options),
-                    ...collectAssets($, root, basePath, outdir, options),
+                    ...collectStyles($, root, basePath, outdir, childOptions),
+                    ...collectScripts($, root, basePath, outdir, { scriptsTarget, modulesTarget }, childOptions),
+                    ...collectAssets($, root, basePath, outdir, childOptions),
                 ]);
 
                 for (let i = 0; i < builds.length; i++) {

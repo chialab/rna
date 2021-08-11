@@ -117,7 +117,6 @@ import htmlPlugin from '@chialab/esbuild-plugin-html';
 await esbuild.build({
     plugins: [
         htmlPlugin({
-            // esbuild: esbuild,
             // scriptsTarget: 'es6',
             // modulesTarget: 'es2020',
         }),
@@ -129,9 +128,34 @@ await esbuild.build({
 
 The HTML plugin accepts an options object with the following properties:
 
-#### `esbuild`
+#### `scriptsTarget`
 
-The esbuild instance module to use
+The target of the plain scripts build (`type="text/javascript"`).
+
+#### `modulesTarget`
+
+The target of the ES modules build (`type="module"`).
+
+#### `entryNames`, `chunkNames` and `assetNames`
+
+Configure the hashing strategy for output references.
+
+Since esbuild will save the html entrypoints using the file loader, the following setup is recommended in order to prevent hashing for `index.html`:
+
+```js
+esbuild.build({
+    entryNames: '[name]',
+    chunkNames: '[name]',
+    assetNames: '[name]',
+    plugins: [
+        htmlPlugin({
+            entryNames: '[name]-[hash]',
+            chunkNames: '[name]-[hash]',
+            assetNames: '[name]-[hash]',
+        }),
+    ],
+});
+```
 
 ---
 

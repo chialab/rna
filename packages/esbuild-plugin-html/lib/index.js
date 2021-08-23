@@ -9,6 +9,23 @@ import { createResult, assignToResult, getMainOutput, esbuildFile } from '@chial
 const load = /** @type {typeof cheerio.load} */ (cheerio.load || cheerio.default?.load);
 
 /**
+ * Get the common dir of source files.
+ * @param {string[]} files
+ * @return The common dir.
+ */
+function commonDir(files) {
+    const res = files.slice(1).reduce((commonDir, file) => {
+        const xs = file.split(path.sep);
+        let i;
+        for (i = 0; commonDir[i] === xs[i] && i < Math.min(commonDir.length, xs.length); i++);
+        return commonDir.slice(0, i);
+    }, files[0].split(path.sep));
+
+    // Windows correctly handles paths with forward-slashes
+    return res.length > 1 ? res.join(path.sep) : path.sep;
+}
+
+/**
  * @typedef {Object} Build
  * @property {import('esbuild').Loader} [loader] The loader to use.
  * @property {Partial<import('esbuild').BuildOptions>} options The file name of the referenced file.
@@ -43,8 +60,12 @@ export default function({
             const options = build.initialOptions;
             // force metafile in order to collect output data.
             options.metafile = options.write !== false;
-            const { stdin, sourceRoot, absWorkingDir } = options;
+            options.assetNames = '[dir]/[name]';
+            const { entryPoints = [], stdin, sourceRoot, absWorkingDir, assetNames, outdir, outfile } = options;
             const rootDir = sourceRoot || absWorkingDir || process.cwd();
+            const outDir = /** @type {string} */(outdir || (outfile && path.dirname(outfile)));
+            const sourceFiles = Array.isArray(entryPoints) ? entryPoints : Object.values(entryPoints);
+            const sourceDir = commonDir(sourceFiles.map((file) => path.resolve(rootDir, file)));
             const input = stdin ? stdin.sourcefile : undefined;
             const fullInput = input && path.resolve(rootDir, input);
 
@@ -118,16 +139,17 @@ export default function({
 
                 const contents = filePath === fullInput && stdin ? stdin.contents : await readFile(filePath, 'utf-8');
                 const basePath = path.dirname(filePath);
-                const outdir = /** @type {string} */ (options.outdir || (options.outfile && path.dirname(options.outfile)));
+                const relativePath = `./${path.relative(sourceDir, basePath)}`;
+                const relativeOutDir = path.resolve(outDir, relativePath);
                 const $ = load(contents);
                 const root = $.root();
 
                 const builds = /** @type {Build[]} */ ([
-                    ...collectIcons($, root, basePath, outdir),
-                    ...collectWebManifest($, root, basePath, outdir),
-                    ...collectStyles($, root, basePath, outdir, options),
-                    ...collectScripts($, root, basePath, outdir, { scriptsTarget, modulesTarget }, options),
-                    ...collectAssets($, root, basePath, outdir, options),
+                    ...collectIcons($, root, basePath, relativeOutDir),
+                    ...collectWebManifest($, root, basePath, relativeOutDir),
+                    ...collectStyles($, root, basePath, relativeOutDir, options),
+                    ...collectScripts($, root, basePath, relativeOutDir, { scriptsTarget, modulesTarget }, options),
+                    ...collectAssets($, root, basePath, relativeOutDir, options),
                 ]);
 
                 for (let i = 0; i < builds.length; i++) {
@@ -146,6 +168,7 @@ export default function({
 
                         const { result, outputFile } = await esbuildFile(file, {
                             ...options,
+                            assetNames,
                             ...build.options,
                         });
 
@@ -160,7 +183,7 @@ export default function({
                     const config = {
                         ...options,
                         outfile: undefined,
-                        outdir,
+                        outdir: relativeOutDir,
                         metafile: true,
                         external: [],
                         ...build.options,

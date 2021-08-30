@@ -14,11 +14,17 @@ const load = /** @type {typeof cheerio.load} */ (cheerio.load || cheerio.default
  * @return The common dir.
  */
 function commonDir(files) {
-    const res = files.slice(1).reduce((commonDir, file) => {
+    if (files.length === 0) {
+        return path.sep;
+    }
+    if (files.length === 1) {
+        return path.dirname(files[0]);
+    }
+    const res = files.slice(1).reduce((dir, file) => {
         const xs = file.split(path.sep);
         let i;
-        for (i = 0; commonDir[i] === xs[i] && i < Math.min(commonDir.length, xs.length); i++);
-        return commonDir.slice(0, i);
+        for (i = 0; dir[i] === xs[i] && i < Math.min(dir.length, xs.length); i++);
+        return dir.slice(0, i);
     }, files[0].split(path.sep));
 
     // Windows correctly handles paths with forward-slashes

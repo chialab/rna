@@ -202,7 +202,10 @@ export function servePlugin({ type, stories: storiesPattern, static: staticFiles
 
             if (context.path.endsWith('.mdx')) {
                 const body = await readFile(filePath, 'utf-8');
-                context.body = (await transformMdxToCsf(body, filePath)).code;
+                const { code } = await transformMdxToCsf(body, filePath);
+                return {
+                    body: code,
+                };
             }
 
             if (fileName in staticFiles) {

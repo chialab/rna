@@ -224,7 +224,7 @@ var __umdKeys = Object.keys(__umdGlobal);
 }).call(__umdGlobal, __umdGlobal, __umdGlobal, __umdGlobal, __umdGlobal, undefined, undefined);
 
 var __newUmdKeys = Object.keys(__umdGlobal).slice(__umdKeys.length);
-export default (__newUmdKeys.length ? __umdGlobal[__newUmdKeys[0]] : undefined);`);
+export default (__newUmdKeys.length ? __umdGlobal[__newUmdKeys[__newUmdKeys.length - 1]] : undefined);`);
 
             // replace the usage of `this` as global object because is not supported in esm
             let thisMatch = THIS_PARAM.exec(code);

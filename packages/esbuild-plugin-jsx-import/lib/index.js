@@ -19,7 +19,7 @@ export default function(opts = {}) {
             const options = build.initialOptions;
             const { jsxFactory, jsxFragment } = options;
 
-            if (!jsxFactory || !opts || !opts.jsxModule) {
+            if (!jsxFactory || !opts || !opts.jsxModule || (options.format === 'iife' && !options.bundle)) {
                 return;
             }
 

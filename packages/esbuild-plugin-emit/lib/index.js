@@ -54,7 +54,8 @@ export function emitFileOrChunk(build, source) {
 
     const loaders = build.initialOptions.loader || {};
     const loader = loaders[path.extname(source)] || 'file';
-    if (loader !== 'file') {
+    if (loader !== 'file' &&
+        loader !== 'json') {
         return emitChunk(source);
     }
     return emitFile(source);

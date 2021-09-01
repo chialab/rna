@@ -20,8 +20,10 @@ const EMIT_CHUNK_REGEX = /(\?|&)emit=chunk/;
 
 /**
  * @typedef {Object} EmitTransformOptions
- * @property {import('esbuild').Format} [format]
  * @property {boolean} [bundle]
+ * @property {import('esbuild').Format} [format]
+ * @property {import('esbuild').Plugin[]} [plugins]
+ * @property {string[]} [inject]
  */
 
 /**

@@ -118,6 +118,9 @@ export default function({ resolve = defaultResolve, constructors = ['Worker', 'S
                             ) {
                                 transformOptions.format = 'esm';
                                 transformOptions.bundle = false;
+                            } else {
+                                transformOptions.inject = [];
+                                transformOptions.plugins = [];
                             }
 
                             promises.push(Promise.resolve().then(async () => {

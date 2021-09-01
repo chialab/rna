@@ -95,11 +95,33 @@ export default function({ resolve = defaultResolve, constructors = ['Worker', 'S
                                 return;
                             }
 
+                            /**
+                             * @type {import('@chialab/esbuild-plugin-emit').EmitTransformOptions}
+                             */
+                            const transformOptions = {
+                                format: 'iife',
+                                bundle: true,
+                            };
+                            const options = node.arguments[1];
+                            if (options.type === 'ObjectExpression' &&
+                                options.properties &&
+                                options.properties.some(
+                                    /**
+                                     * @param {*} prop
+                                     */
+                                    (prop) =>
+                                        prop.type === 'Property' &&
+                                        prop.key?.name === 'type' &&
+                                        prop.value?.value === 'module'
+                                )
+                            ) {
+                                transformOptions.format = 'esm';
+                                transformOptions.bundle = false;
+                            }
+
                             promises.push(Promise.resolve().then(async () => {
                                 const resolvedPath = await resolve(value, args.path);
-                                const entryPoint = emitChunk(resolvedPath, {
-                                    format: 'iife',
-                                });
+                                const entryPoint = emitChunk(resolvedPath, transformOptions);
                                 const startOffset = getOffsetFromLocation(code, node.loc.start);
                                 const endOffset = getOffsetFromLocation(code, node.loc.end);
                                 magicCode.overwrite(startOffset, endOffset, `new ${Ctr}(new URL('${entryPoint}', import.meta.url).href)`);

@@ -1,5 +1,5 @@
 import path from 'path';
-import { readFile, rename, rm } from 'fs/promises';
+import { readFile, rm } from 'fs/promises';
 import { createLogger } from '@chialab/rna-logger';
 import { loaders } from './loaders.js';
 import { writeManifestJson } from './writeManifestJson.js';

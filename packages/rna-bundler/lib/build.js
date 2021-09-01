@@ -24,10 +24,10 @@ async function onBuildEnd(config, entryOptions, result) {
     } = config;
 
     if (manifestPath && result) {
-        writeManifestJson(result, manifestPath, publicPath);
+        await writeManifestJson(result, manifestPath, publicPath);
     }
     if (entrypointsPath && entryOptions.entryPoints && result) {
-        writeEntrypointsJson(entryOptions.entryPoints, result, root, entrypointsPath, publicPath, format);
+        await writeEntrypointsJson(entryOptions.entryPoints, result, root, entrypointsPath, publicPath, format);
     }
 }
 

@@ -40,7 +40,10 @@ export async function writeEntrypointsJson(entrypoints, result, rootDir, outputF
             js: [],
             css: [],
         };
-        const outputFile = path.join(publicPath, path.relative(outputDir, outputsByEntrypoint[entrypoint]));
+        const outputFile = path.join(
+            publicPath,
+            path.relative(outputDir, outputsByEntrypoint[path.resolve(rootDir, entrypoint)])
+        );
 
         switch (loader) {
             case 'css': {

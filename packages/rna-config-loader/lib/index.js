@@ -176,6 +176,8 @@ export function getEntryConfig(entrypoint, config) {
         ],
         logLevel: config.logLevel || 'warning',
         watch: config.watch,
+        entrypointsPath: config.entrypointsPath,
+        manifestPath: config.manifestPath,
     };
 }
 

@@ -1,7 +1,7 @@
 {
   "name": "@chialab/wds-plugin-legacy",
   "type": "module",
-  "version": "0.11.13",
+  "version": "0.11.24",
   "description": "Transform esm modules served by the web dev server into SystemJS modules for legacy browser compatibility.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",

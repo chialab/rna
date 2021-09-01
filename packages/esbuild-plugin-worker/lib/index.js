@@ -103,7 +103,8 @@ export default function({ resolve = defaultResolve, constructors = ['Worker', 'S
                                 bundle: true,
                             };
                             const options = node.arguments[1];
-                            if (options.type === 'ObjectExpression' &&
+                            if (options &&
+                                options.type === 'ObjectExpression' &&
                                 options.properties &&
                                 options.properties.some(
                                     /**

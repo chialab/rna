@@ -42,8 +42,8 @@ export function legacyPlugin(config = {}) {
                     body: /** @type {string} */ (inlineScripts.get(context.path)),
                 };
             }
-            if (context.path === '/system.js' ||
-                context.path === '/regenerator-runtime.js') {
+            if (context.path === '/__wds-helpers__/system.js' ||
+                context.path === '/__wds-helpers__/regenerator-runtime.js') {
                 return { body: '' };
             }
         },
@@ -53,11 +53,11 @@ export function legacyPlugin(config = {}) {
             if (checkEsmSupport(ua)) {
                 return;
             }
-            if (context.path === '/regenerator-runtime.js') {
+            if (context.path === '/__wds-helpers__/regenerator-runtime.js') {
                 context.body = await readFile(regeneratorUrl);
                 return;
             }
-            if (context.path === '/system.js') {
+            if (context.path === '/__wds-helpers__/system.js') {
                 context.body = await readFile(systemUrl);
                 return;
             }
@@ -98,8 +98,8 @@ export function legacyPlugin(config = {}) {
 
                 const head = root.find('head') || root.find('body');
                 head.prepend('<script>(function() { var p = Promise.resolve(); window.import = function(source) { return p = p.then(function() { return System.import(source) }); }}());</script>');
-                head.prepend('<script src="/system.js"></script>');
-                head.prepend('<script src="/regenerator-runtime.js"></script>');
+                head.prepend('<script src="/__wds-helpers__/system.js"></script>');
+                head.prepend('<script src="/__wds-helpers__/regenerator-runtime.js"></script>');
 
                 context.body = $.html();
             }

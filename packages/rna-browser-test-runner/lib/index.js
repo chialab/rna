@@ -83,6 +83,7 @@ export async function startTestRunner(config) {
                 '**/node_modules/**/*',
                 '**/web_modules/**/*',
                 '**/__wds-outside-root__/**',
+                '**/__wds-helpers__/**',
             ],
             threshold: { statements: 0, functions: 0, branches: 0, lines: 0 },
             report: true,

@@ -201,7 +201,12 @@ export function createTransform({ ignore = () => false }) {
             await specPromise;
         }
 
-        if (isUmd) {
+        const { exports, reexports } = await parseCommonjs(code);
+        const named = exports.filter((entry) => entry !== '__esModule' && entry !== 'default');
+        const isEsModule = exports.includes('__esModule');
+        const hasDefault = exports.includes('default');
+
+        if (isUmd && !isEsModule) {
             let endDefinition = code.indexOf('\'use strict\';');
             if (endDefinition === -1) {
                 endDefinition = code.indexOf('"use strict";');
@@ -224,7 +229,7 @@ var __umdKeys = Object.keys(__umdGlobal);
 }).call(__umdGlobal, __umdGlobal, __umdGlobal, __umdGlobal, __umdGlobal, undefined, undefined);
 
 var __newUmdKeys = Object.keys(__umdGlobal).slice(__umdKeys.length);
-export default (__newUmdKeys.length ? __umdGlobal[__newUmdKeys[__newUmdKeys.length - 1]] : undefined);`);
+export default (__newUmdKeys.length ? __umdGlobal[__newUmdKeys[0]] : undefined);`);
 
             // replace the usage of `this` as global object because is not supported in esm
             let thisMatch = THIS_PARAM.exec(code);
@@ -245,10 +250,6 @@ var module = {
 };
 `);
 
-            const { exports, reexports } = await parseCommonjs(code);
-            const named = exports.filter((entry) => entry !== '__esModule' && entry !== 'default');
-            const isEsModule = exports.includes('__esModule');
-            const hasDefault = exports.includes('default');
             if (named.length) {
                 const conditions = ['Object.isExtensible(module.exports)'];
                 if (named.length === 1 && !hasDefault && !isEsModule) {

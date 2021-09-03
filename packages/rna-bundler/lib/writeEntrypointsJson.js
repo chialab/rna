@@ -1,6 +1,44 @@
-import { mkdir, writeFile } from 'fs/promises';
 import path from 'path';
+import { rm, mkdir, writeFile } from 'fs/promises';
 import { loaders } from './loaders.js';
+
+/**
+ * @typedef {(entrypoint: string) => string} EntrypointResolveCallback
+ */
+
+/**
+ * Map build entrypoints to entrypoints.json
+ * @param {string[]} entrypoints The build entrypoints.
+ * @param {EntrypointResolveCallback} resolve The resolution callback for the endpoint.
+ * @param {import('@chialab/rna-config-loader').Format} format The output format.
+ */
+function mapEntrypoints(entrypoints, format = 'esm', resolve = (entrypoint) => entrypoint) {
+    return entrypoints.reduce((json, entrypoint) => {
+        const extname = path.extname(entrypoint);
+        const basename = path.basename(entrypoint, extname);
+        const loader = loaders[extname] || 'tsx';
+        const map = json[basename] = json[basename] || {
+            format,
+            js: [],
+            css: [],
+        };
+
+        const outputFile = resolve(entrypoint);
+
+        switch (loader) {
+            case 'css': {
+                map.css.push(outputFile);
+                break;
+            }
+            default: {
+                map.js.push(outputFile);
+                break;
+            }
+        }
+
+        return json;
+    }, /** @type {{[file: string]: { js: string[], css: string[] }}} */({}));
+}
 
 /**
  * Write entrypoints.json
@@ -16,8 +54,6 @@ export async function writeEntrypointsJson(entrypoints, result, rootDir, outputF
     if (!metafile) {
         return;
     }
-    const outputDir = path.extname(outputFile) ? path.dirname(outputFile) : outputFile;
-    outputFile = path.extname(outputFile) ? outputFile : path.join(outputDir, 'entrypoints.json');
 
     const { outputs } = metafile;
     const outputsByEntrypoint = Object.keys(outputs)
@@ -29,35 +65,14 @@ export async function writeEntrypointsJson(entrypoints, result, rootDir, outputF
             map[path.resolve(rootDir, output.entryPoint)] = path.resolve(rootDir, outputName);
 
             return map;
-        }, /** @type {{ [key: string]: string }} */ ({}));
+        }, /** @type {{ [key: string]: string }} */({}));
 
-    const entrypointsJson = entrypoints.reduce((json, entrypoint) => {
-        const extname = path.extname(entrypoint);
-        const basename = path.basename(entrypoint, extname);
-        const loader = loaders[extname] || 'tsx';
-        const map = json[basename] = json[basename] || {
-            format,
-            js: [],
-            css: [],
-        };
-        const outputFile = path.join(
-            publicPath,
-            path.relative(outputDir, outputsByEntrypoint[path.resolve(rootDir, entrypoint)])
-        );
+    const outputDir = path.extname(outputFile) ? path.dirname(outputFile) : outputFile;
+    outputFile = path.extname(outputFile) ? outputFile : path.join(outputDir, 'entrypoints.json');
 
-        switch (loader) {
-            case 'css': {
-                map.css.push(outputFile);
-                break;
-            }
-            default: {
-                map.js.push(outputFile);
-                break;
-            }
-        }
-
-        return json;
-    }, /** @type {{[file: string]: { js: string[], css: string[] }}} */({}));
+    const entrypointsJson = mapEntrypoints(entrypoints, format, (entrypoint) =>
+        path.join(publicPath, path.relative(outputDir, outputsByEntrypoint[path.resolve(rootDir, entrypoint)]))
+    );
 
     await mkdir(path.dirname(outputFile), { recursive: true });
     await writeFile(outputFile, JSON.stringify({ entrypoints: entrypointsJson }, null, 2));
@@ -78,34 +93,20 @@ export async function writeDevEntrypointsJson(entrypoints, outputFile, server, f
     const webSocketImport = server.webSockets && server.webSockets.webSocketImport && new URL(server.webSockets.webSocketImport, base).href;
     outputFile = path.extname(outputFile) ? outputFile : path.join(outputDir, 'entrypoints.json');
 
-    const entrypointsJson = entrypoints.reduce((json, entrypoint) => {
-        const extname = path.extname(entrypoint);
-        const basename = path.basename(entrypoint, extname);
-        const loader = loaders[extname] || 'tsx';
-        const map = json[basename] = json[basename] || {
-            format,
-            js: [],
-            css: [],
-        };
-        const outputFile = new URL(path.relative(config.rootDir, entrypoint), base).href;
+    const entrypointsJson = mapEntrypoints(entrypoints, format, (entrypoint) =>
+        new URL(path.relative(config.rootDir, entrypoint), base).href
+    );
 
-        switch (loader) {
-            case 'css': {
-                map.css.push(outputFile);
-                break;
-            }
-            default: {
-                map.js.push(outputFile);
-                if (webSocketImport && !map.js.includes(webSocketImport)) {
-                    map.js.unshift(webSocketImport);
-                }
-                break;
-            }
-        }
-
-        return json;
-    }, /** @type {{[file: string]: { js: string[], css: string[] }}} */ ({}));
-
-    await mkdir(path.dirname(outputFile), { recursive: true });
-    await writeFile(outputFile, JSON.stringify({ entrypoints: entrypointsJson }, null, 2));
+    await rm(outputDir, { recursive: true, force: true });
+    await mkdir(outputDir, { recursive: true });
+    await writeFile(outputFile, JSON.stringify({
+        entrypoints: entrypointsJson,
+        server: {
+            origin: base,
+            port: config.port,
+            inject: [
+                webSocketImport,
+            ],
+        },
+    }, null, 2));
 }

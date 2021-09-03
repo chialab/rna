@@ -68,7 +68,7 @@ export async function buildDevPlugins() {
         { hmrCssPlugin },
         { watchPlugin },
     ] = await Promise.all([
-        import('./plugins/hmr.js'),
+        import('@web/dev-server-hmr'),
         import('@chialab/wds-plugin-hmr-css'),
         import('./plugins/watch.js'),
     ]);
@@ -208,7 +208,7 @@ export function command(program) {
                 const server = await serve(serveConfig);
 
                 logger.log(`
-  rna dev server started
+  ${colors.bold('rna dev server started')}
 
   root:     ${colors.blue.bold(path.resolve(serveConfig.rootDir || root))}
   local:    ${colors.blue.bold(`http://${server.config.hostname}:${server.config.port}/`)}

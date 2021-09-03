@@ -35,6 +35,13 @@ class RnaHelper extends Helper
     protected $cache = [];
 
     /**
+     * Dev servers data.
+     *
+     * @var array
+     */
+    protected $devServers = [];
+
+    /**
      * Load entrypoints for a frontend plugin.
      *
      * @param string|null $plugin The frontend plugin name.
@@ -61,6 +68,39 @@ class RnaHelper extends Helper
         }
 
         return $this->cache[$plugin] = json_decode(file_get_contents($path), true);
+    }
+
+    /**
+     * Get dev server data.
+     *
+     * @param string $pluginName The plugin name.
+     * @return array A list of resources with their format.
+     */
+    public function loadDevServer(string $pluginName): string
+    {
+        [$plugin] = pluginSplit($pluginName);
+        if (!empty($this->devServers[$plugin])) {
+            return '';
+        }
+
+        $map = $this->loadEntrypoints($plugin) ?? [];
+        if ($map === null) {
+            return '';
+        }
+
+        $devServer = Hash::get($map, 'server', []);
+        $this->devServers[$plugin] = $devServer;
+
+        if (!empty($devServer['inject'])) {
+            return join('', array_filter(
+                array_map(
+                    function (string $path): ?string {
+                        return $this->Html->script($path, ['type' => 'module']);
+                    },
+                    $devServer['inject']
+                )
+            ));
+        }
     }
 
     /**
@@ -92,9 +132,10 @@ class RnaHelper extends Helper
      */
     public function css(string $asset): string
     {
+        $devServer = $this->loadDevServer($asset);
         $assets = $this->getAssets($asset, 'css');
 
-        return join('', array_filter(
+        return $devServer . join('', array_filter(
             array_map(
                 function (string $path): ?string {
                     return $this->Html->css($path);
@@ -113,12 +154,13 @@ class RnaHelper extends Helper
      */
     public function script(string $asset, array $options = []): string
     {
+        $devServer = $this->loadDevServer($asset);
         $assets = $this->getAssets($asset, 'js');
         if ($assets[0] === 'esm') {
             $options['type'] = 'module';
         }
 
-        return join('', array_filter(
+        return $devServer . join('', array_filter(
             array_map(
                 function (string $path) use ($options): ?string {
                     return $this->Html->script($path, $options);

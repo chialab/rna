@@ -68,7 +68,7 @@ export async function buildDevPlugins() {
         { hmrCssPlugin },
         { watchPlugin },
     ] = await Promise.all([
-        import('@web/dev-server-hmr'),
+        import('./plugins/hmr.js'),
         import('@chialab/wds-plugin-hmr-css'),
         import('./plugins/watch.js'),
     ]);

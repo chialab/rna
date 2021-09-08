@@ -1,5 +1,5 @@
 /**
- * @param {{ metaUrl?: import('@chialab/esbuild-plugin-meta-url').PluginOptions, worker?: import('@chialab/esbuild-plugin-meta-url').PluginOptions, commonjs?: import('@chialab/esbuild-plugin-commonjs').PluginOptions }} [config]
+ * @param {{ metaUrl?: import('@chialab/esbuild-plugin-meta-url').PluginOptions, worker?: import('@chialab/esbuild-plugin-worker').PluginOptions, commonjs?: import('@chialab/esbuild-plugin-commonjs').PluginOptions }} [config]
  */
 export async function loadTransformPlugins({
     metaUrl = {},

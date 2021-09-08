@@ -196,6 +196,9 @@ export default function(config) {
                                 return false;
                             },
                         },
+                        worker: {
+                            proxy: true,
+                        },
                     })),
                     ...(config.transformPlugins || []),
                 ],

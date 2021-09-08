@@ -6,17 +6,32 @@ import { dependencies } from '@chialab/esbuild-helpers';
 import { TARGETS, pipe, walk, getOffsetFromLocation } from '@chialab/estransform';
 import { getEntry, finalizeEntry, createFilter, createTypeScriptTransform, getParentBuild } from '@chialab/esbuild-plugin-transform';
 import metaUrlPlugin from '@chialab/esbuild-plugin-meta-url';
+import escodegen from 'escodegen';
 
 /**
- * @typedef {{ resolve?: typeof defaultResolve, constructors?: string[] }} PluginOptions
+ * @typedef {{ resolve?: typeof defaultResolve, constructors?: string[], proxy?: boolean }} PluginOptions
  */
+
+/**
+ * Create a blob proxy worker code.
+ * @param {string} argument The url reference.
+ * @param {import('@chialab/esbuild-plugin-emit').EmitTransformOptions} transformOptions The transform options for the url.
+ */
+function createBlobProxy(argument, transformOptions) {
+    const createUrlFn = `function(url) { return url + (url.indexOf('?') === -1 ? '?' : '&') + 'transform=' + '${encodeURIComponent(JSON.stringify(transformOptions))}'; }`;
+    const blobContent = transformOptions.format === 'esm' ?
+        `'import "' + (${createUrlFn})(${argument}) + '";'` :
+        `'importScripts("' + (${createUrlFn})(${argument}) + '");'`;
+
+    return `URL.createObjectURL(new Blob([${blobContent}], { type: 'text/javascript' }))`;
+}
 
 /**
  * Instantiate a plugin that collect and builds Web Workers.
  * @param {PluginOptions} options
  * @return An esbuild plugin.
  */
-export default function({ resolve = defaultResolve, constructors = ['Worker', 'SharedWorker'] } = {}) {
+export default function({ resolve = defaultResolve, constructors = ['Worker', 'SharedWorker'], proxy = false } = {}) {
     /**
      * @type {import('esbuild').Plugin}
      */
@@ -90,11 +105,6 @@ export default function({ resolve = defaultResolve, constructors = ['Worker', 'S
                                 return;
                             }
 
-                            const value = node.arguments[0].value;
-                            if (typeof value !== 'string') {
-                                return;
-                            }
-
                             /**
                              * @type {import('@chialab/esbuild-plugin-emit').EmitTransformOptions}
                              */
@@ -123,12 +133,26 @@ export default function({ resolve = defaultResolve, constructors = ['Worker', 'S
                                 transformOptions.plugins = [];
                             }
 
+                            const startOffset = getOffsetFromLocation(code, node.loc.start);
+                            const endOffset = getOffsetFromLocation(code, node.loc.end);
+                            const value = node.arguments[0].value;
+                            if (typeof value !== 'string') {
+                                if (proxy) {
+                                    const arg = escodegen.generate(node.arguments[0]);
+                                    magicCode.overwrite(startOffset, endOffset, `new ${Ctr}(${createBlobProxy(arg, transformOptions)})`);
+                                }
+                                return;
+                            }
+
                             promises.push(Promise.resolve().then(async () => {
                                 const resolvedPath = await resolve(value, args.path);
                                 const entryPoint = emitChunk(resolvedPath, transformOptions);
-                                const startOffset = getOffsetFromLocation(code, node.loc.start);
-                                const endOffset = getOffsetFromLocation(code, node.loc.end);
-                                magicCode.overwrite(startOffset, endOffset, `new ${Ctr}(new URL('${entryPoint}', import.meta.url).href)`);
+                                const arg = `new URL('${entryPoint}', import.meta.url).href)`;
+                                if (proxy) {
+                                    magicCode.overwrite(startOffset, endOffset, `new ${Ctr}(${createBlobProxy(arg, transformOptions)})`);
+                                } else {
+                                    magicCode.overwrite(startOffset, endOffset, `new ${Ctr}(${arg})`);
+                                }
                             }));
                         },
                     });

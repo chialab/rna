@@ -1,4 +1,4 @@
-import { colors } from '@chialab/rna-logger';
+import chalk from 'chalk';
 
 /**
  * @see https://github.com/modernweb-dev/web/blob/master/packages/test-runner/src/reporter/reportBrowserLogs.ts
@@ -20,7 +20,7 @@ export function reportBrowserLogs(logger, sessions) {
     }
 
     for (const [browser, logs] of logsByBrowser) {
-        logger.log(colors.bold(colors.white(`Browser logs on ${browser}:`)));
+        logger.log(chalk.bold(chalk.white(`Browser logs on ${browser}:`)));
         logger.group();
         logger.group();
         logger.group();

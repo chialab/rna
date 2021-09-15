@@ -1,4 +1,4 @@
-import { colors } from '@chialab/rna-logger';
+import chalk from 'chalk';
 
 /**
  * @see https://github.com/modernweb-dev/web/blob/master/packages/test-runner/src/reporter/reportRequest404s.ts
@@ -20,11 +20,11 @@ export function reportRequest404s(logger, sessions) {
     }
 
     for (const [browser, request404s] of request404sPerBrowser) {
-        logger.log(colors.bold(colors.white(`404 network requests on ${browser}:`)));
+        logger.log(chalk.bold(chalk.white(`404 network requests on ${browser}:`)));
         logger.group();
         logger.group();
         for (const request404 of request404s) {
-            logger.log(`${colors.bold(colors.gray('-'))} ${request404}`);
+            logger.log(`${chalk.bold(chalk.gray('-'))} ${request404}`);
         }
         logger.groupEnd();
         logger.groupEnd();

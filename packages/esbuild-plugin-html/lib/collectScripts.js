@@ -85,37 +85,5 @@ export function collectScripts($, dom, base, outdir, targets = { scriptsTarget: 
                     $(element).attr('src', path.relative(outdir, filePath));
                 },
             })),
-        ...dom.find('script:not([src]):not([type]), script[type="text/javascript"]:not([src]), script[type="application/javascript"]:not([src])')
-            .get()
-            .map((element) => {
-                const code = /** @type {string} */ ($(element).html());
-                $(element).html('');
-
-                return {
-                    loader: /** @type {import('esbuild').Loader} */ ('tsx'),
-                    options: {
-                        entryPoints: undefined,
-                        stdin: {
-                            contents: code,
-                            loader: /** @type {import('esbuild').Loader} */ ('tsx'),
-                            resolveDir: base,
-                            sourcefile: path.join(base, 'inline.tsx'),
-                        },
-                        target: targets.scriptsTarget,
-                        format: /** @type {import('esbuild').Format} */ ('iife'),
-                        globalName: undefined,
-                        entryNames: `iife/${options.entryNames || '[name]'}`,
-                        chunkNames: `iife/${options.chunkNames || '[name]'}`,
-                        assetNames: `iife/assets/${options.assetNames || '[name]'}`,
-                        splitting: false,
-                    },
-                    /**
-                     * @param {string} filePath
-                     */
-                    finisher(filePath) {
-                        $(element).attr('src', path.relative(outdir, filePath));
-                    },
-                };
-            }),
     ];
 }

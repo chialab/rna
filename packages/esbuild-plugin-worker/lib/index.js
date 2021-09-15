@@ -147,7 +147,7 @@ export default function({ resolve = defaultResolve, constructors = ['Worker', 'S
                             promises.push(Promise.resolve().then(async () => {
                                 const resolvedPath = await resolve(value, args.path);
                                 const entryPoint = emitChunk(resolvedPath, transformOptions);
-                                const arg = `new URL('${entryPoint}', import.meta.url).href)`;
+                                const arg = `new URL('${entryPoint}', import.meta.url).href`;
                                 if (proxy) {
                                     magicCode.overwrite(startOffset, endOffset, `new ${Ctr}(${createBlobProxy(arg, transformOptions)})`);
                                 } else {

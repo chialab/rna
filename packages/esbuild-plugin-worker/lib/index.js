@@ -18,10 +18,14 @@ import escodegen from 'escodegen';
  * @param {import('@chialab/esbuild-plugin-emit').EmitTransformOptions} transformOptions The transform options for the url.
  */
 function createBlobProxy(argument, transformOptions) {
-    const createUrlFn = `function(url) { return url + (url.indexOf('?') === -1 ? '?' : '&') + 'transform=' + '${encodeURIComponent(JSON.stringify(transformOptions))}'; }`;
+    const createUrlFn = `(function(path) {
+    const url = new URL(path);
+    url.searchParams.set('transform', '${JSON.stringify(transformOptions)}');
+    return url.href;
+})`;
     const blobContent = transformOptions.format === 'esm' ?
-        `'import "' + (${createUrlFn})(${argument}) + '";'` :
-        `'importScripts("' + (${createUrlFn})(${argument}) + '");'`;
+        `'import "' + ${createUrlFn}(${argument}) + '";'` :
+        `'importScripts("' + ${createUrlFn}(${argument}) + '");'`;
 
     return `URL.createObjectURL(new Blob([${blobContent}], { type: 'text/javascript' }))`;
 }

@@ -10,6 +10,51 @@ import { getEntry, finalizeEntry, createFilter, createTypeScriptTransform, getPa
  */
 
 /**
+ * Detect first level identifier for esbuild file loader imports.
+ * File could be previously bundled using esbuild, so the first argument of a new URL(something, import.meta.url)
+ * is not a literal anymore but an identifier.
+ * Here, we are looking for its computed value.
+ * @param {*} node The acorn node.
+ * @param {string} id The name of the identifier.
+ * @param {*} program The ast program.
+ * @return {*} The init acorn node.
+ */
+function findIdentifierValue(node, id, program) {
+    const identifier = program.body
+        .filter(
+            /**
+             * @param {*} child
+             */
+            (child) => child.type === 'VariableDeclaration'
+        )
+        .reduce(
+            /**
+             * @param {*[]} acc
+             * @param {*} child
+             */
+            (acc, child) => [...acc, ...child.declarations], []
+        )
+        .filter(
+            /**
+             * @param {*} child
+             */
+            (child) => child.type === 'VariableDeclarator'
+        )
+        .find(
+            /**
+             * @param {*} child
+             */
+            (child) => child.id && child.id.type === 'Identifier' && child.id.name === id
+        );
+
+    if (!identifier || !identifier.init || identifier.init.type !== 'Literal') {
+        return node;
+    }
+
+    return identifier.init;
+}
+
+/**
  * Instantiate a plugin that converts URL references into static import
  * in order to handle assets bundling.
  * @param {PluginOptions} [options]
@@ -72,19 +117,25 @@ export default function({ resolve = defaultResolve } = {}) {
                                 return;
                             }
 
-                            if (node.arguments.length !== 2 ||
-                                node.arguments[0].type !== 'Literal' ||
-                                node.arguments[1].type !== 'MemberExpression') {
+                            if (node.arguments.length !== 2) {
                                 return;
                             }
 
-                            if (node.arguments[1].object.type !== 'MetaProperty' ||
-                                node.arguments[1].property.type !== 'Identifier' ||
-                                node.arguments[1].property.name !== 'url') {
+                            const arg1 = node.arguments[0].type === 'Identifier' ? findIdentifierValue(node, node.arguments[0].name, ast) : node.arguments[0];
+                            const arg2 = node.arguments[1];
+
+                            if (arg1.type !== 'Literal' ||
+                                arg2.type !== 'MemberExpression') {
                                 return;
                             }
 
-                            const value = node.arguments[0].value;
+                            if (arg2.object.type !== 'MetaProperty' ||
+                                arg2.property.type !== 'Identifier' ||
+                                arg2.property.name !== 'url') {
+                                return;
+                            }
+
+                            const value = arg1.value;
                             if (typeof value !== 'string' || isUrl(value)) {
                                 return;
                             }

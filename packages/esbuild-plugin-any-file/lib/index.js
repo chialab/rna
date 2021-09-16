@@ -41,7 +41,9 @@ export default function({ fsCheck = true, shouldThrow = () => true } = {}) {
                 }
 
                 return {
-                    contents: args.path === fullInput && stdin ? stdin.contents : await readFile(args.path),
+                    contents: args.path === fullInput && stdin ?
+                        stdin.contents.toString() :
+                        await readFile(args.path),
                     loader: 'file',
                 };
             });

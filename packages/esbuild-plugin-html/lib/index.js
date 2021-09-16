@@ -143,7 +143,9 @@ export default function({
                     esbuildModule || import('esbuild'),
                 ]);
 
-                const contents = filePath === fullInput && stdin ? stdin.contents : await readFile(filePath, 'utf-8');
+                const contents = filePath === fullInput && stdin ?
+                    stdin.contents.toString() :
+                    await readFile(filePath, 'utf-8');
                 const basePath = path.dirname(filePath);
                 const relativePath = `./${path.relative(sourceDir, basePath)}`;
                 const relativeOutDir = path.resolve(outDir, relativePath);

@@ -61,7 +61,9 @@ export default function(options = {}) {
                     import('@chialab/postcss-url-rebase'),
                 ]);
 
-                const contents = filePath === fullInput && stdin ? stdin.contents : await readFile(filePath, 'utf-8');
+                const contents = filePath === fullInput && stdin ?
+                    stdin.contents.toString() :
+                    await readFile(filePath, 'utf-8');
                 const config = await loadPostcssConfig();
                 const plugins = [
                     urlRebase({

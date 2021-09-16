@@ -248,7 +248,7 @@ export default function(plugins = []) {
 
                 let entry;
                 if (args.path === fullInput && stdin) {
-                    entry = await getEntry(build, args.path, stdin.contents);
+                    entry = await getEntry(build, args.path, stdin.contents.toString());
                 } else {
                     entry = await getEntry(build, args.path);
                 }

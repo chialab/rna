@@ -3,10 +3,9 @@ import { readFile } from 'fs/promises';
 import { resolve as defaultResolve } from '@chialab/node-resolve';
 import emitPlugin, { emitChunk } from '@chialab/esbuild-plugin-emit';
 import { dependencies } from '@chialab/esbuild-helpers';
-import { TARGETS, pipe, walk, getOffsetFromLocation } from '@chialab/estransform';
+import { TARGETS, pipe, walk, getOffsetFromLocation, generate } from '@chialab/estransform';
 import { getEntry, finalizeEntry, createFilter, createTypeScriptTransform, getParentBuild } from '@chialab/esbuild-plugin-transform';
-import metaUrlPlugin from '@chialab/esbuild-plugin-meta-url';
-import escodegen from 'escodegen';
+import metaUrlPlugin, { getMetaUrl } from '@chialab/esbuild-plugin-meta-url';
 
 /**
  * @typedef {{ resolve?: typeof defaultResolve, constructors?: string[], proxy?: boolean }} PluginOptions
@@ -133,16 +132,17 @@ export default function({ resolve = defaultResolve, constructors = ['Worker', 'S
                                 transformOptions.format = 'esm';
                                 transformOptions.bundle = false;
                             } else {
+                                transformOptions.splitting = false;
                                 transformOptions.inject = [];
                                 transformOptions.plugins = [];
                             }
 
                             const startOffset = getOffsetFromLocation(code, node.loc.start);
                             const endOffset = getOffsetFromLocation(code, node.loc.end);
-                            const value = node.arguments[0].value;
+                            const value = getMetaUrl(node.arguments[0], ast) || node.arguments[0].value;
                             if (typeof value !== 'string') {
                                 if (proxy) {
-                                    const arg = escodegen.generate(node.arguments[0]);
+                                    const arg = generate(node.arguments[0]);
                                     magicCode.overwrite(startOffset, endOffset, `new ${Ctr}(${createBlobProxy(arg, transformOptions)})`);
                                 }
                                 return;

@@ -19,7 +19,7 @@ import { getEntry, finalizeEntry, createFilter, createTypeScriptTransform, getPa
  * @param {*} program The ast program.
  * @return {*} The init acorn node.
  */
-function findIdentifierValue(node, id, program) {
+export function findIdentifierValue(node, id, program) {
     const identifier = program.body
         .filter(
             /**
@@ -52,6 +52,40 @@ function findIdentifierValue(node, id, program) {
     }
 
     return identifier.init;
+}
+
+/**
+ * @param {*} node The acorn node.
+ * @param {*} ast The ast program.
+ * @return The path value.
+ */
+export function getMetaUrl(node, ast) {
+    if (node.type === 'MemberExpression') {
+        node = node.object;
+    }
+    if (!node.callee || node.callee.type !== 'Identifier' || node.callee.name !== 'URL') {
+        return;
+    }
+
+    if (node.arguments.length !== 2) {
+        return;
+    }
+
+    const arg1 = node.arguments[0].type === 'Identifier' ? findIdentifierValue(node, node.arguments[0].name, ast) : node.arguments[0];
+    const arg2 = node.arguments[1];
+
+    if (arg1.type !== 'Literal' ||
+        arg2.type !== 'MemberExpression') {
+        return;
+    }
+
+    if (arg2.object.type !== 'MetaProperty' ||
+        arg2.property.type !== 'Identifier' ||
+        arg2.property.name !== 'url') {
+        return;
+    }
+
+    return arg1.value;
 }
 
 /**
@@ -113,29 +147,7 @@ export default function({ resolve = defaultResolve } = {}) {
                          * @param {*} node
                          */
                         NewExpression(node) {
-                            if (!node.callee || node.callee.type !== 'Identifier' || node.callee.name !== 'URL') {
-                                return;
-                            }
-
-                            if (node.arguments.length !== 2) {
-                                return;
-                            }
-
-                            const arg1 = node.arguments[0].type === 'Identifier' ? findIdentifierValue(node, node.arguments[0].name, ast) : node.arguments[0];
-                            const arg2 = node.arguments[1];
-
-                            if (arg1.type !== 'Literal' ||
-                                arg2.type !== 'MemberExpression') {
-                                return;
-                            }
-
-                            if (arg2.object.type !== 'MetaProperty' ||
-                                arg2.property.type !== 'Identifier' ||
-                                arg2.property.name !== 'url') {
-                                return;
-                            }
-
-                            const value = arg1.value;
+                            const value = getMetaUrl(node, ast);
                             if (typeof value !== 'string' || isUrl(value)) {
                                 return;
                             }

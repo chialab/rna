@@ -128,7 +128,16 @@ export async function maybeCommonjsModule(code) {
     }
 
     const [imports, exports] = await parseEsm(code);
-    return imports.length === 0 && exports.length === 0;
+    if (imports.length !== 0 || exports.length !== 0) {
+        return false;
+    }
+
+    // es-module-parse seems to not detect deconstructed exports
+    if (code.match(/\bexport\s+const\s*{/)) {
+        return false;
+    }
+
+    return true;
 }
 
 /**
@@ -202,6 +211,9 @@ export function createTransform({ ignore = () => false }) {
         }
 
         const { exports, reexports } = await parseCommonjs(code);
+        if (options.source?.includes('marked.js')) {
+            console.log(exports, reexports);
+        }
         const named = exports.filter((entry) => entry !== '__esModule' && entry !== 'default');
         const isEsModule = exports.includes('__esModule');
         const hasDefault = exports.includes('default');

@@ -211,9 +211,6 @@ export function createTransform({ ignore = () => false }) {
         }
 
         const { exports, reexports } = await parseCommonjs(code);
-        if (options.source?.includes('marked.js')) {
-            console.log(exports, reexports);
-        }
         const named = exports.filter((entry) => entry !== '__esModule' && entry !== 'default');
         const isEsModule = exports.includes('__esModule');
         const hasDefault = exports.includes('default');

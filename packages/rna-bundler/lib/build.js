@@ -168,7 +168,7 @@ export async function build(config) {
         bundle: true,
         treeShaking: minify ? true : undefined,
         define: {
-            this: platform === 'browser' ? 'window' : 'undefined',
+            this: platform === 'browser' ? 'window' : platform === 'neutral' ? 'globalThis' : 'undefined',
             ...define,
         },
         external,

@@ -151,13 +151,19 @@ export default function(config) {
 
             const { rootDir } = serverConfig;
             const filePath = getRequestFilePath(context.url, rootDir);
-            const transformConfig = getEntryConfig({
+
+            /**
+             * @type {import('@chialab/rna-config-loader').Entrypoint}
+             */
+            const entrypoint = {
                 root: rootDir,
                 input: `./${path.relative(rootDir, filePath)}`,
                 code: /** @type {string} */ (context.body),
                 loader,
+                bundle: false,
                 ...getChunkOptions(context.url),
-            }, {
+            };
+            const transformConfig = getEntryConfig(entrypoint, {
                 sourcemap: 'inline',
                 target: 'es2020',
                 platform: 'browser',

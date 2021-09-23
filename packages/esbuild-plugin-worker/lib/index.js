@@ -114,6 +114,7 @@ export default function({ resolve = defaultResolve, constructors = ['Worker', 'S
                             const transformOptions = {
                                 format: 'iife',
                                 bundle: true,
+                                platform: 'neutral',
                             };
                             const options = node.arguments[1];
                             if (options &&

@@ -140,6 +140,17 @@ export function servePlugin({ type, stories: storiesPattern, static: staticFiles
                 });
             }
 
+            if (context.path === '/stories.json') {
+                return {
+                    body: JSON.stringify({
+                        v: 2,
+                        globalParameters: {},
+                        kindParameters: {},
+                        stories: {},
+                    }),
+                };
+            }
+
             if (context.path === '/iframe.html') {
                 return iframeHtml({
                     previewHead: previewHead || '',

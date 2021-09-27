@@ -1,5 +1,6 @@
-import { createTransform, maybeCommonjsModule } from '@chialab/cjs-to-esm';
-import { pipe } from '@chialab/estransform';
+import { REQUIRE_HELPER, HELPER_MODULE, createTransform, maybeCommonjsModule } from '@chialab/cjs-to-esm';
+import { escapeRegexBody } from '@chialab/esbuild-helpers';
+import { createEmptySourcemapComment, pipe } from '@chialab/estransform';
 import { getEntry, finalizeEntry, createFilter } from '@chialab/esbuild-plugin-transform';
 
 /**
@@ -20,6 +21,18 @@ export default function(config = {}) {
             const options = build.initialOptions;
             if (options.format !== 'esm') {
                 return;
+            }
+
+            if (config.helperModule) {
+                const HELPER_FILTER = new RegExp(escapeRegexBody(`./${HELPER_MODULE}`));
+                build.onResolve({ filter: HELPER_FILTER }, (args) => ({
+                    path: args.path,
+                    namespace: 'commonjs-helper',
+                }));
+
+                build.onLoad({ filter: HELPER_FILTER, namespace: 'commonjs-helper' }, async () => ({
+                    contents: `export default ${REQUIRE_HELPER};\n${createEmptySourcemapComment()}`,
+                }));
             }
 
             build.onLoad({ filter: createFilter(build), namespace: 'file' }, async (args) => {

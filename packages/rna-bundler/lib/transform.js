@@ -22,7 +22,6 @@ export async function transform(config) {
         platform,
         target,
         sourcemap,
-        bundle = false,
         minify,
         globalName,
         define,
@@ -52,9 +51,9 @@ export async function transform(config) {
             .then(({ default: plugin }) => plugin({ jsxModule, jsxExport })),
         import('@chialab/esbuild-plugin-bundle-dependencies')
             .then(({ default: plugin }) => plugin({
-                dependencies: !!bundle,
-                peerDependencies: !!bundle,
-                optionalDependencies: !!bundle,
+                dependencies: false,
+                peerDependencies: false,
+                optionalDependencies: false,
             })),
         ...plugins,
         import('@chialab/esbuild-plugin-transform')
@@ -74,7 +73,7 @@ export async function transform(config) {
             sourcefile: sourceFile,
         },
         write: false,
-        bundle,
+        bundle: false,
         globalName,
         target,
         platform,

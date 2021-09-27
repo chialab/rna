@@ -168,6 +168,7 @@ export function command(program) {
                     }, esbuild),
                     transformPlugins: await loadTransformPlugins({
                         commonjs: userConfig.platform === 'browser' ? {
+                            helperModule: true,
                             ignore: async (specifier, { source }) => {
                                 if (source) {
                                     try {
@@ -180,7 +181,9 @@ export function command(program) {
 
                                 return isCore(specifier);
                             },
-                        } : {},
+                        } : {
+                            helperModule: true,
+                        },
                     }),
                 });
 

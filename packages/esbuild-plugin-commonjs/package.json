@@ -34,6 +34,7 @@
   },
   "dependencies": {
     "@chialab/cjs-to-esm": "^0.11.41",
+    "@chialab/esbuild-helpers": "^0.11.0",
     "@chialab/esbuild-plugin-transform": "^0.11.38",
     "@chialab/estransform": "^0.11.38"
   },

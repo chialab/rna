@@ -46,8 +46,11 @@ export async function parseEsm(code) {
     return parse(code);
 }
 
-export const REQUIRE_HELPER = `// Require helper for interop
-function $$cjs_default$$(requiredModule) {
+export const REQUIRE_FUNCTION = '$$cjs_default$$';
+
+export const HELPER_MODULE = '$$cjs_helper$$.js';
+
+export const REQUIRE_HELPER = `function ${REQUIRE_FUNCTION}(requiredModule) {
     var isEsModule = false;
     var specifiers = Object.create(null);
     var hasNamedExports = false;
@@ -141,13 +144,25 @@ export async function maybeCommonjsModule(code) {
 }
 
 /**
- * @typedef {{ source?: string, sourcemap?: boolean|'inline', sourcesContent?: boolean, ignore?(specifier: string, options: Options): boolean|Promise<boolean> }} Options
+ * @typedef {{ source?: string, sourcemap?: boolean|'inline', sourcesContent?: boolean }} TransformOptions
  */
 
 /**
- * @param {Options} options
+ * @typedef {(specifier: string, options: Options) => boolean|Promise<boolean>} IgnoreCallback
  */
-export function createTransform({ ignore = () => false }) {
+
+/**
+ * @typedef {{ ignore?: IgnoreCallback, helperModule?: boolean }} TransformerOptions
+ */
+
+/**
+ * @typedef {TransformerOptions & TransformOptions} Options
+ */
+
+/**
+ * @param {TransformerOptions} options
+ */
+export function createTransform({ ignore = () => false, helperModule = false }) {
     const specs = new Map();
     const ns = new Map();
 
@@ -201,7 +216,7 @@ export function createTransform({ ignore = () => false }) {
                             magicCode.overwrite(
                                 getOffsetFromLocation(code, node.loc.start),
                                 getOffsetFromLocation(code, node.loc.end),
-                                `$$cjs_default$$(${spec.id})`
+                                `${REQUIRE_FUNCTION}(typeof ${spec.id} !== 'undefined' ? ${spec.id} : {})`
                             );
                         });
                 },
@@ -287,7 +302,11 @@ if (${conditions.join(' && ')}) {
         }
 
         if (insertHelper) {
-            magicCode.prepend(REQUIRE_HELPER);
+            if (helperModule) {
+                magicCode.prepend(`import ${REQUIRE_FUNCTION} from './${HELPER_MODULE}';\n`);
+            } else {
+                magicCode.prepend(`// Require helper for interop\n${REQUIRE_HELPER}`);
+            }
         }
 
         specs.forEach((spec) => {
@@ -300,7 +319,7 @@ if (${conditions.join(' && ')}) {
 
 /**
  * @param {string} contents
- * @param {Options} options
+ * @param {Options & TransformerOptions} options
  * @return {Promise<import('@chialab/estransform').TransformResult>}
  */
 export async function transform(contents, { source, sourcemap = true, sourcesContent = false, ignore = () => false } = {}) {

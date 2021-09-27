@@ -37,7 +37,7 @@
     "@chialab/wds-plugin-rna": "^0.11.41",
     "@custom-elements-manifest/analyzer": "^0.4.16",
     "@storybook/csf-tools": "^6.4.0-beta.0",
-    "esbuild": "^0.12.17",
+    "esbuild": "^0.13.0",
     "fast-glob": "^3.2.7",
     "typescript": "^4.3.0"
   }

@@ -34,7 +34,8 @@
     "@chialab/rna-bundler": "^0.11.41",
     "@chialab/rna-config-loader": "^0.11.23",
     "@chialab/wds-plugin-node-resolve": "^0.11.38",
-    "@web/dev-server-core": "^0.3.8"
+    "@web/dev-server-core": "^0.3.8",
+    "pkg-up": "^3.1.0"
   },
   "devDependencies": {
     "typescript": "^4.3.0"

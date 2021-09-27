@@ -91,4 +91,4 @@ The RNA ecosystem provides a set of plugins and addons for core tools designed t
 
 ## License
 
-RNA is released under the [MIT](https://github.com/chialab/rna/blob/master/LICENSE) license.
+RNA is released under the [MIT](https://github.com/chialab/rna/blob/main/LICENSE) license.

@@ -21,6 +21,9 @@ export function createBundleMap(type) {
         '@storybook/addon-docs/blocks': '@chialab/storybook-prebuilt/docs',
         '@storybook/essentials/register': '@chialab/storybook-prebuilt/essentials/register',
         '@storybook/essentials': '@chialab/storybook-prebuilt/essentials',
+        'storybook-design-token': '@chialab/storybook-prebuilt/storybook-design-token',
+        'storybook-design-token/dist/doc-blocks.js': '@chialab/storybook-prebuilt/storybook-design-token',
+        'storybook-design-token/register': '@chialab/storybook-prebuilt/storybook-design-token/register',
     };
 
     const resolutions = [];

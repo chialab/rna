@@ -9,13 +9,15 @@ import { createPreviewScript } from './createPreview.js';
 import { loadAddons } from './loadAddons.js';
 import { mdxPlugin } from './mdxPlugin.js';
 import { aliasPlugin } from './aliasPlugin.js';
+import { MANAGER_SCRIPT, MANAGER_STYLE, PREVIEW_SCRIPT, PREVIEW_STYLE, DESIGN_TOKENS_SCRIPT } from './entrypoints.js';
+import { designTokenPlugin } from './designTokenPlugin.js';
 
 /**
  * @param {import('./createPlugins').StorybookConfig} config Storybook options.
  * @return An esbuild plugin.
  */
 export function buildPlugin(config) {
-    const { type, stories: storiesPattern = [], static: staticFiles = {}, essentials = false, addons = [], managerEntries = [], previewEntries = [], managerHead, previewHead, previewBody } = config;
+    const { type, stories: storiesPattern = [], static: staticFiles = {}, essentials = false, designTokens = false, addons = [], managerEntries = [], previewEntries = [], managerHead, previewHead, previewBody } = config;
 
     /**
      * @type {import('esbuild').Plugin}
@@ -43,6 +45,7 @@ export function buildPlugin(config) {
 
             const plugins = [
                 aliasPlugin(config),
+                ...(designTokens ? [designTokenPlugin(config)] : []),
                 ...(options.plugins || []).filter((plugin) => !['storybook', 'html'].includes(plugin.name)),
             ];
 
@@ -73,7 +76,7 @@ export function buildPlugin(config) {
                         ...childOptions,
                         stdin: {
                             contents: await managerCss(),
-                            sourcefile: '__storybook-manager__.css',
+                            sourcefile: MANAGER_STYLE,
                             loader: 'css',
                         },
                     }),
@@ -81,7 +84,7 @@ export function buildPlugin(config) {
                         ...childOptions,
                         stdin: {
                             contents: await previewCss(),
-                            sourcefile: '__storybook-preview__.css',
+                            sourcefile: PREVIEW_STYLE,
                             loader: 'css',
                         },
                     }),
@@ -92,6 +95,7 @@ export function buildPlugin(config) {
                                 contents: createManagerScript({
                                     addons: [
                                         ...(essentials ? ['@storybook/essentials/register'] : []),
+                                        ...(designTokens ? ['storybook-design-token/register'] : []),
                                         ...addons,
                                     ],
                                     managerEntries: [
@@ -99,7 +103,7 @@ export function buildPlugin(config) {
                                         ...managerEntries,
                                     ],
                                 }),
-                                sourcefile: path.join(rootDir, '__storybook-manager__.js'),
+                                sourcefile: path.join(rootDir, MANAGER_SCRIPT),
                                 loader: 'tsx',
                             },
                         })
@@ -114,10 +118,11 @@ export function buildPlugin(config) {
                                     previewEntries: [
                                         ...previewEntries,
                                         ...(essentials ? ['@storybook/essentials'] : []),
+                                        ...(designTokens ? [`/${DESIGN_TOKENS_SCRIPT}`] : []),
                                         ...preview,
                                     ],
                                 }),
-                                sourcefile: path.join(rootDir, '__storybook-preview__.js'),
+                                sourcefile: path.join(rootDir, PREVIEW_SCRIPT),
                                 loader: 'tsx',
                             },
                         })
@@ -128,10 +133,10 @@ export function buildPlugin(config) {
                             contents: await indexHtml({
                                 managerHead: managerHead || '',
                                 css: {
-                                    path: '__storybook-manager__.css',
+                                    path: MANAGER_STYLE,
                                 },
                                 js: {
-                                    path: '__storybook-manager__.js',
+                                    path: MANAGER_SCRIPT,
                                     type: 'text/javascript',
                                 },
                             }),
@@ -146,10 +151,10 @@ export function buildPlugin(config) {
                                 previewHead: previewHead || '',
                                 previewBody: previewBody || '',
                                 css: {
-                                    path: '__storybook-preview__.css',
+                                    path: PREVIEW_STYLE,
                                 },
                                 js: {
-                                    path: '__storybook-preview__.js',
+                                    path: PREVIEW_SCRIPT,
                                     type: 'text/javascript',
                                 },
                             }),

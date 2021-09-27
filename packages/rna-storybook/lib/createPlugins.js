@@ -10,6 +10,7 @@ import { servePlugin } from './servePlugin.js';
  * @property {string} type
  * @property {string[]} stories
  * @property {boolean} [essentials]
+ * @property {boolean} [designTokens]
  * @property {{ [key: string]: string }} [static]
  * @property {string[]} [addons]
  * @property {string[]} [managerEntries]
@@ -17,6 +18,7 @@ import { servePlugin } from './servePlugin.js';
  * @property {string} [managerHead]
  * @property {string} [previewHead]
  * @property {string} [previewBody]
+ * @property {string[]} [cssFiles]
  */
 
 /**

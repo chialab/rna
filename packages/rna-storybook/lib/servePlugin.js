@@ -11,6 +11,8 @@ import { createManagerScript } from './createManager.js';
 import { createPreviewScript } from './createPreview.js';
 import { transformMdxToCsf } from './transformMdxToCsf.js';
 import { createBundleMap } from './bundleMap.js';
+import { MANAGER_SCRIPT, MANAGER_STYLE, PREVIEW_SCRIPT, PREVIEW_STYLE, DESIGN_TOKENS_SCRIPT } from './entrypoints.js';
+import { createDesignTokens } from './createDesignTokens.js';
 
 const regexpReplaceWebsocket = /<!-- injected by web-dev-server -->(.|\s)*<\/script>/m;
 
@@ -35,7 +37,7 @@ export function appendPreviewParam(source) {
 /**
  * @param {import('./createPlugins').StorybookConfig} options
  */
-export function servePlugin({ type, stories: storiesPattern, static: staticFiles = {}, essentials = false, addons = [], managerEntries = [], previewEntries = [], managerHead, previewHead, previewBody }) {
+export function servePlugin({ type, stories: storiesPattern, static: staticFiles = {}, essentials = false, designTokens = false, addons = [], managerEntries = [], previewEntries = [], cssFiles = [], managerHead, previewHead, previewBody }) {
     /**
      * @type {import('@web/dev-server-core').DevServerCoreConfig}
      */
@@ -87,12 +89,13 @@ export function servePlugin({ type, stories: storiesPattern, static: staticFiles
                 source = appendJsonModuleParam(source);
             }
 
-            if (context.path === '/__storybook-manager__.js' ||
+            if (context.path === `/${MANAGER_SCRIPT}` ||
                 context.URL.searchParams.has('manager')) {
                 return appendManagerParam(source);
             }
 
-            if (context.path === '/__storybook-preview__.js' ||
+            if (context.path === `/${PREVIEW_SCRIPT}` ||
+                context.path === `/${DESIGN_TOKENS_SCRIPT}` ||
                 context.URL.searchParams.has('preview') ||
                 context.URL.searchParams.has('story')) {
                 return appendPreviewParam(source);
@@ -112,6 +115,10 @@ export function servePlugin({ type, stories: storiesPattern, static: staticFiles
                 const url = await browserResolve(source, rootDir);
                 return await resolveImport(url, filePath, rootDir, { code, line, column });
             }
+
+            if (source === `/${DESIGN_TOKENS_SCRIPT}`) {
+                return source;
+            }
         },
 
         async transform(context) {
@@ -127,14 +134,16 @@ export function servePlugin({ type, stories: storiesPattern, static: staticFiles
                 return;
             }
 
+            const { rootDir } = serverConfig;
+
             if (context.path === '/') {
                 return indexHtml({
                     managerHead: managerHead || '',
                     css: {
-                        path: '/__storybook-manager__.css',
+                        path: `/${MANAGER_STYLE}`,
                     },
                     js: {
-                        path: '/__storybook-manager__.js',
+                        path: `/${MANAGER_SCRIPT}`,
                         type: 'module',
                     },
                 });
@@ -156,20 +165,21 @@ export function servePlugin({ type, stories: storiesPattern, static: staticFiles
                     previewHead: previewHead || '',
                     previewBody: previewBody || '',
                     css: {
-                        path: '/__storybook-preview__.css',
+                        path: `/${PREVIEW_STYLE}`,
                     },
                     js: {
-                        path: '/__storybook-preview__.js',
+                        path: `/${PREVIEW_SCRIPT}`,
                         type: 'module',
                     },
                 });
             }
 
-            if (context.path.startsWith('/__storybook-manager__.js')) {
+            if (context.path.startsWith(`/${MANAGER_SCRIPT}`)) {
                 const [manager] = await addonsLoader;
                 return createManagerScript({
                     addons: [
                         ...(essentials ? ['@storybook/essentials/register'] : []),
+                        ...(designTokens ? ['storybook-design-token/register'] : []),
                         ...addons,
                     ],
                     managerEntries: [
@@ -179,12 +189,11 @@ export function servePlugin({ type, stories: storiesPattern, static: staticFiles
                 });
             }
 
-            if (context.path.startsWith('/__storybook-manager__.css')) {
+            if (context.path.startsWith(`/${MANAGER_STYLE}`)) {
                 return managerCss();
             }
 
-            if (context.path.startsWith('/__storybook-preview__.js')) {
-                const { rootDir } = serverConfig;
+            if (context.path.startsWith(`/${PREVIEW_SCRIPT}`)) {
                 const [, preview] = await addonsLoader;
                 const stories = await findStories(rootDir, storiesPattern);
                 return createPreviewScript({
@@ -198,16 +207,20 @@ export function servePlugin({ type, stories: storiesPattern, static: staticFiles
                     previewEntries: [
                         ...previewEntries,
                         ...(essentials ? ['@storybook/essentials'] : []),
+                        ...(designTokens ? [`/${DESIGN_TOKENS_SCRIPT}`] : []),
                         ...preview,
                     ],
                 });
             }
 
-            if (context.path.startsWith('/__storybook-preview__.css')) {
+            if (context.path.startsWith(`/${PREVIEW_STYLE}`)) {
                 return previewCss();
             }
 
-            const { rootDir } = serverConfig;
+            if (context.path.startsWith(`/${DESIGN_TOKENS_SCRIPT}`)) {
+                return createDesignTokens(rootDir, cssFiles);
+            }
+
             const filePath = decodeURIComponent(getRequestFilePath(context.url, rootDir));
             const fileName = path.basename(filePath);
 

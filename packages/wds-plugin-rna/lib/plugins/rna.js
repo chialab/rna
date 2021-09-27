@@ -1,4 +1,5 @@
 import path from 'path';
+import pkgUp from 'pkg-up';
 import { getRequestFilePath } from '@web/dev-server-core';
 import { getChunkOptions } from '@chialab/esbuild-plugin-emit';
 import { getEntryConfig } from '@chialab/rna-config-loader';
@@ -32,13 +33,6 @@ export function isJsonModuleRequest(url) {
 }
 
 /**
- * @param {string} url
- */
-export function shouldSkip(url) {
-    return getSearchParam(url, 'skip') === '1';
-}
-
-/**
  * @param {string} source
  */
 export function appendCssModuleParam(source) {
@@ -62,13 +56,6 @@ export function appendFileParam(source) {
 /**
  * @param {string} source
  */
-export function appendSkipParam(source) {
-    return appendSearchParam(source, 'skip', '1');
-}
-
-/**
- * @param {string} source
- */
 export function convertCssToJsModule(source) {
     source = removeSearchParam(source, 'loader');
     return `var link = document.createElement('link');
@@ -85,6 +72,74 @@ export function convertFileToJsModule(source) {
     source = removeSearchParam(source, 'emit');
     source = removeSearchParam(source, 'loader');
     return `export default new URL('${source}', import.meta.url).href;`;
+}
+
+/**
+ * @param {import('koa').Context} context
+ */
+export function getRequestLoader(context) {
+    const fileExtension = path.posix.extname(context.path);
+    return transformLoaders[fileExtension];
+}
+
+/**
+ * @param {import('@chialab/rna-config-loader').Entrypoint} entrypoint
+ * @param {import('@web/dev-server-core').DevServerCoreConfig} serverConfig
+ * @param {Partial<import('@chialab/rna-config-loader').CoreTransformConfig>} config
+ */
+export async function createConfig(entrypoint, serverConfig, config) {
+    const { rootDir } = serverConfig;
+    const input = /** @type {string} */ (entrypoint.input);
+    const filePath = path.resolve(rootDir, input);
+
+    return getEntryConfig(entrypoint, {
+        sourcemap: 'inline',
+        target: 'es2020',
+        platform: 'browser',
+        jsxFactory: config.jsxFactory,
+        jsxFragment: config.jsxFragment,
+        jsxModule: config.jsxModule,
+        jsxExport: config.jsxExport,
+        alias: config.alias,
+        plugins: [
+            ...(await loadPlugins({
+                postcss: {
+                    async transform(importPath) {
+                        if (isOutsideRootDir(importPath)) {
+                            return;
+                        }
+
+                        return resolveRelativeImport(
+                            await fsResolve(importPath, filePath),
+                            filePath,
+                            rootDir
+                        );
+                    },
+                },
+            })),
+            ...(config.plugins || []),
+        ],
+        transformPlugins: [
+            ...(await loadTransformPlugins({
+                commonjs: {
+                    ignore: async (specifier) => {
+                        try {
+                            await browserResolve(specifier, filePath);
+                        } catch (err) {
+                            return isCore(specifier);
+                        }
+
+                        return false;
+                    },
+                },
+                worker: {
+                    proxy: true,
+                },
+            })),
+            ...(config.transformPlugins || []),
+        ],
+        logLevel: 'error',
+    });
 }
 
 const VALID_MODULE_NAME = /^(@[a-z0-9-~][a-z0-9-._~]*\/)?[a-z0-9-~][a-z0-9-._~]*$/;
@@ -106,9 +161,9 @@ export function rnaPlugin(config) {
     let serverConfig;
 
     /**
-     * @type {{ [key: string]: Promise<string|void>|undefined }}
+     * @type {{ [key: string]: Promise<string> }}
      */
-    const cache = {};
+    const virtualFs = {};
 
     /**
      * @type {Plugin}
@@ -132,7 +187,7 @@ export function rnaPlugin(config) {
             }
         },
 
-        serve(context) {
+        async serve(context) {
             if (isFileRequest(context.url)) {
                 const { rootDir } = serverConfig;
                 const { path: pathname, searchParams } = getSearchParams(context.url);
@@ -152,17 +207,20 @@ export function rnaPlugin(config) {
                     },
                 };
             }
+
+            const { rootDir } = serverConfig;
+            const filePath = getRequestFilePath(context.url, rootDir);
+            if (filePath in virtualFs) {
+                return {
+                    body: await virtualFs[filePath],
+                    transformCacheKey: false,
+                };
+            }
         },
 
         async transform(context) {
             if (isHelperImport(context.path)) {
                 return;
-            }
-
-            if (shouldSkip(context.url)) {
-                return {
-                    body: (/** @type {string} */ (context.body)),
-                };
             }
 
             if (isCssModuleRequest(context.url) ||
@@ -172,8 +230,7 @@ export function rnaPlugin(config) {
                 return;
             }
 
-            const fileExtension = path.posix.extname(context.path);
-            const loader = transformLoaders[fileExtension];
+            const loader = getRequestLoader(context);
             if (!loader) {
                 return;
             }
@@ -185,6 +242,11 @@ export function rnaPlugin(config) {
 
             const { rootDir } = serverConfig;
             const filePath = getRequestFilePath(context.url, rootDir);
+            if (filePath in virtualFs) {
+                return;
+            }
+
+            const contextConfig = getChunkOptions(context.url);
 
             /**
              * @type {import('@chialab/rna-config-loader').Entrypoint}
@@ -195,58 +257,11 @@ export function rnaPlugin(config) {
                 code: /** @type {string} */ (context.body),
                 loader,
                 bundle: false,
-                ...getChunkOptions(context.url),
+                ...contextConfig,
             };
-            const transformConfig = getEntryConfig(entrypoint, {
-                sourcemap: 'inline',
-                target: 'es2020',
-                platform: 'browser',
-                jsxFactory: config.jsxFactory,
-                jsxFragment: config.jsxFragment,
-                jsxModule: config.jsxModule,
-                jsxExport: config.jsxExport,
-                plugins: [
-                    ...(await loadPlugins({
-                        postcss: {
-                            async transform(importPath) {
-                                if (isOutsideRootDir(importPath)) {
-                                    return;
-                                }
 
-                                return resolveRelativeImport(
-                                    await fsResolve(importPath, filePath),
-                                    filePath,
-                                    rootDir
-                                );
-                            },
-                        },
-                    })),
-                    ...(config.plugins || []),
-                ],
-                transformPlugins: [
-                    ...(await loadTransformPlugins({
-                        commonjs: {
-                            ignore: async (specifier) => {
-                                try {
-                                    await browserResolve(specifier, filePath);
-                                } catch (err) {
-                                    return isCore(specifier);
-                                }
-
-                                return false;
-                            },
-                        },
-                        worker: {
-                            proxy: true,
-                        },
-                    })),
-                    ...(config.transformPlugins || []),
-                ],
-                logLevel: 'error',
-            });
-
+            const transformConfig = await createConfig(entrypoint, serverConfig, config);
             const { code } = await transform(transformConfig);
-
             return code;
         },
 
@@ -264,7 +279,7 @@ export function rnaPlugin(config) {
             }
         },
 
-        async resolveImport({ source, context, code, line, column }) {
+        async resolveImport({ source, context }) {
             if (config.alias && config.alias[source]) {
                 source = /** @type {string} */ (config.alias[source]);
             }
@@ -275,77 +290,48 @@ export function rnaPlugin(config) {
 
             const { rootDir } = serverConfig;
             const filePath = getRequestFilePath(context.url, rootDir);
-            const entry = await browserResolve(source, filePath);
+            const resolved = await browserResolve(source, filePath).catch(() => null);
+            if (!resolved) {
+                return;
+            }
 
-            const promise = cache[entry] = cache[entry] || Promise.resolve()
-                .then(async () => {
-                    try {
-                        const outputDir = path.join(path.dirname(entry), 'bundled');
-                        const result = await build({
-                            input: entry,
-                            output: outputDir,
-                            root: rootDir,
-                            format: 'esm',
-                            bundle: true,
-                            sourcemap: false,
-                            target: 'es2020',
-                            platform: 'browser',
-                            jsxFactory: config.jsxFactory,
-                            jsxFragment: config.jsxFragment,
-                            jsxModule: config.jsxModule,
-                            jsxExport: config.jsxExport,
-                            entryNames: '[name]-[hash]',
-                            chunkNames: '[name]-[hash]',
-                            assetNames: '[name]-[hash]',
-                            define: {},
-                            alias: {},
-                            minify: true,
-                            clean: true,
-                            splitting: false,
-                            external: [],
-                            plugins: [
-                                {
-                                    name: 'make-all-packages-external',
-                                    setup(build) {
-                                        // Must not start with "/" or "./" or "../"
-                                        const filter = /^[^./]|^\.[^./]|^\.\.[^/]/;
-                                        build.onResolve({ filter }, args => ({ path: args.path, external: true }));
-                                    },
-                                },
-                                ...await loadPlugins(),
-                            ],
-                            transformPlugins: await loadTransformPlugins({
-                                commonjs: {
-                                    ignore: async (specifier) => {
-                                        try {
-                                            await browserResolve(specifier, filePath);
-                                        } catch (err) {
-                                            return isCore(specifier);
-                                        }
+            if (resolved in virtualFs) {
+                return resolveRelativeImport(resolved, filePath, rootDir);
+            }
 
-                                        return false;
-                                    },
-                                },
-                            }),
-                            logLevel: 'error',
-                            publicPath: '/',
-                        });
+            const modulePackageFile = await pkgUp({ cwd: resolved });
+            const moduleRootDir = modulePackageFile ? path.dirname(modulePackageFile) : rootDir;
 
-                        const outputs = Object.keys((/** @type {import('esbuild').Metafile} */ (result.metafile)).outputs);
-                        if (!outputs.length) {
-                            return;
-                        }
-
-                        return path.resolve(rootDir, outputs[0]);
-                    } catch (err) {
-                        //
+            /**
+             * @type {import('@chialab/rna-config-loader').Entrypoint}
+             */
+            const entrypoint = {
+                root: moduleRootDir,
+                input: `./${path.relative(moduleRootDir, resolved)}`,
+                loader: getRequestLoader(context),
+                bundle: false,
+            };
+            virtualFs[resolved] = createConfig(entrypoint, serverConfig, config)
+                .then((transformConfig) =>
+                    build({
+                        ...transformConfig,
+                        chunkNames: '[name]-[hash]',
+                        output: resolved,
+                        jsxModule: undefined,
+                        write: false,
+                    })
+                ).then((result) => {
+                    if (!result.outputFiles) {
+                        throw new Error('Failed to bundle dependency');
                     }
+                    result.outputFiles.forEach(({ path, text }) => {
+                        virtualFs[path] = Promise.resolve(text);
+                    });
+
+                    return virtualFs[resolved];
                 });
 
-            const modulePath = await promise;
-            if (modulePath) {
-                return appendSkipParam(resolveRelativeImport(modulePath, filePath, rootDir, { code, line, column }));
-            }
+            return resolveRelativeImport(resolved, filePath, rootDir);
         },
     };
 

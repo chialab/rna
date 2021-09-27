@@ -1,5 +1,5 @@
 import path from 'path';
-import { readFile, rm } from 'fs/promises';
+import { rm } from 'fs/promises';
 import { createLogger } from '@chialab/rna-logger';
 import { loaders } from './loaders.js';
 import { writeManifestJson } from './writeManifestJson.js';
@@ -38,7 +38,6 @@ async function onBuildEnd(config, entryOptions, result) {
  */
 export async function build(config) {
     const { default: esbuild } = await import('esbuild');
-    const { default: pkgUp } = await import('pkg-up');
     const logger = createLogger();
     const hasOutputFile = !!path.extname(config.output);
 
@@ -71,6 +70,7 @@ export async function build(config) {
         logLevel,
         clean,
         watch,
+        write = true,
     } = config;
 
     const entryOptions = {};
@@ -176,6 +176,8 @@ export async function build(config) {
                 }
             },
         },
+        write,
+        allowOverwrite: !write,
     });
 
     await onBuildEnd(config, entryOptions, result);

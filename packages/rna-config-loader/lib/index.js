@@ -102,7 +102,7 @@ import path from 'path';
  */
 
 /**
- * @typedef {CoreTransformConfig & Entrypoint & Omit<ProjectConfig, 'entrypoints'> & { root: string, publicPath: string }} EntrypointFinalConfig
+ * @typedef {CoreTransformConfig & Entrypoint & Omit<ProjectConfig, 'entrypoints'> & { root: string, publicPath: string, write?: boolean }} EntrypointFinalConfig
  */
 
 /**

@@ -1,8 +1,8 @@
 {
-  "name": "@chialab/esbuild-plugin-alias",
+  "name": "@chialab/esbuild-plugin-define-this",
   "type": "module",
-  "version": "0.11.38",
-  "description": "A plugin for esbuild that resolves aliases or empty modules.",
+  "version": "0.11.0",
+  "description": "Define the this value in an esm module.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",
   "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
@@ -10,14 +10,9 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/chialab/rna",
-    "directory": "packages/esbuild-plugin-env"
+    "directory": "packages/esbuild-plugin-define-this"
   },
-  "keywords": [
-    "esbuild",
-    "plugin",
-    "alias",
-    "empty"
-  ],
+  "keywords": [],
   "scripts": {
     "types": "tsc",
     "prepack": "yarn types"
@@ -32,14 +27,8 @@
   "engines": {
     "node": ">=13"
   },
-  "dependencies": {
-    "@chialab/esbuild-helpers": "^0.11.13",
-    "@chialab/estransform": "^0.11.38",
-    "@chialab/node-resolve": "^0.11.19",
-    "pkg-up": "^3.1.0"
-  },
+  "dependencies": {},
   "devDependencies": {
-    "esbuild": "^0.12.0",
     "typescript": "^4.3.0"
   }
 }

@@ -21,7 +21,7 @@ import { createLogger, colors } from '@chialab/rna-logger';
             const { command } = await import(source);
             command(program);
         } catch (err) {
-            if (err.code === 'ERR_MODULE_NOT_FOUND') {
+            if ((/** @type {NodeJS.ErrnoException} */(err)).code === 'ERR_MODULE_NOT_FOUND') {
                 const logger = createLogger();
                 return program
                     .command(name)

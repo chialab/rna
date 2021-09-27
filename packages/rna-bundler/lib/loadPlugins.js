@@ -26,10 +26,19 @@ export async function loadTransformPlugins({
 }
 
 /**
- * @param {{ html?: import('@chialab/esbuild-plugin-html').PluginOptions, postcss?: import('@chialab/esbuild-plugin-postcss').PluginOptions }} options
+ * @typedef {Object} LoadPluginsOptions
+ * @property {import('@chialab/esbuild-plugin-html').PluginOptions} [html]
+ * @property {import('@chialab/esbuild-plugin-postcss').PluginOptions} [postcss]
+ */
+
+/**
+ * @param {LoadPluginsOptions} options
  * @param {typeof import('esbuild')} [esbuild]
  */
-export async function loadPlugins({ html, postcss } = {}, esbuild) {
+export async function loadPlugins({
+    html,
+    postcss,
+} = {}, esbuild) {
     /**
      * @type {Promise<import('esbuild').Plugin|false>[]}
      */

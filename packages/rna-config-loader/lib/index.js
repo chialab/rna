@@ -67,6 +67,7 @@ import path from 'path';
  * @property {Plugin[]} plugins
  * @property {Plugin[]} transformPlugins
  * @property {LogLevel} logLevel
+ * @property {boolean} [splitting]
  * @property {boolean|import('esbuild').WatchMode} [watch]
  */
 
@@ -146,6 +147,7 @@ export function getEntryConfig(entrypoint, config) {
         bundle: entrypoint.bundle ?? config.bundle ?? false,
         minify: entrypoint.minify ?? config.minify ?? false,
         clean: entrypoint.clean ?? config.clean ?? false,
+        splitting: entrypoint.splitting ?? config.splitting,
         globalName: entrypoint.globalName || entrypoint.name || (format === 'iife' ? camelize(Array.isArray(entrypoint.input) ? entrypoint.input[0] : entrypoint.input) : undefined),
         entryNames: entrypoint.entryNames || config.entryNames || '[name]',
         chunkNames: entrypoint.chunkNames || config.chunkNames || '[name]',

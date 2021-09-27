@@ -37,7 +37,9 @@
     "@chialab/esbuild-helpers": "^0.11.13",
     "@chialab/esbuild-plugin-alias": "^0.11.38",
     "@chialab/esbuild-plugin-any-file": "^0.11.35",
+    "@chialab/esbuild-plugin-bundle-dependencies": "^0.11.0",
     "@chialab/esbuild-plugin-commonjs": "^0.11.41",
+    "@chialab/esbuild-plugin-define-this": "^0.11.0",
     "@chialab/esbuild-plugin-emit": "^0.11.39",
     "@chialab/esbuild-plugin-env": "^0.11.22",
     "@chialab/esbuild-plugin-jsx-import": "^0.11.38",
@@ -51,9 +53,9 @@
     "pkg-up": "^3.1.0"
   },
   "peerDependencies": {
-    "@chialab/esbuild-plugin-babel": "^0.11.0",
-    "@chialab/esbuild-plugin-html": "^0.11.0",
-    "@chialab/esbuild-plugin-postcss": "^0.11.0"
+    "@chialab/esbuild-plugin-babel": "^0.12.0",
+    "@chialab/esbuild-plugin-html": "^0.12.0",
+    "@chialab/esbuild-plugin-postcss": "^0.12.0"
   },
   "peerDependenciesMeta": {
     "@chialab/esbuild-plugin-babel": {

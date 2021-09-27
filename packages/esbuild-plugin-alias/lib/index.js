@@ -1,3 +1,5 @@
+import { readFile } from 'fs/promises';
+import pkgUp from 'pkg-up';
 import { resolve } from '@chialab/node-resolve';
 import { createEmptyModule } from '@chialab/estransform';
 import { escapeRegexBody } from '@chialab/esbuild-helpers';
@@ -5,9 +7,10 @@ import { escapeRegexBody } from '@chialab/esbuild-helpers';
 /**
  * A plugin for esbuild that resolves aliases or empty modules.
  * @param {{ [key: string]: string | false }} modules
+ * @param {boolean} [browserField]
  * @return An esbuild plugin.
  */
-export default function(modules = {}) {
+export default function(modules = {}, browserField = true) {
     const keys = Object.keys(modules);
     const aliases = keys.filter((alias) => modules[alias]);
     const empty = keys.filter((alias) => !modules[alias]);
@@ -17,10 +20,23 @@ export default function(modules = {}) {
      */
     const plugin = {
         name: 'alias',
-        setup(build) {
+        async setup(build) {
             const options = build.initialOptions;
-            const { sourceRoot, absWorkingDir } = options;
+            const { sourceRoot, absWorkingDir, platform = 'neutral' } = options;
             const rootDir = sourceRoot || absWorkingDir || process.cwd();
+
+            if (browserField && platform === 'browser') {
+                const packageFile = await pkgUp({
+                    cwd: rootDir,
+                });
+                if (packageFile) {
+                    const packageJson = JSON.parse(await readFile(packageFile, 'utf-8'));
+                    if (typeof packageJson.browser === 'object') {
+                        Object.assign(aliases, packageJson.browser);
+                    }
+                }
+            }
+
             if (aliases.length) {
                 aliases.forEach((alias) => {
                     const regexBody = escapeRegexBody(alias);

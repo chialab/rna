@@ -44,8 +44,18 @@ export async function transform(config) {
     }
 
     const finalPlugins = await Promise.all([
-        import('@chialab/esbuild-plugin-env').then(({ default: plugin }) => plugin()),
-        import('@chialab/esbuild-plugin-jsx-import').then(({ default: plugin }) => plugin({ jsxModule, jsxExport })),
+        import('@chialab/esbuild-plugin-env')
+            .then(({ default: plugin }) => plugin()),
+        import('@chialab/esbuild-plugin-define-this')
+            .then(({ default: plugin }) => plugin()),
+        import('@chialab/esbuild-plugin-jsx-import')
+            .then(({ default: plugin }) => plugin({ jsxModule, jsxExport })),
+        import('@chialab/esbuild-plugin-bundle-dependencies')
+            .then(({ default: plugin }) => plugin({
+                dependencies: !!bundle,
+                peerDependencies: !!bundle,
+                optionalDependencies: !!bundle,
+            })),
         ...plugins,
         import('@chialab/esbuild-plugin-transform')
             .then(async ({ default: plugin }) =>
@@ -71,10 +81,7 @@ export async function transform(config) {
         sourcemap,
         minify,
         format,
-        define: {
-            this: platform === 'browser' ? 'window' : platform === 'neutral' ? 'globalThis' : 'undefined',
-            ...define,
-        },
+        define,
         jsxFactory,
         jsxFragment,
         loader: transformLoaders,

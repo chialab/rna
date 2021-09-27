@@ -40,6 +40,7 @@ export async function build(config) {
     const { default: esbuild } = await import('esbuild');
     const { default: pkgUp } = await import('pkg-up');
     const logger = createLogger();
+    const hasOutputFile = !!path.extname(config.output);
 
     const {
         input,
@@ -53,6 +54,7 @@ export async function build(config) {
         sourcemap,
         minify,
         bundle,
+        splitting = format === 'esm' && !hasOutputFile,
         globalName,
         entryNames,
         chunkNames,
@@ -71,8 +73,6 @@ export async function build(config) {
         watch,
     } = config;
 
-    const hasOutputFile = !!path.extname(output);
-
     const entryOptions = {};
     if (code) {
         entryOptions.stdin = {
@@ -90,45 +90,9 @@ export async function build(config) {
         await rm(path.resolve(root, outputDir), { recursive: true, force: true });
     }
 
-    /**
-     * @type {import('esbuild').Plugin[]}
-     */
-    const extraTransformPlugins = [];
-
-    if (!bundle) {
-        const packageFile = await pkgUp({
-            cwd: root,
-        });
-        if (packageFile) {
-            const packageJson = JSON.parse(await readFile(packageFile, 'utf-8'));
-            external.push(
-                ...Object.keys(packageJson.dependencies || {}),
-                ...Object.keys(packageJson.peerDependencies || {}),
-                ...Object.keys(packageJson.optionalDependencies || {})
-            );
-        }
-    }
-
-    if (platform === 'browser') {
-        const packageFile = await pkgUp({
-            cwd: root,
-        });
-        if (packageFile) {
-            const packageJson = JSON.parse(await readFile(packageFile, 'utf-8'));
-            if (typeof packageJson.browser === 'object') {
-                Object.assign(alias, packageJson.browser);
-            }
-        }
-    }
-
-    if (Object.keys(alias).length) {
-        extraTransformPlugins.push(
-            (await import('@chialab/esbuild-plugin-alias')).default(alias)
-        );
-    }
-
     const finalPlugins = await Promise.all([
-        import('@chialab/esbuild-plugin-emit').then(({ default: plugin }) => plugin()),
+        import('@chialab/esbuild-plugin-emit')
+            .then(({ default: plugin }) => plugin()),
         import('@chialab/esbuild-plugin-any-file')
             .then(({ default: plugin }) =>
                 plugin({
@@ -138,13 +102,24 @@ export async function build(config) {
                     },
                 })
             ),
-        import('@chialab/esbuild-plugin-env').then(({ default: plugin }) => plugin()),
-        import('@chialab/esbuild-plugin-jsx-import').then(({ default: plugin }) => plugin({ jsxModule, jsxExport })),
+        import('@chialab/esbuild-plugin-env')
+            .then(({ default: plugin }) => plugin()),
+        import('@chialab/esbuild-plugin-define-this')
+            .then(({ default: plugin }) => plugin()),
+        import('@chialab/esbuild-plugin-jsx-import')
+            .then(({ default: plugin }) => plugin({ jsxModule, jsxExport })),
+        import('@chialab/esbuild-plugin-bundle-dependencies')
+            .then(({ default: plugin }) => plugin({
+                dependencies: !bundle,
+                peerDependencies: !bundle,
+                optionalDependencies: !bundle,
+            })),
         ...plugins,
         import('@chialab/esbuild-plugin-transform')
             .then(async ({ default: plugin }) =>
                 plugin([
-                    ...extraTransformPlugins,
+                    await import('@chialab/esbuild-plugin-alias')
+                        .then(({ default: plugin }) => plugin(alias)),
                     ...transformPlugins,
                 ])
             ),
@@ -163,7 +138,7 @@ export async function build(config) {
         entryNames,
         chunkNames,
         assetNames,
-        splitting: format === 'esm' && !hasOutputFile,
+        splitting,
         metafile: true,
         bundle: true,
         treeShaking: minify ? true : undefined,

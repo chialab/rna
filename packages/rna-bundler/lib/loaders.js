@@ -11,6 +11,8 @@ export const loaders = {
     '.json': 'json',
     '.geojson': 'json',
     '.css': 'css',
+    '.scss': 'css',
+    '.sass': 'css',
     '.html': 'file',
     '.webmanifest': 'file',
 };
@@ -28,4 +30,6 @@ export const transformLoaders = {
     '.json': 'json',
     '.geojson': 'json',
     '.css': 'css',
+    '.scss': 'css',
+    '.sass': 'css',
 };

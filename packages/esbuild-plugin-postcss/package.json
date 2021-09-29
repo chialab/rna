@@ -38,8 +38,13 @@
     "postcss": "^8.2.5",
     "postcss-load-config": "^3.0.1"
   },
+  "optionalDependencies": {
+    "@chialab/postcss-dart-sass": "^0.12.0",
+    "postcss-scss": "^4.0.0"
+  },
   "devDependencies": {
     "esbuild": "^0.13.0",
+    "postcss-scss": "^4.0.0",
     "typescript": "^4.3.0"
   }
 }

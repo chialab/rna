@@ -50,7 +50,7 @@ export default function(options = {}) {
             const input = stdin ? stdin.sourcefile : undefined;
             const fullInput = input && path.resolve(sourceRoot || process.cwd(), input);
 
-            build.onLoad({ filter: /\.css$/, namespace: 'file' }, async ({ path: filePath }) => {
+            build.onLoad({ filter: /\.(sc|sa|c)ss$/, namespace: 'file' }, async ({ path: filePath }) => {
                 const [
                     { default: postcss },
                     { default: preset },
@@ -64,6 +64,7 @@ export default function(options = {}) {
                 const contents = filePath === fullInput && stdin ?
                     stdin.contents.toString() :
                     await readFile(filePath, 'utf-8');
+
                 const config = await loadPostcssConfig();
                 const plugins = [
                     urlRebase({
@@ -74,6 +75,7 @@ export default function(options = {}) {
                     ...(config.plugins || [preset()]),
                 ];
 
+                const isSass = ['.sass', '.scss'].includes(path.extname(filePath));
                 const finalConfig = {
                     from: filePath,
                     map: {
@@ -82,8 +84,22 @@ export default function(options = {}) {
                     },
                     ...(config.options || {}),
                     ...options,
+                    syntax: isSass ?
+                        await import('postcss-scss')
+                            .then(({ default: postcssSass }) => postcssSass) :
+                        undefined,
                 };
-                const result = await postcss(plugins).process(contents, finalConfig);
+                const result = await postcss([
+                    ...plugins,
+                    ...(isSass ? [await import('@chialab/postcss-dart-sass')
+                        .then(({ default: postcssSass }) => postcssSass({
+                            omitSourceMapUrl: true,
+                            sourceMapContents: true,
+                            sourceMapEmbed: false,
+                        }))] :
+                        []
+                    ),
+                ]).process(contents, finalConfig);
                 const sourceMap = result.map.toJSON();
                 sourceMap.sources = [path.basename(filePath)];
                 delete sourceMap.file;

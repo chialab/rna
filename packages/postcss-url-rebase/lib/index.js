@@ -28,6 +28,9 @@ export default function urlRebase({ root = process.cwd(), relative, transform } 
                     return;
                 }
 
+                /**
+                 * @type {string|null}
+                 */
                 let resolvedImportPath = source
                     .replace(/^['"]/, '')
                     .replace(/['"]$/, '')
@@ -39,6 +42,10 @@ export default function urlRebase({ root = process.cwd(), relative, transform } 
 
                 if (!resolvedImportPath.startsWith('.')) {
                     resolvedImportPath = await styleResolve(resolvedImportPath, decl.source?.input.file ?? root);
+                }
+
+                if (!resolvedImportPath) {
+                    return;
                 }
 
                 if (path.extname(resolvedImportPath) !== '.css') {

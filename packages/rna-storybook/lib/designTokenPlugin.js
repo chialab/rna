@@ -1,7 +1,7 @@
 import { escapeRegexBody } from '@chialab/esbuild-helpers';
 import { createEmptySourcemapComment } from '@chialab/estransform';
-import { createDesignTokens } from './createDesignTokens';
-import { DESIGN_TOKENS_SCRIPT } from './entrypoints';
+import { createDesignTokens } from './createDesignTokens.js';
+import { DESIGN_TOKENS_SCRIPT } from './entrypoints.js';
 
 /**
  * @param {import('./createPlugins').StorybookConfig} options

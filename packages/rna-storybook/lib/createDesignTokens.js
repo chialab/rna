@@ -8,7 +8,7 @@ import glob from 'fast-glob';
  */
 export async function createDesignTokens(root, cssFiles) {
     const designTokensConfig = {
-        files: await Promise.all(
+        files: (await Promise.all(
             cssFiles
                 .map((pattern) =>
                     glob(pattern).then((files) =>
@@ -20,7 +20,7 @@ export async function createDesignTokens(root, cssFiles) {
                         )
                     )
                 )
-        ),
+        )).flat(),
         options: {
             hideMatchingHardCodedValues: true,
         },

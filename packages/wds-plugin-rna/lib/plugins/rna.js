@@ -6,6 +6,7 @@ import { getEntryConfig } from '@chialab/rna-config-loader';
 import { browserResolve, isCore, isJs, isJson, isCss, fsResolve, getSearchParam, appendSearchParam, removeSearchParam, getSearchParams } from '@chialab/node-resolve';
 import { isHelperImport, isOutsideRootDir, resolveRelativeImport } from '@chialab/wds-plugin-node-resolve';
 import { transform, transformLoaders, loadPlugins, loadTransformPlugins, build } from '@chialab/rna-bundler';
+import { realpath } from 'fs/promises';
 
 /**
  * @typedef {import('@web/dev-server-core').Plugin} Plugin
@@ -295,6 +296,12 @@ export function rnaPlugin(config) {
                 return;
             }
 
+            const realPath = await realpath(resolved);
+            if (realPath !== resolved) {
+                // ignore symlinked files
+                return;
+            }
+
             if (resolved in virtualFs) {
                 return resolveRelativeImport(resolved, filePath, rootDir);
             }
@@ -311,6 +318,7 @@ export function rnaPlugin(config) {
                 loader: getRequestLoader(context),
                 bundle: false,
             };
+
             virtualFs[resolved] = createConfig(entrypoint, serverConfig, config)
                 .then((transformConfig) =>
                     build({

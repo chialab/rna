@@ -1,7 +1,7 @@
 {
   "name": "@chialab/esbuild-plugin-dependencies",
   "type": "module",
-  "version": "0.12.0",
+  "version": "0.12.2",
   "description": "Collect extra dependencies of the bundle.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",
@@ -27,7 +27,6 @@
   "engines": {
     "node": ">=13"
   },
-  "dependencies": {},
   "devDependencies": {
     "esbuild": "^0.13.0",
     "typescript": "^4.3.0"

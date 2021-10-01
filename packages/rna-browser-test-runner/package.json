@@ -1,7 +1,7 @@
 {
   "name": "@chialab/rna-browser-test-runner",
   "type": "module",
-  "version": "0.12.1",
+  "version": "0.12.2",
   "description": "A test runner for browsers based on Web Test Runner.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",
@@ -43,10 +43,10 @@
     }
   },
   "dependencies": {
-    "@chialab/rna-config-loader": "^0.12.0",
-    "@chialab/rna-dev-server": "^0.12.1",
-    "@chialab/rna-logger": "^0.12.0",
-    "@chialab/wtr-mocha-reporter": "^0.12.0",
+    "@chialab/rna-config-loader": "^0.12.2",
+    "@chialab/rna-dev-server": "^0.12.2",
+    "@chialab/rna-logger": "^0.12.2",
+    "@chialab/wtr-mocha-reporter": "^0.12.2",
     "@web/test-runner-chrome": "^0.10.0",
     "@web/test-runner-core": "^0.10.18",
     "@web/test-runner-mocha": "^0.7.3"

@@ -44,4 +44,4 @@ It uses the [polyfill.io](https://github.com/Financial-Times/polyfill-library) l
 
 ## License
 
-**Wds Plugin Polyfill** is released under the [MIT](https://github.com/chialab/rna/blob/master/packages/wds-plugin-polyfill/LICENSE) license.
+**Wds Plugin Polyfill** is released under the [MIT](https://github.com/chialab/rna/blob/main/packages/wds-plugin-polyfill/LICENSE) license.

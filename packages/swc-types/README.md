@@ -44,4 +44,4 @@ export class ConsoleVisitor extends Visitor {
 
 ## License
 
-**SWC Types** is released under the [MIT](https://github.com/chialab/rna/blob/master/packages/swc-types/LICENSE) license.
+**SWC Types** is released under the [MIT](https://github.com/chialab/rna/blob/main/packages/swc-types/LICENSE) license.

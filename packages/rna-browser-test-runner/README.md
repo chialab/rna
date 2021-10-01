@@ -70,4 +70,4 @@ $ rna test:browser 'test/elements.spec.js' --watch --open
 
 ## License
 
-RNA Browser Test Runner is released under the [MIT](https://github.com/chialab/rna/blob/master/packages/rna-browser-test-runner/LICENSE) license.
+RNA Browser Test Runner is released under the [MIT](https://github.com/chialab/rna/blob/main/packages/rna-browser-test-runner/LICENSE) license.

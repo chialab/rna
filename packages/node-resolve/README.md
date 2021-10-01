@@ -27,4 +27,4 @@ await resolve('lit', '/path/to/www/js');
 
 ## License
 
-**Node Resolve** is released under the [MIT](https://github.com/chialab/rna/blob/master/packages/node-resolve/LICENSE) license.
+**Node Resolve** is released under the [MIT](https://github.com/chialab/rna/blob/main/packages/node-resolve/LICENSE) license.

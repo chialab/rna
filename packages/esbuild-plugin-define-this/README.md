@@ -26,4 +26,4 @@ import '@chialab/esbuild-plugin-define-this';
 
 ## License
 
-**esbuild-plugin-define-this** is released under the [MIT](https://github.com/chialab/rna/blob/master/packages/esbuild-plugin-define-this/LICENSE) license.
+**esbuild-plugin-define-this** is released under the [MIT](https://github.com/chialab/rna/blob/main/packages/esbuild-plugin-define-this/LICENSE) license.

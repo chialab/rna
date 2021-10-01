@@ -34,4 +34,4 @@ This is similar to the [official legacy plugin](https://www.npmjs.com/package/@w
 
 ## License
 
-**Wds Plugin Legacy** is released under the [MIT](https://github.com/chialab/rna/blob/master/packages/wds-plugin-legacy/LICENSE) license.
+**Wds Plugin Legacy** is released under the [MIT](https://github.com/chialab/rna/blob/main/packages/wds-plugin-legacy/LICENSE) license.

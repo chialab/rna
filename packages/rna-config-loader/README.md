@@ -26,4 +26,4 @@ import '@chialab/rna-config-loader';
 
 ## License
 
-**RNA Config Loader** is released under the [MIT](https://github.com/chialab/rna/blob/master/packages/rna-config-loader/LICENSE) license.
+**RNA Config Loader** is released under the [MIT](https://github.com/chialab/rna/blob/main/packages/rna-config-loader/LICENSE) license.

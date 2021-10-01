@@ -64,4 +64,4 @@ $ rna serve public --port 3000
 
 ## License
 
-RNA Dev Server is released under the [MIT](https://github.com/chialab/rna/blob/master/packages/rna-dev-server/LICENSE) license.
+RNA Dev Server is released under the [MIT](https://github.com/chialab/rna/blob/main/packages/rna-dev-server/LICENSE) license.

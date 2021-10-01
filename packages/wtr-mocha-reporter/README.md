@@ -31,4 +31,4 @@ export default {
 
 ## License
 
-**WTR Mocha Reporter** is released under the [MIT](https://github.com/chialab/rna/blob/master/packages/wtr-mocha-reporter/LICENSE) license.
+**WTR Mocha Reporter** is released under the [MIT](https://github.com/chialab/rna/blob/main/packages/wtr-mocha-reporter/LICENSE) license.

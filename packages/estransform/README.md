@@ -33,4 +33,4 @@ const { code, map } = await transform('require("tslib"); module.exports = functi
 
 ## License
 
-**Estransform** is released under the [MIT](https://github.com/chialab/rna/blob/master/packages/estransform/LICENSE) license.
+**Estransform** is released under the [MIT](https://github.com/chialab/rna/blob/main/packages/estransform/LICENSE) license.

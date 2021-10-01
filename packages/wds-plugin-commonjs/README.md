@@ -34,4 +34,4 @@ await startDevServer({
 
 ## License
 
-**Wds Plugin Commonjs** is released under the [MIT](https://github.com/chialab/rna/blob/master/packages/wds-plugin-commonjs/LICENSE) license.
+**Wds Plugin Commonjs** is released under the [MIT](https://github.com/chialab/rna/blob/main/packages/wds-plugin-commonjs/LICENSE) license.

@@ -33,6 +33,7 @@
     "node": ">=13"
   },
   "dependencies": {
+    "@chialab/esbuild-plugin-dependencies": "^0.12.0",
     "@chialab/postcss-preset-chialab": "^0.12.1",
     "@chialab/postcss-url-rebase": "^0.12.1",
     "postcss": "^8.2.5",

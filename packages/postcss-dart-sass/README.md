@@ -26,4 +26,4 @@ import '@chialab/postcss-dart-sass';
 
 ## License
 
-**postcss-dart-sass** is released under the [MIT](https://github.com/chialab/rna/blob/master/packages/postcss-dart-sass/LICENSE) license.
+**postcss-dart-sass** is released under the [MIT](https://github.com/chialab/rna/blob/main/packages/postcss-dart-sass/LICENSE) license.

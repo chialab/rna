@@ -28,4 +28,4 @@ postcss([
 
 ## License
 
-**Postcss Url Rebase** is released under the [MIT](https://github.com/chialab/rna/blob/master/packages/postcss-url-rebase/LICENSE) license.
+**Postcss Url Rebase** is released under the [MIT](https://github.com/chialab/rna/blob/main/packages/postcss-url-rebase/LICENSE) license.

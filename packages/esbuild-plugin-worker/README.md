@@ -73,4 +73,4 @@ workerPlugin({ constructors: ['Worker', 'MyWorker'] });
 
 ## License
 
-**Esbuild Plugin Worker** is released under the [MIT](https://github.com/chialab/rna/blob/master/packages/esbuild-plugin-worker/LICENSE) license.
+**Esbuild Plugin Worker** is released under the [MIT](https://github.com/chialab/rna/blob/main/packages/esbuild-plugin-worker/LICENSE) license.

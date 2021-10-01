@@ -1,5 +1,6 @@
 import path from 'path';
 import { readFile } from 'fs/promises';
+import { addBuildDependencies } from '@chialab/esbuild-plugin-dependencies';
 
 /**
  * @typedef {Object} PostcssConfig
@@ -104,10 +105,16 @@ export default function(options = {}) {
                 sourceMap.sources = [path.basename(filePath)];
                 delete sourceMap.file;
                 const url = `data:application/json;base64,${Buffer.from(JSON.stringify(sourceMap)).toString('base64')}`;
+                const dependencies = result.messages
+                    .filter(({ type }) => type === 'dependency')
+                    .map(({ file }) => file);
+
+                addBuildDependencies(build, filePath, dependencies);
 
                 return {
                     contents: `${result.css.toString()}\n/*# sourceMappingURL=${url} */\n`,
                     loader: 'css',
+                    watchFiles: dependencies,
                 };
             });
         },

@@ -26,4 +26,4 @@ import '@chialab/rna-logger';
 
 ## License
 
-**RNA Logger** is released under the [MIT](https://github.com/chialab/rna/blob/master/packages/rna-logger/LICENSE) license.
+**RNA Logger** is released under the [MIT](https://github.com/chialab/rna/blob/main/packages/rna-logger/LICENSE) license.

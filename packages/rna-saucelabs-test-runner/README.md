@@ -77,4 +77,4 @@ $ rna test:saucelabs 'test/elements.spec.js' --browsers 'ie 11' 'chrome 60' 'ios
 
 ## License
 
-RNA Saucelabs Test Runner is released under the [MIT](https://github.com/chialab/rna/blob/master/packages/rna-saucelabs-test-runner/LICENSE) license.
+RNA Saucelabs Test Runner is released under the [MIT](https://github.com/chialab/rna/blob/main/packages/rna-saucelabs-test-runner/LICENSE) license.

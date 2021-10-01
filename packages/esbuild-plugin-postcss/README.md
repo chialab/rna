@@ -30,8 +30,17 @@ await esbuild.build({
 
 This plugin looks for a postcss configuration in the project and fallbacks to out custom [preset](https://www.npmjs.com/package/@chialab/postcss-preset-chialab).
 
+### Sass
+
+The plugin automatically tries to load the `@chialab/postcss-plugin-dart-sass` when it processes `.scss` files. Please make sure to have installed the optional dependency in order to correctly transpiler Sass files:
+
+```sh
+$ npm i @chialab/postcss-plugin-dart-sass -D
+$ yarn add @chialab/postcss-plugin-dart-sass -D
+```
+
 ---
 
 ## License
 
-**Esbuild Plugin Postcss** is released under the [MIT](https://github.com/chialab/rna/blob/master/packages/esbuild-plugin-postcss/LICENSE) license.
+**Esbuild Plugin Postcss** is released under the [MIT](https://github.com/chialab/rna/blob/main/packages/esbuild-plugin-postcss/LICENSE) license.

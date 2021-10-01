@@ -37,4 +37,4 @@ swc
 
 ## License
 
-**SWC Plugin HTM** is released under the [MIT](https://github.com/chialab/rna/blob/master/packages/swc-plugin-html/LICENSE) license.
+**SWC Plugin HTM** is released under the [MIT](https://github.com/chialab/rna/blob/main/packages/swc-plugin-html/LICENSE) license.

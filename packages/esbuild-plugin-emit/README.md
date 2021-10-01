@@ -26,4 +26,4 @@ import '@chialab/esbuild-plugin-emit';
 
 ## License
 
-**Esbuild Plugin Emit** is released under the [MIT](https://github.com/chialab/rna/blob/master/packages/esbuild-plugin-emit/LICENSE) license.
+**Esbuild Plugin Emit** is released under the [MIT](https://github.com/chialab/rna/blob/main/packages/esbuild-plugin-emit/LICENSE) license.

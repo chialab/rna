@@ -32,4 +32,4 @@ await startDevServer({
 
 ## License
 
-**Wds Plugin RNA** is released under the [MIT](https://github.com/chialab/rna/blob/master/packages/wds-plugin-rna/LICENSE) license.
+**Wds Plugin RNA** is released under the [MIT](https://github.com/chialab/rna/blob/main/packages/wds-plugin-rna/LICENSE) license.

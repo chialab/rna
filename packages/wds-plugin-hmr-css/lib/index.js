@@ -57,6 +57,25 @@ function invalidateResource(dependencyTree, filePath) {
     );
 }
 
+function createCssLiveReload() {
+    return `export default function(entrypoints) {
+    entrypoints.forEach(function(entrypoint) {
+        const url = new URL(entrypoint);
+        const links = Array.from(document.querySelectorAll('link'))
+            .filter(function(elem) {
+                const link = new URL(elem.href);
+                return link.origin === url.origin && link.pathname === url.pathname;
+            });
+        if (links.length) {
+            url.searchParams.set('ts', Date.now());
+            for (let i = 0; i < links.length; i++) {
+                links[i].setAttribute('href', url.href);
+            }
+        }
+    })
+}`.replace(/\n\s*/g, '');
+}
+
 /**
  * Create a server plugin for CSS hmr.
  * @return A server plugin.
@@ -93,36 +112,24 @@ export function hmrCssPlugin() {
 
             const send = webSockets.send;
             webSockets.send = function(message) {
-                try {
+                if (currentFile) {
                     const data = JSON.parse(message);
-                    if (data.type === 'import' && currentFile && dependencyTree.has(currentFile)) {
+                    if (data.type !== 'import' || !dependencyTree.has(currentFile)) {
+                        currentFile = undefined;
+                        return;
+                    }
+
+                    try {
                         const entrypoints = invalidateResource(dependencyTree, currentFile)
                             .map((entryPoint) => entryPoint.url);
-                        const content = `export default function(entrypoints) {
-    entrypoints.forEach(function(entrypoint) {
-        const url = new URL(entrypoint);
-        const links = Array.from(document.querySelectorAll('link'))
-            .filter(function(elem) {
-                const link = new URL(elem.href);
-                return link.origin === url.origin && link.pathname === url.pathname;
-            });
-        if (links.length) {
-            url.searchParams.set('ts', Date.now());
-            for (let i = 0; i < links.length; i++) {
-                links[i].setAttribute('href', url.href);
-            }
-        } else {
-            window.location.reload();
-        }
-    })
-}`.replace(/\n\s*/g, '');
+                        const content = createCssLiveReload();
                         data.data.importPath = `data:text/javascript,${content}`;
                         data.data.args = [entrypoints];
                         message = JSON.stringify(data);
                         currentFile = undefined;
+                    } catch (err) {
+                        //
                     }
-                } catch(err) {
-                    //
                 }
 
                 return send.apply(this, [message]);
@@ -132,7 +139,7 @@ export function hmrCssPlugin() {
              * @param {string} filePath
              */
             const onFileChanged = (filePath) => {
-                if (!filePath.endsWith('.css')) {
+                if (!filePath.match(/\.(c|sc|sa|le)ss$/)) {
                     return;
                 }
 

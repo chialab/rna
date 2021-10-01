@@ -40,4 +40,4 @@ await esbuild.build({
 
 ## License
 
-**Esbuild Plugin Require Resolve** is released under the [MIT](https://github.com/chialab/rna/blob/master/packages/esbuild-plugin-require-resolve/LICENSE) license.
+**Esbuild Plugin Require Resolve** is released under the [MIT](https://github.com/chialab/rna/blob/main/packages/esbuild-plugin-require-resolve/LICENSE) license.

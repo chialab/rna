@@ -51,4 +51,4 @@ Options:
 
 ## License
 
-RNA Node Test Runner is released under the [MIT](https://github.com/chialab/rna/blob/master/packages/rna-node-test-runner/LICENSE) license.
+RNA Node Test Runner is released under the [MIT](https://github.com/chialab/rna/blob/main/packages/rna-node-test-runner/LICENSE) license.

@@ -178,7 +178,7 @@ export function servePlugin({ type, stories: storiesPattern, static: staticFiles
                 const [manager] = await addonsLoader;
                 return createManagerScript({
                     addons: [
-                        ...(essentials ? ['@storybook/essentials/register'] : []),
+                        ...(essentials ? ['@storybook/addon-essentials/register'] : []),
                         ...(designTokens ? ['storybook-design-token/register'] : []),
                         ...addons,
                     ],
@@ -206,7 +206,7 @@ export function servePlugin({ type, stories: storiesPattern, static: staticFiles
                         .map(i => `${i}?story=true`),
                     previewEntries: [
                         ...previewEntries,
-                        ...(essentials ? ['@storybook/essentials'] : []),
+                        ...(essentials ? ['@storybook/addon-essentials'] : []),
                         ...(designTokens ? [`/${DESIGN_TOKENS_SCRIPT}`] : []),
                         ...preview,
                     ],

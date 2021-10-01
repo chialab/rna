@@ -32,4 +32,4 @@ await startDevServer({
 
 ## License
 
-**Wds Plugin Node Resolve** is released under the [MIT](https://github.com/chialab/rna/blob/master/packages/wds-plugin-node-resolve/LICENSE) license.
+**Wds Plugin Node Resolve** is released under the [MIT](https://github.com/chialab/rna/blob/main/packages/wds-plugin-node-resolve/LICENSE) license.

@@ -32,4 +32,4 @@ await esbuild.build({
 
 ## License
 
-**Esbuild Plugin Any File** is released under the [MIT](https://github.com/chialab/rna/blob/master/packages/esbuild-plugin-any-file/LICENSE) license.
+**Esbuild Plugin Any File** is released under the [MIT](https://github.com/chialab/rna/blob/main/packages/esbuild-plugin-any-file/LICENSE) license.

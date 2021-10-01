@@ -140,4 +140,4 @@ The target of the ES modules build (`type="module"`).
 
 ## License
 
-**Esbuild Plugin HTML** is released under the [MIT](https://github.com/chialab/rna/blob/master/packages/esbuild-plugin-html/LICENSE) license.
+**Esbuild Plugin HTML** is released under the [MIT](https://github.com/chialab/rna/blob/main/packages/esbuild-plugin-html/LICENSE) license.

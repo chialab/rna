@@ -40,4 +40,4 @@ postcss([
 
 ## License
 
-**Postcss Preset Chialab** is released under the [MIT](https://github.com/chialab/rna/blob/master/packages/postcss-preset-chialab/LICENSE) license.
+**Postcss Preset Chialab** is released under the [MIT](https://github.com/chialab/rna/blob/main/packages/postcss-preset-chialab/LICENSE) license.

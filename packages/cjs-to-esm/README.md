@@ -27,4 +27,4 @@ const { code, map } = transform('require("tslib"); module.exports = function() {
 
 ## License
 
-**CommonJS to ESM** is released under the [MIT](https://github.com/chialab/rna/blob/master/packages/cjs-to-esm/LICENSE) license.
+**CommonJS to ESM** is released under the [MIT](https://github.com/chialab/rna/blob/main/packages/cjs-to-esm/LICENSE) license.

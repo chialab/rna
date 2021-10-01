@@ -162,9 +162,19 @@ export function rnaPlugin(config) {
     let serverConfig;
 
     /**
+     * @type {import('chokidar').FSWatcher}
+     */
+    let serverFileWatcher;
+
+    /**
      * @type {{ [key: string]: Promise<string> }}
      */
     const virtualFs = {};
+
+    /**
+     * @type {import('@chialab/esbuild-plugin-dependencies').DependenciesMap}
+     */
+    const dependenciesMap = {};
 
     /**
      * @type {Plugin}
@@ -172,8 +182,31 @@ export function rnaPlugin(config) {
     const plugin = {
         name: 'rna',
 
-        async serverStart({ config }) {
+        async serverStart({ config, fileWatcher }) {
             serverConfig = config;
+            serverFileWatcher = fileWatcher;
+
+            /**
+             * @param {string} filePath
+             */
+            const onFileChanged = (filePath) => {
+                for (const key in dependenciesMap) {
+                    if (filePath === key) {
+                        continue;
+                    }
+
+                    const list = dependenciesMap[key];
+                    if (list.includes(filePath)) {
+                        setTimeout(() => {
+                            // debounce change event in order to correctly handle hmr queue
+                            fileWatcher.emit('change', key);
+                        });
+                    }
+                }
+            };
+
+            fileWatcher.on('change', (filePath) => onFileChanged(filePath));
+            fileWatcher.on('unlink', (filePath) => onFileChanged(filePath));
         },
 
         resolveMimeType(context) {
@@ -262,7 +295,25 @@ export function rnaPlugin(config) {
             };
 
             const transformConfig = await createConfig(entrypoint, serverConfig, config);
-            const { code } = await transform(transformConfig);
+            const { code, dependencies } = await transform(transformConfig);
+
+            const watchedDependencies = Object.values(dependenciesMap).flat();
+            for (const key in dependencies) {
+                if (key in dependenciesMap) {
+                    dependenciesMap[key]
+                        .forEach((file) => {
+                            if (watchedDependencies.filter((f) => f === file).length === 1) {
+                                serverFileWatcher.unwatch(file);
+                            }
+                        });
+                }
+
+                dependencies[key]
+                    .forEach((file) => serverFileWatcher.add(file));
+            }
+
+            Object.assign(dependenciesMap, dependencies);
+
             return code;
         },
 

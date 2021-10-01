@@ -5,6 +5,14 @@ import { readFile, writeFile, mkdir } from 'fs/promises';
 export * from './dependencies.js';
 
 /**
+ * @typedef {import('esbuild').Metafile} Metafile
+ */
+
+/**
+ * @typedef {import('esbuild').BuildResult & { metafile: Metafile, outputFiles?: import('esbuild').OutputFile[] }} BuildResult
+ */
+
+/**
  * Escape RegExp modifiers in a string.
  * @param {string} source
  */
@@ -13,10 +21,18 @@ export function escapeRegexBody(source) {
 }
 
 /**
- * @param {import('esbuild').Metafile} [metafile]
- * @return {import('esbuild').BuildResult}
+ * Create an empty metafile object.
+ * @return {Metafile}
  */
-export function createResult(metafile = { inputs: {}, outputs: {} }) {
+export function createEmptyMetafile() {
+    return { inputs: {}, outputs: {} };
+}
+
+/**
+ * @param {Metafile} [metafile]
+ * @return {BuildResult}
+ */
+export function createResult(metafile = createEmptyMetafile()) {
     return {
         errors: [],
         warnings: [],
@@ -29,21 +45,23 @@ export function createResult(metafile = { inputs: {}, outputs: {} }) {
  * that collects all inputs and outputs references, errors and warnings.
  * This is useful when running multiple builds in separated process.
  * @param {import('esbuild').BuildResult} context
- * @param {import('esbuild').BuildResult} result
+ * @param {BuildResult} result
  */
 export function assignToResult(context, result) {
     context.errors.push(...result.errors);
     context.warnings.push(...result.warnings);
-    if (context.metafile && result.metafile) {
-        context.metafile.inputs = {
-            ...context.metafile.inputs,
-            ...result.metafile.inputs,
-        };
-        context.metafile.outputs = {
-            ...context.metafile.outputs,
-            ...result.metafile.outputs,
-        };
-    }
+
+    const contextMeta = context.metafile = context.metafile || createEmptyMetafile();
+    const resultMeta = result.metafile || createEmptyMetafile();
+
+    contextMeta.inputs = {
+        ...contextMeta.inputs,
+        ...resultMeta.inputs,
+    };
+    contextMeta.outputs = {
+        ...contextMeta.outputs,
+        ...resultMeta.outputs,
+    };
 }
 
 /**
@@ -51,7 +69,7 @@ export function assignToResult(context, result) {
  * This is useful when you need to build multiple files using the `outdir` option
  * and you don't know the name of the resulting file.
  * @param {string[]} entryPoints The list of build entrypoints.
- * @param {import('esbuild').Metafile} metafile The result metafile from esbuild.
+ * @param {Metafile} metafile The result metafile from esbuild.
  * @param {string} rootDir The root dir of the build.
  * @return {string}
  */
@@ -125,15 +143,12 @@ export async function esbuildFile(from, options = {}) {
  * @param {import('esbuild').BuildResult} result
  * @param {string} from
  * @param {string} to
- * @return {import('esbuild').BuildResult}
+ * @return {BuildResult}
  */
 export function remapResult(result, from, to) {
-    if (!result.metafile) {
-        return { ...result };
-    }
-
-    const inputs = result.metafile.inputs;
-    const outputs = result.metafile.outputs;
+    const resultMeta = result.metafile || createEmptyMetafile();
+    const inputs = resultMeta.inputs;
+    const outputs = resultMeta.outputs;
 
     return {
         errors: result.errors,
@@ -144,13 +159,13 @@ export function remapResult(result, from, to) {
                     const newPath = path.relative(to, path.resolve(from, input));
                     acc[newPath] = inputs[input];
                     return acc;
-                }, /** @type {import('esbuild').Metafile['inputs']} */({})),
+                }, /** @type {Metafile['inputs']} */({})),
             outputs: Object.keys(outputs)
                 .reduce((acc, output) => {
                     const newPath = path.relative(to, path.resolve(from, output));
                     acc[newPath] = outputs[output];
                     return acc;
-                }, /** @type {import('esbuild').Metafile['outputs']} */ ({})),
+                }, /** @type {Metafile['outputs']} */ ({})),
         },
     };
 }

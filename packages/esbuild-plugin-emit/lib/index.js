@@ -4,6 +4,14 @@ import { getMainOutput } from '@chialab/esbuild-helpers';
 import { appendSearchParam, getSearchParam, getSearchParams, hasSearchParam } from '@chialab/node-resolve';
 
 /**
+ * @typedef {import('esbuild').Metafile} Metafile
+ */
+
+/**
+ * @typedef {import('esbuild').BuildResult & { metafile: Metafile, outputFiles?: import('esbuild').OutputFile[] }} BuildResult
+ */
+
+/**
  * The filter regex for file imports.
  */
 const EMIT_FILE_REGEX = /(\?|&)emit=file/;
@@ -181,8 +189,8 @@ export default function(esbuild) {
                     metafile: true,
                 };
 
-                const result = await esbuild.build(config);
-                filePath = getMainOutput([filePath], /** @type {import('esbuild').Metafile} */ (result.metafile), rootDir);
+                const result = /** @type { BuildResult} */ (await esbuild.build(config));
+                filePath = getMainOutput([filePath], result.metafile, rootDir);
 
                 return {
                     contents: await readFile(filePath),

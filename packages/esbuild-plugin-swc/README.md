@@ -36,4 +36,4 @@ await esbuild.build({
 
 ## License
 
-**Esbuild Plugin SWC** is released under the [MIT](https://github.com/chialab/rna/blob/master/packages/esbuild-plugin-swc/LICENSE) license.
+**Esbuild Plugin SWC** is released under the [MIT](https://github.com/chialab/rna/blob/main/packages/esbuild-plugin-swc/LICENSE) license.

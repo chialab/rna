@@ -6,7 +6,11 @@ import { writeManifestJson } from './writeManifestJson.js';
 import { writeEntrypointsJson } from './writeEntrypointsJson.js';
 
 /**
- * @typedef {import('esbuild').BuildResult & { outputFiles?: import('esbuild').OutputFile[] }} BuildResult
+ * @typedef {import('esbuild').Metafile} Metafile
+ */
+
+/**
+ * @typedef {import('esbuild').BuildResult & { metafile: Metafile, dependencies: import('@chialab/esbuild-plugin-dependencies').DependenciesMap, outputFiles?: import('esbuild').OutputFile[] }} BuildResult
  */
 
 /**
@@ -34,7 +38,7 @@ async function onBuildEnd(config, entryOptions, result) {
 /**
  * Build and bundle sources.
  * @param {import('@chialab/rna-config-loader').EntrypointFinalBuildConfig} config
- * @return {Promise<BuildResult>} The esbuild bundle result.
+ * @return The esbuild bundle result.
  */
 export async function build(config) {
     const { default: esbuild } = await import('esbuild');
@@ -90,6 +94,7 @@ export async function build(config) {
         await rm(path.resolve(root, outputDir), { recursive: true, force: true });
     }
 
+    const { default: dependenciesPlugin, getResultDependencies } = await import('@chialab/esbuild-plugin-dependencies');
     const finalPlugins = await Promise.all([
         import('@chialab/esbuild-plugin-emit')
             .then(({ default: plugin }) => plugin()),
@@ -123,9 +128,10 @@ export async function build(config) {
                     ...transformPlugins,
                 ])
             ),
+        dependenciesPlugin(),
     ]);
 
-    const result = await esbuild.build({
+    const result = /** @type {import('@chialab/esbuild-helpers').CompleteBuildResult} */ await esbuild.build({
         ...entryOptions,
         outfile: hasOutputFile ? output : undefined,
         outdir: hasOutputFile ? undefined : output,
@@ -182,5 +188,8 @@ export async function build(config) {
 
     await onBuildEnd(config, entryOptions, result);
 
-    return result;
+    return {
+        ...result,
+        dependencies: getResultDependencies(result) || {},
+    };
 }

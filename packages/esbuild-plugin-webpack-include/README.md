@@ -32,4 +32,4 @@ await esbuild.build({
 
 ## License
 
-**Esbuild Plugin Webpack Include** is released under the [MIT](https://github.com/chialab/rna/blob/master/packages/esbuild-plugin-webpack-include/LICENSE) license.
+**Esbuild Plugin Webpack Include** is released under the [MIT](https://github.com/chialab/rna/blob/main/packages/esbuild-plugin-webpack-include/LICENSE) license.

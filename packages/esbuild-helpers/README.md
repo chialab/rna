@@ -26,4 +26,4 @@ import '@chialab/esbuild-helpers';
 
 ## License
 
-**Esbuild Helpers** is released under the [MIT](https://github.com/chialab/rna/blob/master/packages/esbuild-helpers/LICENSE) license.
+**Esbuild Helpers** is released under the [MIT](https://github.com/chialab/rna/blob/main/packages/esbuild-helpers/LICENSE) license.

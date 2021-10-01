@@ -49,4 +49,4 @@ await esbuild.build({
 
 ## License
 
-**Esbuild Plugin Meta Url** is released under the [MIT](https://github.com/chialab/rna/blob/master/packages/esbuild-plugin-meta-url/LICENSE) license.
+**Esbuild Plugin Meta Url** is released under the [MIT](https://github.com/chialab/rna/blob/main/packages/esbuild-plugin-meta-url/LICENSE) license.

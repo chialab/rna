@@ -36,4 +36,4 @@ This plugin looks for a postcss configuration in the project, otherwise it just 
 
 ## License
 
-**Wds Plugin Postcss** is released under the [MIT](https://github.com/chialab/rna/blob/master/packages/wds-plugin-postcss/LICENSE) license.
+**Wds Plugin Postcss** is released under the [MIT](https://github.com/chialab/rna/blob/main/packages/wds-plugin-postcss/LICENSE) license.

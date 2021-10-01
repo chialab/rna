@@ -52,4 +52,4 @@ Options:
 
 ## License
 
-RNA Apidoc is released under the [MIT](https://github.com/chialab/rna/blob/master/packages/rna-apidoc/LICENSE) license.
+RNA Apidoc is released under the [MIT](https://github.com/chialab/rna/blob/main/packages/rna-apidoc/LICENSE) license.

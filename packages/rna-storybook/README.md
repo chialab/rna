@@ -26,4 +26,4 @@ import '@chialab/rna-storybook';
 
 ## License
 
-**RNA Storybook** is released under the [MIT](https://github.com/chialab/rna/blob/master/packages/rna-storybook/LICENSE) license.
+**RNA Storybook** is released under the [MIT](https://github.com/chialab/rna/blob/main/packages/rna-storybook/LICENSE) license.

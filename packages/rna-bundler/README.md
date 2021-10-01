@@ -108,4 +108,4 @@ module.exports = {
 
 ## License
 
-RNA Bundler is released under the [MIT](https://github.com/chialab/rna/blob/master/packages/rna-bundler/LICENSE) license.
+RNA Bundler is released under the [MIT](https://github.com/chialab/rna/blob/main/packages/rna-bundler/LICENSE) license.

@@ -26,4 +26,4 @@ import '@chialab/esbuild-plugin-bundle-dependencies';
 
 ## License
 
-**esbuild-plugin-bundle-dependencies** is released under the [MIT](https://github.com/chialab/rna/blob/master/packages/esbuild-plugin-bundle-dependencies/LICENSE) license.
+**esbuild-plugin-bundle-dependencies** is released under the [MIT](https://github.com/chialab/rna/blob/main/packages/esbuild-plugin-bundle-dependencies/LICENSE) license.

@@ -4,6 +4,14 @@ import * as cheerio from 'cheerio';
 import { createResult, assignToResult, getMainOutput, esbuildFile } from '@chialab/esbuild-helpers';
 
 /**
+ * @typedef {import('esbuild').Metafile} Metafile
+ */
+
+/**
+ * @typedef {import('esbuild').BuildResult & { metafile: Metafile, outputFiles?: import('esbuild').OutputFile[] }} BuildResult
+ */
+
+/**
  * Cheerio esm support is unstable for some Node versions.
  */
 const load = /** @type {typeof cheerio.load} */ (cheerio.load || cheerio.default?.load);
@@ -65,7 +73,7 @@ export default function({
         setup(build) {
             const options = build.initialOptions;
             // force metafile in order to collect output data.
-            options.metafile = options.write !== false;
+            options.metafile = options.metafile || options.write !== false;
             options.assetNames = '[dir]/[name]';
             const { entryPoints = [], stdin, sourceRoot, absWorkingDir, assetNames, outdir, outfile } = options;
             const rootDir = sourceRoot || absWorkingDir || process.cwd();
@@ -76,7 +84,7 @@ export default function({
             const fullInput = input && path.resolve(rootDir, input);
 
             /**
-             * @type {import('esbuild').BuildResult}
+             * @type {BuildResult}
              */
             let collectedResult;
 
@@ -123,6 +131,7 @@ export default function({
                         }
                     }
                 }
+
                 assignToResult(result, collectedResult);
             });
 
@@ -197,8 +206,8 @@ export default function({
                         ...build.options,
                     };
 
-                    const result = await esbuild.build(config);
-                    const outputFile = getMainOutput(entryPoints, /** @type {import('esbuild').Metafile} */ (result.metafile), rootDir);
+                    const result = /** @type {BuildResult} */ (await esbuild.build(config));
+                    const outputFile = getMainOutput(entryPoints, result.metafile, rootDir);
 
                     assignToResult(collectedResult, result);
 

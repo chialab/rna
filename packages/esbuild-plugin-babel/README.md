@@ -36,4 +36,4 @@ Please not that it already includes [typescript syntax support](https://babeljs.
 
 ## License
 
-**Esbuild Plugin Babel** is released under the [MIT](https://github.com/chialab/rna/blob/master/packages/esbuild-plugin-babel/LICENSE) license.
+**Esbuild Plugin Babel** is released under the [MIT](https://github.com/chialab/rna/blob/main/packages/esbuild-plugin-babel/LICENSE) license.

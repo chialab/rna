@@ -13,9 +13,17 @@ import { writeMetafile } from './writeMetafile.js';
 import { bundleSize } from './bundleSize.js';
 
 export * from './loaders.js';
-export * from './transform.js';
-export * from './build.js';
+export { transform } from './transform.js';
+export { build } from './build.js';
 export { loadPlugins, loadTransformPlugins, writeManifestJson, writeEntrypointsJson, writeDevEntrypointsJson };
+
+/**
+ * @typedef {import('./build').BuildResult} BuildResult
+ */
+
+/**
+ * @typedef {import('./transform').TransformResult} TransformResult
+ */
 
 /**
  * @typedef {Object} BuildCommandOptions
@@ -234,8 +242,7 @@ export function command(program) {
                  */
                 const onBuildEnd = async (rebuild = false) => {
                     buildResults.forEach((result) => assignToResult(buildResult, result));
-
-                    const metafile = /** @type {import('esbuild').Metafile} */ (buildResult.metafile);
+                    const metafile = buildResult.metafile;
 
                     if (typeof metafilePath === 'string') {
                         await writeMetafile(metafile, path.resolve(cwd, metafilePath));

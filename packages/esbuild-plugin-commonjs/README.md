@@ -32,4 +32,4 @@ await esbuild.build({
 
 ## License
 
-**Esbuild Plugin Commonjs** is released under the [MIT](https://github.com/chialab/rna/blob/master/packages/esbuild-plugin-commonjs/LICENSE) license.
+**Esbuild Plugin Commonjs** is released under the [MIT](https://github.com/chialab/rna/blob/main/packages/esbuild-plugin-commonjs/LICENSE) license.

@@ -83,4 +83,4 @@ $ yarn add -D @chialab/rna @chialab/rna-node-test-runner
 
 ## License
 
-RNA is released under the [MIT](https://github.com/chialab/rna/blob/master/packages/rna/LICENSE) license.
+RNA is released under the [MIT](https://github.com/chialab/rna/blob/main/packages/rna/LICENSE) license.

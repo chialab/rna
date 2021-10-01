@@ -32,4 +32,4 @@ await startDevServer({
 
 ## License
 
-**Wds Plugin Hmr CSS** is released under the [MIT](https://github.com/chialab/rna/blob/master/packages/wds-plugin-hmr-css/LICENSE) license.
+**Wds Plugin Hmr CSS** is released under the [MIT](https://github.com/chialab/rna/blob/main/packages/wds-plugin-hmr-css/LICENSE) license.

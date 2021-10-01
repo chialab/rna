@@ -69,4 +69,4 @@ export default {
 
 ## License
 
-**Esbuild Plugin Transform** is released under the [MIT](https://github.com/chialab/rna/blob/master/packages/esbuild-plugin-transform/LICENSE) license.
+**Esbuild Plugin Transform** is released under the [MIT](https://github.com/chialab/rna/blob/main/packages/esbuild-plugin-transform/LICENSE) license.

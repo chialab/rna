@@ -1,4 +1,5 @@
 import path from 'path';
+import { mkdir, writeFile } from 'fs/promises';
 import esbuild from 'esbuild';
 import { esbuildFile, dependencies } from '@chialab/esbuild-helpers';
 import transformPlugin, { addTransformationPlugin } from '@chialab/esbuild-plugin-transform';
@@ -10,7 +11,6 @@ import { loadAddons } from './loadAddons.js';
 import { mdxPlugin } from './mdxPlugin.js';
 import { aliasPlugin } from './aliasPlugin.js';
 import { MANAGER_SCRIPT, MANAGER_STYLE, PREVIEW_SCRIPT, PREVIEW_STYLE } from './entrypoints.js';
-import { writeFile } from 'fs/promises';
 import { createStoriesJson } from './createStoriesJson.js';
 
 /**
@@ -187,6 +187,7 @@ export function buildPlugin(config) {
             });
 
             build.onEnd(async (result) => {
+                await mkdir(outDir, { recursive: true });
                 await writeFile(path.join(outDir, 'stories.json'), JSON.stringify(createStoriesJson()));
 
                 const results = await resultsPromise;

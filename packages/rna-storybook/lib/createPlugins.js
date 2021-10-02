@@ -6,11 +6,17 @@ import { servePlugin } from './servePlugin.js';
  */
 
 /**
+ * @typedef {Object} StorybookBuild
+ * @property {string} manager
+ * @property {{ [key: string]: string }} [map]
+ * @property {string[]} [modules]
+ * @property {string[]} [resolutions]
+ */
+
+/**
  * @typedef {Object} StorybookConfig
  * @property {string} type
  * @property {string[]} stories
- * @property {boolean} [essentials]
- * @property {boolean} [designTokens]
  * @property {{ [key: string]: string }} [static]
  * @property {string[]} [addons]
  * @property {string[]} [managerEntries]
@@ -18,7 +24,7 @@ import { servePlugin } from './servePlugin.js';
  * @property {string} [managerHead]
  * @property {string} [previewHead]
  * @property {string} [previewBody]
- * @property {string[]} [cssFiles]
+ * @property {StorybookBuild} [build]
  */
 
 /**

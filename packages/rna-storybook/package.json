@@ -32,13 +32,14 @@
     "@chialab/esbuild-helpers": "^0.12.2",
     "@chialab/estransform": "^0.12.2",
     "@chialab/node-resolve": "^0.12.2",
-    "@chialab/storybook-prebuilt": "^6.4.0-alpha.23",
     "@chialab/wds-plugin-node-resolve": "^0.12.2",
     "@chialab/wds-plugin-rna": "^0.12.2",
     "@custom-elements-manifest/analyzer": "^0.4.16",
     "@storybook/csf-tools": "^6.4.0-beta.0",
+    "@types/lodash": "^4.14.175",
     "esbuild": "^0.13.0",
     "fast-glob": "^3.2.7",
+    "lodash": "^4.17.21",
     "typescript": "^4.3.0"
   }
 }

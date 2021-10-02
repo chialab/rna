@@ -2,22 +2,34 @@ import path from 'path';
 import esbuild from 'esbuild';
 import { esbuildFile, dependencies } from '@chialab/esbuild-helpers';
 import transformPlugin, { addTransformationPlugin } from '@chialab/esbuild-plugin-transform';
-import { indexHtml, iframeHtml, managerCss, previewCss } from '@chialab/storybook-prebuilt';
+import { indexHtml, iframeHtml, managerCss, previewCss } from './templates.js';
 import { createManagerScript } from './createManager.js';
 import { findStories } from './findStories.js';
 import { createPreviewScript } from './createPreview.js';
 import { loadAddons } from './loadAddons.js';
 import { mdxPlugin } from './mdxPlugin.js';
 import { aliasPlugin } from './aliasPlugin.js';
-import { MANAGER_SCRIPT, MANAGER_STYLE, PREVIEW_SCRIPT, PREVIEW_STYLE, DESIGN_TOKENS_SCRIPT } from './entrypoints.js';
-import { designTokenPlugin } from './designTokenPlugin.js';
+import { MANAGER_SCRIPT, MANAGER_STYLE, PREVIEW_SCRIPT, PREVIEW_STYLE } from './entrypoints.js';
+import { writeFile } from 'fs/promises';
+import { createStoriesJson } from './createStoriesJson.js';
 
 /**
  * @param {import('./createPlugins').StorybookConfig} config Storybook options.
  * @return An esbuild plugin.
  */
 export function buildPlugin(config) {
-    const { type, stories: storiesPattern = [], static: staticFiles = {}, essentials = false, designTokens = false, addons = [], managerEntries = [], previewEntries = [], managerHead, previewHead, previewBody } = config;
+    const {
+        type,
+        stories: storiesPattern = [],
+        static: staticFiles = {},
+        addons = [],
+        managerEntries = [],
+        previewEntries = [],
+        managerHead,
+        previewHead,
+        previewBody,
+        build: storybookBuild,
+    } = config;
 
     /**
      * @type {import('esbuild').Plugin}
@@ -44,10 +56,13 @@ export function buildPlugin(config) {
             const addonsLoader = loadAddons(addons, rootDir);
 
             const plugins = [
-                aliasPlugin(config),
-                ...(designTokens ? [designTokenPlugin(config)] : []),
-                ...(options.plugins || []).filter((plugin) => !['storybook', 'html'].includes(plugin.name)),
+                ...(options.plugins || [])
+                    .filter((plugin) => !['storybook', 'html'].includes(plugin.name)),
             ];
+
+            if (storybookBuild) {
+                plugins.unshift(aliasPlugin(storybookBuild));
+            }
 
             /**
              * @type {import('esbuild').BuildOptions}
@@ -88,39 +103,29 @@ export function buildPlugin(config) {
                             loader: 'css',
                         },
                     }),
-                    addonsLoader.then(([manager]) =>
+                    addonsLoader.then(([addons]) =>
                         esbuild.build({
                             ...childOptions,
                             stdin: {
                                 contents: createManagerScript({
-                                    addons: [
-                                        ...(essentials ? ['@storybook/essentials/register'] : []),
-                                        ...(designTokens ? ['storybook-design-token/register'] : []),
-                                        ...addons,
-                                    ],
-                                    managerEntries: [
-                                        ...manager,
-                                        ...managerEntries,
-                                    ],
+                                    manager: storybookBuild ? storybookBuild.manager : '@storybook/core-client/dist/esm/manager/index.js',
+                                    addons,
+                                    managerEntries,
                                 }),
                                 sourcefile: path.join(rootDir, MANAGER_SCRIPT),
                                 loader: 'tsx',
                             },
                         })
                     ),
-                    addonsLoader.then(async ([, preview]) =>
+                    addonsLoader.then(async ([, addons]) =>
                         esbuild.build({
                             ...childOptions,
                             stdin: {
                                 contents: await createPreviewScript({
                                     type,
                                     stories,
-                                    previewEntries: [
-                                        ...previewEntries,
-                                        ...(essentials ? ['@storybook/essentials'] : []),
-                                        ...(designTokens ? [`/${DESIGN_TOKENS_SCRIPT}`] : []),
-                                        ...preview,
-                                    ],
+                                    addons,
+                                    previewEntries,
                                 }),
                                 sourcefile: path.join(rootDir, PREVIEW_SCRIPT),
                                 loader: 'tsx',
@@ -182,6 +187,8 @@ export function buildPlugin(config) {
             });
 
             build.onEnd(async (result) => {
+                await writeFile(path.join(outDir, 'stories.json'), JSON.stringify(createStoriesJson()));
+
                 const results = await resultsPromise;
                 results.forEach((res) => {
                     result.errors.push(...res.errors);

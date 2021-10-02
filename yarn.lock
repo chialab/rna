@@ -994,13 +994,6 @@
     eslint-plugin-lit-a11y "^1.0.1"
     eslint-plugin-mocha "^8.0.0"
 
-"@chialab/storybook-prebuilt@^6.4.0-alpha.23":
-  version "6.4.0-alpha.23"
-  resolved "https://registry.npmjs.org/@chialab/storybook-prebuilt/-/storybook-prebuilt-6.4.0-alpha.23.tgz#c42f2cfd22433914fcc22902aa7d987aafe6ef91"
-  integrity sha512-BQiOJw9snK8Pl/oXid6ofvd8LH0E898zxANU2zim/HJD/4wbCpcMnwDLeiUSM2EQyoIXDvjoeU4R5mIhqver7w==
-  dependencies:
-    lodash "^4.17.21"
-
 "@csstools/sass-import-resolve@^1.0.0":
   version "1.0.0"
   resolved "https://registry.npmjs.org/@csstools/sass-import-resolve/-/sass-import-resolve-1.0.0.tgz#32c3cdb2f7af3cd8f0dca357b592e7271f3831b5"
@@ -2389,6 +2382,11 @@
     "@types/fined" "*"
     "@types/interpret" "*"
     "@types/node" "*"
+
+"@types/lodash@^4.14.175":
+  version "4.14.175"
+  resolved "https://registry.npmjs.org/@types/lodash/-/lodash-4.14.175.tgz#b78dfa959192b01fae0ad90e166478769b215f45"
+  integrity sha512-XmdEOrKQ8a1Y/yxQFOMbC47G/V2VDO1GvMRnl4O75M4GW/abC5tnfzadQYkqEveqRM1dEJGFFegfPNA2vvx2iw==
 
 "@types/mdast@^3.0.0":
   version "3.0.10"

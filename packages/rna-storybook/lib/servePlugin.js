@@ -3,16 +3,15 @@ import { readFile } from 'fs/promises';
 import { getRequestFilePath } from '@web/dev-server-core';
 import { browserResolve, isCss, isJson, isUrl, appendSearchParam } from '@chialab/node-resolve';
 import { resolveImport } from '@chialab/wds-plugin-node-resolve';
-import { indexHtml, iframeHtml, managerCss, previewCss } from '@chialab/storybook-prebuilt';
 import { appendCssModuleParam, appendJsonModuleParam } from '@chialab/wds-plugin-rna';
+import { indexHtml, iframeHtml, managerCss, previewCss } from './templates.js';
 import { loadAddons } from './loadAddons.js';
 import { findStories } from './findStories.js';
 import { createManagerScript } from './createManager.js';
 import { createPreviewScript } from './createPreview.js';
 import { transformMdxToCsf } from './transformMdxToCsf.js';
-import { createBundleMap } from './bundleMap.js';
+import { createStoriesJson } from './createStoriesJson.js';
 import { MANAGER_SCRIPT, MANAGER_STYLE, PREVIEW_SCRIPT, PREVIEW_STYLE, DESIGN_TOKENS_SCRIPT } from './entrypoints.js';
-import { createDesignTokens } from './createDesignTokens.js';
 
 const regexpReplaceWebsocket = /<!-- injected by web-dev-server -->(.|\s)*<\/script>/m;
 
@@ -37,7 +36,18 @@ export function appendPreviewParam(source) {
 /**
  * @param {import('./createPlugins').StorybookConfig} options
  */
-export function servePlugin({ type, stories: storiesPattern, static: staticFiles = {}, essentials = false, designTokens = false, addons = [], managerEntries = [], previewEntries = [], cssFiles = [], managerHead, previewHead, previewBody }) {
+export function servePlugin({
+    type,
+    stories: storiesPattern,
+    static: staticFiles = {},
+    addons = [],
+    managerEntries = [],
+    previewEntries = [],
+    managerHead,
+    previewHead,
+    previewBody,
+    build,
+}) {
     /**
      * @type {import('@web/dev-server-core').DevServerCoreConfig}
      */
@@ -48,15 +58,13 @@ export function servePlugin({ type, stories: storiesPattern, static: staticFiles
      */
     let addonsLoader;
 
-    const { map, modules, resolutions } = createBundleMap(type);
-
     /**
      * @type {Plugin}
      */
     const plugin = {
         name: 'rna-storybook',
 
-        serverStart(args) {
+        async serverStart(args) {
             serverConfig = args.config;
             addonsLoader = loadAddons(addons, serverConfig.rootDir);
         },
@@ -74,11 +82,6 @@ export function servePlugin({ type, stories: storiesPattern, static: staticFiles
 
             if (isUrl(source)) {
                 return;
-            }
-
-            if (source.includes('/@storybook/') ||
-                (context.path.includes('/@storybook/') && source[0] === './')) {
-                source = source.replace('/dist/esm/', '/dist/cjs/');
             }
 
             if (isCss(source)) {
@@ -106,14 +109,28 @@ export function servePlugin({ type, stories: storiesPattern, static: staticFiles
             const { rootDir } = serverConfig;
             const filePath = getRequestFilePath(context.url, rootDir);
 
-            if (modules.includes(source)) {
-                const url = await browserResolve(map[source], import.meta.url);
-                return await resolveImport(url, filePath, rootDir);
-            }
+            if (!build) {
+                if (source.includes('@storybook/') ||
+                    (source.startsWith('.') && filePath.includes('/@storybook/'))
+                ) {
+                    const url = (await browserResolve(source, filePath))
+                        .replace('/dist/esm/', '/dist/cjs/');
+                    return await resolveImport(url, filePath, rootDir);
+                }
 
-            if (resolutions.includes(source)) {
-                const url = await browserResolve(source, rootDir);
-                return await resolveImport(url, filePath, rootDir, { code, line, column });
+                return;
+            } else {
+                const { modules = [], resolutions = [], map = {} } = build;
+
+                if (modules.includes(source)) {
+                    const url = await browserResolve(map[source], filePath);
+                    return await resolveImport(url, filePath, rootDir);
+                }
+
+                if (resolutions.includes(source)) {
+                    const url = await browserResolve(source, filePath);
+                    return await resolveImport(url, filePath, rootDir, { code, line, column });
+                }
             }
 
             if (source === `/${DESIGN_TOKENS_SCRIPT}`) {
@@ -151,12 +168,7 @@ export function servePlugin({ type, stories: storiesPattern, static: staticFiles
 
             if (context.path === '/stories.json') {
                 return {
-                    body: JSON.stringify({
-                        v: 2,
-                        globalParameters: {},
-                        kindParameters: {},
-                        stories: {},
-                    }),
+                    body: JSON.stringify(createStoriesJson()),
                 };
             }
 
@@ -177,15 +189,9 @@ export function servePlugin({ type, stories: storiesPattern, static: staticFiles
             if (context.path.startsWith(`/${MANAGER_SCRIPT}`)) {
                 const [manager] = await addonsLoader;
                 return createManagerScript({
-                    addons: [
-                        ...(essentials ? ['@storybook/addon-essentials/register'] : []),
-                        ...(designTokens ? ['storybook-design-token/register'] : []),
-                        ...addons,
-                    ],
-                    managerEntries: [
-                        ...manager,
-                        ...managerEntries,
-                    ],
+                    manager: build ? build.manager : '@storybook/core-client/dist/esm/manager/index.js',
+                    addons: manager,
+                    managerEntries,
                 });
             }
 
@@ -206,8 +212,6 @@ export function servePlugin({ type, stories: storiesPattern, static: staticFiles
                         .map(i => `${i}?story=true`),
                     previewEntries: [
                         ...previewEntries,
-                        ...(essentials ? ['@storybook/addon-essentials'] : []),
-                        ...(designTokens ? [`/${DESIGN_TOKENS_SCRIPT}`] : []),
                         ...preview,
                     ],
                 });
@@ -215,10 +219,6 @@ export function servePlugin({ type, stories: storiesPattern, static: staticFiles
 
             if (context.path.startsWith(`/${PREVIEW_STYLE}`)) {
                 return previewCss();
-            }
-
-            if (context.path.startsWith(`/${DESIGN_TOKENS_SCRIPT}`)) {
-                return createDesignTokens(rootDir, cssFiles);
             }
 
             const filePath = decodeURIComponent(getRequestFilePath(context.url, rootDir));

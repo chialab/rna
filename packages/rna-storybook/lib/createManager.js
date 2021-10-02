@@ -1,15 +1,17 @@
 /**
  * @typedef {Object} ManagerOptions
+ * @property {string} manager
  * @property {string[]} [addons]
  * @property {string[]} [managerEntries]
  */
 
 /**
- * @param {ManagerOptions} [options]
+ * @param {ManagerOptions} options
  */
-export function createManagerScript({ addons = [], managerEntries = [] } = {}) {
-    return `import '@storybook/manager';
-${addons.map((a) => `import '${a}';`).join('\n')}
-${managerEntries.map((a) => `import '${a}';`).join('\n')}
-`;
+export function createManagerScript({ manager, addons = [], managerEntries = [] }) {
+    return [
+        manager,
+        ...managerEntries,
+        ...addons,
+    ].map((a) => `import '${a}';`).join('\n');
 }

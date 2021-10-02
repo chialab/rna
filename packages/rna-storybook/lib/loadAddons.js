@@ -28,6 +28,16 @@ async function loadEntries(source, importer) {
  * @return {Promise<[string[], string[]]>}
  */
 export async function loadAddon(source, importer) {
+    if (source === '@storybook/addon-docs') {
+        return [
+            [
+                '@storybook/addon-docs/dist/esm/index.js',
+            ],
+            [
+                '@storybook/addon-docs/dist/esm/frameworks/common/config.js',
+            ],
+        ];
+    }
     try {
         return await loadEntries(`${source}/preset.js`, importer);
     } catch (err) {

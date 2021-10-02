@@ -1,6 +1,5 @@
 import os from 'os';
 import path from 'path';
-import { browserResolve, isCore } from '@chialab/node-resolve';
 import { assignToResult, createResult, remapResult } from '@chialab/esbuild-helpers';
 import { getEntryBuildConfig, mergeConfig, readConfigFile, locateConfigFile } from '@chialab/rna-config-loader';
 import { createLogger, readableSize } from '@chialab/rna-logger';
@@ -175,21 +174,7 @@ export function command(program) {
                         },
                     }, esbuild),
                     transformPlugins: await loadTransformPlugins({
-                        commonjs: userConfig.platform === 'browser' ? {
-                            helperModule: true,
-                            ignore: async (specifier, { source }) => {
-                                if (source) {
-                                    try {
-                                        await browserResolve(specifier, source);
-                                        return false;
-                                    } catch (err) {
-                                        //
-                                    }
-                                }
-
-                                return isCore(specifier);
-                            },
-                        } : {
+                        commonjs: {
                             helperModule: true,
                         },
                     }),

@@ -1,4 +1,4 @@
-import { inlineSourcemap, transform as esTransform, walk, getOffsetFromLocation } from '@chialab/estransform';
+import { inlineSourcemap, transform as esTransform, walk, getOffsetFromLocation, parseCommonjs, parseEsm } from '@chialab/estransform';
 
 export const REQUIRE_REGEX = /([^.\w$]|^)require\s*\((['"])(.*?)\2\)/g;
 export const UMD_REGEXES = [
@@ -10,41 +10,6 @@ export const UMD_GLOBALS_REGEXES = UMD_GLOBALS.map((varName) => new RegExp(`\\bt
 export const ESM_KEYWORDS = /((?:^\s*|;\s*)(\bimport\s*(\{.*?\}\s*from|\s[\w$]+\s+from|\*\s*as\s+[^\s]+\s+from)?\s*['"])|((?:^\s*|;\s*)export(\s+(default|const|var|let|function|class)[^\w$]|\s*\{)))/m;
 export const CJS_KEYWORDS = /\b(module\.exports|exports|require)\b/;
 export const THIS_PARAM = /(}\s*\()this(,|\))/g;
-
-/**
- * @type {Promise<typeof import('cjs-module-lexer')>}
- */
-let initializeCjs;
-
-/**
- * @param {string} code
- */
-export async function parseCommonjs(code) {
-    initializeCjs = initializeCjs || import('cjs-module-lexer')
-        .then(({ init, parse }) =>
-            init()
-                .then(() => ({ init, parse }))
-        );
-    const { parse } = await initializeCjs;
-    return parse(code);
-}
-
-/**
- * @type {Promise<typeof import('es-module-lexer')>}
- */
-let initializeEsm;
-
-/**
- * @param {string} code
- */
-export async function parseEsm(code) {
-    initializeEsm = initializeEsm || import('es-module-lexer')
-        .then(({ init, parse }) =>
-            init.then(() => ({ init, parse }))
-        );
-    const { parse } = await initializeEsm;
-    return parse(code);
-}
 
 export const REQUIRE_FUNCTION = '$$cjs_default$$';
 
@@ -144,6 +109,17 @@ export async function maybeCommonjsModule(code) {
 }
 
 /**
+ * Check if an expression is a require call.
+ * @param {*} node
+ */
+function isRequireCallExpression(node) {
+    return node.type === 'CallExpression' &&
+        node.callee &&
+        node.callee.type === 'Identifier' &&
+        node.callee.name === 'require';
+}
+
+/**
  * @typedef {{ source?: string, sourcemap?: boolean|'inline', sourcesContent?: boolean }} TransformOptions
  */
 
@@ -152,7 +128,7 @@ export async function maybeCommonjsModule(code) {
  */
 
 /**
- * @typedef {{ ignore?: IgnoreCallback, helperModule?: boolean }} TransformerOptions
+ * @typedef {{ ignore?: IgnoreCallback, helperModule?: boolean, ignoreTryCatch?: boolean }} TransformerOptions
  */
 
 /**
@@ -162,7 +138,7 @@ export async function maybeCommonjsModule(code) {
 /**
  * @param {TransformerOptions} options
  */
-export function createTransform({ ignore = () => false, helperModule = false }) {
+export function createTransform({ ignore = () => false, helperModule = false, ignoreTryCatch = true }) {
     const specs = new Map();
     const ns = new Map();
 
@@ -174,17 +150,44 @@ export function createTransform({ ignore = () => false, helperModule = false }) 
         const isUmd = UMD_REGEXES.every((regex) => regex.test(code));
         let insertHelper = false;
         if (!isUmd) {
+            const ast = data.ast;
+
             /**
              * @type {Promise<any>}
              */
             let specPromise = Promise.resolve();
-            const ast = data.ast;
+
+            /**
+             * @type {*[]}
+             */
+            const ignoredExpressions = [];
+
+            if (ignoreTryCatch) {
+                walk(ast, {
+                    /**
+                     * @param {*} node
+                     */
+                    TryStatement(node) {
+                        /**
+                         * @type {*[]}
+                         */
+                        const statements = node.block && node.block.body || [];
+                        statements.forEach((exp) => {
+                            if (exp.type === 'ExpressionStatement' &&
+                                isRequireCallExpression(exp.expression)) {
+                                ignoredExpressions.push(exp.expression);
+                            }
+                        });
+                    },
+                });
+            }
+
             walk(ast, {
                 /**
                  * @param {*} node
                  */
                 CallExpression(node) {
-                    if (!node.callee || node.callee.type !== 'Identifier' || node.callee.name !== 'require') {
+                    if (!isRequireCallExpression(node) || ignoredExpressions.includes(node)) {
                         return;
                     }
 

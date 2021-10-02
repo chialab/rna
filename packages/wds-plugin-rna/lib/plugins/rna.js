@@ -122,17 +122,7 @@ export async function createConfig(entrypoint, serverConfig, config) {
         ],
         transformPlugins: [
             ...(await loadTransformPlugins({
-                commonjs: {
-                    ignore: async (specifier) => {
-                        try {
-                            await browserResolve(specifier, filePath);
-                        } catch (err) {
-                            return isCore(specifier);
-                        }
-
-                        return false;
-                    },
-                },
+                commonjs: {},
                 worker: {
                     proxy: true,
                 },
@@ -370,25 +360,25 @@ export function rnaPlugin(config) {
                 bundle: false,
             };
 
-            virtualFs[resolved] = createConfig(entrypoint, serverConfig, config)
-                .then((transformConfig) =>
-                    build({
-                        ...transformConfig,
-                        chunkNames: '[name]-[hash]',
-                        output: resolved,
-                        jsxModule: undefined,
-                        write: false,
-                    })
-                ).then((result) => {
-                    if (!result.outputFiles) {
-                        throw new Error('Failed to bundle dependency');
-                    }
-                    result.outputFiles.forEach(({ path, text }) => {
-                        virtualFs[path] = Promise.resolve(text);
-                    });
+            // virtualFs[resolved] = createConfig(entrypoint, serverConfig, config)
+            //     .then((transformConfig) =>
+            //         build({
+            //             ...transformConfig,
+            //             chunkNames: '[name]-[hash]',
+            //             output: resolved,
+            //             jsxModule: undefined,
+            //             write: false,
+            //         })
+            //     ).then((result) => {
+            //         if (!result.outputFiles) {
+            //             throw new Error('Failed to bundle dependency');
+            //         }
+            //         result.outputFiles.forEach(({ path, text }) => {
+            //             virtualFs[path] = Promise.resolve(text);
+            //         });
 
-                    return virtualFs[resolved];
-                });
+            //         return virtualFs[resolved];
+            //     });
 
             return resolveRelativeImport(resolved, filePath, rootDir);
         },

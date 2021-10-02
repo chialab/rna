@@ -168,15 +168,15 @@ export function createTransform({ ignore = () => false, helperModule = false, ig
                      * @param {*} node
                      */
                     TryStatement(node) {
-                        /**
-                         * @type {*[]}
-                         */
-                        const statements = node.block && node.block.body || [];
-                        statements.forEach((exp) => {
-                            if (exp.type === 'ExpressionStatement' &&
-                                isRequireCallExpression(exp.expression)) {
-                                ignoredExpressions.push(exp.expression);
-                            }
+                        walk(node, {
+                            /**
+                             * @param {*} node
+                             */
+                            CallExpression(exp) {
+                                if (isRequireCallExpression(exp)) {
+                                    ignoredExpressions.push(exp);
+                                }
+                            },
                         });
                     },
                 });

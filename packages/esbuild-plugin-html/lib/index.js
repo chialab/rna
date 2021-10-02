@@ -74,7 +74,6 @@ export default function({
             const options = build.initialOptions;
             // force metafile in order to collect output data.
             options.metafile = options.metafile || options.write !== false;
-            options.assetNames = '[dir]/[name]';
             const { entryPoints = [], stdin, sourceRoot, absWorkingDir, assetNames, outdir, outfile } = options;
             const rootDir = sourceRoot || absWorkingDir || process.cwd();
             const outDir = /** @type {string} */(outdir || (outfile && path.dirname(outfile)));
@@ -185,7 +184,7 @@ export default function({
 
                         const { result, outputFile } = await esbuildFile(file, {
                             ...options,
-                            assetNames,
+                            assetNames: assetNames || '[dir]/[name]',
                             ...build.options,
                         });
 
@@ -206,7 +205,10 @@ export default function({
                         ...build.options,
                     };
 
-                    const result = /** @type {BuildResult} */ (await esbuild.build(config));
+                    const result = /** @type {BuildResult} */ (await esbuild.build({
+                        ...config,
+                        assetNames: '[dir]/[name]',
+                    }));
                     const outputFile = getMainOutput(entryPoints, result.metafile, rootDir);
 
                     assignToResult(collectedResult, result);

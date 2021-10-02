@@ -3,7 +3,7 @@ import pkgUp from 'pkg-up';
 import { getRequestFilePath } from '@web/dev-server-core';
 import { getChunkOptions } from '@chialab/esbuild-plugin-emit';
 import { getEntryConfig } from '@chialab/rna-config-loader';
-import { browserResolve, isCore, isJs, isJson, isCss, fsResolve, getSearchParam, appendSearchParam, removeSearchParam, getSearchParams } from '@chialab/node-resolve';
+import { browserResolve, isJs, isJson, isCss, fsResolve, getSearchParam, appendSearchParam, removeSearchParam, getSearchParams } from '@chialab/node-resolve';
 import { isHelperImport, isOutsideRootDir, resolveRelativeImport } from '@chialab/wds-plugin-node-resolve';
 import { transform, transformLoaders, loadPlugins, loadTransformPlugins, build } from '@chialab/rna-bundler';
 import { realpath } from 'fs/promises';
@@ -360,25 +360,25 @@ export function rnaPlugin(config) {
                 bundle: false,
             };
 
-            // virtualFs[resolved] = createConfig(entrypoint, serverConfig, config)
-            //     .then((transformConfig) =>
-            //         build({
-            //             ...transformConfig,
-            //             chunkNames: '[name]-[hash]',
-            //             output: resolved,
-            //             jsxModule: undefined,
-            //             write: false,
-            //         })
-            //     ).then((result) => {
-            //         if (!result.outputFiles) {
-            //             throw new Error('Failed to bundle dependency');
-            //         }
-            //         result.outputFiles.forEach(({ path, text }) => {
-            //             virtualFs[path] = Promise.resolve(text);
-            //         });
+            virtualFs[resolved] = createConfig(entrypoint, serverConfig, config)
+                .then((transformConfig) =>
+                    build({
+                        ...transformConfig,
+                        chunkNames: '[name]-[hash]',
+                        output: resolved,
+                        jsxModule: undefined,
+                        write: false,
+                    })
+                ).then((result) => {
+                    if (!result.outputFiles) {
+                        throw new Error('Failed to bundle dependency');
+                    }
+                    result.outputFiles.forEach(({ path, text }) => {
+                        virtualFs[path] = Promise.resolve(text);
+                    });
 
-            //         return virtualFs[resolved];
-            //     });
+                    return virtualFs[resolved];
+                });
 
             return resolveRelativeImport(resolved, filePath, rootDir);
         },

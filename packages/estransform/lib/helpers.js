@@ -9,5 +9,5 @@ export function createEmptySourcemapComment() {
  * Create a empty module with an empty default object.
  */
 export function createEmptyModule() {
-    return `export default {};${createEmptySourcemapComment}`;
+    return `export default {};${createEmptySourcemapComment()}`;
 }

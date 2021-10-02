@@ -19,7 +19,7 @@
   },
   "files": [
     "lib",
-    "storybook",
+    "static",
     "types",
     "package.json",
     "README.md",

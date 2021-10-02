@@ -10,7 +10,7 @@ export async function loadTransformPlugins({
      * @type {Promise<import('@chialab/rna-config-loader').Plugin>[]}
      */
     const transformPlugins = [
-        import('@chialab/esbuild-plugin-webpack-include').then(({ default: plugin }) => plugin()),
+        import('@chialab/esbuild-plugin-unwebpack').then(({ default: plugin }) => plugin()),
         import('@chialab/esbuild-plugin-commonjs').then(({ default: plugin }) => plugin({
             ...commonjs,
         })),

@@ -1,7 +1,7 @@
 {
   "name": "@chialab/rna-bundler",
   "type": "module",
-  "version": "0.12.3",
+  "version": "0.12.6",
   "description": "A JavaScript, CSS and HTML bundler based on esbuild.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",
@@ -38,7 +38,7 @@
     "@chialab/esbuild-plugin-alias": "^0.12.3",
     "@chialab/esbuild-plugin-any-file": "^0.12.2",
     "@chialab/esbuild-plugin-bundle-dependencies": "^0.12.2",
-    "@chialab/esbuild-plugin-commonjs": "^0.12.3",
+    "@chialab/esbuild-plugin-commonjs": "^0.12.6",
     "@chialab/esbuild-plugin-define-this": "^0.12.2",
     "@chialab/esbuild-plugin-dependencies": "^0.12.2",
     "@chialab/esbuild-plugin-emit": "^0.12.2",

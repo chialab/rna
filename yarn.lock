@@ -999,10 +999,10 @@
   resolved "https://registry.npmjs.org/@csstools/sass-import-resolve/-/sass-import-resolve-1.0.0.tgz#32c3cdb2f7af3cd8f0dca357b592e7271f3831b5"
   integrity sha512-pH4KCsbtBLLe7eqUrw8brcuFO8IZlN36JjdKlOublibVdAIPHCzEnpBWOVUXK5sCf+DpBi8ZtuWtjF0srybdeA==
 
-"@custom-elements-manifest/analyzer@^0.4.16":
-  version "0.4.17"
-  resolved "https://registry.npmjs.org/@custom-elements-manifest/analyzer/-/analyzer-0.4.17.tgz#d5683a90b981b55d99ce28ba3c73aa93e6a30633"
-  integrity sha512-4eFORsv7W6cH0s7iSEC1urU9ZnDGCTlCh6AvzzkIWhPhFwCI6PyF+xWXj0mxme6UYxpC6lite/cGj42QV/q3Cw==
+"@custom-elements-manifest/analyzer@^0.5.0":
+  version "0.5.5"
+  resolved "https://registry.npmjs.org/@custom-elements-manifest/analyzer/-/analyzer-0.5.5.tgz#564eeb705fb4b95f5bb31735869b00e6dd088e89"
+  integrity sha512-LRZU+Ryl2DFZ7HyVV6UTRKOXwIiQrbcRAfYdwUWmf3aDE5oeu9bu7UK2omDdY+ItQN6jmuyUwkO4CEyHXJfI8g==
   dependencies:
     "@web/config-loader" "^0.1.3"
     chokidar "^3.5.2"

@@ -21,7 +21,11 @@ export default function({ dependencies = true, peerDependencies = false, optiona
         name: 'bundle-dependencies',
         async setup(build) {
             const options = build.initialOptions;
-            const { sourceRoot, absWorkingDir } = options;
+            const { sourceRoot, absWorkingDir, bundle } = options;
+            if (!bundle) {
+                return;
+            }
+
             const rootDir = sourceRoot || absWorkingDir || process.cwd();
             const external = [...(options.external || [])];
 

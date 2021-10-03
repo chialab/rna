@@ -183,11 +183,16 @@ export default function(esbuild) {
                 const config = {
                     ...options,
                     ...pluginData,
+                    globalName: undefined,
                     entryPoints: [filePath],
                     outfile: undefined,
                     outdir: outDir,
                     metafile: true,
                 };
+
+                if (config.define) {
+                    delete config.define['this'];
+                }
 
                 const result = /** @type { BuildResult} */ (await esbuild.build(config));
                 filePath = getMainOutput([filePath], result.metafile, rootDir);

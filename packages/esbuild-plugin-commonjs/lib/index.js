@@ -1,4 +1,4 @@
-import { REQUIRE_HELPER, HELPER_MODULE, createTransform, maybeCommonjsModule } from '@chialab/cjs-to-esm';
+import { REQUIRE_HELPER, HELPER_MODULE, createTransform, maybeCommonjsModule, maybeMixedModule, wrapDynamicRequire } from '@chialab/cjs-to-esm';
 import { escapeRegexBody } from '@chialab/esbuild-helpers';
 import { createEmptySourcemapComment, pipe } from '@chialab/estransform';
 import { getEntry, finalizeEntry, createFilter } from '@chialab/esbuild-plugin-transform';
@@ -40,16 +40,24 @@ export default function(config = {}) {
                  * @type {import('@chialab/estransform').Pipeline}
                  */
                 const entry = args.pluginData || await getEntry(build, args.path);
-                if (!(await maybeCommonjsModule(entry.code))) {
-                    return;
+
+                if (await maybeMixedModule(entry.code)) {
+                    await pipe(entry, {
+                        source: args.path,
+                        sourcesContent: options.sourcesContent,
+                    }, wrapDynamicRequire);
+
+                    return finalizeEntry(build, args.path);
                 }
 
-                await pipe(entry, {
-                    source: args.path,
-                    sourcesContent: options.sourcesContent,
-                }, createTransform(config));
+                if (await maybeCommonjsModule(entry.code)) {
+                    await pipe(entry, {
+                        source: args.path,
+                        sourcesContent: options.sourcesContent,
+                    }, createTransform(config));
 
-                return finalizeEntry(build, args.path);
+                    return finalizeEntry(build, args.path);
+                }
             });
         },
     };

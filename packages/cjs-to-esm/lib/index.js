@@ -87,7 +87,7 @@ export const REQUIRE_HELPER = `function ${REQUIRE_FUNCTION}(requiredModule) {
 `;
 
 /**
- * Check if there is chanches that the provided code is a commonjs module.
+ * Check if there are chanches that the provided code is a commonjs module.
  * @param {string} code
  */
 export async function maybeCommonjsModule(code) {
@@ -95,8 +95,12 @@ export async function maybeCommonjsModule(code) {
         return false;
     }
 
-    const [imports, exports] = await parseEsm(code);
-    if (imports.length !== 0 || exports.length !== 0) {
+    try {
+        const [imports, exports] = await parseEsm(code);
+        if (imports.length !== 0 || exports.length !== 0) {
+            return false;
+        }
+    } catch (err) {
         return false;
     }
 
@@ -106,6 +110,21 @@ export async function maybeCommonjsModule(code) {
     }
 
     return true;
+}
+
+/**
+ * Check if there are chanches that the provided code is both a esm and commonjs module.
+ * @param {string} code
+ */
+export async function maybeMixedModule(code) {
+    try {
+        const [imports, exports] = await parseEsm(code);
+        return (imports.length !== 0 || exports.length !== 0) && CJS_KEYWORDS.test(code);
+    } catch(err) {
+        //
+    }
+
+    return false;
 }
 
 /**
@@ -350,3 +369,37 @@ export async function transform(contents, { source, sourcemap = true, sourcesCon
         map,
     };
 }
+
+/**
+ * Wrap with a try catch block any require call.
+ * @type {import('@chialab/estransform').TransformCallack}
+ */
+export const wrapDynamicRequire = ({ ast, code, magicCode }) => {
+    walk(ast, {
+        /**
+         * @param {*} node
+         */
+        IfStatement(node) {
+            if (node.test.type !== 'BinaryExpression' ||
+                node.test.left.type !== 'UnaryExpression' ||
+                node.test.left.operator !== 'typeof' ||
+                node.test.left.argument.type !== 'Identifier' ||
+                node.test.left.argument.name !== 'require' ||
+                !node.test.operator.startsWith('==') ||
+                node.test.right.type !== 'Literal' ||
+                node.test.right.value !== 'function') {
+                return;
+            }
+
+            magicCode.prependLeft(
+                getOffsetFromLocation(code, node.loc.start),
+                'try {'
+            );
+
+            magicCode.appendRight(
+                getOffsetFromLocation(code, node.loc.end),
+                '} catch(err) {}'
+            );
+        },
+    });
+};

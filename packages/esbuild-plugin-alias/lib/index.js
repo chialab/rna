@@ -11,10 +11,6 @@ import { escapeRegexBody } from '@chialab/esbuild-helpers';
  * @return An esbuild plugin.
  */
 export default function(modules = {}, browserField = true) {
-    const keys = Object.keys(modules);
-    const aliases = keys.filter((alias) => modules[alias]);
-    const empty = keys.filter((alias) => !modules[alias]);
-
     /**
      * @type {import('esbuild').Plugin}
      */
@@ -24,6 +20,7 @@ export default function(modules = {}, browserField = true) {
             const options = build.initialOptions;
             const { sourceRoot, absWorkingDir, platform = 'neutral' } = options;
             const rootDir = sourceRoot || absWorkingDir || process.cwd();
+            const modulesMap = { ...modules };
 
             if (browserField && platform === 'browser') {
                 const packageFile = await pkgUp({
@@ -32,17 +29,21 @@ export default function(modules = {}, browserField = true) {
                 if (packageFile) {
                     const packageJson = JSON.parse(await readFile(packageFile, 'utf-8'));
                     if (typeof packageJson.browser === 'object') {
-                        Object.assign(aliases, packageJson.browser);
+                        Object.assign(modulesMap, packageJson.browser);
                     }
                 }
             }
+
+            const keys = Object.keys(modulesMap);
+            const aliases = keys.filter((alias) => modulesMap[alias]);
+            const empty = keys.filter((alias) => !modulesMap[alias]);
 
             if (aliases.length) {
                 aliases.forEach((alias) => {
                     const regexBody = escapeRegexBody(alias);
                     const aliasFilter = new RegExp(`^${regexBody}$`);
                     build.onResolve({ filter: aliasFilter }, async (args) => ({
-                        path: await resolve(/** @type {string} */(modules[args.path]), args.importer || rootDir),
+                        path: await resolve(/** @type {string} */(modulesMap[args.path]), args.importer || rootDir),
                     }));
                 });
             }

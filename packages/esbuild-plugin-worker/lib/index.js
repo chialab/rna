@@ -3,8 +3,8 @@ import { readFile } from 'fs/promises';
 import { resolve as defaultResolve } from '@chialab/node-resolve';
 import emitPlugin, { emitChunk } from '@chialab/esbuild-plugin-emit';
 import { dependencies } from '@chialab/esbuild-helpers';
-import { TARGETS, pipe, walk, getOffsetFromLocation, generate } from '@chialab/estransform';
-import { getEntry, finalizeEntry, createFilter, createTypeScriptTransform, getParentBuild } from '@chialab/esbuild-plugin-transform';
+import { pipe, walk, getOffsetFromLocation, generate } from '@chialab/estransform';
+import { getEntry, finalizeEntry, createFilter, getParentBuild } from '@chialab/esbuild-plugin-transform';
 import metaUrlPlugin, { getMetaUrl } from '@chialab/esbuild-plugin-meta-url';
 
 /**
@@ -64,17 +64,6 @@ export default function({ resolve = defaultResolve, constructors = ['Worker', 'S
                 const entry = args.pluginData || await getEntry(build, args.path);
                 if (constructors.every((ctr) => !entry.code.includes(ctr))) {
                     return;
-                }
-
-                if (entry.target === TARGETS.typescript) {
-                    await pipe(entry, {
-                        source: path.basename(args.path),
-                        sourcesContent: options.sourcesContent,
-                    }, createTypeScriptTransform({
-                        loader: entry.loader,
-                        jsxFactory: options.jsxFactory,
-                        jsxFragment: options.jsxFragment,
-                    }));
                 }
 
                 await pipe(entry, {

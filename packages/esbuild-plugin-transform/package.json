@@ -34,10 +34,10 @@
   },
   "dependencies": {
     "@chialab/esbuild-helpers": "^0.12.2",
-    "@chialab/estransform": "^0.12.3",
-    "esbuild": "^0.13.0"
+    "@chialab/estransform": "^0.12.3"
   },
   "devDependencies": {
+    "esbuild": "^0.13.0",
     "typescript": "^4.3.0"
   }
 }

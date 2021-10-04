@@ -123,15 +123,9 @@ export async function createPipeline(contents, { sourcemap = true, source } = {}
 
 /**
  * @param {Pipeline} pipeline
- * @param {TransformOptions} options
- * @param {TransformCallack} callback
+ * @param {TransformResult} options
  */
-export async function pipe(pipeline, options, callback) {
-    const { code, map, loader, target } = await transform(pipeline.code, {
-        sourcemap: !!pipeline.sourceMaps,
-        ...options,
-    }, callback);
-
+function applyResult(pipeline, { code, map, loader, target }) {
     if (code) {
         if (pipeline.sourceMaps && map && code !== pipeline.code) {
             pipeline.sourceMaps.push(map);
@@ -146,6 +140,40 @@ export async function pipe(pipeline, options, callback) {
     if (target) {
         pipeline.target = target;
     }
+}
+
+/**
+ * @param {Pipeline} pipeline
+ * @param {TransformOptions} options
+ * @param {TransformCallack} callback
+ */
+export async function pipe(pipeline, options, callback) {
+    if (pipeline.target === TARGETS.typescript) {
+        const esbuild = await import('esbuild');
+        const { code: finalCode, map } = await esbuild.transform(pipeline.code, {
+            tsconfigRaw: {},
+            sourcemap: true,
+            format: 'esm',
+            target: TARGETS.es2020,
+            sourcefile: options.source,
+            loader: 'tsx',
+            jsx: 'preserve',
+        });
+
+        applyResult(pipeline, {
+            code: finalCode,
+            map: parseSourcemap(map),
+            target: TARGETS.es2020,
+            loader: 'jsx',
+        });
+    }
+
+    const result = await transform(pipeline.code, {
+        sourcemap: !!pipeline.sourceMaps,
+        ...options,
+    }, callback);
+
+    applyResult(pipeline, result);
 }
 
 /**

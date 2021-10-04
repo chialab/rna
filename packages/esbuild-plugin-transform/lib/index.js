@@ -5,8 +5,6 @@ import { escapeRegexBody } from '@chialab/esbuild-helpers';
 
 export const SCRIPT_LOADERS = ['tsx', 'ts', 'jsx', 'js'];
 
-export * from './typescriptTransform.js';
-
 /**
  * @typedef {Map<string, import('@chialab/estransform').Pipeline>} Store
  */

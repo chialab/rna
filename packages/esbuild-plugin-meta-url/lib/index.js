@@ -2,8 +2,8 @@ import path from 'path';
 import { resolve as defaultResolve, isUrl } from '@chialab/node-resolve';
 import { dependencies } from '@chialab/esbuild-helpers';
 import emitPlugin, { emitFileOrChunk, getBaseUrl, prependImportStatement } from '@chialab/esbuild-plugin-emit';
-import { TARGETS, pipe, walk, getOffsetFromLocation } from '@chialab/estransform';
-import { getEntry, finalizeEntry, createFilter, createTypeScriptTransform, getParentBuild } from '@chialab/esbuild-plugin-transform';
+import { pipe, walk, getOffsetFromLocation } from '@chialab/estransform';
+import { getEntry, finalizeEntry, createFilter, getParentBuild } from '@chialab/esbuild-plugin-transform';
 
 /**
  * @typedef {{ resolve?: typeof defaultResolve }} PluginOptions
@@ -115,17 +115,6 @@ export default function({ resolve = defaultResolve } = {}) {
                 if (!entry.code.includes('import.meta.url') ||
                     !entry.code.includes('URL(')) {
                     return;
-                }
-
-                if (entry.target === TARGETS.typescript) {
-                    await pipe(entry, {
-                        source: path.basename(args.path),
-                        sourcesContent: options.sourcesContent,
-                    }, createTypeScriptTransform({
-                        loader: entry.loader,
-                        jsxFactory: options.jsxFactory,
-                        jsxFragment: options.jsxFragment,
-                    }));
                 }
 
                 await pipe(entry, {

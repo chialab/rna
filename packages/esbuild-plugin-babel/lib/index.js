@@ -2,7 +2,7 @@ import path from 'path';
 import babel from '@babel/core';
 import { resolve } from '@chialab/node-resolve';
 import { pipe, TARGETS } from '@chialab/estransform';
-import { getEntry, finalizeEntry, createFilter, createTypeScriptTransform } from '@chialab/esbuild-plugin-transform';
+import { getEntry, finalizeEntry, createFilter } from '@chialab/esbuild-plugin-transform';
 
 /**
  * @typedef {{ presets?: import('@babel/core').PluginItem[], plugins?: import('@babel/core').PluginItem[] }} PluginOptions
@@ -33,17 +33,6 @@ export default function({ presets = [], plugins = [] } = {}) {
                 }
 
                 const entry = await getEntry(build, args.path);
-
-                if (entry.target === TARGETS.typescript) {
-                    await pipe(entry, {
-                        source: path.basename(args.path),
-                        sourcesContent: options.sourcesContent,
-                    }, createTypeScriptTransform({
-                        loader: entry.loader,
-                        jsxFactory: options.jsxFactory,
-                        jsxFragment: options.jsxFragment,
-                    }));
-                }
 
                 await pipe(entry, {
                     source: path.basename(args.path),

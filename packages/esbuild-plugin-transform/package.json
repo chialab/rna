@@ -1,7 +1,7 @@
 {
   "name": "@chialab/esbuild-plugin-transform",
   "type": "module",
-  "version": "0.12.3",
+  "version": "0.12.9",
   "description": "Pipe transformation plugin for esbuild.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",
@@ -34,7 +34,7 @@
   },
   "dependencies": {
     "@chialab/esbuild-helpers": "^0.12.2",
-    "@chialab/estransform": "^0.12.3"
+    "@chialab/estransform": "^0.12.9"
   },
   "devDependencies": {
     "esbuild": "^0.13.0",

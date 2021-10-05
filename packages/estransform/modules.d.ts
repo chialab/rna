@@ -21,3 +21,7 @@ declare module '@parcel/source-map' {
         default: SourceMapNode,
     };
 };
+
+declare module 'acorn-jsx-walk' {
+    export function extend(base: typeof import('acorn-walk').base): void;
+};

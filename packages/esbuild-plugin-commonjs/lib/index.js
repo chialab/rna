@@ -1,7 +1,7 @@
 import { REQUIRE_HELPER, HELPER_MODULE, createTransform, maybeCommonjsModule, maybeMixedModule, wrapDynamicRequire } from '@chialab/cjs-to-esm';
 import { escapeRegexBody } from '@chialab/esbuild-helpers';
 import { createEmptySourcemapComment, pipe } from '@chialab/estransform';
-import { getEntry, finalizeEntry, createFilter } from '@chialab/esbuild-plugin-transform';
+import { getEntry, finalizeEntry, createFilter, transformError } from '@chialab/esbuild-plugin-transform';
 
 /**
  * @typedef {import('@chialab/cjs-to-esm').Options} PluginOptions
@@ -42,19 +42,28 @@ export default function(config = {}) {
                 const entry = args.pluginData || await getEntry(build, args.path);
 
                 if (await maybeMixedModule(entry.code)) {
-                    await pipe(entry, {
-                        source: args.path,
-                        sourcesContent: options.sourcesContent,
-                    }, wrapDynamicRequire);
+                    try {
+                        await pipe(entry, {
+                            source: args.path,
+                            sourcesContent: options.sourcesContent,
+                        }, wrapDynamicRequire);
+
+                    } catch (error) {
+                        throw transformError(this.name, error);
+                    }
 
                     return finalizeEntry(build, args.path);
                 }
 
                 if (await maybeCommonjsModule(entry.code)) {
-                    await pipe(entry, {
-                        source: args.path,
-                        sourcesContent: options.sourcesContent,
-                    }, createTransform(config));
+                    try {
+                        await pipe(entry, {
+                            source: args.path,
+                            sourcesContent: options.sourcesContent,
+                        }, createTransform(config));
+                    } catch (error) {
+                        throw transformError(this.name, error);
+                    }
 
                     return finalizeEntry(build, args.path);
                 }

@@ -4,7 +4,7 @@ import { resolve as defaultResolve } from '@chialab/node-resolve';
 import emitPlugin, { emitChunk } from '@chialab/esbuild-plugin-emit';
 import { dependencies } from '@chialab/esbuild-helpers';
 import { pipe, walk, getOffsetFromLocation, generate } from '@chialab/estransform';
-import { getEntry, finalizeEntry, createFilter, getParentBuild } from '@chialab/esbuild-plugin-transform';
+import { getEntry, finalizeEntry, createFilter, getParentBuild, transformError } from '@chialab/esbuild-plugin-transform';
 import metaUrlPlugin, { getMetaUrl } from '@chialab/esbuild-plugin-meta-url';
 
 /**
@@ -66,93 +66,98 @@ export default function({ resolve = defaultResolve, constructors = ['Worker', 'S
                     return;
                 }
 
-                await pipe(entry, {
-                    source: path.basename(args.path),
-                    sourcesContent: options.sourcesContent,
-                }, async ({ magicCode, code, ast }) => {
-                    /**
-                     * @type {Promise<void>[]}
-                     */
-                    const promises = [];
-
-                    walk(ast, {
+                try {
+                    await pipe(entry, {
+                        source: path.basename(args.path),
+                        sourcesContent: options.sourcesContent,
+                    }, async ({ magicCode, code, ast }) => {
                         /**
-                         * @param {*} node
+                         * @type {Promise<void>[]}
                          */
-                        NewExpression(node) {
-                            let callee = node.callee;
-                            if (callee.type === 'MemberExpression') {
-                                if (callee.object.name !== 'window' &&
-                                    callee.object.name !== 'self' &&
-                                    callee.object.name !== 'globalThis') {
+                        const promises = [];
+
+                        walk(ast, {
+                            /**
+                             * @param {*} node
+                             */
+                            NewExpression(node) {
+                                let callee = node.callee;
+                                if (callee.type === 'MemberExpression') {
+                                    if (callee.object.name !== 'window' &&
+                                        callee.object.name !== 'self' &&
+                                        callee.object.name !== 'globalThis') {
+                                        return;
+                                    }
+                                    callee = callee.property;
+                                }
+                                const Ctr = callee.name;
+                                if (callee.type !== 'Identifier' || !constructors.includes(Ctr)) {
                                     return;
                                 }
-                                callee = callee.property;
-                            }
-                            const Ctr = callee.name;
-                            if (callee.type !== 'Identifier' || !constructors.includes(Ctr)) {
-                                return;
-                            }
-                            if (!node.arguments.length) {
-                                return;
-                            }
-
-                            /**
-                             * @type {import('@chialab/esbuild-plugin-emit').EmitTransformOptions}
-                             */
-                            const transformOptions = {
-                                format: 'iife',
-                                bundle: true,
-                                platform: 'neutral',
-                            };
-                            const options = node.arguments[1];
-                            if (options &&
-                                options.type === 'ObjectExpression' &&
-                                options.properties &&
-                                options.properties.some(
-                                    /**
-                                     * @param {*} prop
-                                     */
-                                    (prop) =>
-                                        prop.type === 'Property' &&
-                                        prop.key?.name === 'type' &&
-                                        prop.value?.value === 'module'
-                                )
-                            ) {
-                                transformOptions.format = 'esm';
-                                transformOptions.bundle = false;
-                            } else {
-                                transformOptions.splitting = false;
-                                transformOptions.inject = [];
-                                transformOptions.plugins = [];
-                            }
-
-                            const startOffset = getOffsetFromLocation(code, node.loc.start);
-                            const endOffset = getOffsetFromLocation(code, node.loc.end);
-                            const value = getMetaUrl(node.arguments[0], ast) || node.arguments[0].value;
-                            if (typeof value !== 'string') {
-                                if (proxy) {
-                                    const arg = generate(node.arguments[0]);
-                                    magicCode.overwrite(startOffset, endOffset, `new ${Ctr}(${createBlobProxy(arg, transformOptions)})`);
+                                if (!node.arguments.length) {
+                                    return;
                                 }
-                                return;
-                            }
 
-                            promises.push(Promise.resolve().then(async () => {
-                                const resolvedPath = await resolve(value, args.path);
-                                const entryPoint = emitChunk(resolvedPath, transformOptions);
-                                const arg = `new URL('${entryPoint}', import.meta.url).href`;
-                                if (proxy) {
-                                    magicCode.overwrite(startOffset, endOffset, `new ${Ctr}(${createBlobProxy(arg, transformOptions)})`);
+                                /**
+                                 * @type {import('@chialab/esbuild-plugin-emit').EmitTransformOptions}
+                                 */
+                                const transformOptions = {
+                                    format: 'iife',
+                                    bundle: true,
+                                    platform: 'neutral',
+                                };
+                                const options = node.arguments[1];
+                                if (options &&
+                                    options.type === 'ObjectExpression' &&
+                                    options.properties &&
+                                    options.properties.some(
+                                        /**
+                                         * @param {*} prop
+                                         */
+                                        (prop) =>
+                                            prop.type === 'Property' &&
+                                            prop.key?.name === 'type' &&
+                                            prop.value?.value === 'module'
+                                    )
+                                ) {
+                                    transformOptions.format = 'esm';
+                                    transformOptions.bundle = false;
                                 } else {
-                                    magicCode.overwrite(startOffset, endOffset, `new ${Ctr}(${arg})`);
+                                    transformOptions.splitting = false;
+                                    transformOptions.inject = [];
+                                    transformOptions.plugins = [];
                                 }
-                            }));
-                        },
-                    });
 
-                    await Promise.all(promises);
-                });
+                                const startOffset = getOffsetFromLocation(code, node.loc.start);
+                                const endOffset = getOffsetFromLocation(code, node.loc.end);
+                                const value = getMetaUrl(node.arguments[0], ast) || node.arguments[0].value;
+                                if (typeof value !== 'string') {
+                                    if (proxy) {
+                                        const arg = generate(node.arguments[0]);
+                                        magicCode.overwrite(startOffset, endOffset, `new ${Ctr}(${createBlobProxy(arg, transformOptions)})`);
+                                    }
+                                    return;
+                                }
+
+                                promises.push(Promise.resolve().then(async () => {
+                                    const resolvedPath = await resolve(value, args.path);
+                                    const entryPoint = emitChunk(resolvedPath, transformOptions);
+                                    const arg = `new URL('${entryPoint}', import.meta.url).href`;
+                                    if (proxy) {
+                                        magicCode.overwrite(startOffset, endOffset, `new ${Ctr}(${createBlobProxy(arg, transformOptions)})`);
+                                    } else {
+                                        magicCode.overwrite(startOffset, endOffset, `new ${Ctr}(${arg})`);
+                                    }
+                                }));
+                            },
+                        });
+
+                        await Promise.all(promises);
+                    });
+                } catch (error) {
+                    process.exit();
+                    throw transformError(this.name, error);
+                }
 
                 return finalizeEntry(build, args.path);
             });

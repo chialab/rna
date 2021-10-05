@@ -1,6 +1,9 @@
 import { Parser as AcornParser } from 'acorn';
 import jsx from 'acorn-jsx';
-import { simple } from 'acorn-walk';
+import { base, simple } from 'acorn-walk';
+import { extend } from 'acorn-jsx-walk';
+
+extend(base);
 
 /**
  * @typedef {Object} Location

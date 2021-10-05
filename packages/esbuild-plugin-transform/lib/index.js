@@ -291,3 +291,11 @@ export default function(plugins = []) {
     return plugin;
 }
 
+/**
+ * @param {string} pluginName
+ * @param {unknown} originalError
+ */
+export function transformError(pluginName, originalError) {
+    const errorMessage = originalError instanceof Error ? `${originalError.message}\n${originalError.stack}` : originalError;
+    return new Error(`${pluginName}: an error occurred during transformation.\n\n${errorMessage}`);
+}

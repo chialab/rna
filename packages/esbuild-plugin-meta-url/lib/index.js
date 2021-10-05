@@ -3,7 +3,7 @@ import { resolve as defaultResolve, isUrl } from '@chialab/node-resolve';
 import { dependencies } from '@chialab/esbuild-helpers';
 import emitPlugin, { emitFileOrChunk, getBaseUrl, prependImportStatement } from '@chialab/esbuild-plugin-emit';
 import { pipe, walk, getOffsetFromLocation } from '@chialab/estransform';
-import { getEntry, finalizeEntry, createFilter, getParentBuild } from '@chialab/esbuild-plugin-transform';
+import { getEntry, finalizeEntry, createFilter, getParentBuild, transformError } from '@chialab/esbuild-plugin-transform';
 
 /**
  * @typedef {{ resolve?: typeof defaultResolve }} PluginOptions
@@ -117,47 +117,51 @@ export default function({ resolve = defaultResolve } = {}) {
                     return;
                 }
 
-                await pipe(entry, {
-                    source: path.basename(args.path),
-                    sourcesContent: options.sourcesContent,
-                }, async ({ magicCode, code, ast }) => {
-                    /**
-                     * @type {{ [key: string]: string }}
-                     */
-                    const ids = {};
-
-                    /**
-                     * @type {Promise<void>[]}
-                     */
-                    const promises = [];
-
-                    walk(ast, {
+                try {
+                    await pipe(entry, {
+                        source: path.basename(args.path),
+                        sourcesContent: options.sourcesContent,
+                    }, async ({ magicCode, code, ast }) => {
                         /**
-                         * @param {*} node
+                         * @type {{ [key: string]: string }}
                          */
-                        NewExpression(node) {
-                            const value = getMetaUrl(node, ast);
-                            if (typeof value !== 'string' || isUrl(value)) {
-                                return;
-                            }
+                        const ids = {};
 
-                            promises.push((async () => {
-                                const resolvedPath = await resolve(value, args.path);
-                                const startOffset = getOffsetFromLocation(code, node.loc.start);
-                                const endOffset = getOffsetFromLocation(code, node.loc.end);
-                                if (!ids[resolvedPath]) {
-                                    const entryPoint = emitFileOrChunk(build, resolvedPath);
-                                    const { identifier } = prependImportStatement({ ast, magicCode, code }, entryPoint, value);
-                                    ids[resolvedPath] = identifier;
+                        /**
+                         * @type {Promise<void>[]}
+                         */
+                        const promises = [];
+
+                        walk(ast, {
+                            /**
+                             * @param {*} node
+                             */
+                            NewExpression(node) {
+                                const value = getMetaUrl(node, ast);
+                                if (typeof value !== 'string' || isUrl(value)) {
+                                    return;
                                 }
 
-                                magicCode.overwrite(startOffset, endOffset, `new URL(${ids[resolvedPath]}, ${getBaseUrl(build)})`);
-                            })());
-                        },
-                    });
+                                promises.push((async () => {
+                                    const resolvedPath = await resolve(value, args.path);
+                                    const startOffset = getOffsetFromLocation(code, node.loc.start);
+                                    const endOffset = getOffsetFromLocation(code, node.loc.end);
+                                    if (!ids[resolvedPath]) {
+                                        const entryPoint = emitFileOrChunk(build, resolvedPath);
+                                        const { identifier } = prependImportStatement({ ast, magicCode, code }, entryPoint, value);
+                                        ids[resolvedPath] = identifier;
+                                    }
 
-                    await Promise.all(promises);
-                });
+                                    magicCode.overwrite(startOffset, endOffset, `new URL(${ids[resolvedPath]}, ${getBaseUrl(build)})`);
+                                })());
+                            },
+                        });
+
+                        await Promise.all(promises);
+                    });
+                } catch (error) {
+                    throw transformError(this.name, error);
+                }
 
                 return finalizeEntry(build, args.path);
             });

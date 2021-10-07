@@ -63,11 +63,12 @@ export default function(options = {}) {
                     import('@chialab/postcss-url-rebase'),
                 ]);
 
-                let contents = filePath === fullInput && stdin ?
+                const contents = filePath === fullInput && stdin ?
                     stdin.contents.toString() :
                     await readFile(filePath, 'utf-8');
 
                 const config = await loadPostcssConfig();
+                const isSass = ['.sass', '.scss'].includes(path.extname(filePath));
                 const plugins = [
                     urlRebase({
                         root: rootDir,
@@ -75,9 +76,18 @@ export default function(options = {}) {
                         transform: options.transform,
                     }),
                     ...(config.plugins || [preset()]),
+                    ...(isSass ? [
+                        await import('@chialab/postcss-dart-sass')
+                            .then(({ default: postcssSass }) => postcssSass({
+                                rootDir,
+                                alias: options.alias,
+                                omitSourceMapUrl: true,
+                                sourceMapContents: true,
+                                sourceMapEmbed: false,
+                            })),
+                    ] : []),
                 ];
 
-                const isSass = ['.sass', '.scss'].includes(path.extname(filePath));
 
                 /**
                  * @type {import('postcss').ProcessOptions}
@@ -90,23 +100,10 @@ export default function(options = {}) {
                     },
                     ...(config.options || {}),
                     ...options,
-                };
-
-                if (isSass) {
-                    contents = (await postcss([
-                        await import('@chialab/postcss-dart-sass')
-                            .then(({ default: postcssSass }) => postcssSass({
-                                rootDir,
-                                alias: options.alias,
-                                omitSourceMapUrl: true,
-                                sourceMapContents: true,
-                                sourceMapEmbed: false,
-                            })),
-                    ]).process(contents, {
-                        ...finalConfig,
+                    ...(isSass ? {
                         syntax: await import('postcss-scss').then(({ default: postcssSass }) => postcssSass),
-                    })).css.toString();
-                }
+                    } : {}),
+                };
 
                 const result = await postcss(plugins).process(contents, finalConfig);
                 const sourceMap = result.map.toJSON();

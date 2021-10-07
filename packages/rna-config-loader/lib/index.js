@@ -38,10 +38,6 @@ import path from 'path';
  */
 
 /**
- * @typedef {{ [key: string]: string|false }} AliasMap
- */
-
-/**
  * @typedef {'default'|'named'|'namespace'} ExportType
  */
 
@@ -56,7 +52,7 @@ import path from 'path';
  * @property {string} assetNames
  * @property {DefineMap} define
  * @property {string[]} external
- * @property {AliasMap} alias
+ * @property {import('@chialab/node-resolve').AliasMap} alias
  * @property {string} [jsxFactory]
  * @property {string} [jsxFragment]
  * @property {string} [jsxModule]

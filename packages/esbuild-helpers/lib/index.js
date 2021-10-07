@@ -13,14 +13,6 @@ export * from './dependencies.js';
  */
 
 /**
- * Escape RegExp modifiers in a string.
- * @param {string} source
- */
-export function escapeRegexBody(source) {
-    return source.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
-
-/**
  * Create an empty metafile object.
  * @return {Metafile}
  */

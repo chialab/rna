@@ -1,5 +1,5 @@
 import { createEmptySourcemapComment } from '@chialab/estransform';
-import { escapeRegexBody } from '@chialab/esbuild-helpers';
+import { escapeRegexBody } from '@chialab/node-resolve';
 
 /**
  * A plugin for esbuild that enables automatic injection of the jsx module import.

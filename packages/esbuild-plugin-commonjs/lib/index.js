@@ -1,5 +1,5 @@
 import { REQUIRE_HELPER, HELPER_MODULE, createTransform, maybeCommonjsModule, maybeMixedModule, wrapDynamicRequire } from '@chialab/cjs-to-esm';
-import { escapeRegexBody } from '@chialab/esbuild-helpers';
+import { escapeRegexBody } from '@chialab/node-resolve';
 import { createEmptySourcemapComment, pipe } from '@chialab/estransform';
 import { getEntry, finalizeEntry, createFilter, transformError } from '@chialab/esbuild-plugin-transform';
 

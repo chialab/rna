@@ -1,5 +1,4 @@
-import { escapeRegexBody } from '@chialab/esbuild-helpers';
-import { browserResolve } from '@chialab/node-resolve';
+import { ALIAS_MODE, createAliasRegex, browserResolve } from '@chialab/node-resolve';
 
 /**
  * @param {import('./createPlugins').StorybookBuild} config
@@ -12,14 +11,14 @@ export function aliasPlugin({ map = {}, modules = [], resolutions = [] }) {
         name: 'storybook-alias',
         async setup(build) {
             modules.forEach((modName) => {
-                const filter = new RegExp(`^${escapeRegexBody(modName)}$`);
+                const filter = createAliasRegex(modName, ALIAS_MODE.FULL);
                 build.onResolve({ filter }, async (args) => ({
                     path: await browserResolve(map[modName], args.importer),
                 }));
             });
 
             resolutions.forEach((resolution) => {
-                const filter = new RegExp(`^${escapeRegexBody(resolution)}$`);
+                const filter = createAliasRegex(resolution, ALIAS_MODE.FULL);
                 build.onResolve({ filter }, async (args) => ({
                     path: await browserResolve(resolution, args.importer),
                 }));

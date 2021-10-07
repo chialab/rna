@@ -11,7 +11,7 @@ const require = createRequire(import.meta.url);
  * @typedef {Object} TestRunnerCoreConfig
  * @property {import('@chialab/rna-logger').Logger} [logger]
  * @property {string[]|import('@web/test-runner-core').BrowserLauncher[]} [browsers]
- * @property {import('@chialab/rna-config-loader').AliasMap} [alias]
+ * @property {import('@chialab/node-resolve').AliasMap} [alias]
  */
 
 /**

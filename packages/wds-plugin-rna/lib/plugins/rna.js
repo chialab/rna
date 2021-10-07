@@ -105,6 +105,7 @@ export async function createConfig(entrypoint, serverConfig, config) {
         plugins: [
             ...(await loadPlugins({
                 postcss: {
+                    alias: config.alias,
                     async transform(importPath) {
                         if (isOutsideRootDir(importPath)) {
                             return;

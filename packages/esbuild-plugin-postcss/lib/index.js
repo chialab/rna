@@ -32,7 +32,7 @@ async function loadPostcssConfig() {
  */
 
 /**
- * @typedef {import('postcss').ProcessOptions & { relative?: UrlRebasePluginOptions['relative'], transform?: UrlRebasePluginOptions['transform'] }} PluginOptions
+ * @typedef {import('postcss').ProcessOptions & { relative?: UrlRebasePluginOptions['relative'], transform?: UrlRebasePluginOptions['transform'], alias?: import('@chialab/node-resolve').AliasMap }} PluginOptions
  */
 
 /**
@@ -47,7 +47,8 @@ export default function(options = {}) {
     const plugin = {
         name: 'postcss',
         async setup(build) {
-            const { stdin, sourceRoot } = build.initialOptions;
+            const { stdin, sourceRoot, absWorkingDir } = build.initialOptions;
+            const rootDir = sourceRoot || absWorkingDir || process.cwd();
             const input = stdin ? stdin.sourcefile : undefined;
             const fullInput = input && path.resolve(sourceRoot || process.cwd(), input);
 
@@ -62,14 +63,14 @@ export default function(options = {}) {
                     import('@chialab/postcss-url-rebase'),
                 ]);
 
-                const contents = filePath === fullInput && stdin ?
+                let contents = filePath === fullInput && stdin ?
                     stdin.contents.toString() :
                     await readFile(filePath, 'utf-8');
 
                 const config = await loadPostcssConfig();
                 const plugins = [
                     urlRebase({
-                        root: sourceRoot,
+                        root: rootDir,
                         relative: options.relative,
                         transform: options.transform,
                     }),
@@ -77,30 +78,37 @@ export default function(options = {}) {
                 ];
 
                 const isSass = ['.sass', '.scss'].includes(path.extname(filePath));
+
+                /**
+                 * @type {import('postcss').ProcessOptions}
+                 */
                 const finalConfig = {
                     from: filePath,
                     map: {
                         inline: false,
-                        sourceContents: true,
+                        sourcesContent: true,
                     },
                     ...(config.options || {}),
                     ...options,
-                    syntax: isSass ?
-                        await import('postcss-scss')
-                            .then(({ default: postcssSass }) => postcssSass) :
-                        undefined,
                 };
-                const result = await postcss([
-                    ...plugins,
-                    ...(isSass ? [await import('@chialab/postcss-dart-sass')
-                        .then(({ default: postcssSass }) => postcssSass({
-                            omitSourceMapUrl: true,
-                            sourceMapContents: true,
-                            sourceMapEmbed: false,
-                        }))] :
-                        []
-                    ),
-                ]).process(contents, finalConfig);
+
+                if (isSass) {
+                    contents = (await postcss([
+                        await import('@chialab/postcss-dart-sass')
+                            .then(({ default: postcssSass }) => postcssSass({
+                                rootDir,
+                                alias: options.alias,
+                                omitSourceMapUrl: true,
+                                sourceMapContents: true,
+                                sourceMapEmbed: false,
+                            })),
+                    ]).process(contents, {
+                        ...finalConfig,
+                        syntax: await import('postcss-scss').then(({ default: postcssSass }) => postcssSass),
+                    })).css.toString();
+                }
+
+                const result = await postcss(plugins).process(contents, finalConfig);
                 const sourceMap = result.map.toJSON();
                 sourceMap.sources = [path.basename(filePath)];
                 delete sourceMap.file;

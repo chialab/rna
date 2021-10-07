@@ -1,8 +1,7 @@
 import { readFile } from 'fs/promises';
 import pkgUp from 'pkg-up';
-import { resolve } from '@chialab/node-resolve';
+import { ALIAS_MODE, createAliasRegex, createAliasesRegex, resolve } from '@chialab/node-resolve';
 import { createEmptyModule } from '@chialab/estransform';
-import { escapeRegexBody } from '@chialab/esbuild-helpers';
 
 /**
  * A plugin for esbuild that resolves aliases or empty modules.
@@ -40,8 +39,7 @@ export default function(modules = {}, browserField = true) {
 
             if (aliases.length) {
                 aliases.forEach((alias) => {
-                    const regexBody = escapeRegexBody(alias);
-                    const aliasFilter = new RegExp(`^${regexBody}$`);
+                    const aliasFilter = createAliasRegex(alias, ALIAS_MODE.FULL);
                     build.onResolve({ filter: aliasFilter }, async (args) => ({
                         path: await resolve(/** @type {string} */(modulesMap[args.path]), args.importer || rootDir),
                     }));
@@ -49,8 +47,7 @@ export default function(modules = {}, browserField = true) {
             }
 
             if (empty.length) {
-                const regexBody = empty.map(escapeRegexBody).join('|');
-                const emptyFilter = new RegExp(`(^|\\/)${regexBody}(\\/|$)`);
+                const emptyFilter = createAliasesRegex(empty);
 
                 build.onResolve({ filter: emptyFilter }, (args) => ({
                     path: args.path,

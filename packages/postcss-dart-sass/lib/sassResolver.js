@@ -1,5 +1,5 @@
 import path from 'path';
-import { CSS_EXTENSIONS, styleResolve } from '@chialab/node-resolve';
+import { CSS_EXTENSIONS, syncStyleResolve, ALIAS_MODE, createAliasRegex } from '@chialab/node-resolve';
 
 /**
  * Generate a list of file paths with all style extensions.
@@ -29,21 +29,33 @@ function alternatives(url) {
 
 /**
  * Create a scoped SASS resolver.
+ * @param {{ alias?: import('@chialab/node-resolve').AliasMap }} [options]
  */
-export default function() {
-    /**
-     * @type {string[]}
-     */
-    const resolved = [];
-
+export default function({ alias } = {}) {
     /**
      * Resolve the file path of an imported style.
      * @type {import('sass').Importer}
      */
-    return async function nodeResolver(url, prev) {
+    return function nodeResolver(url, prev) {
         if (url.match(/^(~|package:)/)) {
             // some modules use ~ or package: for node_modules import
             url = url.replace(/^(~|package:)/, '');
+        }
+
+        if (alias) {
+            for (const key in alias) {
+                const regex = createAliasRegex(key, ALIAS_MODE.START);
+                if (url.match(regex)) {
+                    const aliased = alias[key];
+                    if (!aliased) {
+                        return {
+                            contents: '',
+                        };
+                    }
+                    url = url.replace(regex, aliased);
+                    continue;
+                }
+            }
         }
 
         // generate alternatives for style starting from the module path
@@ -62,7 +74,7 @@ export default function() {
             try {
                 // use node resolution to get the full file path
                 // it throws if the file does not exist.
-                url = await styleResolve(modCheck, prev);
+                url = syncStyleResolve(modCheck, prev) || url;
                 if (url) {
                     // file found, stop the search.
                     break;
@@ -71,15 +83,7 @@ export default function() {
                 //
             }
         }
-        if (resolved.indexOf(url) !== -1) {
-            // This file has been resolved already.
-            // Skip it in order to avoid duplications.
-            return {
-                contents: '',
-            };
-        }
 
-        resolved.push(url);
         // return the found url.
         return {
             file: url,

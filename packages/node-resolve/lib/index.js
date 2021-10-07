@@ -13,7 +13,7 @@ import isCore from 'is-core-module';
  */
 
 /**
- * A promise based node resolution library based on enhanced-resolve
+ * A promise based node resolution method based on enhanced-resolve
  * @param {ResolveOptions} [options]
  */
 export function createResolver(options = {}) {
@@ -40,6 +40,36 @@ export function createResolver(options = {}) {
              */
             (err, data) => (err ? reject(err) : resolve(data)))
         );
+
+        if (!resolved) {
+            return resolved;
+        }
+
+        return `${resolved}${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+    };
+
+    return resolve;
+}
+
+/**
+ * A sync node resolution method based on enhanced-resolve
+ * @param {ResolveOptions} [options]
+ */
+export function createSyncResolver(options = {}) {
+    const resolver = nodeResolve.create.sync({
+        symlinks: false,
+        ...options,
+    });
+
+    /**
+     * @param {string} specifier
+     * @param {string} importer
+     */
+    const resolve = function(specifier, importer) {
+        const { path, searchParams } = getSearchParams(specifier);
+        importer = getBasePath(importer);
+
+        const resolved = resolver({}, importer, path);
 
         if (!resolved) {
             return resolved;
@@ -100,6 +130,16 @@ export const resolve = createResolver();
  * It refers to the style field in the package json.
  */
 export const styleResolve = createResolver({
+    extensions: ['.css'],
+    exportsFields: [],
+    mainFields: ['style'],
+});
+
+/**
+ * A synced style specific resolver.
+ * It refers to the style field in the package json.
+ */
+export const syncStyleResolve = createSyncResolver({
     extensions: ['.css'],
     exportsFields: [],
     mainFields: ['style'],
@@ -231,3 +271,5 @@ export function getSearchParam(source, param) {
     const { searchParams } = getSearchParams(source);
     return searchParams.get(param) || null;
 }
+
+export * from './alias.js';

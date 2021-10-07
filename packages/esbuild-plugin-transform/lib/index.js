@@ -1,7 +1,7 @@
 import path from 'path';
 import { readFile } from 'fs/promises';
 import { createPipeline, finalize } from '@chialab/estransform';
-import { escapeRegexBody } from '@chialab/esbuild-helpers';
+import { escapeRegexBody } from '@chialab/node-resolve';
 
 export const SCRIPT_LOADERS = ['tsx', 'ts', 'jsx', 'js'];
 

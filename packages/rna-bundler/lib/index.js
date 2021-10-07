@@ -170,6 +170,7 @@ export function command(program) {
                     plugins: await loadPlugins({
                         html: {},
                         postcss: {
+                            alias: userConfig.alias,
                             relative: false,
                         },
                     }, esbuild),

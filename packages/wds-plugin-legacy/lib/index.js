@@ -1,5 +1,6 @@
 import { createRequire } from 'module';
 import { inject } from '@chialab/wds-plugin-polyfill';
+import { createHelperUrl } from '@chialab/wds-plugin-node-resolve';
 import { checkEsmSupport } from './checkEsmSupport.js';
 import { readFile } from './readFile.js';
 import { transform } from './transform.js';
@@ -19,7 +20,9 @@ const load = /** typeof cheerio.load */ (cheerio.load || cheerio.default?.load);
  */
 export function legacyPlugin(config = {}) {
     const systemUrl = require.resolve('systemjs/dist/s.min.js');
+    const systemHelper = createHelperUrl('system.js');
     const regeneratorUrl = require.resolve('regenerator-runtime/runtime.js');
+    const regeneratorHelper = createHelperUrl('runtime.js');
 
     /**
      * @type {Map<string, string>}
@@ -42,9 +45,15 @@ export function legacyPlugin(config = {}) {
                     body: /** @type {string} */ (inlineScripts.get(context.path)),
                 };
             }
-            if (context.path === '/__wds-helpers__/system.js' ||
-                context.path === '/__wds-helpers__/regenerator-runtime.js') {
-                return { body: '' };
+            if (context.path === systemHelper) {
+                return {
+                    body: await readFile(systemUrl),
+                };
+            }
+            if (context.path === regeneratorHelper) {
+                return {
+                    body: await readFile(regeneratorUrl),
+                };
             }
         },
 
@@ -53,12 +62,8 @@ export function legacyPlugin(config = {}) {
             if (checkEsmSupport(ua)) {
                 return;
             }
-            if (context.path === '/__wds-helpers__/regenerator-runtime.js') {
-                context.body = await readFile(regeneratorUrl);
-                return;
-            }
-            if (context.path === '/__wds-helpers__/system.js') {
-                context.body = await readFile(systemUrl);
+            if (context.path === systemHelper ||
+                context.path === regeneratorHelper) {
                 return;
             }
             if (context.response.is('js')) {
@@ -98,8 +103,8 @@ export function legacyPlugin(config = {}) {
 
                 const head = root.find('head') || root.find('body');
                 head.prepend('<script>(function() { var p = Promise.resolve(); window.import = function(source) { return p = p.then(function() { return System.import(source) }); }}());</script>');
-                head.prepend('<script src="/__wds-helpers__/system.js"></script>');
-                head.prepend('<script src="/__wds-helpers__/regenerator-runtime.js"></script>');
+                head.prepend(`<script src="${systemHelper}"></script>`);
+                head.prepend(`<script src="${regeneratorHelper}"></script>`);
 
                 context.body = $.html();
             }

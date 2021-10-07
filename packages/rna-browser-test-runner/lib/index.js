@@ -3,6 +3,7 @@ import { createRequire } from 'module';
 import { readConfigFile, mergeConfig, locateConfigFile } from '@chialab/rna-config-loader';
 import { createLogger } from '@chialab/rna-logger';
 import { mochaReporter } from '@chialab/wtr-mocha-reporter';
+import { HELPERS_PATH } from '@chialab/wds-plugin-node-resolve';
 import { FRAMEWORK_ALIASES } from './frameworks.js';
 
 const require = createRequire(import.meta.url);
@@ -83,7 +84,7 @@ export async function startTestRunner(config) {
                 '**/node_modules/**/*',
                 '**/web_modules/**/*',
                 '**/__wds-outside-root__/**',
-                '**/__wds-helpers__/**',
+                `**/${HELPERS_PATH}/**`,
             ],
             threshold: { statements: 0, functions: 0, branches: 0, lines: 0 },
             report: true,

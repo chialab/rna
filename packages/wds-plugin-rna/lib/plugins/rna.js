@@ -244,7 +244,7 @@ export function rnaPlugin(config) {
         },
 
         async transform(context) {
-            if (isHelperImport(context.path)) {
+            if (isHelperImport(context.url)) {
                 return;
             }
 

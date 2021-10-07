@@ -27,11 +27,26 @@ export function skipResolve(url) {
 }
 
 /**
+ * Web dev server helpers route prefix.
+ */
+export const HELPERS_PATH = '/__wds-helpers__/';
+
+/**
+ * Create a helper url.
+ * @param {string} name The name of the helper.
+ */
+export function createHelperUrl(name) {
+    return `${HELPERS_PATH}/${name}`;
+}
+
+/**
  * Check if the given url is a server helper file.
  * @param {string} url
  */
 export function isHelperImport(url) {
-    return url.includes('__web-dev-server__web-socket') || url.includes('__web-test-runner__');
+    return url.includes('__web-dev-server__web-socket') ||
+        url.includes('__web-test-runner__') ||
+        url.includes(HELPERS_PATH);
 }
 
 /**

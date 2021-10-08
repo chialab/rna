@@ -27,7 +27,7 @@ export const ALIAS_MODE = {
 export function createAliasRegex(entry, mode = ALIAS_MODE.ANY) {
     const regexBody = escapeRegexBody(entry);
     if (mode === ALIAS_MODE.FULL) {
-        return new RegExp(`${regexBody}$`);
+        return new RegExp(`^${regexBody}$`);
     }
 
     if (mode === ALIAS_MODE.START) {

@@ -62,6 +62,12 @@ $ rna serve public --port 3000
 
 ---
 
+### Integrations
+
+* [RNA CakePHP](https://github.com/chialab/rna-cakephp): an Encore-like view helper to inject scripts and css
+
+---
+
 ## License
 
 RNA Dev Server is released under the [MIT](https://github.com/chialab/rna/blob/main/packages/rna-dev-server/LICENSE) license.

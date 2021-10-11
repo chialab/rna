@@ -98,6 +98,6 @@ Then, you can read this file and load resources in your PHP application:
 {% endfor %}
 ```
 
-Here is a list of RNA helpers for common frameworks:
+Here is a list of RNA-based helpers for common frameworks:
 
-* [Cake](https://github.com/chialab/rna/packages/rna-dev-server/examples/cakephp/RnaHelper.php)
+* [RNA CakePHP](https://github.com/chialab/rna-cakephp)

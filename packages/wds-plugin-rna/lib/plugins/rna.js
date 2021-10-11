@@ -168,6 +168,47 @@ export function rnaPlugin(config) {
     const dependenciesMap = {};
 
     /**
+     * @param {import('@chialab/rna-bundler').TransformResult|import('@chialab/rna-bundler').BuildResult} result
+     */
+    function watchDependencies({ dependencies }) {
+        const watchedDependencies = Object.values(dependenciesMap).flat();
+        for (const key in dependencies) {
+            if (key in dependenciesMap) {
+                dependenciesMap[key]
+                    .forEach((file) => {
+                        if (watchedDependencies.filter((f) => f === file).length === 1) {
+                            serverFileWatcher.unwatch(file);
+                        }
+                    });
+            }
+
+            dependencies[key]
+                .forEach((file) => serverFileWatcher.add(file));
+        }
+
+        Object.assign(dependenciesMap, dependencies);
+    }
+
+    /**
+     * @param {import('@chialab/rna-bundler').BuildResult} result
+     */
+    function addToVirtualFs(result) {
+        if (!result.outputFiles) {
+            return result.outputFiles;
+        }
+        result.outputFiles.forEach(({ path, text }) => {
+            virtualFs[path] = Promise.resolve(text);
+        });
+    }
+
+    /**
+     * @param {string} path
+     */
+    function invalidateVirtualFs(path) {
+        delete virtualFs[path];
+    }
+
+    /**
      * @type {Plugin}
      */
     const plugin = {
@@ -183,11 +224,13 @@ export function rnaPlugin(config) {
             const onFileChanged = (filePath) => {
                 for (const key in dependenciesMap) {
                     if (filePath === key) {
+                        invalidateVirtualFs(filePath);
                         continue;
                     }
 
                     const list = dependenciesMap[key];
                     if (list.includes(filePath)) {
+                        invalidateVirtualFs(key);
                         setTimeout(() => {
                             // debounce change event in order to correctly handle hmr queue
                             fileWatcher.emit('change', key);
@@ -286,26 +329,10 @@ export function rnaPlugin(config) {
             };
 
             const transformConfig = await createConfig(entrypoint, serverConfig, config);
-            const { code, dependencies } = await transform(transformConfig);
+            const result = await transform(transformConfig);
+            watchDependencies(result);
 
-            const watchedDependencies = Object.values(dependenciesMap).flat();
-            for (const key in dependencies) {
-                if (key in dependenciesMap) {
-                    dependenciesMap[key]
-                        .forEach((file) => {
-                            if (watchedDependencies.filter((f) => f === file).length === 1) {
-                                serverFileWatcher.unwatch(file);
-                            }
-                        });
-                }
-
-                dependencies[key]
-                    .forEach((file) => serverFileWatcher.add(file));
-            }
-
-            Object.assign(dependenciesMap, dependencies);
-
-            return code;
+            return result.code;
         },
 
         async transformImport({ source }) {
@@ -361,6 +388,7 @@ export function rnaPlugin(config) {
                 bundle: false,
             };
 
+
             virtualFs[resolved] = createConfig(entrypoint, serverConfig, config)
                 .then((transformConfig) =>
                     build({
@@ -374,9 +402,9 @@ export function rnaPlugin(config) {
                     if (!result.outputFiles) {
                         throw new Error('Failed to bundle dependency');
                     }
-                    result.outputFiles.forEach(({ path, text }) => {
-                        virtualFs[path] = Promise.resolve(text);
-                    });
+
+                    addToVirtualFs(result);
+                    watchDependencies(result);
 
                     return virtualFs[resolved];
                 });

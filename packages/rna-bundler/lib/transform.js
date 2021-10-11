@@ -1,5 +1,6 @@
 import path from 'path';
 import { transformLoaders } from './loaders.js';
+import { mergeDependencies } from './mergeDependencies.js';
 
 /**
  * @typedef {import('esbuild').Metafile} Metafile
@@ -47,7 +48,7 @@ export async function transform(config) {
         throw new Error('Missing required `code` option');
     }
 
-    const { default: dependenciesPlugin, getResultDependencies } = await import('@chialab/esbuild-plugin-dependencies');
+    const { default: dependenciesPlugin } = await import('@chialab/esbuild-plugin-dependencies');
     const finalPlugins = await Promise.all([
         import('@chialab/esbuild-plugin-env')
             .then(({ default: plugin }) => plugin()),
@@ -72,6 +73,7 @@ export async function transform(config) {
     ]);
 
     const sourceFile = path.resolve(root, Array.isArray(input) ? input[0] : input);
+    const absWorkingDir = path.dirname(sourceFile);
     const result = /** @type {BuildResult} */ (await esbuild.build({
         stdin: {
             contents: code,
@@ -94,7 +96,7 @@ export async function transform(config) {
         metafile: true,
         preserveSymlinks: true,
         sourcesContent: true,
-        absWorkingDir: path.dirname(sourceFile),
+        absWorkingDir,
         plugins: finalPlugins,
         logLevel,
     }));
@@ -108,6 +110,6 @@ export async function transform(config) {
         map: result.outputFiles[1] ? result.outputFiles[1].text : '',
         warnings: result.warnings,
         metafile: result.metafile,
-        dependencies: getResultDependencies(result) || {},
+        dependencies: mergeDependencies(result, absWorkingDir),
     };
 }

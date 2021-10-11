@@ -4,6 +4,7 @@ import { createLogger } from '@chialab/rna-logger';
 import { loaders } from './loaders.js';
 import { writeManifestJson } from './writeManifestJson.js';
 import { writeEntrypointsJson } from './writeEntrypointsJson.js';
+import { mergeDependencies } from './mergeDependencies.js';
 
 /**
  * @typedef {import('esbuild').Metafile} Metafile
@@ -38,7 +39,7 @@ async function onBuildEnd(config, entryOptions, result) {
 /**
  * Build and bundle sources.
  * @param {import('@chialab/rna-config-loader').EntrypointFinalBuildConfig} config
- * @return The esbuild bundle result.
+ * @return {Promise<BuildResult>} The esbuild bundle result.
  */
 export async function build(config) {
     const { default: esbuild } = await import('esbuild');
@@ -94,7 +95,7 @@ export async function build(config) {
         await rm(path.resolve(root, outputDir), { recursive: true, force: true });
     }
 
-    const { default: dependenciesPlugin, getResultDependencies } = await import('@chialab/esbuild-plugin-dependencies');
+    const { default: dependenciesPlugin } = await import('@chialab/esbuild-plugin-dependencies');
     const finalPlugins = await Promise.all([
         import('@chialab/esbuild-plugin-emit')
             .then(({ default: plugin }) => plugin()),
@@ -131,7 +132,7 @@ export async function build(config) {
         dependenciesPlugin(),
     ]);
 
-    const result = /** @type {import('@chialab/esbuild-helpers').CompleteBuildResult} */ await esbuild.build({
+    const result = /** @type {BuildResult} */ (await esbuild.build({
         ...entryOptions,
         outfile: hasOutputFile ? output : undefined,
         outdir: hasOutputFile ? undefined : output,
@@ -181,12 +182,12 @@ export async function build(config) {
         },
         write,
         allowOverwrite: !write,
-    });
+    }));
 
     await onBuildEnd(config, entryOptions, result);
 
     return {
         ...result,
-        dependencies: getResultDependencies(result) || {},
+        dependencies: mergeDependencies(result, root),
     };
 }

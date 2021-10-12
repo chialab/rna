@@ -35,6 +35,8 @@
     "@chialab/wds-plugin-node-resolve": "^0.12.19",
     "@chialab/wds-plugin-rna": "^0.12.19",
     "@custom-elements-manifest/analyzer": "^0.5.0",
+    "@storybook/core-common": "^6.4.0-beta.0",
+    "@storybook/core-server": "^6.4.0-beta.0",
     "@storybook/csf-tools": "^6.4.0-beta.0",
     "@types/lodash": "^4.14.175",
     "esbuild": "^0.13.0",

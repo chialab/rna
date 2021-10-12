@@ -1,3 +1,5 @@
+import './fixMdxParser.js';
+
 export * from './findStories.js';
 export * from './createManager.js';
 export * from './createPreview.js';

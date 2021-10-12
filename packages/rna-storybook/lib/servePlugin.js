@@ -34,20 +34,22 @@ export function appendPreviewParam(source) {
 }
 
 /**
- * @param {import('./createPlugins').StorybookConfig} options
+ * @param {import('./createPlugins').StorybookConfig} config
  */
-export function servePlugin({
-    type,
-    stories: storiesPattern,
-    static: staticFiles = {},
-    addons = [],
-    managerEntries = [],
-    previewEntries = [],
-    managerHead,
-    previewHead,
-    previewBody,
-    build,
-}) {
+export function servePlugin(config) {
+    const {
+        type,
+        stories: storiesPattern,
+        static: staticFiles = {},
+        addons = [],
+        managerEntries = [],
+        previewEntries = [],
+        managerHead,
+        previewHead,
+        previewBody,
+        build,
+    } = config;
+
     /**
      * @type {import('@web/dev-server-core').DevServerCoreConfig}
      */
@@ -167,8 +169,9 @@ export function servePlugin({
             }
 
             if (context.path === '/stories.json') {
+                const stories = await findStories(rootDir, storiesPattern);
                 return {
-                    body: JSON.stringify(createStoriesJson()),
+                    body: JSON.stringify(await createStoriesJson(stories)),
                 };
             }
 

@@ -14,9 +14,7 @@ import { mdx } from '@mdx-js/react';
 
 ${body}`;
 
-    body = body.replace(/import\.meta\.url/g, 'import$meta$url');
     body = await mdx(body, { compilers, filepath: filePath });
-    body = body.replace(/import\$meta\$url/g, 'import.meta.url');
     return esbuild.transform(body, {
         loader: 'jsx',
         sourcemap: false,

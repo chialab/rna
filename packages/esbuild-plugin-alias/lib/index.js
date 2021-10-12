@@ -1,6 +1,6 @@
 import { readFile } from 'fs/promises';
 import pkgUp from 'pkg-up';
-import { ALIAS_MODE, createAliasRegex, createAliasesRegex, resolve } from '@chialab/node-resolve';
+import { ALIAS_MODE, createAliasRegex, createAliasesRegex, resolve, getMappedModules, getEmptyModules } from '@chialab/node-resolve';
 import { createEmptyModule } from '@chialab/estransform';
 
 /**
@@ -17,9 +17,9 @@ export default function(modules = {}, browserField = true) {
         name: 'alias',
         async setup(build) {
             const options = build.initialOptions;
-            const { sourceRoot, absWorkingDir, platform = 'neutral' } = options;
+            const { sourceRoot, absWorkingDir, platform = 'neutral', external = [] } = options;
             const rootDir = sourceRoot || absWorkingDir || process.cwd();
-            const modulesMap = { ...modules };
+            const aliasMap = { ...modules };
 
             if (browserField && platform === 'browser') {
                 const packageFile = await pkgUp({
@@ -28,20 +28,19 @@ export default function(modules = {}, browserField = true) {
                 if (packageFile) {
                     const packageJson = JSON.parse(await readFile(packageFile, 'utf-8'));
                     if (typeof packageJson.browser === 'object') {
-                        Object.assign(modulesMap, packageJson.browser);
+                        Object.assign(aliasMap, packageJson.browser);
                     }
                 }
             }
 
-            const keys = Object.keys(modulesMap);
-            const aliases = keys.filter((alias) => modulesMap[alias]);
-            const empty = keys.filter((alias) => !modulesMap[alias]);
+            const aliases = getMappedModules(aliasMap, external);
+            const empty = getEmptyModules(aliasMap, external);
 
             if (aliases.length) {
                 aliases.forEach((alias) => {
                     const aliasFilter = createAliasRegex(alias, ALIAS_MODE.FULL);
                     build.onResolve({ filter: aliasFilter }, async (args) => ({
-                        path: await resolve(/** @type {string} */(modulesMap[args.path]), args.importer || rootDir),
+                        path: await resolve(/** @type {string} */(aliasMap[args.path]), args.importer || rootDir),
                     }));
                 });
             }

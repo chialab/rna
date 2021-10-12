@@ -3,7 +3,7 @@ import pkgUp from 'pkg-up';
 import { getRequestFilePath } from '@web/dev-server-core';
 import { getChunkOptions } from '@chialab/esbuild-plugin-emit';
 import { getEntryConfig } from '@chialab/rna-config-loader';
-import { browserResolve, isJs, isJson, isCss, fsResolve, getSearchParam, appendSearchParam, removeSearchParam, getSearchParams } from '@chialab/node-resolve';
+import { browserResolve, isJs, isJson, isCss, fsResolve, getSearchParam, appendSearchParam, removeSearchParam, getSearchParams, ALIAS_MODE, createAliasRegexexMap, createEmptyRegex } from '@chialab/node-resolve';
 import { isHelperImport, isOutsideRootDir, resolveRelativeImport } from '@chialab/wds-plugin-node-resolve';
 import { transform, transformLoaders, loadPlugins, loadTransformPlugins, build } from '@chialab/rna-bundler';
 import { realpath } from 'fs/promises';
@@ -147,6 +147,10 @@ function isBareModuleSource(name) {
  * @param {Partial<import('@chialab/rna-config-loader').CoreTransformConfig>} config
  */
 export function rnaPlugin(config) {
+    const aliasMap = config.alias || {};
+    const aliasRegexes = createAliasRegexexMap(aliasMap, ALIAS_MODE.FULL);
+    const emptyRegex = createEmptyRegex(aliasMap);
+
     /**
      * @type {import('@web/dev-server-core').DevServerCoreConfig}
      */
@@ -350,8 +354,18 @@ export function rnaPlugin(config) {
         },
 
         async resolveImport({ source, context }) {
-            if (config.alias && config.alias[source]) {
-                source = /** @type {string} */ (config.alias[source]);
+            if (source.match(emptyRegex)) {
+                return;
+            }
+
+            for (const [regex, res] of aliasRegexes.entries()) {
+                if (source.match(regex)) {
+                    if (!res.value) {
+                        return;
+                    }
+                    source = res.value;
+                    break;
+                }
             }
 
             if (!isBareModuleSource(source)) {
@@ -387,7 +401,6 @@ export function rnaPlugin(config) {
                 loader: getRequestLoader(context),
                 bundle: false,
             };
-
 
             virtualFs[resolved] = createConfig(entrypoint, serverConfig, config)
                 .then((transformConfig) =>

@@ -1,7 +1,7 @@
 import path from 'path';
 import { getRequestFilePath, PluginSyntaxError, PluginError } from '@web/dev-server-core';
 import { createEmptyModule } from '@chialab/estransform';
-import { browserResolve, getSearchParams, isUrl } from '@chialab/node-resolve';
+import { ALIAS_MODE, browserResolve, createAliasRegexexMap, createEmptyRegex, getSearchParams, isUrl } from '@chialab/node-resolve';
 
 /**
  * @typedef {import('@web/dev-server-core').Plugin} Plugin
@@ -128,13 +128,17 @@ export async function resolveImport(specifier, importer, serveDir, { code, line,
 
 /**
  * A plugin the Web Dev Server for node resolutions.
- * @param {{ alias?: { [key: string]: string|false } }} [config]
+ * @param {{ alias?: import('@chialab/node-resolve').AliasMap }} [config]
  */
 export default function(config = {}) {
     /**
      * @type {import('@web/dev-server-core').DevServerCoreConfig}
      */
     let serverConfig;
+
+    const aliasMap = config.alias || {};
+    const aliasRegexes = createAliasRegexexMap(aliasMap, ALIAS_MODE.FULL);
+    const emptyRegex = createEmptyRegex(aliasMap);
 
     /**
      * @type {Plugin}
@@ -158,13 +162,18 @@ export default function(config = {}) {
                 return;
             }
 
-            const alias = config.alias || {};
-            if (source in alias) {
-                const aliased = alias[source];
-                if (!aliased) {
-                    return EMPTY_KEY;
+            if (source.match(emptyRegex)) {
+                return EMPTY_KEY;
+            }
+
+            for (const [regex, res] of aliasRegexes.entries()) {
+                if (source.match(regex)) {
+                    if (!res.value) {
+                        return EMPTY_KEY;
+                    }
+                    source = res.value;
+                    break;
                 }
-                source = aliased;
             }
 
             if (skipResolve(source)) {

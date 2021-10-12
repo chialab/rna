@@ -132,7 +132,10 @@ export async function build(config) {
         dependenciesPlugin(),
     ]);
 
-    const result = /** @type {BuildResult} */ (await esbuild.build({
+    /**
+     * @type {import('esbuild').BuildOptions}
+     */
+    const finalConfig = {
         ...entryOptions,
         outfile: hasOutputFile ? output : undefined,
         outdir: hasOutputFile ? undefined : output,
@@ -182,7 +185,9 @@ export async function build(config) {
         },
         write,
         allowOverwrite: !write,
-    }));
+    };
+
+    const result = /** @type {BuildResult} */ (await esbuild.build(finalConfig));
 
     await onBuildEnd(config, entryOptions, result);
 

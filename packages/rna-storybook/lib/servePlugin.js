@@ -171,7 +171,9 @@ export function servePlugin(config) {
             if (context.path === '/stories.json') {
                 const stories = await findStories(rootDir, storiesPattern);
                 return {
-                    body: JSON.stringify(await createStoriesJson(stories)),
+                    body: JSON.stringify(await createStoriesJson(stories, rootDir, {
+                        storySort: config.storySort,
+                    })),
                 };
             }
 

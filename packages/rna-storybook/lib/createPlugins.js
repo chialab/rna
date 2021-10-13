@@ -24,6 +24,7 @@ import { servePlugin } from './servePlugin.js';
  * @property {string} [managerHead]
  * @property {string} [previewHead]
  * @property {string} [previewBody]
+ * @property {import('@storybook/addons').StorySortParameterV7} [storySort]
  * @property {StorybookBuild} [build]
  */
 

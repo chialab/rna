@@ -188,7 +188,11 @@ export function buildPlugin(config) {
 
             build.onEnd(async (result) => {
                 await mkdir(outDir, { recursive: true });
-                await writeFile(path.join(outDir, 'stories.json'), JSON.stringify(await createStoriesJson(stories)));
+                await writeFile(path.join(outDir, 'stories.json'), JSON.stringify(
+                    await createStoriesJson(stories, rootDir, {
+                        storySort: config.storySort,
+                    })
+                ));
 
                 const results = await resultsPromise;
                 results.forEach((res) => {

@@ -7147,6 +7147,11 @@ get-port@^5.1.1:
   resolved "https://registry.npmjs.org/get-port/-/get-port-5.1.1.tgz#0469ed07563479de6efb986baf053dcd7d4e3193"
   integrity sha512-g/Q1aTSDOxFpchXC4i8ZWvxA1lnPqx/JHqcpIw0/LX9T8x/GBbi6YnlN5nhaKIFkT8oFsscUKgDJYxfwfS6QsQ==
 
+get-port@^6.0.0:
+  version "6.0.0"
+  resolved "https://registry.npmjs.org/get-port/-/get-port-6.0.0.tgz#eeac06c17b9d22c2949d4ce5abcc80753afe9be1"
+  integrity sha512-qSVkVF6Eq1GdL/cBNiFuP4nUHMF7OEMTqEjC6alR2N90u8BFOoO0PFhNTX2QtAUoGrz8NnrSWj85TZ8YXZ6LOA==
+
 get-proxy@^2.0.0:
   version "2.1.0"
   resolved "https://registry.npmjs.org/get-proxy/-/get-proxy-2.1.0.tgz#349f2b4d91d44c4d4d4e9cba2ad90143fac5ef93"
@@ -11177,7 +11182,7 @@ postcss@^7.0.17, postcss@^7.0.2, postcss@^7.0.27, postcss@^7.0.5:
     picocolors "^0.2.1"
     source-map "^0.6.1"
 
-postcss@^8.0.0, postcss@^8.2.5, postcss@^8.3.6:
+postcss@^8.0.0, postcss@^8.2.5:
   version "8.3.9"
   resolved "https://registry.npmjs.org/postcss/-/postcss-8.3.9.tgz#98754caa06c4ee9eb59cc48bd073bb6bd3437c31"
   integrity sha512-f/ZFyAKh9Dnqytx5X62jgjhhzttjZS7hMsohcI7HEI5tjELX/HxCy3EFhsRxyzGvrzFF+82XPvCS8T9TFleVJw==

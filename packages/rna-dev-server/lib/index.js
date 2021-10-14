@@ -1,5 +1,6 @@
 import { stat } from 'fs/promises';
 import path from 'path';
+import getPort, { portNumbers } from 'get-port';
 import { readConfigFile, mergeConfig, locateConfigFile } from '@chialab/rna-config-loader';
 import { createLogger, colors } from '@chialab/rna-logger';
 
@@ -102,7 +103,12 @@ export async function createDevServer(config) {
         ...config,
         injectWebSocket: true,
         hostname: config.hostname || 'localhost',
-        port: config.port || 8080,
+        port: config.port || await getPort({
+            port: [
+                ...portNumbers(8080, 8090),
+                ...portNumbers(3000, 3100),
+            ],
+        }),
         rootDir: root,
         middleware: [
             ...(await buildMiddlewares()),

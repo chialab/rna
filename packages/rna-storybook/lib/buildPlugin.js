@@ -11,7 +11,7 @@ import { loadAddons } from './loadAddons.js';
 import { mdxPlugin } from './mdxPlugin.js';
 import { aliasPlugin } from './aliasPlugin.js';
 import { MANAGER_SCRIPT, MANAGER_STYLE, PREVIEW_SCRIPT, PREVIEW_STYLE } from './entrypoints.js';
-import { createStoriesJson } from './createStoriesJson.js';
+import { createStoriesJson, createStorySpecifiers } from './createStoriesJson.js';
 
 /**
  * @param {import('./createPlugins').StorybookConfig} config Storybook options.
@@ -20,7 +20,7 @@ import { createStoriesJson } from './createStoriesJson.js';
 export function buildPlugin(config) {
     const {
         type,
-        stories: storiesPattern = [],
+        stories: storyPatterns = [],
         static: staticFiles = {},
         addons = [],
         managerEntries = [],
@@ -48,7 +48,7 @@ export function buildPlugin(config) {
             const { sourceRoot, absWorkingDir, outdir, outfile } = options;
             const rootDir = sourceRoot || absWorkingDir || process.cwd();
             const outDir = outdir || (outfile && path.dirname(outfile)) || rootDir;
-            const stories = await findStories(rootDir, storiesPattern);
+            const stories = await findStories(rootDir, storyPatterns);
             const loader = {
                 ...options.loader,
             };
@@ -79,6 +79,8 @@ export function buildPlugin(config) {
                 bundle: true,
                 logLevel: 'error',
             };
+
+            const storyIndexEntries = await createStorySpecifiers(stories, rootDir);
 
             /**
              * @type {Promise<import('esbuild').BuildResult[]>}
@@ -162,6 +164,12 @@ export function buildPlugin(config) {
                                     path: PREVIEW_SCRIPT,
                                     type: 'text/javascript',
                                 },
+                                stories: JSON.stringify(
+                                    Array.from(storyIndexEntries.keys()).map((specifier) => ({
+                                        ...specifier,
+                                        importPathMatcher: specifier.importPathMatcher.source,
+                                    }))
+                                ),
                             }),
                             sourcefile: path.join(rootDir, 'iframe.html'),
                             loader: 'file',

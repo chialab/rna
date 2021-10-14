@@ -14,8 +14,13 @@
         <div id="docs-root"></div>
         <div class="sb-errordisplay sb-wrapper">
             <div id="error-message" class="sb-heading"></div>
-            <pre class="sb-errordisplay_code"><code id="error-stack"></code></pre>
+            <pre class="sb-errordisplay_code">
+                <code id="error-stack"></code>
+            </pre>
         </div>
+        <script>
+            <% if (typeof stories !== "undefined") { %>window['STORIES'] = <%= stories %>;<% } %>
+        </script>
         <script type="<%= js.type %>" src="<%= js.path %>"></script>
     </body>
 </html>

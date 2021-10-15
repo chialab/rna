@@ -51,9 +51,12 @@ export default function urlRebase({ root = process.cwd(), relative, transform, a
                     const aliases = {
                         ...alias,
                     };
-                    external.forEach((ext) => {
+                    for (const ext of external) {
+                        if (resolvedImportPath === ext || resolvedImportPath.startsWith(`${ext}/`)) {
+                            return;
+                        }
                         delete aliases[ext];
-                    });
+                    }
                     for (const key in aliases) {
                         const aliasFilter = createAliasRegex(key, ALIAS_MODE.START);
                         if (resolvedImportPath.match(aliasFilter)) {

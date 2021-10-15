@@ -159,7 +159,11 @@ async function loadLaunchers() {
     try {
         const { puppeteerLauncher } = await import('@web/test-runner-puppeteer');
         return [
-            puppeteerLauncher(),
+            puppeteerLauncher({
+                launchOptions: {
+                    args: ['--no-sandbox'],
+                },
+            }),
         ];
     } catch (err) {
         //
@@ -177,7 +181,11 @@ async function loadLaunchers() {
 
     const { chromeLauncher } = await import('@web/test-runner-chrome');
     return [
-        chromeLauncher(),
+        chromeLauncher({
+            launchOptions: {
+                args: ['--no-sandbox'],
+            },
+        }),
     ];
 }
 

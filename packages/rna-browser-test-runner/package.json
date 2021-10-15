@@ -53,6 +53,8 @@
     "@web/test-runner-mocha": "^0.7.3"
   },
   "devDependencies": {
+    "@web/test-runner-playwright": "^0.8.8",
+    "@web/test-runner-puppeteer": "^0.10.2",
     "commander": "^7.2.0",
     "typescript": "^4.3.0"
   }

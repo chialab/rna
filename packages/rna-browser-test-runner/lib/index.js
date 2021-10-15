@@ -155,6 +155,32 @@ export async function test(config) {
     return runner;
 }
 
+async function loadLaunchers() {
+    try {
+        const { puppeteerLauncher } = await import('@web/test-runner-puppeteer');
+        return [
+            puppeteerLauncher(),
+        ];
+    } catch (err) {
+        //
+    }
+    try {
+        const { playwrightLauncher } = await import('@web/test-runner-playwright');
+        return [
+            playwrightLauncher({ product: 'chromium' }),
+            playwrightLauncher({ product: 'firefox' }),
+            playwrightLauncher({ product: 'webkit' }),
+        ];
+    } catch (err) {
+        //
+    }
+
+    const { chromeLauncher } = await import('@web/test-runner-chrome');
+    return [
+        chromeLauncher(),
+    ];
+}
+
 /**
  * @typedef {Object} TestBrowserCommandOptions
  * @property {number} [port]
@@ -223,9 +249,7 @@ export function command(program) {
                     alias: config.alias,
                     plugins,
                     logger,
-                    browsers: [
-                        (await import('@web/test-runner-chrome')).chromeLauncher(),
-                    ],
+                    browsers: await loadLaunchers(),
                 };
 
                 if (specs.length) {

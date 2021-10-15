@@ -10,7 +10,7 @@ export function mdxPlugin() {
     const plugin = {
         name: 'storybook-mdx',
         async setup(build) {
-            const options = build.initialOptions;
+            const { sourcesContent } = build.initialOptions;
 
             build.onResolve({ filter: /\.mdx$/ }, (args) => ({
                 path: args.path,
@@ -28,7 +28,7 @@ export function mdxPlugin() {
 
                 await pipe(entry, {
                     source: path.basename(args.path),
-                    sourcesContent: options.sourcesContent,
+                    sourcesContent,
                 }, async ({ code }) =>
                     transformMdxToCsf(code, args.path)
                 );

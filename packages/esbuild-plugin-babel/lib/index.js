@@ -19,7 +19,7 @@ export default function({ presets = [], plugins = [] } = {}) {
     const plugin = {
         name: 'babel',
         setup(build) {
-            const options = build.initialOptions;
+            const { sourcesContent, target, jsxFactory } = build.initialOptions;
 
             build.onResolve({ filter: /@babel\/runtime/ }, async (args) => ({
                 path: await resolve(args.path, import.meta.url),
@@ -37,7 +37,7 @@ export default function({ presets = [], plugins = [] } = {}) {
                 try {
                     await pipe(entry, {
                         source: path.basename(args.path),
-                        sourcesContent: options.sourcesContent,
+                        sourcesContent,
                     }, async ({ code }) => {
                         /** @type {import('@babel/core').TransformOptions} */
                         const config = {
@@ -67,7 +67,7 @@ export default function({ presets = [], plugins = [] } = {}) {
                             }]
                         );
 
-                        if (options.target === 'es5') {
+                        if (target === 'es5') {
                             const { default: envPreset } = await import('@babel/preset-env');
                             presets.unshift([envPreset, {
                                 targets: {
@@ -86,11 +86,11 @@ export default function({ presets = [], plugins = [] } = {}) {
                             entry.target = TARGETS.es5;
                         }
 
-                        if (options.jsxFactory) {
+                        if (jsxFactory) {
                             const { default: htmPlugin } = await import('babel-plugin-htm');
                             plugins.push([htmPlugin, {
                                 tag: 'html',
-                                pragma: options.jsxFactory,
+                                pragma: jsxFactory,
                             }]);
                         }
 

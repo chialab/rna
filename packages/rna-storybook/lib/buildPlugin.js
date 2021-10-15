@@ -1,7 +1,7 @@
 import path from 'path';
 import { mkdir, writeFile } from 'fs/promises';
 import esbuild from 'esbuild';
-import { esbuildFile, dependencies, getRootDir } from '@chialab/esbuild-helpers';
+import { esbuildFile, dependencies, getRootDir, getOutputDir } from '@chialab/esbuild-helpers';
 import aliasPlugin, { addAlias } from '@chialab/esbuild-plugin-alias';
 import transformPlugin, { addTransformationPlugin } from '@chialab/esbuild-plugin-transform';
 import { indexHtml, iframeHtml, managerCss, previewCss } from './templates.js';
@@ -38,22 +38,21 @@ export function buildPlugin(config) {
             await dependencies(build, plugin, [aliasPlugin(), transformPlugin([])], 'before');
             await addTransformationPlugin(build, mdxPlugin(), 'start');
 
-            const options = build.initialOptions;
-            if (options.loader) {
-                options.loader['.mdx'] = 'tsx';
-            }
-
-            const { outdir, outfile } = options;
             const rootDir = getRootDir(build);
-            const outDir = outdir || (outfile && path.dirname(outfile)) || rootDir;
+            const outDir = getOutputDir(build) || rootDir;
             const stories = await findStories(rootDir, storyPatterns);
+
+            /**
+             * @type {import('esbuild').BuildOptions['loader']}
+             */
             const loader = {
-                ...options.loader,
+                ...(build.initialOptions.loader || {}),
+                '.mdx': 'tsx',
             };
             delete loader['.html'];
 
             const plugins = [
-                ...(options.plugins || [])
+                ...(build.initialOptions.plugins || [])
                     .filter((plugin) => !['storybook', 'html'].includes(plugin.name)),
             ];
 
@@ -67,7 +66,7 @@ export function buildPlugin(config) {
              * @type {import('esbuild').BuildOptions}
              */
             const childOptions = {
-                ...options,
+                ...build.initialOptions,
                 plugins,
                 loader,
                 globalName: 'Storybook',
@@ -181,7 +180,7 @@ export function buildPlugin(config) {
                             });
                         }
 
-                        const { result } = await esbuildFile(input, options);
+                        const { result } = await esbuildFile(input, build.initialOptions);
                         return result;
                     }),
                 ]);

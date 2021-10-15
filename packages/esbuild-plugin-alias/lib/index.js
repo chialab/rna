@@ -48,8 +48,7 @@ export default function(modules = {}, browserField = true) {
     const plugin = {
         name: 'alias',
         async setup(build) {
-            const options = build.initialOptions;
-            const { platform = 'neutral', external = [] } = options;
+            const { platform = 'neutral', external = [] } = build.initialOptions;
             const rootDir = getRootDir(build);
             const aliasMap = { ...modules };
 

@@ -1,6 +1,6 @@
 import path from 'path';
 import { readFile } from 'fs/promises';
-import { getRootDir } from '@chialab/esbuild-helpers';
+import { getRootDir, getStdinInput } from '@chialab/esbuild-helpers';
 import { addBuildDependencies } from '@chialab/esbuild-plugin-dependencies';
 
 /**
@@ -48,10 +48,8 @@ export default function(options = {}) {
     const plugin = {
         name: 'postcss',
         async setup(build) {
-            const { stdin } = build.initialOptions;
             const rootDir = getRootDir(build);
-            const input = stdin ? stdin.sourcefile : undefined;
-            const fullInput = input && path.resolve(rootDir, input);
+            const stdin = getStdinInput(build);
 
             build.onLoad({ filter: /\.(sc|sa|c)ss$/, namespace: 'file' }, async ({ path: filePath }) => {
                 const [
@@ -64,8 +62,8 @@ export default function(options = {}) {
                     import('@chialab/postcss-url-rebase'),
                 ]);
 
-                const contents = filePath === fullInput && stdin ?
-                    stdin.contents.toString() :
+                const contents = (stdin && filePath === stdin.path) ?
+                    stdin.contents :
                     await readFile(filePath, 'utf-8');
 
                 const config = await loadPostcssConfig();

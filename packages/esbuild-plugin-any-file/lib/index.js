@@ -1,6 +1,6 @@
 import { access, readFile } from 'fs/promises';
 import path from 'path';
-import { getRootDir } from '@chialab/esbuild-helpers';
+import { getStdinInput } from '@chialab/esbuild-helpers';
 
 /**
  * Load any unkown refrence as file.
@@ -14,12 +14,8 @@ export default function({ fsCheck = true, shouldThrow = () => true } = {}) {
     const plugin = {
         name: 'any-file',
         setup(build) {
-            const options = build.initialOptions;
-            const { stdin } = options;
-            const rootDir = getRootDir(build);
-            const input = stdin ? stdin.sourcefile : undefined;
-            const fullInput = input && path.resolve(rootDir, input);
-            const loaders = options.loader || {};
+            const { loader: loaders = {} } = build.initialOptions;
+            const stdin = getStdinInput(build);
             const keys = Object.keys(loaders);
 
             build.onResolve({ filter: /^https?:\/\// }, ({ path: filePath }) => ({ path: filePath, external: true }));
@@ -29,7 +25,7 @@ export default function({ fsCheck = true, shouldThrow = () => true } = {}) {
                     return;
                 }
 
-                if (fsCheck && args.path !== fullInput) {
+                if (fsCheck && stdin && args.path !== stdin.path) {
                     try {
                         await access(args.path);
                     } catch (err) {
@@ -42,8 +38,8 @@ export default function({ fsCheck = true, shouldThrow = () => true } = {}) {
                 }
 
                 return {
-                    contents: args.path === fullInput && stdin ?
-                        stdin.contents.toString() :
+                    contents: (stdin && args.path === stdin.path) ?
+                        stdin.contents :
                         await readFile(args.path),
                     loader: 'file',
                 };

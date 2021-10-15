@@ -18,8 +18,8 @@ export default function(config = {}) {
     const plugin = {
         name: 'commonjs',
         setup(build) {
-            const options = build.initialOptions;
-            if (options.format !== 'esm') {
+            const { sourcesContent, format } = build.initialOptions;
+            if (format !== 'esm') {
                 return;
             }
 
@@ -45,7 +45,7 @@ export default function(config = {}) {
                     try {
                         await pipe(entry, {
                             source: args.path,
-                            sourcesContent: options.sourcesContent,
+                            sourcesContent,
                         }, wrapDynamicRequire);
 
                     } catch (error) {
@@ -59,7 +59,7 @@ export default function(config = {}) {
                     try {
                         await pipe(entry, {
                             source: args.path,
-                            sourcesContent: options.sourcesContent,
+                            sourcesContent,
                         }, createTransform(config));
                     } catch (error) {
                         throw transformError(this.name, error);

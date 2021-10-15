@@ -1,7 +1,7 @@
 import path from 'path';
 import { readFile, rename, rm } from 'fs/promises';
 import * as cheerio from 'cheerio';
-import { createResult, assignToResult, getMainOutput, getRootDir, esbuildFile } from '@chialab/esbuild-helpers';
+import { createResult, assignToResult, getMainOutput, getRootDir, getOutputDir, getStdinInput, esbuildFile } from '@chialab/esbuild-helpers';
 
 /**
  * @typedef {import('esbuild').Metafile} Metafile
@@ -71,16 +71,15 @@ export default function({
     const plugin = {
         name: 'html',
         setup(build) {
-            const options = build.initialOptions;
-            // force metafile in order to collect output data.
-            options.metafile = options.metafile || options.write !== false;
-            const { entryPoints = [], stdin, assetNames, outdir, outfile } = options;
+            const { entryPoints = [], assetNames, write } = build.initialOptions;
+            const stdin = getStdinInput(build);
             const rootDir = getRootDir(build);
-            const outDir = /** @type {string} */(outdir || (outfile && path.dirname(outfile)));
+            const outDir = getOutputDir(build);
             const sourceFiles = Array.isArray(entryPoints) ? entryPoints : Object.values(entryPoints);
             const sourceDir = commonDir(sourceFiles.map((file) => path.resolve(rootDir, file)));
-            const input = stdin ? stdin.sourcefile : undefined;
-            const fullInput = input && path.resolve(rootDir, input);
+
+            // force metafile in order to collect output data.
+            build.initialOptions.metafile = build.initialOptions.metafile || write !== false;
 
             /**
              * @type {BuildResult}
@@ -92,7 +91,7 @@ export default function({
             });
 
             build.onEnd(async (result) => {
-                if (result.metafile && options.write !== false) {
+                if (result.metafile && write !== false) {
                     const outputs = { ...result.metafile.outputs };
                     for (const outputKey in outputs) {
                         const output = outputs[outputKey];
@@ -151,8 +150,8 @@ export default function({
                     esbuildModule || import('esbuild'),
                 ]);
 
-                const contents = filePath === fullInput && stdin ?
-                    stdin.contents.toString() :
+                const contents = (stdin && filePath === stdin.path) ?
+                    stdin.contents :
                     await readFile(filePath, 'utf-8');
                 const basePath = path.dirname(filePath);
                 const relativePath = `./${path.relative(sourceDir, basePath)}`;
@@ -163,46 +162,46 @@ export default function({
                 const builds = /** @type {Build[]} */ ([
                     ...collectIcons($, root, basePath, relativeOutDir),
                     ...collectWebManifest($, root, basePath, relativeOutDir),
-                    ...collectStyles($, root, basePath, relativeOutDir, options),
-                    ...collectScripts($, root, basePath, relativeOutDir, { scriptsTarget, modulesTarget }, options),
-                    ...collectAssets($, root, basePath, relativeOutDir, options),
+                    ...collectStyles($, root, basePath, relativeOutDir, build.initialOptions),
+                    ...collectScripts($, root, basePath, relativeOutDir, { scriptsTarget, modulesTarget }, build.initialOptions),
+                    ...collectAssets($, root, basePath, relativeOutDir, build.initialOptions),
                 ]);
 
                 for (let i = 0; i < builds.length; i++) {
-                    const build = builds[i];
+                    const currentBuild = builds[i];
 
                     /** @type {string[]} */
                     const outputFiles = [];
 
-                    const entryPoints = /** @type {string[]|undefined}} */ (build.options.entryPoints);
+                    const entryPoints = /** @type {string[]|undefined}} */ (currentBuild.options.entryPoints);
                     if (!entryPoints || entryPoints.length === 0) {
                         continue;
                     }
 
-                    if (build.loader === 'file') {
+                    if (currentBuild.loader === 'file') {
                         const file = entryPoints[0];
 
                         const { result, outputFile } = await esbuildFile(file, {
-                            ...options,
+                            ...build.initialOptions,
                             assetNames: assetNames || '[dir]/[name]',
-                            ...build.options,
+                            ...currentBuild.options,
                         });
 
                         outputFiles.push(outputFile);
                         assignToResult(collectedResult, result);
 
-                        await build.finisher(outputFile, outputFiles);
+                        await currentBuild.finisher(outputFile, outputFiles);
                         continue;
                     }
 
                     /** @type {import('esbuild').BuildOptions} */
                     const config = {
-                        ...options,
+                        ...build.initialOptions,
                         outfile: undefined,
                         outdir: relativeOutDir,
                         metafile: true,
                         external: [],
-                        ...build.options,
+                        ...currentBuild.options,
                     };
 
                     const result = /** @type {BuildResult} */ (await esbuild.build({
@@ -213,7 +212,7 @@ export default function({
 
                     assignToResult(collectedResult, result);
 
-                    await build.finisher(outputFile, outputFiles);
+                    await currentBuild.finisher(outputFile, outputFiles);
                 }
 
                 return {

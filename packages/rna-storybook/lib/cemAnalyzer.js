@@ -22,8 +22,8 @@ export default function({ framework = '@storybook/web-components', plugins = [] 
     const plugin = {
         name: 'rna-storybook-cem',
         setup(build) {
-            const options = build.initialOptions;
             const rootDir = getRootDir(build);
+            const { sourcesContent } = build.initialOptions;
 
             build.onLoad({ filter: createFilter(build), namespace: 'file' }, async (args) => {
                 if (args.path.includes('/node_modules/') ||
@@ -87,7 +87,7 @@ export default function({ framework = '@storybook/web-components', plugins = [] 
 
                 await pipe(entry, {
                     source: path.basename(args.path),
-                    sourcesContent: options.sourcesContent,
+                    sourcesContent,
                 }, async ({ magicCode }) => {
                     magicCode.prepend(`import * as __STORYBOOK_WEB_COMPONENTS__ from '${framework}';\n`);
                     magicCode.append(`

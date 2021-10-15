@@ -1,6 +1,6 @@
 import path from 'path';
 import { readFile } from 'fs/promises';
-import { getRootDir } from '@chialab/esbuild-helpers';
+import { getRootDir, getStdinInput } from '@chialab/esbuild-helpers';
 import { createPipeline, finalize } from '@chialab/estransform';
 import { escapeRegexBody } from '@chialab/node-resolve';
 
@@ -26,13 +26,12 @@ export const SCRIPT_LOADERS = ['tsx', 'ts', 'jsx', 'js'];
  * @param {import('esbuild').PluginBuild} build
  */
 export function createFilter(build) {
-    const options = build.initialOptions;
-    const transformOptions = /** @type {BuildTransformOptions} */ (options).transform;
+    const transformOptions = /** @type {BuildTransformOptions} */ (build.initialOptions).transform;
     if (transformOptions && transformOptions.filter) {
         return transformOptions.filter;
     }
 
-    const loaders = options.loader || {};
+    const { loader: loaders = {} } = build.initialOptions;
     const keys = Object.keys(loaders);
     const tsxExtensions = keys.filter((key) => SCRIPT_LOADERS.includes(loaders[key]));
     return new RegExp(`\\.(${tsxExtensions.map((ext) => ext.replace('.', '')).join('|')})$`);
@@ -94,8 +93,7 @@ export function getTransformLoader(build, filePath, defaultValue = 'file') {
  * @return {import('esbuild').PluginBuild|null}
  */
 export function getParentBuild(build) {
-    const options = build.initialOptions;
-    const transformOptions = /** @type {BuildTransformOptions} */ (options).transform;
+    const transformOptions = /** @type {BuildTransformOptions} */ (build.initialOptions).transform;
     if (!transformOptions) {
         return null;
     }
@@ -107,8 +105,7 @@ export function getParentBuild(build) {
  * @param {import('esbuild').PluginBuild} build
  */
 export function cleanUp(build) {
-    const options = build.initialOptions;
-    const transformOptions = /** @type {BuildTransformOptions} */ (options).transform;
+    const transformOptions = /** @type {BuildTransformOptions} */ (build.initialOptions).transform;
     if (!transformOptions) {
         return null;
     }
@@ -122,21 +119,21 @@ export function cleanUp(build) {
  * @param {'start'|'end'} [where]
  */
 export async function addTransformationPlugin(build, plugin, where = 'end') {
-    const options = build.initialOptions;
-    if (!options.plugins) {
+    const { plugins } = build.initialOptions;
+    if (!plugins) {
         throw new Error('Transform plugin is not initialized');
     }
 
-    const transformPlugin = options.plugins.find(({ name }) => name === 'transform');
+    const transformPlugin = /** @type {TransformPlugin} */ (plugins.find(({ name }) => name === 'transform'));
     if (!transformPlugin) {
         throw new Error('Transform plugin is not initialized');
     }
 
-    const plugins = (/** @type {TransformPlugin} */ (transformPlugin)).plugins;
+    const transformPlugins = transformPlugin.plugins;
     if (where === 'start') {
-        plugins.unshift(plugin);
+        transformPlugins.unshift(plugin);
     } else {
-        plugins.push(plugin);
+        transformPlugins.push(plugin);
     }
 }
 
@@ -163,21 +160,20 @@ export default function(plugins = []) {
              * @type {Store}
              */
             const store = new Map();
-            const options = build.initialOptions;
             const filter = createFilter(build);
-
-            const { stdin } = options;
-            const input = stdin ? (stdin.sourcefile || 'stdin.js') : undefined;
+            const stdin = getStdinInput(build);
             const rootDir = getRootDir(build);
-            const fullInput = input && path.resolve(rootDir, input);
-            if (stdin && input) {
+            const { sourcesContent } = build.initialOptions;
+
+            if (stdin) {
+                const input = stdin.path || 'stdin.js';
                 const regex = new RegExp(escapeRegexBody(input));
                 build.onResolve({ filter: regex }, () => ({
                     path: path.resolve(rootDir, input),
                     namespace: 'file',
                 }));
-                delete options.stdin;
-                options.entryPoints = [input];
+                delete build.initialOptions.stdin;
+                build.initialOptions.entryPoints = [input];
             }
 
             const transformPlugins = (/** @type {TransformPlugin} */ (plugin)).plugins;
@@ -201,7 +197,7 @@ export default function(plugins = []) {
              */
             const onLoadCallbacks = new Map();
 
-            Object.defineProperty(options, 'transform', {
+            Object.defineProperty(build.initialOptions, 'transform', {
                 configurable: true,
                 enumerable: false,
                 writable: false,
@@ -246,7 +242,7 @@ export default function(plugins = []) {
                 }
 
                 let entry;
-                if (args.path === fullInput && stdin) {
+                if (stdin && args.path === stdin.path) {
                     entry = await getEntry(build, args.path, stdin.contents.toString());
                 } else {
                     entry = await getEntry(build, args.path);
@@ -272,7 +268,7 @@ export default function(plugins = []) {
                 const { code, loader } = await finalize(entry, {
                     sourcemap: 'inline',
                     source: path.basename(args.path),
-                    sourcesContent: options.sourcesContent,
+                    sourcesContent,
                 });
 
                 return {

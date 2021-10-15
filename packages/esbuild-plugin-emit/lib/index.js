@@ -1,6 +1,6 @@
 import path from 'path';
 import { readFile } from 'fs/promises';
-import { getMainOutput, getRootDir } from '@chialab/esbuild-helpers';
+import { getMainOutput, getRootDir, getOutputDir } from '@chialab/esbuild-helpers';
 import { appendSearchParam, getSearchParam, getSearchParams, hasSearchParam } from '@chialab/node-resolve';
 
 /**
@@ -76,13 +76,13 @@ export function emitFileOrChunk(build, source) {
  * @param {import('esbuild').PluginBuild} build
  */
 export function getBaseUrl(build) {
-    const options = build.initialOptions;
+    const { platform, format } = build.initialOptions;
 
-    if (options.platform === 'browser' && options.format !== 'esm') {
+    if (platform === 'browser' && format !== 'esm') {
         return 'document.baseURI';
     }
 
-    if (options.platform === 'node' && options.format !== 'esm') {
+    if (platform === 'node' && format !== 'esm') {
         return '\'file://\' + __filename';
     }
 
@@ -139,8 +139,7 @@ export default function(esbuild) {
     const plugin = {
         name: 'emitter',
         setup(build) {
-            const options = build.initialOptions;
-            const { outdir, outfile, loader = {} } = options;
+            const { loader = {} } = build.initialOptions;
             const rootDir = getRootDir(build);
 
             build.onResolve({ filter: EMIT_FILE_REGEX }, (args) => {
@@ -177,11 +176,11 @@ export default function(esbuild) {
 
             build.onLoad({ filter: /./, namespace: EMIT_CHUNK_NS }, async ({ path: filePath, pluginData }) => {
                 esbuild = esbuild || await import('esbuild');
-                const outDir = outdir || path.dirname(/** @type {string} */(outfile));
+                const outDir = getOutputDir(build);
 
                 /** @type {import('esbuild').BuildOptions} */
                 const config = {
-                    ...options,
+                    ...build.initialOptions,
                     ...pluginData,
                     globalName: undefined,
                     entryPoints: [filePath],

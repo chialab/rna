@@ -45,7 +45,7 @@ export default function({ resolve = defaultResolve, constructors = ['Worker', 'S
                 emitPlugin(),
             ]);
 
-            const options = build.initialOptions;
+            const { sourcesContent } = build.initialOptions;
 
             build.onResolve({ filter: /(\?|&)loader=worker$/ }, async ({ path: filePath }) => ({
                 path: filePath.split('?')[0],
@@ -69,7 +69,7 @@ export default function({ resolve = defaultResolve, constructors = ['Worker', 'S
                 try {
                     await pipe(entry, {
                         source: path.basename(args.path),
-                        sourcesContent: options.sourcesContent,
+                        sourcesContent,
                     }, async ({ magicCode, code, ast }) => {
                         /**
                          * @type {Promise<void>[]}

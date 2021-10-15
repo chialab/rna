@@ -21,18 +21,16 @@ export default function({ dependencies = true, peerDependencies = false, optiona
     const plugin = {
         name: 'bundle-dependencies',
         async setup(build) {
-            const options = build.initialOptions;
-            const { bundle } = options;
+            const { bundle, external = [] } = build.initialOptions;
             if (!bundle) {
                 return;
             }
 
             const rootDir = getRootDir(build);
-            const external = [...(options.external || [])];
-
             const packageFile = await pkgUp({
                 cwd: rootDir,
             });
+
             if (packageFile) {
                 const packageJson = JSON.parse(await readFile(packageFile, 'utf-8'));
                 if (dependencies) {
@@ -58,7 +56,7 @@ export default function({ dependencies = true, peerDependencies = false, optiona
                 }
             }
 
-            options.external = external;
+            build.initialOptions.external = external;
         },
     };
 

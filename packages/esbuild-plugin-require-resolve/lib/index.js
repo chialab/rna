@@ -16,7 +16,7 @@ export default function() {
     const plugin = {
         name: 'require-resolve',
         setup(build) {
-            const options = build.initialOptions;
+            const { sourcesContent } = build.initialOptions;
 
             build.onResolve({ filter: /\.requirefile$/ }, async ({ path: filePath }) => ({
                 path: filePath.replace(/\.requirefile$/, ''),
@@ -37,7 +37,7 @@ export default function() {
 
                 await pipe(entry, {
                     source: path.basename(args.path),
-                    sourcesContent: options.sourcesContent,
+                    sourcesContent,
                 }, async ({ magicCode, ast, code }) => {
                     /**
                      * @type {Promise<void>[]}

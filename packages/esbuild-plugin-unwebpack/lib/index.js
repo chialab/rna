@@ -14,7 +14,7 @@ export default function() {
     const plugin = {
         name: 'unwebpack',
         setup(build) {
-            const options = build.initialOptions;
+            const { sourcesContent } = build.initialOptions;
 
             build.onLoad({ filter: createFilter(build), namespace: 'file' }, async (args) => {
                 /**
@@ -29,7 +29,7 @@ export default function() {
                 try {
                     await pipe(entry, {
                         source: path.basename(args.path),
-                        sourcesContent: options.sourcesContent,
+                        sourcesContent,
                     }, async ({ ast, magicCode, code }) => {
                         /**
                          * @type {Promise<void>[]}

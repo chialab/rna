@@ -31,14 +31,14 @@ export default function() {
     const plugin = {
         name: 'env',
         setup(build) {
-            const options = build.initialOptions;
-            if (options.platform === 'node') {
+            const { platform, define = {} } = build.initialOptions;
+            if (platform === 'node') {
                 return;
             }
 
-            options.define = {
+            build.initialOptions.define = {
                 ...defineEnvVariables(),
-                ...(options.define || {}),
+                ...define,
             };
         },
     };

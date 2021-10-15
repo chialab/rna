@@ -9,11 +9,8 @@ export default function() {
     const plugin = {
         name: 'define-this',
         async setup(build) {
-            const options = build.initialOptions;
-            const platform = options.platform || 'neutral';
-            const define = { ...(options.define || {}) };
-
-            options.define = {
+            const { platform = 'neutral', define = {} } = build.initialOptions;
+            build.initialOptions.define = {
                 this: platform === 'browser' ? 'window' : platform === 'neutral' ? 'globalThis' : 'undefined',
                 ...define,
             };

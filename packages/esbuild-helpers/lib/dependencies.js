@@ -6,8 +6,7 @@
  * @param {'before'|'after'} [mode] Where insert the missing plugin.
  */
 export async function dependencies(build, plugin, plugins, mode = 'before') {
-    const options = build.initialOptions;
-    const installedPlugins = options.plugins = options.plugins || [];
+    const installedPlugins = build.initialOptions.plugins || [];
     const missingPlugins = [];
 
     let last = plugin;
@@ -25,6 +24,8 @@ export async function dependencies(build, plugin, plugins, mode = 'before') {
         }
         installedPlugins.splice(mode === 'before' ? io : (io + 1), 0, dependency);
     }
+
+    build.initialOptions.plugins = installedPlugins;
 
     return missingPlugins;
 }

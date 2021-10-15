@@ -105,7 +105,7 @@ export default function({ resolve = defaultResolve } = {}) {
                 emitPlugin(),
             ]);
 
-            const options = build.initialOptions;
+            const { sourcesContent } = build.initialOptions;
 
             build.onLoad({ filter: createFilter(build), namespace: 'file' }, async (args) => {
                 /**
@@ -120,7 +120,7 @@ export default function({ resolve = defaultResolve } = {}) {
                 try {
                     await pipe(entry, {
                         source: path.basename(args.path),
-                        sourcesContent: options.sourcesContent,
+                        sourcesContent,
                     }, async ({ magicCode, code, ast }) => {
                         /**
                          * @type {{ [key: string]: string }}

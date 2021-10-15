@@ -16,17 +16,16 @@ export default function(opts = {}) {
     const plugin = {
         name: 'jsx-import',
         setup(build) {
-            const options = build.initialOptions;
-            const { jsxFactory, jsxFragment } = options;
+            const { inject = [], bundle, format, jsxFactory, jsxFragment } = build.initialOptions;
 
-            if (!jsxFactory || !opts || !opts.jsxModule || (options.format === 'iife' && !options.bundle)) {
+            if (!jsxFactory || !opts || !opts.jsxModule || (format === 'iife' && !bundle)) {
                 return;
             }
 
-            if (!options.inject || !options.inject.includes(RUNTIME_ALIAS)) {
-                options.inject = [
+            if (!inject.includes(RUNTIME_ALIAS)) {
+                build.initialOptions.inject = [
                     RUNTIME_ALIAS,
-                    ...(options.inject || []),
+                    ...inject,
                 ];
             }
 

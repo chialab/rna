@@ -1,6 +1,6 @@
 import path from 'path';
 import { readFile } from 'fs/promises';
-import { getMainOutput } from '@chialab/esbuild-helpers';
+import { getMainOutput, getRootDir } from '@chialab/esbuild-helpers';
 import { appendSearchParam, getSearchParam, getSearchParams, hasSearchParam } from '@chialab/node-resolve';
 
 /**
@@ -140,8 +140,8 @@ export default function(esbuild) {
         name: 'emitter',
         setup(build) {
             const options = build.initialOptions;
-            const { sourceRoot, absWorkingDir, outdir, outfile, loader = {} } = options;
-            const rootDir = sourceRoot || absWorkingDir || process.cwd();
+            const { outdir, outfile, loader = {} } = options;
+            const rootDir = getRootDir(build);
 
             build.onResolve({ filter: EMIT_FILE_REGEX }, (args) => {
                 const realPath = getSearchParams(args.path).path;

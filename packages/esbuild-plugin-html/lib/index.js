@@ -1,7 +1,7 @@
 import path from 'path';
 import { readFile, rename, rm } from 'fs/promises';
 import * as cheerio from 'cheerio';
-import { createResult, assignToResult, getMainOutput, esbuildFile } from '@chialab/esbuild-helpers';
+import { createResult, assignToResult, getMainOutput, getRootDir, esbuildFile } from '@chialab/esbuild-helpers';
 
 /**
  * @typedef {import('esbuild').Metafile} Metafile
@@ -74,8 +74,8 @@ export default function({
             const options = build.initialOptions;
             // force metafile in order to collect output data.
             options.metafile = options.metafile || options.write !== false;
-            const { entryPoints = [], stdin, sourceRoot, absWorkingDir, assetNames, outdir, outfile } = options;
-            const rootDir = sourceRoot || absWorkingDir || process.cwd();
+            const { entryPoints = [], stdin, assetNames, outdir, outfile } = options;
+            const rootDir = getRootDir(build);
             const outDir = /** @type {string} */(outdir || (outfile && path.dirname(outfile)));
             const sourceFiles = Array.isArray(entryPoints) ? entryPoints : Object.values(entryPoints);
             const sourceDir = commonDir(sourceFiles.map((file) => path.resolve(rootDir, file)));

@@ -1,5 +1,6 @@
 import { access, readFile } from 'fs/promises';
 import path from 'path';
+import { getRootDir } from '@chialab/esbuild-helpers';
 
 /**
  * Load any unkown refrence as file.
@@ -14,8 +15,8 @@ export default function({ fsCheck = true, shouldThrow = () => true } = {}) {
         name: 'any-file',
         setup(build) {
             const options = build.initialOptions;
-            const { stdin, sourceRoot, absWorkingDir } = options;
-            const rootDir = sourceRoot || absWorkingDir || process.cwd();
+            const { stdin } = options;
+            const rootDir = getRootDir(build);
             const input = stdin ? stdin.sourcefile : undefined;
             const fullInput = input && path.resolve(rootDir, input);
             const loaders = options.loader || {};

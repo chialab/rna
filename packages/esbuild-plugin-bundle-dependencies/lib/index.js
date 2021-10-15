@@ -1,5 +1,6 @@
 import { readFile } from 'fs/promises';
 import pkgUp from 'pkg-up';
+import { getRootDir } from '@chialab/esbuild-helpers';
 
 /**
  * @typedef {Object} PluginOptions
@@ -21,12 +22,12 @@ export default function({ dependencies = true, peerDependencies = false, optiona
         name: 'bundle-dependencies',
         async setup(build) {
             const options = build.initialOptions;
-            const { sourceRoot, absWorkingDir, bundle } = options;
+            const { bundle } = options;
             if (!bundle) {
                 return;
             }
 
-            const rootDir = sourceRoot || absWorkingDir || process.cwd();
+            const rootDir = getRootDir(build);
             const external = [...(options.external || [])];
 
             const packageFile = await pkgUp({

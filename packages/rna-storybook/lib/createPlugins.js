@@ -8,8 +8,7 @@ import { servePlugin } from './servePlugin.js';
 /**
  * @typedef {Object} StorybookBuild
  * @property {string} manager
- * @property {{ [key: string]: string }} [map]
- * @property {string[]} [modules]
+ * @property {{ [key: string]: string }} [modules]
  * @property {string[]} [resolutions]
  */
 

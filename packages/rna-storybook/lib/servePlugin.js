@@ -114,10 +114,10 @@ export function servePlugin(config) {
 
                 return;
             } else {
-                const { modules = [], resolutions = [], map = {} } = build;
+                const { modules = {}, resolutions = [] } = build;
 
-                if (modules.includes(source)) {
-                    const url = await browserResolve(map[source], filePath);
+                if (source in modules) {
+                    const url = await browserResolve(modules[source], filePath);
                     return await resolveImport(url, filePath, rootDir);
                 }
 

@@ -31,6 +31,9 @@
   "engines": {
     "node": ">=13"
   },
+  "dependencies": {
+    "@chialab/esbuild-helpers": "^0.12.0"
+  },
   "devDependencies": {
     "typescript": "^4.3.0"
   }

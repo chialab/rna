@@ -78,8 +78,8 @@ export function getMainOutput(entryPoints, metafile, rootDir = process.cwd()) {
  * @param {import('esbuild').BuildOptions} options
  */
 export async function esbuildFile(from, options = {}) {
-    const { sourceRoot, absWorkingDir, assetNames = '[name]', outdir, outfile } = options;
-    const rootDir = sourceRoot || absWorkingDir || process.cwd();
+    const { assetNames = '[name]', outdir, outfile } = options;
+    const rootDir = getRootDirByOptions(options);
     const outDir = outdir || path.dirname(/** @type {string} */ (outfile));
 
     const inputFile = path.relative(rootDir, from);
@@ -160,4 +160,19 @@ export function remapResult(result, from, to) {
                 }, /** @type {Metafile['outputs']} */ ({})),
         },
     };
+}
+
+/**
+ * @param {import('esbuild').BuildOptions} options
+ */
+export function getRootDirByOptions(options) {
+    const { sourceRoot, absWorkingDir } = options;
+    return sourceRoot || absWorkingDir || process.cwd();
+}
+
+/**
+ * @param {import('esbuild').PluginBuild} build
+ */
+export function getRootDir(build) {
+    return getRootDirByOptions(build.initialOptions);
 }

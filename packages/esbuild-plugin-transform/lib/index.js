@@ -1,5 +1,6 @@
 import path from 'path';
 import { readFile } from 'fs/promises';
+import { getRootDir } from '@chialab/esbuild-helpers';
 import { createPipeline, finalize } from '@chialab/estransform';
 import { escapeRegexBody } from '@chialab/node-resolve';
 
@@ -165,9 +166,9 @@ export default function(plugins = []) {
             const options = build.initialOptions;
             const filter = createFilter(build);
 
-            const { stdin, sourceRoot, absWorkingDir } = options;
+            const { stdin } = options;
             const input = stdin ? (stdin.sourcefile || 'stdin.js') : undefined;
-            const rootDir = sourceRoot || absWorkingDir || process.cwd();
+            const rootDir = getRootDir(build);
             const fullInput = input && path.resolve(rootDir, input);
             if (stdin && input) {
                 const regex = new RegExp(escapeRegexBody(input));

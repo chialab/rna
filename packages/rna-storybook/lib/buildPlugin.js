@@ -1,14 +1,14 @@
 import path from 'path';
 import { mkdir, writeFile } from 'fs/promises';
 import esbuild from 'esbuild';
-import { esbuildFile, dependencies } from '@chialab/esbuild-helpers';
+import { esbuildFile, dependencies, getRootDir } from '@chialab/esbuild-helpers';
+import aliasPlugin, { addAlias } from '@chialab/esbuild-plugin-alias';
 import transformPlugin, { addTransformationPlugin } from '@chialab/esbuild-plugin-transform';
 import { indexHtml, iframeHtml, managerCss, previewCss } from './templates.js';
 import { createManagerScript } from './createManager.js';
 import { findStories } from './findStories.js';
 import { createPreviewScript } from './createPreview.js';
 import { mdxPlugin } from './mdxPlugin.js';
-import { aliasPlugin } from './aliasPlugin.js';
 import { MANAGER_SCRIPT, MANAGER_STYLE, PREVIEW_SCRIPT, PREVIEW_STYLE } from './entrypoints.js';
 import { createStoriesJson, createStorySpecifiers } from './createStoriesJson.js';
 
@@ -35,7 +35,7 @@ export function buildPlugin(config) {
     const plugin = {
         name: 'storybook',
         async setup(build) {
-            await dependencies(build, plugin, [transformPlugin([])], 'before');
+            await dependencies(build, plugin, [aliasPlugin(), transformPlugin([])], 'before');
             await addTransformationPlugin(build, mdxPlugin(), 'start');
 
             const options = build.initialOptions;
@@ -43,8 +43,8 @@ export function buildPlugin(config) {
                 options.loader['.mdx'] = 'tsx';
             }
 
-            const { sourceRoot, absWorkingDir, outdir, outfile } = options;
-            const rootDir = sourceRoot || absWorkingDir || process.cwd();
+            const { outdir, outfile } = options;
+            const rootDir = getRootDir(build);
             const outDir = outdir || (outfile && path.dirname(outfile)) || rootDir;
             const stories = await findStories(rootDir, storyPatterns);
             const loader = {
@@ -58,7 +58,9 @@ export function buildPlugin(config) {
             ];
 
             if (storybookBuild) {
-                plugins.unshift(aliasPlugin(storybookBuild));
+                const { modules = {}, resolutions = [] } = storybookBuild;
+                Object.entries(modules).forEach(([key, dest]) => addAlias(build, key, dest));
+                resolutions.forEach((resolution) => addAlias(build, resolution, resolution, rootDir));
             }
 
             /**

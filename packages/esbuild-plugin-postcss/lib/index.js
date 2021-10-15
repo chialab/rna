@@ -1,5 +1,6 @@
 import path from 'path';
 import { readFile } from 'fs/promises';
+import { getRootDir } from '@chialab/esbuild-helpers';
 import { addBuildDependencies } from '@chialab/esbuild-plugin-dependencies';
 
 /**
@@ -47,10 +48,10 @@ export default function(options = {}) {
     const plugin = {
         name: 'postcss',
         async setup(build) {
-            const { stdin, sourceRoot, absWorkingDir } = build.initialOptions;
-            const rootDir = sourceRoot || absWorkingDir || process.cwd();
+            const { stdin } = build.initialOptions;
+            const rootDir = getRootDir(build);
             const input = stdin ? stdin.sourcefile : undefined;
-            const fullInput = input && path.resolve(sourceRoot || process.cwd(), input);
+            const fullInput = input && path.resolve(rootDir, input);
 
             build.onLoad({ filter: /\.(sc|sa|c)ss$/, namespace: 'file' }, async ({ path: filePath }) => {
                 const [

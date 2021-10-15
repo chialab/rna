@@ -1,5 +1,6 @@
 import typescript from 'typescript';
 import path from 'path';
+import { getRootDir } from '@chialab/esbuild-helpers';
 import { pipe } from '@chialab/estransform';
 import { getEntry, finalizeEntry, createFilter } from '@chialab/esbuild-plugin-transform';
 import { create } from '@custom-elements-manifest/analyzer/src/create.js';
@@ -22,8 +23,7 @@ export default function({ framework = '@storybook/web-components', plugins = [] 
         name: 'rna-storybook-cem',
         setup(build) {
             const options = build.initialOptions;
-            const { sourceRoot, absWorkingDir } = options;
-            const rootDir = sourceRoot || absWorkingDir || process.cwd();
+            const rootDir = getRootDir(build);
 
             build.onLoad({ filter: createFilter(build), namespace: 'file' }, async (args) => {
                 if (args.path.includes('/node_modules/') ||

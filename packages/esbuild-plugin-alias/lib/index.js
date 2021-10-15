@@ -1,7 +1,39 @@
 import { readFile } from 'fs/promises';
 import pkgUp from 'pkg-up';
+import { getRootDir } from '@chialab/esbuild-helpers';
 import { ALIAS_MODE, createAliasRegex, createAliasesRegex, resolve, getMappedModules, getEmptyModules } from '@chialab/node-resolve';
 import { createEmptyModule } from '@chialab/estransform';
+
+/**
+ * Create a module alias.
+ * @param {import('esbuild').PluginBuild} build
+ * @param {string} key
+ * @param {string} dest
+ */
+export function addAlias(build, key, dest, rootDir = getRootDir(build)) {
+    const aliasFilter = createAliasRegex(key, ALIAS_MODE.FULL);
+    build.onResolve({ filter: aliasFilter }, async (args) => ({
+        path: await resolve(dest, args.importer || rootDir),
+    }));
+}
+
+/**
+ * Create an alias to an empty module.
+ * @param {import('esbuild').PluginBuild} build
+ * @param {string[]} keys
+ */
+export function addEmptyAlias(build, keys) {
+    const emptyFilter = createAliasesRegex(keys);
+
+    build.onResolve({ filter: emptyFilter }, (args) => ({
+        path: args.path,
+        namespace: 'empty',
+    }));
+
+    build.onLoad({ filter: emptyFilter, namespace: 'empty' }, () => ({
+        contents: createEmptyModule(),
+    }));
+}
 
 /**
  * A plugin for esbuild that resolves aliases or empty modules.
@@ -17,8 +49,8 @@ export default function(modules = {}, browserField = true) {
         name: 'alias',
         async setup(build) {
             const options = build.initialOptions;
-            const { sourceRoot, absWorkingDir, platform = 'neutral', external = [] } = options;
-            const rootDir = sourceRoot || absWorkingDir || process.cwd();
+            const { platform = 'neutral', external = [] } = options;
+            const rootDir = getRootDir(build);
             const aliasMap = { ...modules };
 
             if (browserField && platform === 'browser') {
@@ -38,24 +70,12 @@ export default function(modules = {}, browserField = true) {
 
             if (aliases.length) {
                 aliases.forEach((alias) => {
-                    const aliasFilter = createAliasRegex(alias, ALIAS_MODE.FULL);
-                    build.onResolve({ filter: aliasFilter }, async (args) => ({
-                        path: await resolve(/** @type {string} */(aliasMap[args.path]), args.importer || rootDir),
-                    }));
+                    addAlias(build, alias, /** @type {string} */(aliasMap[alias]));
                 });
             }
 
             if (empty.length) {
-                const emptyFilter = createAliasesRegex(empty);
-
-                build.onResolve({ filter: emptyFilter }, (args) => ({
-                    path: args.path,
-                    namespace: 'empty',
-                }));
-
-                build.onLoad({ filter: emptyFilter, namespace: 'empty' }, () => ({
-                    contents: createEmptyModule(),
-                }));
+                addEmptyAlias(build, empty);
             }
         },
     };

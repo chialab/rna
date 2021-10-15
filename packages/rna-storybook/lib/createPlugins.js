@@ -18,7 +18,6 @@ import { servePlugin } from './servePlugin.js';
  * @property {string} type
  * @property {string[]} stories
  * @property {{ [key: string]: string }} [static]
- * @property {string[]} [addons]
  * @property {string[]} [managerEntries]
  * @property {string[]} [previewEntries]
  * @property {string} [managerHead]

@@ -7,7 +7,6 @@ import { indexHtml, iframeHtml, managerCss, previewCss } from './templates.js';
 import { createManagerScript } from './createManager.js';
 import { findStories } from './findStories.js';
 import { createPreviewScript } from './createPreview.js';
-import { loadAddons } from './loadAddons.js';
 import { mdxPlugin } from './mdxPlugin.js';
 import { aliasPlugin } from './aliasPlugin.js';
 import { MANAGER_SCRIPT, MANAGER_STYLE, PREVIEW_SCRIPT, PREVIEW_STYLE } from './entrypoints.js';
@@ -22,7 +21,6 @@ export function buildPlugin(config) {
         type,
         stories: storyPatterns = [],
         static: staticFiles = {},
-        addons = [],
         managerEntries = [],
         previewEntries = [],
         managerHead,
@@ -53,7 +51,6 @@ export function buildPlugin(config) {
                 ...options.loader,
             };
             delete loader['.html'];
-            const addonsLoader = loadAddons(addons, rootDir);
 
             const plugins = [
                 ...(options.plugins || [])
@@ -105,35 +102,29 @@ export function buildPlugin(config) {
                             loader: 'css',
                         },
                     }),
-                    addonsLoader.then(([addons]) =>
-                        esbuild.build({
-                            ...childOptions,
-                            stdin: {
-                                contents: createManagerScript({
-                                    manager: storybookBuild ? storybookBuild.manager : '@storybook/core-client/dist/esm/manager/index.js',
-                                    addons,
-                                    managerEntries,
-                                }),
-                                sourcefile: path.join(rootDir, MANAGER_SCRIPT),
-                                loader: 'tsx',
-                            },
-                        })
-                    ),
-                    addonsLoader.then(async ([, addons]) =>
-                        esbuild.build({
-                            ...childOptions,
-                            stdin: {
-                                contents: await createPreviewScript({
-                                    type,
-                                    stories,
-                                    addons,
-                                    previewEntries,
-                                }),
-                                sourcefile: path.join(rootDir, PREVIEW_SCRIPT),
-                                loader: 'tsx',
-                            },
-                        })
-                    ),
+                    esbuild.build({
+                        ...childOptions,
+                        stdin: {
+                            contents: createManagerScript({
+                                manager: storybookBuild ? storybookBuild.manager : '@storybook/core-client/dist/esm/manager/index.js',
+                                managerEntries,
+                            }),
+                            sourcefile: path.join(rootDir, MANAGER_SCRIPT),
+                            loader: 'tsx',
+                        },
+                    }),
+                    esbuild.build({
+                        ...childOptions,
+                        stdin: {
+                            contents: await createPreviewScript({
+                                type,
+                                specifiers: Array.from(storyIndexEntries.keys()),
+                                previewEntries,
+                            }),
+                            sourcefile: path.join(rootDir, PREVIEW_SCRIPT),
+                            loader: 'tsx',
+                        },
+                    }),
                     esbuild.build({
                         ...childOptions,
                         stdin: {

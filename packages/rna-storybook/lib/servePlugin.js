@@ -5,12 +5,11 @@ import { browserResolve, isCss, isJson, isUrl, appendSearchParam } from '@chiala
 import { resolveImport } from '@chialab/wds-plugin-node-resolve';
 import { appendCssModuleParam, appendJsonModuleParam } from '@chialab/wds-plugin-rna';
 import { indexHtml, iframeHtml, managerCss, previewCss } from './templates.js';
-import { loadAddons } from './loadAddons.js';
 import { findStories } from './findStories.js';
 import { createManagerScript } from './createManager.js';
 import { createPreviewScript } from './createPreview.js';
 import { transformMdxToCsf } from './transformMdxToCsf.js';
-import { createStoriesJson } from './createStoriesJson.js';
+import { createStoriesJson, createStorySpecifiers } from './createStoriesJson.js';
 import { MANAGER_SCRIPT, MANAGER_STYLE, PREVIEW_SCRIPT, PREVIEW_STYLE, DESIGN_TOKENS_SCRIPT } from './entrypoints.js';
 
 const regexpReplaceWebsocket = /<!-- injected by web-dev-server -->(.|\s)*<\/script>/m;
@@ -41,7 +40,6 @@ export function servePlugin(config) {
         type,
         stories: storiesPattern,
         static: staticFiles = {},
-        addons = [],
         managerEntries = [],
         previewEntries = [],
         managerHead,
@@ -56,11 +54,6 @@ export function servePlugin(config) {
     let serverConfig;
 
     /**
-     * @type {Promise<[string[], string[]]>}
-     */
-    let addonsLoader;
-
-    /**
      * @type {Plugin}
      */
     const plugin = {
@@ -68,7 +61,6 @@ export function servePlugin(config) {
 
         async serverStart(args) {
             serverConfig = args.config;
-            addonsLoader = loadAddons(addons, serverConfig.rootDir);
         },
 
         resolveMimeType(context) {
@@ -178,6 +170,9 @@ export function servePlugin(config) {
             }
 
             if (context.path === '/iframe.html') {
+                const stories = await findStories(rootDir, storiesPattern);
+                const storyIndexEntries = await createStorySpecifiers(stories, rootDir);
+
                 return iframeHtml({
                     previewHead: previewHead || '',
                     previewBody: previewBody || '',
@@ -188,14 +183,18 @@ export function servePlugin(config) {
                         path: `/${PREVIEW_SCRIPT}`,
                         type: 'module',
                     },
+                    stories: JSON.stringify(
+                        Array.from(storyIndexEntries.keys()).map((specifier) => ({
+                            ...specifier,
+                            importPathMatcher: specifier.importPathMatcher.source,
+                        }))
+                    ),
                 });
             }
 
             if (context.path.startsWith(`/${MANAGER_SCRIPT}`)) {
-                const [manager] = await addonsLoader;
                 return createManagerScript({
                     manager: build ? build.manager : '@storybook/core-client/dist/esm/manager/index.js',
-                    addons: manager,
                     managerEntries,
                 });
             }
@@ -205,19 +204,14 @@ export function servePlugin(config) {
             }
 
             if (context.path.startsWith(`/${PREVIEW_SCRIPT}`)) {
-                const [, preview] = await addonsLoader;
                 const stories = await findStories(rootDir, storiesPattern);
+                const storyIndexEntries = await createStorySpecifiers(stories, rootDir);
+
                 return createPreviewScript({
                     type,
-                    stories: stories
-                        .map((storyFilePath) => `./${path.relative(
-                            serverConfig.rootDir,
-                            storyFilePath
-                        ).split(path.sep).join('/')}`)
-                        .map(i => `${i}?story=true`),
+                    specifiers: Array.from(storyIndexEntries.keys()),
                     previewEntries: [
                         ...previewEntries,
-                        ...preview,
                     ],
                 });
             }

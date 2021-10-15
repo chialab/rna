@@ -1,40 +1,42 @@
 /**
  * @typedef {Object} PreviewOptions
  * @property {string} type
- * @property {string[]} stories
- * @property {string[]} [addons]
+ * @property {import('./createStoriesJson.js').NormalizedStoriesSpecifier[]} specifiers
  * @property {string[]} [previewEntries]
  */
 
 /**
  * @param {PreviewOptions} options
  */
-export async function createPreviewScript({ type, stories = [], addons = [], previewEntries = [] }) {
-    return `import { configure, addDecorator, addParameters } from '${type}';
+export async function createPreviewScript({ type, specifiers, previewEntries = [] }) {
+    return `import { composeConfigs, PreviewWeb } from '@storybook/preview-web';
+import { ClientApi } from '@storybook/client-api';
+import { addons } from '@storybook/addons';
+import createChannel from '@storybook/channel-postmessage';
+import * as framework from '${type}/preset.js';
+${previewEntries.map((previewScript, index) => `import * as preview${index} from '${previewScript}';`).join('\n')}
 
-function registerPreviewEntry(entry) {
-    if (entry.decorators) {
-        entry.decorators.forEach((decorator) => {
-            addDecorator(decorator, false);
-        });
-    }
+const importers = {
+    ${specifiers.map(({ directory, files }) => `'${directory}/${files}': async () => import('${directory}/${files}?story')`).join(',\n')}
+};
 
-    if (entry.parameters || entry.globals || entry.globalTypes) {
-        addParameters({
-            ...(entry.parameters || {}),
-            globals: entry.globals,
-            globalTypes: entry.globalTypes,
-        }, false);
-    }
-}
+const channel = createChannel({ page: 'preview' });
+addons.setChannel(channel);
 
-${[...addons, ...previewEntries].map((previewScript, index) => `import * as preview${index} from '${previewScript}';`).join('\n')}
-${stories.map((story, i) => `import * as stories${i} from '${story}';`).join('\n')}
+const preview = new PreviewWeb();
+const clientApi = new ClientApi({ storyStore: preview.storyStore });
 
-${[...addons, ...previewEntries].map((previewScript, index) => `registerPreviewEntry(preview${index});`).join('\n')}
+window.__STORYBOOK_PREVIEW__ = preview;
+window.__STORYBOOK_STORY_STORE__ = preview.storyStore;
+window.__STORYBOOK_ADDONS_CHANNEL__ = channel;
+window.__STORYBOOK_CLIENT_API__ = clientApi;
 
-setTimeout(() => {
-    configure(() => [${stories.map((s, i) => `stories${i}`)}], {}, false);
+preview.initialize({
+    importFn: (path) => importers[path](),
+    getProjectAnnotations: () => composeConfigs([
+        framework,
+        ${previewEntries.map((previewScript, index) => `preview${index},`).join('\n')}
+    ]),
 });
 
 try {

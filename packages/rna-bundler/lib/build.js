@@ -108,6 +108,7 @@ export async function build(config) {
          * @type {import('esbuild').Plugin}
          */
         ({
+            name: '__rna-internal__',
             setup(build) {
                 pluginBuild = build;
             },

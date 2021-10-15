@@ -61,6 +61,7 @@ export async function transform(config) {
          * @type {import('esbuild').Plugin}
          */
         ({
+            name: '__rna-internal__',
             setup(build) {
                 pluginBuild = build;
             },

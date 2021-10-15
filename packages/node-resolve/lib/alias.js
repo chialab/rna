@@ -1,5 +1,9 @@
 /**
- * @typedef {{ [key: string]: string|false }} AliasMap
+ * @typedef {string|((importer: string) => string|false)|false} Alias
+ */
+
+/**
+ * @typedef {{ [key: string]: Alias }} AliasMap
  */
 
 /**
@@ -82,7 +86,7 @@ export function getEmptyModules(aliasMap, external = []) {
  */
 export function createAliasRegexexMap(aliasMap, mode = ALIAS_MODE.ANY) {
     /**
-     * @type {Map<RegExp, { key: string, value: string|false }>}
+     * @type {Map<RegExp, { key: string, value: Alias }>}
      */
     const map = new Map();
     for (const key in aliasMap) {

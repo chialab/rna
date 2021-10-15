@@ -72,6 +72,7 @@ export default function(options = {}) {
                         root: rootDir,
                         relative: options.relative,
                         transform: options.transform,
+                        alias: options.alias,
                         external: build.initialOptions.external,
                     }),
                     ...(config.plugins || [preset()]),

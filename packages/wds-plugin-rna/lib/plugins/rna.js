@@ -358,12 +358,20 @@ export function rnaPlugin(config) {
                 return;
             }
 
+            const { rootDir } = serverConfig;
+            const filePath = getRequestFilePath(context.url, rootDir);
+
             for (const [regex, res] of aliasRegexes.entries()) {
                 if (source.match(regex)) {
-                    if (!res.value) {
+                    const aliasValue = res.value;
+                    const aliased = typeof aliasValue === 'function' ?
+                        aliasValue(filePath) :
+                        aliasValue;
+                    if (!aliased) {
                         return;
                     }
-                    source = res.value;
+
+                    source = aliased;
                     break;
                 }
             }
@@ -372,8 +380,6 @@ export function rnaPlugin(config) {
                 return;
             }
 
-            const { rootDir } = serverConfig;
-            const filePath = getRequestFilePath(context.url, rootDir);
             const resolved = await browserResolve(source, filePath).catch(() => null);
             if (!resolved) {
                 return;

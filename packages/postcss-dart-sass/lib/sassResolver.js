@@ -46,7 +46,10 @@ export default function({ alias } = {}) {
             for (const key in alias) {
                 const regex = createAliasRegex(key, ALIAS_MODE.START);
                 if (url.match(regex)) {
-                    const aliased = alias[key];
+                    const aliasValue = alias[key];
+                    const aliased = typeof aliasValue === 'function' ?
+                        aliasValue(prev) :
+                        aliasValue;
                     if (!aliased) {
                         return {
                             contents: '',

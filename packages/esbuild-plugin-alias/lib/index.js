@@ -1,43 +1,38 @@
 import { readFile } from 'fs/promises';
 import pkgUp from 'pkg-up';
 import { getRootDir } from '@chialab/esbuild-helpers';
-import { ALIAS_MODE, createAliasRegex, createAliasesRegex, resolve, getMappedModules, getEmptyModules } from '@chialab/node-resolve';
+import { ALIAS_MODE, createAliasRegex, resolve } from '@chialab/node-resolve';
 import { createEmptyModule } from '@chialab/estransform';
 
 /**
  * Create a module alias.
  * @param {import('esbuild').PluginBuild} build
  * @param {string} key
- * @param {string} dest
+ * @param {import('@chialab/node-resolve').Alias} dest
  */
 export function addAlias(build, key, dest, rootDir = getRootDir(build)) {
     const aliasFilter = createAliasRegex(key, ALIAS_MODE.FULL);
-    build.onResolve({ filter: aliasFilter }, async (args) => ({
-        path: await resolve(dest, args.importer || rootDir),
-    }));
-}
+    build.onResolve({ filter: aliasFilter }, async (args) => {
+        const aliased = typeof dest === 'function' ?
+            dest(args.path) :
+            dest;
 
-/**
- * Create an alias to an empty module.
- * @param {import('esbuild').PluginBuild} build
- * @param {string[]} keys
- */
-export function addEmptyAlias(build, keys) {
-    const emptyFilter = createAliasesRegex(keys);
+        if (!aliased) {
+            return {
+                path: args.path,
+                namespace: 'empty',
+            };
+        }
 
-    build.onResolve({ filter: emptyFilter }, (args) => ({
-        path: args.path,
-        namespace: 'empty',
-    }));
-
-    build.onLoad({ filter: emptyFilter, namespace: 'empty' }, () => ({
-        contents: createEmptyModule(),
-    }));
+        return {
+            path: await resolve(aliased, args.importer || rootDir),
+        };
+    });
 }
 
 /**
  * A plugin for esbuild that resolves aliases or empty modules.
- * @param {{ [key: string]: string | false }} modules
+ * @param {import('@chialab/node-resolve').AliasMap} modules
  * @param {boolean} [browserField]
  * @return An esbuild plugin.
  */
@@ -64,18 +59,23 @@ export default function(modules = {}, browserField = true) {
                 }
             }
 
-            const aliases = getMappedModules(aliasMap, external);
-            const empty = getEmptyModules(aliasMap, external);
+            /**
+             * @type {import('@chialab/node-resolve').AliasMap}
+             */
+            const aliases = {
+                ...modules,
+            };
+            external.forEach((ext) => {
+                delete aliases[ext];
+            });
 
-            if (aliases.length) {
-                aliases.forEach((alias) => {
-                    addAlias(build, alias, /** @type {string} */(aliasMap[alias]));
-                });
-            }
+            Object.keys(aliases).forEach((alias) => {
+                addAlias(build, alias, aliases[alias]);
+            });
 
-            if (empty.length) {
-                addEmptyAlias(build, empty);
-            }
+            build.onLoad({ filter: /./, namespace: 'empty' }, () => ({
+                contents: createEmptyModule(),
+            }));
         },
     };
 

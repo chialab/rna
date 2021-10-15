@@ -9,7 +9,7 @@ import { createLogger, colors } from '@chialab/rna-logger';
  * @property {import('@chialab/rna-logger').Logger} [logger]
  * @property {import('@chialab/rna-config-loader').Entrypoint[]} [entrypoints]
  * @property {string} [entrypointsPath]
- * @property {{ [key: string]: string|false }} [alias]
+ * @property {import('@chialab/node-resolve').AliasMap} [alias]
  * @property {import('esbuild').Plugin[]} [transformPlugins]
  * @property {string} [jsxFactory]
  * @property {string} [jsxFragment]

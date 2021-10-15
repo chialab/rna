@@ -72,6 +72,7 @@ export default function(options = {}) {
                         root: rootDir,
                         relative: options.relative,
                         transform: options.transform,
+                        external: build.initialOptions.external,
                     }),
                     ...(config.plugins || [preset()]),
                     ...(isSass ? [
@@ -85,7 +86,6 @@ export default function(options = {}) {
                             })),
                     ] : []),
                 ];
-
 
                 /**
                  * @type {import('postcss').ProcessOptions}

@@ -1,7 +1,7 @@
 import path from 'path';
 import { mkdir, writeFile } from 'fs/promises';
 import esbuild from 'esbuild';
-import { esbuildFile, dependencies, getRootDir, getOutputDir } from '@chialab/esbuild-helpers';
+import { esbuildFile, setupPluginDependencies, getRootDir, getOutputDir } from '@chialab/esbuild-helpers';
 import aliasPlugin, { addAlias } from '@chialab/esbuild-plugin-alias';
 import transformPlugin, { addTransformationPlugin } from '@chialab/esbuild-plugin-transform';
 import { indexHtml, iframeHtml, managerCss, previewCss } from './templates.js';
@@ -13,7 +13,7 @@ import { MANAGER_SCRIPT, MANAGER_STYLE, PREVIEW_SCRIPT, PREVIEW_STYLE } from './
 import { createStoriesJson, createStorySpecifiers } from './createStoriesJson.js';
 
 /**
- * @param {import('./createPlugins').StorybookConfig} config Storybook options.
+ * @param {import('./index.js').StorybookConfig} config Storybook options.
  * @return An esbuild plugin.
  */
 export function buildPlugin(config) {
@@ -35,7 +35,10 @@ export function buildPlugin(config) {
     const plugin = {
         name: 'storybook',
         async setup(build) {
-            await dependencies(build, plugin, [aliasPlugin(), transformPlugin([])], 'before');
+            await setupPluginDependencies(build, plugin, [
+                aliasPlugin(),
+                transformPlugin([]),
+            ], 'before');
             await addTransformationPlugin(build, mdxPlugin(), 'start');
 
             const rootDir = getRootDir(build);

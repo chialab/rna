@@ -1,7 +1,7 @@
 import path from 'path';
-import { transformMdxToCsf } from './transformMdxToCsf.js';
 import { pipe } from '@chialab/estransform';
 import { getEntry, finalizeEntry, createFilter } from '@chialab/esbuild-plugin-transform';
+import { transformMdxToCsf } from './transformMdxToCsf.js';
 
 export function mdxPlugin() {
     /**

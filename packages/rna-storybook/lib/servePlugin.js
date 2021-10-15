@@ -10,7 +10,7 @@ import { createManagerScript } from './createManager.js';
 import { createPreviewScript } from './createPreview.js';
 import { transformMdxToCsf } from './transformMdxToCsf.js';
 import { createStoriesJson, createStorySpecifiers } from './createStoriesJson.js';
-import { MANAGER_SCRIPT, MANAGER_STYLE, PREVIEW_SCRIPT, PREVIEW_STYLE, DESIGN_TOKENS_SCRIPT } from './entrypoints.js';
+import { MANAGER_SCRIPT, MANAGER_STYLE, PREVIEW_SCRIPT, PREVIEW_STYLE } from './entrypoints.js';
 
 const regexpReplaceWebsocket = /<!-- injected by web-dev-server -->(.|\s)*<\/script>/m;
 
@@ -33,7 +33,7 @@ export function appendPreviewParam(source) {
 }
 
 /**
- * @param {import('./createPlugins').StorybookConfig} config
+ * @param {import('./index.js').StorybookConfig} config
  */
 export function servePlugin(config) {
     const {
@@ -92,7 +92,6 @@ export function servePlugin(config) {
             }
 
             if (context.path === `/${PREVIEW_SCRIPT}` ||
-                context.path === `/${DESIGN_TOKENS_SCRIPT}` ||
                 context.URL.searchParams.has('preview') ||
                 context.URL.searchParams.has('story')) {
                 return appendPreviewParam(source);
@@ -125,10 +124,6 @@ export function servePlugin(config) {
                     const url = await browserResolve(source, filePath);
                     return await resolveImport(url, filePath, rootDir, { code, line, column });
                 }
-            }
-
-            if (source === `/${DESIGN_TOKENS_SCRIPT}`) {
-                return source;
             }
         },
 

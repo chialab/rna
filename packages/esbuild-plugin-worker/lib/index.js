@@ -2,7 +2,7 @@ import path from 'path';
 import { readFile } from 'fs/promises';
 import { resolve as defaultResolve } from '@chialab/node-resolve';
 import emitPlugin, { emitChunk } from '@chialab/esbuild-plugin-emit';
-import { dependencies } from '@chialab/esbuild-helpers';
+import { setupPluginDependencies } from '@chialab/esbuild-helpers';
 import { pipe, walk, getOffsetFromLocation, generate } from '@chialab/estransform';
 import { getEntry, finalizeEntry, createFilter, getParentBuild, transformError } from '@chialab/esbuild-plugin-transform';
 import metaUrlPlugin, { getMetaUrl } from '@chialab/esbuild-plugin-meta-url';
@@ -41,7 +41,7 @@ export default function({ resolve = defaultResolve, constructors = ['Worker', 'S
     const plugin = {
         name: 'worker',
         async setup(build) {
-            await dependencies(getParentBuild(build) || build, plugin, [
+            await setupPluginDependencies(getParentBuild(build) || build, plugin, [
                 emitPlugin(),
             ]);
 
@@ -162,7 +162,7 @@ export default function({ resolve = defaultResolve, constructors = ['Worker', 'S
                 return finalizeEntry(build, args.path);
             });
 
-            await dependencies(build, plugin, [
+            await setupPluginDependencies(build, plugin, [
                 metaUrlPlugin({ resolve }),
             ], 'after');
         },

@@ -167,7 +167,7 @@ export function rnaPlugin(config) {
     const virtualFs = {};
 
     /**
-     * @type {import('@chialab/esbuild-plugin-dependencies').DependenciesMap}
+     * @type {import('@chialab/esbuild-helpers').DependenciesMap}
      */
     const dependenciesMap = {};
 

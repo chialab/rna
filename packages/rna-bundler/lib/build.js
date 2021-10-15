@@ -1,17 +1,17 @@
 import path from 'path';
 import { rm } from 'fs/promises';
 import { createLogger } from '@chialab/rna-logger';
+import { mergeDependencies } from '@chialab/esbuild-helpers';
 import { loaders } from './loaders.js';
 import { writeManifestJson } from './writeManifestJson.js';
 import { writeEntrypointsJson } from './writeEntrypointsJson.js';
-import { mergeDependencies } from './mergeDependencies.js';
 
 /**
  * @typedef {import('esbuild').Metafile} Metafile
  */
 
 /**
- * @typedef {import('esbuild').BuildResult & { metafile: Metafile, dependencies: import('@chialab/esbuild-plugin-dependencies').DependenciesMap, outputFiles?: import('esbuild').OutputFile[] }} BuildResult
+ * @typedef {import('esbuild').BuildResult & { metafile: Metafile, dependencies: import('@chialab/esbuild-helpers').DependenciesMap, outputFiles?: import('esbuild').OutputFile[] }} BuildResult
  */
 
 /**
@@ -49,7 +49,7 @@ export async function build(config) {
     const {
         input,
         output,
-        root,
+        root: rootDir,
         code,
         loader,
         format,
@@ -83,7 +83,7 @@ export async function build(config) {
         entryOptions.stdin = {
             contents: code,
             loader,
-            resolveDir: root,
+            resolveDir: rootDir,
             sourcefile: Array.isArray(input) ? input[0] : input,
         };
     } else if (input) {
@@ -92,11 +92,26 @@ export async function build(config) {
 
     const outputDir = hasOutputFile ? path.dirname(output) : output;
     if (clean) {
-        await rm(path.resolve(root, outputDir), { recursive: true, force: true });
+        await rm(path.resolve(rootDir, outputDir), { recursive: true, force: true });
     }
 
-    const { default: dependenciesPlugin } = await import('@chialab/esbuild-plugin-dependencies');
+    /**
+     * @type {import('esbuild').PluginBuild|undefined}
+     */
+    let pluginBuild;
+
+    /**
+     * @type {import('esbuild').Plugin[]}
+     */
     const finalPlugins = await Promise.all([
+        /**
+         * @type {import('esbuild').Plugin}
+         */
+        ({
+            setup(build) {
+                pluginBuild = build;
+            },
+        }),
         import('@chialab/esbuild-plugin-emit')
             .then(({ default: plugin }) => plugin()),
         import('@chialab/esbuild-plugin-any-file')
@@ -129,7 +144,6 @@ export async function build(config) {
                     ...transformPlugins,
                 ])
             ),
-        dependenciesPlugin(),
     ]);
 
     /**
@@ -169,7 +183,7 @@ export async function build(config) {
         sourcesContent: true,
         plugins: finalPlugins,
         logLevel,
-        absWorkingDir: root,
+        absWorkingDir: rootDir,
         watch: watch && {
             onRebuild(error, result) {
                 if (result) {
@@ -193,6 +207,10 @@ export async function build(config) {
 
     return {
         ...result,
-        dependencies: mergeDependencies(result, root),
+        dependencies: mergeDependencies(
+            /** @type {import('esbuild').PluginBuild} */(pluginBuild),
+            result,
+            rootDir
+        ),
     };
 }

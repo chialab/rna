@@ -1,6 +1,6 @@
 import path from 'path';
+import { mergeDependencies } from '@chialab/esbuild-helpers';
 import { transformLoaders } from './loaders.js';
-import { mergeDependencies } from './mergeDependencies.js';
 
 /**
  * @typedef {import('esbuild').Metafile} Metafile
@@ -11,7 +11,7 @@ import { mergeDependencies } from './mergeDependencies.js';
  */
 
 /**
- * @typedef {import('esbuild').TransformResult & { metafile: Metafile, dependencies: import('@chialab/esbuild-plugin-dependencies').DependenciesMap, outputFiles?: import('esbuild').OutputFile[] }} TransformResult
+ * @typedef {import('esbuild').TransformResult & { metafile: Metafile, dependencies: import('@chialab/esbuild-helpers').DependenciesMap, outputFiles?: import('esbuild').OutputFile[] }} TransformResult
  */
 
 /**
@@ -25,7 +25,7 @@ export async function transform(config) {
     const {
         input,
         code,
-        root,
+        root: rootDir,
         loader,
         format,
         platform,
@@ -48,8 +48,23 @@ export async function transform(config) {
         throw new Error('Missing required `code` option');
     }
 
-    const { default: dependenciesPlugin } = await import('@chialab/esbuild-plugin-dependencies');
+    /**
+     * @type {import('esbuild').PluginBuild|undefined}
+     */
+    let pluginBuild;
+
+    /**
+     * @type {import('esbuild').Plugin[]}
+     */
     const finalPlugins = await Promise.all([
+        /**
+         * @type {import('esbuild').Plugin}
+         */
+        ({
+            setup(build) {
+                pluginBuild = build;
+            },
+        }),
         import('@chialab/esbuild-plugin-env')
             .then(({ default: plugin }) => plugin()),
         import('@chialab/esbuild-plugin-define-this')
@@ -69,16 +84,15 @@ export async function transform(config) {
                     ...transformPlugins,
                 ])
             ),
-        dependenciesPlugin(),
     ]);
 
-    const sourceFile = path.resolve(root, Array.isArray(input) ? input[0] : input);
+    const sourceFile = path.resolve(rootDir, Array.isArray(input) ? input[0] : input);
     const absWorkingDir = path.dirname(sourceFile);
     const result = /** @type {BuildResult} */ (await esbuild.build({
         stdin: {
             contents: code,
             loader,
-            resolveDir: root,
+            resolveDir: rootDir,
             sourcefile: sourceFile,
         },
         write: false,
@@ -110,6 +124,10 @@ export async function transform(config) {
         map: result.outputFiles[1] ? result.outputFiles[1].text : '',
         warnings: result.warnings,
         metafile: result.metafile,
-        dependencies: mergeDependencies(result, absWorkingDir),
+        dependencies: mergeDependencies(
+            /** @type {import('esbuild').PluginBuild} */(pluginBuild),
+            result,
+            rootDir
+        ),
     };
 }

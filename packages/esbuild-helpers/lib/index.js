@@ -2,7 +2,37 @@ import path from 'path';
 import crypto from 'crypto';
 import { readFile, writeFile, mkdir } from 'fs/promises';
 
-export * from './dependencies.js';
+/**
+ * Insert dependency plugins in the build plugins list.
+ * @param {import('esbuild').PluginBuild} build The current build.
+ * @param {import('esbuild').Plugin} plugin The current plugin.
+ * @param {import('esbuild').Plugin[]} plugins A list of required plugins .
+ * @param {'before'|'after'} [mode] Where insert the missing plugin.
+ */
+export async function setupPluginDependencies(build, plugin, plugins, mode = 'before') {
+    const installedPlugins = build.initialOptions.plugins || [];
+    const missingPlugins = [];
+
+    let last = plugin;
+    for (let i = 0; i < plugins.length; i++) {
+        const dependency = plugins[i];
+        if (installedPlugins.find((p) => p.name === dependency.name)) {
+            continue;
+        }
+
+        missingPlugins.push(dependency.name);
+        await dependency.setup(build);
+        const io = installedPlugins.indexOf(last);
+        if (mode === 'after') {
+            last = dependency;
+        }
+        installedPlugins.splice(mode === 'before' ? io : (io + 1), 0, dependency);
+    }
+
+    build.initialOptions.plugins = installedPlugins;
+
+    return missingPlugins;
+}
 
 /**
  * @typedef {import('esbuild').Metafile} Metafile
@@ -213,4 +243,62 @@ export function getOutputDirByOptions(options) {
  */
 export function getOutputDir(build) {
     return getOutputDirByOptions(build.initialOptions);
+}
+
+/**
+ * @typedef {{ [key: string]: string[] }} DependenciesMap
+ */
+
+/**
+ * @type {WeakMap<import('esbuild').BuildOptions, DependenciesMap>}
+ */
+const BUILD_DEPENDENCIES = new WeakMap();
+
+/**
+ * Store a build dependency.
+ * @param {import('esbuild').PluginBuild} build
+ * @param {string} importer
+ * @param {string[]} dependencies
+ */
+export function addBuildDependencies(build, importer, dependencies) {
+    const map = getBuildDependencies(build);
+    map[importer] = [
+        ...(map[importer] || []),
+        ...dependencies,
+    ];
+
+    BUILD_DEPENDENCIES.set(build.initialOptions, map);
+}
+
+/**
+ * Cleanup build dependencies map.
+ * @param {import('esbuild').PluginBuild} build
+ */
+export function getBuildDependencies(build) {
+    return BUILD_DEPENDENCIES.get(build.initialOptions) || {};
+}
+
+/**
+ * @param {import('esbuild').PluginBuild} build
+ * @param {import('esbuild').BuildResult} result
+ * @param {string} rootDir
+ * @return {DependenciesMap}
+ */
+export function mergeDependencies(build, result, rootDir) {
+    const dependencies = getBuildDependencies(build) || {};
+    const { metafile } = result;
+    if (!metafile) {
+        return dependencies;
+    }
+    for (const out of Object.values(metafile.outputs)) {
+        if (!out.entryPoint) {
+            continue;
+        }
+
+        const entryPoint = path.resolve(rootDir, out.entryPoint);
+        const list = dependencies[entryPoint] = dependencies[entryPoint] || [];
+        list.push(...Object.keys(out.inputs).map((file) => path.resolve(rootDir, file)));
+    }
+
+    return dependencies;
 }

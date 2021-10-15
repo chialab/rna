@@ -66,9 +66,9 @@ function sortExtractedStories(stories, storySort, fileNameOrder) {
 
 /**
  * @param {string[]} storyFiles
- * @param {string} root
+ * @param {string} rootDir
  */
-export async function createStorySpecifiers(storyFiles, root = process.cwd()) {
+export async function createStorySpecifiers(storyFiles, rootDir = process.cwd()) {
     /**
      * @type {Map<NormalizedStoriesSpecifier, SpecifierStoriesCache>}
      */
@@ -81,11 +81,11 @@ export async function createStorySpecifiers(storyFiles, root = process.cwd()) {
              */
             const entry = {};
             const specifier = normalizeStoriesEntry(story, {
-                workingDir: root,
-                configDir: root,
+                workingDir: rootDir,
+                configDir: rootDir,
             });
             storyIndexEntries.set(specifier, entry);
-            return extractStories(specifier, entry, story, root);
+            return extractStories(specifier, entry, story, rootDir);
         })
     );
 
@@ -94,11 +94,11 @@ export async function createStorySpecifiers(storyFiles, root = process.cwd()) {
 
 /**
  * @param {string[]} storyFiles
- * @param {string} root
+ * @param {string} rootDir
  * @param {{ storySort?: any }} config
  */
-export async function createStoriesJson(storyFiles, root = process.cwd(), config = {}) {
-    const storyIndexEntries = await createStorySpecifiers(storyFiles, root);
+export async function createStoriesJson(storyFiles, rootDir = process.cwd(), config = {}) {
+    const storyIndexEntries = await createStorySpecifiers(storyFiles, rootDir);
     const entries = Array.from(storyIndexEntries.values());
     const storiesList = entries.flatMap((entry) => Object.values(entry));
     const storyFileNames = entries.flatMap((r) => Object.keys(r));

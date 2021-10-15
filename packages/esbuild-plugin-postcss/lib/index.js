@@ -1,7 +1,6 @@
 import path from 'path';
 import { readFile } from 'fs/promises';
-import { getRootDir, getStdinInput } from '@chialab/esbuild-helpers';
-import { addBuildDependencies } from '@chialab/esbuild-plugin-dependencies';
+import { getRootDir, getStdinInput, addBuildDependencies } from '@chialab/esbuild-helpers';
 
 /**
  * @typedef {Object} PostcssConfig

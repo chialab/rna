@@ -39,4 +39,3 @@ export function managerCss(file = new URL('../static/manager.css', import.meta.u
 export function previewCss(file = new URL('../static/preview.css', import.meta.url).pathname) {
     return readFile(file, 'utf-8');
 }
-

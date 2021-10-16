@@ -1,7 +1,7 @@
 {
   "name": "@chialab/esbuild-plugin-emit",
   "type": "module",
-  "version": "0.12.24",
+  "version": "0.12.26",
   "description": "Helpers functions to emit chunks and files from a esbuild run.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",
@@ -29,7 +29,7 @@
   },
   "dependencies": {
     "@chialab/esbuild-helpers": "^0.12.22",
-    "@chialab/node-resolve": "^0.12.24"
+    "@chialab/node-resolve": "^0.12.26"
   },
   "devDependencies": {
     "typescript": "^4.3.0"

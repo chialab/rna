@@ -50,6 +50,9 @@ export default function({ alias } = {}) {
                     const aliased = typeof aliasValue === 'function' ?
                         aliasValue(prev) :
                         aliasValue;
+                    if (aliased instanceof Promise) {
+                        throw new Error('Async module resolution is not supported.');
+                    }
                     if (!aliased) {
                         return {
                             contents: '',

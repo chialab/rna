@@ -2,7 +2,7 @@ import path from 'path';
 import { mkdir, writeFile } from 'fs/promises';
 import esbuild from 'esbuild';
 import { esbuildFile, setupPluginDependencies, getRootDir, getOutputDir } from '@chialab/esbuild-helpers';
-import aliasPlugin, { addAlias } from '@chialab/esbuild-plugin-alias';
+import { createAliasPlugin } from '@chialab/esbuild-plugin-alias';
 import transformPlugin, { addTransformationPlugin } from '@chialab/esbuild-plugin-transform';
 import { indexHtml, iframeHtml, managerCss, previewCss } from './templates.js';
 import { createManagerScript } from './createManager.js';
@@ -11,6 +11,7 @@ import { createPreviewScript } from './createPreview.js';
 import { mdxPlugin } from './mdxPlugin.js';
 import { MANAGER_SCRIPT, MANAGER_STYLE, PREVIEW_SCRIPT, PREVIEW_STYLE } from './entrypoints.js';
 import { createStoriesJson, createStorySpecifiers } from './createStoriesJson.js';
+import { resolve } from '@chialab/node-resolve';
 
 /**
  * @param {import('./index.js').StorybookConfig} config Storybook options.
@@ -35,10 +36,20 @@ export function buildPlugin(config) {
     const plugin = {
         name: 'storybook',
         async setup(build) {
-            await setupPluginDependencies(build, plugin, [
-                aliasPlugin(),
+            const deps = [
                 transformPlugin([]),
-            ], 'before');
+            ];
+            if (storybookBuild) {
+                const { modules = {}, resolutions = [] } = storybookBuild;
+                deps.unshift(createAliasPlugin()({
+                    ...modules,
+                    ...(resolutions.reduce((acc, resolution) => ({
+                        ...acc,
+                        [resolution]: () => resolve(resolution, rootDir),
+                    }), {})),
+                }));
+            }
+            await setupPluginDependencies(build, plugin, deps, 'before');
             await addTransformationPlugin(build, mdxPlugin(), 'start');
 
             const rootDir = getRootDir(build);
@@ -58,12 +69,6 @@ export function buildPlugin(config) {
                 ...(build.initialOptions.plugins || [])
                     .filter((plugin) => !['storybook', 'html'].includes(plugin.name)),
             ];
-
-            if (storybookBuild) {
-                const { modules = {}, resolutions = [] } = storybookBuild;
-                Object.entries(modules).forEach(([key, dest]) => addAlias(build, key, dest));
-                resolutions.forEach((resolution) => addAlias(build, resolution, resolution, rootDir));
-            }
 
             /**
              * @type {import('esbuild').BuildOptions}

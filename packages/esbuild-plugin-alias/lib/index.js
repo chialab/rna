@@ -14,7 +14,7 @@ export function addAlias(build, key, dest, rootDir = getRootDir(build)) {
     const aliasFilter = createAliasRegex(key, ALIAS_MODE.FULL);
     build.onResolve({ filter: aliasFilter }, async (args) => {
         const aliased = typeof dest === 'function' ?
-            dest(args.path) :
+            await dest(args.path) :
             dest;
 
         if (!aliased) {
@@ -31,17 +31,28 @@ export function addAlias(build, key, dest, rootDir = getRootDir(build)) {
 }
 
 /**
+ * @typedef {{ name?: string }} PluginContext
+ */
+
+let instances = 0;
+
+export function createAliasPlugin() {
+    return alias.bind({ name: `alias-${instances++}` });
+}
+
+/**
  * A plugin for esbuild that resolves aliases or empty modules.
+ * @this PluginContext
  * @param {import('@chialab/node-resolve').AliasMap} modules
  * @param {boolean} [browserField]
  * @return An esbuild plugin.
  */
-export default function(modules = {}, browserField = true) {
+export default function alias(modules = {}, browserField = true) {
     /**
      * @type {import('esbuild').Plugin}
      */
     const plugin = {
-        name: 'alias',
+        name: this?.name || 'alias',
         async setup(build) {
             const { platform = 'neutral', external = [] } = build.initialOptions;
             const rootDir = getRootDir(build);

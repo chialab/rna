@@ -1,5 +1,5 @@
 /**
- * @typedef {string|((importer: string) => string|false)|false} Alias
+ * @typedef {string|((importer: string) => string|false|Promise<string|false>)|false} Alias
  */
 
 /**

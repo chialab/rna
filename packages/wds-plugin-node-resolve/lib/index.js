@@ -29,14 +29,14 @@ export function skipResolve(url) {
 /**
  * Web dev server helpers route prefix.
  */
-export const HELPERS_PATH = '/__wds-helpers__/';
+export const HELPERS_PATH = '__wds-helpers__';
 
 /**
  * Create a helper url.
  * @param {string} name The name of the helper.
  */
 export function createHelperUrl(name) {
-    return `${HELPERS_PATH}/${name}`;
+    return `/${HELPERS_PATH}/${name}`;
 }
 
 /**
@@ -173,7 +173,7 @@ export default function(config = {}) {
                 if (source.match(regex)) {
                     const aliasValue = res.value;
                     const aliased = typeof aliasValue === 'function' ?
-                        aliasValue(filePath) :
+                        await aliasValue(filePath) :
                         aliasValue;
 
                     if (!aliased) {

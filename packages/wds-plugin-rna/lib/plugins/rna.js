@@ -365,7 +365,7 @@ export function rnaPlugin(config) {
                 if (source.match(regex)) {
                     const aliasValue = res.value;
                     const aliased = typeof aliasValue === 'function' ?
-                        aliasValue(filePath) :
+                        await aliasValue(filePath) :
                         aliasValue;
                     if (!aliased) {
                         return;

@@ -1,10 +1,10 @@
 /**
  * @see https://github.com/storybookjs/storybook/blob/next/lib/core-server/src/utils/StoryIndexGenerator.ts
+ * @see https://github.com/storybookjs/storybook/blob/next/lib/core-common/src/utils/normalize-stories.ts
  */
 
 import path from 'path';
 import { autoTitleFromSpecifier, sortStoriesV7 } from '@storybook/store';
-import { normalizeStoriesEntry } from '@storybook/core-common';
 import { readCsfOrMdx } from '@storybook/csf-tools';
 
 /**
@@ -18,6 +18,24 @@ import { readCsfOrMdx } from '@storybook/csf-tools';
 /**
  * @typedef {Record<string, StoryIndex['stories'] | false>} SpecifierStoriesCache
  */
+
+/**
+ * @param {string} story
+ * @param {string} rootDir
+ * @return {import('@storybook/core-common').NormalizedStoriesSpecifier}
+ */
+function normalizeStoriesEntry(story, rootDir) {
+    story = path.relative(rootDir, story);
+    if (story[0] !== '.') {
+        story = `./${story}`;
+    }
+    return {
+        titlePrefix: '',
+        directory: path.dirname(story),
+        files: path.basename(story),
+        importPathMatcher: new RegExp(story),
+    };
+}
 
 /**
  *
@@ -75,15 +93,12 @@ export async function createStorySpecifiers(storyFiles, rootDir = process.cwd())
     const storyIndexEntries = new Map();
 
     await Promise.all(
-        storyFiles.map((story) => {
+        storyFiles.map(async (story) => {
             /**
              * @type {SpecifierStoriesCache}
              */
             const entry = {};
-            const specifier = normalizeStoriesEntry(story, {
-                workingDir: rootDir,
-                configDir: rootDir,
-            });
+            const specifier = normalizeStoriesEntry(story, rootDir);
             storyIndexEntries.set(specifier, entry);
             return extractStories(specifier, entry, story, rootDir);
         })

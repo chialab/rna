@@ -25,7 +25,7 @@ export default function({ fsCheck = true, shouldThrow = () => true } = {}) {
                     return;
                 }
 
-                if (fsCheck && stdin && args.path !== stdin.path) {
+                if (fsCheck && (!stdin || args.path !== stdin.path)) {
                     try {
                         await access(args.path);
                     } catch (err) {

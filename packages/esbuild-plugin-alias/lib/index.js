@@ -56,6 +56,10 @@ export default function alias(modules = {}, browserField = true) {
         async setup(build) {
             const { platform = 'neutral', external = [] } = build.initialOptions;
             const rootDir = getRootDir(build);
+
+            /**
+             * @type {import('@chialab/node-resolve').AliasMap}
+             */
             const aliasMap = { ...modules };
 
             if (browserField && platform === 'browser') {
@@ -70,18 +74,12 @@ export default function alias(modules = {}, browserField = true) {
                 }
             }
 
-            /**
-             * @type {import('@chialab/node-resolve').AliasMap}
-             */
-            const aliases = {
-                ...modules,
-            };
             external.forEach((ext) => {
-                delete aliases[ext];
+                delete aliasMap[ext];
             });
 
-            Object.keys(aliases).forEach((alias) => {
-                addAlias(build, alias, aliases[alias]);
+            Object.keys(aliasMap).forEach((alias) => {
+                addAlias(build, alias, aliasMap[alias]);
             });
 
             build.onLoad({ filter: /./, namespace: 'empty' }, () => ({

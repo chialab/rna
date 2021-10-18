@@ -230,7 +230,7 @@ import IMAGE_URL from './assets/logo.png';
 
 Since esbuild supports this common convention, RNA treats every unknown import as external file reference, delegating to esbuild assets collection and optimization.
 
-Accordingly to its [concepts](./Concepts), RNA encourages and supports for assets referenced by standard `URL` instances:
+Accordingly to its [architecture](./Architecture), RNA encourages and supports for assets referenced by standard `URL` instances:
 
 ```javascript
 const IMAGE_URL = new URL('./assets/logo.png', import.meta.url).href;

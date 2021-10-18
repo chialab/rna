@@ -1,5 +1,5 @@
 * [Home](./)
-* [Concepts](./Concepts)
+* [Architecture](./Architecture)
 
 ### Build
 

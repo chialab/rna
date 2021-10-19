@@ -37,7 +37,7 @@ export function appendPreviewParam(source) {
  */
 export function servePlugin(config) {
     const {
-        type,
+        framework,
         stories: storiesPattern,
         static: staticFiles = {},
         managerEntries = [],
@@ -211,7 +211,7 @@ export function servePlugin(config) {
                 const storyIndexEntries = await createStorySpecifiers(stories, rootDir);
 
                 return createPreviewScript({
-                    type,
+                    framework,
                     specifiers: Array.from(storyIndexEntries.keys()),
                     previewEntries: [
                         ...previewEntries,

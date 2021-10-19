@@ -13,7 +13,7 @@ import './fixMdxParser.js';
 
 /**
  * @typedef {Object} StorybookConfig
- * @property {string} type
+ * @property {string} framework
  * @property {string[]} stories
  * @property {{ [key: string]: string }} [static]
  * @property {string[]} [managerEntries]

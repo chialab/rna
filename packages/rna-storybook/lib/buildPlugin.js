@@ -20,7 +20,7 @@ import { createStoriesJson, createStorySpecifiers } from './createStoriesJson.js
  */
 export function buildPlugin(config) {
     const {
-        type,
+        framework,
         stories: storyPatterns = [],
         static: staticFiles = {},
         managerEntries = [],
@@ -131,7 +131,7 @@ export function buildPlugin(config) {
                         ...childOptions,
                         stdin: {
                             contents: await createPreviewScript({
-                                type,
+                                framework,
                                 specifiers: Array.from(storyIndexEntries.keys()),
                                 previewEntries,
                             }),

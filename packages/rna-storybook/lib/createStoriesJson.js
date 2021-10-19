@@ -38,7 +38,6 @@ function normalizeStoriesEntry(story, rootDir) {
 }
 
 /**
- *
  * @param {NormalizedStoriesSpecifier} specifier
  * @param {SpecifierStoriesCache} entry
  * @param {string} absolutePath

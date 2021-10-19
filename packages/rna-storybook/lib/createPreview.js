@@ -2,7 +2,7 @@ import { PREVIEW_MODULE_SCRIPT } from './entrypoints.js';
 
 /**
  * @typedef {Object} PreviewOptions
- * @property {string} type
+ * @property {string} framework
  * @property {import('./createStoriesJson.js').NormalizedStoriesSpecifier[]} specifiers
  * @property {string[]} [previewEntries]
  */
@@ -30,10 +30,10 @@ export default preview;`;
 /**
  * @param {PreviewOptions} options
  */
-export async function createPreviewScript({ type, specifiers, previewEntries = [] }) {
+export async function createPreviewScript({ framework, specifiers, previewEntries = [] }) {
     return `import { composeConfigs } from '@storybook/preview-web';
 import preview from '/${PREVIEW_MODULE_SCRIPT}';
-import * as framework from '${type}/preset.js';
+import * as framework from '${framework}/preset.js';
 ${previewEntries.map((previewScript, index) => `import * as preview${index} from '${previewScript}';`).join('\n')}
 
 const importers = {

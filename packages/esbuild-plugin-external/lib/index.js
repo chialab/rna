@@ -19,8 +19,13 @@ export default function({ dependencies = true, peerDependencies = false, optiona
      * @type {import('esbuild').Plugin}
      */
     const plugin = {
-        name: 'bundle-dependencies',
+        name: 'external',
         async setup(build) {
+            build.onResolve({ filter: /^https?:\/\// }, (args) => ({
+                path: args.path,
+                external: true,
+            }));
+
             const { bundle, external = [] } = build.initialOptions;
             if (!bundle) {
                 return;

@@ -3,6 +3,7 @@ import pkgUp from 'pkg-up';
 import { getRootDir } from '@chialab/esbuild-helpers';
 import { ALIAS_MODE, createAliasRegex, resolve } from '@chialab/node-resolve';
 import { createEmptyModule } from '@chialab/estransform';
+import path from 'path';
 
 /**
  * Create a module alias.
@@ -21,6 +22,12 @@ export function addAlias(build, key, dest, rootDir = getRootDir(build)) {
             return {
                 path: args.path,
                 namespace: 'empty',
+            };
+        }
+
+        if (path.isAbsolute(aliased)) {
+            return {
+                path: aliased,
             };
         }
 

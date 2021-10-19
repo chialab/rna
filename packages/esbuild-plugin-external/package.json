@@ -1,5 +1,5 @@
 {
-  "name": "@chialab/esbuild-plugin-bundle-dependencies",
+  "name": "@chialab/esbuild-plugin-external",
   "type": "module",
   "version": "0.12.22",
   "description": "Collect or exclude module dependencies to bundle.",
@@ -10,7 +10,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/chialab/rna",
-    "directory": "packages/esbuild-plugin-bundle-dependencies"
+    "directory": "packages/esbuild-plugin-external"
   },
   "keywords": [],
   "scripts": {

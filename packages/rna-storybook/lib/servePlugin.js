@@ -7,10 +7,10 @@ import { appendCssModuleParam, appendJsonModuleParam } from '@chialab/wds-plugin
 import { indexHtml, iframeHtml, managerCss, previewCss } from './templates.js';
 import { findStories } from './findStories.js';
 import { createManagerScript } from './createManager.js';
-import { createPreviewScript } from './createPreview.js';
+import { createPreviewModule, createPreviewScript } from './createPreview.js';
 import { transformMdxToCsf } from './transformMdxToCsf.js';
 import { createStoriesJson, createStorySpecifiers } from './createStoriesJson.js';
-import { MANAGER_SCRIPT, MANAGER_STYLE, PREVIEW_SCRIPT, PREVIEW_STYLE } from './entrypoints.js';
+import { MANAGER_SCRIPT, MANAGER_STYLE, PREVIEW_SCRIPT, PREVIEW_MODULE_SCRIPT, PREVIEW_STYLE } from './entrypoints.js';
 
 const regexpReplaceWebsocket = /<!-- injected by web-dev-server -->(.|\s)*<\/script>/m;
 
@@ -101,6 +101,10 @@ export function servePlugin(config) {
         async resolveImport({ source, context, code, line, column }) {
             const { rootDir } = serverConfig;
             const filePath = getRequestFilePath(context.url, rootDir);
+
+            if (source === `/${PREVIEW_MODULE_SCRIPT}`) {
+                return source;
+            }
 
             if (!build) {
                 if (source.includes('@storybook/') ||
@@ -196,6 +200,10 @@ export function servePlugin(config) {
 
             if (context.path.startsWith(`/${MANAGER_STYLE}`)) {
                 return managerCss();
+            }
+
+            if (context.path.startsWith(`/${PREVIEW_MODULE_SCRIPT}`)) {
+                return createPreviewModule();
             }
 
             if (context.path.startsWith(`/${PREVIEW_SCRIPT}`)) {

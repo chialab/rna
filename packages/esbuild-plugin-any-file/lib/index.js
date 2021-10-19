@@ -18,8 +18,6 @@ export default function({ fsCheck = true, shouldThrow = () => true } = {}) {
             const stdin = getStdinInput(build);
             const keys = Object.keys(loaders);
 
-            build.onResolve({ filter: /^https?:\/\// }, ({ path: filePath }) => ({ path: filePath, external: true }));
-
             build.onLoad({ filter: /\./, namespace: 'file' }, async (args) => {
                 if (keys.includes(path.extname(args.path))) {
                     return;

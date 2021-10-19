@@ -2,16 +2,17 @@ import path from 'path';
 import { mkdir, writeFile } from 'fs/promises';
 import esbuild from 'esbuild';
 import { esbuildFile, setupPluginDependencies, getRootDir, getOutputDir } from '@chialab/esbuild-helpers';
+import { resolve } from '@chialab/node-resolve';
 import { createAliasPlugin } from '@chialab/esbuild-plugin-alias';
 import transformPlugin, { addTransformationPlugin } from '@chialab/esbuild-plugin-transform';
+import virtualPlugin from '@chialab/esbuild-plugin-virtual';
 import { indexHtml, iframeHtml, managerCss, previewCss } from './templates.js';
 import { createManagerScript } from './createManager.js';
 import { findStories } from './findStories.js';
-import { createPreviewScript } from './createPreview.js';
+import { createPreviewModule, createPreviewScript } from './createPreview.js';
 import { mdxPlugin } from './mdxPlugin.js';
-import { MANAGER_SCRIPT, MANAGER_STYLE, PREVIEW_SCRIPT, PREVIEW_STYLE } from './entrypoints.js';
+import { MANAGER_SCRIPT, MANAGER_STYLE, PREVIEW_MODULE_SCRIPT, PREVIEW_SCRIPT, PREVIEW_STYLE } from './entrypoints.js';
 import { createStoriesJson, createStorySpecifiers } from './createStoriesJson.js';
-import { resolve } from '@chialab/node-resolve';
 
 /**
  * @param {import('./index.js').StorybookConfig} config Storybook options.
@@ -38,6 +39,10 @@ export function buildPlugin(config) {
         async setup(build) {
             const deps = [
                 transformPlugin([]),
+                virtualPlugin([{
+                    path: `/${PREVIEW_MODULE_SCRIPT}`,
+                    contents: await createPreviewModule(),
+                }]),
             ];
             if (storybookBuild) {
                 const { modules = {}, resolutions = [] } = storybookBuild;

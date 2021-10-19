@@ -37,7 +37,7 @@
     "@chialab/esbuild-helpers": "^0.12.22",
     "@chialab/esbuild-plugin-alias": "^0.12.29",
     "@chialab/esbuild-plugin-any-file": "^0.12.29",
-    "@chialab/esbuild-plugin-bundle-dependencies": "^0.12.22",
+    "@chialab/esbuild-plugin-external": "^0.12.22",
     "@chialab/esbuild-plugin-commonjs": "^0.12.26",
     "@chialab/esbuild-plugin-define-this": "^0.12.22",
     "@chialab/esbuild-plugin-emit": "^0.12.26",

@@ -72,7 +72,7 @@ export async function transform(config) {
             .then(({ default: plugin }) => plugin()),
         import('@chialab/esbuild-plugin-jsx-import')
             .then(({ default: plugin }) => plugin({ jsxModule, jsxExport })),
-        import('@chialab/esbuild-plugin-bundle-dependencies')
+        import('@chialab/esbuild-plugin-external')
             .then(({ default: plugin }) => plugin({
                 dependencies: false,
                 peerDependencies: false,

@@ -1,3 +1,5 @@
+import { PREVIEW_MODULE_SCRIPT } from './entrypoints.js';
+
 /**
  * @typedef {Object} PreviewOptions
  * @property {string} type
@@ -5,20 +7,11 @@
  * @property {string[]} [previewEntries]
  */
 
-/**
- * @param {PreviewOptions} options
- */
-export async function createPreviewScript({ type, specifiers, previewEntries = [] }) {
-    return `import { composeConfigs, PreviewWeb } from '@storybook/preview-web';
-import { ClientApi } from '@storybook/client-api';
+export async function createPreviewModule() {
+    return `import createChannel from '@storybook/channel-postmessage';
+import { PreviewWeb } from '@storybook/preview-web';
 import { addons } from '@storybook/addons';
-import createChannel from '@storybook/channel-postmessage';
-import * as framework from '${type}/preset.js';
-${previewEntries.map((previewScript, index) => `import * as preview${index} from '${previewScript}';`).join('\n')}
-
-const importers = {
-    ${specifiers.map(({ directory, files }) => `'${directory}/${files}': async () => import('${directory}/${files}?story')`).join(',\n')}
-};
+import { ClientApi } from '@storybook/client-api';
 
 const channel = createChannel({ page: 'preview' });
 addons.setChannel(channel);
@@ -30,6 +23,22 @@ window.__STORYBOOK_PREVIEW__ = preview;
 window.__STORYBOOK_STORY_STORE__ = preview.storyStore;
 window.__STORYBOOK_ADDONS_CHANNEL__ = channel;
 window.__STORYBOOK_CLIENT_API__ = clientApi;
+
+export default preview;`;
+}
+
+/**
+ * @param {PreviewOptions} options
+ */
+export async function createPreviewScript({ type, specifiers, previewEntries = [] }) {
+    return `import { composeConfigs } from '@storybook/preview-web';
+import preview from '/${PREVIEW_MODULE_SCRIPT}';
+import * as framework from '${type}/preset.js';
+${previewEntries.map((previewScript, index) => `import * as preview${index} from '${previewScript}';`).join('\n')}
+
+const importers = {
+    ${specifiers.map(({ directory, files }) => `'${directory}/${files}': async () => import('${directory}/${files}?story')`).join(',\n')}
+};
 
 preview.initialize({
     importFn: (path) => importers[path](),

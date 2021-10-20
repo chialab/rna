@@ -68,7 +68,7 @@ export function servePlugin(config) {
             /**
              * @param {string} filePath
              */
-             const onFileChanged = (filePath) => {
+            const onFileChanged = (filePath) => {
                 for (const fileName in staticFiles) {
                     if (staticFiles[fileName] === filePath) {
                         setTimeout(() => {
@@ -193,9 +193,6 @@ export function servePlugin(config) {
             }
 
             if (context.path === '/iframe.html') {
-                const stories = await findStories(rootDir, storiesPattern);
-                const storyIndexEntries = await createStorySpecifiers(stories, rootDir);
-
                 return iframeHtml({
                     previewHead: previewHead || '',
                     previewBody: `${previewBody || ''}
@@ -207,12 +204,6 @@ export function servePlugin(config) {
                         path: `/${PREVIEW_SCRIPT}`,
                         type: 'module',
                     },
-                    stories: JSON.stringify(
-                        Array.from(storyIndexEntries.keys()).map((specifier) => ({
-                            ...specifier,
-                            importPathMatcher: specifier.importPathMatcher.source,
-                        }))
-                    ),
                 });
             }
 

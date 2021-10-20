@@ -169,12 +169,6 @@ export function buildPlugin(config) {
                                     path: PREVIEW_SCRIPT,
                                     type: 'text/javascript',
                                 },
-                                stories: JSON.stringify(
-                                    Array.from(storyIndexEntries.keys()).map((specifier) => ({
-                                        ...specifier,
-                                        importPathMatcher: specifier.importPathMatcher.source,
-                                    }))
-                                ),
                             }),
                             sourcefile: path.join(rootDir, 'iframe.html'),
                             loader: 'file',

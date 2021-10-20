@@ -97,10 +97,17 @@ export function assignToResult(context, result) {
  */
 export function getMainOutput(entryPoints, metafile, rootDir = process.cwd()) {
     const outputs = metafile.outputs;
-    return path.resolve(rootDir, /** @type {string} */(Object.keys(outputs)
+    const outFile = Object.keys(outputs)
         .filter((output) => !output.endsWith('.map'))
         .filter((output) => outputs[output].entryPoint)
-        .find((output) => entryPoints.includes(path.resolve(rootDir, /** @type {string} */(outputs[output].entryPoint))))));
+        .find((output) => entryPoints.includes(
+            path.resolve(
+                rootDir,
+                /** @type {string} */(outputs[output].entryPoint?.replace(/^\w+:/, ''))
+            )
+        ));
+
+    return path.resolve(rootDir, /** @type {string} */ (outFile));
 }
 
 /**

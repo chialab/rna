@@ -76,7 +76,7 @@ export default function({
             const rootDir = getRootDir(build);
             const outDir = getOutputDir(build);
             const sourceFiles = Array.isArray(entryPoints) ? entryPoints : Object.values(entryPoints);
-            const sourceDir = commonDir(sourceFiles.map((file) => path.resolve(rootDir, file)));
+            const sourceDir = sourceFiles.length ? commonDir(sourceFiles.map((file) => path.resolve(rootDir, file))) : rootDir;
 
             // force metafile in order to collect output data.
             build.initialOptions.metafile = build.initialOptions.metafile || write !== false;
@@ -205,13 +205,12 @@ export default function({
                     };
 
                     const result = /** @type {BuildResult} */ (await esbuild.build({
-                        ...config,
                         assetNames: '[dir]/[name]',
+                        ...config,
                     }));
-                    const outputFile = getMainOutput(entryPoints, result.metafile, rootDir);
-
                     assignToResult(collectedResult, result);
 
+                    const outputFile = getMainOutput(entryPoints, result.metafile, rootDir);
                     await currentBuild.finisher(outputFile, outputFiles);
                 }
 

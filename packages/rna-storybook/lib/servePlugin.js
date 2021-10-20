@@ -61,6 +61,30 @@ export function servePlugin(config) {
 
         async serverStart(args) {
             serverConfig = args.config;
+
+            const { rootDir } = serverConfig;
+            const fileWatcher = args.fileWatcher;
+
+            /**
+             * @param {string} filePath
+             */
+             const onFileChanged = (filePath) => {
+                for (const fileName in staticFiles) {
+                    if (staticFiles[fileName] === filePath) {
+                        setTimeout(() => {
+                            // debounce change event in order to correctly handle hmr queue
+                            fileWatcher.emit('change', path.resolve(rootDir, fileName));
+                        });
+                    }
+                }
+            };
+
+            fileWatcher.on('change', (filePath) => onFileChanged(filePath));
+            fileWatcher.on('unlink', (filePath) => onFileChanged(filePath));
+
+            for (const fileName in staticFiles) {
+                fileWatcher.add(path.resolve(rootDir, staticFiles[fileName]));
+            }
         },
 
         resolveMimeType(context) {
@@ -174,7 +198,8 @@ export function servePlugin(config) {
 
                 return iframeHtml({
                     previewHead: previewHead || '',
-                    previewBody: previewBody || '',
+                    previewBody: `${previewBody || ''}
+<script type="module" src="/__web-dev-server__web-socket.js"></script>`,
                     css: {
                         path: `/${PREVIEW_STYLE}`,
                     },

@@ -1,8 +1,120 @@
 import { access } from 'fs/promises';
 import path from 'path';
-import postcss from 'postcss';
 import sass from 'sass';
+import { SourceMapConsumer, SourceMapGenerator } from 'source-map';
 import sassResolver from './sassResolver.js';
+
+const sassMatch = /#sass$/;
+
+/**
+ * @param {*[]} maps
+ */
+async function mergeSourceMaps(...maps) {
+    // new sourcemap
+    const generator = new SourceMapGenerator();
+
+    // existing sourcemaps
+    const consumersPromise = Promise.all(maps.map(
+        map => new SourceMapConsumer(map)
+    ));
+
+    return consumersPromise
+        .then((consumers) => consumers.forEach((consumer) => {
+            consumer.eachMapping(
+                /**
+                 * @param {*} mapping
+                 */
+                (mapping) => {
+                    const originalPosition = originalPositionFor(mapping, consumers);
+
+                    if (originalPosition.line != null &&
+                        originalPosition.column != null &&
+                        originalPosition.source) {
+                        generator.addMapping({
+                            generated: {
+                                line: mapping.generatedLine,
+                                column: mapping.generatedColumn,
+                            },
+                            original: {
+                                line: Math.abs(originalPosition.line),
+                                column: Math.abs(originalPosition.column),
+                            },
+                            source: originalPosition.source,
+                            name: originalPosition.name || undefined,
+                        });
+                    }
+                }
+            );
+
+            // copy each original source to the new sourcemap
+            consumer.sources.forEach(
+                /**
+                 * @param {*} source
+                 */
+                (source) => {
+                    (/** @type {*} */ (generator))._sources.add(source);
+
+                    const content = consumer.sourceContentFor(source);
+
+                    if (content !== null) {
+                        generator.setSourceContent(source, content);
+                    }
+                }
+            );
+        })).then(() => {
+            const mergedMap = generator.toJSON();
+            mergedMap.sources = mergedMap.sources.map(
+                (source) => source.replace(sassMatch, '')
+            );
+
+            return mergedMap;
+        });
+}
+
+/**
+ * @param {*} mapping
+ * @param {SourceMapConsumer[]} consumers
+ */
+function originalPositionFor(mapping, consumers) {
+    /**
+     * @type {import('source-map').NullableMappedPosition}
+     */
+    let originalPosition = {
+        line: mapping.generatedLine,
+        column: mapping.generatedColumn,
+        name: null,
+        source: null,
+    };
+
+    // special sass sources are mapped in reverse
+    consumers.slice(0).reverse().forEach((consumer) => {
+        const possiblePosition = consumer.originalPositionFor({
+            line: /** @type {number} */ (originalPosition.line),
+            column: /** @type {number} */ (originalPosition.column),
+        });
+
+        if (possiblePosition.source) {
+            if (sassMatch.test(possiblePosition.source)) {
+                originalPosition = possiblePosition;
+            }
+        }
+    });
+
+    consumers.forEach((consumer) => {
+        const possiblePosition = consumer.originalPositionFor({
+            line: /** @type {number} */ (originalPosition.line),
+            column: /** @type {number} */ (originalPosition.column),
+        });
+
+        if (possiblePosition.source) {
+            if (!sassMatch.test(possiblePosition.source)) {
+                originalPosition = possiblePosition;
+            }
+        }
+    });
+
+    return originalPosition;
+}
 
 /**
  * @typedef {import('sass').Options & { rootDir?: string, alias?: import('@chialab/node-resolve').AliasMap }} PluginOptions
@@ -83,20 +195,18 @@ export default function(options = {}) {
      */
     const plugin = {
         postcssPlugin: 'postcss-dart-sass',
-        async Once(root, { result }) {
+        async Once(root, { result, parse }) {
             const extname = result.opts.from ? path.extname(result.opts.from) : null;
             if (extname !== '.scss' && extname !== '.sass') {
                 return;
             }
 
-            const initialMap = typeof result.opts.map === 'object' ? result.opts.map : {};
             const initialCss = root.toResult({
                 ...result.opts,
                 map: {
-                    annotation: false,
                     inline: false,
+                    annotation: false,
                     sourcesContent: true,
-                    ...initialMap,
                 },
             });
 
@@ -106,31 +216,34 @@ export default function(options = {}) {
              * @type {import('sass').Options}
              */
             const computedOptions = {
+                file: result.opts.from,
+                outFile,
+                data: initialCss.css,
                 includePaths: [
                     options.rootDir || process.cwd(),
                 ],
                 importer: sassResolver({ alias: options.alias }),
                 indentWidth: 4,
-                omitSourceMapUrl: true,
                 outputStyle: 'expanded',
+                ...options,
                 sourceMap: true,
                 sourceMapContents: true,
-                ...options,
-                data: initialCss.css,
-                file: result.opts.from,
-                outFile,
+                omitSourceMapUrl: true,
+                sourceMapEmbed: false,
             };
 
             const sassResult = sass.renderSync(computedOptions);
+            const sassCssOutput = sassResult.css.toString();
+            const sassMap = JSON.parse(/** @type {string} */(sassResult.map && sassResult.map.toString()));
 
-            const css = sassResult.css.toString();
-            const map = sassResult.map && sassResult.map.toString();
-
-            const parsed = await postcss.parse(css, {
-                from: result.opts.from,
-                map: map ? {
-                    prev: JSON.parse(map),
-                } : undefined,
+            const parsed = await parse(sassCssOutput.replace(/\/\*#[^*]+?\*\//g, (match) => ''.padStart(match.length, ' ')), {
+                ...result.opts,
+                map: {
+                    prev: await mergeSourceMaps(sassMap),
+                    annotation: false,
+                    inline: false,
+                    sourcesContent: true,
+                },
             });
 
             if (outFile) {

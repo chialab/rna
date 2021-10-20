@@ -86,35 +86,35 @@ export default function preset({ bundle = false, root = process.cwd(), assetsPat
                 ...plugins.map((plugin) => plugin.prepare && plugin.prepare(result)).filter(Boolean),
             ];
             return {
-                Once(node, result) {
-                    visitors.forEach((visitor) => visitor.Once && visitor.Once(node, result));
+                Once(node, helpers) {
+                    visitors.forEach((visitor) => visitor.Once && visitor.Once(node, helpers));
                 },
-                Root(node, result) {
-                    visitors.forEach((visitor) => visitor.Root && visitor.Root(node, result));
+                Root(node, helpers) {
+                    visitors.forEach((visitor) => visitor.Root && visitor.Root(node, helpers));
                 },
-                AtRule(node, result) {
-                    visitors.forEach((visitor) => visitor.AtRule && visitor.AtRule(node, result));
+                AtRule(node, helpers) {
+                    visitors.forEach((visitor) => visitor.AtRule && visitor.AtRule(node, helpers));
                 },
-                Rule(node, result) {
-                    visitors.forEach((visitor) => visitor.Rule && visitor.Rule(node, result));
+                Rule(node, helpers) {
+                    visitors.forEach((visitor) => visitor.Rule && visitor.Rule(node, helpers));
                 },
-                Declaration(node, result) {
-                    visitors.forEach((visitor) => visitor.Declaration && visitor.Declaration(node, result));
+                Declaration(node, helpers) {
+                    visitors.forEach((visitor) => visitor.Declaration && visitor.Declaration(node, helpers));
                 },
-                OnceExit(node, result) {
-                    visitors.forEach((visitor) => visitor.OnceExit && visitor.OnceExit(node, result));
+                OnceExit(node, helpers) {
+                    visitors.forEach((visitor) => visitor.OnceExit && visitor.OnceExit(node, helpers));
                 },
-                RootExit(node, result) {
-                    visitors.forEach((visitor) => visitor.RootExit && visitor.RootExit(node, result));
+                RootExit(node, helpers) {
+                    visitors.forEach((visitor) => visitor.RootExit && visitor.RootExit(node, helpers));
                 },
-                AtRuleExit(node, result) {
-                    visitors.forEach((visitor) => visitor.AtRuleExit && visitor.AtRuleExit(node, result));
+                AtRuleExit(node, helpers) {
+                    visitors.forEach((visitor) => visitor.AtRuleExit && visitor.AtRuleExit(node, helpers));
                 },
-                RuleExit(node, result) {
-                    visitors.forEach((visitor) => visitor.RuleExit && visitor.RuleExit(node, result));
+                RuleExit(node, helpers) {
+                    visitors.forEach((visitor) => visitor.RuleExit && visitor.RuleExit(node, helpers));
                 },
-                DeclarationExit(node, result) {
-                    visitors.forEach((visitor) => visitor.DeclarationExit && visitor.DeclarationExit(node, result));
+                DeclarationExit(node, helpers) {
+                    visitors.forEach((visitor) => visitor.DeclarationExit && visitor.DeclarationExit(node, helpers));
                 },
             };
         },

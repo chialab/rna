@@ -106,7 +106,9 @@ export default function(options = {}) {
 
                 const result = await postcss(plugins).process(contents, finalConfig);
                 const sourceMap = result.map.toJSON();
-                sourceMap.sources = [path.basename(filePath)];
+                const cwd = process.cwd();
+                const argsDir = path.dirname(filePath);
+                sourceMap.sources = sourceMap.sources.map((source) => path.relative(argsDir, path.resolve(cwd, source)));
                 delete sourceMap.file;
                 const url = `data:application/json;base64,${Buffer.from(JSON.stringify(sourceMap)).toString('base64')}`;
                 const dependencies = result.messages

@@ -35,7 +35,7 @@
     "@chialab/node-resolve": "^0.12.26",
     "@chialab/wds-plugin-node-resolve": "^0.12.26",
     "@chialab/wds-plugin-rna": "^0.12.31",
-    "@custom-elements-manifest/analyzer": "^0.5.0",
+    "@custom-elements-manifest/analyzer": "0.5.3",
     "@storybook/csf-tools": "^6.4.0-beta.0",
     "@storybook/store": "^6.4.0-beta.0",
     "@types/lodash": "^4.14.175",
@@ -43,6 +43,5 @@
     "fast-glob": "^3.2.7",
     "lodash": "^4.17.21",
     "typescript": "^4.3.0"
-  },
-  "gitHead": "9af9d5914a5bf7fa73b3d4acc9999df13c0080d2"
+  }
 }

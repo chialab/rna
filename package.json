@@ -17,7 +17,7 @@
     "url": "https://github.com/chialab/rna"
   },
   "devDependencies": {
-    "@chialab/eslint-config": "^2.2.0",
+    "@chialab/eslint-config": "^3.0.0",
     "eslint": "^7.19.0",
     "lerna": "^4.0.0",
     "plop": "^2.7.4",

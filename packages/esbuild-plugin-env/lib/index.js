@@ -1,4 +1,16 @@
 /**
+ * @param {string} str
+ */
+function isValidId(str) {
+    try {
+        new Function(`var ${str};`);
+    } catch (err) {
+        return false;
+    }
+    return true;
+}
+
+/**
  * Create a map of replacements for environment variables.
  * @return A map of variables.
  */
@@ -9,7 +21,7 @@ export function defineEnvVariables() {
     const definitions = {};
     definitions['process.env.NODE_ENV'] = JSON.stringify(process.env.NODE_ENV || 'development');
     Object.keys(process.env).forEach((key) => {
-        if (isNaN(parseFloat(key))) {
+        if (isValidId(key)) {
             definitions[`process.env.${key}`] = JSON.stringify(process.env[key]);
         }
     });

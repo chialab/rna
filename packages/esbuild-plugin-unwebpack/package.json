@@ -1,7 +1,7 @@
 {
   "name": "@chialab/esbuild-plugin-unwebpack",
   "type": "module",
-  "version": "0.12.31",
+  "version": "0.12.34",
   "description": "Remove webpack features from sources.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",

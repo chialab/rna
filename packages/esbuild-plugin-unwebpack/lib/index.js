@@ -30,13 +30,13 @@ export default function() {
                     await pipe(entry, {
                         source: path.basename(args.path),
                         sourcesContent,
-                    }, async ({ ast, magicCode, code }) => {
+                    }, async (data) => {
                         /**
                          * @type {Promise<void>[]}
                          */
                         const promises = [];
 
-                        walk(ast, {
+                        walk(data.ast, {
                             /**
                              * @param {*} node
                              */
@@ -45,7 +45,7 @@ export default function() {
                                     return;
                                 }
 
-                                const chunk = code.substr(node.start, node.end - node.start);
+                                const chunk = data.code.substr(node.start, node.end - node.start);
                                 const comments = parseComments(chunk);
                                 const included = comments.find((value) => value.startsWith('webpackInclude:'));
                                 if (!included) {
@@ -68,9 +68,9 @@ export default function() {
                                             return map;
                                         }, /** @type {{ [key: string]: string }} */({}));
 
-                                    const startOffset = getOffsetFromLocation(code, node.loc.start);
-                                    const endOffset = getOffsetFromLocation(code, node.loc.end);
-                                    magicCode.overwrite(
+                                    const startOffset = getOffsetFromLocation(data.code, node.loc.start);
+                                    const endOffset = getOffsetFromLocation(data.code, node.loc.end);
+                                    data.magicCode.overwrite(
                                         startOffset,
                                         endOffset,
                                         `({ ${Object.keys(map).map((key) => `'${key}': () => import('${map[key]}')`).join(', ')} })[${identifier}]()`
@@ -103,9 +103,9 @@ export default function() {
                                     return;
                                 }
 
-                                const startOffset = getOffsetFromLocation(code, node.loc.start);
-                                const endOffset = getOffsetFromLocation(code, node.loc.end);
-                                magicCode.overwrite(startOffset, endOffset, '');
+                                const startOffset = getOffsetFromLocation(data.code, node.loc.start);
+                                const endOffset = getOffsetFromLocation(data.code, node.loc.end);
+                                data.magicCode.overwrite(startOffset, endOffset, '');
                             },
                         });
 

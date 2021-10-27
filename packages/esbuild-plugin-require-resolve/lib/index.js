@@ -38,13 +38,13 @@ export default function() {
                 await pipe(entry, {
                     source: path.basename(args.path),
                     sourcesContent,
-                }, async ({ magicCode, ast, code }) => {
+                }, async (data) => {
                     /**
                      * @type {Promise<void>[]}
                      */
                     const promises = [];
 
-                    walk(ast, {
+                    walk(data.ast, {
                         /**
                          * @param {*} node
                          */
@@ -69,13 +69,13 @@ export default function() {
                                 const identifier = `_${value.replace(/[^a-zA-Z0-9]/g, '_')}`;
 
                                 if (entry.code.startsWith('#!')) {
-                                    magicCode.appendRight(entry.code.indexOf('\n') + 1, `var ${identifier} = require('${entryPoint}.requirefile');\n`);
+                                    data.magicCode.appendRight(entry.code.indexOf('\n') + 1, `var ${identifier} = require('${entryPoint}.requirefile');\n`);
                                 } else {
-                                    magicCode.prepend(`var ${identifier} = require('${entryPoint}.requirefile');\n`);
+                                    data.magicCode.prepend(`var ${identifier} = require('${entryPoint}.requirefile');\n`);
                                 }
-                                magicCode.overwrite(
-                                    getOffsetFromLocation(code, node.loc.start),
-                                    getOffsetFromLocation(code, node.loc.end),
+                                data.magicCode.overwrite(
+                                    getOffsetFromLocation(data.code, node.loc.start),
+                                    getOffsetFromLocation(data.code, node.loc.end),
                                     identifier
                                 );
                             })());

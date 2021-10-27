@@ -70,13 +70,13 @@ export default function({ resolve = defaultResolve, constructors = ['Worker', 'S
                     await pipe(entry, {
                         source: path.basename(args.path),
                         sourcesContent,
-                    }, async ({ magicCode, code, ast }) => {
+                    }, async (data) => {
                         /**
                          * @type {Promise<void>[]}
                          */
                         const promises = [];
 
-                        walk(ast, {
+                        walk(data.ast, {
                             /**
                              * @param {*} node
                              */
@@ -128,13 +128,13 @@ export default function({ resolve = defaultResolve, constructors = ['Worker', 'S
                                     transformOptions.plugins = [];
                                 }
 
-                                const startOffset = getOffsetFromLocation(code, node.loc.start);
-                                const endOffset = getOffsetFromLocation(code, node.loc.end);
-                                const value = getMetaUrl(node.arguments[0], ast) || node.arguments[0].value;
+                                const startOffset = getOffsetFromLocation(data.code, node.loc.start);
+                                const endOffset = getOffsetFromLocation(data.code, node.loc.end);
+                                const value = getMetaUrl(node.arguments[0], data.ast) || node.arguments[0].value;
                                 if (typeof value !== 'string') {
                                     if (proxy) {
                                         const arg = generate(node.arguments[0]);
-                                        magicCode.overwrite(startOffset, endOffset, `new ${Ctr}(${createBlobProxy(arg, transformOptions)})`);
+                                        data.magicCode.overwrite(startOffset, endOffset, `new ${Ctr}(${createBlobProxy(arg, transformOptions)})`);
                                     }
                                     return;
                                 }
@@ -144,9 +144,9 @@ export default function({ resolve = defaultResolve, constructors = ['Worker', 'S
                                     const entryPoint = emitChunk(resolvedPath, transformOptions);
                                     const arg = `new URL('${entryPoint}', import.meta.url).href`;
                                     if (proxy) {
-                                        magicCode.overwrite(startOffset, endOffset, `new ${Ctr}(${createBlobProxy(arg, transformOptions)})`);
+                                        data.magicCode.overwrite(startOffset, endOffset, `new ${Ctr}(${createBlobProxy(arg, transformOptions)})`);
                                     } else {
-                                        magicCode.overwrite(startOffset, endOffset, `new ${Ctr}(${arg})`);
+                                        data.magicCode.overwrite(startOffset, endOffset, `new ${Ctr}(${arg})`);
                                     }
                                 }));
                             },

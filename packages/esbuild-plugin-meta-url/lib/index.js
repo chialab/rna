@@ -121,7 +121,7 @@ export default function({ resolve = defaultResolve } = {}) {
                     await pipe(entry, {
                         source: path.basename(args.path),
                         sourcesContent,
-                    }, async ({ magicCode, code, ast }) => {
+                    }, async (data) => {
                         /**
                          * @type {{ [key: string]: string }}
                          */
@@ -132,27 +132,27 @@ export default function({ resolve = defaultResolve } = {}) {
                          */
                         const promises = [];
 
-                        walk(ast, {
+                        walk(data.ast, {
                             /**
                              * @param {*} node
                              */
                             NewExpression(node) {
-                                const value = getMetaUrl(node, ast);
+                                const value = getMetaUrl(node, data.ast);
                                 if (typeof value !== 'string' || isUrl(value)) {
                                     return;
                                 }
 
                                 promises.push((async () => {
                                     const resolvedPath = await resolve(value, args.path);
-                                    const startOffset = getOffsetFromLocation(code, node.loc.start);
-                                    const endOffset = getOffsetFromLocation(code, node.loc.end);
+                                    const startOffset = getOffsetFromLocation(data.code, node.loc.start);
+                                    const endOffset = getOffsetFromLocation(data.code, node.loc.end);
                                     if (!ids[resolvedPath]) {
                                         const entryPoint = emitFileOrChunk(build, resolvedPath);
-                                        const { identifier } = prependImportStatement({ ast, magicCode, code }, entryPoint, value);
+                                        const { identifier } = prependImportStatement(data, entryPoint, value);
                                         ids[resolvedPath] = identifier;
                                     }
 
-                                    magicCode.overwrite(startOffset, endOffset, `new URL(${ids[resolvedPath]}, ${getBaseUrl(build)})`);
+                                    data.magicCode.overwrite(startOffset, endOffset, `new URL(${ids[resolvedPath]}, ${getBaseUrl(build)})`);
                                 })());
                             },
                         });

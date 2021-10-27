@@ -1,7 +1,7 @@
 {
   "name": "@chialab/rna-storybook",
   "type": "module",
-  "version": "0.12.34",
+  "version": "0.12.35",
   "description": "A Storybook integration with the RNA bundler and server.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",

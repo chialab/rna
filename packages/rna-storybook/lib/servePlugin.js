@@ -173,13 +173,13 @@ export function servePlugin(config) {
             if (context.path === '/') {
                 return indexHtml({
                     managerHead: managerHead || '',
-                    css: {
+                    css: [{
                         path: `/${MANAGER_STYLE}`,
-                    },
-                    js: {
+                    }],
+                    js: [{
                         path: `/${MANAGER_SCRIPT}`,
                         type: 'module',
-                    },
+                    }],
                 });
             }
 
@@ -197,13 +197,13 @@ export function servePlugin(config) {
                     previewHead: previewHead || '',
                     previewBody: `${previewBody || ''}
 <script type="module" src="/__web-dev-server__web-socket.js"></script>`,
-                    css: {
+                    css: [{
                         path: `/${PREVIEW_STYLE}`,
-                    },
-                    js: {
+                    }],
+                    js: [{
                         path: `/${PREVIEW_SCRIPT}`,
                         type: 'module',
-                    },
+                    }],
                 });
             }
 

@@ -3,8 +3,8 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>Storybook</title>
-        <link href="<%= css.path %>" rel="stylesheet">
+        <title>Storybook</title><% for (var i = 0; i < css.length; i++) { %>
+        <link href="<%= css[i].path %>" rel="stylesheet"><% } %>
         <%= managerHead %>
     </head>
     <body>
@@ -14,7 +14,7 @@
             window['FEATURES'] = {
                 storyStoreV7: true,
             };
-        </script>
-        <script type="<%= js.type %>" src="<%= js.path %>"></script>
+        </script><% for (var i = 0; i < js.length; i++) { %>
+        <script type="<%= js[i].type %>" src="<%= js[i].path %>"></script><% } %>
     </body>
 </html>

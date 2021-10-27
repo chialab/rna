@@ -4,8 +4,8 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>Storybook</title>
-        <base target="_parent" />
-        <link href="<%= css.path %>" rel="stylesheet">
+        <base target="_parent" /><% for (var i = 0; i < css.length; i++) { %>
+        <link href="<%= css[i].path %>" rel="stylesheet"><% } %>
         <%= previewHead %>
     </head>
     <body>
@@ -20,7 +20,7 @@
         </div>
         <script>
             window['FEATURES'] = { storyStoreV7: true };
-        </script>
-        <script type="<%= js.type %>" src="<%= js.path %>"></script>
+        </script><% for (var i = 0; i < js.length; i++) { %>
+        <script type="<%= js[i].type %>" src="<%= js[i].path %>"></script><% } %>
     </body>
 </html>

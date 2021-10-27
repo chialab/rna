@@ -144,13 +144,13 @@ export function buildPlugin(config) {
                         stdin: {
                             contents: await indexHtml({
                                 managerHead: managerHead || '',
-                                css: {
+                                css: [{
                                     path: MANAGER_STYLE,
-                                },
-                                js: {
+                                }],
+                                js: [{
                                     path: MANAGER_SCRIPT,
                                     type: 'text/javascript',
-                                },
+                                }],
                             }),
                             sourcefile: path.join(rootDir, 'index.html'),
                             loader: 'file',
@@ -162,13 +162,15 @@ export function buildPlugin(config) {
                             contents: await iframeHtml({
                                 previewHead: previewHead || '',
                                 previewBody: previewBody || '',
-                                css: {
+                                css: [{
                                     path: PREVIEW_STYLE,
-                                },
-                                js: {
+                                }, {
+                                    path: PREVIEW_SCRIPT.replace('.js', '.css'),
+                                }],
+                                js: [{
                                     path: PREVIEW_SCRIPT,
                                     type: 'text/javascript',
-                                },
+                                }],
                             }),
                             sourcefile: path.join(rootDir, 'iframe.html'),
                             loader: 'file',

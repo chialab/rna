@@ -61,7 +61,6 @@ import path from 'path';
  * @property {boolean} bundle
  * @property {boolean} clean
  * @property {Plugin[]} plugins
- * @property {Plugin[]} transformPlugins
  * @property {LogLevel} logLevel
  * @property {boolean} [splitting]
  * @property {boolean|import('esbuild').WatchMode} [watch]
@@ -168,10 +167,6 @@ export function getEntryConfig(entrypoint, config) {
             ...(entrypoint.plugins || []),
             ...(config.plugins || []),
         ],
-        transformPlugins: [
-            ...(entrypoint.transformPlugins || []),
-            ...(config.transformPlugins || []),
-        ],
         logLevel: config.logLevel || 'warning',
         watch: config.watch,
         entrypointsPath: config.entrypointsPath,
@@ -232,10 +227,6 @@ export function mergeConfig(...entries) {
                 plugins: [
                     ...(config.plugins || []),
                     ...(clone.plugins || []),
-                ],
-                transformPlugins: [
-                    ...(config.transformPlugins || []),
-                    ...(clone.transformPlugins || []),
                 ],
                 servePlugins: [
                     ...(config.servePlugins || []),

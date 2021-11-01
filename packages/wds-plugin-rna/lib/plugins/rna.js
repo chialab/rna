@@ -1,11 +1,10 @@
 import path from 'path';
 import pkgUp from 'pkg-up';
 import { getRequestFilePath } from '@web/dev-server-core';
-import { getChunkOptions } from '@chialab/esbuild-plugin-emit';
 import { getEntryConfig } from '@chialab/rna-config-loader';
 import { browserResolve, isJs, isJson, isCss, fsResolve, getSearchParam, appendSearchParam, removeSearchParam, getSearchParams, ALIAS_MODE, createAliasRegexexMap, createEmptyRegex } from '@chialab/node-resolve';
 import { isHelperImport, isOutsideRootDir, resolveRelativeImport } from '@chialab/wds-plugin-node-resolve';
-import { transform, transformLoaders, loadPlugins, loadTransformPlugins, build } from '@chialab/rna-bundler';
+import { transform, transformLoaders, build } from '@chialab/rna-bundler';
 import { realpath } from 'fs/promises';
 
 /**
@@ -103,32 +102,34 @@ export async function createConfig(entrypoint, serverConfig, config) {
         jsxExport: config.jsxExport,
         alias: config.alias,
         plugins: [
-            ...(await loadPlugins({
-                postcss: {
-                    alias: config.alias,
-                    async transform(importPath) {
-                        if (isOutsideRootDir(importPath)) {
-                            return;
-                        }
+            ...await Promise.all([
+                import('@chialab/esbuild-plugin-postcss')
+                    .then(({ default: plugin }) => plugin({
+                        alias: config.alias,
+                        async transform(importPath) {
+                            if (isOutsideRootDir(importPath)) {
+                                return;
+                            }
 
-                        return resolveRelativeImport(
-                            await fsResolve(importPath, filePath),
-                            filePath,
-                            rootDir
-                        );
-                    },
-                },
-            })),
+                            return resolveRelativeImport(
+                                await fsResolve(importPath, filePath),
+                                filePath,
+                                rootDir
+                            );
+                        },
+                    })),
+                import('@chialab/esbuild-plugin-unwebpack')
+                    .then(({ default: plugin }) => plugin()),
+                import('@chialab/esbuild-plugin-commonjs')
+                    .then(({ default: plugin }) => plugin()),
+                import('@chialab/esbuild-plugin-worker')
+                    .then(({ default: plugin }) => plugin({
+                        proxy: true,
+                    })),
+                import('@chialab/esbuild-plugin-meta-url')
+                    .then(({ default: plugin }) => plugin()),
+            ]),
             ...(config.plugins || []),
-        ],
-        transformPlugins: [
-            ...(await loadTransformPlugins({
-                commonjs: {},
-                worker: {
-                    proxy: true,
-                },
-            })),
-            ...(config.transformPlugins || []),
         ],
         logLevel: 'error',
     });
@@ -318,7 +319,7 @@ export function rnaPlugin(config) {
                 return;
             }
 
-            const contextConfig = getChunkOptions(context.url);
+            const contextConfig = JSON.parse(getSearchParam(context.url, 'transform') || '{}');
 
             /**
              * @type {import('@chialab/rna-config-loader').Entrypoint}

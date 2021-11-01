@@ -71,7 +71,6 @@ export async function build(config) {
         jsxModule,
         jsxExport,
         plugins,
-        transformPlugins,
         logLevel,
         clean,
         watch,
@@ -113,8 +112,8 @@ export async function build(config) {
                 pluginBuild = build;
             },
         }),
-        import('@chialab/esbuild-plugin-emit')
-            .then(({ default: plugin }) => plugin()),
+        await import('@chialab/esbuild-plugin-alias')
+            .then(({ default: plugin }) => plugin(alias)),
         import('@chialab/esbuild-plugin-any-file')
             .then(({ default: plugin }) =>
                 plugin({
@@ -137,14 +136,6 @@ export async function build(config) {
                 optionalDependencies: !bundle,
             })),
         ...plugins,
-        import('@chialab/esbuild-plugin-transform')
-            .then(async ({ default: plugin }) =>
-                plugin([
-                    await import('@chialab/esbuild-plugin-alias')
-                        .then(({ default: plugin }) => plugin(alias)),
-                    ...transformPlugins,
-                ])
-            ),
     ]);
 
     /**

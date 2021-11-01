@@ -40,7 +40,6 @@ export async function transform(config) {
         jsxModule,
         jsxExport,
         plugins,
-        transformPlugins,
         logLevel,
     } = config;
 
@@ -79,12 +78,6 @@ export async function transform(config) {
                 optionalDependencies: false,
             })),
         ...plugins,
-        import('@chialab/esbuild-plugin-transform')
-            .then(async ({ default: plugin }) =>
-                plugin([
-                    ...transformPlugins,
-                ])
-            ),
     ]);
 
     const sourceFile = path.resolve(rootDir, Array.isArray(input) ? input[0] : input);

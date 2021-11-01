@@ -6,7 +6,6 @@ import { createLogger, readableSize } from '@chialab/rna-logger';
 import { build } from './build.js';
 import { writeManifestJson } from './writeManifestJson.js';
 import { writeEntrypointsJson, writeDevEntrypointsJson } from './writeEntrypointsJson.js';
-import { loadPlugins, loadTransformPlugins } from './loadPlugins.js';
 import { Queue } from './Queue.js';
 import { writeMetafile } from './writeMetafile.js';
 import { bundleSize } from './bundleSize.js';
@@ -14,7 +13,7 @@ import { bundleSize } from './bundleSize.js';
 export * from './loaders.js';
 export { transform } from './transform.js';
 export { build } from './build.js';
-export { loadPlugins, loadTransformPlugins, writeManifestJson, writeEntrypointsJson, writeDevEntrypointsJson };
+export { writeManifestJson, writeEntrypointsJson, writeDevEntrypointsJson };
 
 /**
  * @typedef {import('./build').BuildResult} BuildResult
@@ -167,18 +166,29 @@ export function command(program) {
                  * @type {import('@chialab/rna-config-loader').Config}
                  */
                 const config = mergeConfig(userConfig, {
-                    plugins: await loadPlugins({
-                        html: {},
-                        postcss: {
-                            alias: userConfig.alias,
-                            relative: false,
-                        },
-                    }, esbuild),
-                    transformPlugins: await loadTransformPlugins({
-                        commonjs: {
-                            helperModule: true,
-                        },
-                    }),
+                    plugins: [
+                        ...await Promise.all([
+                            import('@chialab/esbuild-plugin-html')
+                                .then(({ default: plugin }) => plugin({}, esbuild))
+                                .catch(() => ({ name: 'html', setup() {} })),
+                            import('@chialab/esbuild-plugin-postcss')
+                                .then(({ default: plugin }) => plugin({
+                                    alias: userConfig.alias,
+                                    relative: false,
+                                }))
+                                .catch(() => ({ name: 'postcss', setup() {} })),
+                            import('@chialab/esbuild-plugin-unwebpack')
+                                .then(({ default: plugin }) => plugin()),
+                            import('@chialab/esbuild-plugin-commonjs')
+                                .then(({ default: plugin }) => plugin({
+                                    helperModule: true,
+                                })),
+                            import('@chialab/esbuild-plugin-worker')
+                                .then(({ default: plugin }) => plugin()),
+                            import('@chialab/esbuild-plugin-meta-url')
+                                .then(({ default: plugin }) => plugin()),
+                        ]),
+                    ],
                 });
 
                 const { entrypoints } = config;

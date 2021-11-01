@@ -55,7 +55,7 @@ export async function buildPlugins(config) {
             jsxFragment: config.jsxFragment,
             jsxModule: config.jsxModule,
             jsxExport: config.jsxExport,
-            transformPlugins: config.transformPlugins,
+            plugins: config.transformPlugins,
         }),
         entrypointsPlugin(config.entrypoints, config.entrypointsPath),
         nodeResolvePlugin({
@@ -200,7 +200,7 @@ export function command(program) {
                     jsxFragment: config.jsxFragment,
                     jsxModule: config.jsxModule,
                     jsxExport: config.jsxExport,
-                    transformPlugins: config.transformPlugins,
+                    transformPlugins: config.plugins,
                 };
 
                 try {

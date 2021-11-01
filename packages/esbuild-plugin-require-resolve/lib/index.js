@@ -1,8 +1,5 @@
-import path from 'path';
-import { readFile } from 'fs/promises';
-import { resolve } from '@chialab/node-resolve';
-import { pipe, walk, getOffsetFromLocation } from '@chialab/estransform';
-import { getEntry, finalizeEntry, createFilter } from '@chialab/esbuild-plugin-transform';
+import { MagicString, getSpanLocation, parse, walk } from '@chialab/estransform';
+import { useRna } from '@chialab/esbuild-rna';
 
 /**
  * Instantiate a plugin that converts URL references into static import
@@ -17,75 +14,94 @@ export default function() {
         name: 'require-resolve',
         setup(build) {
             const { sourcesContent } = build.initialOptions;
+            const { onResolve, onLoad, onTransform, transform, resolve, rootDir } = useRna(build);
 
-            build.onResolve({ filter: /\.requirefile$/ }, async ({ path: filePath }) => ({
+            onResolve({ filter: /\.requirefile$/ }, async ({ path: filePath }) => ({
                 path: filePath.replace(/\.requirefile$/, ''),
                 namespace: 'require-resolve',
             }));
-            build.onLoad({ filter: /\./, namespace: 'require-resolve' }, async ({ path: filePath }) => ({
-                contents: await readFile(filePath),
-                loader: 'file',
-            }));
-            build.onLoad({ filter: createFilter(build), namespace: 'file' }, async (args) => {
-                /**
-                 * @type {import('@chialab/estransform').Pipeline}
-                 */
-                const entry = args.pluginData || await getEntry(build, args.path);
-                if (!entry.code.includes('require.resolve(')) {
+
+            onLoad({ filter: /\./, namespace: 'require-resolve' }, (args) => transform(args));
+
+            onTransform({ loaders: ['tsx', 'ts', 'jsx', 'js'] }, async (args) => {
+                if (!args.code.includes('require.resolve(')) {
                     return;
                 }
 
-                await pipe(entry, {
-                    source: path.basename(args.path),
-                    sourcesContent,
-                }, async (data) => {
+                /**
+                 * @type {MagicString|undefined}
+                 */
+                let magicCode;
+
+                /**
+                 * @type {Promise<void>[]}
+                 */
+                const promises = [];
+
+                const ast = await parse(args.code);
+                walk(ast, {
                     /**
-                     * @type {Promise<void>[]}
+                     * @param {import('@chialab/estransform').CallExpression} node
                      */
-                    const promises = [];
+                    CallExpression(node) {
+                        if (!node.callee ||
+                            node.callee.type !== 'MemberExpression' ||
+                            node.callee.object.type !== 'Identifier' ||
+                            node.callee.object.value !== 'require' ||
+                            node.callee.property.type !== 'Identifier' ||
+                            node.callee.property.value !== 'resolve') {
+                            return;
+                        }
 
-                    walk(data.ast, {
-                        /**
-                         * @param {*} node
-                         */
-                        CallExpression(node) {
-                            if (!node.callee ||
-                                node.callee.type !== 'MemberExpression' ||
-                                node.callee.object.type !== 'Identifier' ||
-                                node.callee.object.name !== 'require' ||
-                                node.callee.property.type !== 'Identifier' ||
-                                node.callee.property.name !== 'resolve') {
-                                return;
+                        if (node.arguments.length !== 1) {
+                            return;
+                        }
+
+                        const firstArg = node.arguments[0].expression;
+                        if (firstArg.type !== 'StringLiteral') {
+                            return;
+                        }
+
+                        magicCode = magicCode || new MagicString(args.code);
+
+                        promises.push((async () => {
+                            const value = firstArg.value;
+                            const entryPoint = await resolve({
+                                kind: 'require-resolve',
+                                path: value,
+                                importer: args.path,
+                                pluginData: null,
+                                namespace: 'file',
+                                resolveDir: rootDir,
+                            });
+                            const identifier = `_${value.replace(/[^a-zA-Z0-9]/g, '_')}`;
+
+                            const loc = getSpanLocation(ast, node);
+                            if (args.code.startsWith('#!')) {
+                                magicCode.appendRight(args.code.indexOf('\n') + 1, `var ${identifier} = require('${entryPoint}.requirefile');\n`);
+                            } else {
+                                magicCode.prepend(`var ${identifier} = require('${entryPoint}.requirefile');\n`);
                             }
 
-                            if (node.arguments.length !== 1 ||
-                                node.arguments[0].type !== 'Literal') {
-                                return;
-                            }
-
-                            promises.push((async () => {
-                                const value = node.arguments[0].value;
-                                const entryPoint = await resolve(value, args.path);
-                                const identifier = `_${value.replace(/[^a-zA-Z0-9]/g, '_')}`;
-
-                                if (entry.code.startsWith('#!')) {
-                                    data.magicCode.appendRight(entry.code.indexOf('\n') + 1, `var ${identifier} = require('${entryPoint}.requirefile');\n`);
-                                } else {
-                                    data.magicCode.prepend(`var ${identifier} = require('${entryPoint}.requirefile');\n`);
-                                }
-                                data.magicCode.overwrite(
-                                    getOffsetFromLocation(data.code, node.loc.start),
-                                    getOffsetFromLocation(data.code, node.loc.end),
-                                    identifier
-                                );
-                            })());
-                        },
-                    });
-
-                    await Promise.all(promises);
+                            magicCode.overwrite(loc.start, loc.end, identifier);
+                        })());
+                    },
                 });
 
-                return finalizeEntry(build, args.path);
+                await Promise.all(promises);
+
+                if (!magicCode) {
+                    return;
+                }
+
+                return {
+                    code: magicCode.toString(),
+                    map: magicCode.generateMap({
+                        source: args.path,
+                        includeContent: sourcesContent,
+                        hires: true,
+                    }),
+                };
             });
         },
     };

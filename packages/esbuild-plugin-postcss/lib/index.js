@@ -1,6 +1,6 @@
 import path from 'path';
 import { readFile } from 'fs/promises';
-import { getRootDir, getStdinInput, addBuildDependencies } from '@chialab/esbuild-helpers';
+import { useRna } from '@chialab/esbuild-rna';
 
 /**
  * @typedef {Object} PostcssConfig
@@ -47,10 +47,9 @@ export default function(options = {}) {
     const plugin = {
         name: 'postcss',
         async setup(build) {
-            const rootDir = getRootDir(build);
-            const stdin = getStdinInput(build);
+            const { onLoad, rootDir, stdin, collectDependencies } = useRna(build);
 
-            build.onLoad({ filter: /\.(sc|sa|c)ss$/, namespace: 'file' }, async ({ path: filePath }) => {
+            onLoad({ filter: /\.(sc|sa|c)ss$/, namespace: 'file' }, async ({ path: filePath }) => {
                 const [
                     { default: postcss },
                     { default: preset },
@@ -115,7 +114,7 @@ export default function(options = {}) {
                     .filter(({ type }) => type === 'dependency')
                     .map(({ file }) => file);
 
-                addBuildDependencies(build, filePath, dependencies);
+                collectDependencies(filePath, dependencies);
 
                 return {
                     contents: `${result.css.toString()}\n/*# sourceMappingURL=${url} */\n`,

@@ -1,6 +1,6 @@
-import { access, readFile } from 'fs/promises';
 import path from 'path';
-import { getStdinInput } from '@chialab/esbuild-helpers';
+import { access, readFile } from 'fs/promises';
+import { useRna } from '@chialab/esbuild-rna';
 
 /**
  * Load any unkown refrence as file.
@@ -15,10 +15,10 @@ export default function({ fsCheck = true, shouldThrow = () => true } = {}) {
         name: 'any-file',
         setup(build) {
             const { loader: loaders = {} } = build.initialOptions;
-            const stdin = getStdinInput(build);
+            const { stdin, onLoad } = useRna(build);
             const keys = Object.keys(loaders);
 
-            build.onLoad({ filter: /\./, namespace: 'file' }, async (args) => {
+            onLoad({ filter: /\./ }, async (args) => {
                 if (keys.includes(path.extname(args.path))) {
                     return;
                 }

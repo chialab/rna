@@ -1,5 +1,5 @@
 import path from 'path';
-import { mergeDependencies } from '@chialab/esbuild-helpers';
+import { mergeDependencies, rnaPlugin } from '@chialab/esbuild-rna';
 import { transformLoaders } from './loaders.js';
 
 /**
@@ -11,7 +11,7 @@ import { transformLoaders } from './loaders.js';
  */
 
 /**
- * @typedef {import('esbuild').TransformResult & { metafile: Metafile, dependencies: import('@chialab/esbuild-helpers').DependenciesMap, outputFiles?: import('esbuild').OutputFile[] }} TransformResult
+ * @typedef {import('esbuild').TransformResult & { metafile: Metafile, dependencies: import('@chialab/esbuild-rna').DependenciesMap, outputFiles?: import('esbuild').OutputFile[] }} TransformResult
  */
 
 /**
@@ -56,6 +56,7 @@ export async function transform(config) {
      * @type {import('esbuild').Plugin[]}
      */
     const finalPlugins = await Promise.all([
+        rnaPlugin(),
         /**
          * @type {import('esbuild').Plugin}
          */

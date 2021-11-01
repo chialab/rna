@@ -1,8 +1,8 @@
 import os from 'os';
 import path from 'path';
-import { assignToResult, createResult, remapResult } from '@chialab/esbuild-helpers';
-import { getEntryBuildConfig, mergeConfig, readConfigFile, locateConfigFile } from '@chialab/rna-config-loader';
 import { createLogger, readableSize } from '@chialab/rna-logger';
+import { getEntryBuildConfig, mergeConfig, readConfigFile, locateConfigFile } from '@chialab/rna-config-loader';
+import { assignToResult, createResult, remapResult } from '@chialab/esbuild-rna';
 import { build } from './build.js';
 import { writeManifestJson } from './writeManifestJson.js';
 import { writeEntrypointsJson, writeDevEntrypointsJson } from './writeEntrypointsJson.js';

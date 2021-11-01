@@ -1,6 +1,6 @@
 import path from 'path';
 import { escapeRegexBody } from '@chialab/node-resolve';
-import { getRootDir } from '@chialab/esbuild-helpers';
+import { useRna } from '@chialab/esbuild-rna';
 
 /**
  * @typedef {Object} VirtualEntry
@@ -24,18 +24,20 @@ export default function(entries) {
     const plugin = {
         name: 'virtual',
         async setup(build) {
-            const rootDir = getRootDir(build);
+            const { onResolve, onLoad, rootDir, transform } = useRna(build);
 
             entries.forEach((entry) => {
                 const filter = new RegExp(escapeRegexBody(entry.path));
 
-                build.onResolve({ filter }, () => ({
+                onResolve({ filter }, () => ({
                     path: path.resolve(rootDir, entry.path.replace(/^\/*/, '')),
                     namespace: 'virtual',
                 }));
 
-                build.onLoad({ filter, namespace: 'virtual' }, () => ({
-                    contents: entry.contents,
+                onLoad({ filter, namespace: 'virtual' }, (args) => transform({
+                    ...args,
+                    code: entry.contents.toString(),
+                    namespace: 'file',
                 }));
             });
         },

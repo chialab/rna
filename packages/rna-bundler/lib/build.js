@@ -1,7 +1,7 @@
 import path from 'path';
 import { rm } from 'fs/promises';
 import { createLogger } from '@chialab/rna-logger';
-import { mergeDependencies } from '@chialab/esbuild-helpers';
+import { mergeDependencies, rnaPlugin } from '@chialab/esbuild-rna';
 import { loaders } from './loaders.js';
 import { writeManifestJson } from './writeManifestJson.js';
 import { writeEntrypointsJson } from './writeEntrypointsJson.js';
@@ -11,7 +11,7 @@ import { writeEntrypointsJson } from './writeEntrypointsJson.js';
  */
 
 /**
- * @typedef {import('esbuild').BuildResult & { metafile: Metafile, dependencies: import('@chialab/esbuild-helpers').DependenciesMap, outputFiles?: import('esbuild').OutputFile[] }} BuildResult
+ * @typedef {import('esbuild').BuildResult & { metafile: Metafile, dependencies: import('@chialab/esbuild-rna').DependenciesMap, outputFiles?: import('esbuild').OutputFile[] }} BuildResult
  */
 
 /**
@@ -103,6 +103,7 @@ export async function build(config) {
      * @type {import('esbuild').Plugin[]}
      */
     const finalPlugins = await Promise.all([
+        rnaPlugin(),
         /**
          * @type {import('esbuild').Plugin}
          */

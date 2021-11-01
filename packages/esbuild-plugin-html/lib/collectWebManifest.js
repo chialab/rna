@@ -1,5 +1,5 @@
-import { readFile, writeFile, mkdir } from 'fs/promises';
 import path from 'path';
+import { readFile, writeFile, mkdir } from 'fs/promises';
 import { isRelativeUrl } from '@chialab/node-resolve';
 
 /**

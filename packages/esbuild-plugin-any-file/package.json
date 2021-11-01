@@ -32,7 +32,7 @@
     "node": ">=13"
   },
   "dependencies": {
-    "@chialab/esbuild-helpers": "^0.12.31"
+    "@chialab/esbuild-rna": "^0.12.31"
   },
   "devDependencies": {
     "typescript": "^4.3.0"

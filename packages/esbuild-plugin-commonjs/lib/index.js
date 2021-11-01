@@ -1,10 +1,10 @@
-import { REQUIRE_HELPER, HELPER_MODULE, createTransform, maybeCommonjsModule, maybeMixedModule, wrapDynamicRequire } from '@chialab/cjs-to-esm';
+import { REQUIRE_HELPER, HELPER_MODULE, transform, maybeCommonjsModule, maybeMixedModule, wrapDynamicRequire } from '@chialab/cjs-to-esm';
 import { escapeRegexBody } from '@chialab/node-resolve';
-import { createEmptySourcemapComment, pipe } from '@chialab/estransform';
-import { getEntry, finalizeEntry, createFilter, transformError } from '@chialab/esbuild-plugin-transform';
+import { createEmptySourcemapComment } from '@chialab/estransform';
+import { useRna } from '@chialab/esbuild-rna';
 
 /**
- * @typedef {import('@chialab/cjs-to-esm').Options} PluginOptions
+ * @typedef {import('@chialab/cjs-to-esm').TransformOptions} PluginOptions
  */
 
 /**
@@ -23,49 +23,35 @@ export default function(config = {}) {
                 return;
             }
 
+            const { onResolve, onLoad, onTransform } = useRna(build);
+
             if (config.helperModule) {
                 const HELPER_FILTER = new RegExp(escapeRegexBody(`./${HELPER_MODULE}`));
-                build.onResolve({ filter: HELPER_FILTER }, (args) => ({
+                onResolve({ filter: HELPER_FILTER }, (args) => ({
                     path: args.path,
                     namespace: 'commonjs-helper',
                 }));
 
-                build.onLoad({ filter: HELPER_FILTER, namespace: 'commonjs-helper' }, async () => ({
+                onLoad({ filter: HELPER_FILTER, namespace: 'commonjs-helper' }, async () => ({
                     contents: `export default ${REQUIRE_HELPER};\n${createEmptySourcemapComment()}`,
                 }));
             }
 
-            build.onLoad({ filter: createFilter(build), namespace: 'file' }, async (args) => {
-                /**
-                 * @type {import('@chialab/estransform').Pipeline}
-                 */
-                const entry = args.pluginData || await getEntry(build, args.path);
+            onTransform({ loaders: ['tsx', 'ts', 'jsx', 'js'] }, async (args) => {
+                const { code } = args;
 
-                if (await maybeMixedModule(entry.code)) {
-                    try {
-                        await pipe(entry, {
-                            source: args.path,
-                            sourcesContent,
-                        }, wrapDynamicRequire);
-
-                    } catch (error) {
-                        throw transformError(this.name, error);
-                    }
-
-                    return finalizeEntry(build, args.path);
+                if (await maybeMixedModule(code)) {
+                    return wrapDynamicRequire(code, {
+                        source: args.path,
+                        sourcesContent,
+                    });
                 }
 
-                if (await maybeCommonjsModule(entry.code)) {
-                    try {
-                        await pipe(entry, {
-                            source: args.path,
-                            sourcesContent,
-                        }, createTransform(config));
-                    } catch (error) {
-                        throw transformError(this.name, error);
-                    }
-
-                    return finalizeEntry(build, args.path);
+                if (await maybeCommonjsModule(code)) {
+                    return transform(code, {
+                        source: args.path,
+                        sourcesContent,
+                    });
                 }
             });
         },

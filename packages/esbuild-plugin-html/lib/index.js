@@ -1,7 +1,7 @@
 import path from 'path';
-import { readFile, rename, rm } from 'fs/promises';
+import { rename, rm } from 'fs/promises';
 import * as cheerio from 'cheerio';
-import { createResult, assignToResult, getMainOutput, getRootDir, getOutputDir, getStdinInput, esbuildFile } from '@chialab/esbuild-helpers';
+import { createResult, assignToResult, useRna, getMainOutput, esbuildFile } from '@chialab/esbuild-rna';
 
 /**
  * @typedef {import('esbuild').Metafile} Metafile
@@ -14,7 +14,7 @@ import { createResult, assignToResult, getMainOutput, getRootDir, getOutputDir, 
 /**
  * Cheerio esm support is unstable for some Node versions.
  */
-const load = /** @type {typeof cheerio.load} */ (cheerio.load || cheerio.default?.load);
+const loadHtml = /** @type {typeof cheerio.load} */ (cheerio.load || cheerio.default?.load);
 
 /**
  * Get the common dir of source files.
@@ -72,9 +72,7 @@ export default function({
         name: 'html',
         setup(build) {
             const { entryPoints = [], assetNames, write } = build.initialOptions;
-            const stdin = getStdinInput(build);
-            const rootDir = getRootDir(build);
-            const outDir = getOutputDir(build);
+            const { rootDir, outDir, onTransform } = useRna(build);
             const sourceFiles = Array.isArray(entryPoints) ? entryPoints : Object.values(entryPoints);
             const sourceDir = sourceFiles.length ? commonDir(sourceFiles.map((file) => path.resolve(rootDir, file))) : rootDir;
 
@@ -133,7 +131,8 @@ export default function({
                 assignToResult(result, collectedResult);
             });
 
-            build.onLoad({ filter: /\.html$/ }, async ({ path: filePath }) => {
+            onTransform({ filter: /\.html$/ }, async (args) => {
+                const basePath = path.dirname(args.path);
                 const [
                     { collectStyles },
                     { collectScripts },
@@ -150,13 +149,9 @@ export default function({
                     esbuildModule || import('esbuild'),
                 ]);
 
-                const contents = (stdin && filePath === stdin.path) ?
-                    stdin.contents :
-                    await readFile(filePath, 'utf-8');
-                const basePath = path.dirname(filePath);
                 const relativePath = `./${path.relative(sourceDir, basePath)}`;
                 const relativeOutDir = path.resolve(outDir, relativePath);
-                const $ = load(contents);
+                const $ = loadHtml(args.code);
                 const root = $.root();
 
                 const builds = /** @type {Build[]} */ ([
@@ -180,7 +175,6 @@ export default function({
 
                     if (currentBuild.loader === 'file') {
                         const file = entryPoints[0];
-
                         const { result, outputFile } = await esbuildFile(file, {
                             ...build.initialOptions,
                             assetNames: assetNames || '[dir]/[name]',
@@ -215,12 +209,12 @@ export default function({
                 }
 
                 return {
-                    contents: $.html(),
+                    code: $.html(),
                     loader: 'file',
                     watchFiles: builds.reduce((acc, build) => [
                         ...acc,
                         ...(/** @type {string[]} */ (build.options.entryPoints) || []),
-                    ], /** @type {string[]} */ ([])),
+                    ], /** @type {string[]} */([])),
                 };
             });
         },

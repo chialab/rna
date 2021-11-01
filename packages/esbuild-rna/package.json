@@ -1,8 +1,8 @@
 {
-  "name": "@chialab/esbuild-helpers",
+  "name": "@chialab/esbuild-rna",
   "type": "module",
   "version": "0.12.31",
-  "description": "A set of helpers for esbuild and plugins.",
+  "description": "A framework for esbuild plugins with transform and emit capabilities.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",
   "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
@@ -10,7 +10,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/chialab/rna",
-    "directory": "packages/esbuild-helpers"
+    "directory": "packages/esbuild-rna"
   },
   "keywords": [],
   "scripts": {
@@ -28,6 +28,8 @@
     "node": ">=13"
   },
   "dependencies": {
+    "@chialab/estransform": "^0.12.0",
+    "@chialab/node-resolve": "^0.12.0",
     "esbuild": "^0.13.0"
   },
   "devDependencies": {

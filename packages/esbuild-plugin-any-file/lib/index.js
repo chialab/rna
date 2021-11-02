@@ -15,7 +15,7 @@ export default function({ fsCheck = true, shouldThrow = () => false } = {}) {
         name: 'any-file',
         setup(build) {
             const { loader: loaders = {} } = build.initialOptions;
-            const { stdin, onLoad } = useRna(build);
+            const { onLoad } = useRna(build);
             const keys = Object.keys(loaders);
 
             onLoad({ filter: /\./ }, async (args) => {
@@ -23,7 +23,7 @@ export default function({ fsCheck = true, shouldThrow = () => false } = {}) {
                     return;
                 }
 
-                if (fsCheck && (!stdin || args.path !== stdin.path)) {
+                if (fsCheck) {
                     try {
                         await access(args.path);
                     } catch (err) {
@@ -36,9 +36,7 @@ export default function({ fsCheck = true, shouldThrow = () => false } = {}) {
                 }
 
                 return {
-                    contents: (stdin && args.path === stdin.path) ?
-                        stdin.contents :
-                        await readFile(args.path),
+                    contents: await readFile(args.path),
                     loader: 'file',
                 };
             });

@@ -21,6 +21,7 @@
     "@chialab/eslint-config": "^3.0.0",
     "@chialab/rna": "^0.12.2",
     "@chialab/rna-node-test-runner": "^0.12.26",
+    "chai": "^4.3.4",
     "eslint": "^7.19.0",
     "lerna": "^4.0.0",
     "plop": "^2.7.4",

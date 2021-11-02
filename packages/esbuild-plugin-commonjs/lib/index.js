@@ -1,6 +1,5 @@
-import { REQUIRE_HELPER, HELPER_MODULE, transform, maybeCommonjsModule, maybeMixedModule, wrapDynamicRequire } from '@chialab/cjs-to-esm';
+import { HELPER_MODULE, transform, maybeCommonjsModule, maybeMixedModule, wrapDynamicRequire, createRequireHelperModule } from '@chialab/cjs-to-esm';
 import { escapeRegexBody } from '@chialab/node-resolve';
-import { createEmptySourcemapComment } from '@chialab/estransform';
 import { useRna } from '@chialab/esbuild-rna';
 
 /**
@@ -33,7 +32,7 @@ export default function(config = {}) {
                 }));
 
                 onLoad({ filter: HELPER_FILTER, namespace: 'commonjs-helper' }, async () => ({
-                    contents: `export default ${REQUIRE_HELPER};\n${createEmptySourcemapComment()}`,
+                    contents: createRequireHelperModule(),
                 }));
             }
 

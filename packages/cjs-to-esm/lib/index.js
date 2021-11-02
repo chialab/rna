@@ -1,4 +1,4 @@
-import { MagicString, parse, walk, parseCommonjs, parseEsm, getSpanLocation } from '@chialab/estransform';
+import { MagicString, parse, walk, parseCommonjs, parseEsm, getSpanLocation, createEmptySourcemapComment } from '@chialab/estransform';
 
 export const REQUIRE_REGEX = /([^.\w$]|^)require\s*\((['"])(.*?)\2\)/g;
 export const UMD_REGEXES = [
@@ -85,6 +85,13 @@ export const REQUIRE_HELPER = `function ${REQUIRE_FUNCTION}(requiredModule) {
     return specifiers;
 }
 `;
+
+/**
+ * Create an ESM module that exports the helper with an empty sourcemap.
+ */
+export function createRequireHelperModule() {
+    return `export default ${REQUIRE_HELPER};\n${createEmptySourcemapComment()}`;
+}
 
 /**
  * Check if there are chanches that the provided code is a commonjs module.

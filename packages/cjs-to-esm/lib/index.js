@@ -157,9 +157,13 @@ function isRequireCallExpression(node) {
 
 /**
  * @param {string} code
- * @param {TransformOptions} options
+ * @param {TransformOptions} [options]
  */
-export async function transform(code, { source, sourcesContent = false, ignore = () => false, helperModule = false, ignoreTryCatch = true }) {
+export async function transform(code, { source, sourcesContent = false, ignore = () => false, helperModule = false, ignoreTryCatch = true } = {}) {
+    if (await maybeMixedModule(code)) {
+        throw new Error('Cannot convert mixed modules');
+    }
+
     const specs = new Map();
     const ns = new Map();
     const isUmd = UMD_REGEXES.every((regex) => regex.test(code));
@@ -283,7 +287,7 @@ export default (__newUmdKeys.length ? __umdGlobal[__newUmdKeys[0]] : undefined);
             magicCode.overwrite(thisMatch.index, thisMatch.index + thisMatch[0].length, `${thisMatch[1]}this || __umdGlobal${thisMatch[2]}`);
             thisMatch = THIS_PARAM.exec(code);
         }
-    } else {
+    } else if (exports.length > 0 || reexports.length > 0) {
         magicCode.prepend(`var global = globalThis;
 var exports = {};
 var module = {

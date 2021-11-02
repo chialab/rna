@@ -117,7 +117,7 @@ function originalPositionFor(mapping, consumers) {
 }
 
 /**
- * @typedef {import('sass').Options & { rootDir?: string, alias?: import('@chialab/node-resolve').AliasMap }} PluginOptions
+ * @typedef {import('sass').Options & { rootDir?: string }} PluginOptions
  */
 
 /**
@@ -222,7 +222,13 @@ export default function(options = {}) {
                 includePaths: [
                     options.rootDir || process.cwd(),
                 ],
-                importer: sassResolver({ alias: options.alias }),
+                importer: Array.isArray(options.importer) ? [
+                    ...options.importer,
+                    sassResolver(),
+                ] : options.importer ? [
+                    options.importer,
+                    sassResolver(),
+                ] : sassResolver(),
                 indentWidth: 4,
                 outputStyle: 'expanded',
                 ...options,

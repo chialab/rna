@@ -9,17 +9,17 @@ import { useRna } from '@chialab/esbuild-rna';
  * Create a module alias.
  * @param {import('esbuild').PluginBuild} build
  * @param {string} key
- * @param {import('@chialab/node-resolve').Alias} dest
+ * @param {import('@chialab/node-resolve').Alias} aliasRule
  * @param {string} [rootDir]
  */
-export function addAlias(build, key, dest, rootDir) {
+export function addAlias(build, key, aliasRule, rootDir) {
     const aliasFilter = createAliasRegex(key, ALIAS_MODE.FULL);
     const { rootDir: buildRootDir, onResolve } = useRna(build);
 
     onResolve({ filter: aliasFilter }, async (args) => {
-        const aliased = typeof dest === 'function' ?
-            await dest(args.path) :
-            dest;
+        const aliased = typeof aliasRule === 'function' ?
+            await aliasRule(args.importer) :
+            aliasRule;
 
         if (!aliased) {
             return {
@@ -35,7 +35,7 @@ export function addAlias(build, key, dest, rootDir) {
         }
 
         return {
-            path: await resolve(aliased, args.importer || rootDir || buildRootDir),
+            path: await resolve(aliased, args.resolveDir || args.importer || rootDir || buildRootDir),
         };
     });
 }

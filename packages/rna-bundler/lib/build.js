@@ -117,12 +117,7 @@ export async function build(config) {
             .then(({ default: plugin }) => plugin(alias)),
         import('@chialab/esbuild-plugin-any-file')
             .then(({ default: plugin }) =>
-                plugin({
-                    fsCheck: true,
-                    shouldThrow(args) {
-                        return !args.path.includes('/node_modules/');
-                    },
-                })
+                plugin()
             ),
         import('@chialab/esbuild-plugin-env')
             .then(({ default: plugin }) => plugin()),

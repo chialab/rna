@@ -24,7 +24,9 @@ export default function() {
             onLoad({ filter: /\./, namespace: 'require-resolve' }, (args) => transform(args));
 
             onTransform({ loaders: ['tsx', 'ts', 'jsx', 'js'] }, async (args) => {
-                if (!args.code.includes('require.resolve(')) {
+                const code = args.code.toString();
+
+                if (!code.includes('require.resolve(')) {
                     return;
                 }
 
@@ -38,7 +40,7 @@ export default function() {
                  */
                 const promises = [];
 
-                const ast = await parse(args.code);
+                const ast = await parse(code);
                 walk(ast, {
                     /**
                      * @param {import('@chialab/estransform').CallExpression} node
@@ -62,7 +64,7 @@ export default function() {
                             return;
                         }
 
-                        magicCode = magicCode || new MagicString(args.code);
+                        magicCode = magicCode || new MagicString(code);
 
                         promises.push((async () => {
                             const value = firstArg.value;
@@ -77,8 +79,8 @@ export default function() {
                             const identifier = `_${value.replace(/[^a-zA-Z0-9]/g, '_')}`;
 
                             const loc = getSpanLocation(ast, node);
-                            if (args.code.startsWith('#!')) {
-                                magicCode.appendRight(args.code.indexOf('\n') + 1, `var ${identifier} = require('${entryPoint}.requirefile');\n`);
+                            if (code.startsWith('#!')) {
+                                magicCode.appendRight(code.indexOf('\n') + 1, `var ${identifier} = require('${entryPoint}.requirefile');\n`);
                             } else {
                                 magicCode.prepend(`var ${identifier} = require('${entryPoint}.requirefile');\n`);
                             }

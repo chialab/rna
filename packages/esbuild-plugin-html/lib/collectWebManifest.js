@@ -47,8 +47,8 @@ export function collectWebManifest($, dom, base, outdir) {
                 chunkNames: '[name]',
                 assetNames: '[name]',
             },
-            async finisher(filePath) {
-                const json = await load(filePath);
+            async finisher(outputFiles) {
+                const json = await load(outputFiles[0]);
                 json.name = json.name || titleElement.text() || undefined;
                 json.short_name = json.short_name || json.name || titleElement.text() || undefined;
                 json.description = json.description || descriptionElement.attr('content') || undefined;
@@ -134,8 +134,8 @@ export function collectWebManifest($, dom, base, outdir) {
                     );
                 }
 
-                await writeFile(filePath, JSON.stringify(json, null, 4));
-                $(element).attr('href', path.relative(outdir, filePath));
+                await writeFile(outputFiles[0], JSON.stringify(json, null, 4));
+                $(element).attr('href', path.relative(outdir, outputFiles[0]));
             },
         },
     ];

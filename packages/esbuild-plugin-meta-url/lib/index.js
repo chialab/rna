@@ -104,8 +104,10 @@ export default function() {
             const { onTransform, resolve, getBaseUrl, emitFileOrChunk, getChunkOptions, rootDir } = useRna(build);
 
             onTransform({ loaders: ['tsx', 'ts', 'jsx', 'js'] }, async (args) => {
-                if (!args.code.includes('import.meta.url') ||
-                    !args.code.includes('URL(')) {
+                const code = args.code.toString();
+
+                if (!code.includes('import.meta.url') ||
+                    !code.includes('URL(')) {
                     return;
                 }
 
@@ -124,7 +126,7 @@ export default function() {
                  */
                 const promises = [];
 
-                const ast = await parse(args.code);
+                const ast = await parse(code);
                 walk(ast, {
                     /**
                      * @param {import('@chialab/estransform').NewExpression} node
@@ -151,13 +153,13 @@ export default function() {
                             }
 
                             const loc = getSpanLocation(ast, node);
-                            magicCode = magicCode || new MagicString(args.code);
+                            magicCode = magicCode || new MagicString(code);
 
                             if (!ids[resolvedPath]) {
                                 const entryPoint = emitFileOrChunk(build, resolvedPath, params);
                                 const { identifier, statement } = createImportStatement(entryPoint, value);
-                                if (args.code.startsWith('#!')) {
-                                    magicCode.appendRight(args.code.indexOf('\n') + 1, `${statement}\n`);
+                                if (code.startsWith('#!')) {
+                                    magicCode.appendRight(code.indexOf('\n') + 1, `${statement}\n`);
                                 } else {
                                     magicCode.prepend(`${statement}\n`);
                                 }

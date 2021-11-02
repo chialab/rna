@@ -104,19 +104,24 @@ export async function createConfig(entrypoint, serverConfig, config) {
         plugins: [
             ...await Promise.all([
                 import('@chialab/esbuild-plugin-postcss')
-                    .then(({ default: plugin }) => plugin({
-                        alias: config.alias,
-                        async transform(importPath) {
-                            if (isOutsideRootDir(importPath)) {
-                                return;
-                            }
+                    .then(async ({ default: plugin }) => plugin({
+                        plugins: [
+                            await import('@chialab/postcss-url-rebase')
+                                .then(({ default: plugin }) => plugin({
+                                    alias: config.alias,
+                                    async transform(importPath) {
+                                        if (isOutsideRootDir(importPath)) {
+                                            return;
+                                        }
 
-                            return resolveRelativeImport(
-                                await fsResolve(importPath, filePath),
-                                filePath,
-                                rootDir
-                            );
-                        },
+                                        return resolveRelativeImport(
+                                            await fsResolve(importPath, filePath),
+                                            filePath,
+                                            rootDir
+                                        );
+                                    },
+                                })),
+                        ],
                     })),
                 import('@chialab/esbuild-plugin-unwebpack')
                     .then(({ default: plugin }) => plugin()),

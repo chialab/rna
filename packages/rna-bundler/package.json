@@ -36,6 +36,7 @@
   "dependencies": {
     "@chialab/esbuild-plugin-alias": "^0.12.31",
     "@chialab/esbuild-plugin-any-file": "^0.12.31",
+    "@chialab/esbuild-plugin-css-import": "^0.12.0",
     "@chialab/esbuild-plugin-commonjs": "^0.12.31",
     "@chialab/esbuild-plugin-define-this": "^0.12.22",
     "@chialab/esbuild-plugin-env": "^0.12.33",

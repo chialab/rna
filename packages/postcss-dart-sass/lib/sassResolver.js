@@ -1,5 +1,5 @@
 import path from 'path';
-import { CSS_EXTENSIONS, syncStyleResolve, ALIAS_MODE, createAliasRegex } from '@chialab/node-resolve';
+import { CSS_EXTENSIONS, syncStyleResolve } from '@chialab/node-resolve';
 
 /**
  * Generate a list of file paths with all style extensions.
@@ -29,9 +29,8 @@ function alternatives(url) {
 
 /**
  * Create a scoped SASS resolver.
- * @param {{ alias?: import('@chialab/node-resolve').AliasMap }} [options]
  */
-export default function({ alias } = {}) {
+export default function() {
     /**
      * Resolve the file path of an imported style.
      * @type {import('sass').Importer}
@@ -40,28 +39,6 @@ export default function({ alias } = {}) {
         if (url.match(/^(~|package:)/)) {
             // some modules use ~ or package: for node_modules import
             url = url.replace(/^(~|package:)/, '');
-        }
-
-        if (alias) {
-            for (const key in alias) {
-                const regex = createAliasRegex(key, ALIAS_MODE.START);
-                if (url.match(regex)) {
-                    const aliasValue = alias[key];
-                    const aliased = typeof aliasValue === 'function' ?
-                        aliasValue(prev) :
-                        aliasValue;
-                    if (aliased instanceof Promise) {
-                        throw new Error('Async module resolution is not supported.');
-                    }
-                    if (!aliased) {
-                        return {
-                            contents: '',
-                        };
-                    }
-                    url = url.replace(regex, aliased);
-                    continue;
-                }
-            }
         }
 
         // generate alternatives for style starting from the module path

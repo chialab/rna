@@ -1,6 +1,4 @@
-import path from 'path';
-import { pipe } from '@chialab/estransform';
-import { getEntry, finalizeEntry, createFilter } from '@chialab/esbuild-plugin-transform';
+import { useRna } from '@chialab/esbuild-rna';
 import { transformMdxToCsf } from './transformMdxToCsf.js';
 
 export function mdxPlugin() {
@@ -10,30 +8,28 @@ export function mdxPlugin() {
     const plugin = {
         name: 'storybook-mdx',
         async setup(build) {
-            const { sourcesContent } = build.initialOptions;
+            const { onResolve, onTransform } = useRna(build);
+            /**
+             * @type {import('esbuild').BuildOptions['loader']}
+             */
+            build.initialOptions.loader = {
+                ...(build.initialOptions.loader || {}),
+                '.mdx': 'tsx',
+            };
 
-            build.onResolve({ filter: /\.mdx$/ }, (args) => ({
+            onResolve({ filter: /\.mdx$/ }, (args) => ({
                 path: args.path,
             }));
 
-            build.onLoad({ filter: createFilter(build), namespace: 'file' }, async (args) => {
-                if (!args.path.endsWith('.mdx')) {
+            onTransform({ loaders: ['tsx', 'ts', 'jsx', 'js'] }, (args) => {
+                if (!args.path.match(/\.mdx$/)) {
                     return;
                 }
 
-                /**
-                 * @type {import('@chialab/estransform').Pipeline}
-                 */
-                const entry = args.pluginData || await getEntry(build, args.path);
-
-                await pipe(entry, {
-                    source: path.basename(args.path),
-                    sourcesContent,
-                }, async ({ code }) =>
-                    transformMdxToCsf(code, args.path)
-                );
-
-                return finalizeEntry(build, args.path);
+                const code = args.code.toString();
+                return transformMdxToCsf(code, {
+                    source: args.path,
+                });
             });
         },
     };

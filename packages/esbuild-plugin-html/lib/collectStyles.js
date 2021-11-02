@@ -20,17 +20,17 @@ export function collectStyles($, dom, base, outdir, options) {
                 loader: /** @type {import('esbuild').Loader} */ ('css'),
                 options: {
                     entryPoints: [
-                        path.resolve(base, /** @type {string} */ ($(element).attr('href'))),
+                        /** @type {string} */ ($(element).attr('href')),
                     ],
                     entryNames: `css/${options.entryNames || '[name]'}`,
                     chunkNames: `css/${options.chunkNames || '[name]'}`,
                     assetNames: `css/assets/${options.assetNames || '[name]'}`,
                 },
                 /**
-                 * @param {string} filePath
+                 * @param {string[]} outputFiles
                  */
-                finisher(filePath) {
-                    $(element).attr('href', path.relative(outdir, filePath));
+                finisher(outputFiles) {
+                    $(element).attr('href', path.relative(outdir, outputFiles[0]));
                 },
             })),
         ...dom
@@ -53,10 +53,10 @@ export function collectStyles($, dom, base, outdir, options) {
                         assetNames: `css/assets/${options.assetNames || '[name]'}`,
                     },
                     /**
-                     * @param {string} filePath
+                     * @param {string[]} outputFiles
                      */
-                    finisher(filePath) {
-                        $(element).text(`@import url('${path.relative(outdir, filePath)}');`);
+                    finisher(outputFiles) {
+                        $(element).text(`@import url('${path.relative(outdir, outputFiles[0])}');`);
                     },
                 };
             }),

@@ -7,7 +7,7 @@ import { useRna } from '@chialab/esbuild-rna';
  * @param {{ fsCheck?: boolean, shouldThrow?: (args: import('esbuild').OnLoadArgs) => boolean }} [options]
  * @return An esbuild plugin.
  */
-export default function({ fsCheck = true, shouldThrow = () => true } = {}) {
+export default function({ fsCheck = true, shouldThrow = () => false } = {}) {
     /**
      * @type {import('esbuild').Plugin}
      */

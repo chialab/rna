@@ -13,6 +13,14 @@ import isCore from 'is-core-module';
  */
 
 /**
+ * @typedef {(specifier: string, impporter: string) => Promise<string>} Resolver
+ */
+
+/**
+ * @typedef {(specifier: string, impporter: string) => string|false} SyncResolver
+ */
+
+/**
  * A promise based node resolution method based on enhanced-resolve
  * @param {ResolveOptions} [options]
  */
@@ -23,8 +31,7 @@ export function createResolver(options = {}) {
     });
 
     /**
-     * @param {string} specifier
-     * @param {string} importer
+     * @type {Resolver}
      */
     const resolve = async function(specifier, importer) {
         const { path, searchParams } = getSearchParams(specifier);
@@ -62,8 +69,7 @@ export function createSyncResolver(options = {}) {
     });
 
     /**
-     * @param {string} specifier
-     * @param {string} importer
+     * @type {SyncResolver}
      */
     const resolve = function(specifier, importer) {
         const { path, searchParams } = getSearchParams(specifier);

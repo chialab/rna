@@ -10,6 +10,7 @@
     "clear": "rimraf 'node_modules' 'packages/*/node_modules' 'package-lock.json' 'yarn.lock'",
     "types": "lerna run types",
     "lint": "eslint 'packages/*/lib/**/*.js'",
+    "test": "rna test:node packages/*/test/**/*.spec.js --coverage",
     "new": "plop --plopfile internals/generators/plopfile.cjs module"
   },
   "repository": {
@@ -18,6 +19,8 @@
   },
   "devDependencies": {
     "@chialab/eslint-config": "^3.0.0",
+    "@chialab/rna": "^0.12.2",
+    "@chialab/rna-node-test-runner": "^0.12.26",
     "eslint": "^7.19.0",
     "lerna": "^4.0.0",
     "plop": "^2.7.4",

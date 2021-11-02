@@ -1,9 +1,7 @@
 import typescript from 'typescript';
-import path from 'path';
-import { getRootDir } from '@chialab/esbuild-helpers';
-import { pipe } from '@chialab/estransform';
-import { getEntry, finalizeEntry, createFilter } from '@chialab/esbuild-plugin-transform';
+import { useRna } from '@chialab/esbuild-rna';
 import { create } from '@custom-elements-manifest/analyzer/src/create.js';
+import { MagicString } from '@chialab/estransform';
 
 /**
  * @typedef {Object} PluginOptions
@@ -22,23 +20,19 @@ export default function({ framework = '@storybook/web-components', plugins = [] 
     const plugin = {
         name: 'rna-storybook-cem',
         setup(build) {
-            const rootDir = getRootDir(build);
             const { sourcesContent } = build.initialOptions;
+            const { onTransform, rootDir } = useRna(build);
 
-            build.onLoad({ filter: createFilter(build), namespace: 'file' }, async (args) => {
+            onTransform({ loaders: ['tsx', 'ts', 'jsx', 'js'] }, async (args) => {
                 if (args.path.includes('/node_modules/') ||
                     args.path.includes('/@storybook/') ||
                     !args.path.startsWith(rootDir)) {
                     return;
                 }
 
-                /**
-                 * @type {import('@chialab/estransform').Pipeline}
-                 */
-                const entry = args.pluginData || await getEntry(build, args.path);
-
+                const code = args.code.toString();
                 const modules = [
-                    typescript.createSourceFile(args.path, entry.contents, typescript.ScriptTarget.ES2015, true),
+                    typescript.createSourceFile(args.path, code, typescript.ScriptTarget.ES2015, true),
                 ];
 
                 const customElementsManifest = create({ modules, plugins });
@@ -85,12 +79,9 @@ export default function({ framework = '@storybook/web-components', plugins = [] 
                         }
                     );
 
-                await pipe(entry, {
-                    source: path.basename(args.path),
-                    sourcesContent,
-                }, async ({ magicCode }) => {
-                    magicCode.prepend(`import * as __STORYBOOK_WEB_COMPONENTS__ from '${framework}';\n`);
-                    magicCode.append(`
+                const magicCode = new MagicString(code);
+                magicCode.prepend(`import * as __STORYBOOK_WEB_COMPONENTS__ from '${framework}';\n`);
+                magicCode.append(`
 ;(function() {
     const { getCustomElements, setCustomElementsManifest } = __STORYBOOK_WEB_COMPONENTS__;
     if (!setCustomElementsManifest) {
@@ -109,9 +100,14 @@ export default function({ framework = '@storybook/web-components', plugins = [] 
         ],
     });
 }())`);
-                });
-
-                return finalizeEntry(build, args.path);
+                return {
+                    code: magicCode.toString(),
+                    map: magicCode.generateMap({
+                        source: args.path,
+                        includeContent: sourcesContent,
+                        hires: true,
+                    }),
+                };
             });
         },
     };

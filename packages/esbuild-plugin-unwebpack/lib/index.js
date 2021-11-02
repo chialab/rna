@@ -18,8 +18,10 @@ export default function() {
             const { onTransform } = useRna(build);
 
             onTransform({ loaders: ['tsx', 'ts', 'jsx', 'js'] }, async (args) => {
-                if (!args.code.includes('module.hot.decline') &&
-                    !args.code.includes('webpackInclude:')) {
+                const code = args.code.toString();
+
+                if (!code.includes('module.hot.decline') &&
+                    !code.includes('webpackInclude:')) {
                     return;
                 }
 
@@ -33,7 +35,7 @@ export default function() {
                  */
                 const promises = [];
 
-                const ast = await parse(args.code);
+                const ast = await parse(code);
                 walk(ast, {
                     /**
                      * @param {import('@chialab/estransform').CallExpression} node
@@ -62,7 +64,7 @@ export default function() {
                         const identifier = firstArg.expressions[0].type === 'Identifier' && firstArg.expressions[0].value;
 
                         const loc = getSpanLocation(ast, node);
-                        magicCode = magicCode || new MagicString(args.code);
+                        magicCode = magicCode || new MagicString(code);
 
                         promises.push((async () => {
                             const map = (await glob(`${initial}*`, {
@@ -104,7 +106,7 @@ export default function() {
                         }
 
                         const loc = getSpanLocation(ast, node);
-                        magicCode = magicCode || new MagicString(args.code);
+                        magicCode = magicCode || new MagicString(code);
                         magicCode.overwrite(loc.start, loc.end, '');
                     },
                 });

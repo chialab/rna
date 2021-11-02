@@ -172,11 +172,10 @@ export function command(program) {
                                 .then(({ default: plugin }) => plugin({}, esbuild))
                                 .catch(() => ({ name: 'html', setup() {} })),
                             import('@chialab/esbuild-plugin-postcss')
-                                .then(({ default: plugin }) => plugin({
-                                    alias: userConfig.alias,
-                                    relative: false,
-                                }))
-                                .catch(() => ({ name: 'postcss', setup() {} })),
+                                .then(({ default: plugin }) => plugin())
+                                .catch(() => ({ name: 'postcss', setup() { } })),
+                            import('@chialab/esbuild-plugin-css-import')
+                                .then(({ default: plugin }) => plugin()),
                             import('@chialab/esbuild-plugin-unwebpack')
                                 .then(({ default: plugin }) => plugin()),
                             import('@chialab/esbuild-plugin-commonjs')

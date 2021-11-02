@@ -1,7 +1,7 @@
 import path from 'path';
 import { rename, rm } from 'fs/promises';
 import * as cheerio from 'cheerio';
-import { createResult, assignToResult, useRna, getMainOutput, esbuildFile } from '@chialab/esbuild-rna';
+import { createResult, assignToResult, useRna, getOutputFiles, esbuildFile } from '@chialab/esbuild-rna';
 
 /**
  * @typedef {import('esbuild').Metafile} Metafile
@@ -43,7 +43,7 @@ function commonDir(files) {
  * @typedef {Object} Build
  * @property {import('esbuild').Loader} [loader] The loader to use.
  * @property {Partial<import('esbuild').BuildOptions>} options The file name of the referenced file.
- * @property {(filePath: string, outputFiles: string[]) => Promise<void>|void} finisher A callback function to invoke when output file has been generated.
+ * @property {(outputFiles: string[]) => Promise<void>|void} finisher A callback function to invoke when output file has been generated.
  */
 
 /**
@@ -72,7 +72,7 @@ export default function({
         name: 'html',
         setup(build) {
             const { entryPoints = [], assetNames, write } = build.initialOptions;
-            const { rootDir, outDir, onTransform } = useRna(build);
+            const { resolve, load, rootDir, outDir, onTransform } = useRna(build);
             const sourceFiles = Array.isArray(entryPoints) ? entryPoints : Object.values(entryPoints);
             const sourceDir = sourceFiles.length ? commonDir(sourceFiles.map((file) => path.resolve(rootDir, file))) : rootDir;
 
@@ -149,13 +149,21 @@ export default function({
                     esbuildModule || import('esbuild'),
                 ]);
 
+                const code = args.code.toString();
                 const relativePath = `./${path.relative(sourceDir, basePath)}`;
                 const relativeOutDir = path.resolve(outDir, relativePath);
-                const $ = loadHtml(args.code);
+                const $ = loadHtml(code);
                 const root = $.root();
 
                 const builds = /** @type {Build[]} */ ([
-                    ...collectIcons($, root, basePath, relativeOutDir),
+                    ...collectIcons($, root, {
+                        source: args.path,
+                        outDir: relativeOutDir,
+                        rootDir,
+                    }, {
+                        resolve,
+                        load,
+                    }),
                     ...collectWebManifest($, root, basePath, relativeOutDir),
                     ...collectStyles($, root, basePath, relativeOutDir, build.initialOptions),
                     ...collectScripts($, root, basePath, relativeOutDir, { scriptsTarget, modulesTarget }, build.initialOptions),
@@ -165,9 +173,6 @@ export default function({
                 for (let i = 0; i < builds.length; i++) {
                     const currentBuild = builds[i];
 
-                    /** @type {string[]} */
-                    const outputFiles = [];
-
                     const entryPoints = /** @type {string[]|undefined}} */ (currentBuild.options.entryPoints);
                     if (!entryPoints || entryPoints.length === 0) {
                         continue;
@@ -175,16 +180,37 @@ export default function({
 
                     if (currentBuild.loader === 'file') {
                         const file = entryPoints[0];
-                        const { result, outputFile } = await esbuildFile(file, {
+                        const resolvedFile = await resolve({
+                            kind: 'dynamic-import',
+                            path: file,
+                            importer: args.path,
+                            resolveDir: rootDir,
+                            pluginData: null,
+                            namespace: 'file',
+                        });
+                        if (!resolvedFile.path) {
+                            continue;
+                        }
+
+                        const fileBuffer = await load({
+                            path: resolvedFile.path,
+                            namespace: resolvedFile.namespace || 'file',
+                            pluginData: resolvedFile.pluginData,
+                        });
+
+                        if (!fileBuffer.contents) {
+                            continue;
+                        }
+
+                        const { result, outputFile } = await esbuildFile(resolvedFile.path, Buffer.from(fileBuffer.contents), {
                             ...build.initialOptions,
                             assetNames: assetNames || '[dir]/[name]',
                             ...currentBuild.options,
                         });
 
-                        outputFiles.push(outputFile);
                         assignToResult(collectedResult, result);
 
-                        await currentBuild.finisher(outputFile, outputFiles);
+                        await currentBuild.finisher([outputFile]);
                         continue;
                     }
 
@@ -204,8 +230,8 @@ export default function({
                     }));
                     assignToResult(collectedResult, result);
 
-                    const outputFile = getMainOutput(entryPoints, result.metafile, rootDir);
-                    await currentBuild.finisher(outputFile, outputFiles);
+                    const outputFiles = getOutputFiles(entryPoints, result.metafile, rootDir);
+                    await currentBuild.finisher(outputFiles);
                 }
 
                 return {

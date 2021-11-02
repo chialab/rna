@@ -992,15 +992,6 @@
     "@chialab/esbuild-helpers" "^0.12.31"
     "@chialab/node-resolve" "^0.12.26"
 
-"@chialab/esbuild-plugin-transform@^0.12.31":
-  version "0.12.31"
-  resolved "https://registry.npmjs.org/@chialab/esbuild-plugin-transform/-/esbuild-plugin-transform-0.12.31.tgz#9230e52867080b9c67eefee76ea2657d41c4e536"
-  integrity sha512-RAjIchTsYdpYcEoXN8dmIPChVDTmITa1zFH2sUCpOKdJdR4rsRz23k7J5Ew0EFy53YjHuxpZeOCE/U8b03SVeA==
-  dependencies:
-    "@chialab/esbuild-helpers" "^0.12.31"
-    "@chialab/estransform" "^0.12.11"
-    "@chialab/node-resolve" "^0.12.26"
-
 "@chialab/eslint-config@^3.0.0":
   version "3.1.1"
   resolved "https://registry.npmjs.org/@chialab/eslint-config/-/eslint-config-3.1.1.tgz#20ed9f3e796d00a8fb455429c391fad74ce2dd7d"

@@ -1,4 +1,3 @@
-import { readFile } from 'fs/promises';
 import { MagicString, generate, walk, parse, getSpanLocation } from '@chialab/estransform';
 import metaUrlPlugin, { getMetaUrl } from '@chialab/esbuild-plugin-meta-url';
 import { useRna } from '@chialab/esbuild-rna';
@@ -45,7 +44,7 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
     const plugin = {
         name: 'worker',
         async setup(build) {
-            const { onResolve, onLoad, onTransform, resolve, emitChunk, setupPlugin, rootDir } = useRna(build);
+            const { onResolve, onLoad, onTransform, resolve, transform, emitChunk, setupPlugin, rootDir } = useRna(build);
             await setupPlugin(plugin, [metaUrlPlugin()], 'after');
 
             const { sourcesContent } = build.initialOptions;
@@ -55,13 +54,12 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                 namespace: 'worker',
             }));
 
-            onLoad({ filter: /\./, namespace: 'worker' }, async ({ path: filePath }) => ({
-                contents: await readFile(filePath),
-                loader: 'file',
-            }));
+            onLoad({ filter: /\./, namespace: 'worker' }, (args) => transform(args));
 
             onTransform({ loaders: ['tsx', 'ts', 'jsx', 'js'] }, async (args) => {
-                if (variants.every((ctr) => !args.code.includes(ctr))) {
+                const code = args.code.toString();
+
+                if (variants.every((ctr) => !code.includes(ctr))) {
                     return;
                 }
 
@@ -74,7 +72,7 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                  * @type {Promise<void>[]}
                  */
                 const promises = [];
-                const ast = await parse(args.code);
+                const ast = await parse(code);
                 walk(ast, {
                     /**
                      * @param {import('@chialab/estransform').NewExpression} node
@@ -136,7 +134,7 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                         }
 
                         promises.push(Promise.resolve().then(async () => {
-                            magicCode = magicCode || new MagicString(args.code);
+                            magicCode = magicCode || new MagicString(code);
 
                             const loc = getSpanLocation(ast, node);
                             const value = firstArg.type === 'StringLiteral' ? firstArg.value : getMetaUrl(firstArg, ast);

@@ -18,21 +18,37 @@ export * from './buildFile.js';
  * @param {string[]} entryPoints The list of build entrypoints.
  * @param {import('esbuild').Metafile} metafile The result metafile from esbuild.
  * @param {string} rootDir The root dir of the build.
- * @return {string}
+ * @return {string[]}
  */
-export function getMainOutput(entryPoints, metafile, rootDir = process.cwd()) {
+export function getOutputFiles(entryPoints, metafile, rootDir = process.cwd()) {
+    entryPoints = entryPoints.map((entryPoint) => path.resolve(rootDir, entryPoint));
+
     const outputs = metafile.outputs;
     const outFile = Object.keys(outputs)
         .filter((output) => !output.endsWith('.map'))
         .filter((output) => outputs[output].entryPoint)
-        .find((output) => entryPoints.includes(
-            path.resolve(
-                rootDir,
-                /** @type {string} */(outputs[output].entryPoint?.replace(/^\w+:/, ''))
-            )
-        ));
+        .find((output) =>
+            entryPoints.includes(path.resolve(rootDir, /** @type {string} */ (outputs[output].entryPoint)))
+        );
 
-    return path.resolve(rootDir, /** @type {string} */ (outFile));
+    if (!outFile) {
+        return [];
+    }
+
+    const files = [outFile];
+
+    /**
+     * JavaScript sources can resulting in two files:
+     * - the built script file
+     * - the referenced style file with all imported css
+     * This file is not collected by esbuild as an artifact of the source file,
+     * so we are going to manually create the association.
+     */
+    const externalCss = outFile.replace(/\.js$/, '.css');
+    if (path.extname(outFile) === '.js' && outputs[externalCss]) {
+        files.push(externalCss);
+    }
+    return files;
 }
 
 /**
@@ -68,7 +84,7 @@ export function getMainOutput(entryPoints, metafile, rootDir = process.cwd()) {
  */
 
 /**
- * @typedef {import('esbuild').OnLoadArgs & { code?: string }} OnTransformArgs
+ * @typedef {import('esbuild').OnLoadArgs & { code?: string | Uint8Array, loader?: import('esbuild').Loader, resolveDir?: string }} OnTransformArgs
  */
 
 /**
@@ -76,17 +92,16 @@ export function getMainOutput(entryPoints, metafile, rootDir = process.cwd()) {
  */
 
 /**
- * @typedef {{ code: string, map?: import('@chialab/estransform').SourceMap }} OnTransformResult
+ * @typedef {{ code: string, map?: import('@chialab/estransform').SourceMap, resolveDir?: string }} OnTransformResult
  */
 
 /**
- * @typedef {(args: Required<OnTransformArgs>) => OnTransformResult | Promise<OnTransformResult | null | undefined> | null | undefined} TransformCallback
+ * @typedef {(args: import('esbuild').OnLoadArgs & { code: string | Uint8Array, loader: import('esbuild').Loader, resolveDir?: string }) => OnTransformResult | Promise<OnTransformResult | null | undefined> | null | undefined} TransformCallback
  */
 
 /**
  * @typedef {Object} BuildCallbacks
  * @property {{ options: OnResolveOptions, callback: ResolveCallback }[]} resolve
- * @property {Map<string, OnResolveResult>} resolved
  * @property {{ options: OnLoadOptions, callback: LoadCallback }[]} load
  * @property {{ options: OnTransformOptions, callback: TransformCallback }[]} transform
  */
@@ -140,7 +155,6 @@ export function useRna(build) {
      */
     const callbacks = buildInternals.get(build.initialOptions) || {
         resolve: [],
-        resolved: new Map(),
         load: [],
         transform: [],
     };
@@ -175,7 +189,7 @@ export function useRna(build) {
             const { platform, format } = build.initialOptions;
 
             if (platform === 'browser' && format !== 'esm') {
-                return 'document.baseURI';
+                return 'document.currentScript && document.currentScript.src || document.baseURI';
             }
 
             if (platform === 'node' && format !== 'esm') {
@@ -239,7 +253,18 @@ export function useRna(build) {
          * @param {LoadCallback} callback
          */
         onLoad(options, callback) {
-            onLoad.call(build, options, callback);
+            onLoad.call(build, options, async (args) => {
+                const result = await callback(args);
+                if (!result) {
+                    return;
+                }
+
+                return transform(build, {
+                    ...args,
+                    ...result,
+                    code: result.contents,
+                });
+            });
             callbacks.load.push({ options, callback });
         },
         /**
@@ -289,10 +314,6 @@ export async function resolve(build, args) {
         return args;
     }
 
-    if (callbacks.resolved.has(args.path)) {
-        return /** @type {OnResolveResult} */ (callbacks.resolved.get(args.path));
-    }
-
     const { namespace = 'file', path } = args;
     for (const { options, callback } of callbacks.resolve) {
         const { namespace: optionsNamespace = 'file', filter } = options;
@@ -306,7 +327,6 @@ export async function resolve(build, args) {
 
         const result = await callback(args);
         if (result && result.path) {
-            callbacks.resolved.set(result.path, result);
             return result;
         }
     }
@@ -315,7 +335,6 @@ export async function resolve(build, args) {
         await browserResolve(args.path, args.importer) :
         await nodeResolve(args.path, args.importer);
 
-    callbacks.resolved.set(result, { ...args, path: result });
     return {
         ...args,
         path: result,
@@ -329,10 +348,12 @@ export async function resolve(build, args) {
  */
 export async function load(build, args) {
     const callbacks = buildInternals.get(build.initialOptions);
+    const stdin = getStdinInput(build);
     const { namespace = 'file', path } = args;
     if (!callbacks) {
+        const contents = (stdin && args.path === stdin.path && stdin.contents) || await readFile(args.path);
         return {
-            contents: await readFile(path, 'utf-8'),
+            contents,
         };
     }
 
@@ -353,8 +374,9 @@ export async function load(build, args) {
         }
     }
 
+    const contents = (stdin && args.path === stdin.path && stdin.contents) || await readFile(args.path);
     return {
-        contents: await readFile(path, 'utf-8'),
+        contents,
     };
 }
 
@@ -366,25 +388,31 @@ const cache = [];
  * @return {Promise<OnLoadResult>}
  */
 export async function transform(build, args) {
+    const loaders = build.initialOptions.loader || {};
     const callbacks = buildInternals.get(build.initialOptions);
-    const stdin = getStdinInput(build);
-    const loader = args.path.endsWith('.ts') ? 'ts' : 'tsx';
+    const loader = args.loader || loaders[path.extname(args.path)] || 'file';
 
-    let code = args.code = args.code ||
-        (stdin && args.path === stdin.path && stdin.contents) ||
-        await readFile(args.path, 'utf-8');
+    let { code, resolveDir } = /** @type {{ code: string|Uint8Array; resolveDir?: string }} */ (args.code ?
+        args :
+        await Promise.resolve()
+            .then(() => load(build, args))
+            .then(({ contents, resolveDir }) => ({
+                code: contents,
+                resolveDir,
+            })));
 
     if (!callbacks) {
         return {
             contents: code,
             loader,
+            resolveDir,
         };
     }
 
-    const { namespace = 'file', path } = args;
+    const { namespace = 'file', path: filePath } = args;
     const { transform } = callbacks;
 
-    cache.push(args.path);
+    cache.push(filePath);
     const maps = [];
     for (const { options, callback } of transform) {
         const { namespace: optionsNamespace = 'file', filter } = options;
@@ -392,18 +420,22 @@ export async function transform(build, args) {
             continue;
         }
 
-        if (!(/** @type {RegExp} */ (filter)).test(path)) {
+        if (!(/** @type {RegExp} */ (filter)).test(filePath)) {
             continue;
         }
 
         const result = await callback({
             ...args,
             code,
+            loader,
         });
         if (result) {
             code = result.code;
             if (result.map) {
                 maps.push(result.map);
+            }
+            if (result.resolveDir) {
+                resolveDir = result.resolveDir;
             }
         }
     }
@@ -412,11 +444,12 @@ export async function transform(build, args) {
         return {
             contents: code,
             loader,
+            resolveDir,
         };
     }
 
     if (maps.length) {
-        const inputSourcemap = await loadSourcemap(code, path);
+        const inputSourcemap = await loadSourcemap(code.toString(), filePath);
         if (inputSourcemap) {
             maps.unshift(inputSourcemap);
         }
@@ -425,8 +458,9 @@ export async function transform(build, args) {
     const sourceMap = maps.length > 1 ? await mergeSourcemaps(maps) : maps[0];
 
     return {
-        contents: sourceMap ? inlineSourcemap(code, sourceMap) : code,
+        contents: sourceMap ? inlineSourcemap(code.toString(), sourceMap) : code,
         loader,
+        resolveDir,
     };
 }
 
@@ -478,16 +512,6 @@ export function rnaPlugin({ warn = true, esbuild } = {}) {
                 };
             });
 
-            onLoad({ filter: /./ }, async (args) => {
-                if (args.pluginData?.loader !== 'file') {
-                    return;
-                }
-                return {
-                    contents: await readFile(args.path, 'utf-8'),
-                    loader: 'file',
-                };
-            });
-
             onResolve({ filter: EMIT_CHUNK_REGEX }, (args) => ({
                 path: getSearchParams(args.path).path,
                 namespace: EMIT_CHUNK_NS,
@@ -513,10 +537,10 @@ export function rnaPlugin({ warn = true, esbuild } = {}) {
                 }
 
                 const result = /** @type { BuildResult} */ (await esbuild.build(config));
-                filePath = getMainOutput([filePath], result.metafile, rootDir);
+                const outputFiles = getOutputFiles([filePath], result.metafile, rootDir);
 
                 return {
-                    contents: await readFile(filePath),
+                    contents: await readFile(outputFiles[0]),
                     loader: 'file',
                 };
             });

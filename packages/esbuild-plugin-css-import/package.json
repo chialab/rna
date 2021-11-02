@@ -1,8 +1,8 @@
 {
-  "name": "@chialab/esbuild-plugin-html",
+  "name": "@chialab/esbuild-plugin-css-import",
   "type": "module",
-  "version": "0.12.31",
-  "description": "A HTML loader plugin for esbuild.",
+  "version": "0.12.0",
+  "description": "Resolve CSS imports using the node resolution algorithm and the style field in package.json.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",
   "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
@@ -10,15 +10,9 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/chialab/rna",
-    "directory": "packages/esbuild-plugin-html"
+    "directory": "packages/esbuild-plugin-css-import"
   },
-  "keywords": [
-    "esbuild",
-    "plugin",
-    "html",
-    "webapp",
-    "bundle"
-  ],
+  "keywords": [],
   "scripts": {
     "types": "tsc",
     "prepack": "yarn types"
@@ -35,15 +29,9 @@
   },
   "dependencies": {
     "@chialab/esbuild-rna": "^0.12.0",
-    "@chialab/node-resolve": "^0.12.26",
-    "@jimp/custom": "^0.16.1",
-    "@jimp/jpeg": "^0.16.1",
-    "@jimp/plugin-resize": "^0.16.1",
-    "@jimp/png": "^0.16.1",
-    "cheerio": "^1.0.0-rc.9"
+    "@chialab/node-resolve": "^0.12.0"
   },
   "devDependencies": {
-    "esbuild": "^0.13.0",
     "typescript": "^4.3.0"
   }
 }

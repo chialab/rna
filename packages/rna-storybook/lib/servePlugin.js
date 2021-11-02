@@ -244,7 +244,9 @@ export function servePlugin(config) {
 
             if (context.path.endsWith('.mdx')) {
                 const body = await readFile(filePath, 'utf-8');
-                const { code } = await transformMdxToCsf(body, filePath);
+                const { code } = await transformMdxToCsf(body, {
+                    source: filePath,
+                });
                 return {
                     body: code,
                 };

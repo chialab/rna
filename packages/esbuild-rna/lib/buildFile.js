@@ -1,22 +1,20 @@
 import path from 'path';
 import crypto from 'crypto';
-import { readFile, writeFile, mkdir } from 'fs/promises';
+import { writeFile, mkdir } from 'fs/promises';
 import { createResult } from './createResult.js';
 import { getRootDirByOptions, getOutputDirByOptions } from './options.js';
 
 /**
- * @param {string} from
+ * @param {string} fileName
+ * @param {string|Buffer} buffer
  * @param {import('esbuild').BuildOptions} options
  */
-export async function esbuildFile(from, options = {}) {
+export async function esbuildFile(fileName, buffer, options = {}) {
     const { assetNames = '[name]' } = options;
     const rootDir = getRootDirByOptions(options);
     const outDir = getOutputDirByOptions(options);
-
-    const inputFile = path.relative(rootDir, from);
-    const ext = path.extname(inputFile);
-    const basename = path.basename(inputFile, ext);
-    const buffer = await readFile(inputFile);
+    const ext = path.extname(fileName);
+    const basename = path.basename(fileName, ext);
     const computedName = assetNames
         .replace('[name]', basename)
         .replace('[hash]', () => {
@@ -39,7 +37,7 @@ export async function esbuildFile(from, options = {}) {
         result: createResult(
             {
                 inputs: {
-                    [inputFile]: {
+                    [fileName]: {
                         bytes,
                         imports: [],
                     },
@@ -48,13 +46,13 @@ export async function esbuildFile(from, options = {}) {
                     [relativeOutputFile]: {
                         bytes,
                         inputs: {
-                            [inputFile]: {
+                            [fileName]: {
                                 bytesInOutput: bytes,
                             },
                         },
                         imports: [],
                         exports: [],
-                        entryPoint: inputFile,
+                        entryPoint: fileName,
                     },
                 },
             }

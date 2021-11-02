@@ -18,7 +18,7 @@ export function collectScripts($, dom, base, outdir, targets = { scriptsTarget: 
             .map((element) => ({
                 options: {
                     entryPoints: [
-                        path.resolve(base, /** @type {string} */ ($(element).attr('src'))),
+                        /** @type {string} */ ($(element).attr('src')),
                     ],
                     target: targets.modulesTarget,
                     format: /** @type {import('esbuild').Format} */ ('esm'),
@@ -27,10 +27,14 @@ export function collectScripts($, dom, base, outdir, targets = { scriptsTarget: 
                     assetNames: `esm/assets/${options.assetNames || '[name]'}`,
                 },
                 /**
-                 * @param {string} filePath
+                 * @param {string[]} outputFiles
                  */
-                finisher(filePath) {
-                    $(element).attr('src', path.relative(outdir, filePath));
+                finisher(outputFiles) {
+                    const [jsPath, cssPath] = outputFiles;
+                    $(element).attr('src', path.relative(outdir, jsPath));
+                    if (cssPath) {
+                        $('head').append(`<link rel="stylesheet" href="${path.relative(outdir, cssPath)}" />`);
+                    }
                 },
             })),
         ...dom.find('script[type="module"]:not([src])')
@@ -56,10 +60,14 @@ export function collectScripts($, dom, base, outdir, targets = { scriptsTarget: 
                         assetNames: `esm/assets/${options.assetNames || '[name]'}`,
                     },
                     /**
-                     * @param {string} filePath
+                     * @param {string[]} outputFiles
                      */
-                    finisher(filePath) {
-                        $(element).attr('src', path.relative(outdir, filePath));
+                    finisher(outputFiles) {
+                        const [jsPath, cssPath] = outputFiles;
+                        $(element).attr('src', path.relative(outdir, jsPath));
+                        if (cssPath) {
+                            $('head').append(`<link rel="stylesheet" href="${path.relative(outdir, cssPath)}" />`);
+                        }
                     },
                 };
             }),
@@ -69,7 +77,7 @@ export function collectScripts($, dom, base, outdir, targets = { scriptsTarget: 
             .map((element) => ({
                 options: {
                     entryPoints: [
-                        path.resolve(base, /** @type {string} */ ($(element).attr('src'))),
+                        /** @type {string} */ ($(element).attr('src')),
                     ],
                     target: targets.scriptsTarget,
                     format: /** @type {import('esbuild').Format} */ ('iife'),
@@ -79,10 +87,14 @@ export function collectScripts($, dom, base, outdir, targets = { scriptsTarget: 
                     splitting: false,
                 },
                 /**
-                 * @param {string} filePath
+                 * @param {string[]} outputFiles
                  */
-                finisher(filePath) {
-                    $(element).attr('src', path.relative(outdir, filePath));
+                finisher(outputFiles) {
+                    const [jsPath, cssPath] = outputFiles;
+                    $(element).attr('src', path.relative(outdir, jsPath));
+                    if (cssPath) {
+                        $('head').append(`<link rel="stylesheet" href="${path.relative(outdir, cssPath)}" />`);
+                    }
                 },
             })),
     ];

@@ -27,10 +27,10 @@ export function collectAssets($, dom, base, outdir, options) {
                     assetNames: `assets/${options.assetNames || '[name]'}`,
                 },
                 /**
-                 * @param {string} filePath
+                 * @param {string[]} outputFiles
                  */
-                finisher(filePath) {
-                    $(element).attr('src', path.relative(outdir, filePath));
+                finisher(outputFiles) {
+                    $(element).attr('src', path.relative(outdir, outputFiles[0]));
                 },
             })),
         ...dom
@@ -48,10 +48,10 @@ export function collectAssets($, dom, base, outdir, options) {
                     assetNames: `assets/${options.assetNames || '[name]'}`,
                 },
                 /**
-                 * @param {string} filePath
+                 * @param {string[]} outputFiles
                  */
-                finisher(filePath) {
-                    $(element).attr('href', path.relative(outdir, filePath));
+                finisher(outputFiles) {
+                    $(element).attr('href', path.relative(outdir, outputFiles[0]));
                 },
             })),
     ];

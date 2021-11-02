@@ -1,5 +1,5 @@
-import { mkdir } from 'fs/promises';
 import path from 'path';
+import { mkdir } from 'fs/promises';
 import { isRelativeUrl } from '@chialab/node-resolve';
 
 const FAVICONS = [
@@ -151,11 +151,11 @@ async function generateAppleLaunchScreens(image, outputDir, launchScreens) {
  * Collect and bundle favicons.
  * @param {import('cheerio').CheerioAPI} $ The cheerio selector.
  * @param {import('cheerio').Cheerio<import('cheerio').Document>} dom The DOM element.
- * @param {string} base The base dir.
- * @param {string} outdir The output dir.
+ * @param {{ source: string, rootDir: string, outDir: string }} options Options.
+ * @param {{ resolve: import('@chialab/esbuild-rna').ResolveCallback, load: import('@chialab/esbuild-rna').LoadCallback }} helpers Module bundler helpers.
  * @return {import('./index').Build[]} A list of builds.
  */
-export function collectIcons($, dom, base, outdir) {
+export function collectIcons($, dom, { source, rootDir, outDir }, { resolve, load }) {
     const iconElement = dom.find('link[rel*="icon"]');
     const iconHref = iconElement.attr('href') || '';
     if (!isRelativeUrl(iconHref)) {
@@ -163,14 +163,13 @@ export function collectIcons($, dom, base, outdir) {
     }
 
     const iconRel = (iconElement.attr('rel') || '').split(' ');
-    const entryPoint = path.resolve(base, iconHref);
 
     return [
         {
             loader: 'file',
             options: {
                 entryPoints: [
-                    entryPoint,
+                    iconHref,
                 ],
                 entryNames: '[name]',
                 chunkNames: '[name]',
@@ -178,7 +177,7 @@ export function collectIcons($, dom, base, outdir) {
             },
             async finisher() {
                 const { default: Jimp, SUPPORTED_MIME_TYPES } = await import('./generator.js');
-                const iconsDir = path.join(outdir, 'icons');
+                const iconsDir = path.join(outDir, 'icons');
                 const mimeType = iconElement.attr('type') || 'image/png';
                 if (!SUPPORTED_MIME_TYPES.includes(mimeType)) {
                     return;
@@ -190,8 +189,29 @@ export function collectIcons($, dom, base, outdir) {
                     //
                 }
 
-                const iconFile = path.resolve(base, iconHref);
-                const image = await Jimp.read(iconFile);
+                const iconFile = await resolve({
+                    kind: 'dynamic-import',
+                    path: iconHref,
+                    importer: source,
+                    namespace: 'file',
+                    pluginData: null,
+                    resolveDir: rootDir,
+                });
+                if (!iconFile?.path) {
+                    return;
+                }
+
+                const iconBuffer = await load({
+                    path: iconFile.path,
+                    namespace: iconFile.namespace || 'file',
+                    pluginData: iconFile.pluginData,
+                });
+                if (!iconBuffer || !iconBuffer.contents) {
+                    return;
+                }
+
+                const imageBuffer = Buffer.from(iconBuffer.contents);
+                const image = await Jimp.read(imageBuffer);
                 const [
                     favicons,
                     appleIcons,
@@ -206,7 +226,7 @@ export function collectIcons($, dom, base, outdir) {
                     if (size === 196) {
                         const link = $('<link>');
                         link.attr('rel', 'shortcut icon');
-                        link.attr('href', path.relative(outdir, file));
+                        link.attr('href', path.relative(outDir, file));
                         link.insertBefore($(iconElement));
                         $(iconElement).before('\n    ');
                     }
@@ -214,7 +234,7 @@ export function collectIcons($, dom, base, outdir) {
                     const link = $('<link>');
                     link.attr('rel', 'icon');
                     link.attr('sizes', `${size}x${size}`);
-                    link.attr('href', path.relative(outdir, file));
+                    link.attr('href', path.relative(outDir, file));
                     link.insertBefore($(iconElement));
                     $(iconElement).before('\n    ');
                 });
@@ -223,7 +243,7 @@ export function collectIcons($, dom, base, outdir) {
                     const link = $('<link>');
                     link.attr('rel', 'apple-touch-icon');
                     link.attr('sizes', `${size}x${size}`);
-                    link.attr('href', path.relative(outdir, file));
+                    link.attr('href', path.relative(outDir, file));
                     link.insertBefore($(iconElement));
                     $(iconElement).before('\n    ');
                 });
@@ -232,7 +252,7 @@ export function collectIcons($, dom, base, outdir) {
                     const link = $('<link>');
                     link.attr('rel', 'apple-touch-startup-image');
                     link.attr('media', query);
-                    link.attr('href', path.relative(outdir, file));
+                    link.attr('href', path.relative(outDir, file));
                     link.insertBefore($(iconElement));
                     if (index !== arr.length - 1) {
                         $(iconElement).before('\n    ');

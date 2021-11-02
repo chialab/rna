@@ -15,6 +15,7 @@ export default function() {
             const { onResolve } = useRna(build);
 
             onResolve({ filter: /\./ }, async (args) => {
+                // Handle @import and @url css statements.
                 if (args.kind !== 'import-rule' && args.kind !== 'url-token') {
                     return;
                 }

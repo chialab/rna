@@ -12,6 +12,7 @@ export default function() {
     const plugin = {
         name: 'css-import',
         setup(build) {
+            const { external = [] } = build.initialOptions;
             const { onResolve } = useRna(build);
 
             onResolve({ filter: /\./ }, async (args) => {
@@ -28,6 +29,7 @@ export default function() {
 
                     return {
                         path: result,
+                        external: external.some((ext) => args.path.startsWith(ext)),
                     };
                 } catch (err) {
                     return;

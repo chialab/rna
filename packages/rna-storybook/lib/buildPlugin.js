@@ -13,6 +13,16 @@ import { mdxPlugin } from './mdxPlugin.js';
 import { MANAGER_SCRIPT, MANAGER_STYLE, PREVIEW_MODULE_SCRIPT, PREVIEW_SCRIPT, PREVIEW_STYLE } from './entrypoints.js';
 import { createStoriesJson, createStorySpecifiers } from './createStoriesJson.js';
 
+export function createEntrypoint(publicDir = 'public') {
+    return {
+        input: [
+            'index.html',
+            'iframe.html',
+        ],
+        output: publicDir,
+    };
+}
+
 /**
  * @param {import('./index.js').StorybookConfig} config Storybook options.
  * @return An esbuild plugin.

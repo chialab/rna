@@ -518,15 +518,15 @@ export function rnaPlugin({ warn = true, esbuild } = {}) {
                 pluginData: getChunkOptions(args.path),
             }));
 
-            onLoad({ filter: /./, namespace: EMIT_CHUNK_NS }, async ({ path: filePath, pluginData }) => {
+            onLoad({ filter: /./, namespace: EMIT_CHUNK_NS }, async (args) => {
                 esbuild = esbuild || await import('esbuild');
 
                 /** @type {import('esbuild').BuildOptions} */
                 const config = {
                     ...build.initialOptions,
-                    ...pluginData,
+                    ...args.pluginData,
                     globalName: undefined,
-                    entryPoints: [filePath],
+                    entryPoints: [args.path],
                     outfile: undefined,
                     outdir: outDir,
                     metafile: true,
@@ -536,11 +536,13 @@ export function rnaPlugin({ warn = true, esbuild } = {}) {
                     delete config.define['this'];
                 }
 
+                const sourceRoot = config.sourceRoot || config.absWorkingDir || rootDir;
                 const result = /** @type { BuildResult} */ (await esbuild.build(config));
-                const outputFiles = getOutputFiles([filePath], result.metafile, rootDir);
+                const outputFiles = getOutputFiles([args.path], result.metafile, rootDir);
+                const outputFile = path.resolve(sourceRoot, outputFiles[0]);
 
                 return {
-                    contents: await readFile(outputFiles[0]),
+                    contents: await readFile(outputFile),
                     loader: 'file',
                 };
             });

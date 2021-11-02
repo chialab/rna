@@ -45,7 +45,7 @@
     "@chialab/esbuild-plugin-meta-url": "^0.12.34",
     "@chialab/esbuild-plugin-unwebpack": "^0.12.34",
     "@chialab/esbuild-plugin-worker": "^0.12.34",
-    "@chialab/esbuild-rna": "^0.12.31",
+    "@chialab/esbuild-rna": "^0.12.0",
     "@chialab/rna-config-loader": "^0.12.26",
     "@chialab/rna-logger": "^0.12.2",
     "esbuild": "^0.13.0"

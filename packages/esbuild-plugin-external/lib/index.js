@@ -16,7 +16,7 @@ import { useRna } from '@chialab/esbuild-rna';
  */
 export default function({ dependencies = true, peerDependencies = false, optionalDependencies = false } = {}) {
     /**
-     * @type {import('esbuild').Plugin}xx
+     * @type {import('esbuild').Plugin}
      */
     const plugin = {
         name: 'external',

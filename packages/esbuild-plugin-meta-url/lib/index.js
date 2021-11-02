@@ -1,4 +1,5 @@
-import { isUrl } from '@chialab/node-resolve';
+import path from 'path';
+import { isUrl, hasSearchParam } from '@chialab/node-resolve';
 import { MagicString, getSpanLocation, parse, walk } from '@chialab/estransform';
 import { useRna } from '@chialab/esbuild-rna';
 
@@ -76,19 +77,6 @@ export function getMetaUrl(node, ast) {
 }
 
 /**
- * @param {string} entryPoint
- * @param {string} [specifier]
- */
-function createImportStatement(entryPoint, specifier) {
-    const identifier = `_${(specifier || entryPoint).split('?')[0].replace(/[^a-zA-Z0-9]/g, '_')}`;
-
-    return {
-        identifier,
-        statement: `import ${identifier} from '${entryPoint}';`,
-    };
-}
-
-/**
  * Instantiate a plugin that converts URL references into static import
  * in order to handle assets bundling.
  * @return An esbuild plugin.
@@ -100,8 +88,8 @@ export default function() {
     const plugin = {
         name: 'meta-url',
         async setup(build) {
-            const { sourcesContent } = build.initialOptions;
-            const { onTransform, resolve, getBaseUrl, emitFileOrChunk, getChunkOptions, rootDir } = useRna(build);
+            const { sourcesContent, loader: buildLoaders = {} } = build.initialOptions;
+            const { onTransform, resolve, getBaseUrl, emitFile, emitChunk, rootDir } = useRna(build);
 
             onTransform({ loaders: ['tsx', 'ts', 'jsx', 'js'] }, async (args) => {
                 const code = args.code.toString();
@@ -115,11 +103,6 @@ export default function() {
                  * @type {MagicString|undefined}
                  */
                 let magicCode;
-
-                /**
-                 * @type {{ [key: string]: string }}
-                 */
-                const ids = {};
 
                 /**
                  * @type {Promise<void>[]}
@@ -137,8 +120,15 @@ export default function() {
                             return;
                         }
 
+                        if (hasSearchParam(value, 'emit')) {
+                            // already emitted
+                            const loc = getSpanLocation(ast, node);
+                            magicCode = magicCode || new MagicString(code);
+                            magicCode.overwrite(loc.start, loc.end, `new URL('${value}', ${getBaseUrl()})`);
+                            return;
+                        }
+
                         promises.push(Promise.resolve().then(async () => {
-                            const params = getChunkOptions(value);
                             const { path: resolvedPath } = await resolve({
                                 kind: 'dynamic-import',
                                 path: value.split('?')[0],
@@ -155,18 +145,9 @@ export default function() {
                             const loc = getSpanLocation(ast, node);
                             magicCode = magicCode || new MagicString(code);
 
-                            if (!ids[resolvedPath]) {
-                                const entryPoint = emitFileOrChunk(build, resolvedPath, params);
-                                const { identifier, statement } = createImportStatement(entryPoint, value);
-                                if (code.startsWith('#!')) {
-                                    magicCode.appendRight(code.indexOf('\n') + 1, `${statement}\n`);
-                                } else {
-                                    magicCode.prepend(`${statement}\n`);
-                                }
-                                ids[resolvedPath] = identifier;
-                            }
-
-                            magicCode.overwrite(loc.start, loc.end, `new URL(${ids[resolvedPath]}, ${getBaseUrl()})`);
+                            const entryLoader = buildLoaders[path.extname(resolvedPath)] || 'file';
+                            const entryPoint = entryLoader !== 'file' ? await emitChunk(resolvedPath) : await emitFile(resolvedPath);
+                            magicCode.overwrite(loc.start, loc.end, `new URL('${entryPoint}', ${getBaseUrl()})`);
                         }));
                     },
                 });

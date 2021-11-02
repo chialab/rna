@@ -21,6 +21,10 @@ export default function() {
                     return;
                 }
 
+                if (external.some((ext) => args.path.startsWith(ext))) {
+                    return;
+                }
+
                 try {
                     const result = await styleResolve(args.path, args.importer);
                     if (!result) {
@@ -29,7 +33,6 @@ export default function() {
 
                     return {
                         path: result,
-                        external: external.some((ext) => args.path.startsWith(ext)),
                     };
                 } catch (err) {
                     return;

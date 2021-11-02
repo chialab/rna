@@ -158,7 +158,7 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                                 return;
                             }
 
-                            const entryPoint = emitChunk(resolvedPath, transformOptions);
+                            const entryPoint = await emitChunk(resolvedPath, transformOptions);
                             const arg = `new URL('${entryPoint}', import.meta.url).href`;
                             if (proxy) {
                                 magicCode.overwrite(loc.start, loc.end, `new ${Ctr}(${createBlobProxy(arg, transformOptions)})`);

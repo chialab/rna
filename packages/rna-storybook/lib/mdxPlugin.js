@@ -1,3 +1,4 @@
+import { readFile } from 'fs/promises';
 import { useRna } from '@chialab/esbuild-rna';
 import { transformMdxToCsf } from './transformMdxToCsf.js';
 
@@ -8,7 +9,7 @@ export function mdxPlugin() {
     const plugin = {
         name: 'storybook-mdx',
         async setup(build) {
-            const { onResolve, onTransform } = useRna(build);
+            const { onResolve, onLoad } = useRna(build);
             /**
              * @type {import('esbuild').BuildOptions['loader']}
              */
@@ -21,15 +22,20 @@ export function mdxPlugin() {
                 path: args.path,
             }));
 
-            onTransform({ loaders: ['tsx', 'ts', 'jsx', 'js'] }, (args) => {
-                if (!args.path.match(/\.mdx$/)) {
+            onLoad({ filter: /\.mdx$/ }, async (args) => {
+                try {
+                    const code = await readFile(args.path, 'utf8');
+                    const result = await transformMdxToCsf(code, {
+                        source: args.path,
+                    });
+
+                    return {
+                        contents: result.code,
+                        loader: 'js',
+                    };
+                } catch (err) {
                     return;
                 }
-
-                const code = args.code.toString();
-                return transformMdxToCsf(code, {
-                    source: args.path,
-                });
             });
         },
     };

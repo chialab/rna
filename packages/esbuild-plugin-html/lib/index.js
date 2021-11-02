@@ -1,7 +1,7 @@
 import path from 'path';
 import { rename, rm } from 'fs/promises';
 import * as cheerio from 'cheerio';
-import { createResult, assignToResult, useRna, getOutputFiles, esbuildFile } from '@chialab/esbuild-rna';
+import { createResult, assignToResult, useRna, getOutputFiles } from '@chialab/esbuild-rna';
 
 /**
  * @typedef {import('esbuild').Metafile} Metafile
@@ -71,8 +71,8 @@ export default function({
     const plugin = {
         name: 'html',
         setup(build) {
-            const { entryPoints = [], assetNames, write } = build.initialOptions;
-            const { resolve, load, rootDir, outDir, onTransform } = useRna(build);
+            const { entryPoints = [], write } = build.initialOptions;
+            const { resolve, load, rootDir, outDir, onTransform, emitFile } = useRna(build);
             const sourceFiles = Array.isArray(entryPoints) ? entryPoints : Object.values(entryPoints);
             const sourceDir = sourceFiles.length ? commonDir(sourceFiles.map((file) => path.resolve(rootDir, file))) : rootDir;
 
@@ -202,13 +202,9 @@ export default function({
                             continue;
                         }
 
-                        const { result, outputFile } = await esbuildFile(resolvedFile.path, Buffer.from(fileBuffer.contents), {
-                            ...build.initialOptions,
-                            assetNames: assetNames || '[dir]/[name]',
-                            ...currentBuild.options,
-                        });
+                        const outputFile = await emitFile(resolvedFile.path, Buffer.from(fileBuffer.contents));
 
-                        assignToResult(collectedResult, result);
+                        // assignToResult(collectedResult, result);
 
                         await currentBuild.finisher([outputFile]);
                         continue;

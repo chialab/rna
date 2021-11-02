@@ -1,15 +1,16 @@
 import path from 'path';
-import { readFile } from 'fs/promises';
-import { appendSearchParam, hasSearchParam, getSearchParam, getSearchParams, browserResolve, resolve as nodeResolve } from '@chialab/node-resolve';
+import crypto from 'crypto';
+import { mkdir, readFile, writeFile } from 'fs/promises';
+import { appendSearchParam, browserResolve, resolve as nodeResolve } from '@chialab/node-resolve';
 import { loadSourcemap, inlineSourcemap, mergeSourcemaps } from '@chialab/estransform';
 import { setupPlugin } from './setupPlugin.js';
 import { collectDependencies } from './collectDependencies.js';
 import { getRootDir, getOutputDir, getStdinInput } from './options.js';
+import { assignToResult, createResult } from './createResult.js';
 
 export * from './setupPlugin.js';
 export * from './createResult.js';
 export * from './collectDependencies.js';
-export * from './buildFile.js';
 
 /**
  * Get the entrypoint ouput from an esbuild result metafile.
@@ -104,6 +105,8 @@ export function getOutputFiles(entryPoints, metafile, rootDir = process.cwd()) {
  * @property {{ options: OnResolveOptions, callback: ResolveCallback }[]} resolve
  * @property {{ options: OnLoadOptions, callback: LoadCallback }[]} load
  * @property {{ options: OnTransformOptions, callback: TransformCallback }[]} transform
+ * @property {Map<string, { outputFile: string; result: import('./createResult.js').BuildResult}> } chunks
+ * @property {Map<string, { outputFile: string; result: import('./createResult.js').BuildResult}> } files
  */
 
 /**
@@ -125,29 +128,15 @@ export function getOutputFiles(entryPoints, metafile, rootDir = process.cwd()) {
  */
 
 /**
- * The filter regex for file imports.
- */
-const EMIT_FILE_REGEX = /(\?|&)emit=file/;
-
-/**
- * The namespace for emitted chunks.
- */
-const EMIT_CHUNK_NS = 'emit-chunk';
-
-/**
- * The filter regex for chunk imports.
- */
-const EMIT_CHUNK_REGEX = /(\?|&)emit=chunk/;
-
-/**
  * @type {WeakMap<import('esbuild').BuildOptions, BuildCallbacks>}
  */
 const buildInternals = new WeakMap();
 
 /**
  * @param {import('esbuild').PluginBuild} build
+ * @param {typeof import('esbuild')} [esbuildModule]
  */
-export function useRna(build) {
+export function useRna(build, esbuildModule) {
     const onResolve = build.onResolve;
     const onLoad = build.onLoad;
     /**
@@ -157,10 +146,14 @@ export function useRna(build) {
         resolve: [],
         load: [],
         transform: [],
+        chunks: new Map(),
+        files: new Map(),
     };
     buildInternals.set(build.initialOptions, callbacks);
 
     const rnaBuild = {
+        chunks: callbacks.chunks,
+        files: callbacks.files,
         rootDir: getRootDir(build),
         outDir: getOutputDir(build),
         stdin: getStdinInput(build),
@@ -201,44 +194,101 @@ export function useRna(build) {
         /**
          * Programmatically emit file reference.
          * @param {string} source The path of the file.
+         * @param {string|Buffer} [buffer]
          */
-        emitFile(source) {
-            return appendSearchParam(source, 'emit', 'file');
+        async emitFile(source, buffer) {
+            const rootDir = getRootDir(build);
+            const outDir = getOutputDir(build);
+            const { assetNames = '[name]' } = build.initialOptions;
+
+            const ext = path.extname(source);
+            const basename = path.basename(source, ext);
+
+            buffer = buffer || await readFile(source);
+
+            const computedName = assetNames
+                .replace('[name]', basename)
+                .replace('[hash]', () => {
+                    const hash = crypto.createHash('sha1');
+                    hash.update(/** @type {Buffer} */ (buffer));
+                    return hash.digest('hex').substr(0, 8);
+                });
+
+            const outputFile = path.join(outDir, `${computedName}${ext}`);
+            const bytes = buffer.length;
+            await mkdir(path.dirname(outputFile), {
+                recursive: true,
+            });
+            await writeFile(outputFile, buffer);
+
+            rnaBuild.files.set(source, {
+                outputFile,
+                result: createResult(
+                    {
+                        inputs: {
+                            [path.relative(rootDir, source)]: {
+                                bytes,
+                                imports: [],
+                            },
+                        },
+                        outputs: {
+                            [path.relative(rootDir, outputFile)]: {
+                                bytes,
+                                inputs: {
+                                    [path.relative(rootDir, source)]: {
+                                        bytesInOutput: bytes,
+                                    },
+                                },
+                                imports: [],
+                                exports: [],
+                                entryPoint: path.relative(rootDir, source),
+                            },
+                        },
+                    }
+                ),
+            });
+
+            return appendSearchParam(`./${path.relative(outDir, outputFile)}`, 'emit', 'file');
         },
         /**
          * Programmatically emit a chunk reference.
          * @param {string} source The path of the chunk.
          * @param {EmitTransformOptions} options Esbuild transform options.
          */
-        emitChunk(source, options = {}) {
-            return appendSearchParam(appendSearchParam(source, 'emit', 'chunk'), 'transform', JSON.stringify(options));
-        },
-        /**
-         * @param {import('esbuild').PluginBuild} build
-         * @param {string} source
-         * @param {EmitTransformOptions} options
-         */
-        emitFileOrChunk(build, source, options = {}) {
-            if (hasSearchParam(source, 'emit')) {
-                return source;
+        async emitChunk(source, options = {}) {
+            esbuildModule = esbuildModule || await import('esbuild');
+
+            const rootDir = getRootDir(build);
+            const outDir = getOutputDir(build);
+
+            /** @type {import('esbuild').BuildOptions} */
+            const config = {
+                ...build.initialOptions,
+                ...options,
+                globalName: undefined,
+                entryPoints: [source],
+                outfile: undefined,
+                metafile: true,
+            };
+
+            const { chunkNames = '[name]' } = config;
+            const chunksDir = path.dirname(path.join(outDir, chunkNames));
+            config.outdir = chunksDir;
+
+            if (config.define) {
+                delete config.define['this'];
             }
 
-            const loaders = build.initialOptions.loader || {};
-            const loader = loaders[path.extname(source)] || 'file';
-            if (loader !== 'file' && loader !== 'json') {
-                return rnaBuild.emitChunk(source, options);
-            }
+            const result = /** @type { BuildResult} */ (await esbuildModule.build(config));
+            const outputFiles = getOutputFiles([source], result.metafile, rootDir);
+            const outputFile = path.resolve(rootDir, outputFiles[0]);
 
-            return rnaBuild.emitFile(source);
-        },
-        /**
-         * Extract esbuild transform options for the chunk endpoint.
-         * @param {string} entryPoint
-         * @return {EmitTransformOptions}
-         */
-        getChunkOptions(entryPoint) {
-            const transform = getSearchParam(entryPoint, 'transform') || '{}';
-            return JSON.parse(transform);
+            callbacks.chunks.set(source, {
+                outputFile,
+                result,
+            });
+
+            return appendSearchParam(`./${path.relative(outDir, outputFile)}`, 'emit', 'chunk');
         },
         /**
          * @param {OnResolveOptions} options
@@ -480,8 +530,7 @@ export function rnaPlugin({ warn = true, esbuild } = {}) {
     const plugin = {
         name: 'rna',
         setup(build) {
-            const { onResolve, onLoad, rootDir, outDir, getChunkOptions } = useRna(build);
-            const { loader = {} } = build.initialOptions;
+            const { onResolve, onLoad, chunks, files } = useRna(build, esbuild);
 
             build.onResolve = onResolve;
             build.onLoad = onLoad;
@@ -495,56 +544,9 @@ export function rnaPlugin({ warn = true, esbuild } = {}) {
                 }
             }
 
-            onResolve({ filter: EMIT_FILE_REGEX }, (args) => {
-                const realPath = getSearchParams(args.path).path;
-                const ext = path.extname(realPath);
-                if (!loader[ext] || loader[ext] === 'file') {
-                    return {
-                        path: realPath,
-                    };
-                }
-
-                return {
-                    path: realPath,
-                    pluginData: {
-                        loader: 'file',
-                    },
-                };
-            });
-
-            onResolve({ filter: EMIT_CHUNK_REGEX }, (args) => ({
-                path: getSearchParams(args.path).path,
-                namespace: EMIT_CHUNK_NS,
-                pluginData: getChunkOptions(args.path),
-            }));
-
-            onLoad({ filter: /./, namespace: EMIT_CHUNK_NS }, async (args) => {
-                esbuild = esbuild || await import('esbuild');
-
-                /** @type {import('esbuild').BuildOptions} */
-                const config = {
-                    ...build.initialOptions,
-                    ...args.pluginData,
-                    globalName: undefined,
-                    entryPoints: [args.path],
-                    outfile: undefined,
-                    outdir: outDir,
-                    metafile: true,
-                };
-
-                if (config.define) {
-                    delete config.define['this'];
-                }
-
-                const sourceRoot = config.sourceRoot || config.absWorkingDir || rootDir;
-                const result = /** @type { BuildResult} */ (await esbuild.build(config));
-                const outputFiles = getOutputFiles([args.path], result.metafile, rootDir);
-                const outputFile = path.resolve(sourceRoot, outputFiles[0]);
-
-                return {
-                    contents: await readFile(outputFile),
-                    loader: 'file',
-                };
+            build.onEnd((buildResult) => {
+                chunks.forEach(({ result }) => assignToResult(buildResult, result));
+                files.forEach(({ result }) => assignToResult(buildResult, result));
             });
         },
     };

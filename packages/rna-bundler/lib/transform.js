@@ -1,5 +1,5 @@
 import path from 'path';
-import { mergeDependencies, rnaPlugin } from '@chialab/esbuild-rna';
+import { rnaPlugin, useRna } from '@chialab/esbuild-rna';
 import { transformLoaders } from './loaders.js';
 
 /**
@@ -126,15 +126,14 @@ export async function transform(config) {
         throw new Error(`Failed to transform "${input}"`);
     }
 
+    const dependencies = useRna(/** @type {import('esbuild').PluginBuild} */(pluginBuild))
+        .mergeDependencies(result);
+
     return {
         code: result.outputFiles[0].text,
         map: result.outputFiles[1] ? result.outputFiles[1].text : '',
         warnings: result.warnings,
         metafile: result.metafile,
-        dependencies: mergeDependencies(
-            /** @type {import('esbuild').PluginBuild} */(pluginBuild),
-            result,
-            rootDir
-        ),
+        dependencies,
     };
 }

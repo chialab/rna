@@ -1,7 +1,7 @@
 import path from 'path';
 import { rm } from 'fs/promises';
 import { createLogger } from '@chialab/rna-logger';
-import { mergeDependencies, rnaPlugin } from '@chialab/esbuild-rna';
+import { rnaPlugin, useRna } from '@chialab/esbuild-rna';
 import { loaders } from './loaders.js';
 import { writeManifestJson } from './writeManifestJson.js';
 import { writeEntrypointsJson } from './writeEntrypointsJson.js';
@@ -205,12 +205,11 @@ export async function build(config) {
 
     await onBuildEnd(config, entryOptions, result);
 
+    const dependencies = useRna(/** @type {import('esbuild').PluginBuild} */(pluginBuild))
+        .mergeDependencies(result);
+
     return {
         ...result,
-        dependencies: mergeDependencies(
-            /** @type {import('esbuild').PluginBuild} */(pluginBuild),
-            result,
-            rootDir
-        ),
+        dependencies,
     };
 }

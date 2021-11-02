@@ -3,14 +3,9 @@ import crypto from 'crypto';
 import { mkdir, readFile, writeFile } from 'fs/promises';
 import { appendSearchParam, browserResolve, resolve as nodeResolve } from '@chialab/node-resolve';
 import { loadSourcemap, inlineSourcemap, mergeSourcemaps } from '@chialab/estransform';
-import { setupPlugin } from './setupPlugin.js';
-import { collectDependencies } from './collectDependencies.js';
-import { getRootDir, getOutputDir, getStdinInput } from './options.js';
 import { assignToResult, createResult } from './createResult.js';
 
-export * from './setupPlugin.js';
 export * from './createResult.js';
-export * from './collectDependencies.js';
 
 /**
  * Get the entrypoint ouput from an esbuild result metafile.
@@ -101,12 +96,17 @@ export function getOutputFiles(entryPoints, metafile, rootDir = process.cwd()) {
  */
 
 /**
- * @typedef {Object} BuildCallbacks
+ * @typedef {{ [key: string]: string[] }} DependenciesMap
+ */
+
+/**
+ * @typedef {Object} BuildState
  * @property {{ options: OnResolveOptions, callback: ResolveCallback }[]} resolve
  * @property {{ options: OnLoadOptions, callback: LoadCallback }[]} load
  * @property {{ options: OnTransformOptions, callback: TransformCallback }[]} transform
- * @property {Map<string, { outputFile: string; result: import('./createResult.js').BuildResult}> } chunks
- * @property {Map<string, { outputFile: string; result: import('./createResult.js').BuildResult}> } files
+ * @property {Map<string, { outputFile: string; result: import('./createResult.js').BuildResult}>} chunks
+ * @property {Map<string, { outputFile: string; result: import('./createResult.js').BuildResult}>} files
+ * @property {DependenciesMap} dependencies
  */
 
 /**
@@ -128,79 +128,202 @@ export function getOutputFiles(entryPoints, metafile, rootDir = process.cwd()) {
  */
 
 /**
- * @type {WeakMap<import('esbuild').BuildOptions, BuildCallbacks>}
+ * @type {WeakMap<import('esbuild').BuildOptions, BuildState>}
  */
 const buildInternals = new WeakMap();
 
 /**
- * @param {import('esbuild').PluginBuild} build
- * @param {typeof import('esbuild')} [esbuildModule]
+ * Enrich the esbuild build with a transformation pipeline and emit methods.
+ * @param {import('esbuild').PluginBuild} build The esbuild build.
+ * @param {typeof import('esbuild')} [esbuildModule] The esbuild module to use for internal builds.
  */
 export function useRna(build, esbuildModule) {
+    const { sourceRoot, absWorkingDir, outdir, outfile } = build.initialOptions;
     const onResolve = build.onResolve;
     const onLoad = build.onLoad;
     /**
-     * @type {BuildCallbacks}
+     * @type {BuildState}
      */
-    const callbacks = buildInternals.get(build.initialOptions) || {
+    const state = buildInternals.get(build.initialOptions) || {
         resolve: [],
         load: [],
         transform: [],
         chunks: new Map(),
         files: new Map(),
+        dependencies: {},
     };
-    buildInternals.set(build.initialOptions, callbacks);
+    buildInternals.set(build.initialOptions, state);
+
+    const rootDir = sourceRoot || absWorkingDir || process.cwd();
+    const outDir = /** @type {string} */(outdir || (outfile && path.dirname(outfile)));
 
     const rnaBuild = {
-        chunks: callbacks.chunks,
-        files: callbacks.files,
-        rootDir: getRootDir(build),
-        outDir: getOutputDir(build),
-        stdin: getStdinInput(build),
         /**
-         * @param {OnResolveArgs} args
+         * A map of emitted chunks.
          */
-        resolve(args) {
-            return resolve(build, args);
+        chunks: state.chunks,
+        /**
+         * A map of emitted files.
+         */
+        files: state.files,
+        /**
+         * A list of collected dependencies.
+         */
+        dependencies: state.dependencies,
+        /**
+         * Compute the build root dir.
+         */
+        rootDir,
+        /**
+         * Compute the build output dir.
+         */
+        outDir,
+        /**
+         * Iterate build.onResult hooks in order to programmatically resolve an import.
+         * @param {OnResolveArgs} args The resolve arguments.
+         * @return {Promise<OnResolveResult>} A resolve result.
+         */
+        async resolve(args) {
+            const { namespace = 'file', path } = args;
+            for (const { options, callback } of state.resolve) {
+                const { namespace: optionsNamespace = 'file', filter } = options;
+                if (namespace !== optionsNamespace) {
+                    continue;
+                }
+
+                if (!filter.test(path)) {
+                    continue;
+                }
+
+                const result = await callback(args);
+                if (result && result.path) {
+                    return result;
+                }
+            }
+
+            const result = build.initialOptions.platform === 'browser' ?
+                await browserResolve(args.path, args.importer) :
+                await nodeResolve(args.path, args.importer);
+
+            return {
+                ...args,
+                path: result,
+            };
         },
         /**
-         * @param {OnLoadArgs} args
+         * Iterate build.onLoad hooks in order to programmatically load file contents.
+         * @param {OnLoadArgs} args The load arguments.
+         * @return {Promise<OnLoadResult>} A load result with file contents.
          */
-        load(args) {
-            return load(build, args);
+        async load(args) {
+            const { stdin } = build.initialOptions;
+            const { namespace = 'file', path: filePath } = args;
+
+            const { load } = state;
+            for (const { options, callback } of load) {
+                const { namespace: optionsNamespace = 'file', filter } = options;
+                if (namespace !== optionsNamespace) {
+                    continue;
+                }
+
+                if (!filter.test(filePath)) {
+                    continue;
+                }
+
+                const result = await callback(args);
+                if (result) {
+                    return result;
+                }
+            }
+
+            const contents = (
+                stdin &&
+                stdin.sourcefile &&
+                filePath === path.resolve(rootDir, stdin.sourcefile) &&
+                stdin.contents
+            ) || await readFile(filePath);
+
+            return {
+                contents,
+            };
         },
         /**
          * @param {OnTransformArgs} args
          */
-        transform(args) {
-            return transform(build, args);
-        },
-        /**
-         * Get the base uri reference.
-         */
-        getBaseUrl() {
-            const { platform, format } = build.initialOptions;
+        async transform(args) {
+            const loaders = build.initialOptions.loader || {};
+            const loader = args.loader || loaders[path.extname(args.path)] || 'file';
 
-            if (platform === 'browser' && format !== 'esm') {
-                return 'document.currentScript && document.currentScript.src || document.baseURI';
+            let { code, resolveDir } = /** @type {{ code: string|Uint8Array; resolveDir?: string }} */ (args.code ?
+                args :
+                await Promise.resolve()
+                    .then(() => rnaBuild.load(args))
+                    .then(({ contents, resolveDir }) => ({
+                        code: contents,
+                        resolveDir,
+                    })));
+
+            const { namespace = 'file', path: filePath } = args;
+            const { transform } = state;
+
+            const maps = [];
+            for (const { options, callback } of transform) {
+                const { namespace: optionsNamespace = 'file', filter } = options;
+                if (namespace !== optionsNamespace) {
+                    continue;
+                }
+
+                if (!(/** @type {RegExp} */ (filter)).test(filePath)) {
+                    continue;
+                }
+
+                const result = await callback({
+                    ...args,
+                    code,
+                    loader,
+                });
+                if (result) {
+                    code = result.code;
+                    if (result.map) {
+                        maps.push(result.map);
+                    }
+                    if (result.resolveDir) {
+                        resolveDir = result.resolveDir;
+                    }
+                }
             }
 
-            if (platform === 'node' && format !== 'esm') {
-                return '\'file://\' + __filename';
+            if (code === args.code) {
+                return {
+                    contents: code,
+                    loader,
+                    resolveDir,
+                };
             }
 
-            return 'import.meta.url';
+            if (maps.length) {
+                const inputSourcemap = await loadSourcemap(code.toString(), filePath);
+                if (inputSourcemap) {
+                    maps.unshift(inputSourcemap);
+                }
+            }
+
+            const sourceMap = maps.length > 1 ? await mergeSourcemaps(maps) : maps[0];
+
+            return {
+                contents: sourceMap ? inlineSourcemap(code.toString(), sourceMap) : code,
+                loader,
+                resolveDir,
+            };
         },
         /**
          * Programmatically emit file reference.
          * @param {string} source The path of the file.
-         * @param {string|Buffer} [buffer]
+         * @param {string|Buffer} [buffer] File contents.
+         * @return {Promise<string>} The output file reference.
          */
         async emitFile(source, buffer) {
-            const rootDir = getRootDir(build);
-            const outDir = getOutputDir(build);
             const { assetNames = '[name]' } = build.initialOptions;
-
             const ext = path.extname(source);
             const basename = path.basename(source, ext);
 
@@ -254,12 +377,10 @@ export function useRna(build, esbuildModule) {
          * Programmatically emit a chunk reference.
          * @param {string} source The path of the chunk.
          * @param {EmitTransformOptions} options Esbuild transform options.
+         * @return {Promise<string>} The output chunk reference.
          */
         async emitChunk(source, options = {}) {
             esbuildModule = esbuildModule || await import('esbuild');
-
-            const rootDir = getRootDir(build);
-            const outDir = getOutputDir(build);
 
             /** @type {import('esbuild').BuildOptions} */
             const config = {
@@ -283,7 +404,7 @@ export function useRna(build, esbuildModule) {
             const outputFiles = getOutputFiles([source], result.metafile, rootDir);
             const outputFile = path.resolve(rootDir, outputFiles[0]);
 
-            callbacks.chunks.set(source, {
+            state.chunks.set(source, {
                 outputFile,
                 result,
             });
@@ -291,16 +412,18 @@ export function useRna(build, esbuildModule) {
             return appendSearchParam(`./${path.relative(outDir, outputFile)}`, 'emit', 'chunk');
         },
         /**
-         * @param {OnResolveOptions} options
-         * @param {ResolveCallback} callback
+         * Wrap esbuild onResolve hook in order to collect the resolve rule.
+         * @param {OnResolveOptions} options The filter for onResolve hook.
+         * @param {ResolveCallback} callback The function to invoke for resolution.
          */
         onResolve(options, callback) {
             onResolve.call(build, options, callback);
-            callbacks.resolve.push({ options, callback });
+            state.resolve.push({ options, callback });
         },
         /**
-         * @param {OnLoadOptions} options
-         * @param {LoadCallback} callback
+         * Wrap esbuild onLoad hook in order to collect the load callback.
+         * @param {OnLoadOptions} options The filter for onLoad hook.
+         * @param {LoadCallback} callback The function to invoke for loading.
          */
         onLoad(options, callback) {
             onLoad.call(build, options, async (args) => {
@@ -309,17 +432,19 @@ export function useRna(build, esbuildModule) {
                     return;
                 }
 
-                return transform(build, {
+                return rnaBuild.transform({
                     ...args,
                     ...result,
                     code: result.contents,
                 });
             });
-            callbacks.load.push({ options, callback });
+            state.load.push({ options, callback });
         },
         /**
-         * @param {OnTransformOptions} options
-         * @param {TransformCallback} callback
+         * Add a transform hook to the build.
+         * Differently from onLoad, each onTransform callback matched by the resource is invoked.
+         * @param {OnTransformOptions} options The filter for onTransform hook.
+         * @param {TransformCallback} callback The function to invoke for transformation.
          */
         onTransform(options, callback) {
             const { loader: loaders = {} } = build.initialOptions;
@@ -329,189 +454,85 @@ export function useRna(build, esbuildModule) {
                 const tsxExtensions = keys.filter((key) => filterLoaders.includes(loaders[key]));
                 return new RegExp(`\\.(${tsxExtensions.map((ext) => ext.replace('.', '')).join('|')})$`);
             })();
-            onLoad.call(build, { filter }, (args) => transform(build, args));
-            callbacks.transform.push({ options, callback });
+            onLoad.call(build, { filter }, (args) => rnaBuild.transform(args));
+            state.transform.push({ options, callback });
         },
         /**
          * Insert dependency plugins in the build plugins list.
          * @param {import('esbuild').Plugin} plugin The current plugin.
          * @param {import('esbuild').Plugin[]} plugins A list of required plugins .
          * @param {'before'|'after'} [mode] Where insert the missing plugin.
+         * @return {string[]} The list of plugin names that had been added to the build.
          */
-        setupPlugin(plugin, plugins, mode = 'before') {
-            return setupPlugin(build, plugin, plugins, mode);
+        async setupPlugin(plugin, plugins, mode = 'before') {
+            const installedPlugins = build.initialOptions.plugins || [];
+
+            /**
+             * @type {string[]}
+             */
+            const pluginsToInstall = [];
+
+            let last = plugin;
+            for (let i = 0; i < plugins.length; i++) {
+                const dependency = plugins[i];
+                if (installedPlugins.find((p) => p.name === dependency.name)) {
+                    continue;
+                }
+
+                pluginsToInstall.push(dependency.name);
+                await dependency.setup(build);
+                const io = installedPlugins.indexOf(last);
+                if (mode === 'after') {
+                    last = dependency;
+                }
+                installedPlugins.splice(mode === 'before' ? io : (io + 1), 0, dependency);
+            }
+
+            build.initialOptions.plugins = installedPlugins;
+
+            return pluginsToInstall;
         },
         /**
-         * @param {string} importer
-         * @param {string[]} dependencies
+         * Add dependencies to the build.
+         * @param {string} importer The importer path.
+         * @param {string[]} dependencies A list of loaded dependencies.
+         * @return {DependenciesMap} The updated dependencies map.
          */
         collectDependencies(importer, dependencies) {
-            return collectDependencies(build, importer, dependencies);
+            const map = state.dependencies;
+            map[importer] = [
+                ...(map[importer] || []),
+                ...dependencies,
+            ];
+
+            return map;
+        },
+        /**
+         * Iterate a build result and collect dependencies.
+         * @param {import('esbuild').BuildResult} result The build result.
+         * @return {DependenciesMap} The updated dependencies map.
+         */
+        mergeDependencies(result) {
+            const map = state.dependencies;
+            const { metafile } = result;
+            if (!metafile) {
+                return map;
+            }
+            for (const out of Object.values(metafile.outputs)) {
+                if (!out.entryPoint) {
+                    continue;
+                }
+
+                const entryPoint = path.resolve(rootDir, out.entryPoint);
+                const list = map[entryPoint] = map[entryPoint] || [];
+                list.push(...Object.keys(out.inputs).map((file) => path.resolve(rootDir, file)));
+            }
+
+            return map;
         },
     };
 
     return rnaBuild;
-}
-
-/**
- * @param {import('esbuild').PluginBuild} build
- * @param {OnResolveArgs} args
- * @return {Promise<OnResolveResult>}
- */
-export async function resolve(build, args) {
-    const callbacks = buildInternals.get(build.initialOptions);
-    if (!callbacks) {
-        return args;
-    }
-
-    const { namespace = 'file', path } = args;
-    for (const { options, callback } of callbacks.resolve) {
-        const { namespace: optionsNamespace = 'file', filter } = options;
-        if (namespace !== optionsNamespace) {
-            continue;
-        }
-
-        if (!filter.test(path)) {
-            continue;
-        }
-
-        const result = await callback(args);
-        if (result && result.path) {
-            return result;
-        }
-    }
-
-    const result = build.initialOptions.platform === 'browser' ?
-        await browserResolve(args.path, args.importer) :
-        await nodeResolve(args.path, args.importer);
-
-    return {
-        ...args,
-        path: result,
-    };
-}
-
-/**
- * @param {import('esbuild').PluginBuild} build
- * @param {OnLoadArgs} args
- * @return {Promise<OnLoadResult>}
- */
-export async function load(build, args) {
-    const callbacks = buildInternals.get(build.initialOptions);
-    const stdin = getStdinInput(build);
-    const { namespace = 'file', path } = args;
-    if (!callbacks) {
-        const contents = (stdin && args.path === stdin.path && stdin.contents) || await readFile(args.path);
-        return {
-            contents,
-        };
-    }
-
-    const { load } = callbacks;
-    for (const { options, callback } of load) {
-        const { namespace: optionsNamespace = 'file', filter } = options;
-        if (namespace !== optionsNamespace) {
-            continue;
-        }
-
-        if (!filter.test(path)) {
-            continue;
-        }
-
-        const result = await callback(args);
-        if (result) {
-            return result;
-        }
-    }
-
-    const contents = (stdin && args.path === stdin.path && stdin.contents) || await readFile(args.path);
-    return {
-        contents,
-    };
-}
-
-const cache = [];
-
-/**
- * @param {import('esbuild').PluginBuild} build
- * @param {OnTransformArgs} args
- * @return {Promise<OnLoadResult>}
- */
-export async function transform(build, args) {
-    const loaders = build.initialOptions.loader || {};
-    const callbacks = buildInternals.get(build.initialOptions);
-    const loader = args.loader || loaders[path.extname(args.path)] || 'file';
-
-    let { code, resolveDir } = /** @type {{ code: string|Uint8Array; resolveDir?: string }} */ (args.code ?
-        args :
-        await Promise.resolve()
-            .then(() => load(build, args))
-            .then(({ contents, resolveDir }) => ({
-                code: contents,
-                resolveDir,
-            })));
-
-    if (!callbacks) {
-        return {
-            contents: code,
-            loader,
-            resolveDir,
-        };
-    }
-
-    const { namespace = 'file', path: filePath } = args;
-    const { transform } = callbacks;
-
-    cache.push(filePath);
-    const maps = [];
-    for (const { options, callback } of transform) {
-        const { namespace: optionsNamespace = 'file', filter } = options;
-        if (namespace !== optionsNamespace) {
-            continue;
-        }
-
-        if (!(/** @type {RegExp} */ (filter)).test(filePath)) {
-            continue;
-        }
-
-        const result = await callback({
-            ...args,
-            code,
-            loader,
-        });
-        if (result) {
-            code = result.code;
-            if (result.map) {
-                maps.push(result.map);
-            }
-            if (result.resolveDir) {
-                resolveDir = result.resolveDir;
-            }
-        }
-    }
-
-    if (code === args.code) {
-        return {
-            contents: code,
-            loader,
-            resolveDir,
-        };
-    }
-
-    if (maps.length) {
-        const inputSourcemap = await loadSourcemap(code.toString(), filePath);
-        if (inputSourcemap) {
-            maps.unshift(inputSourcemap);
-        }
-    }
-
-    const sourceMap = maps.length > 1 ? await mergeSourcemaps(maps) : maps[0];
-
-    return {
-        contents: sourceMap ? inlineSourcemap(code.toString(), sourceMap) : code,
-        loader,
-        resolveDir,
-    };
 }
 
 /**

@@ -88,8 +88,20 @@ export default function() {
     const plugin = {
         name: 'meta-url',
         async setup(build) {
-            const { sourcesContent, loader: buildLoaders = {} } = build.initialOptions;
-            const { onTransform, resolve, getBaseUrl, emitFile, emitChunk, rootDir } = useRna(build);
+            const { platform, format, sourcesContent, loader: buildLoaders = {} } = build.initialOptions;
+            const { onTransform, resolve, emitFile, emitChunk, rootDir } = useRna(build);
+
+            const baseUrl = (() => {
+                if (platform === 'browser' && format !== 'esm') {
+                    return 'document.currentScript && document.currentScript.src || document.baseURI';
+                }
+
+                if (platform === 'node' && format !== 'esm') {
+                    return '\'file://\' + __filename';
+                }
+
+                return 'import.meta.url';
+            })();
 
             onTransform({ loaders: ['tsx', 'ts', 'jsx', 'js'] }, async (args) => {
                 const code = args.code.toString();
@@ -124,7 +136,7 @@ export default function() {
                             // already emitted
                             const loc = getSpanLocation(ast, node);
                             magicCode = magicCode || new MagicString(code);
-                            magicCode.overwrite(loc.start, loc.end, `new URL('${value}', ${getBaseUrl()})`);
+                            magicCode.overwrite(loc.start, loc.end, `new URL('${value}', ${baseUrl})`);
                             return;
                         }
 
@@ -147,7 +159,7 @@ export default function() {
 
                             const entryLoader = buildLoaders[path.extname(resolvedPath)] || 'file';
                             const entryPoint = entryLoader !== 'file' ? await emitChunk(resolvedPath) : await emitFile(resolvedPath);
-                            magicCode.overwrite(loc.start, loc.end, `new URL('${entryPoint}', ${getBaseUrl()})`);
+                            magicCode.overwrite(loc.start, loc.end, `new URL('${entryPoint}', ${baseUrl})`);
                         }));
                     },
                 });

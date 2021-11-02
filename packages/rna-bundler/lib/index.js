@@ -174,18 +174,6 @@ export function command(program) {
                             import('@chialab/esbuild-plugin-postcss')
                                 .then(({ default: plugin }) => plugin())
                                 .catch(() => ({ name: 'postcss', setup() { } })),
-                            import('@chialab/esbuild-plugin-css-import')
-                                .then(({ default: plugin }) => plugin()),
-                            import('@chialab/esbuild-plugin-unwebpack')
-                                .then(({ default: plugin }) => plugin()),
-                            import('@chialab/esbuild-plugin-commonjs')
-                                .then(({ default: plugin }) => plugin({
-                                    helperModule: true,
-                                })),
-                            import('@chialab/esbuild-plugin-worker')
-                                .then(({ default: plugin }) => plugin()),
-                            import('@chialab/esbuild-plugin-meta-url')
-                                .then(({ default: plugin }) => plugin()),
                         ]),
                     ],
                 });

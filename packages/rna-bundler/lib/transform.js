@@ -78,6 +78,18 @@ export async function transform(config) {
                 peerDependencies: false,
                 optionalDependencies: false,
             })),
+        import('@chialab/esbuild-plugin-css-import')
+            .then(({ default: plugin }) => plugin()),
+        import('@chialab/esbuild-plugin-unwebpack')
+            .then(({ default: plugin }) => plugin()),
+        import('@chialab/esbuild-plugin-commonjs')
+            .then(({ default: plugin }) => plugin({
+                helperModule: true,
+            })),
+        import('@chialab/esbuild-plugin-worker')
+            .then(({ default: plugin }) => plugin()),
+        import('@chialab/esbuild-plugin-meta-url')
+            .then(({ default: plugin }) => plugin()),
         ...plugins,
     ]);
 

@@ -57,7 +57,7 @@ export async function buildPlugins(config) {
             jsxExport: config.jsxExport,
             transformPlugins: config.transformPlugins,
         }),
-        entrypointsPlugin(config.entrypoints, config.entrypointsPath),
+        entrypointsPlugin(config.entrypoints),
         nodeResolvePlugin({
             alias: config.alias,
         }),

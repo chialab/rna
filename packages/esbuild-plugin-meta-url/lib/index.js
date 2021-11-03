@@ -77,11 +77,16 @@ export function getMetaUrl(node, ast) {
 }
 
 /**
+ * @typedef {{ emit?: boolean }} PluginOptions
+ */
+
+/**
  * Instantiate a plugin that converts URL references into static import
  * in order to handle assets bundling.
+ * @param {PluginOptions} options
  * @return An esbuild plugin.
  */
-export default function() {
+export default function({ emit = true } = {}) {
     /**
      * @type {import('esbuild').Plugin}
      */
@@ -158,7 +163,9 @@ export default function() {
                             magicCode = magicCode || new MagicString(code);
 
                             const entryLoader = buildLoaders[path.extname(resolvedPath)] || 'file';
-                            const entryPoint = entryLoader !== 'file' ? await emitChunk(resolvedPath) : await emitFile(resolvedPath);
+                            const entryPoint = emit ?
+                                (entryLoader !== 'file' ? await emitChunk(resolvedPath) : await emitFile(resolvedPath)) :
+                                path.relative(path.dirname(args.path), resolvedPath);
                             magicCode.overwrite(loc.start, loc.end, `new URL('${entryPoint}', ${baseUrl})`);
                         }));
                     },

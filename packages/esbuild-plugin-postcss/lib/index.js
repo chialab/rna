@@ -43,20 +43,25 @@ export default function(options = {}) {
         name: 'postcss',
         async setup(build) {
             const { onTransform, resolve, rootDir, collectDependencies } = useRna(build);
+            /**
+             * @type {import('esbuild').BuildOptions['loader']}
+             */
+            build.initialOptions.loader = {
+                ...(build.initialOptions.loader || {}),
+                '.scss': 'css',
+                '.sass': 'css',
+            };
 
-            onTransform({ filter: /\.(sc|sa|c)ss$/ }, async (args) => {
-                const [
-                    { default: postcss },
-                    { default: preset },
-                ] = await Promise.all([
-                    import('postcss'),
-                    import('@chialab/postcss-preset-chialab'),
-                ]);
+            onTransform({ loaders: ['css'] }, async (args) => {
+                const { default: postcss } = await import('postcss');
 
                 const config = await loadPostcssConfig();
                 const isSass = ['.sass', '.scss'].includes(path.extname(args.path));
                 const plugins = [
-                    ...(config.plugins || [preset()]),
+                    ...(config.plugins || [
+                        await import('@chialab/postcss-preset-chialab')
+                            .then(({ default: preset }) => preset()),
+                    ]),
                     ...(isSass ? [
                         await import('@chialab/postcss-dart-sass')
                             .then(({ default: postcssSass }) => postcssSass({

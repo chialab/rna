@@ -123,16 +123,11 @@ export async function createConfig(entrypoint, serverConfig, config) {
                                 })),
                         ],
                     })),
-                import('@chialab/esbuild-plugin-unwebpack')
-                    .then(({ default: plugin }) => plugin()),
-                import('@chialab/esbuild-plugin-commonjs')
-                    .then(({ default: plugin }) => plugin()),
                 import('@chialab/esbuild-plugin-worker')
                     .then(({ default: plugin }) => plugin({
                         proxy: true,
+                        emit: false,
                     })),
-                import('@chialab/esbuild-plugin-meta-url')
-                    .then(({ default: plugin }) => plugin()),
             ]),
             ...(config.plugins || []),
         ],

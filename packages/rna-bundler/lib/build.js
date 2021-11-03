@@ -1,7 +1,7 @@
 import path from 'path';
 import { rm } from 'fs/promises';
 import { createLogger } from '@chialab/rna-logger';
-import { rnaPlugin, useRna } from '@chialab/esbuild-rna';
+import { rnaPlugin, useRna, hasPlugin } from '@chialab/esbuild-rna';
 import { loaders } from './loaders.js';
 import { writeManifestJson } from './writeManifestJson.js';
 import { writeEntrypointsJson } from './writeEntrypointsJson.js';
@@ -102,7 +102,7 @@ export async function build(config) {
     /**
      * @type {import('esbuild').Plugin[]}
      */
-    const finalPlugins = await Promise.all([
+    const finalPlugins = (await Promise.all([
         rnaPlugin(),
         /**
          * @type {import('esbuild').Plugin}
@@ -113,38 +113,41 @@ export async function build(config) {
                 pluginBuild = build;
             },
         }),
-        await import('@chialab/esbuild-plugin-alias')
-            .then(({ default: plugin }) => plugin(alias)),
-        import('@chialab/esbuild-plugin-any-file')
-            .then(({ default: plugin }) =>
-                plugin()
-            ),
-        import('@chialab/esbuild-plugin-env')
-            .then(({ default: plugin }) => plugin()),
-        import('@chialab/esbuild-plugin-define-this')
-            .then(({ default: plugin }) => plugin()),
-        import('@chialab/esbuild-plugin-jsx-import')
-            .then(({ default: plugin }) => plugin({ jsxModule, jsxExport })),
-        import('@chialab/esbuild-plugin-external')
-            .then(({ default: plugin }) => plugin({
-                dependencies: !bundle,
-                peerDependencies: !bundle,
-                optionalDependencies: !bundle,
-            })),
-        import('@chialab/esbuild-plugin-css-import')
-            .then(({ default: plugin }) => plugin()),
-        import('@chialab/esbuild-plugin-unwebpack')
-            .then(({ default: plugin }) => plugin()),
-        import('@chialab/esbuild-plugin-commonjs')
-            .then(({ default: plugin }) => plugin({
-                helperModule: true,
-            })),
-        import('@chialab/esbuild-plugin-worker')
-            .then(({ default: plugin }) => plugin()),
-        import('@chialab/esbuild-plugin-meta-url')
-            .then(({ default: plugin }) => plugin()),
+        !hasPlugin(plugins, 'alias') &&
+            import('@chialab/esbuild-plugin-alias')
+                .then(({ default: plugin }) => plugin(alias)),
+        !hasPlugin(plugins, 'any-file') &&
+            import('@chialab/esbuild-plugin-any-file')
+                .then(({ default: plugin }) => plugin()),
+        !hasPlugin(plugins, 'env') &&
+            import('@chialab/esbuild-plugin-env')
+                .then(({ default: plugin }) => plugin()),
+        !hasPlugin(plugins, 'define-this') &&
+            import('@chialab/esbuild-plugin-define-this')
+                .then(({ default: plugin }) => plugin()),
+        !hasPlugin(plugins, 'jsx-import') &&
+            import('@chialab/esbuild-plugin-jsx-import')
+                .then(({ default: plugin }) => plugin({ jsxModule, jsxExport })),
+        !hasPlugin(plugins, 'external') &&
+            import('@chialab/esbuild-plugin-external')
+                .then(({ default: plugin }) => plugin({
+                    dependencies: !bundle,
+                    peerDependencies: !bundle,
+                    optionalDependencies: !bundle,
+                })),
+        !hasPlugin(plugins, 'css-import') &&
+            import('@chialab/esbuild-plugin-css-import')
+                .then(({ default: plugin }) => plugin()),
+        !hasPlugin(plugins, 'unwebpack') &&
+            import('@chialab/esbuild-plugin-unwebpack')
+                .then(({ default: plugin }) => plugin()),
+        !hasPlugin(plugins, 'commonjs') &&
+            import('@chialab/esbuild-plugin-commonjs')
+                .then(({ default: plugin }) => plugin({
+                    helperModule: true,
+                })),
         ...plugins,
-    ]);
+    ].filter(Boolean)));
 
     /**
      * @type {import('esbuild').BuildOptions}

@@ -26,6 +26,10 @@ import path from 'path';
  */
 
 /**
+ * @typedef {import('@web/dev-server-core').Plugin} ServePlugin
+ */
+
+/**
  * @typedef {import('esbuild').LogLevel} LogLevel
  */
 
@@ -89,7 +93,7 @@ import path from 'path';
  * @property {string} [publicPath]
  * @property {string} [manifestPath]
  * @property {string} [entrypointsPath]
- * @property {Plugin[]} [servePlugins]
+ * @property {ServePlugin[]} [servePlugins]
  */
 
 /**

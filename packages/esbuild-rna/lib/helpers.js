@@ -82,3 +82,12 @@ export function remapResult(result, from, to) {
         },
     };
 }
+
+/**
+ * Check if a plugin is already part of the list.
+ * @param {import('esbuild').Plugin[]} plugins The plugins list.
+ * @param {string} name The of the plugin to check.
+ */
+export function hasPlugin(plugins, name) {
+    return plugins.some((plg) => plg.name === name);
+}

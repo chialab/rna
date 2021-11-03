@@ -204,8 +204,6 @@ export default function({
 
                         const outputFile = await emitFile(resolvedFile.path, Buffer.from(fileBuffer.contents));
 
-                        // assignToResult(collectedResult, result);
-
                         await currentBuild.finisher([outputFile]);
                         continue;
                     }

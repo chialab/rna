@@ -180,10 +180,16 @@ export function command(program) {
                  */
                 const config = mergeConfig({ root }, configFile ? await readConfigFile(configFile, { root }, 'serve') : {});
 
-                /**
-                 * @type {import('@web/dev-server-core').Plugin[]}
-                 */
-                const plugins = config.servePlugins || [];
+                const { servePlugins = [], plugins: transformPlugins = [] } = config;
+
+                try {
+                    const { legacyPlugin } = await import('@chialab/wds-plugin-legacy');
+                    servePlugins.push(legacyPlugin({
+                        minify: true,
+                    }));
+                } catch (err) {
+                    //
+                }
 
                 /**
                  * @type {DevServerConfig}
@@ -195,22 +201,13 @@ export function command(program) {
                     entrypoints: config.entrypoints,
                     alias: config.alias,
                     logger,
-                    plugins,
+                    plugins: servePlugins,
+                    transformPlugins,
                     jsxFactory: config.jsxFactory,
                     jsxFragment: config.jsxFragment,
                     jsxModule: config.jsxModule,
                     jsxExport: config.jsxExport,
-                    transformPlugins: config.plugins,
                 };
-
-                try {
-                    const { legacyPlugin } = await import('@chialab/wds-plugin-legacy');
-                    plugins.push(legacyPlugin({
-                        minify: true,
-                    }));
-                } catch (err) {
-                    //
-                }
 
                 const server = await serve(serveConfig);
 

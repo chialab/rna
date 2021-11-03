@@ -1,11 +1,11 @@
 import path from 'path';
 import crypto from 'crypto';
 import { mkdir, readFile, writeFile } from 'fs/promises';
-import { appendSearchParam, browserResolve, resolve as nodeResolve } from '@chialab/node-resolve';
+import { appendSearchParam, browserResolve, escapeRegexBody, resolve as nodeResolve } from '@chialab/node-resolve';
 import { loadSourcemap, inlineSourcemap, mergeSourcemaps } from '@chialab/estransform';
-import { assignToResult, createResult } from './createResult.js';
+import { assignToResult, createResult } from './helpers.js';
 
-export * from './createResult.js';
+export * from './helpers.js';
 
 /**
  * Get the entrypoint ouput from an esbuild result metafile.
@@ -104,8 +104,8 @@ export function getOutputFiles(entryPoints, metafile, rootDir = process.cwd()) {
  * @property {{ options: OnResolveOptions, callback: ResolveCallback }[]} resolve
  * @property {{ options: OnLoadOptions, callback: LoadCallback }[]} load
  * @property {{ options: OnTransformOptions, callback: TransformCallback }[]} transform
- * @property {Map<string, { outputFile: string; result: import('./createResult.js').BuildResult}>} chunks
- * @property {Map<string, { outputFile: string; result: import('./createResult.js').BuildResult}>} files
+ * @property {Map<string, { outputFile: string; result: import('./helpers.js').BuildResult}>} chunks
+ * @property {Map<string, { outputFile: string; result: import('./helpers.js').BuildResult}>} files
  * @property {DependenciesMap} dependencies
  */
 
@@ -216,7 +216,6 @@ export function useRna(build, esbuildModule) {
          * @return {Promise<OnLoadResult>} A load result with file contents.
          */
         async load(args) {
-            const { stdin } = build.initialOptions;
             const { namespace = 'file', path: filePath } = args;
 
             const { load } = state;
@@ -236,12 +235,7 @@ export function useRna(build, esbuildModule) {
                 }
             }
 
-            const contents = (
-                stdin &&
-                stdin.sourcefile &&
-                filePath === path.resolve(rootDir, stdin.sourcefile) &&
-                stdin.contents
-            ) || await readFile(filePath);
+            const contents = await readFile(filePath);
 
             return {
                 contents,
@@ -462,7 +456,7 @@ export function useRna(build, esbuildModule) {
          * @param {import('esbuild').Plugin} plugin The current plugin.
          * @param {import('esbuild').Plugin[]} plugins A list of required plugins .
          * @param {'before'|'after'} [mode] Where insert the missing plugin.
-         * @return {string[]} The list of plugin names that had been added to the build.
+         * @return {Promise<string[]>} The list of plugin names that had been added to the build.
          */
         async setupPlugin(plugin, plugins, mode = 'before') {
             const installedPlugins = build.initialOptions.plugins || [];
@@ -551,6 +545,11 @@ export function rnaPlugin({ warn = true, esbuild } = {}) {
     const plugin = {
         name: 'rna',
         setup(build) {
+            /**
+             * @type {import('esbuild').PartialMessage[]}
+             */
+            const warnings = [];
+            const { stdin } = build.initialOptions;
             const { onResolve, onLoad, chunks, files } = useRna(build, esbuild);
 
             build.onResolve = onResolve;
@@ -560,10 +559,30 @@ export function rnaPlugin({ warn = true, esbuild } = {}) {
                 const plugins = build.initialOptions.plugins || [];
                 const first = plugins[0];
                 if (first && first.name !== 'rna') {
-                    // eslint-disable-next-line no-console
-                    console.warn('The "rna" plugin should be the first of the plugins list.');
+                    warnings.push({
+                        pluginName: 'rna',
+                        text: 'The "rna" plugin should be the first of the plugins list.',
+                    });
                 }
             }
+
+            if (stdin && stdin.sourcefile) {
+                build.initialOptions.entryPoints = [stdin.sourcefile];
+                delete build.initialOptions.stdin;
+
+                onResolve({ filter: new RegExp(escapeRegexBody(stdin.sourcefile)) }, (args) => ({
+                    path: args.path,
+                }));
+
+                onLoad({ filter: new RegExp(escapeRegexBody(stdin.sourcefile)) }, () => ({
+                    contents: stdin.contents,
+                    loader: stdin.loader,
+                }));
+            }
+
+            build.onStart(() => ({
+                warnings,
+            }));
 
             build.onEnd((buildResult) => {
                 chunks.forEach(({ result }) => assignToResult(buildResult, result));

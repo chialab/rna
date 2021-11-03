@@ -52,23 +52,45 @@ export const walk = (node, visitor) => {
  * @return The root AST node.
  */
 export async function parse(code) {
-    return swcParse(code, {
+    // Swc uses byte offsets while magic string uses string offsets.
+    // So, we need to convert double byte characters to single byte.
+    if (Buffer.byteLength(code) !== code.length) {
+        let str = '';
+        for (let i = 0, len = code.length; i < len; i++) {
+            const char = code[i];
+            if (Buffer.byteLength(char, 'utf8') > 1) {
+                str += '-';
+            } else {
+                str += char;
+            }
+        }
+
+        code = str;
+    }
+
+    // We add an empty expression statement at the begin of the file in order
+    // to compute the correct offset for files that starts with comments and spaces.
+    const ast = await swcParse(`;${code}`, {
         syntax: 'typescript',
         tsx: true,
         decorators: true,
         dynamicImport: true,
         comments: true,
     });
+
+    return ast;
 }
 
 /**
+ * Swc does not reset the parser state after parsing.
+ * So, spans need to be re-indexed.
  * @param {import('./types.js').Program} program
  * @param {import('./types.js').Node & import('@swc/core').HasSpan} node
  * @returns
  */
 export function getSpanLocation(program, node) {
     return {
-        start: node.span.start - program.span.start,
-        end: node.span.end - program.span.start,
+        start: node.span.start - program.span.start - 1,
+        end: node.span.end - program.span.start - 1,
     };
 }

@@ -3,7 +3,7 @@ import metaUrlPlugin, { getMetaUrl } from '@chialab/esbuild-plugin-meta-url';
 import { useRna } from '@chialab/esbuild-rna';
 
 /**
- * @typedef {{ constructors?: string[], proxy?: boolean }} PluginOptions
+ * @typedef {{ constructors?: string[], proxy?: boolean, emit?: boolean }} PluginOptions
  */
 
 /**
@@ -29,7 +29,7 @@ function createBlobProxy(argument, transformOptions) {
  * @param {PluginOptions} options
  * @return An esbuild plugin.
  */
-export default function({ constructors = ['Worker', 'SharedWorker'], proxy = false } = {}) {
+export default function({ constructors = ['Worker', 'SharedWorker'], proxy = false, emit = true } = {}) {
     const variants = constructors.reduce((acc, Ctr) => [
         ...acc,
         `new ${Ctr}`,
@@ -134,12 +134,12 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                         }
 
                         promises.push(Promise.resolve().then(async () => {
-                            magicCode = magicCode || new MagicString(code);
 
                             const loc = getSpanLocation(ast, node);
                             const value = firstArg.type === 'StringLiteral' ? firstArg.value : getMetaUrl(firstArg, ast);
                             if (typeof value !== 'string') {
                                 if (proxy) {
+                                    magicCode = magicCode || new MagicString(code);
                                     const arg = await generate(firstArg);
                                     magicCode.overwrite(loc.start, loc.end, `new ${Ctr}(${createBlobProxy(arg, transformOptions)})`);
                                 }
@@ -158,7 +158,9 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                                 return;
                             }
 
-                            const entryPoint = await emitChunk(resolvedPath, transformOptions);
+                            magicCode = magicCode || new MagicString(code);
+
+                            const entryPoint = emit ? await emitChunk(resolvedPath, transformOptions) : resolvedPath;
                             const arg = `new URL('${entryPoint}', import.meta.url).href`;
                             if (proxy) {
                                 magicCode.overwrite(loc.start, loc.end, `new ${Ctr}(${createBlobProxy(arg, transformOptions)})`);

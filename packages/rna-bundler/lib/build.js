@@ -146,6 +146,12 @@ export async function build(config) {
                 .then(({ default: plugin }) => plugin({
                     helperModule: true,
                 })),
+        !hasPlugin(plugins, 'worker') &&
+            import('@chialab/esbuild-plugin-worker')
+                .then(({ default: plugin }) => plugin()),
+        !hasPlugin(plugins, 'meta-url') &&
+            import('@chialab/esbuild-plugin-meta-url')
+                .then(({ default: plugin }) => plugin()),
         ...plugins,
     ].filter(Boolean)));
 

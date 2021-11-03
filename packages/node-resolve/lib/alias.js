@@ -35,7 +35,7 @@ export function createAliasRegex(entry, mode = ALIAS_MODE.ANY) {
     }
 
     if (mode === ALIAS_MODE.START) {
-        return new RegExp(`^${regexBody}`);
+        return new RegExp(`^${regexBody}(\\/|$)`);
     }
 
     return new RegExp(`(^|\\/)${regexBody}(\\/|$)`);

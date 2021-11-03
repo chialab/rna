@@ -175,20 +175,20 @@ export default function({
                         continue;
                     }
 
-                    if (currentBuild.loader === 'file') {
-                        const file = entryPoints[0];
-                        const resolvedFile = await resolve({
-                            kind: 'dynamic-import',
-                            path: file,
-                            importer: args.path,
-                            resolveDir: rootDir,
-                            pluginData: null,
-                            namespace: 'file',
-                        });
-                        if (!resolvedFile.path) {
-                            continue;
-                        }
+                    const entryPoint = entryPoints[0];
+                    const resolvedFile = await resolve({
+                        kind: 'dynamic-import',
+                        path: entryPoint,
+                        importer: args.path,
+                        resolveDir: rootDir,
+                        pluginData: null,
+                        namespace: 'file',
+                    });
+                    if (!resolvedFile.path) {
+                        continue;
+                    }
 
+                    if (currentBuild.loader === 'file') {
                         const fileBuffer = await load({
                             path: resolvedFile.path,
                             namespace: resolvedFile.namespace || 'file',
@@ -211,12 +211,12 @@ export default function({
                         outfile: undefined,
                         outdir: relativeOutDir,
                         metafile: true,
+                        bundle: true,
                         external: [],
                         ...currentBuild.options,
                     };
 
-                    const entryPoint = entryPoints[0];
-                    const { outputFiles } = await emitChunk(entryPoint, {
+                    const { outputFiles } = await emitChunk(resolvedFile.path, {
                         assetNames: '[dir]/[name]',
                         ...config,
                     });

@@ -75,7 +75,8 @@ export async function parse(code) {
         tsx: true,
         decorators: true,
         dynamicImport: true,
-        comments: true,
+        // does not work with js api
+        comments: false,
     });
 
     return ast;
@@ -93,4 +94,28 @@ export function getSpanLocation(program, node) {
         start: node.span.start - program.span.start - 1,
         end: node.span.end - program.span.start - 1,
     };
+}
+
+/**
+ * Extract comments for a code range delmited by node span.
+ * @param {string} code The original code.
+ * @param {import('./types.js').Program} program The program ast.
+ * @param {import('./types.js').Node & import('@swc/core').HasSpan} node The requested node.
+ */
+export function getNodeComments(code, program, node) {
+    const loc = getSpanLocation(program, node);
+    const chunk = code.substr(loc.start, loc.end - loc.start);
+    const matches = chunk.match(/\/\*[\s\S]*?\*\/|(?:[^\\:]|^)\/\/.*$/gm);
+    if (!matches) {
+        return [];
+    }
+
+    return matches.map((comment) =>
+        // remove comment delimiters
+        comment
+            .trim()
+            .replace(/^\/\*+\s*/, '')
+            .replace(/\s*\*+\/$/, '')
+            .replace(/^\/\/\s*/, '')
+    );
 }

@@ -1,6 +1,6 @@
 import path from 'path';
 import glob from 'fast-glob';
-import { MagicString, getSpanLocation, parse, walk } from '@chialab/estransform';
+import { MagicString, getSpanLocation, getNodeComments, parse, walk } from '@chialab/estransform';
 import { useRna } from '@chialab/esbuild-rna';
 
 /**
@@ -51,7 +51,7 @@ export default function() {
                             return;
                         }
 
-                        const comments = (/** @type {typeof node & { trailingComments: string[] }} */ (node)).trailingComments;
+                        const comments = getNodeComments(code, ast, node);
                         const included = comments.find((value) => value.startsWith('webpackInclude:'));
                         if (!included) {
                             return;

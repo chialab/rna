@@ -164,8 +164,8 @@ export default function({ emit = true } = {}) {
 
                             const entryLoader = buildLoaders[path.extname(resolvedPath)] || 'file';
                             const entryPoint = emit ?
-                                (entryLoader !== 'file' ? await emitChunk(resolvedPath) : await emitFile(resolvedPath)) :
-                                path.relative(path.dirname(args.path), resolvedPath);
+                                (entryLoader !== 'file' ? await emitChunk(resolvedPath) : await emitFile(resolvedPath)).path :
+                                resolvedPath;
                             magicCode.overwrite(loc.start, loc.end, `new URL('${entryPoint}', ${baseUrl})`);
                         }));
                     },

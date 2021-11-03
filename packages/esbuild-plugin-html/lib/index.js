@@ -1,7 +1,7 @@
 import path from 'path';
 import { rename, rm } from 'fs/promises';
 import * as cheerio from 'cheerio';
-import { createResult, assignToResult, useRna, getOutputFiles } from '@chialab/esbuild-rna';
+import { createResult, assignToResult, useRna } from '@chialab/esbuild-rna';
 
 /**
  * @typedef {import('esbuild').Metafile} Metafile
@@ -58,13 +58,12 @@ function commonDir(files) {
 /**
  * A HTML loader plugin for esbuild.
  * @param {PluginOptions} options
- * @param {typeof import('esbuild')} [esbuildModule]
  * @return An esbuild plugin.
  */
 export default function({
     scriptsTarget = 'es2015',
     modulesTarget = 'es2020',
-} = {}, esbuildModule) {
+} = {}) {
     /**
      * @type {import('esbuild').Plugin}
      */
@@ -72,7 +71,7 @@ export default function({
         name: 'html',
         setup(build) {
             const { entryPoints = [], write } = build.initialOptions;
-            const { resolve, load, rootDir, outDir, onTransform, emitFile } = useRna(build);
+            const { resolve, load, rootDir, outDir, onTransform, emitFile, emitChunk } = useRna(build);
             const sourceFiles = Array.isArray(entryPoints) ? entryPoints : Object.values(entryPoints);
             const sourceDir = sourceFiles.length ? commonDir(sourceFiles.map((file) => path.resolve(rootDir, file))) : rootDir;
 
@@ -139,14 +138,12 @@ export default function({
                     { collectAssets },
                     { collectWebManifest },
                     { collectIcons },
-                    esbuild,
                 ] = await Promise.all([
                     import('./collectStyles.js'),
                     import('./collectScripts.js'),
                     import('./collectAssets.js'),
                     import('./collectWebManifest.js'),
                     import('./collectIcons.js'),
-                    esbuildModule || import('esbuild'),
                 ]);
 
                 const code = args.code.toString();
@@ -202,9 +199,9 @@ export default function({
                             continue;
                         }
 
-                        const outputFile = await emitFile(resolvedFile.path, Buffer.from(fileBuffer.contents));
+                        const { outputFiles } = await emitFile(resolvedFile.path, Buffer.from(fileBuffer.contents));
 
-                        await currentBuild.finisher([outputFile]);
+                        await currentBuild.finisher(outputFiles);
                         continue;
                     }
 
@@ -218,13 +215,12 @@ export default function({
                         ...currentBuild.options,
                     };
 
-                    const result = /** @type {BuildResult} */ (await esbuild.build({
+                    const entryPoint = entryPoints[0];
+                    const { outputFiles } = await emitChunk(entryPoint, {
                         assetNames: '[dir]/[name]',
                         ...config,
-                    }));
-                    assignToResult(collectedResult, result);
+                    });
 
-                    const outputFiles = getOutputFiles(entryPoints, result.metafile, rootDir);
                     await currentBuild.finisher(outputFiles);
                 }
 

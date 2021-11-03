@@ -118,7 +118,6 @@ export function command(program) {
                 }
 
                 const logger = createLogger();
-                const { default: esbuild } = await import('esbuild');
                 const manifestPath = manifestFile ? (typeof manifestFile === 'string' ? manifestFile : path.join(output, 'manifest.json')) : undefined;
                 const entrypointsPath = entrypointsFile ? (typeof entrypointsFile === 'string' ? entrypointsFile : path.join(output, 'entrypoints.json')) : undefined;
                 const external = externalString ? externalString.split(',') : [];
@@ -169,7 +168,7 @@ export function command(program) {
                     plugins: [
                         ...await Promise.all([
                             import('@chialab/esbuild-plugin-html')
-                                .then(({ default: plugin }) => plugin({}, esbuild))
+                                .then(({ default: plugin }) => plugin())
                                 .catch(() => ({ name: 'html', setup() {} })),
                             import('@chialab/esbuild-plugin-postcss')
                                 .then(({ default: plugin }) => plugin())

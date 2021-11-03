@@ -8,46 +8,6 @@ import { assignToResult, createResult } from './helpers.js';
 export * from './helpers.js';
 
 /**
- * Get the entrypoint ouput from an esbuild result metafile.
- * This is useful when you need to build multiple files using the `outdir` option
- * and you don't know the name of the resulting file.
- * @param {string[]} entryPoints The list of build entrypoints.
- * @param {import('esbuild').Metafile} metafile The result metafile from esbuild.
- * @param {string} rootDir The root dir of the build.
- * @return {string[]}
- */
-export function getOutputFiles(entryPoints, metafile, rootDir = process.cwd()) {
-    entryPoints = entryPoints.map((entryPoint) => path.resolve(rootDir, entryPoint));
-
-    const outputs = metafile.outputs;
-    const outFile = Object.keys(outputs)
-        .filter((output) => !output.endsWith('.map'))
-        .filter((output) => outputs[output].entryPoint)
-        .find((output) =>
-            entryPoints.includes(path.resolve(rootDir, /** @type {string} */ (outputs[output].entryPoint)))
-        );
-
-    if (!outFile) {
-        return [];
-    }
-
-    const files = [outFile];
-
-    /**
-     * JavaScript sources can resulting in two files:
-     * - the built script file
-     * - the referenced style file with all imported css
-     * This file is not collected by esbuild as an artifact of the source file,
-     * so we are going to manually create the association.
-     */
-    const externalCss = outFile.replace(/\.js$/, '.css');
-    if (path.extname(outFile) === '.js' && outputs[externalCss]) {
-        files.push(externalCss);
-    }
-    return files;
-}
-
-/**
  * @typedef {import('esbuild').OnResolveOptions} OnResolveOptions
  */
 
@@ -96,6 +56,10 @@ export function getOutputFiles(entryPoints, metafile, rootDir = process.cwd()) {
  */
 
 /**
+ * @typedef {{ path: string, outputFiles: string[], result: import('./helpers.js').BuildResult }} Chunk
+ */
+
+/**
  * @typedef {{ [key: string]: string[] }} DependenciesMap
  */
 
@@ -104,8 +68,8 @@ export function getOutputFiles(entryPoints, metafile, rootDir = process.cwd()) {
  * @property {{ options: OnResolveOptions, callback: ResolveCallback }[]} resolve
  * @property {{ options: OnLoadOptions, callback: LoadCallback }[]} load
  * @property {{ options: OnTransformOptions, callback: TransformCallback }[]} transform
- * @property {Map<string, { outputFile: string; result: import('./helpers.js').BuildResult}>} chunks
- * @property {Map<string, { outputFile: string; result: import('./helpers.js').BuildResult}>} files
+ * @property {Map<string, Chunk>} chunks
+ * @property {Map<string, Chunk>} files
  * @property {DependenciesMap} dependencies
  */
 
@@ -314,7 +278,7 @@ export function useRna(build, esbuildModule) {
          * Programmatically emit file reference.
          * @param {string} source The path of the file.
          * @param {string|Buffer} [buffer] File contents.
-         * @return {Promise<string>} The output file reference.
+         * @return {Promise<Chunk>} The output file reference.
          */
         async emitFile(source, buffer) {
             const { assetNames = '[name]' } = build.initialOptions;
@@ -338,50 +302,56 @@ export function useRna(build, esbuildModule) {
             });
             await writeFile(outputFile, buffer);
 
-            rnaBuild.files.set(source, {
-                outputFile,
-                result: createResult(
-                    {
-                        inputs: {
-                            [path.relative(rootDir, source)]: {
-                                bytes,
-                                imports: [],
-                            },
+            const result = createResult(
+                {
+                    inputs: {
+                        [path.relative(rootDir, source)]: {
+                            bytes,
+                            imports: [],
                         },
-                        outputs: {
-                            [path.relative(rootDir, outputFile)]: {
-                                bytes,
-                                inputs: {
-                                    [path.relative(rootDir, source)]: {
-                                        bytesInOutput: bytes,
-                                    },
+                    },
+                    outputs: {
+                        [path.relative(rootDir, outputFile)]: {
+                            bytes,
+                            inputs: {
+                                [path.relative(rootDir, source)]: {
+                                    bytesInOutput: bytes,
                                 },
-                                imports: [],
-                                exports: [],
-                                entryPoint: path.relative(rootDir, source),
                             },
+                            imports: [],
+                            exports: [],
+                            entryPoint: path.relative(rootDir, source),
                         },
-                    }
-                ),
-            });
+                    },
+                }
+            );
 
-            return appendSearchParam(`./${path.relative(outDir, outputFile)}`, 'emit', 'file');
+            const chunkResult = {
+                path: appendSearchParam(`./${path.relative(outDir, outputFile)}`, 'emit', 'file'),
+                outputFiles: [outputFile],
+                result,
+            };
+            rnaBuild.files.set(source, chunkResult);
+
+            return chunkResult;
         },
         /**
          * Programmatically emit a chunk reference.
          * @param {string} source The path of the chunk.
          * @param {EmitTransformOptions} options Esbuild transform options.
-         * @return {Promise<string>} The output chunk reference.
+         * @return {Promise<Chunk>} The output chunk reference.
          */
         async emitChunk(source, options = {}) {
             esbuildModule = esbuildModule || await import('esbuild');
+
+            const entryPoints = [source];
 
             /** @type {import('esbuild').BuildOptions} */
             const config = {
                 ...build.initialOptions,
                 ...options,
-                globalName: undefined,
                 entryPoints: [source],
+                globalName: undefined,
                 outfile: undefined,
                 metafile: true,
             };
@@ -394,16 +364,43 @@ export function useRna(build, esbuildModule) {
                 delete config.define['this'];
             }
 
-            const result = /** @type { BuildResult} */ (await esbuildModule.build(config));
-            const outputFiles = getOutputFiles([source], result.metafile, rootDir);
-            const outputFile = path.resolve(rootDir, outputFiles[0]);
+            const result = /** @type {BuildResult} */ (await esbuildModule.build(config));
+            const resolvedEntryPoints = entryPoints.map((entryPoint) => path.resolve(rootDir, entryPoint));
+            const outputs = result.metafile.outputs;
+            const outFile = Object.keys(outputs)
+                .filter((output) => !output.endsWith('.map'))
+                .filter((output) => outputs[output].entryPoint)
+                .find((output) =>
+                    resolvedEntryPoints.includes(path.resolve(rootDir, /** @type {string} */ (outputs[output].entryPoint)))
+                );
 
-            state.chunks.set(source, {
-                outputFile,
+            if (!outFile) {
+                throw new Error('Unable to locate build artifacts');
+            }
+
+            const outputFiles = [outFile];
+
+            /**
+             * JavaScript sources can resulting in two files:
+             * - the built script file
+             * - the referenced style file with all imported css
+             * This file is not collected by esbuild as an artifact of the source file,
+             * so we are going to manually create the association.
+             */
+            const externalCss = outFile.replace(/\.js$/, '.css');
+            if (path.extname(outFile) === '.js' && outputs[externalCss]) {
+                outputFiles.push(externalCss);
+            }
+
+            const resolvedOutputFile = path.resolve(rootDir, outFile);
+            const chunkResult = {
+                path: appendSearchParam(`./${path.relative(outDir, resolvedOutputFile)}`, 'emit', 'chunk'),
+                outputFiles,
                 result,
-            });
+            };
+            state.chunks.set(source, chunkResult);
 
-            return appendSearchParam(`./${path.relative(outDir, outputFile)}`, 'emit', 'chunk');
+            return chunkResult;
         },
         /**
          * Wrap esbuild onResolve hook in order to collect the resolve rule.

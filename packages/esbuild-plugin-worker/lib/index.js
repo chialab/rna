@@ -160,7 +160,9 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
 
                             magicCode = magicCode || new MagicString(code);
 
-                            const entryPoint = emit ? await emitChunk(resolvedPath, transformOptions) : resolvedPath;
+                            const entryPoint = emit ?
+                                (await emitChunk(resolvedPath, transformOptions)).path :
+                                resolvedPath;
                             const arg = `new URL('${entryPoint}', import.meta.url).href`;
                             if (proxy) {
                                 magicCode.overwrite(loc.start, loc.end, `new ${Ctr}(${createBlobProxy(arg, transformOptions)})`);

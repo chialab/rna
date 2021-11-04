@@ -1,7 +1,7 @@
 {
   "name": "@chialab/postcss-preset-chialab",
   "type": "module",
-  "version": "0.12.31",
+  "version": "0.12.37",
   "description": "The postcss preset used by Chialab.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",
@@ -32,7 +32,7 @@
     "node": ">=13"
   },
   "dependencies": {
-    "@chialab/postcss-url-rebase": "^0.12.26",
+    "@chialab/postcss-url-rebase": "^0.12.37",
     "autoprefixer": "^10.2.4",
     "postcss-color-hex-alpha": "^7.0.0",
     "postcss-custom-properties": "^11.0.0",

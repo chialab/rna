@@ -90,7 +90,11 @@ export default function urlRebase({ root = process.cwd(), relative, transform, a
                     resolvedImportPath = `./${path.relative(decl.source.input.file, resolvedImportPath)}`;
                 }
 
-                decl.params = `url('${resolvedImportPath}')`;
+                if (match) {
+                    decl.params = `url('${resolvedImportPath}')`;
+                } else {
+                    decl.params = `'${resolvedImportPath}'`;
+                }
             },
         },
     };

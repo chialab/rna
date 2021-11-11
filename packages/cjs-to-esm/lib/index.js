@@ -2,7 +2,7 @@ import { inlineSourcemap, transform as esTransform, walk, getOffsetFromLocation,
 
 export const REQUIRE_REGEX = /([^.\w$]|^)require\s*\((['"])(.*?)\2\)/g;
 export const UMD_REGEXES = [
-    /\btypeof\s+exports\s*===?\s*['|"]object['|"]/,
+    /\btypeof\s+(?:module\.)?exports\s*===?\s*['|"]object['|"]/,
     /\btypeof\s+define\s*===?\s*['|"]function['|"]/,
 ];
 export const UMD_GLOBALS = ['globalThis', 'global', 'self', 'window'];
@@ -315,7 +315,7 @@ if (${conditions.join(' && ')}) {
                 magicCode.append(`\nexport { ${named.map((name, index) => `__export${index} as ${name}`).join(', ')} }`);
             }
             if (isEsModule) {
-                if (hasDefault) {
+                if (hasDefault || named.length === 0) {
                     magicCode.append('\nexport default (module.exports != null && typeof module.exports === \'object\' && \'default\' in module.exports ? module.exports.default : module.exports);');
                 }
             } else {

@@ -4,11 +4,15 @@
     </a>
 </p>
 
-<p align="center">
-    <strong>RNA</strong>
-</p>
-
 ---
+
+## RNA is a build framework
+
+We built RNA to be pluggable and to be interoperable with other build systems. A lot of esbuild and postcss plugins are distribuited as standalone packages in order to be reused outside the RNA opinionated ecosystem. We also designed a micro-sdk for esbuild plugin authors that handles transform pipelines and emits chunks or files.
+
+* [Architecture](./docs/Architecture)
+* [List of modules](./docs/Plugins)
+* [Write a plugin](./docs/Write-a-plugin)
 
 ## RNA is a bundler
 
@@ -22,7 +26,7 @@ The bundler is designed for modern browsers, but it can transpile code for IE11 
 
 ## RNA is a dev server
 
-Build plugins are also available for the [Web Dev Server](https://modern-web.dev/docs/dev-server/overview/). Since WDS and [RNA philosophy](./Architecture) is to use standard syntax and practises in web projects, you can run a local server with hot module replacement and CSS livereload without have to bundle your web app first or to re-run a partial build for each change. Files loaded via ESM will pass through a little esbuild transpilation in order to support TypeScript, CommonJS modules and node resolution, making a great difference in developer experience. The dev server can be used also for PHP with an Encore-like approach.
+Build plugins are also available for the [Web Dev Server](https://modern-web.dev/docs/dev-server/overview/). Since both WDS and RNA aim to use standard syntax and practises in web projects, you can run a local server with hot module replacement and CSS livereload without have to bundle your web app first or to re-run a partial build for each change. Files loaded via ESM will pass through a little esbuild transpilation in order to support TypeScript, CommonJS modules and node resolution, making a great difference in developer experience. The dev server can be used also for PHP with an Encore-like approach.
 
 * [Dev server for web apps](./docs/Dev-server-web-apps)
 
@@ -35,13 +39,6 @@ Since RNA aims to support both browser and Node modules, you can test your modul
 * [Testing in the browser](./docs/Testing-browser)
 * [Testing in node](./docs/Testing-node)
 * [Testing in SauceLabs](./docs/Testing-saucelabs)
-
-## RNA is a build framework
-
-We built RNA to be pluggable and to be interoperable with other build systems. A lot of esbuild and postcss plugins are distribuited as standalone packages in order to be reused outside the RNA opinionated ecosystem. We also designed a micro-sdk for esbuild plugin authors that handles transform pipelines and emits chunks or files.
-
-* [List of modules](./docs/Plugins)
-* [Write a plugin](./docs/Write-a-plugin)
 
 ## RNA is a cli
 

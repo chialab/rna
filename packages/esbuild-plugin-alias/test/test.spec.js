@@ -24,7 +24,7 @@ export { readFile, path }`,
             ],
         });
 
-        expect(result.text).to.equal(`// /Users/edo/Projects/rna/packages/esbuild-plugin-alias/test/test.spec.js
+        expect(result.text).to.equal(`// ${new URL(import.meta.url).pathname}
 import path from "path";
 
 // packages/esbuild-plugin-alias/test/fs.js
@@ -59,7 +59,7 @@ export { fs, path }`,
             ],
         });
 
-        expect(result.text).to.be.equal(`// /Users/edo/Projects/rna/packages/esbuild-plugin-alias/test/test.spec.js
+        expect(result.text).to.be.equal(`// ${new URL(import.meta.url).pathname}
 import path from "path";
 
 // empty:fs/promises

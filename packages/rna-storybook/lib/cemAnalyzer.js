@@ -111,7 +111,7 @@ export default function({ framework = '@storybook/web-components', plugins = [] 
 }())`);
                 });
 
-                return finalizeEntry(build, args.path);
+                return finalizeEntry(build, entry, { source: args.path });
             });
         },
     };

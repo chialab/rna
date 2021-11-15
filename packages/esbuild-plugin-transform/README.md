@@ -41,28 +41,7 @@ npm i @chialab/esbuild-plugin-transform
 Then, use module helpers to retrieve contents and mappings:
 
 ```js
-import { getEntry, finalizeEntry, createFilter } from '@chialab/esbuild-plugin-transform';
-
-async function transform(code, map) {
-    ...
-}
-
-export default {
-    name: '...',
-    setup(build) {
-        build.onLoad({ filter: createFilter(build), namespace: 'file' }, async (args) => {
-            const entry = await getEntry(build, args.path);
-            const { code, map } = await transform(entry.code);
-
-            return finalizeEntry(entry, {
-                code,
-                map,
-                loader: 'js',
-            });
-        });
-    },
-};
-
+//
 ```
 
 ---

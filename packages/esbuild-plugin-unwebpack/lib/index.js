@@ -115,7 +115,7 @@ export default function() {
                     throw transformError(this.name, error);
                 }
 
-                return finalizeEntry(build, args.path);
+                return finalizeEntry(build, entry, { source: args.path });
             });
         },
     };

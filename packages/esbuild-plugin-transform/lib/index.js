@@ -55,20 +55,20 @@ export async function getEntry(build, filePath, contents) {
 
 /**
  * @param {import('esbuild').PluginBuild} build
- * @param {string} filePath
+ * @param {import('@chialab/estransform').Pipeline} entry
+ * @param {Partial<import('@chialab/estransform').TransformOptions>} [options]
  * @return {Promise<import('esbuild').OnLoadResult|undefined>}
  */
-export async function finalizeEntry(build, filePath) {
-    const options = /** @type {BuildTransformOptions} */ (build.initialOptions).transform;
-    if (options) {
+export async function finalizeEntry(build, entry, options = {}) {
+    const buildOptions = /** @type {BuildTransformOptions} */ (build.initialOptions).transform;
+    if (buildOptions) {
         return;
     }
 
-    const entry = await getEntry(build, filePath);
     const { code, loader } = await finalize(entry, {
         sourcemap: 'inline',
-        source: path.basename(filePath),
         sourcesContent: build.initialOptions.sourcesContent,
+        ...options,
     });
 
     return {

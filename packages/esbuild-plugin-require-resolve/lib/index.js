@@ -85,7 +85,7 @@ export default function() {
                     await Promise.all(promises);
                 });
 
-                return finalizeEntry(build, args.path);
+                return finalizeEntry(build, entry, { source: args.path });
             });
         },
     };

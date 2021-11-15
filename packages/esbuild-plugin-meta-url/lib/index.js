@@ -163,7 +163,7 @@ export default function({ resolve = defaultResolve } = {}) {
                     throw transformError(this.name, error);
                 }
 
-                return finalizeEntry(build, args.path);
+                return finalizeEntry(build, entry, { source: args.path });
             });
         },
     };

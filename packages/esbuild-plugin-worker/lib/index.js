@@ -155,11 +155,10 @@ export default function({ resolve = defaultResolve, constructors = ['Worker', 'S
                         await Promise.all(promises);
                     });
                 } catch (error) {
-                    process.exit();
                     throw transformError(this.name, error);
                 }
 
-                return finalizeEntry(build, args.path);
+                return finalizeEntry(build, entry, { source: args.path });
             });
 
             await setupPluginDependencies(build, plugin, [

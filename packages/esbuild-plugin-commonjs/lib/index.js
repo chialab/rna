@@ -52,7 +52,7 @@ export default function(config = {}) {
                         throw transformError(this.name, error);
                     }
 
-                    return finalizeEntry(build, args.path);
+                    return finalizeEntry(build, entry, { source: args.path });
                 }
 
                 if (await maybeCommonjsModule(entry.code)) {
@@ -65,7 +65,7 @@ export default function(config = {}) {
                         throw transformError(this.name, error);
                     }
 
-                    return finalizeEntry(build, args.path);
+                    return finalizeEntry(build, entry, { source: args.path });
                 }
             });
         },

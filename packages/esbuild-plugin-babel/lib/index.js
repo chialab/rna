@@ -106,7 +106,7 @@ export default function({ presets = [], plugins = [] } = {}) {
                     throw transformError(this.name, error);
                 }
 
-                return finalizeEntry(build, args.path);
+                return finalizeEntry(build, entry, { source: args.path });
             });
         },
     };

@@ -33,7 +33,7 @@ export function mdxPlugin() {
                     transformMdxToCsf(code, args.path)
                 );
 
-                return finalizeEntry(build, args.path);
+                return finalizeEntry(build, entry, { source: args.path });
             });
         },
     };

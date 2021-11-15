@@ -1,5 +1,10 @@
 * [Home](./)
+
+### Framework
+
 * [Architecture](./Architecture)
+* [Plugins](./Plugins)
+* [Write a plugin](./Wrtie-a-plugin)
 
 ### Build
 
@@ -17,7 +22,7 @@
     * [Assets](./Building-css#assets)
     * [Dependencies](./Building-css#dependencies)
     * [PostCSS](./Building-css#postcss)
-* [Building web apps](./Building-web-apps)
+* [Building Web Apps](./Building-web-apps)
     * [Collecting scripts](./Building-web-apps#collecting-scripts)
     * [Collecting styles](./Building-web-apps#collecting-styles)
     * [Icons](./Building-web-apps#icons)

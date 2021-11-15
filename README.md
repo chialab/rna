@@ -5,24 +5,47 @@
 </p>
 
 <p align="center">
-    <strong>RNA</strong> • A bundler, a server and a test runner for modern modules and applications.
+    <strong>RNA</strong>
 </p>
 
 ---
 
-⚡️ Transpile and bundle JavaScript, TypeScript, JSX, CSS and HTML with [esbuild](https://esbuild.github.io/).
+## RNA is a bundler
 
-🧭 Serve unbundled modules on demand with livereload and HMR using the [Web Dev Server](https://modern-web.dev/docs/dev-server/overview/).
+RNA bundler is heavily based on [esbuild](https://esbuild.github.io/), *an extremely fast JavaScript bundler* with some pre-configured addons. It can bundle and optimize JavaScript, TypeScript, JSX, CSS and HTML and collect referenced assets just using languages features.
 
-🦠 Run tests in browser and node environments using the [Web Test Runner](https://modern-web.dev/docs/test-runner/overview/) and [Mocha](https://mochajs.org/).
+The bundler is designed for modern browsers, but it can transpile code for IE11 and other legacy browsers with [Babel](https://babeljs.io/) and [PostCSS](https://postcss.org/) plugins.
 
-📺 Legacy support with [Babel](https://babeljs.io/) and [PostCSS](https://postcss.org/).
+* Build a JavaScript module
+* Build a CSS module
+* Build a webapp
 
----
+## RNA is a dev server
 
-## Quick usage
+Build plugins are also available for the [Web Dev Server](https://modern-web.dev/docs/dev-server/overview/). Since WDS and [RNA philosophy](./Architecture) is to use standard syntax and practises in web projects, you can run a local server with hot module replacement and CSS livereload without have to bundle your web app first or to re-run a partial build for each change. Files loaded via ESM will pass through a little esbuild transpilation in order to support TypeScript, CommonJS modules and node resolution, making a great difference in developer experience. The dev server can be used also for PHP with an Encore-like approach.
 
-Full documentation at [Chialab.io](https://www.chialab.io/p/rna) and [Github Wiki](https://github.com/chialab/rna/wiki).
+* Dev server for web apps
+
+## RNA is a browser and node test runner
+
+Built on the Web Dev Server, a configured instance of the [Web Test Runner](https://modern-web.dev/docs/test-runner/overview/) is also available for browsers. It comes with coverage and on-the-fly legacy browsers support.
+
+Since RNA aims to support both browser and Node modules, you can test your modules in Node environments using the RNA test runner based on [Mocha](https://mochajs.org/). Coverage is also available thanks to the v8 coverage tool.
+
+* Testing in the browser
+* Testing in node
+* Testing in saucelabs
+
+## RNA is a build framework
+
+We built RNA to be pluggable and to be interoperable with other build systems. A lot of esbuild and postcss plugins are distribuited as standalone packages in order to be reused outside the RNA opinionated ecosystem. We also designed a micro-sdk for esbuild plugin authors that handles transform pipelines and emits chunks or files.
+
+* [List of modules](#Packages)
+* Write a plugin
+
+## RNA is a cli
+
+### Quick usage
 
 ```sh
 $ npm i -D \
@@ -43,49 +66,6 @@ $ npm i -D \
 }
 ```
 
-Read more about the [cli module](./packages/rna).
-
----
-
-## Packages
-
-The RNA ecosystem provides a set of plugins and addons for core tools designed to be used even outside the `rna` cli.
-
-| **Package** | **Description** | **Version** |
-| ----------- | --------------- | --------------- |
-| [@chialab/cjs-to-esm](./packages/cjs-to-esm) | A commonjs to esm converter. | [<img src="https://img.shields.io/npm/v/@chialab/cjs-to-esm" alt="npm" />](https://www.npmjs.com/package/@chialab/cjs-to-esm) |
-| [@chialab/esbuild-plugin-alias](./packages/esbuild-plugin-alias) | A plugin for esbuild that resolves aliases or empty modules. | [<img src="https://img.shields.io/npm/v/@chialab/esbuild-plugin-alias" alt="npm" />](https://www.npmjs.com/package/@chialab/esbuild-plugin-alias) |
-| [@chialab/esbuild-plugin-any-file](./packages/esbuild-plugin-any-file) | A loader plugin for esbuild for files with unknown loader. | [<img src="https://img.shields.io/npm/v/@chialab/esbuild-plugin-any-file" alt="npm" />](https://www.npmjs.com/package/@chialab/esbuild-plugin-any-file) |
-| [@chialab/esbuild-plugin-babel](./packages/esbuild-plugin-babel) | A pluggable esbuild plugin that runs babel for es5 transpilation. | [<img src="https://img.shields.io/npm/v/@chialab/esbuild-plugin-babel" alt="npm" />](https://www.npmjs.com/package/@chialab/esbuild-plugin-babel) |
-| [@chialab/esbuild-plugin-commonjs](./packages/esbuild-plugin-commonjs) | A commonjs to esm converter for esbuild. | [<img src="https://img.shields.io/npm/v/@chialab/esbuild-plugin-commonjs" alt="npm" />](https://www.npmjs.com/package/@chialab/esbuild-plugin-commonjs) |
-| [@chialab/esbuild-plugin-css-import](./packages/esbuild-plugin-css-import) | Resolve CSS imports using the node resolution algorithm and the style field in package.json. | [<img src="https://img.shields.io/npm/v/@chialab/esbuild-plugin-css-import" alt="npm" />](https://www.npmjs.com/package/@chialab/esbuild-plugin-css-import) |
-| [@chialab/esbuild-plugin-define-this](./packages/esbuild-plugin-define-this) | Define the this value in an esm module. | [<img src="https://img.shields.io/npm/v/@chialab/esbuild-plugin-define-this" alt="npm" />](https://www.npmjs.com/package/@chialab/esbuild-plugin-define-this) |
-| [@chialab/esbuild-plugin-env](./packages/esbuild-plugin-env) | Define all environement variables for esbuild. | [<img src="https://img.shields.io/npm/v/@chialab/esbuild-plugin-env" alt="npm" />](https://www.npmjs.com/package/@chialab/esbuild-plugin-env) |
-| [@chialab/esbuild-plugin-html](./packages/esbuild-plugin-html) | A HTML loader plugin for esbuild. | [<img src="https://img.shields.io/npm/v/@chialab/esbuild-plugin-html" alt="npm" />](https://www.npmjs.com/package/@chialab/esbuild-plugin-html) |
-| [@chialab/esbuild-plugin-meta-url](./packages/esbuild-plugin-meta-url) | A file loader plugin for esbuild for constructed URLs using import metadata. | [<img src="https://img.shields.io/npm/v/@chialab/esbuild-plugin-meta-url" alt="npm" />](https://www.npmjs.com/package/@chialab/esbuild-plugin-meta-url) |
-| [@chialab/esbuild-plugin-postcss](./packages/esbuild-plugin-postcss) | A CSS loader plugin for esbuild that uses postcss as preprocessor. | [<img src="https://img.shields.io/npm/v/@chialab/esbuild-plugin-postcss" alt="npm" />](https://www.npmjs.com/package/@chialab/esbuild-plugin-postcss) |
-| [@chialab/esbuild-plugin-unwebpack](./packages/esbuild-plugin-unwebpack) | Remove webpack features from sources. | [<img src="https://img.shields.io/npm/v/@chialab/esbuild-plugin-unwebpack" alt="npm" />](https://www.npmjs.com/package/@chialab/esbuild-plugin-unwebpack) |
-| [@chialab/esbuild-plugin-worker](./packages/esbuild-plugin-worker) | Collect and transpile Web Workers with esbuild. | [<img src="https://img.shields.io/npm/v/@chialab/esbuild-plugin-worker" alt="npm" />](https://www.npmjs.com/package/@chialab/esbuild-plugin-worker) |
-| [@chialab/esbuild-rna](./packages/esbuild-rna) | A framework for esbuild plugins with transform and emit capabilities. | [<img src="https://img.shields.io/npm/v/@chialab/esbuild-rna" alt="npm" />](https://www.npmjs.com/package/@chialab/esbuild-rna) |
-| [@chialab/estransform](./packages/estransform) | Execute multiple transformations on JavaScript sources with full sourcemaps support. | [<img src="https://img.shields.io/npm/v/@chialab/estransform" alt="npm" />](https://www.npmjs.com/package/@chialab/estransform) |
-| [@chialab/node-resolve](./packages/node-resolve) | A promise based node resolution library based on enhanced-resolve. | [<img src="https://img.shields.io/npm/v/@chialab/node-resolve" alt="npm" />](https://www.npmjs.com/package/@chialab/node-resolve) |
-| [@chialab/postcss-preset-chialab](./packages/postcss-preset-chialab) | The postcss preset used by Chialab. | [<img src="https://img.shields.io/npm/v/@chialab/postcss-preset-chialab" alt="npm" />](https://www.npmjs.com/package/@chialab/postcss-preset-chialab) |
-| [@chialab/postcss-dart-sass](./packages/postcss-dart-sass) | AA postcss plugin that uses dart sass to transpile scss files. | [<img src="https://img.shields.io/npm/v/@chialab/postcss-dart-sass" alt="npm" />](https://www.npmjs.com/package/@chialab/postcss-dart-sass) |
-| [@chialab/postcss-url-rebase](./packages/postcss-url-rebase) | A postcss plugin for url() rebasing before import. | [<img src="https://img.shields.io/npm/v/@chialab/postcss-url-rebase" alt="npm" />](https://www.npmjs.com/package/@chialab/postcss-url-rebase) |
-| [@chialab/rna](./packages/rna) | A bundler, a server and a test runner for modern modules and applications. | [<img src="https://img.shields.io/npm/v/@chialab/rna" alt="npm" />](https://www.npmjs.com/package/@chialab/rna) |
-| [@chialab/rna-apidoc](./packages/rna-apidoc) | Generate api documentation using TypeScript symbols. | [<img src="https://img.shields.io/npm/v/@chialab/rna-apidoc" alt="npm" />](https://www.npmjs.com/package/@chialab/rna-apidoc) |
-| [@chialab/rna-browser-test-runner](./packages/rna-browser-test-runner) | A test runner for browsers based on Web Test Runner. | [<img src="https://img.shields.io/npm/v/@chialab/rna-browser-test-runner" alt="npm" />](https://www.npmjs.com/package/@chialab/rna-browser-test-runner) |
-| [@chialab/rna-bundler](./packages/rna-bundler) | A JavaScript, CSS and HTML bundler based on esbuild. | [<img src="https://img.shields.io/npm/v/@chialab/rna-bundler" alt="npm" />](https://www.npmjs.com/package/@chialab/rna-bundler) |
-| [@chialab/rna-config-loader](./packages/rna-config-loader) | Load and setup RNA configuration object. | [<img src="https://img.shields.io/npm/v/@chialab/rna-config-loader" alt="npm" />](https://www.npmjs.com/package/@chialab/rna-config-loader) |
-| [@chialab/rna-node-test-runner](./packages/rna-node-test-runner) | A test runner for node based on mocha. | [<img src="https://img.shields.io/npm/v/@chialab/rna-node-test-runner" alt="npm" />](https://www.npmjs.com/package/@chialab/rna-node-test-runner) |
-| [@chialab/rna-saucelabs-test-runner](./packages/rna-saucelabs-test-runner) | A test runner for Saucelabs based on on Web Test Runner. | [<img src="https://img.shields.io/npm/v/@chialab/rna-saucelabs-test-runner" alt="npm" />](https://www.npmjs.com/package/@chialab/rna-saucelabs-test-runner) |
-| [@chialab/rna-dev-server](./packages/rna-dev-server) | A webapp server based on Web Dev Server. | [<img src="https://img.shields.io/npm/v/@chialab/rna-dev-server" alt="npm" />](https://www.npmjs.com/package/@chialab/rna-dev-server) |
-| [@chialab/wds-plugin-hmr-css](./packages/wds-plugin-hmr-css) | Enable CSS hmr for the web dev server. | [<img src="https://img.shields.io/npm/v/@chialab/wds-plugin-hmr-css" alt="npm" />](https://www.npmjs.com/package/@chialab/wds-plugin-hmr-css) |
-| [@chialab/wds-plugin-legacy](./packages/wds-plugin-legacy) | Transform esm modules served by the web dev server into SystemJS modules for legacy browser compatibility. | [<img src="https://img.shields.io/npm/v/@chialab/wds-plugin-legacy" alt="npm" />](https://www.npmjs.com/package/@chialab/wds-plugin-legacy) |
-| [@chialab/wds-plugin-node-resolve](./packages/wds-plugin-node-resolve) | A plugin the Web Dev Server for node resolutions. | [<img src="https://img.shields.io/npm/v/@chialab/wds-plugin-node-resolve" alt="npm" />](https://www.npmjs.com/package/@chialab/wds-plugin-node-resolve) |
-| [@chialab/wds-plugin-polyfill](./packages/wds-plugin-polyfill) | Inject polyfills to HTML responses served by the web dev server. | [<img src="https://img.shields.io/npm/v/@chialab/wds-plugin-polyfill" alt="npm" />](https://www.npmjs.com/package/@chialab/wds-plugin-polyfill) |
-| [@chialab/wds-plugin-rna](./packages/wds-plugin-rna) | A plugin for the Web Dev Server to transpile sources using the RNA bundler. | [<img src="https://img.shields.io/npm/v/@chialab/wds-plugin-rna" alt="npm" />](https://www.npmjs.com/package/@chialab/wds-plugin-rna) |
-| [@chialab/wtr-mocha-reporter](./packages/wtr-mocha-reporter) | A Mocha reporter interface for the Web Test Runner. | [<img src="https://img.shields.io/npm/v/@chialab/wtr-mocha-reporter" alt="npm" />](https://www.npmjs.com/package/@chialab/wtr-mocha-reporter) |
 
 ---
 

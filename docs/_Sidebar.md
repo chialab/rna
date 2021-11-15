@@ -4,7 +4,7 @@
 
 * [Architecture](./Architecture)
 * [Plugins](./Plugins)
-* [Write a plugin](./Wrtie-a-plugin)
+* [Write a plugin](./Write-a-plugin)
 
 ### Build
 

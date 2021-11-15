@@ -80,6 +80,9 @@ import path from 'path';
  * @property {string} [name]
  * @property {string} [code]
  * @property {string} [root]
+ * @property {string} [publicPath]
+ * @property {string} [manifestPath]
+ * @property {string} [entrypointsPath]
  */
 
 /**
@@ -126,7 +129,7 @@ export function camelize(file) {
  */
 export function getEntryConfig(entrypoint, config) {
     const root = entrypoint.root || config.root || process.cwd();
-    const publicPath = config.publicPath || root;
+    const publicPath = entrypoint.publicPath || config.publicPath || root;
     const format = entrypoint.format || config.format || 'esm';
     const target = entrypoint.target || config.target || (format === 'iife' ? 'es5' : 'es2020');
     const platform = entrypoint.platform || config.platform || (format === 'cjs' ? 'node' : 'browser');
@@ -173,8 +176,8 @@ export function getEntryConfig(entrypoint, config) {
         ],
         logLevel: config.logLevel || 'warning',
         watch: config.watch,
-        entrypointsPath: config.entrypointsPath,
-        manifestPath: config.manifestPath,
+        entrypointsPath: entrypoint.entrypointsPath || config.entrypointsPath,
+        manifestPath: entrypoint.manifestPath || config.manifestPath,
     };
 }
 

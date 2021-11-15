@@ -100,6 +100,7 @@ export default function({ framework = '@storybook/web-components', plugins = [] 
         ],
     });
 }())`);
+
                 return {
                     code: magicCode.toString(),
                     map: magicCode.generateMap({

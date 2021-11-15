@@ -5,6 +5,7 @@ import { createPipeline, finalize } from '@chialab/estransform';
 import { escapeRegexBody } from '@chialab/node-resolve';
 
 export const SCRIPT_LOADERS = ['tsx', 'ts', 'jsx', 'js'];
+const DEFAULT_TSX_EXTENSIONS = ['.tsx', '.ts', '.jsx', '.js'];
 
 /**
  * @typedef {Map<string, import('@chialab/estransform').Pipeline>} Store
@@ -33,8 +34,8 @@ export function createFilter(build) {
 
     const { loader: loaders = {} } = build.initialOptions;
     const keys = Object.keys(loaders);
-    const tsxExtensions = keys.filter((key) => SCRIPT_LOADERS.includes(loaders[key]));
-    return new RegExp(`\\.(${tsxExtensions.map((ext) => ext.replace('.', '')).join('|')})$`);
+    const tsxExtensions = keys.filter((key) => SCRIPT_LOADERS.includes(loaders[key]) && !DEFAULT_TSX_EXTENSIONS.includes(key));
+    return new RegExp(`\\.(${[...tsxExtensions, ...DEFAULT_TSX_EXTENSIONS].map((ext) => ext.replace('.', '')).join('|')})$`);
 }
 
 /**

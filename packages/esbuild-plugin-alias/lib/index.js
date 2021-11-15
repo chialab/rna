@@ -94,6 +94,7 @@ export default function alias(modules = {}, browserField = true) {
 
             onLoad({ filter: /./, namespace: 'empty' }, () => ({
                 contents: createEmptyModule(),
+                loader: 'js',
             }));
         },
     };

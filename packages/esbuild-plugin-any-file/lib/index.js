@@ -4,21 +4,21 @@ import { useRna } from '@chialab/esbuild-rna';
 
 /**
  * Load any unkown refrence as file.
- * @param {{ fsCheck?: boolean, shouldThrow?: (args: import('esbuild').OnLoadArgs) => boolean }} [options]
+ * @param {{ fsCheck?: boolean, shouldThrow?: boolean|((args: import('esbuild').OnLoadArgs) => boolean) }} [options]
  * @return An esbuild plugin.
  */
-export default function({ fsCheck = true, shouldThrow = () => false } = {}) {
+export default function({ fsCheck = true, shouldThrow = false } = {}) {
     /**
      * @type {import('esbuild').Plugin}
      */
     const plugin = {
         name: 'any-file',
         setup(build) {
-            const { loader: loaders = {} } = build.initialOptions;
             const { onLoad } = useRna(build);
-            const keys = Object.keys(loaders);
 
-            onLoad({ filter: /\./ }, async (args) => {
+            onLoad({ filter: /./ }, async (args) => {
+                const { loader: loaders = {} } = build.initialOptions;
+                const keys = Object.keys(loaders);
                 if (keys.includes(path.extname(args.path))) {
                     return;
                 }
@@ -27,7 +27,7 @@ export default function({ fsCheck = true, shouldThrow = () => false } = {}) {
                     try {
                         await access(args.path);
                     } catch (err) {
-                        if (shouldThrow(args)) {
+                        if (typeof shouldThrow === 'function' ? shouldThrow(args) : shouldThrow) {
                             throw err;
                         }
 

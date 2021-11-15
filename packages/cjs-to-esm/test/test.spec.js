@@ -3,7 +3,7 @@ import { transform } from '../lib/index.js';
 
 const { expect } = chai;
 
-describe('transform', () => {
+describe('cjs-to-esm', () => {
     it('should transform require statements', async () => {
         const { code } = await transform(`const fs = require('fs/promises');
 fs.readFile('test.js');`, { helperModule: true });

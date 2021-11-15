@@ -17,6 +17,8 @@ $ yarn add @chialab/esbuild-plugin-alias -D
 
 ## Usage
 
+Load `path-browser.js` instead of the node's `path` module:
+
 ```js
 import esbuild from 'esbuild';
 import aliasPlugin from '@chialab/esbuild-plugin-alias';
@@ -27,6 +29,47 @@ await esbuild.build({
             'node-fetch': false,
             'path': '../path-browser.js'
         }),
+    ],
+});
+```
+
+Load `node-fetch` module as an empty module:
+
+```js
+import esbuild from 'esbuild';
+import aliasPlugin from '@chialab/esbuild-plugin-alias';
+
+await esbuild.build({
+    plugins: [
+        aliasPlugin({
+            'node-fetch': false,
+        }),
+    ],
+});
+```
+
+Load aliases from `browser` field in package.json:
+
+**package.json**
+```json
+{
+    "name": "webapp",
+    "version": "0.0.0",
+    "browser": {
+        "path": "./browser-path.js",
+        "node-fetch": false,
+    }
+}
+```
+
+```js
+import esbuild from 'esbuild';
+import aliasPlugin from '@chialab/esbuild-plugin-alias';
+
+await esbuild.build({
+    platform: 'browser',
+    plugins: [
+        aliasPlugin(),
     ],
 });
 ```

@@ -2,7 +2,7 @@ import esbuild from 'esbuild';
 import envPlugin from '@chialab/esbuild-plugin-env';
 import { expect } from 'chai';
 
-describe('esbuild-plugin-env', () => {
+describe('esbuild-plugin-external', () => {
     it('should inject env values', async () => {
         process.env.CUSTOM_VAR = 'test';
         const { outputFiles: [result] } = await esbuild.build({

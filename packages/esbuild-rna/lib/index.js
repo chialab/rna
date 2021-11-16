@@ -48,7 +48,7 @@ export * from './helpers.js';
  */
 
 /**
- * @typedef {{ code: string, map?: import('@chialab/estransform').SourceMap, resolveDir?: string }} OnTransformResult
+ * @typedef {{ code: string, map?: import('@chialab/estransform').SourceMap|null, resolveDir?: string }} OnTransformResult
  */
 
 /**
@@ -97,12 +97,17 @@ export * from './helpers.js';
 const buildInternals = new WeakMap();
 
 /**
+ * @type {{ [ext: string]: import('esbuild').Loader }}
+ */
+const DEFAULT_LOADERS = { '.js': 'js', '.jsx': 'jsx', '.ts': 'ts', '.tsx': 'tsx' };
+
+/**
  * Enrich the esbuild build with a transformation pipeline and emit methods.
  * @param {import('esbuild').PluginBuild} build The esbuild build.
  * @param {typeof import('esbuild')} [esbuildModule] The esbuild module to use for internal builds.
  */
 export function useRna(build, esbuildModule) {
-    const { sourceRoot, absWorkingDir, outdir, outfile } = build.initialOptions;
+    const { sourceRoot, absWorkingDir, outdir, outfile, loader: loaders = { ...DEFAULT_LOADERS } } = build.initialOptions;
     const onResolve = build.onResolve;
     const onLoad = build.onLoad;
     /**
@@ -142,6 +147,10 @@ export function useRna(build, esbuildModule) {
          * Compute the build output dir.
          */
         outDir,
+        /**
+         * Compute loaders.
+         */
+        loaders,
         /**
          * Iterate build.onResult hooks in order to programmatically resolve an import.
          * @param {OnResolveArgs} args The resolve arguments.
@@ -209,7 +218,6 @@ export function useRna(build, esbuildModule) {
          * @param {OnTransformArgs} args
          */
         async transform(args) {
-            const loaders = build.initialOptions.loader || {};
             const loader = args.loader || loaders[path.extname(args.path)] || 'file';
 
             let { code, resolveDir } = /** @type {{ code: string|Uint8Array; resolveDir?: string }} */ (args.code ?
@@ -438,7 +446,6 @@ export function useRna(build, esbuildModule) {
          * @param {TransformCallback} callback The function to invoke for transformation.
          */
         onTransform(options, callback) {
-            const { loader: loaders = {} } = build.initialOptions;
             const filter = options.filter = options.filter || (() => {
                 const keys = Object.keys(loaders);
                 const filterLoaders = options.loaders || [];
@@ -456,7 +463,7 @@ export function useRna(build, esbuildModule) {
          * @return {Promise<string[]>} The list of plugin names that had been added to the build.
          */
         async setupPlugin(plugin, plugins, mode = 'before') {
-            const installedPlugins = build.initialOptions.plugins || [];
+            const installedPlugins = build.initialOptions.plugins = build.initialOptions.plugins || [];
 
             /**
              * @type {string[]}
@@ -471,15 +478,14 @@ export function useRna(build, esbuildModule) {
                 }
 
                 pluginsToInstall.push(dependency.name);
-                await dependency.setup(build);
                 const io = installedPlugins.indexOf(last);
+                installedPlugins.splice(mode === 'before' ? io : (io + 1), 0, dependency);
                 if (mode === 'after') {
                     last = dependency;
                 }
-                installedPlugins.splice(mode === 'before' ? io : (io + 1), 0, dependency);
-            }
 
-            build.initialOptions.plugins = installedPlugins;
+                await dependency.setup(build);
+            }
 
             return pluginsToInstall;
         },

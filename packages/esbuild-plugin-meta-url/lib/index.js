@@ -93,8 +93,8 @@ export default function({ emit = true } = {}) {
     const plugin = {
         name: 'meta-url',
         async setup(build) {
-            const { platform, format, sourcesContent, loader: buildLoaders = {} } = build.initialOptions;
-            const { onTransform, resolve, emitFile, emitChunk, rootDir } = useRna(build);
+            const { platform, format, sourcesContent } = build.initialOptions;
+            const { onTransform, resolve, emitFile, emitChunk, rootDir, loaders: buildLoaders } = useRna(build);
 
             const baseUrl = (() => {
                 if (platform === 'browser' && format !== 'esm') {

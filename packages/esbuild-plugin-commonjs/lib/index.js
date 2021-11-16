@@ -1,6 +1,6 @@
 import { HELPER_MODULE, transform, maybeCommonjsModule, maybeMixedModule, wrapDynamicRequire, createRequireHelperModule } from '@chialab/cjs-to-esm';
 import { escapeRegexBody } from '@chialab/node-resolve';
-import { useRna } from '@chialab/esbuild-rna';
+import { rnaPlugin, useRna } from '@chialab/esbuild-rna';
 
 /**
  * @typedef {import('@chialab/cjs-to-esm').TransformOptions} PluginOptions
@@ -10,21 +10,22 @@ import { useRna } from '@chialab/esbuild-rna';
  * @param {PluginOptions} [config]
  * @return An esbuild plugin.
  */
-export default function(config = {}) {
+export default function({ helperModule } = {}) {
     /**
      * @type {import('esbuild').Plugin}
      */
     const plugin = {
         name: 'commonjs',
         setup(build) {
-            const { sourcesContent, format } = build.initialOptions;
+            const { sourcesContent, format, sourcemap } = build.initialOptions;
             if (format !== 'esm') {
                 return;
             }
 
-            const { onResolve, onLoad, onTransform } = useRna(build);
+            const { onResolve, onLoad, onTransform, setupPlugin } = useRna(build);
+            setupPlugin(plugin, [rnaPlugin()], 'before');
 
-            if (config.helperModule) {
+            if (helperModule) {
                 const HELPER_FILTER = new RegExp(escapeRegexBody(`./${HELPER_MODULE}`));
                 onResolve({ filter: HELPER_FILTER }, (args) => ({
                     path: args.path,
@@ -33,6 +34,7 @@ export default function(config = {}) {
 
                 onLoad({ filter: HELPER_FILTER, namespace: 'commonjs-helper' }, async () => ({
                     contents: createRequireHelperModule(),
+                    loader: 'js',
                 }));
             }
 
@@ -41,6 +43,7 @@ export default function(config = {}) {
 
                 if (await maybeMixedModule(code)) {
                     return wrapDynamicRequire(code, {
+                        sourcemap: !!sourcemap,
                         source: args.path,
                         sourcesContent,
                     });
@@ -48,8 +51,10 @@ export default function(config = {}) {
 
                 if (await maybeCommonjsModule(code)) {
                     return transform(code, {
+                        sourcemap: !!sourcemap,
                         source: args.path,
                         sourcesContent,
+                        helperModule,
                     });
                 }
             });

@@ -3,7 +3,7 @@ import anyFilePlugin from '@chialab/esbuild-plugin-any-file';
 import { expect } from 'chai';
 
 describe('esbuild-plugin-any-file', () => {
-    it('should load a file with unknown load', async () => {
+    it('should load a file with unknown loader', async () => {
         const { outputFiles: [file, result] } = await esbuild.build({
             stdin: {
                 resolveDir: new URL('.', import.meta.url).pathname,
@@ -21,6 +21,10 @@ export default file;`,
 
         expect(file.text.trim()).to.equal('unknown content');
         expect(result.text).to.be.equal(`(() => {
+  // packages/esbuild-plugin-any-file/test/fs.js
+  var readFile = () => {
+  };
+
   // packages/esbuild-plugin-any-file/test/unknown
   var unknown_default = "./unknown-ROMZJ4GL";
 

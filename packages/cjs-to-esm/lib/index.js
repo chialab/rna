@@ -155,6 +155,7 @@ function isRequireCallExpression(node) {
 
 /**
  * @typedef {Object} TransformOptions
+ * @property {boolean} [sourcemap]
  * @property {string} [source]
  * @property {boolean} [sourcesContent]
  * @property {IgnoreCallback} [ignore]
@@ -166,7 +167,7 @@ function isRequireCallExpression(node) {
  * @param {string} code
  * @param {TransformOptions} [options]
  */
-export async function transform(code, { source, sourcesContent = false, ignore = () => false, helperModule = false, ignoreTryCatch = true } = {}) {
+export async function transform(code, { sourcemap = true, source, sourcesContent = false, ignore = () => false, helperModule = false, ignoreTryCatch = true } = {}) {
     if (await maybeMixedModule(code)) {
         throw new Error('Cannot convert mixed modules');
     }
@@ -349,20 +350,20 @@ if (${conditions.join(' && ')}) {
 
     return {
         code: magicCode.toString(),
-        map: magicCode.generateMap({
+        map: sourcemap ? magicCode.generateMap({
             source,
             includeContent: sourcesContent,
             hires: true,
-        }),
+        }) : null,
     };
 }
 
 /**
  * Wrap with a try catch block any require call.
  * @param {string} code
- * @param {{ source?: string; sourcesContent?: boolean }} options
+ * @param {{ sourcemap?: boolean, source?: string; sourcesContent?: boolean }} options
  */
-export async function wrapDynamicRequire(code, { source, sourcesContent = false } = {}) {
+export async function wrapDynamicRequire(code, { sourcemap = true, source, sourcesContent = false } = {}) {
     /**
      * @type {MagicString|undefined}
      */
@@ -399,10 +400,10 @@ export async function wrapDynamicRequire(code, { source, sourcesContent = false 
 
     return {
         code: magicCode.toString(),
-        map: magicCode.generateMap({
+        map: sourcemap ? magicCode.generateMap({
             source,
             includeContent: sourcesContent,
             hires: true,
-        }),
+        }) : null,
     };
 }

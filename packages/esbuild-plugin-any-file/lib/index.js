@@ -14,12 +14,10 @@ export default function({ fsCheck = true, shouldThrow = false } = {}) {
     const plugin = {
         name: 'any-file',
         setup(build) {
-            const { onLoad } = useRna(build);
+            const { onLoad, loaders } = useRna(build);
 
             onLoad({ filter: /./ }, async (args) => {
-                const { loader: loaders = {} } = build.initialOptions;
-                const keys = Object.keys(loaders);
-                if (keys.includes(path.extname(args.path))) {
+                if (path.extname(args.path) in loaders) {
                     return;
                 }
 

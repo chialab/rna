@@ -37,8 +37,7 @@ export default function virtual(entries) {
     const plugin = {
         name: this?.name || 'virtual',
         async setup(build) {
-            const loaders = build.initialOptions.loader || {};
-            const { onResolve, onLoad, rootDir } = useRna(build);
+            const { onResolve, onLoad, rootDir, loaders } = useRna(build);
 
             entries.forEach((entry) => {
                 const resolveDir = entry.resolveDir || rootDir;

@@ -110,8 +110,8 @@ export {
 
     it('should read browser alias with browser platform', async () => {
         const { outputFiles: [result] } = await esbuild.build({
-            entryPoints: [new URL('browser/input.js', import.meta.url).pathname],
-            sourceRoot: new URL('browser', import.meta.url).pathname,
+            entryPoints: [new URL('fixture/input.js', import.meta.url).pathname],
+            sourceRoot: new URL('fixture', import.meta.url).pathname,
             format: 'esm',
             platform: 'browser',
             target: 'esnext',
@@ -137,8 +137,8 @@ export {
 
     it('should not read browser alias with node platform', async () => {
         const { outputFiles: [result] } = await esbuild.build({
-            entryPoints: [new URL('browser/input.js', import.meta.url).pathname],
-            sourceRoot: new URL('browser', import.meta.url).pathname,
+            entryPoints: [new URL('fixture/input.js', import.meta.url).pathname],
+            sourceRoot: new URL('fixture', import.meta.url).pathname,
             format: 'esm',
             platform: 'node',
             target: 'esnext',
@@ -149,7 +149,7 @@ export {
             ],
         });
 
-        expect(result.text).to.equal(`// packages/esbuild-plugin-alias/test/browser/input.js
+        expect(result.text).to.equal(`// packages/esbuild-plugin-alias/test/fixture/input.js
 import path from "path";
 import { readFile } from "fs/promises";
 export {

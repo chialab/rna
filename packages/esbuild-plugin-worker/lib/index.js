@@ -54,7 +54,7 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                 namespace: 'worker',
             }));
 
-            onLoad({ filter: /\./, namespace: 'worker' }, (args) => transform(args));
+            onLoad({ filter: /./, namespace: 'worker' }, (args) => transform(args));
 
             onTransform({ loaders: ['tsx', 'ts', 'jsx', 'js'] }, async (args) => {
                 const code = args.code.toString();

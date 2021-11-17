@@ -21,7 +21,7 @@ export default function() {
                 namespace: 'require-resolve',
             }));
 
-            onLoad({ filter: /\./, namespace: 'require-resolve' }, (args) => transform(args));
+            onLoad({ filter: /./, namespace: 'require-resolve' }, (args) => transform(args));
 
             onTransform({ loaders: ['tsx', 'ts', 'jsx', 'js'] }, async (args) => {
                 const code = args.code.toString();

@@ -17,9 +17,34 @@ $ yarn add @chialab/esbuild-plugin-virtual -D
 
 ## Usage
 
-```js
-import '@chialab/esbuild-plugin-virtual';
+Define a virtual module:
 
+```js
+import esbuild from 'esbuild';
+import virtualPlugin from '@chialab/esbuild-plugin-virtual';
+
+await esbuild.build({
+    entrypoints: [
+        'index.js',
+    ],
+    plugins: [
+        virtualPlugin([
+            {
+                path: 'virtual-entry.js',
+                contents: 'export const nil = () => {};',
+                loader: 'js',
+            },
+        ]),
+    ],
+});
+```
+
+**index.js**
+
+```js
+import { nil } from 'virtual-entry.js';
+
+nil();
 ```
 
 ---

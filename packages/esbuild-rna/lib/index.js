@@ -44,7 +44,7 @@ export * from './helpers.js';
  */
 
 /**
- * @typedef {{ filter?: RegExp, loaders?: import('esbuild').Loader[], namespace?: string }} OnTransformOptions
+ * @typedef {{ filter?: RegExp; loaders?: import('esbuild').Loader[]; extensions?: string[]; namespace?: string }} OnTransformOptions
  */
 
 /**
@@ -446,12 +446,21 @@ export function useRna(build, esbuildModule) {
          * @param {TransformCallback} callback The function to invoke for transformation.
          */
         onTransform(options, callback) {
-            const filter = options.filter = options.filter || (() => {
+            const bodies = [];
+
+            if (options.filter) {
+                bodies.push(options.filter.source);
+            }
+            if (options.loaders) {
                 const keys = Object.keys(loaders);
                 const filterLoaders = options.loaders || [];
                 const tsxExtensions = keys.filter((key) => filterLoaders.includes(loaders[key]));
-                return new RegExp(`\\.(${tsxExtensions.map((ext) => ext.replace('.', '')).join('|')})$`);
-            })();
+                bodies.push(`\\.(${tsxExtensions.map((ext) => ext.replace('.', '')).join('|')})$`);
+            }
+            if (options.extensions) {
+                bodies.push(`(${options.extensions.join('|')})$`);
+            }
+            const filter = options.filter = new RegExp(`(${bodies.join(')|(')})`);
             onLoad.call(build, { filter }, (args) => rnaBuild.transform(args));
             state.transform.push({ options, callback });
         },

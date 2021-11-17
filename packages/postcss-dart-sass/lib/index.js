@@ -238,7 +238,18 @@ export default function(options = {}) {
                 sourceMapEmbed: false,
             };
 
-            const sassResult = sass.renderSync(computedOptions);
+            /**
+             * @type {import('sass').Result}
+             */
+            const sassResult = await new Promise((resolve, reject) => {
+                sass.render(computedOptions, (err, result) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(result);
+                    }
+                });
+            });
             const sassCssOutput = sassResult.css.toString();
             const sassMap = JSON.parse(/** @type {string} */(sassResult.map && sassResult.map.toString()));
 

@@ -1,3 +1,6 @@
 {
-  "extends": "@chialab/eslint-config/javascript/node"
+  "extends": "@chialab/eslint-config/javascript/node",
+  "ignorePatterns": [
+    "**/fixture/*"
+  ]
 }

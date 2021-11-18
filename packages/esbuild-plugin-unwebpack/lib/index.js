@@ -20,7 +20,8 @@ export default function() {
             onTransform({ loaders: ['tsx', 'ts', 'jsx', 'js'] }, async (args) => {
                 const code = args.code.toString();
 
-                if (!code.includes('module.hot.decline') &&
+                if (!code.includes('module.hot') &&
+                    !code.includes('import.meta.webpackHot') &&
                     !code.includes('webpackInclude:')) {
                     return;
                 }
@@ -72,7 +73,7 @@ export default function() {
                             }))
                                 .filter((name) => name.match(include) && (!exclude || !name.match(exclude)))
                                 .reduce((map, name) => {
-                                    map[name.replace(include, '')] = `./${path.join(initial, name)}`;
+                                    map[name.replace(include, '')] = `./${name}`;
                                     return map;
                                 }, /** @type {{ [key: string]: string }} */({}));
 
@@ -84,30 +85,69 @@ export default function() {
                      * @param {import('@chialab/estransform').IfStatement} node
                      */
                     IfStatement(node) {
-                        if (node.test.type !== 'BinaryExpression' ||
-                            node.test.left.type !== 'BinaryExpression' ||
-                            node.test.left.left.type !== 'Identifier' ||
-                            node.test.left.left.value !== 'module' ||
-                            node.test.left.right.type !== 'MemberExpression' ||
-                            node.test.left.right.object.type !== 'Identifier' ||
-                            node.test.left.right.object.value !== 'module' ||
-                            node.test.left.right.property.type !== 'Identifier' ||
-                            node.test.left.right.property.value !== 'hot' ||
-                            node.test.right.type !== 'MemberExpression' ||
-                            node.test.right.object.type !== 'MemberExpression' ||
-                            node.test.right.object.object.type !== 'Identifier' ||
-                            node.test.right.object.object.value !== 'module' ||
-                            node.test.right.object.property.type !== 'Identifier' ||
-                            node.test.right.object.property.value !== 'hot' ||
-                            node.test.right.property.type !== 'Identifier' ||
-                            node.test.right.property.value !== 'decline'
+                        const remove = () => {
+                            const loc = getSpanLocation(ast, node);
+                            magicCode = magicCode || new MagicString(code);
+                            magicCode.overwrite(loc.start, loc.end, '');
+                        };
+
+                        // if (module.hot) {
+                        if (node.test.type === 'MemberExpression' &&
+                            node.test.object.type === 'Identifier' &&
+                            node.test.object.value === 'module' &&
+                            node.test.property.type === 'Identifier' &&
+                            node.test.property.value === 'hot'
                         ) {
+                            remove();
                             return;
                         }
 
-                        const loc = getSpanLocation(ast, node);
-                        magicCode = magicCode || new MagicString(code);
-                        magicCode.overwrite(loc.start, loc.end, '');
+                        // if (import.meta.webpackHot) {
+                        if (node.test.type === 'MemberExpression' &&
+                            node.test.object.type === 'MetaProperty' &&
+                            node.test.property.type === 'Identifier' &&
+                            node.test.property.value === 'webpackHot'
+                        ) {
+                            remove();
+                            return;
+                        }
+
+                        // if (module && module.hot) {
+                        if (node.test.type === 'BinaryExpression' &&
+                            node.test.left.type === 'Identifier' &&
+                            node.test.left.value === 'module' &&
+                            node.test.right.type === 'MemberExpression' &&
+                            node.test.right.object.type === 'Identifier' &&
+                            node.test.right.object.value === 'module' &&
+                            node.test.right.property.type === 'Identifier' &&
+                            node.test.right.property.value === 'hot'
+                        ) {
+                            remove();
+                            return;
+                        }
+
+                        // if (module && module.hot && module.hot.decline) {
+                        if (node.test.type === 'BinaryExpression' &&
+                            node.test.left.type === 'BinaryExpression' &&
+                            node.test.left.left.type === 'Identifier' &&
+                            node.test.left.left.value === 'module' &&
+                            node.test.left.right.type === 'MemberExpression' &&
+                            node.test.left.right.object.type === 'Identifier' &&
+                            node.test.left.right.object.value === 'module' &&
+                            node.test.left.right.property.type === 'Identifier' &&
+                            node.test.left.right.property.value === 'hot' &&
+                            node.test.right.type === 'MemberExpression' &&
+                            node.test.right.object.type === 'MemberExpression' &&
+                            node.test.right.object.object.type === 'Identifier' &&
+                            node.test.right.object.object.value === 'module' &&
+                            node.test.right.object.property.type === 'Identifier' &&
+                            node.test.right.object.property.value === 'hot' &&
+                            node.test.right.property.type === 'Identifier' &&
+                            node.test.right.property.value === 'decline'
+                        ) {
+                            remove();
+                            return;
+                        }
                     },
                 });
 

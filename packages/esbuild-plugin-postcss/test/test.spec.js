@@ -5,6 +5,7 @@ import { expect } from 'chai';
 describe('esbuild-plugin-postcss', () => {
     it('should run postcss default transformations', async () => {
         const { outputFiles: [result] } = await esbuild.build({
+            absWorkingDir: new URL('.', import.meta.url).pathname,
             stdin: {
                 sourcefile: new URL('input.css', import.meta.url).pathname,
                 contents: `::placeholder {
@@ -21,7 +22,7 @@ describe('esbuild-plugin-postcss', () => {
             ],
         });
 
-        expect(result.text).to.be.equal(`/* packages/esbuild-plugin-postcss/test/input.css */
+        expect(result.text).to.be.equal(`/* input.css */
 ::-webkit-input-placeholder {
   color: gray;
 }
@@ -36,6 +37,7 @@ describe('esbuild-plugin-postcss', () => {
 
     it('should convert sass', async () => {
         const { outputFiles: [result] } = await esbuild.build({
+            absWorkingDir: new URL('.', import.meta.url).pathname,
             stdin: {
                 sourcefile: new URL('input.scss', import.meta.url).pathname,
                 contents: `.parent {
@@ -57,7 +59,7 @@ describe('esbuild-plugin-postcss', () => {
             ],
         });
 
-        expect(result.text).to.be.equal(`/* packages/esbuild-plugin-postcss/test/input.scss */
+        expect(result.text).to.be.equal(`/* input.scss */
 .parent .child {
   color: red;
 }
@@ -66,6 +68,7 @@ describe('esbuild-plugin-postcss', () => {
 
     it('should include sass modules', async () => {
         const { outputFiles: [result] } = await esbuild.build({
+            absWorkingDir: new URL('.', import.meta.url).pathname,
             entryPoints: [new URL('fixture/input.scss', import.meta.url).pathname],
             sourceRoot: new URL('fixture', import.meta.url).pathname,
             loader: {
@@ -80,7 +83,7 @@ describe('esbuild-plugin-postcss', () => {
             ],
         });
 
-        expect(result.text).to.be.equal(`/* packages/esbuild-plugin-postcss/test/fixture/input.scss */
+        expect(result.text).to.be.equal(`/* fixture/input.scss */
 body,
 html {
   margin: 0;
@@ -94,6 +97,7 @@ html {
 
     it('should load postcss config', async () => {
         const { outputFiles: [result] } = await esbuild.build({
+            absWorkingDir: new URL('.', import.meta.url).pathname,
             entryPoints: [new URL('fixture/input.css', import.meta.url).pathname],
             sourceRoot: new URL('fixture', import.meta.url).pathname,
             format: 'esm',

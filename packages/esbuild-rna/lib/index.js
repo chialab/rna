@@ -538,6 +538,13 @@ export function useRna(build, esbuildModule) {
         },
     };
 
+    const installedPlugins = build.initialOptions.plugins = build.initialOptions.plugins || [];
+    if (!installedPlugins.find((p) => p.name === 'rna')) {
+        const plugin = rnaPlugin();
+        installedPlugins.unshift(plugin);
+        plugin.setup(build);
+    }
+
     return rnaBuild;
 }
 

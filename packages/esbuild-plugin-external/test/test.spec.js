@@ -5,6 +5,7 @@ import { expect } from 'chai';
 describe('esbuild-plugin-external', () => {
     it('should externalize remote modules', async () => {
         const { outputFiles: [result] } = await esbuild.build({
+            absWorkingDir: new URL('.', import.meta.url).pathname,
             stdin: {
                 resolveDir: new URL('.', import.meta.url).pathname,
                 sourcefile: new URL(import.meta.url).pathname,
@@ -19,7 +20,7 @@ describe('esbuild-plugin-external', () => {
             ],
         });
 
-        expect(result.text).to.be.equal(`// packages/esbuild-plugin-external/test/test.spec.js
+        expect(result.text).to.be.equal(`// test.spec.js
 import { render } from "https://unpkg.com/@chialab/dna";
 export {
   render
@@ -29,6 +30,7 @@ export {
 
     it('should externalize dependencies', async () => {
         const { outputFiles: [result] } = await esbuild.build({
+            absWorkingDir: new URL('.', import.meta.url).pathname,
             entryPoints: [new URL('fixture/input.js', import.meta.url).pathname],
             sourceRoot: new URL('fixture', import.meta.url).pathname,
             format: 'esm',
@@ -39,16 +41,16 @@ export {
             ],
         });
 
-        expect(result.text).to.be.equal(`// packages/esbuild-plugin-external/test/fixture/input.js
+        expect(result.text).to.be.equal(`// fixture/input.js
 export * from "dep";
 
-// packages/esbuild-plugin-external/test/fixture/node_modules/peerdep/index.js
+// fixture/node_modules/peerdep/index.js
 var peer = "peer";
 
-// packages/esbuild-plugin-external/test/fixture/node_modules/optionaldep/index.js
+// fixture/node_modules/optionaldep/index.js
 var optional = "optional";
 
-// packages/esbuild-plugin-external/test/fixture/node_modules/devdep/index.js
+// fixture/node_modules/devdep/index.js
 var dev = "dev";
 export {
   dev,
@@ -60,6 +62,7 @@ export {
 
     it('should externalize all dependencies', async () => {
         const { outputFiles: [result] } = await esbuild.build({
+            absWorkingDir: new URL('.', import.meta.url).pathname,
             entryPoints: [new URL('fixture/input.js', import.meta.url).pathname],
             sourceRoot: new URL('fixture', import.meta.url).pathname,
             format: 'esm',
@@ -70,12 +73,12 @@ export {
             ],
         });
 
-        expect(result.text).to.be.equal(`// packages/esbuild-plugin-external/test/fixture/input.js
+        expect(result.text).to.be.equal(`// fixture/input.js
 export * from "dep";
 export * from "peerdep";
 export * from "optionaldep";
 
-// packages/esbuild-plugin-external/test/fixture/node_modules/devdep/index.js
+// fixture/node_modules/devdep/index.js
 var dev = "dev";
 export {
   dev
@@ -85,6 +88,7 @@ export {
 
     it('should externalize given deps', async () => {
         const { outputFiles: [result] } = await esbuild.build({
+            absWorkingDir: new URL('.', import.meta.url).pathname,
             entryPoints: [new URL('fixture/input.js', import.meta.url).pathname],
             sourceRoot: new URL('fixture', import.meta.url).pathname,
             format: 'esm',
@@ -95,12 +99,12 @@ export {
             ],
         });
 
-        expect(result.text).to.be.equal(`// packages/esbuild-plugin-external/test/fixture/input.js
+        expect(result.text).to.be.equal(`// fixture/input.js
 export * from "dep";
 export * from "peerdep";
 export * from "optionaldep";
 
-// packages/esbuild-plugin-external/test/fixture/node_modules/devdep/index.js
+// fixture/node_modules/devdep/index.js
 var dev = "dev";
 export {
   dev
@@ -110,6 +114,7 @@ export {
 
     it('should skip without bundle', async () => {
         const { outputFiles: [result] } = await esbuild.build({
+            absWorkingDir: new URL('.', import.meta.url).pathname,
             entryPoints: [new URL('fixture/input.js', import.meta.url).pathname],
             sourceRoot: new URL('fixture', import.meta.url).pathname,
             format: 'esm',

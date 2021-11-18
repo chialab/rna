@@ -5,6 +5,7 @@ import { expect } from 'chai';
 describe('esbuild-plugin-define-this', () => {
     it('should resolve to window for browser platform', async () => {
         const { outputFiles: [result] } = await esbuild.build({
+            absWorkingDir: new URL('.', import.meta.url).pathname,
             stdin: {
                 resolveDir: new URL('.', import.meta.url).pathname,
                 sourcefile: new URL(import.meta.url).pathname,
@@ -19,7 +20,7 @@ describe('esbuild-plugin-define-this', () => {
         });
 
         expect(result.text).to.be.equal(`(() => {
-  // packages/esbuild-plugin-define-this/test/test.spec.js
+  // test.spec.js
   (function(g) {
     return g;
   })(window);
@@ -29,6 +30,7 @@ describe('esbuild-plugin-define-this', () => {
 
     it('should resolve to globalThis for neutral platform', async () => {
         const { outputFiles: [result] } = await esbuild.build({
+            absWorkingDir: new URL('.', import.meta.url).pathname,
             stdin: {
                 resolveDir: new URL('.', import.meta.url).pathname,
                 sourcefile: new URL(import.meta.url).pathname,
@@ -42,7 +44,7 @@ describe('esbuild-plugin-define-this', () => {
             ],
         });
 
-        expect(result.text).to.be.equal(`// packages/esbuild-plugin-define-this/test/test.spec.js
+        expect(result.text).to.be.equal(`// test.spec.js
 (function(g) {
   return g;
 })(globalThis);
@@ -51,6 +53,7 @@ describe('esbuild-plugin-define-this', () => {
 
     it('should resolve to undefined for node platform', async () => {
         const { outputFiles: [result] } = await esbuild.build({
+            absWorkingDir: new URL('.', import.meta.url).pathname,
             stdin: {
                 resolveDir: new URL('.', import.meta.url).pathname,
                 sourcefile: new URL(import.meta.url).pathname,
@@ -64,7 +67,7 @@ describe('esbuild-plugin-define-this', () => {
             ],
         });
 
-        expect(result.text).to.be.equal(`// packages/esbuild-plugin-define-this/test/test.spec.js
+        expect(result.text).to.be.equal(`// test.spec.js
 (function(g) {
   return g;
 })(undefined);

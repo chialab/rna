@@ -18,7 +18,7 @@ export default function({ presets = [], plugins = [] } = {}) {
         name: 'babel',
         setup(build) {
             const { target, jsxFactory } = build.initialOptions;
-            const { onResolve, onTransform } = useRna(build);
+            const { onResolve, onTransform, rootDir } = useRna(build);
 
             onResolve({ filter: /@babel\/runtime/ }, async (args) => ({
                 path: await resolve(args.path, import.meta.url),
@@ -31,14 +31,18 @@ export default function({ presets = [], plugins = [] } = {}) {
                     return;
                 }
 
+                const buildPresets = [...presets];
+                const buildPlugins = [...plugins];
+
                 /** @type {import('@babel/core').TransformOptions} */
                 const config = {
+                    cwd: rootDir,
                     ast: false,
                     compact: false,
                     filename: args.path,
                     sourceMaps: true,
-                    presets,
-                    plugins,
+                    presets: buildPresets,
+                    plugins: buildPlugins,
                 };
 
                 const [
@@ -49,7 +53,7 @@ export default function({ presets = [], plugins = [] } = {}) {
                     import('@babel/plugin-transform-runtime'),
                 ]);
 
-                plugins.unshift(
+                buildPlugins.unshift(
                     jsx,
                     [runtimePlugin, {
                         corejs: false,
@@ -61,7 +65,7 @@ export default function({ presets = [], plugins = [] } = {}) {
 
                 if (target === 'es5') {
                     const { default: envPreset } = await import('@babel/preset-env');
-                    presets.unshift([envPreset, {
+                    buildPresets.unshift([envPreset, {
                         targets: {
                             ie: '11',
                             chrome: '30',
@@ -79,7 +83,7 @@ export default function({ presets = [], plugins = [] } = {}) {
 
                 if (jsxFactory) {
                     const { default: htmPlugin } = await import('babel-plugin-htm');
-                    plugins.push([htmPlugin, {
+                    buildPlugins.push([htmPlugin, {
                         tag: 'html',
                         pragma: jsxFactory,
                     }]);

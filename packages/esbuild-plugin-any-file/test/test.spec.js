@@ -5,6 +5,7 @@ import { expect } from 'chai';
 describe('esbuild-plugin-any-file', () => {
     it('should load a file with unknown loader', async () => {
         const { outputFiles: [file, result] } = await esbuild.build({
+            absWorkingDir: new URL('.', import.meta.url).pathname,
             stdin: {
                 resolveDir: new URL('.', import.meta.url).pathname,
                 sourcefile: new URL(import.meta.url).pathname,
@@ -21,14 +22,14 @@ export default file;`,
 
         expect(file.text.trim()).to.equal('unknown content');
         expect(result.text).to.be.equal(`(() => {
-  // packages/esbuild-plugin-any-file/test/fs.js
+  // fs.js
   var readFile = () => {
   };
 
-  // packages/esbuild-plugin-any-file/test/unknown
+  // unknown
   var unknown_default = "./unknown-ROMZJ4GL";
 
-  // packages/esbuild-plugin-any-file/test/test.spec.js
+  // test.spec.js
   var test_spec_default = unknown_default;
 })();
 `);
@@ -38,6 +39,7 @@ export default file;`,
         let err;
         try {
             await esbuild.build({
+                absWorkingDir: new URL('.', import.meta.url).pathname,
                 stdin: {
                     resolveDir: new URL('.', import.meta.url).pathname,
                     sourcefile: new URL(import.meta.url).pathname,

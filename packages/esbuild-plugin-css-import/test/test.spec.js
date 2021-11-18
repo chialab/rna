@@ -5,6 +5,7 @@ import { expect } from 'chai';
 describe('esbuild-plugin-css-import', () => {
     it('should resolve css imports', async () => {
         const { outputFiles: [result] } = await esbuild.build({
+            absWorkingDir: new URL('.', import.meta.url).pathname,
             entryPoints: [new URL('fixture/input.css', import.meta.url).pathname],
             sourceRoot: new URL('fixture', import.meta.url).pathname,
             bundle: true,
@@ -14,19 +15,20 @@ describe('esbuild-plugin-css-import', () => {
             ],
         });
 
-        expect(result.text).to.be.equal(`/* packages/esbuild-plugin-css-import/test/fixture/node_modules/test-lib/lib.css */
+        expect(result.text).to.be.equal(`/* fixture/node_modules/test-lib/lib.css */
 html,
 body {
   margin: 0;
   padding: 0;
 }
 
-/* packages/esbuild-plugin-css-import/test/fixture/input.css */
+/* fixture/input.css */
 `);
     });
 
     it('should ignore external modules', async () => {
         const { outputFiles: [result] } = await esbuild.build({
+            absWorkingDir: new URL('.', import.meta.url).pathname,
             entryPoints: [new URL('fixture/input.css', import.meta.url).pathname],
             sourceRoot: new URL('fixture', import.meta.url).pathname,
             bundle: true,
@@ -41,7 +43,7 @@ body {
 
         expect(result.text).to.be.equal(`@import "test-lib";
 
-/* packages/esbuild-plugin-css-import/test/fixture/input.css */
+/* fixture/input.css */
 `);
     });
 });

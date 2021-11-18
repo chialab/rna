@@ -5,6 +5,7 @@ import { expect } from 'chai';
 describe('esbuild-plugin-alias', () => {
     it('should use alias instead of given import', async () => {
         const { outputFiles: [result] } = await esbuild.build({
+            absWorkingDir: new URL('.', import.meta.url).pathname,
             stdin: {
                 sourcefile: new URL(import.meta.url).pathname,
                 contents: `import path from 'path';
@@ -19,15 +20,15 @@ export { readFile, path }`,
             write: false,
             plugins: [
                 aliasPlugin({
-                    'fs/promises': './fs.js',
+                    'fs/promises': './fixture/fs.js',
                 }),
             ],
         });
 
-        expect(result.text).to.equal(`// ${new URL(import.meta.url).pathname}
+        expect(result.text).to.equal(`// test.spec.js
 import path from "path";
 
-// packages/esbuild-plugin-alias/test/fs.js
+// fixture/fs.js
 var readFile = () => {
 };
 export {
@@ -39,6 +40,7 @@ export {
 
     it('should use empty module instead of given import', async () => {
         const { outputFiles: [result] } = await esbuild.build({
+            absWorkingDir: new URL('.', import.meta.url).pathname,
             stdin: {
                 sourcefile: new URL(import.meta.url).pathname,
                 contents: `import path from 'path';
@@ -59,7 +61,7 @@ export { fs, path }`,
             ],
         });
 
-        expect(result.text).to.be.equal(`// ${new URL(import.meta.url).pathname}
+        expect(result.text).to.be.equal(`// test.spec.js
 import path from "path";
 
 // empty:fs/promises
@@ -73,6 +75,7 @@ export {
 
     it('should use alias instead of given import with a new plugin instance', async () => {
         const { outputFiles: [result] } = await esbuild.build({
+            absWorkingDir: new URL('.', import.meta.url).pathname,
             stdin: {
                 sourcefile: new URL(import.meta.url).pathname,
                 contents: `import path from 'path';
@@ -87,7 +90,7 @@ export { readFile, path }`,
             write: false,
             plugins: [
                 aliasPlugin({
-                    'fs/promises': './fs.js',
+                    'fs/promises': './fixture/fs.js',
                 }),
                 createAliasPlugin()({
                     path: false,
@@ -98,7 +101,7 @@ export { readFile, path }`,
         expect(result.text).to.equal(`// empty:path
 var path_default = {};
 
-// packages/esbuild-plugin-alias/test/fs.js
+// fixture/fs.js
 var readFile = () => {
 };
 export {
@@ -110,6 +113,7 @@ export {
 
     it('should read browser alias with browser platform', async () => {
         const { outputFiles: [result] } = await esbuild.build({
+            absWorkingDir: new URL('.', import.meta.url).pathname,
             entryPoints: [new URL('fixture/input.js', import.meta.url).pathname],
             sourceRoot: new URL('fixture', import.meta.url).pathname,
             format: 'esm',
@@ -125,7 +129,7 @@ export {
         expect(result.text).to.equal(`// empty:path
 var path_default = {};
 
-// packages/esbuild-plugin-alias/test/fs.js
+// fixture/fs.js
 var readFile = () => {
 };
 export {
@@ -137,6 +141,7 @@ export {
 
     it('should not read browser alias with node platform', async () => {
         const { outputFiles: [result] } = await esbuild.build({
+            absWorkingDir: new URL('.', import.meta.url).pathname,
             entryPoints: [new URL('fixture/input.js', import.meta.url).pathname],
             sourceRoot: new URL('fixture', import.meta.url).pathname,
             format: 'esm',
@@ -149,7 +154,7 @@ export {
             ],
         });
 
-        expect(result.text).to.equal(`// packages/esbuild-plugin-alias/test/fixture/input.js
+        expect(result.text).to.equal(`// fixture/input.js
 import path from "path";
 import { readFile } from "fs/promises";
 export {

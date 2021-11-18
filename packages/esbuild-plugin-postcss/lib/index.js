@@ -1,5 +1,5 @@
 import path from 'path';
-import { rnaPlugin, useRna } from '@chialab/esbuild-rna';
+import { useRna } from '@chialab/esbuild-rna';
 import cssImport from '@chialab/esbuild-plugin-css-import';
 
 /**
@@ -46,7 +46,7 @@ export default function(options = {}) {
         async setup(build) {
             const { sourcemap = true, absWorkingDir } = build.initialOptions || {};
             const { onTransform, resolve, rootDir, collectDependencies, setupPlugin } = useRna(build);
-            setupPlugin(plugin, [rnaPlugin(), cssImport()], 'before');
+            setupPlugin(plugin, [cssImport()], 'before');
 
             onTransform({ loaders: ['css'], extensions: ['.css', '.scss', '.sass'] }, async (args) => {
                 const { default: postcss } = await import('postcss');

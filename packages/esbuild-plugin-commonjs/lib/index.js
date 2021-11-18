@@ -1,6 +1,6 @@
 import { HELPER_MODULE, transform, maybeCommonjsModule, maybeMixedModule, wrapDynamicRequire, createRequireHelperModule } from '@chialab/cjs-to-esm';
 import { escapeRegexBody } from '@chialab/node-resolve';
-import { rnaPlugin, useRna } from '@chialab/esbuild-rna';
+import { useRna } from '@chialab/esbuild-rna';
 
 /**
  * @typedef {import('@chialab/cjs-to-esm').TransformOptions} PluginOptions
@@ -22,8 +22,7 @@ export default function({ helperModule } = {}) {
                 return;
             }
 
-            const { onResolve, onLoad, onTransform, setupPlugin } = useRna(build);
-            setupPlugin(plugin, [rnaPlugin()], 'before');
+            const { onResolve, onLoad, onTransform } = useRna(build);
 
             if (helperModule) {
                 const HELPER_FILTER = new RegExp(escapeRegexBody(`./${HELPER_MODULE}`));

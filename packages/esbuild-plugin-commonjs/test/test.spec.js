@@ -5,6 +5,7 @@ import { expect } from 'chai';
 describe('esbuild-plugin-commonjs', () => {
     it('should skip if target is not esm', async () => {
         const { outputFiles: [result] } = await esbuild.build({
+            absWorkingDir: new URL('.', import.meta.url).pathname,
             stdin: {
                 resolveDir: new URL('.', import.meta.url).pathname,
                 sourcefile: new URL(import.meta.url).pathname,
@@ -23,7 +24,7 @@ describe('esbuild-plugin-commonjs', () => {
             ],
         });
 
-        expect(result.text).to.be.equal(`// packages/esbuild-plugin-commonjs/test/test.spec.js
+        expect(result.text).to.be.equal(`// test.spec.js
 module.exports = {
   method() {
     return true;
@@ -34,6 +35,7 @@ module.exports = {
 
     it('should export legacy module with default specifier', async () => {
         const { outputFiles: [result] } = await esbuild.build({
+            absWorkingDir: new URL('.', import.meta.url).pathname,
             stdin: {
                 resolveDir: new URL('.', import.meta.url).pathname,
                 sourcefile: new URL(import.meta.url).pathname,
@@ -52,7 +54,7 @@ module.exports = {
             ],
         });
 
-        expect(result.text).to.be.equal(`// packages/esbuild-plugin-commonjs/test/test.spec.js
+        expect(result.text).to.be.equal(`// test.spec.js
 var exports = {};
 var module = {
   get exports() {
@@ -81,6 +83,7 @@ export {
 
     it('should bundle using the commonjs helper', async () => {
         const { outputFiles: [result] } = await esbuild.build({
+            absWorkingDir: new URL('.', import.meta.url).pathname,
             stdin: {
                 resolveDir: new URL('.', import.meta.url).pathname,
                 sourcefile: new URL(import.meta.url).pathname,
@@ -102,7 +105,7 @@ export {
             ],
         });
 
-        expect(result.text).to.be.equal(`// packages/esbuild-plugin-commonjs/test/test.spec.js
+        expect(result.text).to.be.equal(`// test.spec.js
 import * as $cjs$fs from "fs";
 
 // commonjs-helper:./$$cjs_helper$$.js
@@ -170,7 +173,7 @@ function $$cjs_default$$(requiredModule) {
   return specifiers;
 }
 
-// packages/esbuild-plugin-commonjs/test/test.spec.js
+// test.spec.js
 var exports = {};
 var module = {
   get exports() {
@@ -199,6 +202,7 @@ export {
 
     it('should rename require in mixed modules', async () => {
         const { outputFiles: [result] } = await esbuild.build({
+            absWorkingDir: new URL('.', import.meta.url).pathname,
             stdin: {
                 resolveDir: new URL('.', import.meta.url).pathname,
                 sourcefile: new URL(import.meta.url).pathname,
@@ -228,7 +232,7 @@ export {
   throw new Error('Dynamic require of "' + x + '" is not supported');
 });
 
-// packages/esbuild-plugin-commonjs/test/test.spec.js
+// test.spec.js
 var test_spec_default = {
   method() {
     try {

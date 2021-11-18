@@ -27,13 +27,13 @@ export function collectScripts($, dom, base, outdir, targets = { scriptsTarget: 
                     assetNames: `esm/assets/${options.assetNames || '[name]'}`,
                 },
                 /**
-                 * @param {string[]} outputFiles
+                 * @param {import('esbuild').OutputFile[]} outputFiles
                  */
                 finisher(outputFiles) {
-                    const [jsPath, cssPath] = outputFiles;
-                    $(element).attr('src', path.relative(outdir, jsPath));
-                    if (cssPath) {
-                        $('head').append(`<link rel="stylesheet" href="${path.relative(outdir, cssPath)}" />`);
+                    const [jsOutput, cssOutput] = outputFiles;
+                    $(element).attr('src', path.relative(outdir, jsOutput.path));
+                    if (cssOutput) {
+                        $('head').append(`<link rel="stylesheet" href="${path.relative(outdir, cssOutput.path)}" />`);
                     }
                 },
             })),
@@ -60,13 +60,13 @@ export function collectScripts($, dom, base, outdir, targets = { scriptsTarget: 
                         assetNames: `esm/assets/${options.assetNames || '[name]'}`,
                     },
                     /**
-                     * @param {string[]} outputFiles
+                     * @param {import('esbuild').OutputFile[]} outputFiles
                      */
                     finisher(outputFiles) {
-                        const [jsPath, cssPath] = outputFiles;
-                        $(element).attr('src', path.relative(outdir, jsPath));
-                        if (cssPath) {
-                            $('head').append(`<link rel="stylesheet" href="${path.relative(outdir, cssPath)}" />`);
+                        const [jsOutput, cssOutput] = outputFiles;
+                        $(element).attr('src', path.relative(outdir, jsOutput.path));
+                        if (cssOutput) {
+                            $('head').append(`<link rel="stylesheet" href="${path.relative(outdir, cssOutput.path)}" />`);
                         }
                     },
                 };
@@ -87,13 +87,13 @@ export function collectScripts($, dom, base, outdir, targets = { scriptsTarget: 
                     splitting: false,
                 },
                 /**
-                 * @param {string[]} outputFiles
+                 * @param {import('esbuild').OutputFile[]} outputFiles
                  */
                 finisher(outputFiles) {
-                    const [jsPath, cssPath] = outputFiles;
-                    $(element).attr('src', path.relative(outdir, jsPath));
-                    if (cssPath) {
-                        $('head').append(`<link rel="stylesheet" href="${path.relative(outdir, cssPath)}" />`);
+                    const [jsOutput, cssOutput] = outputFiles;
+                    $(element).attr('src', path.relative(outdir, jsOutput.path));
+                    if (cssOutput) {
+                        $('head').append(`<link rel="stylesheet" href="${path.relative(outdir, cssOutput.path)}" />`);
                     }
                 },
             })),

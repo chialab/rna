@@ -8,10 +8,6 @@ import { createResult, assignToResult, useRna } from '@chialab/esbuild-rna';
  */
 
 /**
- * @typedef {import('esbuild').BuildResult & { metafile: Metafile, outputFiles?: import('esbuild').OutputFile[] }} BuildResult
- */
-
-/**
  * Cheerio esm support is unstable for some Node versions.
  */
 const loadHtml = /** @type {typeof cheerio.load} */ (cheerio.load || cheerio.default?.load);
@@ -43,7 +39,7 @@ function commonDir(files) {
  * @typedef {Object} Build
  * @property {import('esbuild').Loader} [loader] The loader to use.
  * @property {Partial<import('esbuild').BuildOptions>} options The file name of the referenced file.
- * @property {(outputFiles: string[]) => Promise<void>|void} finisher A callback function to invoke when output file has been generated.
+ * @property {(outputFiles: import('esbuild').OutputFile[]) => Promise<void>|void} finisher A callback function to invoke when output file has been generated.
  */
 
 /**
@@ -79,7 +75,7 @@ export default function({
             build.initialOptions.metafile = build.initialOptions.metafile || write !== false;
 
             /**
-             * @type {BuildResult}
+             * @type {import('@chialab/esbuild-rna').BuildResult}
              */
             let collectedResult;
 

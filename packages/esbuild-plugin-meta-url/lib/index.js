@@ -10,37 +10,46 @@ import { useRna } from '@chialab/esbuild-rna';
  * Here, we are looking for its computed value.
  * @param {string} id The name of the identifier.
  * @param {import('@chialab/estransform').Program} program The ast program.
- * @return {import('@chialab/estransform').StringLiteral|import('@chialab/estransform').Identifier} The init ast node.
+ * @return {import('@chialab/estransform').StringLiteral|undefined} The init ast node.
  */
 export function findIdentifierValue(id, program) {
-    const identifier = program.body
+    const declarations = /** @type {import('@swc/core').VariableDeclaration[]} */ (program.body
         .filter(
             /**
-             * @param {*} child
+             * @param {import('@swc/core').Node} child
              */
             (child) => child.type === 'VariableDeclaration'
-        )
+        ));
+
+    const declarators = declarations
         .reduce(
             /**
-             * @param {*[]} acc
-             * @param {*} child
+             * @param {import('@swc/core').VariableDeclarator[]} acc
+             * @param {import('@swc/core').VariableDeclaration} child
              */
-            (acc, child) => [...acc, ...child.declarations], []
+            (acc, child) => [...acc, ...child.declarations],
+            /** @type {import('@swc/core').VariableDeclarator[]} */([])
         )
         .filter(
             /**
-             * @param {*} child
+             * @param {import('@swc/core').VariableDeclarator} child
              */
             (child) => child.type === 'VariableDeclarator'
-        )
-        .find(
-            /**
-             * @param {*} child
-             */
-            (child) => child.id && child.id.type === 'Identifier' && child.id.name === id
         );
 
-    return identifier.init;
+    const declarator = declarators
+        .find(
+            /**
+             * @param {import('@swc/core').VariableDeclarator} child
+             */
+            (child) => child.id && child.id.type === 'Identifier' && child.id.value === id
+        );
+
+    if (!declarator || !declarator.init || declarator.init.type !== 'StringLiteral') {
+        return;
+    }
+
+    return declarator.init;
 }
 
 /**
@@ -166,6 +175,7 @@ export default function({ emit = true } = {}) {
                             const entryPoint = emit ?
                                 (entryLoader !== 'file' ? await emitChunk(resolvedPath) : await emitFile(resolvedPath)).path :
                                 resolvedPath;
+
                             magicCode.overwrite(loc.start, loc.end, `new URL('${entryPoint}', ${baseUrl})`);
                         }));
                     },

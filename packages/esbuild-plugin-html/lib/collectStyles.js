@@ -27,10 +27,10 @@ export function collectStyles($, dom, base, outdir, options) {
                     assetNames: `css/assets/${options.assetNames || '[name]'}`,
                 },
                 /**
-                 * @param {string[]} outputFiles
+                 * @param {import('esbuild').OutputFile[]} outputFiles
                  */
                 finisher(outputFiles) {
-                    $(element).attr('href', path.relative(outdir, outputFiles[0]));
+                    $(element).attr('href', path.relative(outdir, outputFiles[0].path));
                 },
             })),
         ...dom
@@ -53,10 +53,10 @@ export function collectStyles($, dom, base, outdir, options) {
                         assetNames: `css/assets/${options.assetNames || '[name]'}`,
                     },
                     /**
-                     * @param {string[]} outputFiles
+                     * @param {import('esbuild').OutputFile[]} outputFiles
                      */
                     finisher(outputFiles) {
-                        $(element).text(`@import url('${path.relative(outdir, outputFiles[0])}');`);
+                        $(element).text(`@import url('${path.relative(outdir, outputFiles[0].path)}');`);
                     },
                 };
             }),

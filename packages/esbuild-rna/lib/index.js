@@ -3,7 +3,7 @@ import crypto from 'crypto';
 import { mkdir, readFile, writeFile } from 'fs/promises';
 import { appendSearchParam, browserResolve, escapeRegexBody, resolve as nodeResolve } from '@chialab/node-resolve';
 import { loadSourcemap, inlineSourcemap, mergeSourcemaps } from '@chialab/estransform';
-import { assignToResult, createResult } from './helpers.js';
+import { assignToResult, createOutputFile, createResult } from './helpers.js';
 
 export * from './helpers.js';
 
@@ -56,7 +56,7 @@ export * from './helpers.js';
  */
 
 /**
- * @typedef {{ path: string, outputFiles: string[], result: import('./helpers.js').BuildResult }} Chunk
+ * @typedef {import('./helpers.js').BuildResult & { path: string }} Chunk
  */
 
 /**
@@ -75,10 +75,6 @@ export * from './helpers.js';
 
 /**
  * @typedef {import('esbuild').Metafile} Metafile
- */
-
-/**
- * @typedef {import('esbuild').BuildResult & { metafile: Metafile, outputFiles?: import('esbuild').OutputFile[] }} BuildResult
  */
 
 /**
@@ -107,7 +103,11 @@ const DEFAULT_LOADERS = { '.js': 'js', '.jsx': 'jsx', '.ts': 'ts', '.tsx': 'tsx'
  * @param {typeof import('esbuild')} [esbuildModule] The esbuild module to use for internal builds.
  */
 export function useRna(build, esbuildModule) {
-    const { sourceRoot, absWorkingDir, outdir, outfile, loader: loaders = { ...DEFAULT_LOADERS } } = build.initialOptions;
+    const { sourceRoot, absWorkingDir, outdir, outfile, loader = {}, write = true } = build.initialOptions;
+    const loaders = {
+        ...DEFAULT_LOADERS,
+        ...loader,
+    };
     const onResolve = build.onResolve;
     const onLoad = build.onLoad;
     /**
@@ -125,6 +125,7 @@ export function useRna(build, esbuildModule) {
 
     const rootDir = sourceRoot || absWorkingDir || process.cwd();
     const outDir = /** @type {string} */(outdir || (outfile && path.dirname(outfile)));
+    const fullOutDir = /** @type {string} */(outDir && path.resolve(absWorkingDir || process.cwd(), outDir));
 
     const rnaBuild = {
         /**
@@ -303,14 +304,19 @@ export function useRna(build, esbuildModule) {
                     return hash.digest('hex').substr(0, 8);
                 });
 
-            const outputFile = path.join(outDir, `${computedName}${ext}`);
+            const outputFile = path.join(fullOutDir, `${computedName}${ext}`);
             const bytes = buffer.length;
-            await mkdir(path.dirname(outputFile), {
-                recursive: true,
-            });
-            await writeFile(outputFile, buffer);
+            if (write) {
+                await mkdir(path.dirname(outputFile), {
+                    recursive: true,
+                });
+                await writeFile(outputFile, buffer);
+            }
 
             const result = createResult(
+                [
+                    createOutputFile(outputFile, /** @type {Buffer} */ (buffer)),
+                ],
                 {
                     inputs: {
                         [path.relative(rootDir, source)]: {
@@ -335,9 +341,8 @@ export function useRna(build, esbuildModule) {
             );
 
             const chunkResult = {
-                path: appendSearchParam(`./${path.relative(outDir, outputFile)}`, 'emit', 'file'),
-                outputFiles: [outputFile],
-                result,
+                ...result,
+                path: appendSearchParam(`./${path.relative(fullOutDir, outputFile)}`, 'emit', 'file'),
             };
             rnaBuild.files.set(source, chunkResult);
 
@@ -358,6 +363,7 @@ export function useRna(build, esbuildModule) {
             const config = {
                 ...build.initialOptions,
                 ...options,
+                write,
                 entryPoints: [source],
                 globalName: undefined,
                 outfile: undefined,
@@ -372,13 +378,13 @@ export function useRna(build, esbuildModule) {
                 delete config.define['this'];
             }
 
-            const result = /** @type {BuildResult} */ (await esbuildModule.build(config));
+            const result = /** @type {import('./helpers.js').BuildResult} */ (await esbuildModule.build(config));
             const resolvedEntryPoints = entryPoints.map((entryPoint) => path.resolve(rootDir, entryPoint));
             const outputs = result.metafile.outputs;
-            const outFile = Object.keys(outputs)
-                .filter((output) => !output.endsWith('.map'))
-                .filter((output) => outputs[output].entryPoint)
-                .find((output) =>
+            const outFile = Object.entries(outputs)
+                .filter(([output]) => !output.endsWith('.map'))
+                .filter(([output]) => outputs[output].entryPoint)
+                .find(([output]) =>
                     resolvedEntryPoints.includes(path.resolve(rootDir, /** @type {string} */ (outputs[output].entryPoint)))
                 );
 
@@ -386,25 +392,10 @@ export function useRna(build, esbuildModule) {
                 throw new Error('Unable to locate build artifacts');
             }
 
-            const outputFiles = [outFile];
-
-            /**
-             * JavaScript sources can resulting in two files:
-             * - the built script file
-             * - the referenced style file with all imported css
-             * This file is not collected by esbuild as an artifact of the source file,
-             * so we are going to manually create the association.
-             */
-            const externalCss = outFile.replace(/\.js$/, '.css');
-            if (path.extname(outFile) === '.js' && outputs[externalCss]) {
-                outputFiles.push(externalCss);
-            }
-
-            const resolvedOutputFile = path.resolve(rootDir, outFile);
+            const resolvedOutputFile = path.resolve(rootDir, outFile[0]);
             const chunkResult = {
-                path: appendSearchParam(`./${path.relative(outDir, resolvedOutputFile)}`, 'emit', 'chunk'),
-                outputFiles,
-                result,
+                ...result,
+                path: appendSearchParam(`./${path.relative(fullOutDir, resolvedOutputFile)}`, 'emit', 'chunk'),
             };
             state.chunks.set(source, chunkResult);
 
@@ -569,6 +560,8 @@ export function rnaPlugin({ warn = true, esbuild } = {}) {
              */
             const warnings = [];
             const { stdin } = build.initialOptions;
+            build.initialOptions.metafile = true;
+
             const { onResolve, onLoad, chunks, files } = useRna(build, esbuild);
 
             build.onResolve = onResolve;
@@ -604,8 +597,8 @@ export function rnaPlugin({ warn = true, esbuild } = {}) {
             }));
 
             build.onEnd((buildResult) => {
-                chunks.forEach(({ result }) => assignToResult(buildResult, result));
-                files.forEach(({ result }) => assignToResult(buildResult, result));
+                chunks.forEach((result) => assignToResult(buildResult, result));
+                files.forEach((result) => assignToResult(buildResult, result));
             });
         },
     };

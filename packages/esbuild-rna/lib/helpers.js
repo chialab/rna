@@ -5,7 +5,7 @@ import path from 'path';
  */
 
 /**
- * @typedef {import('esbuild').BuildResult & { metafile: Metafile, outputFiles?: import('esbuild').OutputFile[] }} BuildResult
+ * @typedef {import('esbuild').BuildResult & { metafile: Metafile, outputFiles: import('esbuild').OutputFile[] }} BuildResult
  */
 
 /**
@@ -17,13 +17,30 @@ export function createEmptyMetafile() {
 }
 
 /**
+ * @param {string} path
+ * @param {Buffer} contents
+ * @return {import('esbuild').OutputFile}
+ */
+export function createOutputFile(path, contents) {
+    return {
+        path,
+        contents,
+        get text() {
+            return contents.toString();
+        },
+    };
+}
+
+/**
+ * @param {import('esbuild').OutputFile[]} [outputFiles]
  * @param {Metafile} [metafile]
  * @return {BuildResult}
  */
-export function createResult(metafile = createEmptyMetafile()) {
+export function createResult(outputFiles = [], metafile = createEmptyMetafile()) {
     return {
         errors: [],
         warnings: [],
+        outputFiles,
         metafile,
     };
 }
@@ -38,6 +55,8 @@ export function createResult(metafile = createEmptyMetafile()) {
 export function assignToResult(context, result) {
     context.errors.push(...result.errors);
     context.warnings.push(...result.warnings);
+    const outputFiles = context.outputFiles = context.outputFiles || [];
+    outputFiles.push(...(result.outputFiles || []));
 
     const contextMeta = context.metafile = context.metafile || createEmptyMetafile();
     const resultMeta = result.metafile || createEmptyMetafile();
@@ -66,6 +85,7 @@ export function remapResult(result, from, to) {
     return {
         errors: result.errors,
         warnings: result.warnings,
+        outputFiles: result.outputFiles || [],
         metafile: {
             inputs: Object.keys(inputs)
                 .reduce((acc, input) => {

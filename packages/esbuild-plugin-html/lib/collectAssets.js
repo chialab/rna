@@ -27,10 +27,10 @@ export function collectAssets($, dom, base, outdir, options) {
                     assetNames: `assets/${options.assetNames || '[name]'}`,
                 },
                 /**
-                 * @param {string[]} outputFiles
+                 * @param {import('esbuild').OutputFile[]} outputFiles
                  */
                 finisher(outputFiles) {
-                    $(element).attr('src', path.relative(outdir, outputFiles[0]));
+                    $(element).attr('src', path.relative(outdir, outputFiles[0].path));
                 },
             })),
         ...dom
@@ -48,10 +48,10 @@ export function collectAssets($, dom, base, outdir, options) {
                     assetNames: `assets/${options.assetNames || '[name]'}`,
                 },
                 /**
-                 * @param {string[]} outputFiles
+                 * @param {import('esbuild').OutputFile[]} outputFiles
                  */
                 finisher(outputFiles) {
-                    $(element).attr('href', path.relative(outdir, outputFiles[0]));
+                    $(element).attr('href', path.relative(outdir, outputFiles[0].path));
                 },
             })),
     ];

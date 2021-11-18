@@ -1,18 +1,6 @@
 import path from 'path';
-import { readFile, writeFile, mkdir } from 'fs/promises';
+import { writeFile, mkdir } from 'fs/promises';
 import { isRelativeUrl } from '@chialab/node-resolve';
-
-/**
- * @param {string} filePath
- */
-async function load(filePath, fallback = {}) {
-    try {
-        const contents = await readFile(filePath, 'utf-8');
-        return JSON.parse(contents);
-    } catch {
-        return fallback;
-    }
-}
 
 /**
  * Collect and bundle webmanifests.
@@ -48,7 +36,8 @@ export function collectWebManifest($, dom, base, outdir) {
                 assetNames: '[name]',
             },
             async finisher(outputFiles) {
-                const json = await load(outputFiles[0]);
+                const manifestOutput = outputFiles[0];
+                const json = JSON.parse(manifestOutput.text);
                 json.name = json.name || titleElement.text() || undefined;
                 json.short_name = json.short_name || json.name || titleElement.text() || undefined;
                 json.description = json.description || descriptionElement.attr('content') || undefined;
@@ -134,8 +123,10 @@ export function collectWebManifest($, dom, base, outdir) {
                     );
                 }
 
-                await writeFile(outputFiles[0], JSON.stringify(json, null, 4));
-                $(element).attr('href', path.relative(outdir, outputFiles[0]));
+                const finalContents = JSON.stringify(json, null, 4);
+                manifestOutput.contents = Buffer.from(finalContents);
+                await writeFile(manifestOutput.path, finalContents);
+                $(element).attr('href', path.relative(outdir, manifestOutput.path));
             },
         },
     ];

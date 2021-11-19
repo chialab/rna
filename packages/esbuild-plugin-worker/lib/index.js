@@ -44,17 +44,10 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
     const plugin = {
         name: 'worker',
         async setup(build) {
-            const { onResolve, onLoad, onTransform, resolve, transform, emitChunk, setupPlugin, rootDir } = useRna(build);
+            const { onTransform, resolve, emitChunk, setupPlugin, rootDir } = useRna(build);
             await setupPlugin(plugin, [metaUrlPlugin()], 'after');
 
             const { sourcesContent } = build.initialOptions;
-
-            onResolve({ filter: /(\?|&)loader=worker$/ }, async ({ path: filePath }) => ({
-                path: filePath.split('?')[0],
-                namespace: 'worker',
-            }));
-
-            onLoad({ filter: /./, namespace: 'worker' }, (args) => transform(args));
 
             onTransform({ loaders: ['tsx', 'ts', 'jsx', 'js'] }, async (args) => {
                 const code = args.code.toString();
@@ -117,16 +110,17 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                             workerOptions.properties &&
                             workerOptions.properties.some(
                                 /**
-                                 * @param {*} prop
+                                 * @param {import('@swc/core').Property|import('@swc/core').SpreadElement} prop
                                  */
                                 (prop) =>
-                                    prop.type === 'Property' &&
-                                    prop.key?.name === 'type' &&
+                                    prop.type === 'KeyValueProperty' &&
+                                    (prop.key.type === 'StringLiteral' || prop.key.type === 'Identifier') &&
+                                    prop.key?.value === 'type' &&
+                                    prop.value.type === 'StringLiteral' &&
                                     prop.value?.value === 'module'
                             )
                         ) {
                             transformOptions.format = 'esm';
-                            transformOptions.bundle = false;
                         } else {
                             transformOptions.splitting = false;
                             transformOptions.inject = [];
@@ -134,7 +128,6 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                         }
 
                         promises.push(Promise.resolve().then(async () => {
-
                             const loc = getSpanLocation(ast, node);
                             const value = firstArg.type === 'StringLiteral' ? firstArg.value : getMetaUrl(firstArg, ast);
                             if (typeof value !== 'string') {

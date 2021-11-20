@@ -2,6 +2,7 @@ import path from 'path';
 import { rename, rm } from 'fs/promises';
 import * as cheerio from 'cheerio';
 import { createResult, assignToResult, useRna } from '@chialab/esbuild-rna';
+import beautify from 'js-beautify';
 
 /**
  * @typedef {import('esbuild').Metafile} Metafile
@@ -13,32 +14,9 @@ import { createResult, assignToResult, useRna } from '@chialab/esbuild-rna';
 const loadHtml = /** @type {typeof cheerio.load} */ (cheerio.load || cheerio.default?.load);
 
 /**
- * Get the common dir of source files.
- * @param {string[]} files
- * @return The common dir.
- */
-function commonDir(files) {
-    if (files.length === 0) {
-        return path.sep;
-    }
-    if (files.length === 1) {
-        return path.dirname(files[0]);
-    }
-    const res = files.slice(1).reduce((dir, file) => {
-        const xs = file.split(path.sep);
-        let i;
-        for (i = 0; dir[i] === xs[i] && i < Math.min(dir.length, xs.length); i++);
-        return dir.slice(0, i);
-    }, files[0].split(path.sep));
-
-    // Windows correctly handles paths with forward-slashes
-    return res.length > 1 ? res.join(path.sep) : path.sep;
-}
-
-/**
  * @typedef {Object} Build
  * @property {import('esbuild').Loader} [loader] The loader to use.
- * @property {Partial<import('esbuild').BuildOptions>} options The file name of the referenced file.
+ * @property {import('@chialab/esbuild-rna').EmitTransformOptions} options The file name of the referenced file.
  * @property {(outputFiles: import('esbuild').OutputFile[]) => Promise<void>|void} finisher A callback function to invoke when output file has been generated.
  */
 
@@ -66,10 +44,11 @@ export default function({
     const plugin = {
         name: 'html',
         setup(build) {
-            const { entryPoints = [], write } = build.initialOptions;
-            const { resolve, load, rootDir, outDir, onTransform, emitFile, emitChunk } = useRna(build);
-            const sourceFiles = Array.isArray(entryPoints) ? entryPoints : Object.values(entryPoints);
-            const sourceDir = sourceFiles.length ? commonDir(sourceFiles.map((file) => path.resolve(rootDir, file))) : rootDir;
+            const { write = true } = build.initialOptions;
+            const { resolve, load, workingDir, rootDir, outDir, onTransform, emitFile, emitChunk } = useRna(build);
+            if (!outDir) {
+                throw new Error('Cannot use the html plugin without an outdir.');
+            }
 
             // force metafile in order to collect output data.
             build.initialOptions.metafile = build.initialOptions.metafile || write !== false;
@@ -84,7 +63,15 @@ export default function({
             });
 
             build.onEnd(async (result) => {
-                if (result.metafile && write !== false) {
+                if (result.outputFiles) {
+                    const htmlFile = result.outputFiles[0].path;
+                    if (htmlFile.endsWith('.html')) {
+                        const jsFile = result.outputFiles[1].path;
+                        result.outputFiles[0].path = path.join(jsFile, `${path.basename(jsFile, path.extname(jsFile))}.html`);
+                        result.outputFiles.splice(1, 1);
+                    }
+                }
+                if (result.metafile && write) {
                     const outputs = { ...result.metafile.outputs };
                     for (const outputKey in outputs) {
                         const output = outputs[outputKey];
@@ -143,8 +130,8 @@ export default function({
                 ]);
 
                 const code = args.code.toString();
-                const relativePath = `./${path.relative(sourceDir, basePath)}`;
-                const relativeOutDir = path.resolve(outDir, relativePath);
+                const relativePath = `./${path.relative(rootDir, basePath)}`;
+                const relativeOutDir = path.resolve(path.resolve(workingDir, outDir), relativePath);
                 const $ = loadHtml(code);
                 const root = $.root();
 
@@ -159,19 +146,24 @@ export default function({
                     }),
                     ...collectWebManifest($, root, basePath, relativeOutDir),
                     ...collectStyles($, root, basePath, relativeOutDir, build.initialOptions),
-                    ...collectScripts($, root, basePath, relativeOutDir, { scriptsTarget, modulesTarget }, build.initialOptions),
+                    ...collectScripts($, root, basePath, relativeOutDir, { scriptsTarget, modulesTarget }),
                     ...collectAssets($, root, basePath, relativeOutDir, build.initialOptions),
                 ]);
 
                 for (let i = 0; i < builds.length; i++) {
                     const currentBuild = builds[i];
-
-                    const entryPoints = /** @type {string[]|undefined}} */ (currentBuild.options.entryPoints);
-                    if (!entryPoints || entryPoints.length === 0) {
+                    const entryPoint = currentBuild.options.entryPoint;
+                    if (!entryPoint) {
                         continue;
                     }
 
-                    const entryPoint = entryPoints[0];
+                    if (currentBuild.options.contents) {
+                        const { outputFiles } = await emitChunk(currentBuild.options);
+
+                        await currentBuild.finisher(outputFiles);
+                        continue;
+                    }
+
                     const resolvedFile = await resolve({
                         kind: 'dynamic-import',
                         path: entryPoint,
@@ -201,31 +193,19 @@ export default function({
                         continue;
                     }
 
-                    /** @type {import('esbuild').BuildOptions} */
-                    const config = {
-                        ...build.initialOptions,
-                        outfile: undefined,
-                        outdir: relativeOutDir,
-                        metafile: true,
-                        bundle: true,
-                        external: [],
+                    const { outputFiles } = await emitChunk({
                         ...currentBuild.options,
-                    };
-
-                    const { outputFiles } = await emitChunk(resolvedFile.path, {
-                        assetNames: '[dir]/[name]',
-                        ...config,
+                        entryPoint: resolvedFile.path,
                     });
-
                     await currentBuild.finisher(outputFiles);
                 }
 
                 return {
-                    code: $.html(),
+                    code: beautify.html($.html().replace(/\n\s*$/gm, '')),
                     loader: 'file',
                     watchFiles: builds.reduce((acc, build) => [
                         ...acc,
-                        ...(/** @type {string[]} */ (build.options.entryPoints) || []),
+                        build.options.entryPoint,
                     ], /** @type {string[]} */([])),
                 };
             });

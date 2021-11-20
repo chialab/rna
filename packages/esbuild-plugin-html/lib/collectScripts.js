@@ -1,5 +1,62 @@
+import crypto from 'crypto';
 import path from 'path';
 import { isRelativeUrl } from '@chialab/node-resolve';
+
+/**
+ * @param {import('cheerio').CheerioAPI} $ The cheerio selector.
+ * @param {import('cheerio').Cheerio<import('cheerio').Document>} dom The DOM element.
+ * @param {string} selector Scripts selector.
+ * @param {string} outdir The output dir.
+ * @param {string} target Build target.
+ * @param {import('esbuild').Format} format Build format.
+ * @return {import('./index').Build|void} Plain build.
+ */
+function innerCollect($, dom, selector, outdir, target, format) {
+    const elements = dom.find(selector)
+        .get()
+        .filter((element) => !$(element).attr('src') || isRelativeUrl($(element).attr('src')));
+
+    if (!elements.length) {
+        return;
+    }
+
+    const contents = elements.map((element) => {
+        if ($(element).attr('src')) {
+            return `import './${$(element).attr('src')}';`;
+        }
+
+        return $(element).html();
+    }).join('\n');
+
+    const hash = crypto.createHash('sha1');
+    hash.update(contents);
+
+    return {
+        options: {
+            entryPoint: `index.${hash.digest('hex').substr(0, 8)}.${format}.js`,
+            outdir: format,
+            contents,
+            target,
+            format,
+        },
+        /**
+         * @param {import('esbuild').OutputFile[]} outputFiles
+         */
+        finisher(outputFiles) {
+            const [jsOutput, ...outputs] = outputFiles;
+            elements.forEach((element) => {
+                $(element).remove();
+            });
+            $('body').append(`<script src="${path.relative(outdir, jsOutput.path)}" type="module"></script>`);
+            const cssOutputs = outputs.filter((output) => output.path.endsWith('.css'));
+            if (cssOutputs) {
+                cssOutputs.forEach((cssOutput) => {
+                    $('head').append(`<link rel="stylesheet" href="${path.relative(outdir, cssOutput.path)}" />`);
+                });
+            }
+        },
+    };
+}
 
 /**
  * Collect and bundle each <script> reference.
@@ -7,95 +64,26 @@ import { isRelativeUrl } from '@chialab/node-resolve';
  * @param {import('cheerio').Cheerio<import('cheerio').Document>} dom The DOM element.
  * @param {string} base The base dir.
  * @param {string} outdir The output dir.
- * @param {import('esbuild').BuildOptions} options Build options.
+ * @param {{ scriptsTarget: string; modulesTarget: string }} targets Scripts target.
  * @return {import('./index').Build[]} A list of builds.
  */
-export function collectScripts($, dom, base, outdir, targets = { scriptsTarget: 'es6', modulesTarget: 'es2020' }, options) {
-    return [
-        ...dom.find('script[src][type="module"]')
-            .get()
-            .filter((element) => isRelativeUrl($(element).attr('src')))
-            .map((element) => ({
-                options: {
-                    entryPoints: [
-                        /** @type {string} */ ($(element).attr('src')),
-                    ],
-                    target: targets.modulesTarget,
-                    format: /** @type {import('esbuild').Format} */ ('esm'),
-                    entryNames: `esm/${options.entryNames || '[name]'}`,
-                    chunkNames: `esm/${options.chunkNames || '[name]'}`,
-                    assetNames: `esm/assets/${options.assetNames || '[name]'}`,
-                },
-                /**
-                 * @param {import('esbuild').OutputFile[]} outputFiles
-                 */
-                finisher(outputFiles) {
-                    const [jsOutput, cssOutput] = outputFiles;
-                    $(element).attr('src', path.relative(outdir, jsOutput.path));
-                    if (cssOutput) {
-                        $('head').append(`<link rel="stylesheet" href="${path.relative(outdir, cssOutput.path)}" />`);
-                    }
-                },
-            })),
-        ...dom.find('script[type="module"]:not([src])')
-            .get()
-            .map((element) => {
-                const code = /** @type {string} */ ($(element).html());
-                $(element).html('');
-
-                return {
-                    loader: /** @type {import('esbuild').Loader} */ ('tsx'),
-                    options: {
-                        entryPoints: undefined,
-                        stdin: {
-                            contents: code,
-                            loader: /** @type {import('esbuild').Loader} */ ('tsx'),
-                            resolveDir: base,
-                            sourcefile: path.join(base, 'inline.tsx'),
-                        },
-                        target: targets.modulesTarget,
-                        format: /** @type {import('esbuild').Format} */ ('esm'),
-                        entryNames: `esm/${options.entryNames || '[name]'}`,
-                        chunkNames: `esm/${options.chunkNames || '[name]'}`,
-                        assetNames: `esm/assets/${options.assetNames || '[name]'}`,
-                    },
-                    /**
-                     * @param {import('esbuild').OutputFile[]} outputFiles
-                     */
-                    finisher(outputFiles) {
-                        const [jsOutput, cssOutput] = outputFiles;
-                        $(element).attr('src', path.relative(outdir, jsOutput.path));
-                        if (cssOutput) {
-                            $('head').append(`<link rel="stylesheet" href="${path.relative(outdir, cssOutput.path)}" />`);
-                        }
-                    },
-                };
-            }),
-        ...dom.find('script[src]:not([type]), script[src][type="text/javascript"], script[src][type="application/javascript"]')
-            .get()
-            .filter((element) => isRelativeUrl($(element).attr('src')))
-            .map((element) => ({
-                options: {
-                    entryPoints: [
-                        /** @type {string} */ ($(element).attr('src')),
-                    ],
-                    target: targets.scriptsTarget,
-                    format: /** @type {import('esbuild').Format} */ ('iife'),
-                    entryNames: `iife/${options.entryNames || '[name]'}`,
-                    chunkNames: `iife/${options.chunkNames || '[name]'}`,
-                    assetNames: `iife/assets/${options.assetNames || '[name]'}`,
-                    splitting: false,
-                },
-                /**
-                 * @param {import('esbuild').OutputFile[]} outputFiles
-                 */
-                finisher(outputFiles) {
-                    const [jsOutput, cssOutput] = outputFiles;
-                    $(element).attr('src', path.relative(outdir, jsOutput.path));
-                    if (cssOutput) {
-                        $('head').append(`<link rel="stylesheet" href="${path.relative(outdir, cssOutput.path)}" />`);
-                    }
-                },
-            })),
-    ];
+export function collectScripts($, dom, base, outdir, targets = { scriptsTarget: 'es6', modulesTarget: 'es2020' }) {
+    return /** @type {import('./index').Build[]} */ ([
+        innerCollect(
+            $,
+            dom,
+            'script[src][type="module"], script[type="module"]:not([src])',
+            outdir,
+            targets.scriptsTarget,
+            'esm'
+        ),
+        innerCollect(
+            $,
+            dom,
+            'script[src]:not([type]), script[src][type="text/javascript"], script[src][type="application/javascript"]',
+            outdir,
+            targets.scriptsTarget,
+            'iife'
+        ),
+    ].filter(Boolean));
 }

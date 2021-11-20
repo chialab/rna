@@ -168,12 +168,7 @@ export function collectIcons($, dom, { source, rootDir, outDir }, { resolve, loa
         {
             loader: 'file',
             options: {
-                entryPoints: [
-                    iconHref,
-                ],
-                entryNames: '[name]',
-                chunkNames: '[name]',
-                assetNames: '[name]',
+                entryPoint: iconHref,
             },
             async finisher() {
                 const { default: Jimp, SUPPORTED_MIME_TYPES } = await import('./generator.js');

@@ -19,9 +19,7 @@ export function collectStyles($, dom, base, outdir, options) {
             .map((element) => ({
                 loader: /** @type {import('esbuild').Loader} */ ('css'),
                 options: {
-                    entryPoints: [
-                        /** @type {string} */ ($(element).attr('href')),
-                    ],
+                    entryPoint: /** @type {string} */ ($(element).attr('href')),
                     entryNames: `css/${options.entryNames || '[name]'}`,
                     chunkNames: `css/${options.chunkNames || '[name]'}`,
                     assetNames: `css/assets/${options.assetNames || '[name]'}`,
@@ -41,13 +39,9 @@ export function collectStyles($, dom, base, outdir, options) {
                 return {
                     loader: /** @type {import('esbuild').Loader} */ ('css'),
                     options: {
-                        entryPoints: undefined,
-                        stdin: {
-                            contents: code,
-                            loader: /** @type {import('esbuild').Loader} */ ('css'),
-                            resolveDir: base,
-                            sourcefile: path.join(base, 'inline.css'),
-                        },
+                        entryPoint: path.join(base, 'inline.css'),
+                        contents: code,
+                        loader: /** @type {import('esbuild').Loader} */ ('css'),
                         entryNames: `css/${options.entryNames || '[name]'}`,
                         chunkNames: `css/${options.chunkNames || '[name]'}`,
                         assetNames: `css/assets/${options.assetNames || '[name]'}`,

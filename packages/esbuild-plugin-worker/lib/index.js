@@ -9,7 +9,7 @@ import { useRna } from '@chialab/esbuild-rna';
 /**
  * Create a blob proxy worker code.
  * @param {string} argument The url reference.
- * @param {import('@chialab/esbuild-rna').EmitTransformOptions} transformOptions The transform options for the url.
+ * @param {Omit<import('@chialab/esbuild-rna').EmitTransformOptions, 'entryPoint'>} transformOptions The transform options for the url.
  */
 function createBlobProxy(argument, transformOptions) {
     const createUrlFn = `(function(path) {
@@ -97,7 +97,7 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                         const firstArg = /** @type {import('@chialab/estransform').StringLiteral|import('@chialab/estransform').NewExpression|import('@chialab/estransform').MemberExpression} */ (node.arguments[0] && node.arguments[0].expression);
 
                         /**
-                         * @type {import('@chialab/esbuild-rna').EmitTransformOptions}
+                         * @type {Omit<import('@chialab/esbuild-rna').EmitTransformOptions, 'entryPoint'>}
                          */
                         const transformOptions = {
                             format: 'iife',
@@ -154,7 +154,10 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                             magicCode = magicCode || new MagicString(code);
 
                             const entryPoint = emit ?
-                                (await emitChunk(resolvedPath, transformOptions)).path :
+                                (await emitChunk({
+                                    ...transformOptions,
+                                    entryPoint: resolvedPath,
+                                })).path :
                                 resolvedPath;
                             const arg = `new URL('${entryPoint}', import.meta.url).href`;
                             if (proxy) {

@@ -19,9 +19,7 @@ export function collectAssets($, dom, base, outdir, options) {
             .map((element) => ({
                 loader: /** @type {import('esbuild').Loader} */ ('file'),
                 options: {
-                    entryPoints: [
-                        path.resolve(base, /** @type {string} */ ($(element).attr('src'))),
-                    ],
+                    entryPoint: path.resolve(base, /** @type {string} */ ($(element).attr('src'))),
                     entryNames: `assets/${options.entryNames || '[name]'}`,
                     chunkNames: `assets/${options.chunkNames || '[name]'}`,
                     assetNames: `assets/${options.assetNames || '[name]'}`,
@@ -40,9 +38,7 @@ export function collectAssets($, dom, base, outdir, options) {
             .map((element) => ({
                 loader: /** @type {import('esbuild').Loader} */ ('file'),
                 options: {
-                    entryPoints: [
-                        path.resolve(base, /** @type {string} */ ($(element).attr('href'))),
-                    ],
+                    entryPoint: path.resolve(base, /** @type {string} */ ($(element).attr('href'))),
                     entryNames: `assets/${options.entryNames || '[name]'}`,
                     chunkNames: `assets/${options.chunkNames || '[name]'}`,
                     assetNames: `assets/${options.assetNames || '[name]'}`,

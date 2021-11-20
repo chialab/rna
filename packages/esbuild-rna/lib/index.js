@@ -79,9 +79,14 @@ export * from './helpers.js';
 
 /**
  * @typedef {Object} EmitTransformOptions
+ * @property {string} entryPoint
+ * @property {import('esbuild').Loader} [loader]
+ * @property {string} [outdir]
+ * @property {string} [contents]
  * @property {boolean} [bundle]
  * @property {boolean} [splitting]
  * @property {import('esbuild').Platform} [platform]
+ * @property {string} [target]
  * @property {import('esbuild').Format} [format]
  * @property {import('esbuild').Plugin[]} [plugins]
  * @property {string[]} [inject]
@@ -123,9 +128,10 @@ export function useRna(build, esbuildModule) {
     };
     buildInternals.set(build.initialOptions, state);
 
+    const workingDir = absWorkingDir || process.cwd();
     const rootDir = sourceRoot || absWorkingDir || process.cwd();
     const outDir = /** @type {string} */(outdir || (outfile && path.dirname(outfile)));
-    const fullOutDir = /** @type {string} */(outDir && path.resolve(absWorkingDir || process.cwd(), outDir));
+    const fullOutDir = /** @type {string} */(outDir && path.resolve(workingDir, outDir));
 
     const rnaBuild = {
         /**
@@ -140,6 +146,10 @@ export function useRna(build, esbuildModule) {
          * A list of collected dependencies.
          */
         dependencies: state.dependencies,
+        /**
+         * Compute the working dir.
+         */
+        workingDir,
         /**
          * Compute the build root dir.
          */
@@ -350,42 +360,53 @@ export function useRna(build, esbuildModule) {
         },
         /**
          * Programmatically emit a chunk reference.
-         * @param {string} source The path of the chunk.
          * @param {EmitTransformOptions} options Esbuild transform options.
          * @return {Promise<Chunk>} The output chunk reference.
          */
-        async emitChunk(source, options = {}) {
+        async emitChunk(options) {
             esbuildModule = esbuildModule || await import('esbuild');
-
-            const entryPoints = [source];
 
             /** @type {import('esbuild').BuildOptions} */
             const config = {
                 ...build.initialOptions,
-                ...options,
+                outdir: options.outdir ? path.resolve(fullOutDir, `./${options.outdir}`) : fullOutDir,
+                bundle: options.bundle ?? build.initialOptions.bundle,
+                splitting: options.splitting ?? build.initialOptions.splitting,
+                platform: options.platform ?? build.initialOptions.platform,
+                target: options.target ?? build.initialOptions.target,
+                format: options.format ?? build.initialOptions.format,
+                plugins: options.plugins ?? build.initialOptions.plugins,
                 write,
-                entryPoints: [source],
                 globalName: undefined,
                 outfile: undefined,
                 metafile: true,
             };
 
-            const { chunkNames = '[name]' } = config;
-            const chunksDir = path.dirname(path.join(outDir, chunkNames));
-            config.outdir = chunksDir;
+            if (options.contents) {
+                delete config.entryPoints;
+                config.stdin = {
+                    sourcefile: options.entryPoint,
+                    contents: options.contents,
+                    loader: options.loader,
+                    resolveDir: rootDir,
+                };
+            } else {
+                config.entryPoints = [options.entryPoint];
+            }
 
             if (config.define) {
                 delete config.define['this'];
             }
 
+            const entryPoints = [options.entryPoint];
             const result = /** @type {import('./helpers.js').BuildResult} */ (await esbuildModule.build(config));
             const resolvedEntryPoints = entryPoints.map((entryPoint) => path.resolve(rootDir, entryPoint));
             const outputs = result.metafile.outputs;
             const outFile = Object.entries(outputs)
                 .filter(([output]) => !output.endsWith('.map'))
                 .filter(([output]) => outputs[output].entryPoint)
-                .find(([output]) =>
-                    resolvedEntryPoints.includes(path.resolve(rootDir, /** @type {string} */ (outputs[output].entryPoint)))
+                .find(([, { entryPoint }]) =>
+                    resolvedEntryPoints.includes(path.resolve(workingDir, /** @type {string} */ (entryPoint)))
                 );
 
             if (!outFile) {
@@ -397,7 +418,7 @@ export function useRna(build, esbuildModule) {
                 ...result,
                 path: appendSearchParam(`./${path.relative(fullOutDir, resolvedOutputFile)}`, 'emit', 'chunk'),
             };
-            state.chunks.set(source, chunkResult);
+            state.chunks.set(options.entryPoint, chunkResult);
 
             return chunkResult;
         },
@@ -562,7 +583,7 @@ export function rnaPlugin({ warn = true, esbuild } = {}) {
             const { stdin } = build.initialOptions;
             build.initialOptions.metafile = true;
 
-            const { onResolve, onLoad, chunks, files } = useRna(build, esbuild);
+            const { onResolve, onLoad, chunks, files, rootDir, loaders } = useRna(build, esbuild);
 
             build.onResolve = onResolve;
             build.onLoad = onLoad;
@@ -579,16 +600,17 @@ export function rnaPlugin({ warn = true, esbuild } = {}) {
             }
 
             if (stdin && stdin.sourcefile) {
-                build.initialOptions.entryPoints = [stdin.sourcefile];
+                const sourceFile = path.resolve(rootDir, stdin.sourcefile);
+                build.initialOptions.entryPoints = [sourceFile];
                 delete build.initialOptions.stdin;
 
-                onResolve({ filter: new RegExp(escapeRegexBody(stdin.sourcefile)) }, (args) => ({
+                onResolve({ filter: new RegExp(escapeRegexBody(sourceFile)) }, (args) => ({
                     path: args.path,
                 }));
 
-                onLoad({ filter: new RegExp(escapeRegexBody(stdin.sourcefile)) }, () => ({
+                onLoad({ filter: new RegExp(escapeRegexBody(sourceFile)) }, () => ({
                     contents: stdin.contents,
-                    loader: stdin.loader,
+                    loader: stdin.loader || loaders[path.extname(sourceFile)] || 'file',
                 }));
             }
 

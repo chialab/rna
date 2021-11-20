@@ -40,9 +40,11 @@
     "@jimp/jpeg": "^0.16.1",
     "@jimp/plugin-resize": "^0.16.1",
     "@jimp/png": "^0.16.1",
-    "cheerio": "^1.0.0-rc.9"
+    "cheerio": "^1.0.0-rc.9",
+    "js-beautify": "^1.14.0"
   },
   "devDependencies": {
+    "@types/js-beautify": "^1.13.3",
     "esbuild": "^0.13.0",
     "typescript": "^4.3.0"
   }

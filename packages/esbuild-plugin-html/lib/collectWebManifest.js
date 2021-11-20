@@ -28,12 +28,7 @@ export function collectWebManifest($, dom, base, outdir) {
         {
             loader: 'file',
             options: {
-                entryPoints: [
-                    entryPoint,
-                ],
-                entryNames: '[name]',
-                chunkNames: '[name]',
-                assetNames: '[name]',
+                entryPoint,
             },
             async finisher(outputFiles) {
                 const manifestOutput = outputFiles[0];

@@ -181,7 +181,7 @@ export default function({
                     collectIcons($, root, collectOptions, { resolve: resolveFile, load: loadFile }),
                     collectScreens($, root, collectOptions, { resolve: resolveFile, load: loadFile }),
                     collectWebManifest($, root, basePath, relativeOutDir),
-                    collectStyles($, root, basePath, relativeOutDir, build.initialOptions),
+                    collectStyles($, root, collectOptions),
                     collectScripts($, root, collectOptions),
                     collectAssets($, root, basePath, relativeOutDir, build.initialOptions),
                 ])).flat());

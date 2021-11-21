@@ -120,6 +120,55 @@ body {
 `);
     });
 
+    it('should bundle webapp with styles', async () => {
+        const { outputFiles } = await esbuild.build({
+            absWorkingDir: new URL('.', import.meta.url).pathname,
+            entryPoints: [new URL('fixture/index.css.html', import.meta.url).pathname],
+            sourceRoot: new URL('fixture', import.meta.url).pathname,
+            outdir: 'out',
+            bundle: true,
+            write: false,
+            plugins: [
+                htmlPlugin(),
+            ],
+        });
+
+        const [index, css] = outputFiles;
+
+        expect(outputFiles).to.have.lengthOf(2);
+
+        expect(index.path.endsWith('/out/index.css.html')).to.be.true;
+        expect(index.text).to.be.equal(`<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="css/index.6c5009c1.css">
+</head>
+
+<body>
+</body>
+
+</html>`);
+
+        expect(css.path.endsWith('/out/css/index.6c5009c1.css')).to.be.true;
+        expect(css.text).to.be.equal(`/* fixture/index.css */
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+/* fixture/index.6c5009c1.css */
+body {
+  color: red;
+}
+`);
+    });
+
     it('should bundle webapp with png favicons', async () => {
         const { outputFiles } = await esbuild.build({
             absWorkingDir: new URL('.', import.meta.url).pathname,

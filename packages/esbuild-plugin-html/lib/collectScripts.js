@@ -34,14 +34,11 @@ function innerCollect($, dom, selector, outDir, target, format) {
     return {
         options: {
             entryPoint: `index.${hash.digest('hex').substr(0, 8)}.${format}.js`,
-            outdir: format,
             contents,
+            outdir: format,
             target,
             format,
         },
-        /**
-         * @param {import('esbuild').OutputFile[]} outputFiles
-         */
         finisher(outputFiles) {
             const [jsOutput, ...outputs] = outputFiles;
             elements.forEach((element) => {

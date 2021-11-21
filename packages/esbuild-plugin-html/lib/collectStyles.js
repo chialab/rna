@@ -1,58 +1,46 @@
 import path from 'path';
+import crypto from 'crypto';
 import { isRelativeUrl } from '@chialab/node-resolve';
 
 /**
  * Collect and bundle each <link> reference.
- * @param {import('cheerio').CheerioAPI} $ The cheerio selector.
- * @param {import('cheerio').Cheerio<import('cheerio').Document>} dom The DOM element.
- * @param {string} base The base dir.
- * @param {string} outdir The output dir.
- * @param {import('esbuild').BuildOptions} options Build options.
- * @return {import('./index').Build[]} A list of builds.
+ * @type {import('./index').Collector}
  */
-export function collectStyles($, dom, base, outdir, options) {
-    return [
-        ...dom
-            .find('link[href][rel="stylesheet"]')
-            .get()
-            .filter((element) => isRelativeUrl($(element).attr('href')))
-            .map((element) => ({
-                loader: /** @type {import('esbuild').Loader} */ ('css'),
-                options: {
-                    entryPoint: /** @type {string} */ ($(element).attr('href')),
-                    entryNames: `css/${options.entryNames || '[name]'}`,
-                    chunkNames: `css/${options.chunkNames || '[name]'}`,
-                    assetNames: `css/assets/${options.assetNames || '[name]'}`,
-                },
-                /**
-                 * @param {import('esbuild').OutputFile[]} outputFiles
-                 */
-                finisher(outputFiles) {
-                    $(element).attr('href', path.relative(outdir, outputFiles[0].path));
-                },
-            })),
-        ...dom
-            .find('style')
-            .get()
-            .map((element) => {
-                const code = /** @type {string} */ ($(element).html());
-                return {
-                    loader: /** @type {import('esbuild').Loader} */ ('css'),
-                    options: {
-                        entryPoint: path.join(base, 'inline.css'),
-                        contents: code,
-                        loader: /** @type {import('esbuild').Loader} */ ('css'),
-                        entryNames: `css/${options.entryNames || '[name]'}`,
-                        chunkNames: `css/${options.chunkNames || '[name]'}`,
-                        assetNames: `css/assets/${options.assetNames || '[name]'}`,
-                    },
-                    /**
-                     * @param {import('esbuild').OutputFile[]} outputFiles
-                     */
-                    finisher(outputFiles) {
-                        $(element).text(`@import url('${path.relative(outdir, outputFiles[0].path)}');`);
-                    },
-                };
-            }),
-    ];
+export async function collectStyles($, dom, options) {
+    const elements = dom
+        .find('link[href][rel="stylesheet"], style')
+        .get()
+        .filter((element) => !$(element).attr('href') || isRelativeUrl($(element).attr('href')));
+
+    if (!elements.length) {
+        return [];
+    }
+
+    const contents = elements.map((element) => {
+        if ($(element).attr('href')) {
+            return `@import './${$(element).attr('href')}';`;
+        }
+
+        return $(element).html();
+    }).join('\n');
+
+    const hash = crypto.createHash('sha1');
+    hash.update(contents);
+
+    return [{
+        loader: 'css',
+        options: {
+            entryPoint: `index.${hash.digest('hex').substr(0, 8)}.css`,
+            contents,
+            loader: 'css',
+            outdir: 'css',
+            target: options.target[0],
+        },
+        finisher(outputFiles) {
+            elements.forEach((element) => {
+                $(element).remove();
+            });
+            $('head').append(`<link rel="stylesheet" href="${path.relative(options.outDir, outputFiles[0].path)}" />`);
+        },
+    }];
 }

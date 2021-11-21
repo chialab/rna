@@ -83,8 +83,8 @@ export async function collectIcons($, dom, options, { resolve, load }) {
     if (!SUPPORTED_MIME_TYPES.includes(mimeType)) {
         return [
             {
-                loader: 'file',
-                options: {
+                build: {
+                    loader: 'file',
                     entryPoint: iconHref,
                 },
                 finisher(outputFiles) {
@@ -115,11 +115,11 @@ export async function collectIcons($, dom, options, { resolve, load }) {
     ]);
 
     return [
-        ...favicons.map((icon) => /** @type {import('./index.js').Build} */ ({
-            loader: 'file',
-            options: {
+        ...favicons.map((icon) => /** @type {import('./index.js').CollectResult} */ ({
+            build: {
                 entryPoint: icon.name,
                 contents: icon.contents,
+                loader: 'file',
             },
             async finisher(outputFiles) {
                 const file = outputFiles[0];
@@ -137,11 +137,11 @@ export async function collectIcons($, dom, options, { resolve, load }) {
                 link.insertBefore(iconElement);
             },
         })),
-        ...appleIcons.map((icon) => /** @type {import('./index.js').Build} */ ({
-            loader: 'file',
-            options: {
+        ...appleIcons.map((icon) => /** @type {import('./index.js').CollectResult} */ ({
+            build: {
                 entryPoint: icon.name,
                 contents: icon.contents,
+                loader: 'file',
                 outdir: 'icons',
             },
             async finisher(outputFiles) {

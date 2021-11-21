@@ -14,10 +14,9 @@ import beautify from 'js-beautify';
 const loadHtml = /** @type {typeof cheerio.load} */ (cheerio.load || cheerio.default?.load);
 
 /**
- * @typedef {Object} Build
- * @property {import('esbuild').Loader} [loader] The loader to use.
- * @property {import('@chialab/esbuild-rna').EmitTransformOptions} [options] The file name of the referenced file.
- * @property {(outputFiles: import('esbuild').OutputFile[]) => Promise<string[]|void>|void} finisher A callback function to invoke when output file has been generated.
+ * @typedef {Object} CollectResult
+ * @property {import('@chialab/esbuild-rna').EmitTransformOptions} [build] The build instruction for collected files.
+ * @property {(outputFiles: import('esbuild').OutputFile[]) => Promise<string[]|void>|void} [finisher] A callback function to invoke when output file has been generated.
  */
 
 /**
@@ -42,7 +41,7 @@ const loadHtml = /** @type {typeof cheerio.load} */ (cheerio.load || cheerio.def
  */
 
 /**
- * @typedef {($: import('cheerio').CheerioAPI, dom: import('cheerio').Cheerio<import('cheerio').Document>, options: BuildOptions, helpers: Helpers) => Promise<Build[]>} Collector
+ * @typedef {($: import('cheerio').CheerioAPI, dom: import('cheerio').Cheerio<import('cheerio').Document>, options: BuildOptions, helpers: Helpers) => Promise<CollectResult[]>} Collector
  */
 
 /**
@@ -177,34 +176,34 @@ export default function({
                 });
 
                 const collectOptions = { outDir: relativeOutDir, target: [scriptsTarget, modulesTarget] };
-                const builds = /** @type {Build[]} */ ((await Promise.all([
+                const collected = /** @type {CollectResult[]} */ ((await Promise.all([
                     collectIcons($, root, collectOptions, { resolve: resolveFile, load: loadFile }),
                     collectScreens($, root, collectOptions, { resolve: resolveFile, load: loadFile }),
                     collectWebManifest($, root, basePath, relativeOutDir),
                     collectStyles($, root, collectOptions),
                     collectScripts($, root, collectOptions),
-                    collectAssets($, root, basePath, relativeOutDir, build.initialOptions),
+                    collectAssets($, root, basePath, relativeOutDir),
                 ])).flat());
 
                 const results = await Promise.all(
-                    builds.map(async (build) => {
-                        const { loader, options } = build;
-                        if (!options) {
+                    collected.map(async (collectResult) => {
+                        const { build } = collectResult;
+                        if (!build) {
                             return [];
                         }
 
-                        const entryPoint = options.entryPoint;
+                        const entryPoint = build.entryPoint;
                         if (!entryPoint) {
                             return [];
                         }
 
-                        if (options.contents) {
-                            if (loader === 'file') {
-                                const { outputFiles } = await emitFile(entryPoint, Buffer.from(options.contents));
+                        if (build.contents) {
+                            if (build.loader === 'file') {
+                                const { outputFiles } = await emitFile(entryPoint, Buffer.from(build.contents));
                                 return outputFiles;
                             }
 
-                            const { outputFiles } = await emitChunk(options);
+                            const { outputFiles } = await emitChunk(build);
                             return outputFiles;
                         }
 
@@ -213,7 +212,7 @@ export default function({
                             throw new Error(`Cannot resolve ${entryPoint}`);
                         }
 
-                        if (loader === 'file') {
+                        if (build.loader === 'file') {
                             const fileBuffer = await loadFile(resolvedFile.path, resolvedFile);
 
                             if (!fileBuffer.contents) {
@@ -225,25 +224,27 @@ export default function({
                         }
 
                         const { outputFiles } = await emitChunk({
-                            ...options,
+                            ...build,
                             entryPoint: resolvedFile.path,
                         });
                         return outputFiles;
                     })
                 );
 
-                for (let i = 0; i < builds.length; i++) {
-                    const { finisher } = builds[i];
-                    const outputFiles = results[i];
-                    await finisher(outputFiles);
+                for (let i = 0; i < collected.length; i++) {
+                    const { finisher } = collected[i];
+                    if (finisher) {
+                        const outputFiles = results[i];
+                        await finisher(outputFiles);
+                    }
                 }
 
                 return {
                     code: beautify.html($.html().replace(/\n\s*$/gm, '')),
                     loader: 'file',
-                    watchFiles: builds.filter((build) => build.options?.entryPoint).reduce((acc, build) => [
+                    watchFiles: collected.filter((collectResult) => collectResult.build?.entryPoint).reduce((acc, build) => [
                         ...acc,
-                        /** @type {string} */ (build.options?.entryPoint),
+                        /** @type {string} */ (build.build?.entryPoint),
                     ], /** @type {string[]} */ ([])),
                 };
             });

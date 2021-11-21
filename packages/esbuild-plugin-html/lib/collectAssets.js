@@ -7,22 +7,18 @@ import { isRelativeUrl } from '@chialab/node-resolve';
  * @param {import('cheerio').Cheerio<import('cheerio').Document>} dom The DOM element.
  * @param {string} base The base dir.
  * @param {string} outdir The output dir.
- * @param {import('esbuild').BuildOptions} options Build options.
- * @return {import('./index').Build[]} A list of builds.
+ * @return {import('./index').CollectResult[]} A list of builds.
  */
-export function collectAssets($, dom, base, outdir, options) {
+export function collectAssets($, dom, base, outdir) {
     return [
         ...dom
             .find('[src]:not(script)')
             .get()
             .filter((element) => isRelativeUrl($(element).attr('src')))
             .map((element) => ({
-                loader: /** @type {import('esbuild').Loader} */ ('file'),
-                options: {
+                build: {
                     entryPoint: path.resolve(base, /** @type {string} */ ($(element).attr('src'))),
-                    entryNames: `assets/${options.entryNames || '[name]'}`,
-                    chunkNames: `assets/${options.chunkNames || '[name]'}`,
-                    assetNames: `assets/${options.assetNames || '[name]'}`,
+                    loader: /** @type {import('esbuild').Loader} */ ('file'),
                 },
                 /**
                  * @param {import('esbuild').OutputFile[]} outputFiles
@@ -36,12 +32,9 @@ export function collectAssets($, dom, base, outdir, options) {
             .get()
             .filter((element) => isRelativeUrl($(element).attr('href')))
             .map((element) => ({
-                loader: /** @type {import('esbuild').Loader} */ ('file'),
-                options: {
+                build: {
                     entryPoint: path.resolve(base, /** @type {string} */ ($(element).attr('href'))),
-                    entryNames: `assets/${options.entryNames || '[name]'}`,
-                    chunkNames: `assets/${options.chunkNames || '[name]'}`,
-                    assetNames: `assets/${options.assetNames || '[name]'}`,
+                    loader: /** @type {import('esbuild').Loader} */ ('file'),
                 },
                 /**
                  * @param {import('esbuild').OutputFile[]} outputFiles

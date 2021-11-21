@@ -8,7 +8,7 @@ import { isRelativeUrl } from '@chialab/node-resolve';
  * @param {import('cheerio').Cheerio<import('cheerio').Document>} dom The DOM element.
  * @param {string} base The base dir.
  * @param {string} outdir The output dir.
- * @return {import('./index').Build[]} A list of builds.
+ * @return {import('./index').CollectResult[]} A list of builds.
  */
 export function collectWebManifest($, dom, base, outdir) {
     const htmlElement = dom.find('html');
@@ -26,9 +26,9 @@ export function collectWebManifest($, dom, base, outdir) {
     const entryPoint = path.resolve(base, href);
     return [
         {
-            loader: 'file',
-            options: {
+            build: {
                 entryPoint,
+                loader: 'file',
             },
             async finisher(outputFiles) {
                 const manifestOutput = outputFiles[0];

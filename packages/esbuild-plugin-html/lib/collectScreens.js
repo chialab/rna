@@ -79,8 +79,8 @@ export async function collectScreens($, dom, options, { resolve, load }) {
     if (!SUPPORTED_MIME_TYPES.includes(mimeType)) {
         return [
             {
-                loader: 'file',
-                options: {
+                build: {
+                    loader: 'file',
                     entryPoint: splashHref,
                 },
                 finisher(outputFiles) {
@@ -105,11 +105,11 @@ export async function collectScreens($, dom, options, { resolve, load }) {
     const appleLaunchScreens = await generateAppleLaunchScreens(image, APPLE_LAUNCH_SCREENS);
 
     return [
-        ...appleLaunchScreens.map((icon) => /** @type {import('./index.js').Build} */ ({
-            loader: 'file',
-            options: {
+        ...appleLaunchScreens.map((icon) => /** @type {import('./index.js').CollectResult} */ ({
+            build: {
                 entryPoint: icon.name,
                 contents: icon.contents,
+                loader: 'file',
                 outdir: 'icons',
             },
             async finisher(outputFiles) {

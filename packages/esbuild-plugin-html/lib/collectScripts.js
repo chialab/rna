@@ -9,7 +9,7 @@ import { isRelativeUrl } from '@chialab/node-resolve';
  * @param {string} outDir The output dir.
  * @param {string} target Build target.
  * @param {import('esbuild').Format} format Build format.
- * @return {import('./index').Build|void} Plain build.
+ * @return {import('./index').CollectResult|void} Plain build.
  */
 function innerCollect($, dom, selector, outDir, target, format) {
     const elements = dom.find(selector)
@@ -32,7 +32,7 @@ function innerCollect($, dom, selector, outDir, target, format) {
     hash.update(contents);
 
     return {
-        options: {
+        build: {
             entryPoint: `index.${hash.digest('hex').substr(0, 8)}.${format}.js`,
             contents,
             outdir: format,
@@ -60,7 +60,7 @@ function innerCollect($, dom, selector, outDir, target, format) {
  * @type {import('./index').Collector}
  */
 export async function collectScripts($, dom, options) {
-    return /** @type {import('./index').Build[]} */ ([
+    return /** @type {import('./index').CollectResult[]} */ ([
         innerCollect(
             $,
             dom,

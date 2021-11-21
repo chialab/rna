@@ -28,8 +28,7 @@ export async function collectStyles($, dom, options) {
     hash.update(contents);
 
     return [{
-        loader: 'css',
-        options: {
+        build: {
             entryPoint: `index.${hash.digest('hex').substr(0, 8)}.css`,
             contents,
             loader: 'css',

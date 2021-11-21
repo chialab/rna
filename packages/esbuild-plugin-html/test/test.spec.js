@@ -258,7 +258,9 @@ body {
         expect(icon.contents.byteLength).to.be.equal(1475);
     });
 
-    it('should bundle webapp with ios splashscreens', async () => {
+    it('should bundle webapp with ios splashscreens', async function() {
+        this.timeout(15000);
+
         const { outputFiles } = await esbuild.build({
             absWorkingDir: new URL('.', import.meta.url).pathname,
             entryPoints: [new URL('fixture/index.screens.html', import.meta.url).pathname],

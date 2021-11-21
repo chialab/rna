@@ -277,7 +277,7 @@ body {
 
         const [index, ...screens] = outputFiles;
 
-        expect(outputFiles).to.have.lengthOf(9);
+        expect(outputFiles).to.have.lengthOf(8);
 
         expect(index.path.endsWith('/out/index.screens.html')).to.be.true;
         expect(index.text).to.be.equal(`<!DOCTYPE html>
@@ -307,5 +307,49 @@ body {
 
         expect(screens[3].path.endsWith('/out/screens/apple-launch-iphone5.png')).to.be.true;
         expect(screens[3].contents.byteLength).to.be.equal(8536);
+    });
+
+    it('should bundle webapp with assets', async () => {
+        const { outputFiles } = await esbuild.build({
+            absWorkingDir: new URL('.', import.meta.url).pathname,
+            entryPoints: [new URL('fixture/index.assets.html', import.meta.url).pathname],
+            sourceRoot: new URL('fixture', import.meta.url).pathname,
+            assetNames: 'assets/[name]',
+            outdir: 'out',
+            format: 'esm',
+            bundle: true,
+            write: false,
+            plugins: [
+                htmlPlugin(),
+            ],
+        });
+
+        const [index, ...assets] = outputFiles;
+
+        expect(outputFiles).to.have.lengthOf(3);
+
+        expect(index.path.endsWith('/out/index.assets.html')).to.be.true;
+        expect(index.text).to.be.equal(`<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="preload" href="assets/icon.svg">
+</head>
+
+<body>
+    <img src="assets/icon.png" alt="">
+</body>
+
+</html>`);
+
+        expect(assets[0].path.endsWith('/out/assets/icon.png')).to.be.true;
+        expect(assets[0].contents.byteLength).to.be.equal(20754);
+
+        expect(assets[1].path.endsWith('/out/assets/icon.svg')).to.be.true;
+        expect(assets[1].contents.byteLength).to.be.equal(1475);
     });
 });

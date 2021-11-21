@@ -120,7 +120,7 @@ body {
 `);
     });
 
-    it('should bundle webapp with favicons', async () => {
+    it('should bundle webapp with png favicons', async () => {
         const { outputFiles } = await esbuild.build({
             absWorkingDir: new URL('.', import.meta.url).pathname,
             entryPoints: [new URL('fixture/index.icons.html', import.meta.url).pathname],
@@ -167,5 +167,45 @@ body {
 
         expect(icons[3].path.endsWith('/out/icons/favicon-196x196.png')).to.be.true;
         expect(icons[3].contents.byteLength).to.be.equal(6366);
+    });
+
+    it('should bundle webapp with svg favicon', async () => {
+        const { outputFiles } = await esbuild.build({
+            absWorkingDir: new URL('.', import.meta.url).pathname,
+            entryPoints: [new URL('fixture/index.svgicons.html', import.meta.url).pathname],
+            sourceRoot: new URL('fixture', import.meta.url).pathname,
+            assetNames: 'icons/[name]',
+            outdir: 'out',
+            format: 'esm',
+            bundle: true,
+            write: false,
+            plugins: [
+                htmlPlugin(),
+            ],
+        });
+
+        const [index, icon] = outputFiles;
+
+        expect(outputFiles).to.have.lengthOf(2);
+
+        expect(index.path.endsWith('/out/index.svgicons.html')).to.be.true;
+        expect(index.text).to.be.equal(`<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="shortcut icon" href="icons/icon.svg" type="image/svg+xml">
+</head>
+
+<body>
+</body>
+
+</html>`);
+
+        expect(icon.path.endsWith('/out/icons/icon.svg')).to.be.true;
+        expect(icon.contents.byteLength).to.be.equal(1475);
     });
 });

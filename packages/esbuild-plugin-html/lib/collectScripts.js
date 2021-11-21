@@ -6,12 +6,12 @@ import { isRelativeUrl } from '@chialab/node-resolve';
  * @param {import('cheerio').CheerioAPI} $ The cheerio selector.
  * @param {import('cheerio').Cheerio<import('cheerio').Document>} dom The DOM element.
  * @param {string} selector Scripts selector.
- * @param {string} outdir The output dir.
+ * @param {string} outDir The output dir.
  * @param {string} target Build target.
  * @param {import('esbuild').Format} format Build format.
  * @return {import('./index').Build|void} Plain build.
  */
-function innerCollect($, dom, selector, outdir, target, format) {
+function innerCollect($, dom, selector, outDir, target, format) {
     const elements = dom.find(selector)
         .get()
         .filter((element) => !$(element).attr('src') || isRelativeUrl($(element).attr('src')));
@@ -47,11 +47,11 @@ function innerCollect($, dom, selector, outdir, target, format) {
             elements.forEach((element) => {
                 $(element).remove();
             });
-            $('body').append(`<script src="${path.relative(outdir, jsOutput.path)}" type="module"></script>`);
+            $('body').append(`<script src="${path.relative(outDir, jsOutput.path)}" type="module"></script>`);
             const cssOutputs = outputs.filter((output) => output.path.endsWith('.css'));
             if (cssOutputs) {
                 cssOutputs.forEach((cssOutput) => {
-                    $('head').append(`<link rel="stylesheet" href="${path.relative(outdir, cssOutput.path)}" />`);
+                    $('head').append(`<link rel="stylesheet" href="${path.relative(outDir, cssOutput.path)}" />`);
                 });
             }
         },

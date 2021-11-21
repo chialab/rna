@@ -135,18 +135,28 @@ async function generateAppleLaunchScreens(image, launchScreens) {
  * @type {import('./index').Collector}
  */
 export async function collectIcons($, dom, options, { resolve, load }) {
-    const iconElement = dom.find('link[rel*="icon"]');
+    const iconElement = dom.find('link[rel*="icon"]').last();
     const iconHref = iconElement.attr('href') || '';
     if (!isRelativeUrl(iconHref)) {
         return [];
     }
 
-    const iconRel = (iconElement.attr('rel') || '').split(' ');
     const mimeType = iconElement.attr('type') || 'image/png';
     if (!SUPPORTED_MIME_TYPES.includes(mimeType)) {
-        return [];
+        return [
+            {
+                loader: 'file',
+                options: {
+                    entryPoint: iconHref,
+                },
+                finisher(outputFiles) {
+                    iconElement.attr('href', path.relative(options.outDir, outputFiles[0].path));
+                },
+            },
+        ];
     }
 
+    const iconRel = (iconElement.attr('rel') || '').split(' ');
     const iconFilePath = await resolve(iconHref);
     if (!iconFilePath.path) {
         throw new Error(`Failed to resolve icon path: ${iconHref}`);
@@ -182,14 +192,14 @@ export async function collectIcons($, dom, options, { resolve, load }) {
                     const link = $('<link>');
                     link.attr('rel', 'shortcut icon');
                     link.attr('href', path.relative(options.outDir, file.path));
-                    link.insertBefore($(iconElement));
+                    link.insertBefore(iconElement);
                 }
 
                 const link = $('<link>');
                 link.attr('rel', 'icon');
                 link.attr('sizes', `${icon.size}x${icon.size}`);
                 link.attr('href', path.relative(options.outDir, file.path));
-                link.insertBefore($(iconElement));
+                link.insertBefore(iconElement);
             },
         })),
         ...appleIcons.map((icon) => /** @type {import('./index.js').Build} */ ({
@@ -205,7 +215,7 @@ export async function collectIcons($, dom, options, { resolve, load }) {
                 link.attr('rel', 'apple-touch-icon');
                 link.attr('sizes', `${icon.size}x${icon.size}`);
                 link.attr('href', path.relative(options.outDir, file.path));
-                link.insertBefore($(iconElement));
+                link.insertBefore(iconElement);
             },
         })),
         ...appleLaunchScreens.map((icon) => /** @type {import('./index.js').Build} */ ({
@@ -221,12 +231,12 @@ export async function collectIcons($, dom, options, { resolve, load }) {
                 link.attr('rel', 'apple-touch-startup-image');
                 link.attr('media', icon.query);
                 link.attr('href', path.relative(options.outDir, file.path));
-                link.insertBefore($(iconElement));
+                link.insertBefore(iconElement);
             },
         })),
         {
             finisher() {
-                $(iconElement).remove();
+                iconElement.remove();
             },
         },
     ];

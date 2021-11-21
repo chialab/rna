@@ -352,4 +352,117 @@ body {
         expect(assets[1].path.endsWith('/out/assets/icon.svg')).to.be.true;
         expect(assets[1].contents.byteLength).to.be.equal(1475);
     });
+
+    it('should bundle webapp with a webmanifest', async () => {
+        const { outputFiles } = await esbuild.build({
+            absWorkingDir: new URL('.', import.meta.url).pathname,
+            entryPoints: [new URL('fixture/index.manifest.html', import.meta.url).pathname],
+            sourceRoot: new URL('fixture', import.meta.url).pathname,
+            assetNames: 'assets/[name]',
+            outdir: 'out',
+            format: 'esm',
+            bundle: true,
+            write: false,
+            plugins: [
+                htmlPlugin(),
+            ],
+        });
+
+        const [index, ...assets] = outputFiles;
+        const icons = assets.slice(0, 9);
+        const manifest = assets[assets.length - 1];
+
+        expect(outputFiles).to.have.lengthOf(17);
+
+        expect(index.path.endsWith('/out/index.manifest.html')).to.be.true;
+        expect(index.text).to.be.equal(`<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Test">
+    <title>Document</title>
+    <link rel="icon" sizes="16x16" href="assets/favicon-16x16.png">
+    <link rel="icon" sizes="32x32" href="assets/favicon-32x32.png">
+    <link rel="icon" sizes="48x48" href="assets/favicon-48x48.png">
+    <link rel="shortcut icon" href="assets/favicon-196x196.png">
+    <link rel="icon" sizes="196x196" href="assets/favicon-196x196.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="167x167" href="assets/apple-touch-icon-ipad.png">
+    <link rel="manifest" href="assets/manifest.webmanifest">
+</head>
+
+<body>
+</body>
+
+</html>`);
+
+        expect(icons).to.have.lengthOf(9);
+        expect(icons[0].path.endsWith('/out/assets/android-chrome-36x36.png')).to.be.true;
+        expect(icons[0].contents.byteLength).to.be.equal(1135);
+        expect(icons[8].path.endsWith('/out/assets/android-chrome-512x512.png')).to.be.true;
+        expect(icons[8].contents.byteLength).to.be.equal(24012);
+
+        expect(manifest.path.endsWith('/out/assets/manifest.webmanifest')).to.be.true;
+        expect(manifest.text).to.be.equal(`{
+  "name": "Document",
+  "short_name": "Document",
+  "description": "Test",
+  "start_url": "/",
+  "scope": "",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#fff",
+  "lang": "en",
+  "icons": [
+    {
+      "src": "./assets/android-chrome-36x36.png?emit=file",
+      "sizes": "36x36",
+      "type": "image/png"
+    },
+    {
+      "src": "./assets/android-chrome-48x48.png?emit=file",
+      "sizes": "48x48",
+      "type": "image/png"
+    },
+    {
+      "src": "./assets/android-chrome-72x72.png?emit=file",
+      "sizes": "72x72",
+      "type": "image/png"
+    },
+    {
+      "src": "./assets/android-chrome-96x96.png?emit=file",
+      "sizes": "96x96",
+      "type": "image/png"
+    },
+    {
+      "src": "./assets/android-chrome-144x144.png?emit=file",
+      "sizes": "144x144",
+      "type": "image/png"
+    },
+    {
+      "src": "./assets/android-chrome-192x192.png?emit=file",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "./assets/android-chrome-256x256.png?emit=file",
+      "sizes": "256x256",
+      "type": "image/png"
+    },
+    {
+      "src": "./assets/android-chrome-384x384.png?emit=file",
+      "sizes": "384x384",
+      "type": "image/png"
+    },
+    {
+      "src": "./assets/android-chrome-512x512.png?emit=file",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}`);
+    });
 });

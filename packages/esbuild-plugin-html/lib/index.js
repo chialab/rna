@@ -36,6 +36,8 @@ const loadHtml = /** @type {typeof cheerio.load} */ (cheerio.load || cheerio.def
 
 /**
  * @typedef {Object} Helpers
+ * @property {(path: string, contents: string|Buffer) => Promise<import('@chialab/esbuild-rna').Chunk>} emitFile
+ * @property {(options: import('@chialab/esbuild-rna').EmitTransformOptions) => Promise<import('@chialab/esbuild-rna').Chunk>} emitChunk
  * @property {(file: string) => Promise<import('esbuild').OnResolveResult>} resolve
  * @property {(file: string, options: Partial<import('esbuild').OnLoadArgs>) => Promise<import('esbuild').OnLoadResult>} load
  */
@@ -177,12 +179,12 @@ export default function({
 
                 const collectOptions = { outDir: relativeOutDir, target: [scriptsTarget, modulesTarget] };
                 const collected = /** @type {CollectResult[]} */ ((await Promise.all([
-                    collectIcons($, root, collectOptions, { resolve: resolveFile, load: loadFile }),
-                    collectScreens($, root, collectOptions, { resolve: resolveFile, load: loadFile }),
-                    collectWebManifest($, root, basePath, relativeOutDir),
+                    collectIcons($, root, collectOptions, { emitFile, emitChunk, resolve: resolveFile, load: loadFile }),
+                    collectScreens($, root, collectOptions, { emitFile, emitChunk, resolve: resolveFile, load: loadFile }),
+                    collectWebManifest($, root, collectOptions, { emitFile, emitChunk, resolve: resolveFile, load: loadFile }),
                     collectStyles($, root, collectOptions),
                     collectScripts($, root, collectOptions),
-                    collectAssets($, root, basePath, relativeOutDir),
+                    collectAssets($, root, collectOptions),
                 ])).flat());
 
                 const results = await Promise.all(

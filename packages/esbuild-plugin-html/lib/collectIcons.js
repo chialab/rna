@@ -38,51 +38,6 @@ const APPLE_ICONS = [
     },
 ];
 
-const APPLE_LAUNCH_SCREENS = [
-    {
-        name: 'apple-launch-iphonex.png',
-        width: 1125,
-        height: 2436,
-        query: '(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3)',
-    },
-    {
-        name: 'apple-launch-iphone8.png',
-        width: 750,
-        height: 1334,
-        query: '(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)',
-    },
-    {
-        name: 'apple-launch-iphone8-plus.png',
-        width: 1242,
-        height: 2208,
-        query: '(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3)',
-    },
-    {
-        name: 'apple-launch-iphone5.png',
-        width: 640,
-        height: 1136,
-        query: '(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)',
-    },
-    {
-        name: 'apple-launch-ipadair.png',
-        width: 1536,
-        height: 2048,
-        query: '(device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2)',
-    },
-    {
-        name: 'apple-launch-ipadpro10.png',
-        width: 1668,
-        height: 2224,
-        query: '(device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2)',
-    },
-    {
-        name: 'apple-launch-ipadpro12.png',
-        width: 2048,
-        height: 2732,
-        query: '(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2)',
-    },
-];
-
 /**
  * @param {import('./generator').Image} image The base icon buffer.
  * @param {typeof FAVICONS} favicons
@@ -114,23 +69,6 @@ async function generateAppleIcons(image, icons) {
 }
 
 /**
- * @param {import('./generator').Image} image The base icon buffer.
- * @param {typeof APPLE_LAUNCH_SCREENS} launchScreens
- */
-async function generateAppleLaunchScreens(image, launchScreens) {
-    const { generateLaunch } = await import('./generateLaunch.js');
-    return Promise.all(
-        launchScreens.map(async ({ name, width, height, query }) => ({
-            name,
-            width,
-            height,
-            query,
-            contents: await generateLaunch(image, width, height, 0, { r: 255, g: 255, b: 255, a: 1 }),
-        }))
-    );
-}
-
-/**
  * Collect and bundle favicons.
  * @type {import('./index').Collector}
  */
@@ -156,7 +94,6 @@ export async function collectIcons($, dom, options, { resolve, load }) {
         ];
     }
 
-    const iconRel = (iconElement.attr('rel') || '').split(' ');
     const iconFilePath = await resolve(iconHref);
     if (!iconFilePath.path) {
         throw new Error(`Failed to resolve icon path: ${iconHref}`);
@@ -172,11 +109,9 @@ export async function collectIcons($, dom, options, { resolve, load }) {
     const [
         favicons,
         appleIcons,
-        appleLaunchScreens,
     ] = await Promise.all([
         generateFavicons(image, FAVICONS),
         generateAppleIcons(image, APPLE_ICONS),
-        iconRel.includes('apple-touch-startup-image') ? generateAppleLaunchScreens(image, APPLE_LAUNCH_SCREENS) : [],
     ]);
 
     return [
@@ -214,22 +149,6 @@ export async function collectIcons($, dom, options, { resolve, load }) {
                 const link = $('<link>');
                 link.attr('rel', 'apple-touch-icon');
                 link.attr('sizes', `${icon.size}x${icon.size}`);
-                link.attr('href', path.relative(options.outDir, file.path));
-                link.insertBefore(iconElement);
-            },
-        })),
-        ...appleLaunchScreens.map((icon) => /** @type {import('./index.js').Build} */ ({
-            loader: 'file',
-            options: {
-                entryPoint: icon.name,
-                contents: icon.contents,
-                outdir: 'icons',
-            },
-            async finisher(outputFiles) {
-                const file = outputFiles[0];
-                const link = $('<link>');
-                link.attr('rel', 'apple-touch-startup-image');
-                link.attr('media', icon.query);
                 link.attr('href', path.relative(options.outDir, file.path));
                 link.insertBefore(iconElement);
             },

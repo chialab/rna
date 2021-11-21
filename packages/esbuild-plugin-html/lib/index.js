@@ -137,12 +137,14 @@ export default function({
                     { collectAssets },
                     { collectWebManifest },
                     { collectIcons },
+                    { collectScreens },
                 ] = await Promise.all([
                     import('./collectStyles.js'),
                     import('./collectScripts.js'),
                     import('./collectAssets.js'),
                     import('./collectWebManifest.js'),
                     import('./collectIcons.js'),
+                    import('./collectScreens.js'),
                 ]);
 
                 const code = args.code.toString();
@@ -175,59 +177,64 @@ export default function({
                 });
 
                 const collectOptions = { outDir: relativeOutDir, target: [scriptsTarget, modulesTarget] };
-                const builds = /** @type {Build[]} */ ([
-                    ...(await collectIcons($, root, collectOptions, { resolve: resolveFile, load: loadFile })),
-                    ...collectWebManifest($, root, basePath, relativeOutDir),
-                    ...collectStyles($, root, basePath, relativeOutDir, build.initialOptions),
-                    ...(await collectScripts($, root, collectOptions)),
-                    ...collectAssets($, root, basePath, relativeOutDir, build.initialOptions),
-                ]);
+                const builds = /** @type {Build[]} */ ((await Promise.all([
+                    collectIcons($, root, collectOptions, { resolve: resolveFile, load: loadFile }),
+                    collectScreens($, root, collectOptions, { resolve: resolveFile, load: loadFile }),
+                    collectWebManifest($, root, basePath, relativeOutDir),
+                    collectStyles($, root, basePath, relativeOutDir, build.initialOptions),
+                    collectScripts($, root, collectOptions),
+                    collectAssets($, root, basePath, relativeOutDir, build.initialOptions),
+                ])).flat());
+
+                const results = await Promise.all(
+                    builds.map(async (build) => {
+                        const { loader, options } = build;
+                        if (!options) {
+                            return [];
+                        }
+
+                        const entryPoint = options.entryPoint;
+                        if (!entryPoint) {
+                            return [];
+                        }
+
+                        if (options.contents) {
+                            if (loader === 'file') {
+                                const { outputFiles } = await emitFile(entryPoint, Buffer.from(options.contents));
+                                return outputFiles;
+                            }
+
+                            const { outputFiles } = await emitChunk(options);
+                            return outputFiles;
+                        }
+
+                        const resolvedFile = await resolveFile(entryPoint);
+                        if (!resolvedFile.path) {
+                            throw new Error(`Cannot resolve ${entryPoint}`);
+                        }
+
+                        if (loader === 'file') {
+                            const fileBuffer = await loadFile(resolvedFile.path, resolvedFile);
+
+                            if (!fileBuffer.contents) {
+                                throw new Error(`Cannot load ${resolvedFile.path}`);
+                            }
+
+                            const { outputFiles } = await emitFile(resolvedFile.path, Buffer.from(fileBuffer.contents));
+                            return outputFiles;
+                        }
+
+                        const { outputFiles } = await emitChunk({
+                            ...options,
+                            entryPoint: resolvedFile.path,
+                        });
+                        return outputFiles;
+                    })
+                );
 
                 for (let i = 0; i < builds.length; i++) {
-                    const { loader, options, finisher } = builds[i];
-                    if (!options) {
-                        await finisher([]);
-                        continue;
-                    }
-
-                    const entryPoint = options.entryPoint;
-                    if (!entryPoint) {
-                        continue;
-                    }
-
-                    if (options.contents) {
-                        if (loader === 'file') {
-                            const { outputFiles } = await emitFile(entryPoint, Buffer.from(options.contents));
-                            await finisher(outputFiles);
-                            continue;
-                        }
-
-                        const { outputFiles } = await emitChunk(options);
-                        await finisher(outputFiles);
-                        continue;
-                    }
-
-                    const resolvedFile = await resolveFile(entryPoint);
-                    if (!resolvedFile.path) {
-                        throw new Error(`Cannot resolve ${entryPoint}`);
-                    }
-
-                    if (loader === 'file') {
-                        const fileBuffer = await loadFile(resolvedFile.path, resolvedFile);
-
-                        if (!fileBuffer.contents) {
-                            throw new Error(`Cannot load ${resolvedFile.path}`);
-                        }
-
-                        const { outputFiles } = await emitFile(resolvedFile.path, Buffer.from(fileBuffer.contents));
-                        await finisher(outputFiles);
-                        continue;
-                    }
-
-                    const { outputFiles } = await emitChunk({
-                        ...options,
-                        entryPoint: resolvedFile.path,
-                    });
+                    const { finisher } = builds[i];
+                    const outputFiles = results[i];
                     await finisher(outputFiles);
                 }
 

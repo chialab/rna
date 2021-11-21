@@ -60,30 +60,25 @@ function innerCollect($, dom, selector, outdir, target, format) {
 
 /**
  * Collect and bundle each <script> reference.
- * @param {import('cheerio').CheerioAPI} $ The cheerio selector.
- * @param {import('cheerio').Cheerio<import('cheerio').Document>} dom The DOM element.
- * @param {string} base The base dir.
- * @param {string} outdir The output dir.
- * @param {{ scriptsTarget: string; modulesTarget: string }} targets Scripts target.
- * @return {import('./index').Build[]} A list of builds.
+ * @type {import('./index').Collector}
  */
-export function collectScripts($, dom, base, outdir, targets = { scriptsTarget: 'es6', modulesTarget: 'es2020' }) {
+export async function collectScripts($, dom, options) {
     return /** @type {import('./index').Build[]} */ ([
         innerCollect(
             $,
             dom,
-            'script[src][type="module"], script[type="module"]:not([src])',
-            outdir,
-            targets.scriptsTarget,
-            'esm'
+            'script[src]:not([type]), script[src][type="text/javascript"], script[src][type="application/javascript"]',
+            options.outDir,
+            options.target[0],
+            'iife'
         ),
         innerCollect(
             $,
             dom,
-            'script[src]:not([type]), script[src][type="text/javascript"], script[src][type="application/javascript"]',
-            outdir,
-            targets.scriptsTarget,
-            'iife'
+            'script[src][type="module"], script[type="module"]:not([src])',
+            options.outDir,
+            options.target[1],
+            'esm'
         ),
     ].filter(Boolean));
 }

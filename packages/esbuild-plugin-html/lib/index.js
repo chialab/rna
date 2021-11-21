@@ -16,8 +16,8 @@ const loadHtml = /** @type {typeof cheerio.load} */ (cheerio.load || cheerio.def
 /**
  * @typedef {Object} Build
  * @property {import('esbuild').Loader} [loader] The loader to use.
- * @property {import('@chialab/esbuild-rna').EmitTransformOptions} options The file name of the referenced file.
- * @property {(outputFiles: import('esbuild').OutputFile[]) => Promise<void>|void} finisher A callback function to invoke when output file has been generated.
+ * @property {import('@chialab/esbuild-rna').EmitTransformOptions} [options] The file name of the referenced file.
+ * @property {(outputFiles: import('esbuild').OutputFile[]) => Promise<string[]|void>|void} finisher A callback function to invoke when output file has been generated.
  */
 
 /**
@@ -27,6 +27,22 @@ const loadHtml = /** @type {typeof cheerio.load} */ (cheerio.load || cheerio.def
  * @property {string} [entryNames]
  * @property {string} [chunkNames]
  * @property {string} [assetNames]
+ */
+
+/**
+ * @typedef {Object} BuildOptions
+ * @property {string} outDir
+ * @property {string[]} target
+ */
+
+/**
+ * @typedef {Object} Helpers
+ * @property {(file: string) => Promise<import('esbuild').OnResolveResult>} resolve
+ * @property {(file: string, options: Partial<import('esbuild').OnLoadArgs>) => Promise<import('esbuild').OnLoadResult>} load
+ */
+
+/**
+ * @typedef {($: import('cheerio').CheerioAPI, dom: import('cheerio').Cheerio<import('cheerio').Document>, options: BuildOptions, helpers: Helpers) => Promise<Build[]>} Collector
  */
 
 /**
@@ -67,7 +83,7 @@ export default function({
                     const htmlFile = result.outputFiles[0].path;
                     if (htmlFile.endsWith('.html')) {
                         const jsFile = result.outputFiles[1].path;
-                        result.outputFiles[0].path = path.join(jsFile, `${path.basename(jsFile, path.extname(jsFile))}.html`);
+                        result.outputFiles[0].path = path.join(path.dirname(jsFile), `${path.basename(jsFile, path.extname(jsFile))}.html`);
                         result.outputFiles.splice(1, 1);
                     }
                 }
@@ -135,78 +151,93 @@ export default function({
                 const $ = loadHtml(code);
                 const root = $.root();
 
+                /**
+                 * @param {string} file
+                 */
+                const resolveFile = (file) => resolve({
+                    kind: 'dynamic-import',
+                    path: file,
+                    importer: args.path,
+                    resolveDir: rootDir,
+                    pluginData: null,
+                    namespace: 'file',
+                });
+
+                /**
+                 * @param {string} path
+                 * @param {Partial<import('esbuild').OnLoadArgs>} [options]
+                 */
+                const loadFile = (path, options = {}) => load({
+                    pluginData: null,
+                    namespace: 'file',
+                    ...options,
+                    path,
+                });
+
+                const collectOptions = { outDir: relativeOutDir, target: [scriptsTarget, modulesTarget] };
                 const builds = /** @type {Build[]} */ ([
-                    ...collectIcons($, root, {
-                        source: args.path,
-                        outDir: relativeOutDir,
-                        rootDir,
-                    }, {
-                        resolve,
-                        load,
-                    }),
+                    ...(await collectIcons($, root, collectOptions, { resolve: resolveFile, load: loadFile })),
                     ...collectWebManifest($, root, basePath, relativeOutDir),
                     ...collectStyles($, root, basePath, relativeOutDir, build.initialOptions),
-                    ...collectScripts($, root, basePath, relativeOutDir, { scriptsTarget, modulesTarget }),
+                    ...(await collectScripts($, root, collectOptions)),
                     ...collectAssets($, root, basePath, relativeOutDir, build.initialOptions),
                 ]);
 
                 for (let i = 0; i < builds.length; i++) {
-                    const currentBuild = builds[i];
-                    const entryPoint = currentBuild.options.entryPoint;
+                    const { loader, options, finisher } = builds[i];
+                    if (!options) {
+                        await finisher([]);
+                        continue;
+                    }
+
+                    const entryPoint = options.entryPoint;
                     if (!entryPoint) {
                         continue;
                     }
 
-                    if (currentBuild.options.contents) {
-                        const { outputFiles } = await emitChunk(currentBuild.options);
-
-                        await currentBuild.finisher(outputFiles);
-                        continue;
-                    }
-
-                    const resolvedFile = await resolve({
-                        kind: 'dynamic-import',
-                        path: entryPoint,
-                        importer: args.path,
-                        resolveDir: rootDir,
-                        pluginData: null,
-                        namespace: 'file',
-                    });
-                    if (!resolvedFile.path) {
-                        continue;
-                    }
-
-                    if (currentBuild.loader === 'file') {
-                        const fileBuffer = await load({
-                            path: resolvedFile.path,
-                            namespace: resolvedFile.namespace || 'file',
-                            pluginData: resolvedFile.pluginData,
-                        });
-
-                        if (!fileBuffer.contents) {
+                    if (options.contents) {
+                        if (loader === 'file') {
+                            const { outputFiles } = await emitFile(entryPoint, Buffer.from(options.contents));
+                            await finisher(outputFiles);
                             continue;
                         }
 
-                        const { outputFiles } = await emitFile(resolvedFile.path, Buffer.from(fileBuffer.contents));
+                        const { outputFiles } = await emitChunk(options);
+                        await finisher(outputFiles);
+                        continue;
+                    }
 
-                        await currentBuild.finisher(outputFiles);
+                    const resolvedFile = await resolveFile(entryPoint);
+                    if (!resolvedFile.path) {
+                        throw new Error(`Cannot resolve ${entryPoint}`);
+                    }
+
+                    if (loader === 'file') {
+                        const fileBuffer = await loadFile(resolvedFile.path, resolvedFile);
+
+                        if (!fileBuffer.contents) {
+                            throw new Error(`Cannot load ${resolvedFile.path}`);
+                        }
+
+                        const { outputFiles } = await emitFile(resolvedFile.path, Buffer.from(fileBuffer.contents));
+                        await finisher(outputFiles);
                         continue;
                     }
 
                     const { outputFiles } = await emitChunk({
-                        ...currentBuild.options,
+                        ...options,
                         entryPoint: resolvedFile.path,
                     });
-                    await currentBuild.finisher(outputFiles);
+                    await finisher(outputFiles);
                 }
 
                 return {
                     code: beautify.html($.html().replace(/\n\s*$/gm, '')),
                     loader: 'file',
-                    watchFiles: builds.reduce((acc, build) => [
+                    watchFiles: builds.filter((build) => build.options?.entryPoint).reduce((acc, build) => [
                         ...acc,
-                        build.options.entryPoint,
-                    ], /** @type {string[]} */([])),
+                        /** @type {string} */ (build.options?.entryPoint),
+                    ], /** @type {string[]} */ ([])),
                 };
             });
         },

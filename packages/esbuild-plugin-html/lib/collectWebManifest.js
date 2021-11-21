@@ -108,11 +108,12 @@ export function collectWebManifest($, dom, base, outdir) {
                             },
                         ].map(async ({ name, size }) => {
                             const outputFile = path.join(iconsDir, name);
-                            await generateIcon(image, size, 0, { r: 255, g: 255, b: 255, a: 1 }, outputFile);
+                            const contents = await generateIcon(image, size, 0, { r: 255, g: 255, b: 255, a: 1 });
                             return {
                                 src: path.relative(outdir, outputFile),
                                 sizes: `${size}x${size}`,
                                 type: 'image/png',
+                                contents,
                             };
                         })
                     );

@@ -82,7 +82,7 @@ export * from './helpers.js';
  * @property {string} entryPoint
  * @property {import('esbuild').Loader} [loader]
  * @property {string} [outdir]
- * @property {string} [contents]
+ * @property {string|Buffer} [contents]
  * @property {boolean} [bundle]
  * @property {boolean} [splitting]
  * @property {import('esbuild').Platform} [platform]
@@ -386,7 +386,7 @@ export function useRna(build, esbuildModule) {
                 delete config.entryPoints;
                 config.stdin = {
                     sourcefile: options.entryPoint,
-                    contents: options.contents,
+                    contents: options.contents.toString(),
                     loader: options.loader,
                     resolveDir: rootDir,
                 };

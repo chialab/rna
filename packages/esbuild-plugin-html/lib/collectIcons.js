@@ -1,6 +1,6 @@
 import path from 'path';
-import { mkdir } from 'fs/promises';
 import { isRelativeUrl } from '@chialab/node-resolve';
+import Jimp, { SUPPORTED_MIME_TYPES } from './generator.js';
 
 const FAVICONS = [
     {
@@ -85,77 +85,56 @@ const APPLE_LAUNCH_SCREENS = [
 
 /**
  * @param {import('./generator').Image} image The base icon buffer.
- * @param {string} outputDir
  * @param {typeof FAVICONS} favicons
  */
-async function generateFavicons(image, outputDir, favicons) {
+async function generateFavicons(image, favicons) {
     const { generateIcon } = await import('./generateIcon.js');
     return Promise.all(
-        favicons.map(async ({ name, size }) => {
-            const outputFile = path.join(outputDir, name);
-            await generateIcon(image, size, 0, { r: 255, g: 255, b: 255, a: 1 }, outputFile);
-            return {
-                name,
-                size,
-                file: outputFile,
-            };
-        })
+        favicons.map(async ({ name, size }) => ({
+            name,
+            size,
+            contents: await generateIcon(image, size, 0, { r: 255, g: 255, b: 255, a: 1 }),
+        }))
     );
 }
 
 /**
  * @param {import('./generator').Image} image The base icon buffer.
- * @param {string} outputDir
  * @param {typeof APPLE_ICONS} icons
  */
-async function generateAppleIcons(image, outputDir, icons) {
+async function generateAppleIcons(image, icons) {
     const { generateIcon } = await import('./generateIcon.js');
     return Promise.all(
-        icons.map(async ({ name, size, gutter, background }) => {
-            const outputFile = path.join(outputDir, name);
-            await generateIcon(image, size, gutter, background, outputFile);
-            return {
-                name,
-                size,
-                gutter,
-                background,
-                file: outputFile,
-            };
-        })
+        icons.map(async ({ name, size, gutter, background }) => ({
+            name,
+            size,
+            contents: await generateIcon(image, size, gutter, background),
+        }))
     );
 }
 
 /**
  * @param {import('./generator').Image} image The base icon buffer.
- * @param {string} outputDir
  * @param {typeof APPLE_LAUNCH_SCREENS} launchScreens
  */
-async function generateAppleLaunchScreens(image, outputDir, launchScreens) {
+async function generateAppleLaunchScreens(image, launchScreens) {
     const { generateLaunch } = await import('./generateLaunch.js');
     return Promise.all(
-        launchScreens.map(async ({ name, width, height, query }) => {
-            const outputFile = path.join(outputDir, name);
-            await generateLaunch(image, width, height, 0, { r: 255, g: 255, b: 255, a: 1 }, outputFile);
-            return {
-                name,
-                width,
-                height,
-                query,
-                file: outputFile,
-            };
-        })
+        launchScreens.map(async ({ name, width, height, query }) => ({
+            name,
+            width,
+            height,
+            query,
+            contents: await generateLaunch(image, width, height, 0, { r: 255, g: 255, b: 255, a: 1 }),
+        }))
     );
 }
 
 /**
  * Collect and bundle favicons.
- * @param {import('cheerio').CheerioAPI} $ The cheerio selector.
- * @param {import('cheerio').Cheerio<import('cheerio').Document>} dom The DOM element.
- * @param {{ source: string, rootDir: string, outDir: string }} options Options.
- * @param {{ resolve: import('@chialab/esbuild-rna').ResolveCallback, load: import('@chialab/esbuild-rna').LoadCallback }} helpers Module bundler helpers.
- * @return {import('./index').Build[]} A list of builds.
+ * @type {import('./index').Collector}
  */
-export function collectIcons($, dom, { source, rootDir, outDir }, { resolve, load }) {
+export async function collectIcons($, dom, options, { resolve, load }) {
     const iconElement = dom.find('link[rel*="icon"]');
     const iconHref = iconElement.attr('href') || '';
     if (!isRelativeUrl(iconHref)) {
@@ -163,97 +142,90 @@ export function collectIcons($, dom, { source, rootDir, outDir }, { resolve, loa
     }
 
     const iconRel = (iconElement.attr('rel') || '').split(' ');
+    const mimeType = iconElement.attr('type') || 'image/png';
+    if (!SUPPORTED_MIME_TYPES.includes(mimeType)) {
+        return [];
+    }
+
+    const iconFilePath = await resolve(iconHref);
+    if (!iconFilePath.path) {
+        throw new Error(`Failed to resolve icon path: ${iconHref}`);
+    }
+
+    const iconFile = await load(iconFilePath.path, iconFilePath);
+    if (!iconFile.contents) {
+        throw new Error(`Failed to load icon file: ${iconFilePath.path}`);
+    }
+
+    const imageBuffer = Buffer.from(iconFile.contents);
+    const image = await Jimp.read(imageBuffer);
+    const [
+        favicons,
+        appleIcons,
+        appleLaunchScreens,
+    ] = await Promise.all([
+        generateFavicons(image, FAVICONS),
+        generateAppleIcons(image, APPLE_ICONS),
+        iconRel.includes('apple-touch-startup-image') ? generateAppleLaunchScreens(image, APPLE_LAUNCH_SCREENS) : [],
+    ]);
 
     return [
-        {
+        ...favicons.map((icon) => /** @type {import('./index.js').Build} */ ({
             loader: 'file',
             options: {
-                entryPoint: iconHref,
+                entryPoint: icon.name,
+                contents: icon.contents,
             },
-            async finisher() {
-                const { default: Jimp, SUPPORTED_MIME_TYPES } = await import('./generator.js');
-                const iconsDir = path.join(outDir, 'icons');
-                const mimeType = iconElement.attr('type') || 'image/png';
-                if (!SUPPORTED_MIME_TYPES.includes(mimeType)) {
-                    return;
-                }
-
-                try {
-                    await mkdir(iconsDir);
-                } catch (err) {
-                    //
-                }
-
-                const iconFile = await resolve({
-                    kind: 'dynamic-import',
-                    path: iconHref,
-                    importer: source,
-                    namespace: 'file',
-                    pluginData: null,
-                    resolveDir: rootDir,
-                });
-                if (!iconFile?.path) {
-                    return;
-                }
-
-                const iconBuffer = await load({
-                    path: iconFile.path,
-                    namespace: iconFile.namespace || 'file',
-                    pluginData: iconFile.pluginData,
-                });
-                if (!iconBuffer || !iconBuffer.contents) {
-                    return;
-                }
-
-                const imageBuffer = Buffer.from(iconBuffer.contents);
-                const image = await Jimp.read(imageBuffer);
-                const [
-                    favicons,
-                    appleIcons,
-                    appleLaunchScreens,
-                ] = await Promise.all([
-                    generateFavicons(image, iconsDir, FAVICONS),
-                    generateAppleIcons(image, iconsDir, APPLE_ICONS),
-                    iconRel.includes('apple-touch-startup-image') ? generateAppleLaunchScreens(image, iconsDir, APPLE_LAUNCH_SCREENS) : [],
-                ]);
-
-                favicons.forEach(({ size, file }) => {
-                    if (size === 196) {
-                        const link = $('<link>');
-                        link.attr('rel', 'shortcut icon');
-                        link.attr('href', path.relative(outDir, file));
-                        link.insertBefore($(iconElement));
-                        $(iconElement).before('\n    ');
-                    }
-
+            async finisher(outputFiles) {
+                const file = outputFiles[0];
+                if (icon.size === 196) {
                     const link = $('<link>');
-                    link.attr('rel', 'icon');
-                    link.attr('sizes', `${size}x${size}`);
-                    link.attr('href', path.relative(outDir, file));
+                    link.attr('rel', 'shortcut icon');
+                    link.attr('href', path.relative(options.outDir, file.path));
                     link.insertBefore($(iconElement));
-                    $(iconElement).before('\n    ');
-                });
+                }
 
-                appleIcons.forEach(({ size, file }) => {
-                    const link = $('<link>');
-                    link.attr('rel', 'apple-touch-icon');
-                    link.attr('sizes', `${size}x${size}`);
-                    link.attr('href', path.relative(outDir, file));
-                    link.insertBefore($(iconElement));
-                    $(iconElement).before('\n    ');
-                });
-
-                appleLaunchScreens.forEach(({ query, file }, index, arr) => {
-                    const link = $('<link>');
-                    link.attr('rel', 'apple-touch-startup-image');
-                    link.attr('media', query);
-                    link.attr('href', path.relative(outDir, file));
-                    link.insertBefore($(iconElement));
-                    if (index !== arr.length - 1) {
-                        $(iconElement).before('\n    ');
-                    }
-                });
-
+                const link = $('<link>');
+                link.attr('rel', 'icon');
+                link.attr('sizes', `${icon.size}x${icon.size}`);
+                link.attr('href', path.relative(options.outDir, file.path));
+                link.insertBefore($(iconElement));
+            },
+        })),
+        ...appleIcons.map((icon) => /** @type {import('./index.js').Build} */ ({
+            loader: 'file',
+            options: {
+                entryPoint: icon.name,
+                contents: icon.contents,
+                outdir: 'icons',
+            },
+            async finisher(outputFiles) {
+                const file = outputFiles[0];
+                const link = $('<link>');
+                link.attr('rel', 'apple-touch-icon');
+                link.attr('sizes', `${icon.size}x${icon.size}`);
+                link.attr('href', path.relative(options.outDir, file.path));
+                link.insertBefore($(iconElement));
+            },
+        })),
+        ...appleLaunchScreens.map((icon) => /** @type {import('./index.js').Build} */ ({
+            loader: 'file',
+            options: {
+                entryPoint: icon.name,
+                contents: icon.contents,
+                outdir: 'icons',
+            },
+            async finisher(outputFiles) {
+                const file = outputFiles[0];
+                const link = $('<link>');
+                link.attr('rel', 'apple-touch-startup-image');
+                link.attr('media', icon.query);
+                link.attr('href', path.relative(options.outDir, file.path));
+                link.insertBefore($(iconElement));
+            },
+        })),
+        {
+            finisher() {
                 $(iconElement).remove();
             },
         },

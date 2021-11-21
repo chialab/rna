@@ -3,6 +3,7 @@ import crypto from 'crypto';
 import { mkdir, readFile, writeFile} from 'fs/promises';
 import { appendSearchParam, browserResolve, escapeRegexBody, resolve as nodeResolve } from '@chialab/node-resolve';
 import { loadSourcemap, inlineSourcemap, mergeSourcemaps } from '@chialab/estransform';
+import esbuild from 'esbuild';
 import { assignToResult, createOutputFile, createResult } from './helpers.js';
 
 export * from './helpers.js';
@@ -90,6 +91,7 @@ export * from './helpers.js';
  * @property {import('esbuild').Format} [format]
  * @property {import('esbuild').Plugin[]} [plugins]
  * @property {string[]} [inject]
+ * @property {string|undefined} [jsxFactory]
  */
 
 /**
@@ -105,9 +107,8 @@ const DEFAULT_LOADERS = { '.js': 'js', '.jsx': 'jsx', '.ts': 'ts', '.tsx': 'tsx'
 /**
  * Enrich the esbuild build with a transformation pipeline and emit methods.
  * @param {import('esbuild').PluginBuild} build The esbuild build.
- * @param {typeof import('esbuild')} [esbuildModule] The esbuild module to use for internal builds.
  */
-export function useRna(build, esbuildModule) {
+export function useRna(build) {
     const { sourceRoot, absWorkingDir, outdir, outfile, loader = {}, write = true } = build.initialOptions;
     const loaders = {
         ...DEFAULT_LOADERS,
@@ -364,8 +365,6 @@ export function useRna(build, esbuildModule) {
          * @return {Promise<Chunk>} The output chunk reference.
          */
         async emitChunk(options) {
-            esbuildModule = esbuildModule || await import('esbuild');
-
             /** @type {import('esbuild').BuildOptions} */
             const config = {
                 ...build.initialOptions,
@@ -376,6 +375,7 @@ export function useRna(build, esbuildModule) {
                 target: options.target ?? build.initialOptions.target,
                 format: options.format ?? build.initialOptions.format,
                 plugins: options.plugins ?? build.initialOptions.plugins,
+                jsxFactory: ('jsxFactory' in options) ? options.jsxFactory : build.initialOptions.jsxFactory,
                 write,
                 globalName: undefined,
                 outfile: undefined,
@@ -399,7 +399,7 @@ export function useRna(build, esbuildModule) {
             }
 
             const entryPoints = [options.entryPoint];
-            const result = /** @type {import('./helpers.js').BuildResult} */ (await esbuildModule.build(config));
+            const result = /** @type {import('./helpers.js').BuildResult} */ (await esbuild.build(config));
             const resolvedEntryPoints = entryPoints.map((entryPoint) => path.resolve(rootDir, entryPoint));
             const outputs = result.metafile.outputs;
             const outFile = Object.entries(outputs)
@@ -553,7 +553,7 @@ export function useRna(build, esbuildModule) {
     const installedPlugins = build.initialOptions.plugins = build.initialOptions.plugins || [];
     if (!installedPlugins.find((p) => p.name === 'rna')) {
         const plugin = rnaPlugin();
-        installedPlugins.unshift(plugin);
+        installedPlugins.push(plugin);
         plugin.setup(build);
     }
 
@@ -562,14 +562,10 @@ export function useRna(build, esbuildModule) {
 
 /**
  * @typedef {Object} PluginOptions
- * @property {boolean} [warn]
  * @property {typeof import('esbuild')} [esbuild]
  */
 
-/**
- * @param {PluginOptions} [options]
- */
-export function rnaPlugin({ warn = true, esbuild } = {}) {
+export function rnaPlugin() {
     /**
      * @type {import('esbuild').Plugin}
      */
@@ -583,21 +579,7 @@ export function rnaPlugin({ warn = true, esbuild } = {}) {
             const { stdin } = build.initialOptions;
             build.initialOptions.metafile = true;
 
-            const { onResolve, onLoad, chunks, files, rootDir, loaders } = useRna(build, esbuild);
-
-            build.onResolve = onResolve;
-            build.onLoad = onLoad;
-
-            if (warn) {
-                const plugins = build.initialOptions.plugins || [];
-                const first = plugins[0];
-                if (first && first.name !== 'rna') {
-                    warnings.push({
-                        pluginName: 'rna',
-                        text: 'The "rna" plugin should be the first of the plugins list.',
-                    });
-                }
-            }
+            const { onResolve, onLoad, chunks, files, rootDir, loaders } = useRna(build);
 
             if (stdin && stdin.sourcefile) {
                 const sourceFile = path.resolve(rootDir, stdin.sourcefile);

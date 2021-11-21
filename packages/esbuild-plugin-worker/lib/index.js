@@ -103,6 +103,7 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                             format: 'iife',
                             bundle: true,
                             platform: 'neutral',
+                            jsxFactory: undefined,
                         };
                         const workerOptions = node.arguments[1] && node.arguments[1].expression;
                         if (workerOptions &&
@@ -121,10 +122,6 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                             )
                         ) {
                             transformOptions.format = 'esm';
-                        } else {
-                            transformOptions.splitting = false;
-                            transformOptions.inject = [];
-                            transformOptions.plugins = [];
                         }
 
                         promises.push(Promise.resolve().then(async () => {

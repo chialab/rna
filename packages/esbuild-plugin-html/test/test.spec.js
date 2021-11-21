@@ -346,6 +346,8 @@ body {
 
 </html>`);
 
+        assets.sort((a1, a2) => a2.contents.byteLength - a1.contents.byteLength);
+
         expect(assets[0].path.endsWith('/out/assets/icon.png')).to.be.true;
         expect(assets[0].contents.byteLength).to.be.equal(20754);
 

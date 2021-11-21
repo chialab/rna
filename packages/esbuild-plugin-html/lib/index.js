@@ -80,7 +80,7 @@ export default function({
             });
 
             build.onEnd(async (result) => {
-                if (result.outputFiles) {
+                if (result.outputFiles && result.outputFiles.length) {
                     const htmlFile = result.outputFiles[0].path;
                     if (htmlFile.endsWith('.html')) {
                         const jsFile = result.outputFiles[1].path;

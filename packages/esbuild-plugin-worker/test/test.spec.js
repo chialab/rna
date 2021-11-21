@@ -90,7 +90,7 @@ postMessage("message");
         expect(result.text).to.be.equal(`// test.spec.js
 var worker = new Worker(URL.createObjectURL(new Blob(['importScripts("' + function(path) {
   const url = new URL(path);
-  url.searchParams.set("transform", '{"format":"iife","bundle":true,"platform":"neutral","splitting":false,"inject":[],"plugins":[]}');
+  url.searchParams.set("transform", '{"format":"iife","bundle":true,"platform":"neutral"}');
   return url.href;
 }(new URL("./worker.js?emit=chunk", import.meta.url).href) + '");'], { type: "text/javascript" })));
 export {
@@ -128,7 +128,7 @@ export {
         expect(result.text).to.be.equal(`// test.spec.js
 var worker = new Worker(URL.createObjectURL(new Blob(['importScripts("' + function(path) {
   const url = new URL(path);
-  url.searchParams.set("transform", '{"format":"iife","bundle":true,"platform":"neutral","splitting":false,"inject":[],"plugins":[]}');
+  url.searchParams.set("transform", '{"format":"iife","bundle":true,"platform":"neutral"}');
   return url.href;
 }(workerName) + '");'], { type: "text/javascript" })));
 export {

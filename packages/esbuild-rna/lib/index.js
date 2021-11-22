@@ -1,6 +1,6 @@
 import path from 'path';
 import crypto from 'crypto';
-import { mkdir, readFile, writeFile} from 'fs/promises';
+import { mkdir, readFile, writeFile, rm } from 'fs/promises';
 import { appendSearchParam, browserResolve, escapeRegexBody, resolve as nodeResolve } from '@chialab/node-resolve';
 import { loadSourcemap, inlineSourcemap, mergeSourcemaps } from '@chialab/estransform';
 import esbuild from 'esbuild';
@@ -57,7 +57,11 @@ export * from './helpers.js';
  */
 
 /**
- * @typedef {import('./helpers.js').BuildResult & { path: string }} Chunk
+ * @typedef {import('esbuild').BuildResult & { metafile: Metafile; dependencies: DependenciesMap }} Result
+ */
+
+/**
+ * @typedef {Result & { path: string }} Chunk
  */
 
 /**
@@ -72,6 +76,7 @@ export * from './helpers.js';
  * @property {Map<string, Chunk>} chunks
  * @property {Map<string, Chunk>} files
  * @property {DependenciesMap} dependencies
+ * @property {boolean} initialized
  */
 
 /**
@@ -109,7 +114,9 @@ const DEFAULT_LOADERS = { '.js': 'js', '.jsx': 'jsx', '.ts': 'ts', '.tsx': 'tsx'
  * @param {import('esbuild').PluginBuild} build The esbuild build.
  */
 export function useRna(build) {
-    const { sourceRoot, absWorkingDir, outdir, outfile, loader = {}, write = true } = build.initialOptions;
+    build.initialOptions.metafile = true;
+
+    const { stdin, sourceRoot, absWorkingDir, outdir, outfile, loader = {}, write = true } = build.initialOptions;
     const loaders = {
         ...DEFAULT_LOADERS,
         ...loader,
@@ -126,9 +133,11 @@ export function useRna(build) {
         chunks: new Map(),
         files: new Map(),
         dependencies: {},
+        initialized: false,
     };
     buildInternals.set(build.initialOptions, state);
 
+    const isChunk = 'chunk' in build.initialOptions;
     const workingDir = absWorkingDir || process.cwd();
     const rootDir = sourceRoot || absWorkingDir || process.cwd();
     const outDir = /** @type {string} */(outdir || (outfile && path.dirname(outfile)));
@@ -163,6 +172,10 @@ export function useRna(build) {
          * Compute loaders.
          */
         loaders,
+        /**
+         * Flag chunk build.
+         */
+        isChunk,
         /**
          * Iterate build.onResult hooks in order to programmatically resolve an import.
          * @param {OnResolveArgs} args The resolve arguments.
@@ -325,27 +338,27 @@ export function useRna(build) {
             }
 
             const result = createResult(
-                [
+                write ? undefined : [
                     createOutputFile(outputFile, /** @type {Buffer} */ (buffer)),
                 ],
                 {
                     inputs: {
-                        [path.relative(rootDir, source)]: {
+                        [path.relative(workingDir, source)]: {
                             bytes,
                             imports: [],
                         },
                     },
                     outputs: {
-                        [path.relative(rootDir, outputFile)]: {
+                        [path.relative(workingDir, outputFile)]: {
                             bytes,
                             inputs: {
-                                [path.relative(rootDir, source)]: {
+                                [path.relative(workingDir, source)]: {
                                     bytesInOutput: bytes,
                                 },
                             },
                             imports: [],
                             exports: [],
-                            entryPoint: path.relative(rootDir, source),
+                            entryPoint: path.relative(workingDir, source),
                         },
                     },
                 }
@@ -365,15 +378,17 @@ export function useRna(build) {
          * @return {Promise<Chunk>} The output chunk reference.
          */
         async emitChunk(options) {
+            const format = options.format ?? build.initialOptions.format;
+
             /** @type {import('esbuild').BuildOptions} */
             const config = {
                 ...build.initialOptions,
+                format,
                 outdir: options.outdir ? path.resolve(fullOutDir, `./${options.outdir}`) : fullOutDir,
                 bundle: options.bundle ?? build.initialOptions.bundle,
-                splitting: options.splitting ?? build.initialOptions.splitting,
+                splitting: format === 'esm' ? (options.splitting ?? build.initialOptions.splitting) : false,
                 platform: options.platform ?? build.initialOptions.platform,
                 target: options.target ?? build.initialOptions.target,
-                format: options.format ?? build.initialOptions.format,
                 plugins: options.plugins ?? build.initialOptions.plugins,
                 jsxFactory: ('jsxFactory' in options) ? options.jsxFactory : build.initialOptions.jsxFactory,
                 write,
@@ -381,6 +396,11 @@ export function useRna(build) {
                 outfile: undefined,
                 metafile: true,
             };
+
+            Object.defineProperty(config, 'chunk', {
+                enumerable: false,
+                value: true,
+            });
 
             if (options.contents) {
                 delete config.entryPoints;
@@ -398,15 +418,21 @@ export function useRna(build) {
                 delete config.define['this'];
             }
 
-            const entryPoints = [options.entryPoint];
-            const result = /** @type {import('./helpers.js').BuildResult} */ (await esbuild.build(config));
-            const resolvedEntryPoints = entryPoints.map((entryPoint) => path.resolve(rootDir, entryPoint));
+            const plugins = config.plugins || [];
+            if (!plugins.find((plugin) => plugin.name === 'rna')) {
+                plugins.unshift(rnaPlugin());
+            }
+            config.plugins = plugins;
+
+            const result = /** @type {Result} */ (await esbuild.build(config));
+
+            const resolvedEntryPoint = path.resolve(rootDir, options.entryPoint);
             const outputs = result.metafile.outputs;
             const outFile = Object.entries(outputs)
                 .filter(([output]) => !output.endsWith('.map'))
                 .filter(([output]) => outputs[output].entryPoint)
                 .find(([, { entryPoint }]) =>
-                    resolvedEntryPoints.includes(path.resolve(workingDir, /** @type {string} */ (entryPoint)))
+                    resolvedEntryPoint === path.resolve(workingDir, /** @type {string} */ (entryPoint))
                 );
 
             if (!outFile) {
@@ -484,6 +510,10 @@ export function useRna(build) {
          * @return {Promise<string[]>} The list of plugin names that had been added to the build.
          */
         async setupPlugin(plugin, plugins, mode = 'before') {
+            if (isChunk) {
+                return [];
+            }
+
             const installedPlugins = build.initialOptions.plugins = build.initialOptions.plugins || [];
 
             /**
@@ -525,87 +555,87 @@ export function useRna(build) {
 
             return map;
         },
-        /**
-         * Iterate a build result and collect dependencies.
-         * @param {import('esbuild').BuildResult} result The build result.
-         * @return {DependenciesMap} The updated dependencies map.
-         */
-        mergeDependencies(result) {
-            const map = state.dependencies;
-            const { metafile } = result;
-            if (!metafile) {
-                return map;
-            }
-            for (const out of Object.values(metafile.outputs)) {
-                if (!out.entryPoint) {
-                    continue;
-                }
-
-                const entryPoint = path.resolve(rootDir, out.entryPoint);
-                const list = map[entryPoint] = map[entryPoint] || [];
-                list.push(...Object.keys(out.inputs).map((file) => path.resolve(rootDir, file)));
-            }
-
-            return map;
-        },
     };
 
-    const installedPlugins = build.initialOptions.plugins = build.initialOptions.plugins || [];
-    if (!installedPlugins.find((p) => p.name === 'rna')) {
-        const plugin = rnaPlugin();
-        installedPlugins.push(plugin);
-        plugin.setup(build);
+    if (stdin && stdin.sourcefile) {
+        const sourceFile = path.resolve(rootDir, stdin.sourcefile);
+        build.initialOptions.entryPoints = [sourceFile];
+        delete build.initialOptions.stdin;
+
+        rnaBuild.onResolve({ filter: new RegExp(escapeRegexBody(sourceFile)) }, (args) => ({
+            path: args.path,
+        }));
+
+        rnaBuild.onLoad({ filter: new RegExp(escapeRegexBody(sourceFile)) }, () => ({
+            contents: stdin.contents,
+            loader: stdin.loader || loaders[path.extname(sourceFile)] || 'file',
+        }));
+    }
+
+    if (!state.initialized) {
+        state.initialized = true;
+        build.onEnd(async (buildResult) => {
+            const rnaResult = /** @type {Result} */ (buildResult);
+            rnaResult.dependencies = state.dependencies;
+            rnaBuild.chunks.forEach((result) => assignToResult(rnaResult, result));
+            rnaBuild.files.forEach((result) => assignToResult(rnaResult, result));
+
+            if (buildResult.outputFiles && buildResult.outputFiles.length) {
+                const mainFile = buildResult.outputFiles[0].path;
+                const mainExt = path.extname(mainFile);
+                if (mainExt !== '.js') {
+                    const jsFile = buildResult.outputFiles[1];
+                    if (jsFile && jsFile.path.endsWith('.js')) {
+                        let realFileName = path.join(path.dirname(jsFile.path), path.basename(jsFile.path, '.js'));
+                        if (path.extname(realFileName) !== mainExt) {
+                            realFileName += mainExt;
+                        }
+                        buildResult.outputFiles[0].path = realFileName;
+                        buildResult.outputFiles.splice(1, 1);
+                    }
+                }
+            }
+
+            if (buildResult.metafile) {
+                // remove .js outputs for non js entryPoints
+                const outputs = { ...buildResult.metafile.outputs };
+                for (const outputKey in outputs) {
+                    const output = outputs[outputKey];
+                    if (path.extname(outputKey) === '.js') {
+                        if (!output.entryPoint) {
+                            continue;
+                        }
+                        const entryLoader = loaders[path.extname(output.entryPoint)] || 'file';
+                        if (entryLoader !== 'file' && entryLoader !== 'css') {
+                            continue;
+                        }
+                        if (write) {
+                            const fullOutputKey = path.join(workingDir, outputKey);
+                            await rm(fullOutputKey);
+                            try {
+                                await rm(`${fullOutputKey}.map`);
+                            } catch (err) {
+                                //
+                            }
+                        }
+                        delete buildResult.metafile.outputs[outputKey];
+                    }
+                }
+            }
+        });
     }
 
     return rnaBuild;
 }
 
 /**
- * @typedef {Object} PluginOptions
- * @property {typeof import('esbuild')} [esbuild]
- */
-
+* @return {import('esbuild').Plugin}
+*/
 export function rnaPlugin() {
-    /**
-     * @type {import('esbuild').Plugin}
-     */
-    const plugin = {
+    return {
         name: 'rna',
         setup(build) {
-            /**
-             * @type {import('esbuild').PartialMessage[]}
-             */
-            const warnings = [];
-            const { stdin } = build.initialOptions;
-            build.initialOptions.metafile = true;
-
-            const { onResolve, onLoad, chunks, files, rootDir, loaders } = useRna(build);
-
-            if (stdin && stdin.sourcefile) {
-                const sourceFile = path.resolve(rootDir, stdin.sourcefile);
-                build.initialOptions.entryPoints = [sourceFile];
-                delete build.initialOptions.stdin;
-
-                onResolve({ filter: new RegExp(escapeRegexBody(sourceFile)) }, (args) => ({
-                    path: args.path,
-                }));
-
-                onLoad({ filter: new RegExp(escapeRegexBody(sourceFile)) }, () => ({
-                    contents: stdin.contents,
-                    loader: stdin.loader || loaders[path.extname(sourceFile)] || 'file',
-                }));
-            }
-
-            build.onStart(() => ({
-                warnings,
-            }));
-
-            build.onEnd((buildResult) => {
-                chunks.forEach((result) => assignToResult(buildResult, result));
-                files.forEach((result) => assignToResult(buildResult, result));
-            });
+            useRna(build);
         },
     };
-
-    return plugin;
 }

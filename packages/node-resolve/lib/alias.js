@@ -11,7 +11,7 @@
  * @param {string} source
  */
 export function escapeRegexBody(source) {
-    return source.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return source.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&');
 }
 
 /**

@@ -1,4 +1,3 @@
-import path from 'path';
 import crypto from 'crypto';
 import { isRelativeUrl } from '@chialab/node-resolve';
 
@@ -35,11 +34,12 @@ export async function collectStyles($, dom, options) {
             outdir: 'css',
             target: options.target[0],
         },
-        finisher(outputFiles) {
+        finisher(files) {
             elements.forEach((element) => {
                 $(element).remove();
             });
-            $('head').append(`<link rel="stylesheet" href="${path.relative(options.outDir, outputFiles[0].path)}" />`);
+
+            $('head').append(`<link rel="stylesheet" href="${files[0]}" />`);
         },
     }];
 }

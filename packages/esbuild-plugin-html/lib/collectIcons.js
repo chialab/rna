@@ -1,4 +1,3 @@
-import path from 'path';
 import { isRelativeUrl } from '@chialab/node-resolve';
 import Jimp, { SUPPORTED_MIME_TYPES } from './generator.js';
 
@@ -87,8 +86,8 @@ export async function collectIcons($, dom, options, { resolve, load }) {
                     loader: 'file',
                     entryPoint: iconHref,
                 },
-                finisher(outputFiles) {
-                    iconElement.attr('href', path.relative(options.outDir, outputFiles[0].path));
+                finisher(files) {
+                    iconElement.attr('href', files[0]);
                 },
             },
         ];
@@ -121,19 +120,18 @@ export async function collectIcons($, dom, options, { resolve, load }) {
                 contents: icon.contents,
                 loader: 'file',
             },
-            async finisher(outputFiles) {
-                const file = outputFiles[0];
+            async finisher(files) {
                 if (icon.size === 196) {
                     const link = $('<link>');
                     link.attr('rel', 'shortcut icon');
-                    link.attr('href', path.relative(options.outDir, file.path));
+                    link.attr('href', files[0]);
                     link.insertBefore(iconElement);
                 }
 
                 const link = $('<link>');
                 link.attr('rel', 'icon');
                 link.attr('sizes', `${icon.size}x${icon.size}`);
-                link.attr('href', path.relative(options.outDir, file.path));
+                link.attr('href', files[0]);
                 link.insertBefore(iconElement);
             },
         })),
@@ -144,12 +142,11 @@ export async function collectIcons($, dom, options, { resolve, load }) {
                 loader: 'file',
                 outdir: 'icons',
             },
-            async finisher(outputFiles) {
-                const file = outputFiles[0];
+            async finisher(files) {
                 const link = $('<link>');
                 link.attr('rel', 'apple-touch-icon');
                 link.attr('sizes', `${icon.size}x${icon.size}`);
-                link.attr('href', path.relative(options.outDir, file.path));
+                link.attr('href', files[0]);
                 link.insertBefore(iconElement);
             },
         })),

@@ -173,7 +173,7 @@ export function rnaPlugin(config) {
     const dependenciesMap = {};
 
     /**
-     * @param {import('@chialab/rna-bundler').TransformResult|import('@chialab/rna-bundler').BuildResult} result
+     * @param {import('@chialab/rna-bundler').TransformResult|import('@chialab/esbuild-rna').Result} result
      */
     function watchDependencies({ dependencies }) {
         const watchedDependencies = Object.values(dependenciesMap).flat();
@@ -192,18 +192,6 @@ export function rnaPlugin(config) {
         }
 
         Object.assign(dependenciesMap, dependencies);
-    }
-
-    /**
-     * @param {import('@chialab/rna-bundler').BuildResult} result
-     */
-    function addToVirtualFs(result) {
-        if (!result.outputFiles) {
-            return result.outputFiles;
-        }
-        result.outputFiles.forEach(({ path, text }) => {
-            virtualFs[path] = Promise.resolve(text);
-        });
     }
 
     /**
@@ -423,7 +411,10 @@ export function rnaPlugin(config) {
                         throw new Error('Failed to bundle dependency');
                     }
 
-                    addToVirtualFs(result);
+                    result.outputFiles.forEach(({ path, text }) => {
+                        virtualFs[path] = Promise.resolve(text);
+                    });
+
                     watchDependencies(result);
 
                     return virtualFs[resolved];

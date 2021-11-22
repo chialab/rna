@@ -1,5 +1,6 @@
 import esbuild from 'esbuild';
 import htmlPlugin from '@chialab/esbuild-plugin-html';
+import virtualPlugin from '@chialab/esbuild-plugin-virtual';
 import { expect } from 'chai';
 
 describe('esbuild-plugin-html', () => {
@@ -34,7 +35,7 @@ describe('esbuild-plugin-html', () => {
 </head>
 
 <body>
-    <script src="iife/index.9aa1d192.iife.js" type="module"></script>
+    <script src="iife/index.9aa1d192.iife.js" type="application/javascript"></script>
 </body>
 
 </html>`);
@@ -166,6 +167,81 @@ body {
 body {
   color: red;
 }
+`);
+    });
+
+    it('should bundle webapp with virtual styles', async () => {
+        const { outputFiles } = await esbuild.build({
+            absWorkingDir: new URL('.', import.meta.url).pathname,
+            entryPoints: [new URL('./index.html', import.meta.url).pathname],
+            sourceRoot: new URL('.', import.meta.url).pathname,
+            outdir: 'out',
+            bundle: true,
+            write: false,
+            plugins: [
+                virtualPlugin([
+                    {
+                        path: 'index.html',
+                        contents: `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+
+</body>
+</html>
+`,
+                    },
+                    {
+                        path: './index.css',
+                        contents: '@import \'lib.css\';',
+                        loader: 'css',
+                    },
+                    {
+                        path: 'lib.css',
+                        contents: 'html { padding: 0; }',
+                        loader: 'css',
+                    },
+                ]),
+                htmlPlugin(),
+            ],
+        });
+
+        const [index, css] = outputFiles;
+
+        expect(outputFiles).to.have.lengthOf(2);
+
+        expect(index.path.endsWith('/out/index.html')).to.be.true;
+        expect(index.text).to.be.equal(`<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="css/index.114fa647.css">
+</head>
+
+<body>
+</body>
+
+</html>`);
+
+        expect(css.path.endsWith('/out/css/index.114fa647.css')).to.be.true;
+        expect(css.text).to.be.equal(`/* lib.css */
+html {
+  padding: 0;
+}
+
+/* index.css */
+
+/* index.114fa647.css */
 `);
     });
 

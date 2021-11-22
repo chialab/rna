@@ -60,7 +60,7 @@ export function buildPlugin(config) {
     const plugin = {
         name: 'storybook',
         async setup(build) {
-            const { rootDir, outDir: realOutDir, setupPlugin } = useRna(build);
+            const { isChunk, rootDir, outDir: realOutDir, setupPlugin } = useRna(build);
             const stories = await findStories(rootDir, storyPatterns);
             const storyIndexEntries = await createStorySpecifiers(stories, rootDir);
             const outDir = realOutDir || rootDir;
@@ -143,14 +143,16 @@ export function buildPlugin(config) {
                 htmlPlugin(),
             ], 'before');
 
-            build.onEnd(async () => {
-                await mkdir(outDir, { recursive: true });
-                await writeFile(path.join(outDir, 'stories.json'), JSON.stringify(
-                    await createStoriesJson(stories, rootDir, {
-                        storySort: config.storySort,
-                    })
-                ));
-            });
+            if (!isChunk) {
+                build.onEnd(async () => {
+                    await mkdir(outDir, { recursive: true });
+                    await writeFile(path.join(outDir, 'stories.json'), JSON.stringify(
+                        await createStoriesJson(stories, rootDir, {
+                            storySort: config.storySort,
+                        })
+                    ));
+                });
+            }
         },
     };
 

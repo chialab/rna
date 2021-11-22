@@ -5,10 +5,6 @@ import path from 'path';
  */
 
 /**
- * @typedef {import('esbuild').BuildResult & { metafile: Metafile, outputFiles: import('esbuild').OutputFile[] }} BuildResult
- */
-
-/**
  * Create an empty metafile object.
  * @return {Metafile}
  */
@@ -34,12 +30,13 @@ export function createOutputFile(path, contents) {
 /**
  * @param {import('esbuild').OutputFile[]} [outputFiles]
  * @param {Metafile} [metafile]
- * @return {BuildResult}
+ * @return {import('./index.js').Result}
  */
-export function createResult(outputFiles = [], metafile = createEmptyMetafile()) {
+export function createResult(outputFiles, metafile = createEmptyMetafile()) {
     return {
         errors: [],
         warnings: [],
+        dependencies: {},
         outputFiles,
         metafile,
     };
@@ -49,14 +46,17 @@ export function createResult(outputFiles = [], metafile = createEmptyMetafile())
  * Merge esbuild results into a single object
  * that collects all inputs and outputs references, errors and warnings.
  * This is useful when running multiple builds in separated process.
- * @param {import('esbuild').BuildResult} context
- * @param {BuildResult} result
+ * @param {import('./index.js').Result} context
+ * @param {import('./index.js').Result} result
  */
 export function assignToResult(context, result) {
     context.errors.push(...result.errors);
     context.warnings.push(...result.warnings);
-    const outputFiles = context.outputFiles = context.outputFiles || [];
-    outputFiles.push(...(result.outputFiles || []));
+
+    if (context.outputFiles || result.outputFiles) {
+        const outputFiles = context.outputFiles = context.outputFiles || [];
+        outputFiles.push(...(result.outputFiles || []));
+    }
 
     const contextMeta = context.metafile = context.metafile || createEmptyMetafile();
     const resultMeta = result.metafile || createEmptyMetafile();
@@ -69,13 +69,27 @@ export function assignToResult(context, result) {
         ...contextMeta.outputs,
         ...resultMeta.outputs,
     };
+
+    /**
+     * @type {import('./index.js').DependenciesMap}
+     */
+    const dependencies = context.dependencies = context.dependencies || {};
+    for (const out of Object.values(resultMeta.outputs)) {
+        if (!out.entryPoint) {
+            continue;
+        }
+
+        const entryPoint = out.entryPoint;
+        const list = dependencies[entryPoint] = dependencies[entryPoint] || [];
+        list.push(...Object.keys(out.inputs).map((file) => file));
+    }
 }
 
 /**
- * @param {import('esbuild').BuildResult} result
+ * @param {import('./index.js').Result} result
  * @param {string} from
  * @param {string} to
- * @return {BuildResult}
+ * @return {import('./index.js').Result}
  */
 export function remapResult(result, from, to) {
     const resultMeta = result.metafile || createEmptyMetafile();
@@ -85,7 +99,8 @@ export function remapResult(result, from, to) {
     return {
         errors: result.errors,
         warnings: result.warnings,
-        outputFiles: result.outputFiles || [],
+        outputFiles: result.outputFiles,
+        dependencies: result.dependencies,
         metafile: {
             inputs: Object.keys(inputs)
                 .reduce((acc, input) => {

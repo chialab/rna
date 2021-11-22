@@ -1,17 +1,16 @@
 import crypto from 'crypto';
-import path from 'path';
 import { isRelativeUrl } from '@chialab/node-resolve';
 
 /**
  * @param {import('cheerio').CheerioAPI} $ The cheerio selector.
  * @param {import('cheerio').Cheerio<import('cheerio').Document>} dom The DOM element.
  * @param {string} selector Scripts selector.
- * @param {string} outDir The output dir.
  * @param {string} target Build target.
  * @param {import('esbuild').Format} format Build format.
+ * @param {string} type Script type.
  * @return {import('./index').CollectResult|void} Plain build.
  */
-function innerCollect($, dom, selector, outDir, target, format) {
+function innerCollect($, dom, selector, target, format, type) {
     const elements = dom.find(selector)
         .get()
         .filter((element) => !$(element).attr('src') || isRelativeUrl($(element).attr('src')));
@@ -39,16 +38,16 @@ function innerCollect($, dom, selector, outDir, target, format) {
             target,
             format,
         },
-        finisher(outputFiles) {
-            const [jsOutput, ...outputs] = outputFiles;
+        finisher(files) {
+            const [jsOutput, ...outputs] = files;
             elements.forEach((element) => {
                 $(element).remove();
             });
-            $('body').append(`<script src="${path.relative(outDir, jsOutput.path)}" type="module"></script>`);
-            const cssOutputs = outputs.filter((output) => output.path.endsWith('.css'));
+            $('body').append(`<script src="${jsOutput}" type="${type}"></script>`);
+            const cssOutputs = outputs.filter((output) => output.endsWith('.css'));
             if (cssOutputs) {
                 cssOutputs.forEach((cssOutput) => {
-                    $('head').append(`<link rel="stylesheet" href="${path.relative(outDir, cssOutput.path)}" />`);
+                    $('head').append(`<link rel="stylesheet" href="${cssOutput}" />`);
                 });
             }
         },
@@ -65,17 +64,17 @@ export async function collectScripts($, dom, options) {
             $,
             dom,
             'script[src]:not([type]), script[src][type="text/javascript"], script[src][type="application/javascript"]',
-            options.outDir,
             options.target[0],
-            'iife'
+            'iife',
+            'application/javascript'
         ),
         innerCollect(
             $,
             dom,
             'script[src][type="module"], script[type="module"]:not([src])',
-            options.outDir,
             options.target[1],
-            'esm'
+            'esm',
+            'module'
         ),
     ].filter(Boolean));
 }

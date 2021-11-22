@@ -1,17 +1,9 @@
 import path from 'path';
-import { rnaPlugin, useRna, hasPlugin } from '@chialab/esbuild-rna';
+import { hasPlugin } from '@chialab/esbuild-rna';
 import { transformLoaders } from './loaders.js';
 
 /**
- * @typedef {import('esbuild').Metafile} Metafile
- */
-
-/**
- * @typedef {import('esbuild').BuildResult & { metafile: Metafile, outputFiles?: import('esbuild').OutputFile[] }} BuildResult
- */
-
-/**
- * @typedef {import('esbuild').TransformResult & { metafile: Metafile, dependencies: import('@chialab/esbuild-rna').DependenciesMap, outputFiles?: import('esbuild').OutputFile[] }} TransformResult
+ * @typedef {import('@chialab/esbuild-rna').Result & { code: string; map?: string }} TransformResult
  */
 
 /**
@@ -48,24 +40,9 @@ export async function transform(config) {
     }
 
     /**
-     * @type {import('esbuild').PluginBuild|undefined}
-     */
-    let pluginBuild;
-
-    /**
      * @type {import('esbuild').Plugin[]}
      */
     const finalPlugins = (await Promise.all([
-        rnaPlugin(),
-        /**
-         * @type {import('esbuild').Plugin}
-         */
-        ({
-            name: '__rna-internal__',
-            setup(build) {
-                pluginBuild = build;
-            },
-        }),
         !hasPlugin(plugins, 'env') &&
             import('@chialab/esbuild-plugin-env')
                 .then(({ default: plugin }) => plugin()),
@@ -108,7 +85,7 @@ export async function transform(config) {
 
     const sourceFile = path.resolve(rootDir, Array.isArray(input) ? input[0] : input);
     const absWorkingDir = path.dirname(sourceFile);
-    const result = /** @type {BuildResult} */ (await esbuild.build({
+    const result = /** @type {import('@chialab/esbuild-rna').Result} */ (await esbuild.build({
         stdin: {
             contents: code,
             loader,
@@ -135,18 +112,11 @@ export async function transform(config) {
         logLevel,
     }));
 
-    if (!result.outputFiles) {
-        throw new Error(`Failed to transform "${input}"`);
-    }
-
-    const dependencies = useRna(/** @type {import('esbuild').PluginBuild} */(pluginBuild))
-        .mergeDependencies(result);
+    const outputFiles = /** @type {import('esbuild').OutputFile[]} */ (result.outputFiles);
 
     return {
-        code: result.outputFiles[0].text,
-        map: result.outputFiles[1] ? result.outputFiles[1].text : '',
-        warnings: result.warnings,
-        metafile: result.metafile,
-        dependencies,
+        ...result,
+        code: outputFiles[0].text,
+        map: outputFiles[1] ? outputFiles[1].text : '',
     };
 }

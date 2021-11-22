@@ -1,8 +1,7 @@
 import path from 'path';
-import { rename, rm } from 'fs/promises';
 import * as cheerio from 'cheerio';
-import { createResult, assignToResult, useRna } from '@chialab/esbuild-rna';
 import beautify from 'js-beautify';
+import { useRna } from '@chialab/esbuild-rna';
 
 /**
  * @typedef {import('esbuild').Metafile} Metafile
@@ -16,7 +15,7 @@ const loadHtml = /** @type {typeof cheerio.load} */ (cheerio.load || cheerio.def
 /**
  * @typedef {Object} CollectResult
  * @property {import('@chialab/esbuild-rna').EmitTransformOptions} [build] The build instruction for collected files.
- * @property {(outputFiles: import('esbuild').OutputFile[]) => Promise<string[]|void>|void} [finisher] A callback function to invoke when output file has been generated.
+ * @property {(files: string[]) => Promise<string[]|void>|void} [finisher] A callback function to invoke when output file has been generated.
  */
 
 /**
@@ -61,7 +60,7 @@ export default function({
     const plugin = {
         name: 'html',
         setup(build) {
-            const { write = true } = build.initialOptions;
+            const { plugins = [], write = true } = build.initialOptions;
             const { resolve, load, workingDir, rootDir, outDir, onTransform, emitFile, emitChunk } = useRna(build);
             if (!outDir) {
                 throw new Error('Cannot use the html plugin without an outdir.');
@@ -69,66 +68,6 @@ export default function({
 
             // force metafile in order to collect output data.
             build.initialOptions.metafile = build.initialOptions.metafile || write !== false;
-
-            /**
-             * @type {import('@chialab/esbuild-rna').BuildResult}
-             */
-            let collectedResult;
-
-            build.onStart(() => {
-                collectedResult = createResult();
-            });
-
-            build.onEnd(async (result) => {
-                if (result.outputFiles && result.outputFiles.length) {
-                    const htmlFile = result.outputFiles[0].path;
-                    if (htmlFile.endsWith('.html')) {
-                        const jsFile = result.outputFiles[1].path;
-                        result.outputFiles[0].path = path.join(path.dirname(jsFile), `${path.basename(jsFile, path.extname(jsFile))}.html`);
-                        result.outputFiles.splice(1, 1);
-                    }
-                }
-                if (result.metafile && write) {
-                    const outputs = { ...result.metafile.outputs };
-                    for (const outputKey in outputs) {
-                        const output = outputs[outputKey];
-                        if (path.extname(outputKey) !== '.html') {
-                            if (output.entryPoint && path.extname(output.entryPoint) === '.html') {
-                                await rm(outputKey);
-                                try {
-                                    await rm(`${outputKey}.map`);
-                                } catch(err) {
-                                    //
-                                }
-                                delete result.metafile.outputs[outputKey];
-                            }
-                            continue;
-                        }
-                        for (const inputKey in output.inputs) {
-                            if (path.extname(inputKey) !== '.html') {
-                                continue;
-                            }
-
-                            const newOutputKey = path.join(path.dirname(outputKey), path.basename(inputKey));
-                            if (newOutputKey === outputKey) {
-                                continue;
-                            }
-
-                            await rename(
-                                outputKey,
-                                newOutputKey
-                            );
-
-                            delete result.metafile.outputs[outputKey];
-                            result.metafile.outputs[newOutputKey] = output;
-
-                            break;
-                        }
-                    }
-                }
-
-                assignToResult(result, collectedResult);
-            });
 
             onTransform({ filter: /\.html$/ }, async (args) => {
                 const basePath = path.dirname(args.path);
@@ -184,29 +123,30 @@ export default function({
                     collectWebManifest($, root, collectOptions, { emitFile, emitChunk, resolve: resolveFile, load: loadFile }),
                     collectStyles($, root, collectOptions),
                     collectScripts($, root, collectOptions),
-                    collectAssets($, root, collectOptions),
+                    collectAssets($, root),
                 ])).flat());
 
                 const results = await Promise.all(
                     collected.map(async (collectResult) => {
                         const { build } = collectResult;
                         if (!build) {
-                            return [];
+                            return;
                         }
 
                         const entryPoint = build.entryPoint;
                         if (!entryPoint) {
-                            return [];
+                            return;
                         }
 
                         if (build.contents) {
                             if (build.loader === 'file') {
-                                const { outputFiles } = await emitFile(entryPoint, Buffer.from(build.contents));
-                                return outputFiles;
+                                return emitFile(entryPoint, Buffer.from(build.contents));
                             }
 
-                            const { outputFiles } = await emitChunk(build);
-                            return outputFiles;
+                            return emitChunk({
+                                ...build,
+                                plugins: plugins.filter((plugin) => plugin.name !== 'html'),
+                            });
                         }
 
                         const resolvedFile = await resolveFile(entryPoint);
@@ -221,23 +161,31 @@ export default function({
                                 throw new Error(`Cannot load ${resolvedFile.path}`);
                             }
 
-                            const { outputFiles } = await emitFile(resolvedFile.path, Buffer.from(fileBuffer.contents));
-                            return outputFiles;
+                            return emitFile(resolvedFile.path, Buffer.from(fileBuffer.contents));
                         }
 
-                        const { outputFiles } = await emitChunk({
+                        return emitChunk({
                             ...build,
                             entryPoint: resolvedFile.path,
+                            plugins: plugins.filter((plugin) => plugin.name !== 'html'),
                         });
-                        return outputFiles;
                     })
                 );
 
                 for (let i = 0; i < collected.length; i++) {
-                    const { finisher } = collected[i];
+                    const { build, finisher } = collected[i];
                     if (finisher) {
-                        const outputFiles = results[i];
-                        await finisher(outputFiles);
+                        const result = results[i];
+                        if (build && result) {
+                            const files = Object.keys(result.metafile.outputs).map((file) => {
+                                const fullFile = path.resolve(workingDir, file);
+                                const fullOutDir = path.resolve(workingDir, outDir);
+                                return path.relative(fullOutDir, fullFile);
+                            });
+                            await finisher(files);
+                        } else {
+                            await finisher([]);
+                        }
                     }
                 }
 

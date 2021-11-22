@@ -59,7 +59,7 @@ export async function parse(code) {
         for (let i = 0, len = code.length; i < len; i++) {
             const char = code[i];
             if (Buffer.byteLength(char, 'utf8') > 1) {
-                str += '-';
+                str += '_';
             } else {
                 str += char;
             }

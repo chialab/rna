@@ -64,4 +64,35 @@ export {
 };
 `);
     });
+
+    it('should load css virtual modules', async () => {
+        const { outputFiles: [result] } = await esbuild.build({
+            stdin: {
+                sourcefile: new URL(import.meta.url).pathname,
+                contents: '@import \'virtualMod\';',
+                loader: 'css',
+            },
+            format: 'esm',
+            target: 'esnext',
+            bundle: true,
+            write: false,
+            plugins: [
+                virtualPlugin([
+                    {
+                        path: 'virtualMod',
+                        contents: 'body { color: red; }',
+                        loader: 'css',
+                    },
+                ]),
+            ],
+        });
+
+        expect(result.text).to.equal(`/* virtualMod */
+body {
+  color: red;
+}
+
+/* packages/esbuild-plugin-virtual/test/test.spec.js */
+`);
+    });
 });

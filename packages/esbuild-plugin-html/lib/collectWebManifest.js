@@ -1,4 +1,3 @@
-import path from 'path';
 import { isRelativeUrl } from '@chialab/node-resolve';
 
 const MANIFEST_ICONS = [
@@ -131,8 +130,8 @@ export async function collectWebManifest($, dom, options, { emitFile, resolve, l
                 contents: JSON.stringify(json, null, 2),
                 loader: 'file',
             },
-            async finisher(outputFiles) {
-                $(element).attr('href', path.relative(options.outDir, outputFiles[0].path));
+            async finisher(files) {
+                $(element).attr('href', files[0]);
             },
         },
     ];

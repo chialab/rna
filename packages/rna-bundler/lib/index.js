@@ -16,10 +16,6 @@ export { build } from './build.js';
 export { writeManifestJson, writeEntrypointsJson, writeDevEntrypointsJson };
 
 /**
- * @typedef {import('./build').BuildResult} BuildResult
- */
-
-/**
  * @typedef {import('./transform').TransformResult} TransformResult
  */
 
@@ -198,7 +194,7 @@ export function command(program) {
                                         logger.error(error);
                                     } else if (result) {
                                         if (cwd !== buildDir) {
-                                            result = remapResult(result, buildDir, cwd);
+                                            result = remapResult(/** @type {import('@chialab/esbuild-rna').Result} */(result), buildDir, cwd);
                                         }
                                         buildResults[i] = result;
                                         await onBuildEnd(true);

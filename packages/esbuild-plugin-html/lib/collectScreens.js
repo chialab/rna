@@ -1,4 +1,3 @@
-import path from 'path';
 import { isRelativeUrl } from '@chialab/node-resolve';
 import Jimp, { SUPPORTED_MIME_TYPES } from './generator.js';
 
@@ -83,8 +82,8 @@ export async function collectScreens($, dom, options, { resolve, load }) {
                     loader: 'file',
                     entryPoint: splashHref,
                 },
-                finisher(outputFiles) {
-                    splashElement.attr('href', path.relative(options.outDir, outputFiles[0].path));
+                finisher(files) {
+                    splashElement.attr('href', files[0]);
                 },
             },
         ];
@@ -112,12 +111,11 @@ export async function collectScreens($, dom, options, { resolve, load }) {
                 loader: 'file',
                 outdir: 'icons',
             },
-            async finisher(outputFiles) {
-                const file = outputFiles[0];
+            async finisher(files) {
                 const link = $('<link>');
                 link.attr('rel', 'apple-touch-startup-image');
                 link.attr('media', icon.query);
-                link.attr('href', path.relative(options.outDir, file.path));
+                link.attr('href', files[0]);
                 link.insertBefore(splashElement);
             },
         })),

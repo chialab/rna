@@ -177,7 +177,14 @@ export default function({
                     if (finisher) {
                         const result = results[i];
                         if (build && result) {
-                            const files = Object.keys(result.metafile.outputs).map((file) => {
+                            const outputs = result.metafile.outputs;
+                            const keys = Object.keys(outputs);
+                            const mainKey = keys.find((key) => outputs[key].entryPoint === build.entryPoint);
+                            if (mainKey) {
+                                keys.splice(keys.indexOf(mainKey), 1);
+                                keys.unshift(mainKey);
+                            }
+                            const files = keys.map((file) => {
                                 const fullFile = path.resolve(workingDir, file);
                                 const fullOutDir = path.resolve(workingDir, outDir);
                                 return path.relative(fullOutDir, fullFile);

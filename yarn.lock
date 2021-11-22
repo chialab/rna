@@ -2533,6 +2533,11 @@
     "@types/node" "*"
     "@types/responselike" "*"
 
+"@types/chai@^4.2.22":
+  version "4.2.22"
+  resolved "https://registry.npmjs.org/@types/chai/-/chai-4.2.22.tgz#47020d7e4cf19194d43b5202f35f75bd2ad35ce7"
+  integrity sha512-tFfcE+DSTzWAgifkjik9AySNqIyNoYwmR+uecPwwD/XRNfvOjmC/FjCxpiUGDkDVDphPfCUecSQVFw+lN3M3kQ==
+
 "@types/co-body@^6.1.0":
   version "6.1.0"
   resolved "https://registry.npmjs.org/@types/co-body/-/co-body-6.1.0.tgz#b52625390eb0d113c9b697ea92c3ffae7740cdb9"

@@ -60,6 +60,10 @@ export function buildPlugin(config) {
     const plugin = {
         name: 'storybook',
         async setup(build) {
+            if (!build.initialOptions.chunkNames || build.initialOptions.chunkNames === '[name]') {
+                build.initialOptions.chunkNames = '[name]-[hash]';
+            }
+
             const { isChunk, rootDir, outDir: realOutDir, setupPlugin } = useRna(build);
             const stories = await findStories(rootDir, storyPatterns);
             const storyIndexEntries = await createStorySpecifiers(stories, rootDir);
@@ -89,7 +93,7 @@ export function buildPlugin(config) {
                         }],
                         js: [{
                             path: MANAGER_SCRIPT,
-                            type: 'text/javascript',
+                            type: 'module',
                         }],
                     }),
                 },
@@ -103,7 +107,7 @@ export function buildPlugin(config) {
                         }],
                         js: [{
                             path: PREVIEW_SCRIPT,
-                            type: 'text/javascript',
+                            type: 'module',
                         }],
                     }),
                 },

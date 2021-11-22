@@ -18,6 +18,7 @@
     "url": "https://github.com/chialab/rna"
   },
   "devDependencies": {
+    "@types/chai": "^4.2.22",
     "@chialab/eslint-config": "^3.0.0",
     "@chialab/rna": "^0.12.2",
     "@chialab/rna-node-test-runner": "^0.12.26",

@@ -575,6 +575,7 @@ export function useRna(build) {
     if (!state.initialized) {
         state.initialized = true;
         build.onEnd(async (buildResult) => {
+            const loaders = build.initialOptions.loader || {};
             const rnaResult = /** @type {Result} */ (buildResult);
             rnaResult.dependencies = state.dependencies;
             rnaBuild.chunks.forEach((result) => assignToResult(rnaResult, result));
@@ -605,7 +606,7 @@ export function useRna(build) {
                         if (!output.entryPoint) {
                             continue;
                         }
-                        const entryLoader = loaders[path.extname(output.entryPoint)] || 'file';
+                        const entryLoader = loaders[path.extname(output.entryPoint.split('?')[0])] || 'file';
                         if (entryLoader !== 'file' && entryLoader !== 'css') {
                             continue;
                         }

@@ -575,7 +575,7 @@ export function useRna(build) {
     if (!state.initialized) {
         state.initialized = true;
         build.onEnd(async (buildResult) => {
-            const loaders = build.initialOptions.loader || {};
+            const loaders = { ...DEFAULT_LOADERS, ...(build.initialOptions.loader || {}) };
             const rnaResult = /** @type {Result} */ (buildResult);
             rnaResult.dependencies = state.dependencies;
             rnaBuild.chunks.forEach((result) => assignToResult(rnaResult, result));

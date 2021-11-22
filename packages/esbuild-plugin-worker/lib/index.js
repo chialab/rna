@@ -1,3 +1,4 @@
+import path from 'path';
 import { MagicString, generate, walk, parse, getSpanLocation } from '@chialab/estransform';
 import metaUrlPlugin, { getMetaUrl } from '@chialab/esbuild-plugin-meta-url';
 import { useRna } from '@chialab/esbuild-rna';
@@ -45,7 +46,8 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
         name: 'worker',
         async setup(build) {
             const { onTransform, resolve, emitChunk, setupPlugin, rootDir } = useRna(build);
-            await setupPlugin(plugin, [metaUrlPlugin()], 'after');
+
+            await setupPlugin(plugin, [metaUrlPlugin({ emit })], 'after');
 
             const { sourcesContent } = build.initialOptions;
 
@@ -155,7 +157,7 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                                     ...transformOptions,
                                     entryPoint: resolvedPath,
                                 })).path :
-                                resolvedPath;
+                                `./${path.relative(path.dirname(args.path), resolvedPath)}`;
                             const arg = `new URL('${entryPoint}', import.meta.url).href`;
                             if (proxy) {
                                 magicCode.overwrite(loc.start, loc.end, `new ${Ctr}(${createBlobProxy(arg, transformOptions)})`);

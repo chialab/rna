@@ -75,13 +75,15 @@ export default function(options = {}) {
                                         pluginData: null,
                                         resolveDir: rootDir,
                                     }).then((result) => {
-                                        if (result.path) {
+                                        if (result.path && done) {
                                             done({
                                                 file: result.path,
                                             });
                                         }
                                     }).catch((error) => {
-                                        done(error);
+                                        if (done) {
+                                            done(error);
+                                        }
                                     });
                                 },
                             })),

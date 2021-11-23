@@ -1,7 +1,7 @@
 {
   "name": "@chialab/estransform",
   "type": "module",
-  "version": "0.12.11",
+  "version": "0.13.0",
   "description": "Execute multiple transformations on JavaScript sources with full sourcemaps support.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",
@@ -33,8 +33,8 @@
     "node": ">=13"
   },
   "dependencies": {
-    "@swc/core": "^1.2.106",
     "@parcel/source-map": "^2.0.0",
+    "@swc/core": "^1.2.106",
     "cjs-module-lexer": "^1.2.2",
     "es-module-lexer": "^0.7.1",
     "esbuild": "^0.13.0",

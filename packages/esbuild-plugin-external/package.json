@@ -1,7 +1,7 @@
 {
   "name": "@chialab/esbuild-plugin-external",
   "type": "module",
-  "version": "0.12.31",
+  "version": "0.13.0",
   "description": "Collect or exclude module dependencies to bundle.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",
@@ -28,7 +28,7 @@
     "node": ">=13"
   },
   "dependencies": {
-    "@chialab/esbuild-rna": "^0.12.0",
+    "@chialab/esbuild-rna": "^0.13.0",
     "pkg-up": "^3.1.0"
   },
   "devDependencies": {

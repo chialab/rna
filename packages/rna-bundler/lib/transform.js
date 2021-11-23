@@ -39,10 +39,7 @@ export async function transform(config) {
         throw new Error('Missing required `code` option');
     }
 
-    /**
-     * @type {import('esbuild').Plugin[]}
-     */
-    const finalPlugins = (await Promise.all([
+    const finalPlugins = /** @type {import('esbuild').Plugin[]} */ (await Promise.all([
         !hasPlugin(plugins, 'env') &&
             import('@chialab/esbuild-plugin-env')
                 .then(({ default: plugin }) => plugin()),

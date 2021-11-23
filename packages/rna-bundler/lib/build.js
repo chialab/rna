@@ -90,10 +90,7 @@ export async function build(config) {
         await rm(path.resolve(rootDir, outputDir), { recursive: true, force: true });
     }
 
-    /**
-     * @type {import('esbuild').Plugin[]}
-     */
-    const finalPlugins = (await Promise.all([
+    const finalPlugins = /** @type {import('esbuild').Plugin[]} */ (await Promise.all([
         !hasPlugin(plugins, 'alias') &&
             import('@chialab/esbuild-plugin-alias')
                 .then(({ default: plugin }) => plugin(alias)),

@@ -1,4 +1,6 @@
 import { isRelativeUrl } from '@chialab/node-resolve';
+import Jimp, { SUPPORTED_MIME_TYPES } from './generator.js';
+import { generateIcon } from './generateIcon.js';
 
 const MANIFEST_ICONS = [
     {
@@ -83,14 +85,6 @@ export async function collectWebManifest($, dom, options, { emitFile, resolve, l
     json.lang = json.lang || htmlElement.attr('lang') || 'en-US';
 
     icon: if (iconElement && iconElement.length) {
-        const [
-            { default: Jimp, SUPPORTED_MIME_TYPES },
-            { generateIcon },
-        ] = await Promise.all([
-            import('./generator.js'),
-            await import('./generateIcon.js'),
-        ]);
-
         const iconHref = iconElement.attr('href') || '';
         const mimeType = iconElement.attr('type') || 'image/png';
         if (!SUPPORTED_MIME_TYPES.includes(mimeType)) {

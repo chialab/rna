@@ -1,5 +1,5 @@
 import path from 'path';
-import glob from 'fast-glob';
+import { glob } from '@chialab/node-resolve';
 import { MagicString, getSpanLocation, getNodeComments, parse, walk } from '@chialab/estransform';
 import { useRna } from '@chialab/esbuild-rna';
 

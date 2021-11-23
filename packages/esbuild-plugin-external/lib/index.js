@@ -1,6 +1,6 @@
 import { readFile } from 'fs/promises';
-import { pkgUp } from 'pkg-up';
 import { useRna } from '@chialab/esbuild-rna';
+import { pkgUp } from '@chialab/node-resolve';
 
 /**
  * @typedef {Object} PluginOptions

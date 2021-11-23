@@ -36,8 +36,8 @@
   },
   "dependencies": {
     "@chialab/rna-config-loader": "^0.13.0",
+    "@chialab/node-resolve": "^0.13.0",
     "c8": "^7.7.2",
-    "fast-glob": "^3.2.5",
     "mocha": "^8.4.0"
   },
   "devDependencies": {

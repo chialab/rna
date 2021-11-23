@@ -1,5 +1,6 @@
 import path from 'path';
 import { rm } from 'fs/promises';
+import esbuild from 'esbuild';
 import { createLogger } from '@chialab/rna-logger';
 import { hasPlugin } from '@chialab/esbuild-rna';
 import { loaders } from './loaders.js';
@@ -38,7 +39,6 @@ async function onBuildEnd(config, entryOptions, result) {
  * @return {Promise<import('@chialab/esbuild-rna').Result>} The esbuild bundle result.
  */
 export async function build(config) {
-    const { default: esbuild } = await import('esbuild');
     const logger = createLogger();
     const hasOutputFile = !!path.extname(config.output);
 

@@ -1,8 +1,7 @@
 import path from 'path';
 import { readFile } from 'fs/promises';
-import { pkgUp } from 'pkg-up';
 import { createEmptyModule } from '@chialab/estransform';
-import { ALIAS_MODE, createAliasRegex, resolve } from '@chialab/node-resolve';
+import { ALIAS_MODE, createAliasRegex, resolve, pkgUp } from '@chialab/node-resolve';
 import { useRna } from '@chialab/esbuild-rna';
 
 /**

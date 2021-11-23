@@ -37,7 +37,6 @@
     "@swc/core": "^1.2.106",
     "cjs-module-lexer": "^1.2.2",
     "es-module-lexer": "^0.7.1",
-    "esbuild": "^0.13.0",
     "magic-string": "^0.25.7"
   },
   "devDependencies": {

@@ -213,7 +213,7 @@ export function command(program) {
                 }
 
                 const buildResult = createResult();
-                const buildResults = await queue.run(os.cpus().length);
+                const buildResults = await queue.run(Math.max(1, os.cpus().length / 2));
 
                 /**
                  * @param {boolean} [rebuild]

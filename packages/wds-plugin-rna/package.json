@@ -33,8 +33,7 @@
     "@chialab/rna-bundler": "^0.13.1",
     "@chialab/rna-config-loader": "^0.13.0",
     "@chialab/wds-plugin-node-resolve": "^0.13.0",
-    "@web/dev-server-core": "^0.3.8",
-    "pkg-up": "^4.0.0"
+    "@web/dev-server-core": "^0.3.8"
   },
   "devDependencies": {
     "@chialab/esbuild-rna": "^0.13.0",

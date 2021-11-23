@@ -35,7 +35,6 @@
   "dependencies": {
     "@chialab/esbuild-plugin-css-import": "^0.13.0",
     "@chialab/esbuild-rna": "^0.13.0",
-    "@chialab/postcss-url-rebase": "^0.13.0",
     "postcss": "^8.2.5",
     "postcss-load-config": "^3.0.1"
   },

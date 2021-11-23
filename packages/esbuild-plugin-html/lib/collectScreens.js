@@ -1,5 +1,6 @@
 import { isRelativeUrl } from '@chialab/node-resolve';
 import Jimp, { SUPPORTED_MIME_TYPES } from './generator.js';
+import { generateLaunch } from './generateLaunch.js';
 
 const APPLE_LAUNCH_SCREENS = [
     {
@@ -51,7 +52,6 @@ const APPLE_LAUNCH_SCREENS = [
  * @param {typeof APPLE_LAUNCH_SCREENS} launchScreens
  */
 async function generateAppleLaunchScreens(image, launchScreens) {
-    const { generateLaunch } = await import('./generateLaunch.js');
     return Promise.all(
         launchScreens.map(async ({ name, width, height, query }) => ({
             name,

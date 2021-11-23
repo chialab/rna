@@ -34,8 +34,10 @@
     "node": ">=13"
   },
   "dependencies": {
+    "fast-glob": "^3.2.0",
     "enhanced-resolve": "^5.8.2",
-    "is-core-module": "^2.5.0"
+    "is-core-module": "^2.5.0",
+    "pkg-up": "^4.0.0"
   },
   "devDependencies": {
     "@types/is-core-module": "^2.2.0",

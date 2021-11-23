@@ -1,6 +1,7 @@
 import path from 'path';
 import { useRna } from '@chialab/esbuild-rna';
 import cssImport from '@chialab/esbuild-plugin-css-import';
+import postcssrc from 'postcss-load-config';
 
 /**
  * @typedef {Object} PostcssConfig
@@ -14,7 +15,6 @@ import cssImport from '@chialab/esbuild-plugin-css-import';
  * @return {Promise<PostcssConfig>}
  */
 async function loadPostcssConfig(cwd = process.cwd()) {
-    const { default: postcssrc } = await import('postcss-load-config');
     try {
         /**
          * @type {any}

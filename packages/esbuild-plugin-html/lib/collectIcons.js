@@ -1,5 +1,6 @@
 import { isRelativeUrl } from '@chialab/node-resolve';
 import Jimp, { SUPPORTED_MIME_TYPES } from './generator.js';
+import { generateIcon } from './generateIcon.js';
 
 const FAVICONS = [
     {
@@ -42,7 +43,6 @@ const APPLE_ICONS = [
  * @param {typeof FAVICONS} favicons
  */
 async function generateFavicons(image, favicons) {
-    const { generateIcon } = await import('./generateIcon.js');
     return Promise.all(
         favicons.map(async ({ name, size }) => ({
             name,
@@ -57,7 +57,6 @@ async function generateFavicons(image, favicons) {
  * @param {typeof APPLE_ICONS} icons
  */
 async function generateAppleIcons(image, icons) {
-    const { generateIcon } = await import('./generateIcon.js');
     return Promise.all(
         icons.map(async ({ name, size, gutter, background }) => ({
             name,

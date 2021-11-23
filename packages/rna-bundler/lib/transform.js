@@ -1,4 +1,5 @@
 import path from 'path';
+import esbuild from 'esbuild';
 import { hasPlugin } from '@chialab/esbuild-rna';
 import { transformLoaders } from './loaders.js';
 
@@ -12,8 +13,6 @@ import { transformLoaders } from './loaders.js';
  * @return {Promise<TransformResult>} The esbuild bundle result.
  */
 export async function transform(config) {
-    const { default: esbuild } = await import('esbuild');
-
     const {
         input,
         code,

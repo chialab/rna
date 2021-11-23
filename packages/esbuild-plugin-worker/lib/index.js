@@ -52,7 +52,7 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
             onTransform({ loaders: ['tsx', 'ts', 'jsx', 'js'] }, async (args) => {
                 const code = args.code;
 
-                if (variants.every((ctr) => !code.includes(ctr))) {
+                if (!variants.find((ctr) => code.includes(ctr))) {
                     return;
                 }
 

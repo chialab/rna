@@ -102,7 +102,7 @@ export default function({ emit = true } = {}) {
     const plugin = {
         name: 'meta-url',
         async setup(build) {
-            const { platform, format, sourcesContent } = build.initialOptions;
+            const { platform, format, sourcesContent, sourcemap } = build.initialOptions;
             const { onTransform, resolve, emitFile, emitChunk, rootDir, loaders: buildLoaders } = useRna(build);
 
             const baseUrl = (() => {
@@ -118,7 +118,7 @@ export default function({ emit = true } = {}) {
             })();
 
             onTransform({ loaders: ['tsx', 'ts', 'jsx', 'js'] }, async (args) => {
-                const code = args.code.toString();
+                const code = args.code;
 
                 if (!code.includes('import.meta.url') ||
                     !code.includes('URL(')) {
@@ -189,11 +189,11 @@ export default function({ emit = true } = {}) {
 
                 return {
                     code: magicCode.toString(),
-                    map: magicCode.generateMap({
+                    map: sourcemap ? magicCode.generateMap({
                         source: args.path,
                         includeContent: sourcesContent,
                         hires: true,
-                    }),
+                    }) : undefined,
                 };
             });
         },

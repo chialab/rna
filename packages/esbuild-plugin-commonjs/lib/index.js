@@ -38,7 +38,7 @@ export default function({ helperModule } = {}) {
             }
 
             onTransform({ loaders: ['tsx', 'ts', 'jsx', 'js'] }, async (args) => {
-                const code = args.code.toString();
+                const code = args.code;
 
                 if (await maybeMixedModule(code)) {
                     return wrapDynamicRequire(code, {

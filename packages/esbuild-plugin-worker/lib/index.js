@@ -45,14 +45,12 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
     const plugin = {
         name: 'worker',
         async setup(build) {
+            const { sourcesContent, sourcemap } = build.initialOptions;
             const { onTransform, resolve, emitChunk, setupPlugin, rootDir } = useRna(build);
-
             await setupPlugin(plugin, [metaUrlPlugin({ emit })], 'after');
 
-            const { sourcesContent } = build.initialOptions;
-
             onTransform({ loaders: ['tsx', 'ts', 'jsx', 'js'] }, async (args) => {
-                const code = args.code.toString();
+                const code = args.code;
 
                 if (variants.every((ctr) => !code.includes(ctr))) {
                     return;
@@ -176,11 +174,11 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
 
                 return {
                     code: magicCode.toString(),
-                    map: magicCode.generateMap({
+                    map: sourcemap ? magicCode.generateMap({
                         source: args.path,
                         includeContent: sourcesContent,
                         hires: true,
-                    }),
+                    }) : undefined,
                 };
             });
         },

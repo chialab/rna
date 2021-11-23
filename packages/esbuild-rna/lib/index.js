@@ -53,7 +53,7 @@ export * from './helpers.js';
  */
 
 /**
- * @typedef {(args: import('esbuild').OnLoadArgs & { code: string | Uint8Array, loader: import('esbuild').Loader, resolveDir?: string }) => OnTransformResult | Promise<OnTransformResult | null | undefined> | null | undefined} TransformCallback
+ * @typedef {(args: import('esbuild').OnLoadArgs & { code: string, loader: import('esbuild').Loader, resolveDir?: string }) => OnTransformResult | Promise<OnTransformResult | null | undefined> | null | undefined} TransformCallback
  */
 
 /**
@@ -270,7 +270,7 @@ export function useRna(build) {
 
                 const result = await callback({
                     ...args,
-                    code,
+                    code: typeof code !== 'string' ? code.toString() : code,
                     loader,
                 });
                 if (result) {

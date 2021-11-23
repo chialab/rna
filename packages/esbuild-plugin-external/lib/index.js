@@ -1,5 +1,5 @@
 import { readFile } from 'fs/promises';
-import pkgUp from 'pkg-up';
+import { pkgUp } from 'pkg-up';
 import { useRna } from '@chialab/esbuild-rna';
 
 /**

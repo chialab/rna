@@ -20,7 +20,7 @@ export default function({ framework = '@storybook/web-components', plugins = [] 
     const plugin = {
         name: 'rna-storybook-cem',
         setup(build) {
-            const { sourcesContent } = build.initialOptions;
+            const { sourcesContent, sourcemap } = build.initialOptions;
             const { onTransform, rootDir } = useRna(build);
 
             onTransform({ loaders: ['tsx', 'ts', 'jsx', 'js'] }, async (args) => {
@@ -30,7 +30,7 @@ export default function({ framework = '@storybook/web-components', plugins = [] 
                     return;
                 }
 
-                const code = args.code.toString();
+                const code = args.code;
                 const modules = [
                     typescript.createSourceFile(args.path, code, typescript.ScriptTarget.ES2015, true),
                 ];
@@ -103,11 +103,11 @@ export default function({ framework = '@storybook/web-components', plugins = [] 
 
                 return {
                     code: magicCode.toString(),
-                    map: magicCode.generateMap({
+                    map: sourcemap ? magicCode.generateMap({
                         source: args.path,
                         includeContent: sourcesContent,
                         hires: true,
-                    }),
+                    }) : undefined,
                 };
             });
         },

@@ -87,7 +87,7 @@ export default function({
                     import('./collectScreens.js'),
                 ]);
 
-                const code = args.code.toString();
+                const code = args.code;
                 const relativePath = `./${path.relative(rootDir, basePath)}`;
                 const relativeOutDir = path.resolve(path.resolve(workingDir, outDir), relativePath);
                 const $ = loadHtml(code);

@@ -46,54 +46,62 @@ export default function(options = {}) {
         async setup(build) {
             const { sourcemap = true, absWorkingDir } = build.initialOptions || {};
             const { onTransform, resolve, rootDir, collectDependencies, setupPlugin } = useRna(build);
+            const config = await loadPostcssConfig(rootDir);
             setupPlugin(plugin, [cssImport()], 'before');
 
             onTransform({ loaders: ['css'], extensions: ['.css', '.scss', '.sass'] }, async (args) => {
-                const { default: postcss } = await import('postcss');
-
-                const config = await loadPostcssConfig(rootDir);
                 const isSass = ['.sass', '.scss'].includes(path.extname(args.path));
-                const plugins = /** @type {import('postcss').Plugin[]} */ ([
-                    ...(config.plugins || [
-                        await import('@chialab/postcss-preset-chialab')
-                            .then(({ default: preset }) => preset())
-                            .catch(() => false),
-                    ]),
-                    ...(isSass ? [
-                        await import('@chialab/postcss-dart-sass')
-                            .then(({ default: postcssSass }) => postcssSass({
-                                rootDir,
-                                omitSourceMapUrl: true,
-                                sourceMapContents: true,
-                                sourceMapEmbed: false,
-                                importer(path, importer, done) {
-                                    resolve({
-                                        kind: 'import-rule',
-                                        path,
-                                        importer,
-                                        namespace: 'file',
-                                        pluginData: null,
-                                        resolveDir: rootDir,
-                                    }).then((result) => {
-                                        if (result.path && done) {
-                                            done({
-                                                file: result.path,
-                                            });
-                                        }
-                                    }).catch((error) => {
-                                        if (done) {
-                                            done(error);
-                                        }
-                                    });
-                                },
-                            })),
-                    ] : []),
-                    ...(options.plugins || []),
-                ].filter(Boolean));
+
+                /**
+                 * @type {import('postcss').Plugin[]}
+                 */
+                const plugins = [...(config.plugins || [])];
+                if (!plugins.length) {
+                    await import('@chialab/postcss-preset-chialab')
+                        .then(({ default: preset }) => {
+                            plugins.push(preset());
+                        })
+                        .catch(() => false);
+                }
+
+                if (isSass) {
+                    const sassPlugin = await import('@chialab/postcss-dart-sass')
+                        .then(({ default: postcssSass }) => postcssSass({
+                            rootDir,
+                            omitSourceMapUrl: true,
+                            sourceMapContents: true,
+                            sourceMapEmbed: false,
+                            importer(path, importer, done) {
+                                resolve({
+                                    kind: 'import-rule',
+                                    path,
+                                    importer,
+                                    namespace: 'file',
+                                    pluginData: null,
+                                    resolveDir: rootDir,
+                                }).then((result) => {
+                                    if (result.path && done) {
+                                        done({
+                                            file: result.path,
+                                        });
+                                    }
+                                }).catch((error) => {
+                                    if (done) {
+                                        done(error);
+                                    }
+                                });
+                            },
+                        }));
+                    plugins.push(sassPlugin);
+                }
+
+                plugins.push(...(options.plugins || []));
 
                 if (!plugins.length) {
                     return;
                 }
+
+                const { default: postcss } = await import('postcss');
 
                 /**
                  * @type {import('postcss').ProcessOptions}
@@ -112,7 +120,7 @@ export default function(options = {}) {
                     } : false,
                 };
 
-                const code = args.code.toString();
+                const code = args.code;
                 const result = await postcss(plugins).process(code, finalConfig);
                 const sourceMap = result.map && result.map.toJSON();
                 if (sourceMap) {

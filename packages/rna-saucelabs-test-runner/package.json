@@ -39,7 +39,7 @@
     "@chialab/rna-logger": "^0.13.0",
     "@chialab/wds-plugin-legacy": "^0.13.0",
     "@web/test-runner-saucelabs": "^0.5.0",
-    "pkg-up": "^3.1.0"
+    "pkg-up": "^4.0.0"
   },
   "devDependencies": {
     "commander": "^7.2.0",

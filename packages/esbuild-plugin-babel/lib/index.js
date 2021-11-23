@@ -89,8 +89,7 @@ export default function({ presets = [], plugins = [] } = {}) {
                     }]);
                 }
 
-                const code = args.code.toString();
-                const result = /** @type {import('@babel/core').BabelFileResult} */ (await babel.transformAsync(code, config));
+                const result = /** @type {import('@babel/core').BabelFileResult} */ (await babel.transformAsync(args.code, config));
                 const map = /** @type {import('@chialab/estransform').SourceMap} */ (result.map);
 
                 return {

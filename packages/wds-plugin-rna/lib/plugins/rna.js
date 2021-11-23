@@ -1,5 +1,5 @@
 import path from 'path';
-import pkgUp from 'pkg-up';
+import { pkgUp } from 'pkg-up';
 import { getRequestFilePath } from '@web/dev-server-core';
 import { getEntryConfig } from '@chialab/rna-config-loader';
 import { browserResolve, isJs, isJson, isCss, fsResolve, getSearchParam, appendSearchParam, removeSearchParam, getSearchParams, ALIAS_MODE, createAliasRegexexMap, createEmptyRegex } from '@chialab/node-resolve';

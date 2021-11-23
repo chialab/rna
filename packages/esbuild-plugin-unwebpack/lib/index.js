@@ -14,11 +14,11 @@ export default function() {
     const plugin = {
         name: 'unwebpack',
         setup(build) {
-            const { sourcesContent } = build.initialOptions;
+            const { sourcesContent, sourcemap } = build.initialOptions;
             const { onTransform } = useRna(build);
 
             onTransform({ loaders: ['tsx', 'ts', 'jsx', 'js'] }, async (args) => {
-                const code = args.code.toString();
+                const code = args.code;
 
                 if (!code.includes('module.hot') &&
                     !code.includes('import.meta.webpackHot') &&
@@ -159,11 +159,11 @@ export default function() {
 
                 return {
                     code: magicCode.toString(),
-                    map: magicCode.generateMap({
+                    map: sourcemap ? magicCode.generateMap({
                         source: args.path,
                         includeContent: sourcesContent,
                         hires: true,
-                    }),
+                    }) : undefined,
                 };
             });
         },

@@ -10,7 +10,7 @@ import { createLogger } from '@chialab/rna-logger';
 export async function test(config, sauceOptions) {
     const { default: path } = await import('path');
     const { promises: { readFile } } = await import('fs');
-    const { default: pkgUp } = await import('pkg-up');
+    const { pkgUp } = await import('pkg-up');
     const { createSauceLabsLauncher } = await import('@web/test-runner-saucelabs');
     const { test: coreTest } = await import('@chialab/rna-browser-test-runner');
     const { mochaReporter } = await import('@chialab/wtr-mocha-reporter');

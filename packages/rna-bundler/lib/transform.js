@@ -63,9 +63,7 @@ export async function transform(config) {
                 .then(({ default: plugin }) => plugin()),
         !hasPlugin(plugins, 'commonjs') &&
             import('@chialab/esbuild-plugin-commonjs')
-                .then(({ default: plugin }) => plugin({
-                    helperModule: true,
-                })),
+                .then(({ default: plugin }) => plugin()),
         !hasPlugin(plugins, 'worker') &&
             import('@chialab/esbuild-plugin-worker')
                 .then(({ default: plugin }) => plugin({

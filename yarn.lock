@@ -985,21 +985,6 @@
   resolved "https://registry.npmjs.org/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz#75a2e8b51cb758a7553d6804a5932d7aace75c39"
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
-"@chialab/esbuild-helpers@^0.12.31":
-  version "0.12.31"
-  resolved "https://registry.npmjs.org/@chialab/esbuild-helpers/-/esbuild-helpers-0.12.31.tgz#ed9bf7ffbeac234e85c15b0a929253007eb181e1"
-  integrity sha512-eQ18J+v80o3azNMZAvRHFlMFi3GuMQz69ThJzCUPiRv0UTvrZK4l50YGJeMICgZZGDT7IHseLF855LP8Dh8VLQ==
-  dependencies:
-    esbuild "^0.13.0"
-
-"@chialab/esbuild-plugin-emit@^0.12.31":
-  version "0.12.31"
-  resolved "https://registry.npmjs.org/@chialab/esbuild-plugin-emit/-/esbuild-plugin-emit-0.12.31.tgz#c1140bcbc12ab5396bc72a4f417c5e22417069df"
-  integrity sha512-zT/1G0705x0FCFRTbkkFT0wmFZvZE2pPVpPehm3HfOo/4WIH6vVZiKqxN0kUQSrqLpgY+vJOYLLvmull9oJydQ==
-  dependencies:
-    "@chialab/esbuild-helpers" "^0.12.31"
-    "@chialab/node-resolve" "^0.12.26"
-
 "@chialab/eslint-config@^3.0.0":
   version "3.1.1"
   resolved "https://registry.npmjs.org/@chialab/eslint-config/-/eslint-config-3.1.1.tgz#20ed9f3e796d00a8fb455429c391fad74ce2dd7d"
@@ -1024,6 +1009,47 @@
   version "3.1.0"
   resolved "https://registry.npmjs.org/@chialab/eslint-plugin/-/eslint-plugin-3.1.0.tgz#df330b13eecedcd5af6bfea9aa0f62c751d8ce7f"
   integrity sha512-WWYVgGDpLRDppizhvjssfydFPH+uKKR39d4dEtkxQEhOgAkxkNNfpshLmBh5xPeug8iImccUizT9tXgAcsFEQQ==
+
+"@chialab/node-resolve@^0.12.26":
+  version "0.12.26"
+  resolved "https://registry.npmjs.org/@chialab/node-resolve/-/node-resolve-0.12.26.tgz#6e8eb0fe89b8759ceef47a2a534b11faf2574be7"
+  integrity sha512-cfm0G4zL6wyu+/IcakWkyY5n4LkMCwFK1lk9XTM6X2UdwQXcgzodRcb4g7qZZbKLwtvNTilYvcg3c8twMgRCzw==
+  dependencies:
+    enhanced-resolve "^5.8.2"
+    is-core-module "^2.5.0"
+
+"@chialab/rna-config-loader@^0.12.36":
+  version "0.12.36"
+  resolved "https://registry.npmjs.org/@chialab/rna-config-loader/-/rna-config-loader-0.12.36.tgz#eada8e5ab540e1fd679e6a4d5c3057756791c622"
+  integrity sha512-oOKqJl2daPA5seip2Fgd9fqAG5PR2tBleODV0QAtdXTp/4ZisWoxPU1YhWkZ3gkaspi8cc1VFTBxOQQlV/ODTw==
+  dependencies:
+    "@chialab/node-resolve" "^0.12.26"
+
+"@chialab/rna-logger@^0.12.2":
+  version "0.12.2"
+  resolved "https://registry.npmjs.org/@chialab/rna-logger/-/rna-logger-0.12.2.tgz#a08047ee9ab465797c467ada44f5cb667e08d656"
+  integrity sha512-rhhMdZZrgZymBSiZ4z4LWiyEGYpEebtI854IjmpSDdKDq9++s6s44MmwOeKgWlIiaPNCGT1allQytivk3EZRFg==
+  dependencies:
+    chalk "^4.1.1"
+    debug "^4.3.2"
+
+"@chialab/rna-node-test-runner@^0.12.26":
+  version "0.12.36"
+  resolved "https://registry.npmjs.org/@chialab/rna-node-test-runner/-/rna-node-test-runner-0.12.36.tgz#5cca971d1a4c422a346f34eeccb9a948451dfcf9"
+  integrity sha512-tbHWaetnNvYMntU4bzXcWrJbf+6Aa73Xv64UrF66lkSUSOeMBwwUdLki5O+R2kGJMhcfnMTmjcjUMuR0Yothwg==
+  dependencies:
+    "@chialab/rna-config-loader" "^0.12.36"
+    c8 "^7.7.2"
+    fast-glob "^3.2.5"
+    mocha "^8.4.0"
+
+"@chialab/rna@^0.12.2":
+  version "0.12.2"
+  resolved "https://registry.npmjs.org/@chialab/rna/-/rna-0.12.2.tgz#069e8fbcf851d076d0d97d93d72c1e29ed5a1355"
+  integrity sha512-RLb7OrqdyqTFdg0doe3N9yyOkeUcCpEz0UCXpQraAXBrEm2Z+g6F6t0A/SVktVDTfqdFWEOYlFjPOmNFABpijg==
+  dependencies:
+    "@chialab/rna-logger" "^0.12.2"
+    commander "^7.2.0"
 
 "@custom-elements-manifest/analyzer@0.5.3":
   version "0.5.3"
@@ -5184,10 +5210,10 @@ devtools-protocol@0.0.901419:
   resolved "https://registry.npmjs.org/devtools-protocol/-/devtools-protocol-0.0.901419.tgz#79b5459c48fe7e1c5563c02bd72f8fec3e0cebcd"
   integrity sha512-4INMPwNm9XRpBukhNbF7OB6fNTTCaI8pzy/fXg0xQzAy5h3zL1P8xT3QazgKqBrb/hAYwIBizqDBZ7GtJE74QQ==
 
-devtools-protocol@^0.0.940865:
-  version "0.0.940865"
-  resolved "https://registry.npmjs.org/devtools-protocol/-/devtools-protocol-0.0.940865.tgz#e6fd24c574a4ae63ecb8d33d8ca143dd0d925203"
-  integrity sha512-AXqHKZSkRYDcMnKpg9Xoqf0aIVFR7pcgkN3cW4xTT9PazaEAQXa3JKgeN6oYAqYN2flyk+xqGlU5sbmi98wj9Q==
+devtools-protocol@^0.0.943687:
+  version "0.0.943687"
+  resolved "https://registry.npmjs.org/devtools-protocol/-/devtools-protocol-0.0.943687.tgz#203b5e5f6c8aadecdf2118aef36ac262b21601de"
+  integrity sha512-vYsXYB+zxza24csySewtim2OgZbrynYPeH9El7AaLncI5sGSFFZixKYCgZA245uyq/ZjK5eJ2Jay2RvoKWr//Q==
 
 devtools@7.16.7:
   version "7.16.7"
@@ -5375,9 +5401,9 @@ ee-first@1.1.1:
   integrity sha1-WQxhFWsK4vTwJVcyoViyZrxWsh0=
 
 electron-to-chromium@^1.3.896:
-  version "1.3.904"
-  resolved "https://registry.npmjs.org/electron-to-chromium/-/electron-to-chromium-1.3.904.tgz#52a353994faeb0f2a9fab3606b4e0614d1af7b58"
-  integrity sha512-x5uZWXcVNYkTh4JubD7KSC1VMKz0vZwJUqVwY3ihsW0bst1BXDe494Uqbg3Y0fDGVjJqA8vEeGuvO5foyH2+qw==
+  version "1.3.906"
+  resolved "https://registry.npmjs.org/electron-to-chromium/-/electron-to-chromium-1.3.906.tgz#144e212691e35fa8c294431e2ecb51e4b03f7577"
+  integrity sha512-UjoECdcOYIVzWmrbtNnYpPrDuu+RtiO5W08Vdbid9ydGQMSdnqtJUtvOqQEAVQqpoXN9kSW9YnQufvzLQMYQOw==
 
 emoji-regex@^8.0.0:
   version "8.0.0"
@@ -11447,9 +11473,9 @@ socks-proxy-agent@^5.0.0:
     socks "^2.3.3"
 
 socks-proxy-agent@^6.0.0, socks-proxy-agent@^6.1.0:
-  version "6.1.0"
-  resolved "https://registry.npmjs.org/socks-proxy-agent/-/socks-proxy-agent-6.1.0.tgz#869cf2d7bd10fea96c7ad3111e81726855e285c3"
-  integrity sha512-57e7lwCN4Tzt3mXz25VxOErJKXlPfXmkMLnk310v/jwW20jWRVcgsOit+xNkN3eIEdB47GwnfAEBLacZ/wVIKg==
+  version "6.1.1"
+  resolved "https://registry.npmjs.org/socks-proxy-agent/-/socks-proxy-agent-6.1.1.tgz#e664e8f1aaf4e1fb3df945f09e3d94f911137f87"
+  integrity sha512-t8J0kG3csjA4g6FTbsMOWws+7R7vuRC8aQ/wy3/1OWmsgwA68zs/+cExQ0koSitUDXqhufF/YJr9wtNMZHw5Ew==
   dependencies:
     agent-base "^6.0.2"
     debug "^4.3.1"
@@ -12701,10 +12727,10 @@ web-namespaces@^1.0.0:
   resolved "https://registry.npmjs.org/web-namespaces/-/web-namespaces-1.1.4.tgz#bc98a3de60dadd7faefc403d1076d529f5e030ec"
   integrity sha512-wYxSGajtmoP4WxfejAPIr4l0fVh+jeMXZb08wNc0tMg6xsfZXj3cECqIK0G7ZAqUq0PP8WlMDtaOGVBTAWztNw==
 
-webdriver@7.16.7, webdriver@^7.0.3:
-  version "7.16.7"
-  resolved "https://registry.npmjs.org/webdriver/-/webdriver-7.16.7.tgz#512ce4a0cfe2f97650cd561492a9657a8fd2b04c"
-  integrity sha512-3CL4eKkyu6uok7HIal+7047x3lxHZYquFk37dDzWty6ZDqeDJCnARQzaR40xr7rGQtKpD/k+RcUYKwQCMZOERQ==
+webdriver@7.16.9, webdriver@^7.0.3:
+  version "7.16.9"
+  resolved "https://registry.npmjs.org/webdriver/-/webdriver-7.16.9.tgz#35b8c4b5ccefd698424e83091a3222d4b5217c61"
+  integrity sha512-6bpiyE3/1ncgyNM/RwzEWjpxu2NLYyeYNu/97OMEwFMDV8EqvlZh3wFnODi6tY0K5t4dEryIPiyjF3MDVySRAg==
   dependencies:
     "@types/node" "^16.11.1"
     "@wdio/config" "7.16.3"
@@ -12717,9 +12743,9 @@ webdriver@7.16.7, webdriver@^7.0.3:
     lodash.merge "^4.6.1"
 
 webdriverio@^7.0.3:
-  version "7.16.8"
-  resolved "https://registry.npmjs.org/webdriverio/-/webdriverio-7.16.8.tgz#82a41a8ceefaed8167f350afd6c83e41fec96af3"
-  integrity sha512-TNWibj3ZbUqIDgezI1Kvj5uExEiwCXI10NZxtjMozJKPatGwmIsJNXelJFAmMRa7sD9jqFGv1UzTQoyca2eGVg==
+  version "7.16.9"
+  resolved "https://registry.npmjs.org/webdriverio/-/webdriverio-7.16.9.tgz#c0460854ff533cfdfc61a9d2dcd52ae6c4fdaca6"
+  integrity sha512-FbHyYfuuM6bvnlUQA51ZBisriWCSgK+HkSnEqTBMKDoBACFwJmiIFykbYXqUE05DEfp04ErQu0Kt5d7N+cC1eA==
   dependencies:
     "@types/aria-query" "^5.0.0"
     "@types/node" "^16.11.1"
@@ -12731,11 +12757,10 @@ webdriverio@^7.0.3:
     "@wdio/utils" "7.16.3"
     archiver "^5.0.0"
     aria-query "^5.0.0"
-    atob "^2.1.2"
     css-shorthand-properties "^1.1.1"
     css-value "^0.0.1"
     devtools "7.16.7"
-    devtools-protocol "^0.0.940865"
+    devtools-protocol "^0.0.943687"
     fs-extra "^10.0.0"
     get-port "^5.1.1"
     grapheme-splitter "^1.0.2"
@@ -12749,7 +12774,7 @@ webdriverio@^7.0.3:
     resq "^1.9.1"
     rgb2hex "0.2.5"
     serialize-error "^8.0.0"
-    webdriver "7.16.7"
+    webdriver "7.16.9"
 
 webidl-conversions@^3.0.0:
   version "3.0.1"

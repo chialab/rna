@@ -91,6 +91,10 @@ export default function(options = {}) {
                     ...(options.plugins || []),
                 ].filter(Boolean));
 
+                if (!plugins.length) {
+                    return;
+                }
+
                 /**
                  * @type {import('postcss').ProcessOptions}
                  */

@@ -14,6 +14,23 @@ const fs = $$cjs_default$$(typeof $cjs$fs_promises !== 'undefined' ? $cjs$fs_pro
 fs.readFile('test.js');`);
     });
 
+    it('should export non named references as default', async () => {
+        const { code } = await transform('module.exports = function() {}', { helperModule: true });
+
+        expect(code).to.equal(`var global = globalThis;
+var exports = {};
+var module = {
+    get exports() {
+        return exports;
+    },
+    set exports(value) {
+        exports = value;
+    },
+};
+module.exports = function() {}
+export default module.exports;`);
+    });
+
     it('should ignore require statements in try catch statements', async () => {
         const { code } = await transform(`const path = require('path');
 try {

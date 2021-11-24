@@ -8,6 +8,7 @@ export const UMD_REGEXES = [
 export const UMD_GLOBALS = ['globalThis', 'global', 'self', 'window'];
 export const UMD_GLOBALS_REGEXES = UMD_GLOBALS.map((varName) => new RegExp(`\\btypeof\\s+(${varName})\\s*!==?\\s*['|"]undefined['|"]`));
 export const ESM_KEYWORDS = /((?:^\s*|;\s*)(\bimport\s*(\{.*?\}\s*from|\s[\w$]+\s+from|\*\s*as\s+[^\s]+\s+from)?\s*['"])|((?:^\s*|;\s*)export(\s+(default|const|var|let|function|class)[^\w$]|\s*\{)))/m;
+export const EXPORTS_KEYWORDS = /\b(module\.exports\b|exports\b)/;
 export const CJS_KEYWORDS = /\b(module\.exports\b|exports\b|require[.(])/;
 export const THIS_PARAM = /(}\s*\()this(,|\))/g;
 
@@ -334,6 +335,19 @@ if (${conditions.join(' && ')}) {
         reexports.forEach((reexport) => {
             magicCode.append(`\nexport * from '${reexport}';`);
         });
+    } else if (EXPORTS_KEYWORDS.test(code)) {
+        magicCode.prepend(`var global = globalThis;
+var exports = {};
+var module = {
+    get exports() {
+        return exports;
+    },
+    set exports(value) {
+        exports = value;
+    },
+};
+`);
+        magicCode.append('\nexport default module.exports;');
     }
 
     if (insertHelper) {

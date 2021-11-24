@@ -14,7 +14,14 @@ import { realpath } from 'fs/promises';
  * @param {string} url
  */
 export function isFileRequest(url) {
-    return ['file', 'chunk'].includes(getSearchParam(url, 'emit') || '') || getSearchParam(url, 'loader') === 'file';
+    return getSearchParam(url, 'emit') === 'file' || getSearchParam(url, 'loader') === 'file';
+}
+
+/**
+ * @param {string} url
+ */
+export function isChunkRequest(url) {
+    return getSearchParam(url, 'emit') === 'chunk';
 }
 
 /**
@@ -239,7 +246,8 @@ export function rnaPlugin(config) {
             if (isJs(context.path) ||
                 isJson(context.path) ||
                 isCssModuleRequest(context.url) ||
-                isFileRequest(context.url)) {
+                isFileRequest(context.url) ||
+                isChunkRequest(context.url)) {
                 return 'js';
             }
             if (isCss(context.path)) {

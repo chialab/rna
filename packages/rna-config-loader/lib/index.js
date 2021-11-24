@@ -129,7 +129,7 @@ export function camelize(file) {
  */
 export function getEntryConfig(entrypoint, config) {
     const root = entrypoint.root || config.root || process.cwd();
-    const publicPath = entrypoint.publicPath || config.publicPath || root;
+    const publicPath = entrypoint.publicPath || config.publicPath || '/';
     const format = entrypoint.format || config.format || 'esm';
     const target = entrypoint.target || config.target || (format === 'iife' ? 'es5' : 'es2020');
     const platform = entrypoint.platform || config.platform || (format === 'cjs' ? 'node' : 'browser');

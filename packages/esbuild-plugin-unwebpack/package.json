@@ -1,7 +1,7 @@
 {
   "name": "@chialab/esbuild-plugin-unwebpack",
   "type": "module",
-  "version": "0.13.2",
+  "version": "0.13.8",
   "description": "Remove webpack features from sources.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",
@@ -28,7 +28,7 @@
     "node": ">=13"
   },
   "dependencies": {
-    "@chialab/esbuild-rna": "^0.13.2",
+    "@chialab/esbuild-rna": "^0.13.8",
     "@chialab/estransform": "^0.13.2",
     "@chialab/node-resolve": "^0.13.2"
   },

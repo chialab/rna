@@ -29,6 +29,7 @@
     "node": ">=13"
   },
   "dependencies": {
+    "@chialab/esbuild-plugin-html": "^0.13.0",
     "@chialab/esbuild-plugin-virtual": "^0.13.2",
     "@chialab/esbuild-rna": "^0.13.2",
     "@chialab/estransform": "^0.13.2",

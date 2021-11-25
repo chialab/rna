@@ -574,6 +574,26 @@ export function useRna(build) {
 
     if (!state.initialized) {
         state.initialized = true;
+
+        build.onStart(() => {
+            const entryPoints = build.initialOptions.entryPoints;
+            if (!entryPoints) {
+                return;
+            }
+
+            if (Array.isArray(entryPoints)) {
+                entryPoints.forEach((entryPoint) => {
+                    entryPoint = path.resolve(workingDir, entryPoint);
+                    rnaBuild.collectDependencies(entryPoint, [entryPoint]);
+                });
+            } else {
+                for (let [, entryPoint] of Object.entries(entryPoints)) {
+                    entryPoint = path.resolve(workingDir, entryPoint);
+                    rnaBuild.collectDependencies(entryPoint, [entryPoint]);
+                }
+            }
+        });
+
         build.onEnd(async (buildResult) => {
             const loaders = { ...DEFAULT_LOADERS, ...(build.initialOptions.loader || {}) };
             const rnaResult = /** @type {Result} */ (buildResult);

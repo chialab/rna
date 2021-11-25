@@ -134,6 +134,10 @@ export async function createConfig(entrypoint, serverConfig, config) {
                         proxy: true,
                         emit: false,
                     })),
+                import('@chialab/esbuild-plugin-meta-url')
+                    .then(({ default: plugin }) => plugin({
+                        emit: false,
+                    })),
             ]),
             ...(config.plugins || []),
         ],

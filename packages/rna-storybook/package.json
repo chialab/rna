@@ -1,7 +1,7 @@
 {
   "name": "@chialab/rna-storybook",
   "type": "module",
-  "version": "0.13.9",
+  "version": "0.13.11",
   "description": "A Storybook integration with the RNA bundler and server.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",
@@ -29,13 +29,13 @@
     "node": ">=13"
   },
   "dependencies": {
-    "@chialab/esbuild-plugin-html": "^0.13.8",
-    "@chialab/esbuild-plugin-virtual": "^0.13.8",
-    "@chialab/esbuild-rna": "^0.13.8",
+    "@chialab/esbuild-plugin-html": "^0.13.11",
+    "@chialab/esbuild-plugin-virtual": "^0.13.11",
+    "@chialab/esbuild-rna": "^0.13.11",
     "@chialab/estransform": "^0.13.2",
-    "@chialab/node-resolve": "^0.13.2",
-    "@chialab/wds-plugin-node-resolve": "^0.13.2",
-    "@chialab/wds-plugin-rna": "^0.13.9",
+    "@chialab/node-resolve": "^0.13.11",
+    "@chialab/wds-plugin-node-resolve": "^0.13.11",
+    "@chialab/wds-plugin-rna": "^0.13.11",
     "@custom-elements-manifest/analyzer": "0.5.3",
     "@storybook/csf-tools": "^6.4.0-beta.0",
     "@storybook/store": "^6.4.0-beta.0",

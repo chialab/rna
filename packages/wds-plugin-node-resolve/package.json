@@ -1,7 +1,7 @@
 {
   "name": "@chialab/wds-plugin-node-resolve",
   "type": "module",
-  "version": "0.13.2",
+  "version": "0.13.11",
   "description": "A plugin the Web Dev Server for node resolutions.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",
@@ -29,7 +29,7 @@
   },
   "dependencies": {
     "@chialab/estransform": "^0.13.2",
-    "@chialab/node-resolve": "^0.13.2",
+    "@chialab/node-resolve": "^0.13.11",
     "@web/dev-server-core": "^0.3.8"
   },
   "devDependencies": {

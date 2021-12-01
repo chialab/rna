@@ -1,7 +1,7 @@
 {
   "name": "@chialab/esbuild-plugin-css-import",
   "type": "module",
-  "version": "0.13.8",
+  "version": "0.13.11",
   "description": "Resolve CSS imports using the node resolution algorithm and the style field in package.json.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",
@@ -28,8 +28,8 @@
     "node": ">=13"
   },
   "dependencies": {
-    "@chialab/esbuild-rna": "^0.13.8",
-    "@chialab/node-resolve": "^0.13.2"
+    "@chialab/esbuild-rna": "^0.13.11",
+    "@chialab/node-resolve": "^0.13.11"
   },
   "devDependencies": {
     "typescript": "^4.3.0"

@@ -14,6 +14,7 @@ import './fixMdxParser.js';
 /**
  * @typedef {Object} StorybookConfig
  * @property {string} framework
+ * @property {string} manager
  * @property {string[]} stories
  * @property {{ [key: string]: string }} [static]
  * @property {string[]} [managerEntries]
@@ -22,7 +23,6 @@ import './fixMdxParser.js';
  * @property {string} [previewHead]
  * @property {string} [previewBody]
  * @property {import('@storybook/addons').StorySortParameterV7} [storySort]
- * @property {StorybookBuild} [build]
  */
 
 export * from './findStories.js';

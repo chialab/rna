@@ -1,8 +1,7 @@
 import path from 'path';
 import { readFile } from 'fs/promises';
 import { getRequestFilePath } from '@web/dev-server-core';
-import { browserResolve, isCss, isJson, isUrl, appendSearchParam } from '@chialab/node-resolve';
-import { resolveImport } from '@chialab/wds-plugin-node-resolve';
+import { isCss, isJson, isUrl, appendSearchParam } from '@chialab/node-resolve';
 import { appendCssModuleParam, appendJsonModuleParam } from '@chialab/wds-plugin-rna';
 import { indexHtml, iframeHtml, managerCss, previewCss } from './templates.js';
 import { findStories } from './findStories.js';
@@ -40,12 +39,12 @@ export function servePlugin(config) {
         framework,
         stories: storiesPattern,
         static: staticFiles = {},
+        manager = '@storybook/core-client/dist/esm/manager/index.js',
         managerEntries = [],
         previewEntries = [],
         managerHead,
         previewHead,
         previewBody,
-        build,
     } = config;
 
     /**
@@ -122,36 +121,9 @@ export function servePlugin(config) {
             }
         },
 
-        async resolveImport({ source, context, code, line, column }) {
-            const { rootDir } = serverConfig;
-            const filePath = getRequestFilePath(context.url, rootDir);
-
+        async resolveImport({ source }) {
             if (source === `/${PREVIEW_MODULE_SCRIPT}`) {
                 return source;
-            }
-
-            if (!build) {
-                if (source.includes('@storybook/') ||
-                    (source.startsWith('.') && filePath.includes('/@storybook/'))
-                ) {
-                    const url = (await browserResolve(source, filePath))
-                        .replace('/dist/esm/', '/dist/cjs/');
-                    return await resolveImport(url, filePath, rootDir);
-                }
-
-                return;
-            } else {
-                const { modules = {}, resolutions = [] } = build;
-
-                if (source in modules) {
-                    const url = await browserResolve(modules[source], filePath);
-                    return await resolveImport(url, filePath, rootDir);
-                }
-
-                if (resolutions.includes(source)) {
-                    const url = await browserResolve(source, filePath);
-                    return await resolveImport(url, filePath, rootDir, { code, line, column });
-                }
             }
         },
 
@@ -209,7 +181,7 @@ export function servePlugin(config) {
 
             if (context.path.startsWith(`/${MANAGER_SCRIPT}`)) {
                 return createManagerScript({
-                    manager: build ? build.manager : '@storybook/core-client/dist/esm/manager/index.js',
+                    manager,
                     managerEntries,
                 });
             }

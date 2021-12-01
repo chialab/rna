@@ -1,8 +1,6 @@
 import path from 'path';
 import { mkdir, readFile, writeFile } from 'fs/promises';
-import { resolve } from '@chialab/node-resolve';
 import { useRna } from '@chialab/esbuild-rna';
-import { createAliasPlugin } from '@chialab/esbuild-plugin-alias';
 import { createVirtualPlugin } from '@chialab/esbuild-plugin-virtual';
 import htmlPlugin from '@chialab/esbuild-plugin-html';
 import { indexHtml, iframeHtml, managerCss, previewCss } from './templates.js';
@@ -36,18 +34,13 @@ export function buildPlugin(config) {
         framework,
         stories: storyPatterns = [],
         static: staticFiles = {},
+        manager = '@storybook/core-client/dist/esm/manager/index.js',
         managerEntries = [],
         previewEntries = [],
         managerHead,
         previewHead,
         previewBody,
-        build: storybookBuild,
     } = config;
-
-    /**
-     * @type {import('esbuild').Plugin}
-     */
-    let aliasPlugin;
 
     /**
      * @type {import('esbuild').Plugin}
@@ -68,14 +61,6 @@ export function buildPlugin(config) {
             const stories = await findStories(rootDir, storyPatterns);
             const storyIndexEntries = await createStorySpecifiers(stories, rootDir);
             const outDir = realOutDir || rootDir;
-
-            aliasPlugin = aliasPlugin || createAliasPlugin()({
-                ...(storybookBuild && storybookBuild.modules || {}),
-                ...((storybookBuild && storybookBuild.resolutions || []).reduce((acc, resolution) => ({
-                    ...acc,
-                    [resolution]: () => resolve(resolution, rootDir),
-                }), {})),
-            });
 
             virtualPlugin = virtualPlugin || createVirtualPlugin()([
                 ...await Promise.all(
@@ -126,7 +111,7 @@ export function buildPlugin(config) {
                 {
                     path: MANAGER_SCRIPT,
                     contents: createManagerScript({
-                        manager: storybookBuild ? storybookBuild.manager : '@storybook/core-client/dist/esm/manager/index.js',
+                        manager,
                         managerEntries,
                     }),
                 },
@@ -141,7 +126,6 @@ export function buildPlugin(config) {
             ]);
 
             await setupPlugin(plugin, [
-                aliasPlugin,
                 virtualPlugin,
                 mdxPlugin(),
                 htmlPlugin(),

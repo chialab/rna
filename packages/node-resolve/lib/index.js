@@ -14,6 +14,7 @@ export { glob, pkgUp };
  * @property {string[]} [aliasFields]
  * @property {string[]} [conditionNames]
  * @property {boolean} [symlinks]
+ * @property {boolean} [preferRelative]
  */
 
 /**
@@ -134,6 +135,13 @@ export function isHtml(filePath) {
  * Generic node resolver.
  */
 export const resolve = createResolver();
+
+/**
+ * Resolve assets references.
+ */
+export const assetResolve = createResolver({
+    preferRelative: true,
+});
 
 /**
  * A style specific resolver.

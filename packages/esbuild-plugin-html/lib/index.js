@@ -1,6 +1,7 @@
 import path from 'path';
 import * as cheerio from 'cheerio';
 import beautify from 'js-beautify';
+import { assetResolve } from '@chialab/node-resolve';
 import { useRna } from '@chialab/esbuild-rna';
 
 /**
@@ -103,7 +104,7 @@ export default function({
                     resolveDir: rootDir,
                     pluginData: null,
                     namespace: 'file',
-                });
+                }, assetResolve);
 
                 /**
                  * @param {string} path

@@ -179,9 +179,10 @@ export function useRna(build) {
         /**
          * Iterate build.onResult hooks in order to programmatically resolve an import.
          * @param {OnResolveArgs} args The resolve arguments.
+         * @param {import('@chialab/node-resolve').Resolver} [resolver] The fallback resolver.
          * @return {Promise<OnResolveResult>} A resolve result.
          */
-        async resolve(args) {
+        async resolve(args, resolver) {
             const { namespace = 'file', path } = args;
             for (const { options, callback } of state.resolve) {
                 const { namespace: optionsNamespace = 'file', filter } = options;
@@ -199,9 +200,9 @@ export function useRna(build) {
                 }
             }
 
-            const result = build.initialOptions.platform === 'browser' ?
-                await browserResolve(args.path, args.importer) :
-                await nodeResolve(args.path, args.importer);
+            resolver = resolver || (build.initialOptions.platform === 'browser' ? browserResolve : nodeResolve);
+
+            const result = await resolver(args.path, args.importer);
 
             return {
                 ...args,

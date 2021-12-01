@@ -16,7 +16,14 @@ export const REQUIRE_FUNCTION = '$$cjs_default$$';
 
 export const HELPER_MODULE = '$$cjs_helper$$.js';
 
+export const GLOBAL_HELPER = `((typeof window !== 'undefined' && window) ||
+(typeof self !== 'undefined' && self) ||
+(typeof global !== 'undefined' && global) ||
+(typeof globalThis !== 'undefined' && globalThis) ||
+{})`;
+
 export const REQUIRE_HELPER = `function ${REQUIRE_FUNCTION}(requiredModule) {
+    var Object = ${GLOBAL_HELPER}.Object;
     var isEsModule = false;
     var specifiers = Object.create(null);
     var hasNamedExports = false;
@@ -274,13 +281,8 @@ export async function transform(code, { sourcemap = true, source, sourcesContent
             endDefinition = code.length;
         }
 
-        magicCode.prepend(`var __umdGlobal = (
-    (typeof window !== 'undefined' && window) ||
-    (typeof self !== 'undefined' && self) ||
-    (typeof global !== 'undefined' && global) ||
-    (typeof globalThis !== 'undefined' && globalThis) ||
-    {}
-);
+        magicCode.prepend(`var __umdGlobal = ${GLOBAL_HELPER};
+__umdGlobal.__umdKeys = [];
 var __umdKeys = Object.keys(__umdGlobal);
 (function(window, global, globalThis, self, module, exports) {
 `);
@@ -288,6 +290,23 @@ var __umdKeys = Object.keys(__umdGlobal);
 }).call(__umdGlobal, __umdGlobal, __umdGlobal, __umdGlobal, __umdGlobal, undefined, undefined);
 
 var __newUmdKeys = Object.keys(__umdGlobal).slice(__umdKeys.length);
+var __umdContext = {};
+for (var i = 0, len = __newUmdKeys.length; i < len; i++) {
+    var k = __newUmdKeys[i];
+    __umdContext[k] = __umdGlobal[k];
+    Object.defineProperty(__umdGlobal, k, {
+        configurable: true,
+        get() {
+            return __umdContext[k];
+        },
+        set(val) {
+            __umdGlobal.__umdKeys.push(k);
+            __umdContext[k] = val;
+        }
+    });
+}
+__newUmdKeys = __umdGlobal.__umdKeys.concat(__newUmdKeys);
+delete __umdGlobal.__umdKeys;
 export default (__newUmdKeys.length ? __umdGlobal[__newUmdKeys[0]] : undefined);`);
 
         // replace the usage of `this` as global object because is not supported in esm
@@ -311,10 +330,10 @@ var module = {
 
         if (named.length) {
             const conditions = ['Object.isExtensible(module.exports)'];
-            if (named.length === 1 && !hasDefault && !isEsModule) {
+            if (!hasDefault && !isEsModule) {
                 // add an extra conditions for some edge cases not handled by the cjs lexer
                 // such as an object exports that has a function as first member.
-                conditions.push(`typeof module.exports['${named[0]}'] !== 'function'`);
+                conditions.push(`Object.keys(module.exports).length === ${named.length}`);
             }
 
             magicCode.append(`\nvar ${named.map((name, index) => `__export${index}`).join(', ')};

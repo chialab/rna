@@ -70,7 +70,7 @@ module.exports = {
   }
 };
 var __export0;
-if (Object.isExtensible(module.exports) && typeof module.exports["method"] !== "function") {
+if (Object.isExtensible(module.exports) && Object.keys(module.exports).length === 1) {
   __export0 = module.exports["method"];
 }
 var test_spec_default = module.exports;
@@ -110,17 +110,18 @@ import * as $cjs$fs from "fs";
 
 // commonjs-helper:./$$cjs_helper$$.js
 function $$cjs_default$$(requiredModule) {
+  var Object2 = (typeof window !== "undefined" && window || typeof self !== "undefined" && self || typeof global !== "undefined" && global || typeof globalThis !== "undefined" && globalThis || {}).Object;
   var isEsModule = false;
-  var specifiers = Object.create(null);
+  var specifiers = Object2.create(null);
   var hasNamedExports = false;
   var hasDefaultExport = false;
-  Object.defineProperty(specifiers, "__esModule", {
+  Object2.defineProperty(specifiers, "__esModule", {
     value: true,
     enumerable: false,
     configurable: true
   });
   if (requiredModule) {
-    var names = Object.getOwnPropertyNames(requiredModule);
+    var names = Object2.getOwnPropertyNames(requiredModule);
     ;
     names.forEach(function(k) {
       if (k === "default") {
@@ -131,7 +132,7 @@ function $$cjs_default$$(requiredModule) {
         } catch (err) {
         }
       }
-      Object.defineProperty(specifiers, k, {
+      Object2.defineProperty(specifiers, k, {
         get: function() {
           return requiredModule[k];
         },
@@ -139,10 +140,10 @@ function $$cjs_default$$(requiredModule) {
         configurable: false
       });
     });
-    if (Object.getOwnPropertySymbols) {
-      var symbols = Object.getOwnPropertySymbols(requiredModule);
+    if (Object2.getOwnPropertySymbols) {
+      var symbols = Object2.getOwnPropertySymbols(requiredModule);
       symbols.forEach(function(k) {
-        Object.defineProperty(specifiers, k, {
+        Object2.defineProperty(specifiers, k, {
           get: function() {
             return requiredModule[k];
           },
@@ -151,18 +152,18 @@ function $$cjs_default$$(requiredModule) {
         });
       });
     }
-    Object.preventExtensions(specifiers);
-    Object.seal(specifiers);
-    if (Object.freeze) {
-      Object.freeze(specifiers);
+    Object2.preventExtensions(specifiers);
+    Object2.seal(specifiers);
+    if (Object2.freeze) {
+      Object2.freeze(specifiers);
     }
   }
   if (hasNamedExports) {
     return specifiers;
   }
   if (hasDefaultExport) {
-    if (Object.isExtensible(specifiers.default) && !("default" in specifiers.default)) {
-      Object.defineProperty(specifiers.default, "default", {
+    if (Object2.isExtensible(specifiers.default) && !("default" in specifiers.default)) {
+      Object2.defineProperty(specifiers.default, "default", {
         value: specifiers.default,
         configurable: false,
         enumerable: false
@@ -189,7 +190,7 @@ module.exports = {
   }
 };
 var __export0;
-if (Object.isExtensible(module.exports) && typeof module.exports["method"] !== "function") {
+if (Object.isExtensible(module.exports) && Object.keys(module.exports).length === 1) {
   __export0 = module.exports["method"];
 }
 var test_spec_default = module.exports;

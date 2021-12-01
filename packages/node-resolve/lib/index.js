@@ -31,7 +31,6 @@ export { glob, pkgUp };
 export function createResolver(options = {}) {
     const resolver = nodeResolve.create({
         symlinks: false,
-        preferRelative: true,
         ...options,
     });
 

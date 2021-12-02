@@ -13,7 +13,6 @@ export const CJS_KEYWORDS = /\b(module\.exports\b|exports\b|require[.(])/;
 export const THIS_PARAM = /(}\s*\()this(,|\))/g;
 
 export const REQUIRE_FUNCTION = '$$cjs_default$$';
-
 export const HELPER_MODULE = '$$cjs_helper$$.js';
 
 export const GLOBAL_HELPER = `((typeof window !== 'undefined' && window) ||
@@ -282,7 +281,6 @@ export async function transform(code, { sourcemap = true, source, sourcesContent
         }
 
         magicCode.prepend(`var __umdGlobal = ${GLOBAL_HELPER};
-__umdGlobal.__umdKeys = [];
 var __umdKeys = Object.keys(__umdGlobal);
 (function(window, global, globalThis, self, module, exports) {
 `);
@@ -290,24 +288,24 @@ var __umdKeys = Object.keys(__umdGlobal);
 }).call(__umdGlobal, __umdGlobal, __umdGlobal, __umdGlobal, __umdGlobal, undefined, undefined);
 
 var __newUmdKeys = Object.keys(__umdGlobal).slice(__umdKeys.length);
-var __umdContext = {};
-for (var i = 0, len = __newUmdKeys.length; i < len; i++) {
-    var k = __newUmdKeys[i];
-    __umdContext[k] = __umdGlobal[k];
-    Object.defineProperty(__umdGlobal, k, {
+var __umdMainKey = __newUmdKeys[0];
+if (__umdMainKey) {
+    var __umdModule = __umdGlobal[__umdMainKey];
+    Object.defineProperty(__umdGlobal, __umdMainKey, {
         configurable: true,
         get() {
-            return __umdContext[k];
+            return __umdModule;
         },
         set(val) {
-            __umdGlobal.__umdKeys.push(k);
-            __umdContext[k] = val;
+            __umdGlobal.__umdMainKey = __umdMainKey;
+            __umdModule = val;
         }
     });
 }
-__newUmdKeys = __umdGlobal.__umdKeys.concat(__newUmdKeys);
-delete __umdGlobal.__umdKeys;
-export default (__newUmdKeys.length ? __umdGlobal[__newUmdKeys[0]] : undefined);`);
+
+__umdMainKey = __umdMainKey || __umdGlobal.__umdMainKey;
+delete __umdGlobal.__umdMainKey;
+export default (__umdMainKey ? __umdGlobal[__umdMainKey] : undefined);`);
 
         // replace the usage of `this` as global object because is not supported in esm
         let thisMatch = THIS_PARAM.exec(code);

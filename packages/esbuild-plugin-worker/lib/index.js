@@ -1,5 +1,5 @@
 import path from 'path';
-import { MagicString, generate, walk, parse, getSpanLocation } from '@chialab/estransform';
+import { MagicString, walk, parse, getSpanLocation } from '@chialab/estransform';
 import metaUrlPlugin, { getMetaUrl } from '@chialab/esbuild-plugin-meta-url';
 import { useRna } from '@chialab/esbuild-rna';
 
@@ -129,8 +129,9 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                             const value = firstArg.type === 'StringLiteral' ? firstArg.value : getMetaUrl(firstArg, ast);
                             if (typeof value !== 'string') {
                                 if (proxy) {
+                                    const firstArgLoc = getSpanLocation(ast, firstArg);
+                                    const arg = code.substring(firstArgLoc.start, firstArgLoc.end);
                                     magicCode = magicCode || new MagicString(code);
-                                    const arg = await generate(firstArg);
                                     magicCode.overwrite(loc.start, loc.end, `new ${Ctr}(${createBlobProxy(arg, transformOptions)})`);
                                 }
                                 return;

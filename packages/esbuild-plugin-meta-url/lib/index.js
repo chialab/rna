@@ -1,6 +1,6 @@
 import path from 'path';
 import { isUrl, hasSearchParam } from '@chialab/node-resolve';
-import { MagicString, getSpanLocation, parse, walk } from '@chialab/estransform';
+import { MagicString, parse, walk, getBlock, TokenType } from '@chialab/estransform';
 import { useRna } from '@chialab/esbuild-rna';
 
 /**
@@ -9,10 +9,10 @@ import { useRna } from '@chialab/esbuild-rna';
  * is not a literal anymore but an identifier.
  * Here, we are looking for its computed value.
  * @param {string} id The name of the identifier.
- * @param {import('@chialab/estransform').Program} program The ast program.
- * @return {import('@chialab/estransform').StringLiteral|undefined} The init ast node.
+ * @param {import('@chialab/estransform').TokenProcessor} processor The program processor.
+ * @return {import('@chialab/estransform').Token|undefined} The init token.
  */
-export function findIdentifierValue(id, program) {
+export function findIdentifierValue(id, processor) {
     const declarations = /** @type {import('@swc/core').VariableDeclaration[]} */ (program.body
         .filter(
             /**
@@ -53,13 +53,23 @@ export function findIdentifierValue(id, program) {
 }
 
 /**
- * @param {import('@chialab/estransform').NewExpression|import('@chialab/estransform').MemberExpression} node The ast node.
- * @param {import('@chialab/estransform').Program} ast The ast program.
+ * @param {import('@chialab/estransform').TokenProcessor} processor Token processor.
  * @return The path value.
  */
-export function getMetaUrl(node, ast) {
-    const callExp = /** @type {import('@chialab/estransform').CallExpression} */ (node.type === 'MemberExpression' ? node.object : node);
-    if (callExp.type !== 'CallExpression' && !callExp.callee || callExp.callee.type !== 'Identifier' || callExp.callee.value !== 'URL') {
+export function getMetaUrl(processor) {
+    let fnToken;
+    if (processor.matches4(TokenType._new, TokenType.name, TokenType.name, TokenType.parenL)) {
+        fnToken = processor.tokenAtRelativeIndex(2);
+        processor.nextToken();
+        processor.nextToken();
+        processor.nextToken();
+    } else if (processor.matches3(TokenType._new, TokenType.name, TokenType.parenL)) {
+        fnToken = processor.tokenAtRelativeIndex(1);
+        processor.nextToken();
+        processor.nextToken();
+    }
+
+    if (!fnToken || processor.identifierNameForToken(fnToken) !== 'URL') {
         return;
     }
 
@@ -135,50 +145,47 @@ export default function({ emit = true } = {}) {
                  */
                 const promises = [];
 
-                const ast = await parse(code);
-                walk(ast, {
-                    /**
-                     * @param {import('@chialab/estransform').NewExpression} node
-                     */
-                    NewExpression(node) {
-                        const value = getMetaUrl(node, ast);
-                        if (typeof value !== 'string' || isUrl(value)) {
+                const { processor } = await parse(code);
+                walk(processor, () => {
+                    const value = getMetaUrl(processor);
+                    if (typeof value !== 'string' || isUrl(value)) {
+                        return;
+                    }
+
+                    const tokens = getBlock(processor, TokenType.parenL, TokenType.parenR);
+                    const startToken = tokens[0];
+                    const endToken = tokens[tokens.length - 1];
+
+                    if (hasSearchParam(value, 'emit')) {
+                        // already emitted
+                        magicCode = magicCode || new MagicString(code);
+                        magicCode.overwrite(startToken.start, endToken.end, `new URL('${value}', ${baseUrl})`);
+                        return;
+                    }
+
+                    promises.push(Promise.resolve().then(async () => {
+                        const { path: resolvedPath } = await resolve({
+                            kind: 'dynamic-import',
+                            path: value.split('?')[0],
+                            importer: args.path,
+                            namespace: 'file',
+                            resolveDir: rootDir,
+                            pluginData: null,
+                        });
+
+                        if (!resolvedPath) {
                             return;
                         }
 
-                        if (hasSearchParam(value, 'emit')) {
-                            // already emitted
-                            const loc = getSpanLocation(ast, node);
-                            magicCode = magicCode || new MagicString(code);
-                            magicCode.overwrite(loc.start, loc.end, `new URL('${value}', ${baseUrl})`);
-                            return;
-                        }
+                        magicCode = magicCode || new MagicString(code);
 
-                        promises.push(Promise.resolve().then(async () => {
-                            const { path: resolvedPath } = await resolve({
-                                kind: 'dynamic-import',
-                                path: value.split('?')[0],
-                                importer: args.path,
-                                namespace: 'file',
-                                resolveDir: rootDir,
-                                pluginData: null,
-                            });
+                        const entryLoader = buildLoaders[path.extname(resolvedPath)] || 'file';
+                        const entryPoint = emit ?
+                            (entryLoader !== 'file' ? await emitChunk({ entryPoint: resolvedPath }) : await emitFile(resolvedPath)).path :
+                            `./${path.relative(path.dirname(args.path), resolvedPath)}`;
 
-                            if (!resolvedPath) {
-                                return;
-                            }
-
-                            const loc = getSpanLocation(ast, node);
-                            magicCode = magicCode || new MagicString(code);
-
-                            const entryLoader = buildLoaders[path.extname(resolvedPath)] || 'file';
-                            const entryPoint = emit ?
-                                (entryLoader !== 'file' ? await emitChunk({ entryPoint: resolvedPath }) : await emitFile(resolvedPath)).path :
-                                `./${path.relative(path.dirname(args.path), resolvedPath)}`;
-
-                            magicCode.overwrite(loc.start, loc.end, `new URL('${entryPoint}', ${baseUrl})`);
-                        }));
-                    },
+                        magicCode.overwrite(startToken.start, endToken.end, `new URL('${entryPoint}', ${baseUrl})`);
+                    }));
                 });
 
                 await Promise.all(promises);

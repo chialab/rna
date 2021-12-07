@@ -1,4 +1,4 @@
-import { MagicString, parse, walk, parseCommonjs, parseEsm, getSpanLocation, createEmptySourcemapComment } from '@chialab/estransform';
+import { MagicString, TokenType, parse, walk, getBlock, parseCommonjs, parseEsm, createEmptySourcemapComment } from '@chialab/estransform';
 
 export const REQUIRE_REGEX = /([^.\w$]|^)require\s*\((['"])(.*?)\2\)/g;
 export const UMD_REGEXES = [
@@ -147,13 +147,15 @@ export async function maybeMixedModule(code) {
 
 /**
  * Check if an expression is a require call.
- * @param {import('@chialab/estransform').CallExpression} node
+ * @param {import('@chialab/estransform').TokenProcessor} processor
  */
-function isRequireCallExpression(node) {
-    return node.type === 'CallExpression' &&
-        node.callee &&
-        node.callee.type === 'Identifier' &&
-        node.callee.value === 'require';
+function isRequireCallExpression(processor) {
+    if (!processor.matches2(TokenType.name, TokenType.parenL)) {
+        return;
+    }
+
+    const name = processor.stringValueAtIndex(processor.currentIndex());
+    return name === 'require';
 }
 
 /**
@@ -187,83 +189,69 @@ export async function transform(code, { sourcemap = true, source, sourcesContent
     let insertHelper = false;
     if (!isUmd) {
         /**
-         * @type {Promise<any>}
-         */
-        let specPromise = Promise.resolve();
-
-        /**
          * @type {*[]}
          */
         const ignoredExpressions = [];
-        const ast = await parse(code);
+
+        const { processor } = await parse(code);
 
         if (ignoreTryCatch) {
-            walk(ast, {
-                /**
-                 * @param {import('@chialab/estransform').TryStatement} node
-                 */
-                TryStatement(node) {
-                    walk(node, {
-                        /**
-                         * @param {import('@chialab/estransform').CallExpression} node
-                         */
-                        CallExpression(node) {
-                            if (isRequireCallExpression(node)) {
-                                ignoredExpressions.push(node);
-                            }
-                        },
-                    });
-                },
+            let openBlocks = 0;
+            walk(processor, (token) => {
+                if (token.type === TokenType._try) {
+                    openBlocks++;
+                    return;
+                }
+
+                if (token.type === TokenType._catch) {
+                    openBlocks--;
+                    return;
+                }
+
+                if (openBlocks && isRequireCallExpression(processor)) {
+                    ignoredExpressions.push(processor.currentIndex());
+                }
             });
         }
 
-        walk(ast, {
-            /**
-             * @param {import('@chialab/estransform').CallExpression} node
-             */
-            CallExpression(node) {
-                if (!isRequireCallExpression(node) || ignoredExpressions.includes(node)) {
-                    return;
+        walk(processor, (token, index) => {
+            if (!isRequireCallExpression(processor) || ignoredExpressions.includes(index)) {
+                return;
+            }
+
+            if (!processor.matches4(TokenType.name, TokenType.parenL, TokenType.string, TokenType.parenR)) {
+                return;
+            }
+
+            const specifier = processor.stringValueAtIndex(index + 2);
+
+            return (async () => {
+                let spec = specs.get(specifier);
+                if (!spec) {
+                    let id = `$cjs$${specifier.replace(/[^\w_$]+/g, '_')}`;
+                    const count = (ns.get(id) || 0) + 1;
+                    ns.set(id, count);
+                    if (count > 1) {
+                        id += count;
+                    }
+
+                    if (await ignore(specifier)) {
+                        return;
+                    }
+
+                    spec = { id, specifier };
+                    specs.set(specifier, spec);
                 }
 
-                if (node.arguments.length !== 1) {
-                    return;
-                }
+                insertHelper = true;
 
-                const firstArg = node.arguments[0].expression;
-                if (firstArg.type !== 'StringLiteral') {
-                    return;
-                }
-
-                specPromise = specPromise
-                    .then(async () => {
-                        const specifier = firstArg.value;
-                        let spec = specs.get(specifier);
-                        if (!spec) {
-                            let id = `$cjs$${specifier.replace(/[^\w_$]+/g, '_')}`;
-                            const count = (ns.get(id) || 0) + 1;
-                            ns.set(id, count);
-                            if (count > 1) {
-                                id += count;
-                            }
-
-                            if (await ignore(specifier)) {
-                                return;
-                            }
-
-                            spec = { id, specifier };
-                            specs.set(specifier, spec);
-                        }
-
-                        insertHelper = true;
-
-                        const loc = getSpanLocation(ast, node);
-                        magicCode.overwrite(loc.start, loc.end, `${REQUIRE_FUNCTION}(typeof ${spec.id} !== 'undefined' ? ${spec.id} : {})`);
-                    });
-            },
+                processor.replaceToken(REQUIRE_FUNCTION);
+                processor.nextToken();
+                processor.nextToken();
+                processor.replaceToken(`typeof ${spec.id} !== 'undefined' ? ${spec.id} : {}`);
+                processor.nextToken();
+            })();
         });
-
-        await specPromise;
     }
 
     const { exports, reexports } = await parseCommonjs(code);
@@ -400,29 +388,24 @@ export async function wrapDynamicRequire(code, { sourcemap = true, source, sourc
      */
     let magicCode;
 
-    const ast = await parse(code);
-    walk(ast, {
-        /**
-         * @param {import('@chialab/estransform').IfStatement} node
-         */
-        IfStatement(node) {
-            if (node.test.type !== 'BinaryExpression' ||
-                node.test.left.type !== 'UnaryExpression' ||
-                node.test.left.operator !== 'typeof' ||
-                node.test.left.argument.type !== 'Identifier' ||
-                node.test.left.argument.value !== 'require' ||
-                !node.test.operator.startsWith('==') ||
-                node.test.right.type !== 'StringLiteral' ||
-                node.test.right.value !== 'function') {
-                return;
-            }
+    const { processor } = await parse(code);
+    walk(processor, (token, index) => {
+        if (!processor.matches5(TokenType._if, TokenType.parenL, TokenType._typeof, TokenType.name, TokenType.eq)) {
+            return;
+        }
 
-            magicCode = magicCode || new MagicString(code);
+        const identifier = processor.identifierNameAtIndex(index + 3);
+        if (identifier !== 'require') {
+            return;
+        }
 
-            const loc = getSpanLocation(ast, node);
-            magicCode.prependLeft(loc.start, 'try {');
-            magicCode.appendRight(loc.end, '} catch(err) {}');
-        },
+        const tokens = getBlock(processor);
+        const startToken = tokens[0];
+        const endToken = tokens[tokens.length - 1];
+
+        magicCode = magicCode || new MagicString(code);
+        magicCode.prependLeft(startToken.start, 'try {');
+        magicCode.appendRight(endToken.end, '} catch(err) {}');
     });
 
     if (!magicCode) {

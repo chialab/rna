@@ -37,7 +37,8 @@
     "@swc/core": "^1.2.106",
     "cjs-module-lexer": "^1.2.2",
     "es-module-lexer": "^0.7.1",
-    "magic-string": "^0.25.7"
+    "magic-string": "^0.25.7",
+    "sucrase": "^3.0.0"
   },
   "devDependencies": {
     "@types/escodegen": "^0.0.7",

@@ -623,11 +623,18 @@ export function useRna(build) {
                 const outputs = { ...buildResult.metafile.outputs };
                 for (const outputKey in outputs) {
                     const output = outputs[outputKey];
+                    if (!output.entryPoint) {
+                        continue;
+                    }
+
+                    const entryPoint = path.resolve(rootDir, output.entryPoint.split('?')[0]);
+                    const dependencies = Object.keys(output.inputs)
+                        .map((input) => path.resolve(rootDir, input.split('?')[0]));
+
+                    rnaBuild.collectDependencies(entryPoint, dependencies);
+
                     if (path.extname(outputKey) === '.js') {
-                        if (!output.entryPoint) {
-                            continue;
-                        }
-                        const entryLoader = loaders[path.extname(output.entryPoint.split('?')[0])] || 'file';
+                        const entryLoader = loaders[path.extname(entryPoint)] || 'file';
                         if (entryLoader !== 'file' && entryLoader !== 'css') {
                             continue;
                         }

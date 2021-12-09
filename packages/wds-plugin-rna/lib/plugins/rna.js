@@ -1,8 +1,8 @@
 import path from 'path';
 import { getRequestFilePath } from '@web/dev-server-core';
 import { getEntryConfig } from '@chialab/rna-config-loader';
-import { pkgUp, browserResolve, isJs, isJson, isCss, fsResolve, getSearchParam, appendSearchParam, removeSearchParam, getSearchParams, ALIAS_MODE, createAliasRegexexMap, createEmptyRegex } from '@chialab/node-resolve';
-import { isHelperImport, isOutsideRootDir, resolveRelativeImport } from '@chialab/wds-plugin-node-resolve';
+import { pkgUp, browserResolve, isJs, isJson, isCss, getSearchParam, appendSearchParam, removeSearchParam, getSearchParams, ALIAS_MODE, createAliasRegexexMap, createEmptyRegex } from '@chialab/node-resolve';
+import { isHelperImport, resolveRelativeImport } from '@chialab/wds-plugin-node-resolve';
 import { transform, transformLoaders, build } from '@chialab/rna-bundler';
 import { realpath } from 'fs/promises';
 
@@ -90,14 +90,9 @@ export function getRequestLoader(context) {
 
 /**
  * @param {import('@chialab/rna-config-loader').Entrypoint} entrypoint
- * @param {import('@web/dev-server-core').DevServerCoreConfig} serverConfig
  * @param {Partial<import('@chialab/rna-config-loader').CoreTransformConfig>} config
  */
-export async function createConfig(entrypoint, serverConfig, config) {
-    const { rootDir } = serverConfig;
-    const input = /** @type {string} */ (entrypoint.input);
-    const filePath = path.resolve(rootDir, input);
-
+export async function createConfig(entrypoint, config) {
     return getEntryConfig(entrypoint, {
         sourcemap: 'inline',
         target: 'es2020',
@@ -109,26 +104,6 @@ export async function createConfig(entrypoint, serverConfig, config) {
         alias: config.alias,
         plugins: [
             ...await Promise.all([
-                import('@chialab/esbuild-plugin-postcss')
-                    .then(async ({ default: plugin }) => plugin({
-                        plugins: [
-                            await import('@chialab/postcss-url-rebase')
-                                .then(({ default: plugin }) => plugin({
-                                    alias: config.alias,
-                                    async transform(importPath) {
-                                        if (isOutsideRootDir(importPath)) {
-                                            return;
-                                        }
-
-                                        return resolveRelativeImport(
-                                            await fsResolve(importPath, filePath),
-                                            filePath,
-                                            rootDir
-                                        );
-                                    },
-                                })),
-                        ],
-                    })),
                 import('@chialab/esbuild-plugin-worker')
                     .then(({ default: plugin }) => plugin({
                         proxy: true,
@@ -288,6 +263,48 @@ export function rnaPlugin(config) {
                     transformCacheKey: false,
                 };
             }
+
+            const accepts = context.request.headers['accept'] || '';
+            if (filePath && accepts.includes('text/css')) {
+                /**
+                 * @type {import('@chialab/rna-config-loader').Entrypoint}
+                 */
+                const entrypoint = {
+                    root: rootDir,
+                    input: filePath,
+                    output: filePath,
+                    loader: 'css',
+                    bundle: true,
+                };
+
+                virtualFs[filePath] = createConfig(entrypoint, config)
+                    .then(async (transformConfig) => {
+                        const result = await build({
+                            ...transformConfig,
+                            entryNames: '[name]',
+                            assetNames: '[name]',
+                            chunkNames: '[name]',
+                            output: filePath,
+                            write: false,
+                        });
+
+                        const outputFiles = /** @type {import('esbuild').OutputFile[]} */ (result.outputFiles);
+                        outputFiles.forEach(({ path, text }) => {
+                            virtualFs[path] = Promise.resolve(text);
+                        });
+
+                        watchDependencies(result);
+
+                        return virtualFs[filePath];
+                    });
+
+                return {
+                    body: await virtualFs[filePath],
+                    headers: {
+                        'content-type': 'text/css',
+                    },
+                };
+            }
         },
 
         async transform(context) {
@@ -332,7 +349,7 @@ export function rnaPlugin(config) {
                 ...contextConfig,
             };
 
-            const transformConfig = await createConfig(entrypoint, serverConfig, config);
+            const transformConfig = await createConfig(entrypoint, config);
             const result = await transform(transformConfig);
             watchDependencies(result);
 
@@ -408,7 +425,7 @@ export function rnaPlugin(config) {
                 bundle: false,
             };
 
-            virtualFs[resolved] = createConfig(entrypoint, serverConfig, config)
+            virtualFs[resolved] = createConfig(entrypoint, config)
                 .then((transformConfig) =>
                     build({
                         ...transformConfig,

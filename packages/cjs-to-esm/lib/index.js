@@ -197,7 +197,7 @@ export async function transform(code, { sourcemap = true, source, sourcesContent
 
         if (ignoreTryCatch) {
             let openBlocks = 0;
-            walk(processor, (token) => {
+            await walk(processor, (token) => {
                 if (token.type === TokenType._try) {
                     openBlocks++;
                     return;
@@ -214,7 +214,7 @@ export async function transform(code, { sourcemap = true, source, sourcesContent
             });
         }
 
-        walk(processor, (token, index) => {
+        await walk(processor, (token, index) => {
             if (!isRequireCallExpression(processor) || ignoredExpressions.includes(index)) {
                 return;
             }
@@ -389,7 +389,7 @@ export async function wrapDynamicRequire(code, { sourcemap = true, source, sourc
     let magicCode;
 
     const { processor } = await parse(code);
-    walk(processor, (token, index) => {
+    await walk(processor, (token, index) => {
         if (!processor.matches5(TokenType._if, TokenType.parenL, TokenType._typeof, TokenType.name, TokenType.eq)) {
             return;
         }

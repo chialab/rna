@@ -1,6 +1,6 @@
 import path from 'path';
 import { glob } from '@chialab/node-resolve';
-import { MagicString, getSpanLocation, getNodeComments, parse, walk } from '@chialab/estransform';
+import { MagicString, TokenType, getBlock, getNodeComments, parse, walk } from '@chialab/estransform';
 import { useRna } from '@chialab/esbuild-rna';
 
 /**
@@ -36,119 +36,111 @@ export default function() {
                  */
                 const promises = [];
 
-                const ast = await parse(code);
-                walk(ast, {
-                    /**
-                     * @param {import('@chialab/estransform').CallExpression} node
-                     */
-                    CallExpression(node) {
-                        if (node.callee.type !== 'Identifier' ||
-                            node.callee.value !== 'import') {
-                            return;
-                        }
+                const { processor } = await parse(code);
+                await walk(processor, (token) => {
+                    if (!processor.matches3(TokenType.name, TokenType.parenL, TokenType.backQuote) ||
+                        processor.identifierNameForToken(token) !== 'import') {
+                        return;
+                    }
 
-                        const firstArg = node.arguments[0] && node.arguments[0].expression;
-                        if (firstArg.type !== 'TemplateLiteral') {
-                            return;
-                        }
+                    const block = getBlock(processor, TokenType.parenL, TokenType.parenR);
+                    const start = block[0].start;
+                    const end = block[block.length - 1].end;
+                    const comments = getNodeComments(code, start, end);
+                    const included = comments.find((value) => value.startsWith('webpackInclude:'));
+                    if (!included) {
+                        return;
+                    }
 
-                        const comments = getNodeComments(code, ast, node);
-                        const included = comments.find((value) => value.startsWith('webpackInclude:'));
-                        if (!included) {
-                            return;
-                        }
+                    const excluded = comments.find((value) => value.startsWith('webpackExclude:'));
+                    const include = new RegExp(included.replace('webpackInclude:', '').trim().replace(/^\//, '').replace(/\/$/, ''));
+                    const exclude = excluded && new RegExp(excluded.replace('webpackExclude:', '').trim().replace(/^\//, '').replace(/\/$/, ''));
 
-                        const excluded = comments.find((value) => value.startsWith('webpackExclude:'));
-                        const include = new RegExp(included.replace('webpackInclude:', '').trim().replace(/^\//, '').replace(/\/$/, ''));
-                        const exclude = excluded && new RegExp(excluded.replace('webpackExclude:', '').trim().replace(/^\//, '').replace(/\/$/, ''));
-                        const initial = firstArg.quasis[0].raw.value;
-                        const identifier = firstArg.expressions[0].type === 'Identifier' && firstArg.expressions[0].value;
+                    const initial = processor.stringValueForToken(block[3]);
+                    const identifier = processor.identifierNameForToken(block[5]);
 
-                        const loc = getSpanLocation(ast, node);
+                    magicCode = magicCode || new MagicString(code);
+                    promises.push((async () => {
+                        const map = (await glob(`${initial}*`, {
+                            cwd: path.dirname(args.path),
+                        }))
+                            .filter((name) => name.match(include) && (!exclude || !name.match(exclude)))
+                            .reduce((map, name) => {
+                                map[name.replace(include, '')] = `./${name}`;
+                                return map;
+                            }, /** @type {{ [key: string]: string }} */({}));
+
+                        magicCode.overwrite(start, end, `({ ${Object.keys(map).map((key) => `'${key}': () => import('${map[key]}')`).join(', ')} })[${identifier}]()`);
+                    })());
+                });
+
+                await walk(processor, (token, start) => {
+                    if (!processor.matches1(TokenType._if)) {
+                        return;
+                    }
+
+                    const testBlock = getBlock(processor, TokenType.parenL, TokenType.parenR).slice(2, -1);
+                    const bodyBlock = getBlock(processor, TokenType.braceL, TokenType.braceR);
+                    const end = bodyBlock[bodyBlock.length - 1].end;
+
+                    // if (module.hot) {
+                    if (testBlock.length === 2
+                        && testBlock[0].type === TokenType.name
+                        && processor.identifierNameForToken(testBlock[0]) === 'module'
+                        && testBlock[1].type === TokenType.name
+                        && processor.identifierNameForToken(testBlock[1]) === 'hot'
+                    ) {
                         magicCode = magicCode || new MagicString(code);
+                        magicCode.overwrite(start, end, '');
+                    }
 
-                        promises.push((async () => {
-                            const map = (await glob(`${initial}*`, {
-                                cwd: path.dirname(args.path),
-                            }))
-                                .filter((name) => name.match(include) && (!exclude || !name.match(exclude)))
-                                .reduce((map, name) => {
-                                    map[name.replace(include, '')] = `./${name}`;
-                                    return map;
-                                }, /** @type {{ [key: string]: string }} */({}));
+                    // if (import.meta.webpackHot) {
+                    if (testBlock.length === 3
+                        && testBlock[0].type === TokenType.name
+                        && processor.identifierNameForToken(testBlock[0]) === 'import'
+                        && testBlock[1].type === TokenType.name
+                        && processor.identifierNameForToken(testBlock[1]) === 'meta'
+                        && testBlock[2].type === TokenType.name
+                        && processor.identifierNameForToken(testBlock[2]) === 'webpackHot'
+                    ) {
+                        magicCode = magicCode || new MagicString(code);
+                        magicCode.overwrite(start, end, '');
+                    }
 
-                            magicCode.overwrite(loc.start, loc.end, `({ ${Object.keys(map).map((key) => `'${key}': () => import('${map[key]}')`).join(', ')} })[${identifier}]()`);
-                        })());
-                    },
+                    // if (module && module.hot) {
+                    if (testBlock.length === 4
+                        && testBlock[0].type === TokenType.name
+                        && processor.identifierNameForToken(testBlock[0]) === 'module'
+                        && testBlock[1].type === TokenType.logicalAND
+                        && testBlock[2].type === TokenType.name
+                        && processor.identifierNameForToken(testBlock[2]) === 'module'
+                        && testBlock[3].type === TokenType.name
+                        && processor.identifierNameForToken(testBlock[3]) === 'hot'
+                    ) {
+                        magicCode = magicCode || new MagicString(code);
+                        magicCode.overwrite(start, end, '');
+                    }
 
-                    /**
-                     * @param {import('@chialab/estransform').IfStatement} node
-                     */
-                    IfStatement(node) {
-                        const remove = () => {
-                            const loc = getSpanLocation(ast, node);
-                            magicCode = magicCode || new MagicString(code);
-                            magicCode.overwrite(loc.start, loc.end, '');
-                        };
-
-                        // if (module.hot) {
-                        if (node.test.type === 'MemberExpression' &&
-                            node.test.object.type === 'Identifier' &&
-                            node.test.object.value === 'module' &&
-                            node.test.property.type === 'Identifier' &&
-                            node.test.property.value === 'hot'
-                        ) {
-                            remove();
-                            return;
-                        }
-
-                        // if (import.meta.webpackHot) {
-                        if (node.test.type === 'MemberExpression' &&
-                            node.test.object.type === 'MetaProperty' &&
-                            node.test.property.type === 'Identifier' &&
-                            node.test.property.value === 'webpackHot'
-                        ) {
-                            remove();
-                            return;
-                        }
-
-                        // if (module && module.hot) {
-                        if (node.test.type === 'BinaryExpression' &&
-                            node.test.left.type === 'Identifier' &&
-                            node.test.left.value === 'module' &&
-                            node.test.right.type === 'MemberExpression' &&
-                            node.test.right.object.type === 'Identifier' &&
-                            node.test.right.object.value === 'module' &&
-                            node.test.right.property.type === 'Identifier' &&
-                            node.test.right.property.value === 'hot'
-                        ) {
-                            remove();
-                            return;
-                        }
-
-                        // if (module && module.hot && module.hot.decline) {
-                        if (node.test.type === 'BinaryExpression' &&
-                            node.test.left.type === 'BinaryExpression' &&
-                            node.test.left.left.type === 'Identifier' &&
-                            node.test.left.left.value === 'module' &&
-                            node.test.left.right.type === 'MemberExpression' &&
-                            node.test.left.right.object.type === 'Identifier' &&
-                            node.test.left.right.object.value === 'module' &&
-                            node.test.left.right.property.type === 'Identifier' &&
-                            node.test.left.right.property.value === 'hot' &&
-                            node.test.right.type === 'MemberExpression' &&
-                            node.test.right.object.type === 'MemberExpression' &&
-                            node.test.right.object.object.type === 'Identifier' &&
-                            node.test.right.object.object.value === 'module' &&
-                            node.test.right.object.property.type === 'Identifier' &&
-                            node.test.right.object.property.value === 'hot' &&
-                            node.test.right.property.type === 'Identifier' &&
-                            node.test.right.property.value === 'decline'
-                        ) {
-                            remove();
-                            return;
-                        }
-                    },
+                    // if (module && module.hot && module.hot.decline) {
+                    if (testBlock.length === 8
+                        && testBlock[0].type === TokenType.name
+                        && processor.identifierNameForToken(testBlock[0]) === 'module'
+                        && testBlock[1].type === TokenType.logicalAND
+                        && testBlock[2].type === TokenType.name
+                        && processor.identifierNameForToken(testBlock[2]) === 'module'
+                        && testBlock[3].type === TokenType.name
+                        && processor.identifierNameForToken(testBlock[3]) === 'hot'
+                        && testBlock[4].type === TokenType.logicalAND
+                        && testBlock[5].type === TokenType.name
+                        && processor.identifierNameForToken(testBlock[5]) === 'module'
+                        && testBlock[6].type === TokenType.name
+                        && processor.identifierNameForToken(testBlock[6]) === 'hot'
+                        && testBlock[7].type === TokenType.name
+                        && processor.identifierNameForToken(testBlock[7]) === 'decline'
+                    ) {
+                        magicCode = magicCode || new MagicString(code);
+                        magicCode.overwrite(start, end, '');
+                    }
                 });
 
                 await Promise.all(promises);

@@ -86,10 +86,11 @@ export function getBlock(processor, openingToken = TokenType.braceL, closingToke
 /**
  * Extract comments for a code range delmited by node span.
  * @param {string} code The original code.
- * @param {import('./types.js').Token} token The requested token.
+ * @param {number} start The start index.
+ * @param {number} end The end index.
  */
-export function getNodeComments(code, token) {
-    const chunk = code.substr(token.start, token.end - token.start);
+export function getNodeComments(code, start, end) {
+    const chunk = code.substring(start, end);
     const matches = chunk.match(/\/\*[\s\S]*?\*\/|(?:[^\\:]|^)\/\/.*$/gm);
     if (!matches) {
         return [];

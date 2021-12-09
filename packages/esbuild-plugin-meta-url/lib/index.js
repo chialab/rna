@@ -146,7 +146,7 @@ export default function({ emit = true } = {}) {
                 const promises = [];
 
                 const { processor } = await parse(code);
-                walk(processor, () => {
+                await walk(processor, () => {
                     const value = getMetaUrl(processor);
                     if (typeof value !== 'string' || isUrl(value)) {
                         return;

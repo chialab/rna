@@ -38,7 +38,7 @@ export default function() {
 
                 const { processor } = await parse(code);
                 await walk(processor, (token) => {
-                    if (!processor.matches3(TokenType.name, TokenType.parenL, TokenType.backQuote) ||
+                    if (!processor.matches3(TokenType._import, TokenType.parenL, TokenType.backQuote) ||
                         processor.identifierNameForToken(token) !== 'import') {
                         return;
                     }
@@ -55,15 +55,16 @@ export default function() {
                     const excluded = comments.find((value) => value.startsWith('webpackExclude:'));
                     const include = new RegExp(included.replace('webpackInclude:', '').trim().replace(/^\//, '').replace(/\/$/, ''));
                     const exclude = excluded && new RegExp(excluded.replace('webpackExclude:', '').trim().replace(/^\//, '').replace(/\/$/, ''));
-
-                    const initial = processor.stringValueForToken(block[3]);
+                    const initial = code.substring(block[3].start, block[3].end);
                     const identifier = processor.identifierNameForToken(block[5]);
 
                     magicCode = magicCode || new MagicString(code);
+
                     promises.push((async () => {
-                        const map = (await glob(`${initial}*`, {
+                        const matched = await glob(`${initial}*`, {
                             cwd: path.dirname(args.path),
-                        }))
+                        });
+                        const map = matched
                             .filter((name) => name.match(include) && (!exclude || !name.match(exclude)))
                             .reduce((map, name) => {
                                 map[name.replace(include, '')] = `./${name}`;
@@ -74,76 +75,88 @@ export default function() {
                     })());
                 });
 
-                await walk(processor, (token, start) => {
-                    if (!processor.matches1(TokenType._if)) {
+                await Promise.all(promises);
+
+                await walk(processor, (token) => {
+                    if (token.type !== TokenType._if) {
                         return;
                     }
 
                     const testBlock = getBlock(processor, TokenType.parenL, TokenType.parenR).slice(2, -1);
                     const bodyBlock = getBlock(processor, TokenType.braceL, TokenType.braceR);
+
+                    const start = token.start;
                     const end = bodyBlock[bodyBlock.length - 1].end;
 
                     // if (module.hot) {
-                    if (testBlock.length === 2
+                    if (testBlock.length === 3
                         && testBlock[0].type === TokenType.name
                         && processor.identifierNameForToken(testBlock[0]) === 'module'
-                        && testBlock[1].type === TokenType.name
-                        && processor.identifierNameForToken(testBlock[1]) === 'hot'
+                        && testBlock[1].type === TokenType.dot
+                        && testBlock[2].type === TokenType.name
+                        && processor.identifierNameForToken(testBlock[2]) === 'hot'
                     ) {
                         magicCode = magicCode || new MagicString(code);
                         magicCode.overwrite(start, end, '');
+                        return;
                     }
 
                     // if (import.meta.webpackHot) {
-                    if (testBlock.length === 3
+                    if (testBlock.length === 5
                         && testBlock[0].type === TokenType.name
                         && processor.identifierNameForToken(testBlock[0]) === 'import'
-                        && testBlock[1].type === TokenType.name
-                        && processor.identifierNameForToken(testBlock[1]) === 'meta'
+                        && testBlock[1].type === TokenType.dot
                         && testBlock[2].type === TokenType.name
-                        && processor.identifierNameForToken(testBlock[2]) === 'webpackHot'
+                        && processor.identifierNameForToken(testBlock[2]) === 'meta'
+                        && testBlock[3].type === TokenType.dot
+                        && testBlock[4].type === TokenType.name
+                        && processor.identifierNameForToken(testBlock[4]) === 'webpackHot'
                     ) {
                         magicCode = magicCode || new MagicString(code);
                         magicCode.overwrite(start, end, '');
+                        return;
                     }
 
                     // if (module && module.hot) {
-                    if (testBlock.length === 4
+                    if (testBlock.length === 5
                         && testBlock[0].type === TokenType.name
                         && processor.identifierNameForToken(testBlock[0]) === 'module'
                         && testBlock[1].type === TokenType.logicalAND
                         && testBlock[2].type === TokenType.name
                         && processor.identifierNameForToken(testBlock[2]) === 'module'
-                        && testBlock[3].type === TokenType.name
-                        && processor.identifierNameForToken(testBlock[3]) === 'hot'
+                        && testBlock[3].type === TokenType.dot
+                        && testBlock[4].type === TokenType.name
+                        && processor.identifierNameForToken(testBlock[4]) === 'hot'
                     ) {
                         magicCode = magicCode || new MagicString(code);
                         magicCode.overwrite(start, end, '');
+                        return;
                     }
 
                     // if (module && module.hot && module.hot.decline) {
-                    if (testBlock.length === 8
+                    if (testBlock.length === 11
                         && testBlock[0].type === TokenType.name
                         && processor.identifierNameForToken(testBlock[0]) === 'module'
                         && testBlock[1].type === TokenType.logicalAND
                         && testBlock[2].type === TokenType.name
                         && processor.identifierNameForToken(testBlock[2]) === 'module'
-                        && testBlock[3].type === TokenType.name
-                        && processor.identifierNameForToken(testBlock[3]) === 'hot'
-                        && testBlock[4].type === TokenType.logicalAND
-                        && testBlock[5].type === TokenType.name
-                        && processor.identifierNameForToken(testBlock[5]) === 'module'
+                        && testBlock[3].type === TokenType.dot
+                        && testBlock[4].type === TokenType.name
+                        && processor.identifierNameForToken(testBlock[4]) === 'hot'
+                        && testBlock[5].type === TokenType.logicalAND
                         && testBlock[6].type === TokenType.name
-                        && processor.identifierNameForToken(testBlock[6]) === 'hot'
-                        && testBlock[7].type === TokenType.name
-                        && processor.identifierNameForToken(testBlock[7]) === 'decline'
+                        && processor.identifierNameForToken(testBlock[6]) === 'module'
+                        && testBlock[7].type === TokenType.dot
+                        && testBlock[8].type === TokenType.name
+                        && processor.identifierNameForToken(testBlock[8]) === 'hot'
+                        && testBlock[9].type === TokenType.dot
+                        && testBlock[10].type === TokenType.name
+                        && processor.identifierNameForToken(testBlock[10]) === 'decline'
                     ) {
                         magicCode = magicCode || new MagicString(code);
                         magicCode.overwrite(start, end, '');
                     }
                 });
-
-                await Promise.all(promises);
 
                 if (!magicCode) {
                     return;

@@ -1,6 +1,6 @@
 import path from 'path';
-import { MagicString, walk, parse, TokenType, getBlock } from '@chialab/estransform';
-import metaUrlPlugin, { findIdentifierValue } from '@chialab/esbuild-plugin-meta-url';
+import { MagicString, walk, parse, TokenType, getIdentifierValue, getBlock } from '@chialab/estransform';
+import metaUrlPlugin from '@chialab/esbuild-plugin-meta-url';
 import { useRna } from '@chialab/esbuild-rna';
 
 /**
@@ -66,8 +66,8 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                  */
                 const promises = [];
                 const { processor } = await parse(code);
-                await walk(processor, (token, start) => {
-                    if (!processor.matches1(TokenType._new)) {
+                await walk(processor, (token) => {
+                    if (token.type !== TokenType._new) {
                         return;
                     }
 
@@ -89,7 +89,7 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                     }
 
                     const block = getBlock(processor, TokenType.parenL, TokenType.parenR);
-                    const firstArg = block[1];
+                    const firstArg = block[2];
 
                     if (firstArg.type !== TokenType.string
                         && firstArg.type !== TokenType.name) {
@@ -106,25 +106,27 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                         jsxFactory: undefined,
                     };
 
-                    if (block[2] && block[2].type === TokenType.comma && block[3].type === TokenType.braceL) {
+                    if (block[3] && block[3].type === TokenType.comma && block[4].type === TokenType.braceL) {
                         if (
                             (
-                                (block[4].type === TokenType.string && processor.stringValueForToken(block[4]) === 'type')
-                                || (block[4].type === TokenType.name && processor.identifierNameForToken(block[4]) === 'type')
+                                (block[5].type === TokenType.string && processor.stringValueForToken(block[5]) === 'type')
+                                || (block[5].type === TokenType.name && processor.identifierNameForToken(block[5]) === 'type')
                             )
-                            && block[5].type === TokenType.colon
-                            && block[6].type === TokenType.string
-                            && processor.stringValueForToken(block[6]) === 'module'
+                            && block[6].type === TokenType.colon
+                            && block[7].type === TokenType.string
+                            && processor.stringValueForToken(block[7]) === 'module'
                         ) {
                             transformOptions.format = 'esm';
                         }
                     }
 
+                    const start = token.start;
                     const end = block[block.length - 1].end;
+
                     promises.push(Promise.resolve().then(async () => {
                         const value = firstArg.type === TokenType.string ?
                             processor.stringValueForToken(firstArg) :
-                            findIdentifierValue(processor.identifierNameForToken(firstArg), processor);
+                            getIdentifierValue(processor, firstArg);
                         if (typeof value !== 'string') {
                             if (proxy) {
                                 const arg = code.substring(firstArg.start, firstArg.end);

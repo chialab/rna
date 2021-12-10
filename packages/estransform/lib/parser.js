@@ -2,7 +2,6 @@ import { parse as sucraseParse } from 'sucrase/dist/parser/index.js';
 import NameManagerModule from 'sucrase/dist/NameManager.js';
 import { HelperManager } from 'sucrase/dist/HelperManager.js';
 import TokenProcessorModule from 'sucrase/dist/TokenProcessor.js';
-import { TokenType } from './types.js';
 
 /**
  * @param {*} mod
@@ -57,51 +56,4 @@ export function parse(code) {
         helperManager,
         processor,
     };
-}
-
-/**
- * @param {InstanceType<TokenProcessor>} processor
- * @param {TokenType} [openingToken]
- * @param {TokenType} [closingToken]
- */
-export function getBlock(processor, openingToken = TokenType.braceL, closingToken = TokenType.braceR) {
-    let token = processor.currentToken();
-    let count = 0;
-
-    const block = [token];
-    while (!processor.isAtEnd() && (token.type !== closingToken || count > 0)) {
-        processor.nextToken();
-        token = processor.currentToken();
-        block.push(token);
-        if (token.type === openingToken) {
-            count++;
-        } if (token.type === closingToken) {
-            count--;
-        }
-    }
-
-    return block;
-}
-
-/**
- * Extract comments for a code range delmited by node span.
- * @param {string} code The original code.
- * @param {number} start The start index.
- * @param {number} end The end index.
- */
-export function getNodeComments(code, start, end) {
-    const chunk = code.substring(start, end);
-    const matches = chunk.match(/\/\*[\s\S]*?\*\/|(?:[^\\:]|^)\/\/.*$/gm);
-    if (!matches) {
-        return [];
-    }
-
-    return matches.map((comment) =>
-        // remove comment delimiters
-        comment
-            .trim()
-            .replace(/^\/\*+\s*/, '')
-            .replace(/\s*\*+\/$/, '')
-            .replace(/^\/\/\s*/, '')
-    );
 }

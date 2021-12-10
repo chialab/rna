@@ -150,12 +150,8 @@ export async function maybeMixedModule(code) {
  * @param {import('@chialab/estransform').TokenProcessor} processor
  */
 function isRequireCallExpression(processor) {
-    if (!processor.matches2(TokenType.name, TokenType.parenL)) {
-        return;
-    }
-
-    const name = processor.stringValueAtIndex(processor.currentIndex());
-    return name === 'require';
+    return processor.matches4(TokenType.name, TokenType.parenL, TokenType.string, TokenType.parenR)
+        && processor.identifierNameAtIndex(processor.currentIndex()) === 'require';
 }
 
 /**
@@ -215,14 +211,12 @@ export async function transform(code, { sourcemap = true, source, sourcesContent
         }
 
         await walk(processor, (token, index) => {
-            if (!isRequireCallExpression(processor) || ignoredExpressions.includes(index)) {
+            if (!isRequireCallExpression(processor) ||
+                ignoredExpressions.includes(index)) {
                 return;
             }
 
-            if (!processor.matches4(TokenType.name, TokenType.parenL, TokenType.string, TokenType.parenR)) {
-                return;
-            }
-
+            const specifierToken = processor.tokens[index + 2];
             const specifier = processor.stringValueAtIndex(index + 2);
 
             return (async () => {
@@ -245,10 +239,10 @@ export async function transform(code, { sourcemap = true, source, sourcesContent
 
                 insertHelper = true;
 
-                processor.replaceToken(REQUIRE_FUNCTION);
+                magicCode.overwrite(token.start, token.end, REQUIRE_FUNCTION);
                 processor.nextToken();
                 processor.nextToken();
-                processor.replaceToken(`typeof ${spec.id} !== 'undefined' ? ${spec.id} : {}`);
+                magicCode.overwrite(specifierToken.start, specifierToken.end, `typeof ${spec.id} !== 'undefined' ? ${spec.id} : {}`);
                 processor.nextToken();
             })();
         });
@@ -390,7 +384,7 @@ export async function wrapDynamicRequire(code, { sourcemap = true, source, sourc
 
     const { processor } = await parse(code);
     await walk(processor, (token, index) => {
-        if (!processor.matches5(TokenType._if, TokenType.parenL, TokenType._typeof, TokenType.name, TokenType.eq)) {
+        if (!processor.matches5(TokenType._if, TokenType.parenL, TokenType._typeof, TokenType.name, TokenType.equality)) {
             return;
         }
 

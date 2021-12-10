@@ -10,7 +10,7 @@ esbuild.build({
     format: 'esm',
     platform: 'node',
     external: [
-        '@chialab/estest',
+        '@chialab/es-test-runner',
     ],
     banner: {
         js: 'import { createRequire } from \'module\';\nconst require = createRequire(import.meta.url);\n',

@@ -1,8 +1,8 @@
 import { EventEmitter } from 'events';
-import { Suite, Test, constants } from '@chialab/estest';
+import { Suite, Test, constants } from '@chialab/es-test-runner';
 
 /**
- * @typedef {import('@chialab/estest').Runner & { suite?: Suite }} Runner
+ * @typedef {import('@chialab/es-test-runner').Runner & { suite?: Suite }} Runner
  */
 
 /**

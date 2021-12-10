@@ -3,7 +3,7 @@ import path from 'path';
 import { Worker } from 'worker_threads';
 import { mkdtemp } from 'fs/promises';
 import { readConfigFile, mergeConfig, locateConfigFile } from '@chialab/rna-config-loader';
-import { CoverageReport } from '@chialab/estest';
+import { CoverageReport } from '@chialab/es-test-runner';
 
 /**
  * @typedef {Object} TestRunnerConfig

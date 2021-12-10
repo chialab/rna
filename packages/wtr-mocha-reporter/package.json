@@ -33,7 +33,7 @@
     "node": ">=13"
   },
   "dependencies": {
-    "@chialab/estest": "^0.14.0"
+    "@chialab/es-test-runner": "^0.14.0"
   },
   "devDependencies": {
     "@web/test-runner-core": "^0.10.19",

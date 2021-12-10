@@ -1,5 +1,5 @@
 {
-  "name": "@chialab/estest",
+  "name": "@chialab/es-test-runner",
   "type": "module",
   "version": "0.14.0",
   "description": "Test helpers for ES modules.",
@@ -10,7 +10,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/chialab/rna",
-    "directory": "packages/estest"
+    "directory": "packages/es-test-runner"
   },
   "keywords": [
     "test",

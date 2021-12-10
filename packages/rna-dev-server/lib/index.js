@@ -1,8 +1,15 @@
 import { stat } from 'fs/promises';
 import path from 'path';
-import getPort, { portNumbers } from 'get-port';
 import { readConfigFile, mergeConfig, locateConfigFile } from '@chialab/rna-config-loader';
 import { createLogger, colors } from '@chialab/rna-logger';
+import { DevServer, getPort, portNumbers } from '@chialab/es-dev-server';
+import cors from '@koa/cors';
+import range from 'koa-range';
+import nodeResolvePlugin from '@chialab/wds-plugin-node-resolve';
+import { rnaPlugin, entrypointsPlugin } from '@chialab/wds-plugin-rna';
+import { hmrCssPlugin } from '@chialab/wds-plugin-hmr-css';
+import { hmrPlugin } from './plugins/hmr.js';
+import { watchPlugin } from './plugins/watch.js';
 
 /**
  * @typedef {Object} DevServerCoreConfig
@@ -21,15 +28,7 @@ import { createLogger, colors } from '@chialab/rna-logger';
  * @typedef {Partial<import('@web/dev-server-core').DevServerCoreConfig> & DevServerCoreConfig} DevServerConfig
  */
 
-export async function buildMiddlewares() {
-    const [
-        { default: cors },
-        { default: range },
-    ] = await Promise.all([
-        import('@koa/cors'),
-        import('koa-range'),
-    ]);
-
+export function buildMiddlewares() {
     return [
         cors(),
         range,
@@ -39,15 +38,7 @@ export async function buildMiddlewares() {
 /**
  * @param {DevServerConfig} config
  */
-export async function buildPlugins(config) {
-    const [
-        { default: nodeResolvePlugin },
-        { rnaPlugin, entrypointsPlugin },
-    ] = await Promise.all([
-        import('@chialab/wds-plugin-node-resolve'),
-        import('@chialab/wds-plugin-rna'),
-    ]);
-
+export function buildPlugins(config) {
     return [
         rnaPlugin({
             alias: config.alias,
@@ -64,17 +55,7 @@ export async function buildPlugins(config) {
     ];
 }
 
-export async function buildDevPlugins() {
-    const [
-        { hmrPlugin },
-        { hmrCssPlugin },
-        { watchPlugin },
-    ] = await Promise.all([
-        import('./plugins/hmr.js'),
-        import('@chialab/wds-plugin-hmr-css'),
-        import('./plugins/watch.js'),
-    ]);
-
+export function buildDevPlugins() {
     return [
         hmrPlugin(),
         watchPlugin(),
@@ -88,8 +69,6 @@ export async function buildDevPlugins() {
  * @return {Promise<import('@web/dev-server-core').DevServer>} The dev server instance.
  */
 export async function createDevServer(config) {
-    const { DevServer } = await import('@web/dev-server-core');
-
     const root = config.rootDir ? path.resolve(config.rootDir) : process.cwd();
     const appIndex = path.join(root, 'index.html');
     let index = false;
@@ -111,13 +90,13 @@ export async function createDevServer(config) {
         }),
         rootDir: root,
         middleware: [
-            ...(await buildMiddlewares()),
+            ...buildMiddlewares(),
             ...(config.middleware || []),
         ],
         plugins: [
             ...(config.plugins || []),
-            ...(await buildPlugins(config)),
-            ...(await buildDevPlugins()),
+            ...buildPlugins(config),
+            ...buildDevPlugins(),
         ],
     }, config.logger || createLogger());
 

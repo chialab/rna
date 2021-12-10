@@ -1,5 +1,5 @@
 import path from 'path';
-import { getRequestFilePath } from '@web/dev-server-core';
+import { getRequestFilePath } from '@chialab/es-dev-server';
 import { getEntryConfig } from '@chialab/rna-config-loader';
 import { pkgUp, browserResolve, isJs, isJson, isCss, getSearchParam, appendSearchParam, removeSearchParam, getSearchParams, ALIAS_MODE, createAliasRegexexMap, createEmptyRegex } from '@chialab/node-resolve';
 import { isHelperImport, resolveRelativeImport } from '@chialab/wds-plugin-node-resolve';
@@ -7,7 +7,7 @@ import { transform, transformLoaders, build } from '@chialab/rna-bundler';
 import { realpath } from 'fs/promises';
 
 /**
- * @typedef {import('@web/dev-server-core').Plugin} Plugin
+ * @typedef {import('@chialab/es-dev-server').Plugin} Plugin
  */
 
 /**

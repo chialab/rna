@@ -10,9 +10,7 @@ esbuild.build({
     format: 'esm',
     platform: 'node',
     external: [
-        '@chialab/es-test-runner',
         'fsevents',
-        'yargs/yargs',
     ],
     banner: {
         js: 'import { createRequire } from \'module\';\nconst require = createRequire(import.meta.url);\n',

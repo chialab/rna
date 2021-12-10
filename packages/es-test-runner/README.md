@@ -1,5 +1,5 @@
 <p align="center">
-    <strong>es-test-runner</strong> • Test helpers for ES modules.
+    <strong>ES Test Runner</strong> • Test helpers for ES modules.
 </p>
 
 <p align="center">
@@ -19,4 +19,4 @@ $ yarn add @chialab/es-test-runner -D
 
 ## License
 
-**es-test-runner** is released under the [MIT](https://github.com/chialab/rna/blob/main/packages/es-test-runner/LICENSE) license.
+**ES Test Runner** is released under the [MIT](https://github.com/chialab/rna/blob/main/packages/es-test-runner/LICENSE) license.

@@ -1,4 +1,4 @@
-import { MagicString, TokenType, parse, walk, getBlock, parseCommonjs, parseEsm, createEmptySourcemapComment } from '@chialab/estransform';
+import { TokenType, parse, walk, getBlock, parseCommonjs, parseEsm, createEmptySourcemapComment } from '@chialab/estransform';
 
 export const REQUIRE_REGEX = /([^.\w$]|^)require\s*\((['"])(.*?)\2\)/g;
 export const UMD_REGEXES = [
@@ -180,7 +180,7 @@ export async function transform(code, { sourcemap = true, source, sourcesContent
     const specs = new Map();
     const ns = new Map();
     const isUmd = UMD_REGEXES.every((regex) => regex.test(code));
-    const magicCode = new MagicString(code);
+    const { helpers, processor } = await parse(code, source);
 
     let insertHelper = false;
     if (!isUmd) {
@@ -188,8 +188,6 @@ export async function transform(code, { sourcemap = true, source, sourcesContent
          * @type {*[]}
          */
         const ignoredExpressions = [];
-
-        const { processor } = await parse(code);
 
         if (ignoreTryCatch) {
             let openBlocks = 0;
@@ -239,10 +237,10 @@ export async function transform(code, { sourcemap = true, source, sourcesContent
 
                 insertHelper = true;
 
-                magicCode.overwrite(token.start, token.end, REQUIRE_FUNCTION);
+                helpers.overwrite(token.start, token.end, REQUIRE_FUNCTION);
                 processor.nextToken();
                 processor.nextToken();
-                magicCode.overwrite(specifierToken.start, specifierToken.end, `typeof ${spec.id} !== 'undefined' ? ${spec.id} : {}`);
+                helpers.overwrite(specifierToken.start, specifierToken.end, `typeof ${spec.id} !== 'undefined' ? ${spec.id} : {}`);
                 processor.nextToken();
             })();
         });
@@ -262,11 +260,11 @@ export async function transform(code, { sourcemap = true, source, sourcesContent
             endDefinition = code.length;
         }
 
-        magicCode.prepend(`var __umdGlobal = ${GLOBAL_HELPER};
+        helpers.prepend(`var __umdGlobal = ${GLOBAL_HELPER};
 var __umdKeys = Object.keys(__umdGlobal);
 (function(window, global, globalThis, self, module, exports) {
 `);
-        magicCode.append(`
+        helpers.append(`
 }).call(__umdGlobal, __umdGlobal, __umdGlobal, __umdGlobal, __umdGlobal, undefined, undefined);
 
 var __newUmdKeys = Object.keys(__umdGlobal).slice(__umdKeys.length);
@@ -292,11 +290,11 @@ export default (__umdMainKey ? __umdGlobal[__umdMainKey] : undefined);`);
         // replace the usage of `this` as global object because is not supported in esm
         let thisMatch = THIS_PARAM.exec(code);
         while (thisMatch) {
-            magicCode.overwrite(thisMatch.index, thisMatch.index + thisMatch[0].length, `${thisMatch[1]}this || __umdGlobal${thisMatch[2]}`);
+            helpers.overwrite(thisMatch.index, thisMatch.index + thisMatch[0].length, `${thisMatch[1]}this || __umdGlobal${thisMatch[2]}`);
             thisMatch = THIS_PARAM.exec(code);
         }
     } else if (exports.length > 0 || reexports.length > 0) {
-        magicCode.prepend(`var global = globalThis;
+        helpers.prepend(`var global = globalThis;
 var exports = {};
 var module = {
     get exports() {
@@ -316,26 +314,26 @@ var module = {
                 conditions.push(`Object.keys(module.exports).length === ${named.length}`);
             }
 
-            magicCode.append(`\nvar ${named.map((name, index) => `__export${index}`).join(', ')};
+            helpers.append(`\nvar ${named.map((name, index) => `__export${index}`).join(', ')};
 if (${conditions.join(' && ')}) {
     ${named.map((name, index) => `__export${index} = module.exports['${name}'];`).join('\n    ')}
 }`);
 
-            magicCode.append(`\nexport { ${named.map((name, index) => `__export${index} as ${name}`).join(', ')} }`);
+            helpers.append(`\nexport { ${named.map((name, index) => `__export${index} as ${name}`).join(', ')} }`);
         }
         if (isEsModule) {
             if (hasDefault || named.length === 0) {
-                magicCode.append('\nexport default (module.exports != null && typeof module.exports === \'object\' && \'default\' in module.exports ? module.exports.default : module.exports);');
+                helpers.append('\nexport default (module.exports != null && typeof module.exports === \'object\' && \'default\' in module.exports ? module.exports.default : module.exports);');
             }
         } else {
-            magicCode.append('\nexport default module.exports;');
+            helpers.append('\nexport default module.exports;');
         }
 
         reexports.forEach((reexport) => {
-            magicCode.append(`\nexport * from '${reexport}';`);
+            helpers.append(`\nexport * from '${reexport}';`);
         });
     } else if (EXPORTS_KEYWORDS.test(code)) {
-        magicCode.prepend(`var global = globalThis;
+        helpers.prepend(`var global = globalThis;
 var exports = {};
 var module = {
     get exports() {
@@ -346,29 +344,29 @@ var module = {
     },
 };
 `);
-        magicCode.append('\nexport default module.exports;');
+        helpers.append('\nexport default module.exports;');
     }
 
     if (insertHelper) {
         if (helperModule) {
-            magicCode.prepend(`import ${REQUIRE_FUNCTION} from './${HELPER_MODULE}';\n`);
+            helpers.prepend(`import ${REQUIRE_FUNCTION} from './${HELPER_MODULE}';\n`);
         } else {
-            magicCode.prepend(`// Require helper for interop\n${REQUIRE_HELPER}`);
+            helpers.prepend(`// Require helper for interop\n${REQUIRE_HELPER}`);
         }
     }
 
     specs.forEach((spec) => {
-        magicCode.prepend(`import * as ${spec.id} from "${spec.specifier}";\n`);
+        helpers.prepend(`import * as ${spec.id} from "${spec.specifier}";\n`);
     });
 
-    return {
-        code: magicCode.toString(),
-        map: sourcemap ? magicCode.generateMap({
-            source,
-            includeContent: sourcesContent,
-            hires: true,
-        }) : null,
-    };
+    if (!helpers.isDirty()) {
+        return;
+    }
+
+    return helpers.generate({
+        sourcemap,
+        sourcesContent,
+    });
 }
 
 /**
@@ -377,12 +375,7 @@ var module = {
  * @param {{ sourcemap?: boolean, source?: string; sourcesContent?: boolean }} options
  */
 export async function wrapDynamicRequire(code, { sourcemap = true, source, sourcesContent = false } = {}) {
-    /**
-     * @type {MagicString|undefined}
-     */
-    let magicCode;
-
-    const { processor } = await parse(code);
+    const { helpers, processor } = await parse(code, source);
     await walk(processor, (token, index) => {
         if (!processor.matches5(TokenType._if, TokenType.parenL, TokenType._typeof, TokenType.name, TokenType.equality)) {
             return;
@@ -397,21 +390,16 @@ export async function wrapDynamicRequire(code, { sourcemap = true, source, sourc
         const startToken = tokens[0];
         const endToken = tokens[tokens.length - 1];
 
-        magicCode = magicCode || new MagicString(code);
-        magicCode.prependLeft(startToken.start, 'try {');
-        magicCode.appendRight(endToken.end, '} catch(err) {}');
+        helpers.prepend('try {', startToken.start);
+        helpers.append('} catch(err) {}', endToken.end);
     });
 
-    if (!magicCode) {
+    if (!helpers.isDirty()) {
         return;
     }
 
-    return {
-        code: magicCode.toString(),
-        map: sourcemap ? magicCode.generateMap({
-            source,
-            includeContent: sourcesContent,
-            hires: true,
-        }) : null,
-    };
+    return helpers.generate({
+        sourcemap,
+        sourcesContent,
+    });
 }

@@ -1,5 +1,5 @@
 import path from 'path';
-import { MagicString, walk, parse, TokenType, getIdentifierValue, getBlock } from '@chialab/estransform';
+import { walk, parse, TokenType, getIdentifierValue, getBlock } from '@chialab/estransform';
 import metaUrlPlugin from '@chialab/esbuild-plugin-meta-url';
 import { useRna } from '@chialab/esbuild-rna';
 
@@ -57,15 +57,11 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                 }
 
                 /**
-                 * @type {MagicString|undefined}
-                 */
-                let magicCode;
-
-                /**
                  * @type {Promise<void>[]}
                  */
                 const promises = [];
-                const { processor } = await parse(code);
+
+                const { helpers, processor } = await parse(code, args.path);
                 await walk(processor, (token) => {
                     if (token.type !== TokenType._new) {
                         return;
@@ -125,8 +121,7 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                         if (typeof value !== 'string') {
                             if (proxy) {
                                 const arg = code.substring(firstArg.start, firstArg.end);
-                                magicCode = magicCode || new MagicString(code);
-                                magicCode.overwrite(start, end, `new ${Ctr}(${createBlobProxy(arg, transformOptions)})`);
+                                helpers.overwrite(start, end, `new ${Ctr}(${createBlobProxy(arg, transformOptions)})`);
                             }
                             return;
                         }
@@ -143,8 +138,6 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                             return;
                         }
 
-                        magicCode = magicCode || new MagicString(code);
-
                         const entryPoint = emit ?
                             (await emitChunk({
                                 ...transformOptions,
@@ -153,27 +146,23 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                             `./${path.relative(path.dirname(args.path), resolvedPath)}`;
                         const arg = `new URL('${entryPoint}', import.meta.url).href`;
                         if (proxy) {
-                            magicCode.overwrite(start, end, `new ${Ctr}(${createBlobProxy(arg, transformOptions)})`);
+                            helpers.overwrite(start, end, `new ${Ctr}(${createBlobProxy(arg, transformOptions)})`);
                         } else {
-                            magicCode.overwrite(start, end, `new ${Ctr}(${arg})`);
+                            helpers.overwrite(start, end, `new ${Ctr}(${arg})`);
                         }
                     }));
                 });
 
                 await Promise.all(promises);
 
-                if (!magicCode) {
+                if (!helpers.isDirty()) {
                     return;
                 }
 
-                return {
-                    code: magicCode.toString(),
-                    map: sourcemap ? magicCode.generateMap({
-                        source: args.path,
-                        includeContent: sourcesContent,
-                        hires: true,
-                    }) : undefined,
-                };
+                return helpers.generate({
+                    sourcemap: !!sourcemap,
+                    sourcesContent,
+                });
             });
         },
     };

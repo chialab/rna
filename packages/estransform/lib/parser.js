@@ -1,3 +1,4 @@
+import MagicString from 'magic-string';
 import { parse as sucraseParse } from 'sucrase/dist/parser/index.js';
 import NameManagerModule from 'sucrase/dist/NameManager.js';
 import { HelperManager } from 'sucrase/dist/HelperManager.js';
@@ -43,17 +44,72 @@ export async function walk(processor, callback) {
 
 /**
  * @param {string} code The code to parse.
+ * @param {string} [fileName] The source file name.
  */
-export function parse(code) {
+export function parse(code, fileName) {
     const program = sucraseParse(code, true, true, false);
     const nameManager = new NameManager(code, program.tokens);
     const helperManager = new HelperManager(nameManager);
     const processor = new TokenProcessor(code, program.tokens, false, true, helperManager);
+    const magicCode = new MagicString(code);
+
+    let changed = false;
 
     return {
         program,
         nameManager,
         helperManager,
         processor,
+        helpers: {
+            /**
+             * @param {string} code
+             * @param {number} [index]
+             */
+            prepend(code, index) {
+                changed = true;
+                if (index != null) {
+                    magicCode.prependLeft(index, code);
+                } else {
+                    magicCode.prepend(code);
+                }
+            },
+            /**
+             * @param {string} code
+             * @param {number} [index]
+             */
+            append(code, index) {
+                changed = true;
+                if (index != null) {
+                    magicCode.appendRight(index, code);
+                } else {
+                    magicCode.append(code);
+                }
+            },
+            /**
+             * @param {number} start
+             * @param {number} end
+             * @param {string} code
+             */
+            overwrite(start, end, code) {
+                changed = true;
+                magicCode.overwrite(start, end, code);
+            },
+            isDirty() {
+                return changed;
+            },
+            /**
+             * @param {{ sourcemap?: boolean; sourcesContent?: boolean }} options
+             */
+            generate(options = {}) {
+                return {
+                    code: magicCode.toString(),
+                    map: options.sourcemap ? magicCode.generateMap({
+                        source: fileName,
+                        includeContent: options.sourcesContent,
+                        hires: true,
+                    }) : null,
+                };
+            },
+        },
     };
 }

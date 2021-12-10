@@ -1,6 +1,6 @@
 import path from 'path';
 import { isUrl, hasSearchParam } from '@chialab/node-resolve';
-import { MagicString, parse, walk, getIdentifierValue, getBlock, TokenType } from '@chialab/estransform';
+import { parse, walk, getIdentifierValue, getBlock, TokenType } from '@chialab/estransform';
 import { useRna } from '@chialab/esbuild-rna';
 
 /**
@@ -129,16 +129,12 @@ export default function({ emit = true } = {}) {
                 }
 
                 /**
-                 * @type {MagicString|undefined}
-                 */
-                let magicCode;
-
-                /**
                  * @type {Promise<void>[]}
                  */
                 const promises = [];
 
-                const { processor } = await parse(code);
+                const { helpers, processor } = await parse(code, args.path);
+
                 await walk(processor, () => {
                     const value = getMetaUrl(processor);
                     if (typeof value !== 'string' || isUrl(value)) {
@@ -151,8 +147,7 @@ export default function({ emit = true } = {}) {
 
                     if (hasSearchParam(value, 'emit')) {
                         // already emitted
-                        magicCode = magicCode || new MagicString(code);
-                        magicCode.overwrite(startToken.start, endToken.end, `new URL('${value}', ${baseUrl})`);
+                        helpers.overwrite(startToken.start, endToken.end, `new URL('${value}', ${baseUrl})`);
                         return;
                     }
 
@@ -170,31 +165,25 @@ export default function({ emit = true } = {}) {
                             return;
                         }
 
-                        magicCode = magicCode || new MagicString(code);
-
                         const entryLoader = buildLoaders[path.extname(resolvedPath)] || 'file';
                         const entryPoint = emit ?
                             (entryLoader !== 'file' ? await emitChunk({ entryPoint: resolvedPath }) : await emitFile(resolvedPath)).path :
                             `./${path.relative(path.dirname(args.path), resolvedPath)}`;
 
-                        magicCode.overwrite(startToken.start, endToken.end, `new URL('${entryPoint}', ${baseUrl})`);
+                        helpers.overwrite(startToken.start, endToken.end, `new URL('${entryPoint}', ${baseUrl})`);
                     }));
                 });
 
                 await Promise.all(promises);
 
-                if (!magicCode) {
+                if (!helpers.isDirty()) {
                     return;
                 }
 
-                return {
-                    code: magicCode.toString(),
-                    map: sourcemap ? magicCode.generateMap({
-                        source: args.path,
-                        includeContent: sourcesContent,
-                        hires: true,
-                    }) : undefined,
-                };
+                return helpers.generate({
+                    sourcemap: !!sourcemap,
+                    sourcesContent,
+                });
             });
         },
     };

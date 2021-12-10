@@ -1,6 +1,6 @@
 import path from 'path';
 import { glob } from '@chialab/node-resolve';
-import { MagicString, TokenType, getBlock, getNodeComments, parse, walk } from '@chialab/estransform';
+import { TokenType, getBlock, getNodeComments, parse, walk } from '@chialab/estransform';
 import { useRna } from '@chialab/esbuild-rna';
 
 /**
@@ -27,16 +27,11 @@ export default function() {
                 }
 
                 /**
-                 * @type {MagicString|undefined}
-                 */
-                let magicCode;
-
-                /**
                  * @type {Promise<void>[]}
                  */
                 const promises = [];
 
-                const { processor } = await parse(code);
+                const { helpers, processor } = await parse(code, args.path);
                 await walk(processor, (token) => {
                     if (!processor.matches3(TokenType._import, TokenType.parenL, TokenType.backQuote) ||
                         processor.identifierNameForToken(token) !== 'import') {
@@ -58,8 +53,6 @@ export default function() {
                     const initial = code.substring(block[3].start, block[3].end);
                     const identifier = processor.identifierNameForToken(block[5]);
 
-                    magicCode = magicCode || new MagicString(code);
-
                     promises.push((async () => {
                         const matched = await glob(`${initial}*`, {
                             cwd: path.dirname(args.path),
@@ -71,7 +64,7 @@ export default function() {
                                 return map;
                             }, /** @type {{ [key: string]: string }} */({}));
 
-                        magicCode.overwrite(start, end, `({ ${Object.keys(map).map((key) => `'${key}': () => import('${map[key]}')`).join(', ')} })[${identifier}]()`);
+                        helpers.overwrite(start, end, `({ ${Object.keys(map).map((key) => `'${key}': () => import('${map[key]}')`).join(', ')} })[${identifier}]()`);
                     })());
                 });
 
@@ -96,8 +89,7 @@ export default function() {
                         && testBlock[2].type === TokenType.name
                         && processor.identifierNameForToken(testBlock[2]) === 'hot'
                     ) {
-                        magicCode = magicCode || new MagicString(code);
-                        magicCode.overwrite(start, end, '');
+                        helpers.overwrite(start, end, '');
                         return;
                     }
 
@@ -112,8 +104,7 @@ export default function() {
                         && testBlock[4].type === TokenType.name
                         && processor.identifierNameForToken(testBlock[4]) === 'webpackHot'
                     ) {
-                        magicCode = magicCode || new MagicString(code);
-                        magicCode.overwrite(start, end, '');
+                        helpers.overwrite(start, end, '');
                         return;
                     }
 
@@ -128,8 +119,7 @@ export default function() {
                         && testBlock[4].type === TokenType.name
                         && processor.identifierNameForToken(testBlock[4]) === 'hot'
                     ) {
-                        magicCode = magicCode || new MagicString(code);
-                        magicCode.overwrite(start, end, '');
+                        helpers.overwrite(start, end, '');
                         return;
                     }
 
@@ -153,23 +143,18 @@ export default function() {
                         && testBlock[10].type === TokenType.name
                         && processor.identifierNameForToken(testBlock[10]) === 'decline'
                     ) {
-                        magicCode = magicCode || new MagicString(code);
-                        magicCode.overwrite(start, end, '');
+                        helpers.overwrite(start, end, '');
                     }
                 });
 
-                if (!magicCode) {
+                if (!helpers.isDirty()) {
                     return;
                 }
 
-                return {
-                    code: magicCode.toString(),
-                    map: sourcemap ? magicCode.generateMap({
-                        source: args.path,
-                        includeContent: sourcesContent,
-                        hires: true,
-                    }) : undefined,
-                };
+                return helpers.generate({
+                    sourcemap: !!sourcemap,
+                    sourcesContent,
+                });
             });
         },
     };

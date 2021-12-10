@@ -1,14 +1,14 @@
 import path from 'path';
 import { parentPort, workerData } from 'worker_threads';
-import Mocha from 'mocha';
+import { TestRunner } from '@chialab/estest';
 import { glob } from '@chialab/node-resolve';
 
-const mocha = new Mocha({
+const runner = new TestRunner({
     reporter: 'spec',
 });
 
-mocha.ui('bdd');
-mocha.timeout(10000);
+runner.ui('bdd');
+runner.timeout(10000);
 
 if (parentPort) {
     parentPort.on('message', async ({ event }) => {
@@ -26,10 +26,10 @@ if (parentPort) {
                 ...files.map((file) => path.resolve(file)),
             ], /** @type {string[]} */[]);
 
-        files.forEach((file) => mocha.addFile(file));
-        await mocha.loadFilesAsync();
+        files.forEach((file) => runner.addFile(file));
+        await runner.loadFilesAsync();
 
-        const failures = await new Promise((resolve) => mocha.run((failures) => resolve(failures)));
+        const failures = await new Promise((resolve) => runner.run((failures) => resolve(failures)));
         if (parentPort) {
             parentPort.postMessage({
                 event: 'end',

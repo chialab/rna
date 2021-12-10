@@ -73,13 +73,8 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
 
                     processor.nextToken();
                     let Ctr = processor.identifierNameForToken(processor.currentToken());
-                    if (!constructors.includes(Ctr)
-                        && (
-                            Ctr === 'window'
-                            || Ctr === 'self'
-                            || Ctr === 'globalThis'
-                        )
-                    ) {
+                    if (Ctr === 'window' || Ctr === 'self' || Ctr === 'globalThis') {
+                        processor.nextToken();
                         processor.nextToken();
                         Ctr = processor.identifierNameForToken(processor.currentToken());
                     }

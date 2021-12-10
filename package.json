@@ -8,6 +8,7 @@
   "license": "MIT",
   "scripts": {
     "clear": "rimraf 'node_modules' 'packages/*/node_modules' 'package-lock.json' 'yarn.lock'",
+    "build": "lerna run build",
     "types": "lerna run types",
     "lint": "eslint 'packages/*/lib/**/*.js'",
     "test": "rna test:node packages/*/test/**/*.spec.js --coverage",

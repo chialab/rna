@@ -1,8 +1,8 @@
 import { EventEmitter } from 'events';
-import mocha from 'mocha';
+import { Suite, Test, constants } from '@chialab/estest';
 
 /**
- * @typedef {mocha.Runner & { suite?: mocha.Suite }} Runner
+ * @typedef {import('@chialab/estest').Runner & { suite?: Suite }} Runner
  */
 
 /**
@@ -12,7 +12,7 @@ import mocha from 'mocha';
 /**
  * Update the Mocha test instance with WTR test result.
  * @param {Runner} runner The fake Mocha runner.
- * @param {mocha.Test} test The test instance.
+ * @param {Test} test The test instance.
  * @param {import('@web/test-runner-core').TestResult} testResult The WTR test result.
  */
 export function syncMochaTest(runner, test, testResult) {
@@ -21,7 +21,7 @@ export function syncMochaTest(runner, test, testResult) {
             runner.stats.pending++;
         }
         test.pending = true;
-        runner.emit(mocha.Runner.constants.EVENT_TEST_PENDING, test);
+        runner.emit(constants.EVENT_TEST_PENDING, test);
     } else {
         test.duration = testResult.duration;
         test.pending = false;
@@ -30,7 +30,7 @@ export function syncMochaTest(runner, test, testResult) {
                 runner.stats.passes++;
             }
             test.state = 'passed';
-            runner.emit(mocha.Runner.constants.EVENT_TEST_PASS, test);
+            runner.emit(constants.EVENT_TEST_PASS, test);
         } else {
             if (runner.stats) {
                 runner.stats.failures++;
@@ -46,7 +46,7 @@ export function syncMochaTest(runner, test, testResult) {
                 err.actual = testResult.error.actual;
                 err.expected = testResult.error.expected;
             }
-            runner.emit(mocha.Runner.constants.EVENT_TEST_FAIL, test, err);
+            runner.emit(constants.EVENT_TEST_FAIL, test, err);
         }
     }
 }
@@ -54,7 +54,7 @@ export function syncMochaTest(runner, test, testResult) {
 /**
  * Create and sync a Mocha test instance.
  * @param {Runner} runner The fake Mocha runner.
- * @param {mocha.Suite} suite The current Mocha suite.
+ * @param {Suite} suite The current Mocha suite.
  * @param {import('@web/test-runner-core').TestResult} testResult The WTR test result.
  * @return The Mocha test instance.
  */
@@ -68,7 +68,7 @@ export function reportMochaTest(runner, suite, testResult) {
         }
     }
 
-    const test = new mocha.Test(testResult.name, async () => { });
+    const test = new Test(testResult.name, async () => { });
     if (runner.stats) {
         runner.stats.tests++;
     }
@@ -82,13 +82,13 @@ export function reportMochaTest(runner, suite, testResult) {
  * Create and sync a Mocha suite instance.
  * @param {Runner} runner The fake Mocha runner.
  * @param {import('@web/test-runner-core').TestSuiteResult} testSuiteResult The WTR suite result.
- * @param {mocha.Suite} [parentSuite] The parent Mocha suite.
+ * @param {Suite} [parentSuite] The parent Mocha suite.
  * @return The Mocha suite instance.
  */
 export function reportMochaSuite(runner, testSuiteResult, parentSuite) {
-    parentSuite = parentSuite || (runner.suite = runner.suite || new mocha.Suite(''));
+    parentSuite = parentSuite || (runner.suite = runner.suite || new Suite(''));
 
-    const suite = parentSuite.suites.find(({ title }) => testSuiteResult.name === title) || new mocha.Suite(testSuiteResult.name);
+    const suite = parentSuite.suites.find(({ title }) => testSuiteResult.name === title) || new Suite(testSuiteResult.name);
     if (!suite.parent) {
         if (runner.stats) {
             runner.stats.suites++;
@@ -96,9 +96,9 @@ export function reportMochaSuite(runner, testSuiteResult, parentSuite) {
         parentSuite.addSuite(suite);
     }
 
-    runner.emit(mocha.Runner.constants.EVENT_SUITE_BEGIN, suite);
+    runner.emit(constants.EVENT_SUITE_BEGIN, suite);
     testSuiteResult.tests.forEach((testResult) => reportMochaTest(runner, suite, testResult));
-    runner.emit(mocha.Runner.constants.EVENT_SUITE_END, suite);
+    runner.emit(constants.EVENT_SUITE_END, suite);
     testSuiteResult.suites.forEach((childResult) => reportMochaSuite(runner, childResult, suite));
 
     return suite;

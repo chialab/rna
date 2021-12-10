@@ -1,7 +1,7 @@
 {
   "name": "@chialab/rna-apidoc",
   "type": "module",
-  "version": "0.13.0",
+  "version": "0.14.0",
   "description": "Generate api documentation using TypeScript symbols.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",
@@ -35,7 +35,7 @@
     "node": ">=13"
   },
   "dependencies": {
-    "@chialab/rna-logger": "^0.13.0",
+    "@chialab/rna-logger": "^0.14.0",
     "typedoc": "^0.21.5"
   },
   "devDependencies": {

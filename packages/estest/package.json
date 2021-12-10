@@ -1,7 +1,7 @@
 {
   "name": "@chialab/estest",
   "type": "module",
-  "version": "0.13.13",
+  "version": "0.14.0",
   "description": "Test helpers for ES modules.",
   "main": "dist/index.js",
   "typings": "./types/index.d.ts",

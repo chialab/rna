@@ -65,14 +65,46 @@ export function getBlock(processor, openingToken = TokenType.braceL, closingToke
     let count = 0;
 
     const block = [token];
-    while (!processor.isAtEnd() && (token.type !== closingToken || count > 0)) {
+    while (token && (token.type !== closingToken || count > 0)) {
+        if (processor.isAtEnd() || token.type === TokenType.eof) {
+            break;
+        }
         processor.nextToken();
         token = processor.currentToken();
-        block.push(token);
-        if (token.type === openingToken) {
-            count++;
-        } if (token.type === closingToken) {
-            count--;
+        if (token) {
+            block.push(token);
+            if (token.type === openingToken) {
+                count++;
+            } else if (token.type === closingToken) {
+                count--;
+            }
+        }
+    }
+
+    return block;
+}
+
+/**
+ * @param {import('./parser.js').TokenProcessor} processor
+ */
+export function getStatement(processor) {
+    let token = processor.currentToken();
+    let count = 0;
+
+    const block = [token];
+    while (token && (token.type !== TokenType.semi || count > 0)) {
+        if (processor.isAtEnd() || token.type === TokenType.eof) {
+            break;
+        }
+        processor.nextToken();
+        token = processor.currentToken();
+        if (token) {
+            block.push(token);
+            if (token.type === TokenType.braceL || token.type === TokenType.parenL) {
+                count++;
+            } else if (token.type === TokenType.braceR || token.type === TokenType.parenR) {
+                count--;
+            }
         }
     }
 

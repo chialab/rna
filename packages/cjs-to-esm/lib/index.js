@@ -1,4 +1,4 @@
-import { TokenType, parse, walk, getBlock, parseCommonjs, parseEsm, createEmptySourcemapComment } from '@chialab/estransform';
+import { TokenType, parse, walk, getBlock, getStatement, parseCommonjs, parseEsm, createEmptySourcemapComment } from '@chialab/estransform';
 
 export const REQUIRE_REGEX = /([^.\w$]|^)require\s*\((['"])(.*?)\2\)/g;
 export const UMD_REGEXES = [
@@ -386,12 +386,21 @@ export async function wrapDynamicRequire(code, { sourcemap = true, source, sourc
             return;
         }
 
-        const tokens = getBlock(processor);
+        getBlock(processor, TokenType.parenL, TokenType.parenR);
+        processor.nextToken();
+
+        const tokens = [];
+        if (processor.currentToken() && processor.currentToken().type === TokenType.braceL) {
+            tokens.push(...getBlock(processor).slice(1, -1));
+        } else {
+            tokens.push(...getStatement(processor));
+        }
+
         const startToken = tokens[0];
         const endToken = tokens[tokens.length - 1];
 
-        helpers.prepend('try {', startToken.start);
-        helpers.append('} catch(err) {}', endToken.end);
+        helpers.prepend('(() => { try { return (() => {', startToken.start);
+        helpers.append('})(); } catch(err) {} })();', endToken.end);
     });
 
     if (!helpers.isDirty()) {

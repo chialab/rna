@@ -1,5 +1,5 @@
 import chai from 'chai';
-import { transform } from '../lib/index.js';
+import { transform, wrapDynamicRequire } from '../lib/index.js';
 
 const { expect } = chai;
 
@@ -55,5 +55,17 @@ fs.readFile(path.resolve('test.js'));`).catch((err) => err);
 
         expect(result).to.be.instanceof(Error);
         expect(result.message).to.be.equal('Cannot convert mixed modules');
+    });
+
+    it('should wrap dynamic require', async () => {
+        const { code } = await wrapDynamicRequire('if (typeof require !== \'undefined\') require(\'fs\'); require(\'path\');');
+
+        expect(code).to.equal('if (typeof require !== \'undefined\') (() => { try { return (() => {require(\'fs\');})(); } catch(err) {} })(); require(\'path\');');
+    });
+
+    it('should wrap dynamic require blocks', async () => {
+        const { code } = await wrapDynamicRequire('if (typeof require !== \'undefined\') { require(\'fs\'); require(\'path\'); }');
+
+        expect(code).to.equal('if (typeof require !== \'undefined\') { (() => { try { return (() => {require(\'fs\'); require(\'path\');})(); } catch(err) {} })(); }');
     });
 });

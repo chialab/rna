@@ -79,6 +79,10 @@ export function getMetaUrl(processor) {
         currentToken = processor.tokens[++iterator];
     }
 
+    if (args.length !== 1) {
+        return;
+    }
+
     const firstArg = args[0][0];
 
     if (firstArg.type !== TokenType.string) {

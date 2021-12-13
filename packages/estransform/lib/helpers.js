@@ -27,8 +27,26 @@ export function getIdentifierValue(processor, id) {
     const { tokens } = processor;
     const name = processor.identifierNameForToken(id);
     let index = 0;
+    let count = 0;
     let token = tokens[index++];
     while (index < tokens.length) {
+        if (token.type === TokenType.braceL) {
+            count++;
+            token = tokens[index++];
+            continue;
+        }
+
+        if (token.type === TokenType.braceR) {
+            count--;
+            token = tokens[index++];
+            continue;
+        }
+
+        if (count) {
+            token = tokens[index++];
+            continue;
+        }
+
         if (token.type !== TokenType._var
             && token.type !== TokenType._const
             && token.type !== TokenType._let

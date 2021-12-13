@@ -28,11 +28,11 @@ export default function(rootDir) {
             }
 
             // return the found url.
-            return new URL(url);
+            return new URL(`file://${url}`);
         },
         async load(canonicalUrl) {
             return {
-                contents: await readFile(canonicalUrl.href, 'utf8'),
+                contents: await readFile(canonicalUrl.pathname, 'utf8'),
                 syntax: 'scss',
             };
         },

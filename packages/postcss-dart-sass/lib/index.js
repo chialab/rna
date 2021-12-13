@@ -229,12 +229,11 @@ export default function(options = {}) {
 
             const sassResult = await sass.compileStringAsync(initialCss.css, computedOptions);
             const sassCssOutput = sassResult.css.toString();
-            const sassMap = JSON.parse(/** @type {string} */(sassResult.sourceMap && sassResult.sourceMap.toString()));
 
             const parsed = await parse(sassCssOutput.replace(/\/\*#[^*]+?\*\//g, (match) => ''.padStart(match.length, ' ')), {
                 ...result.opts,
                 map: {
-                    prev: await mergeSourceMaps(sassMap),
+                    prev: await mergeSourceMaps(sassResult.sourceMap),
                     annotation: false,
                     inline: false,
                     sourcesContent: true,

@@ -1,5 +1,4 @@
 import path from 'path';
-import { readFile } from 'fs/promises';
 import { useRna } from '@chialab/esbuild-rna';
 import cssImport from '@chialab/esbuild-plugin-css-import';
 import postcssrc from 'postcss-load-config';
@@ -46,7 +45,7 @@ export default function(options = {}) {
         name: 'postcss',
         async setup(build) {
             const { sourcemap = true, absWorkingDir } = build.initialOptions || {};
-            const { onTransform, resolve, rootDir, collectDependencies, setupPlugin } = useRna(build);
+            const { onTransform, resolve, load, rootDir, collectDependencies, setupPlugin } = useRna(build);
             const config = await loadPostcssConfig(rootDir);
             setupPlugin(plugin, [cssImport()], 'before');
 
@@ -76,24 +75,39 @@ export default function(options = {}) {
                                         url = url.replace(/^(~|package:)/, '');
                                     }
 
-                                    const result = await resolve({
-                                        kind: 'import-rule',
-                                        path: url,
-                                        importer: args.path,
+                                    try {
+                                        const result = await resolve({
+                                            kind: 'import-rule',
+                                            path: url,
+                                            importer: args.path,
+                                            namespace: 'file',
+                                            pluginData: null,
+                                            resolveDir: rootDir,
+                                        });
+
+                                        if (!result || !result.path) {
+                                            return null;
+                                        }
+
+                                        return new URL(`file://${result.path}`);
+                                    } catch (e) {
+                                        return null;
+                                    }
+                                },
+                                async load(canonicalUrl) {
+                                    const result = await load({
+                                        path: canonicalUrl.pathname,
+                                        suffix: '',
                                         namespace: 'file',
                                         pluginData: null,
-                                        resolveDir: rootDir,
                                     });
 
-                                    if (!result || !result.path) {
+                                    if (!result || !result.contents) {
                                         return null;
                                     }
 
-                                    return new URL(result.path);
-                                },
-                                async load(canonicalUrl) {
                                     return {
-                                        contents: await readFile(canonicalUrl.href, 'utf8'),
+                                        contents: result.contents.toString(),
                                         syntax: 'scss',
                                     };
                                 },

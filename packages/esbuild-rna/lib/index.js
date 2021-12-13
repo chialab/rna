@@ -3,7 +3,6 @@ import crypto from 'crypto';
 import { mkdir, readFile, writeFile, rm } from 'fs/promises';
 import { appendSearchParam, browserResolve, escapeRegexBody, resolve as nodeResolve } from '@chialab/node-resolve';
 import { loadSourcemap, inlineSourcemap, mergeSourcemaps } from '@chialab/estransform';
-import esbuild from 'esbuild';
 import { assignToResult, createOutputFile, createResult } from './helpers.js';
 
 export * from './helpers.js';
@@ -116,6 +115,7 @@ const DEFAULT_LOADERS = { '.js': 'js', '.jsx': 'jsx', '.ts': 'ts', '.tsx': 'tsx'
 export function useRna(build) {
     build.initialOptions.metafile = true;
 
+    const { esbuild } = build;
     const { stdin, sourceRoot, absWorkingDir, outdir, outfile, loader = {}, write = true } = build.initialOptions;
     const loaders = {
         ...DEFAULT_LOADERS,

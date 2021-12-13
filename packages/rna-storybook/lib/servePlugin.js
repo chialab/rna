@@ -1,7 +1,8 @@
 import path from 'path';
 import { readFile } from 'fs/promises';
-import { getRequestFilePath } from '@web/dev-server-core';
+import esbuild from 'esbuild';
 import { isCss, isJson, isUrl, appendSearchParam } from '@chialab/node-resolve';
+import { getRequestFilePath } from '@chialab/es-dev-server';
 import { appendCssModuleParam, appendJsonModuleParam } from '@chialab/wds-plugin-rna';
 import { indexHtml, iframeHtml, managerCss, previewCss } from './templates.js';
 import { findStories } from './findStories.js';
@@ -216,9 +217,7 @@ export function servePlugin(config) {
 
             if (context.path.endsWith('.mdx')) {
                 const body = await readFile(filePath, 'utf-8');
-                const { code } = await transformMdxToCsf(body, {
-                    source: filePath,
-                });
+                const { code } = await transformMdxToCsf(body, filePath, esbuild);
                 return {
                     body: code,
                 };

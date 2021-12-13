@@ -1,4 +1,5 @@
 import path from 'path';
+import { readFile } from 'fs/promises';
 import { useRna } from '@chialab/esbuild-rna';
 import cssImport from '@chialab/esbuild-plugin-css-import';
 import postcssrc from 'postcss-load-config';
@@ -68,29 +69,35 @@ export default function(options = {}) {
                     const sassPlugin = await import('@chialab/postcss-dart-sass')
                         .then(({ default: postcssSass }) => postcssSass({
                             rootDir,
-                            omitSourceMapUrl: true,
-                            sourceMapContents: true,
-                            sourceMapEmbed: false,
-                            importer(path, importer, done) {
-                                resolve({
-                                    kind: 'import-rule',
-                                    path,
-                                    importer,
-                                    namespace: 'file',
-                                    pluginData: null,
-                                    resolveDir: rootDir,
-                                }).then((result) => {
-                                    if (result.path && done) {
-                                        done({
-                                            file: result.path,
-                                        });
+                            importers: [{
+                                async canonicalize(url) {
+                                    if (url.match(/^(~|package:)/)) {
+                                        // some modules use ~ or package: for node_modules import
+                                        url = url.replace(/^(~|package:)/, '');
                                     }
-                                }).catch((error) => {
-                                    if (done) {
-                                        done(error);
+
+                                    const result = await resolve({
+                                        kind: 'import-rule',
+                                        path: url,
+                                        importer: args.path,
+                                        namespace: 'file',
+                                        pluginData: null,
+                                        resolveDir: rootDir,
+                                    });
+
+                                    if (!result || !result.path) {
+                                        return null;
                                     }
-                                });
-                            },
+
+                                    return new URL(result.path);
+                                },
+                                async load(canonicalUrl) {
+                                    return {
+                                        contents: await readFile(canonicalUrl.href, 'utf8'),
+                                        syntax: 'scss',
+                                    };
+                                },
+                            }],
                         }));
                     plugins.push(sassPlugin);
                 }

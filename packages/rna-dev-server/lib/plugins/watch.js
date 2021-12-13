@@ -1,5 +1,5 @@
 /**
- * @return {import('@web/dev-server-core').Plugin}
+ * @return {import('@chialab/es-dev-server').Plugin}
  */
 export function watchPlugin() {
     return {

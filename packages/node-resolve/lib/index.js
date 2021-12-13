@@ -63,35 +63,6 @@ export function createResolver(options = {}) {
     return resolve;
 }
 
-/**
- * A sync node resolution method based on enhanced-resolve
- * @param {ResolveOptions} [options]
- */
-export function createSyncResolver(options = {}) {
-    const resolver = nodeResolve.create.sync({
-        symlinks: false,
-        ...options,
-    });
-
-    /**
-     * @type {SyncResolver}
-     */
-    const resolve = function(specifier, importer) {
-        const { path, searchParams } = getSearchParams(specifier);
-        importer = getBasePath(importer);
-
-        const resolved = resolver({}, importer, path);
-
-        if (!resolved) {
-            return resolved;
-        }
-
-        return `${resolved}${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
-    };
-
-    return resolve;
-}
-
 export { isCore };
 
 export const JS_EXTENSIONS = ['.cjs', '.mjs', '.js', '.jsx', '.ts', '.tsx'];
@@ -148,16 +119,6 @@ export const assetResolve = createResolver({
  * It refers to the style field in the package json.
  */
 export const styleResolve = createResolver({
-    extensions: ['.css'],
-    exportsFields: [],
-    mainFields: ['style'],
-});
-
-/**
- * A synced style specific resolver.
- * It refers to the style field in the package json.
- */
-export const syncStyleResolve = createSyncResolver({
     extensions: ['.css'],
     exportsFields: [],
     mainFields: ['style'],

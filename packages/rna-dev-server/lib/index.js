@@ -25,7 +25,7 @@ import { watchPlugin } from './plugins/watch.js';
  */
 
 /**
- * @typedef {Partial<import('@web/dev-server-core').DevServerCoreConfig> & DevServerCoreConfig} DevServerConfig
+ * @typedef {Partial<import('@chialab/es-dev-server').DevServerCoreConfig> & DevServerCoreConfig} DevServerConfig
  */
 
 export function buildMiddlewares() {
@@ -66,7 +66,7 @@ export function buildDevPlugins() {
 /**
  * Start the dev server.
  * @param {DevServerConfig} config
- * @return {Promise<import('@web/dev-server-core').DevServer>} The dev server instance.
+ * @return {Promise<import('@chialab/es-dev-server').DevServer>} The dev server instance.
  */
 export async function createDevServer(config) {
     const root = config.rootDir ? path.resolve(config.rootDir) : process.cwd();
@@ -106,7 +106,7 @@ export async function createDevServer(config) {
 /**
  * Start the dev server.
  * @param {DevServerConfig} config
- * @return {Promise<import('@web/dev-server-core').DevServer>} The dev server instance.
+ * @return {Promise<import('@chialab/es-dev-server').DevServer>} The dev server instance.
  */
 export async function serve(config) {
     const root = config.rootDir || process.cwd();

@@ -26,11 +26,11 @@ import path from 'path';
  */
 
 /**
- * @typedef {import('@web/dev-server-core').Plugin} ServePlugin
+ * @typedef {import('esbuild').LogLevel} LogLevel
  */
 
 /**
- * @typedef {import('esbuild').LogLevel} LogLevel
+ * @typedef {import('@chialab/es-dev-server').Plugin} ServePlugin
  */
 
 /**

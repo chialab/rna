@@ -1,75 +1,42 @@
-import path from 'path';
-import { CSS_EXTENSIONS, syncStyleResolve } from '@chialab/node-resolve';
-
-/**
- * Generate a list of file paths with all style extensions.
- * @param {string} url
- * @return {string[]}
- */
-function alternatives(url) {
-    const results = path.extname(url) ?
-        // url already has an extension.
-        [url] :
-        // remap the path with all style extensions.
-        CSS_EXTENSIONS.map((ext) => `${url}${ext}`);
-    // look for sass partials too.
-    if (path.basename(url)[0] !== '_') {
-        for (let i = 0, len = results.length; i < len; i++) {
-            results.push(
-                // add the _ for partial syntax
-                path.join(
-                    path.dirname(results[i]),
-                    `_${path.basename(results[i])}`
-                )
-            );
-        }
-    }
-    return results;
-}
+import { readFile } from 'fs/promises';
+import { styleResolve } from '@chialab/node-resolve';
 
 /**
  * Create a scoped SASS resolver.
+ * @param {string} rootDir
  */
-export default function() {
+export default function(rootDir) {
     /**
      * Resolve the file path of an imported style.
-     * @type {import('sass').Importer}
+     * @type {import('sass').Importer<'async'>}
      */
-    return function nodeResolver(url, prev) {
-        if (url.match(/^(~|package:)/)) {
-            // some modules use ~ or package: for node_modules import
-            url = url.replace(/^(~|package:)/, '');
-        }
-
-        // generate alternatives for style starting from the module path
-        // add package json check for `style` field.
-        const splitted = url.split('/');
-        let toCheck;
-        if (splitted.length === 1) {
-            toCheck = [url];
-        } else if (url[0] === '@' && splitted.length === 2) {
-            toCheck = [url];
-        } else {
-            toCheck = alternatives(url);
-        }
-        for (let i = 0, len = toCheck.length; i < len; i++) {
-            const modCheck = toCheck[i];
-            try {
-                // use node resolution to get the full file path
-                // it throws if the file does not exist.
-                url = syncStyleResolve(modCheck, prev) || url;
-                if (url) {
-                    // file found, stop the search.
-                    break;
-                }
-            } catch (ex) {
-                //
+    const nodeResolver = {
+        async canonicalize(url) {
+            if (url.match(/^(~|package:)/)) {
+                // some modules use ~ or package: for node_modules import
+                url = url.replace(/^(~|package:)/, '');
             }
-        }
 
-        // return the found url.
-        return {
-            file: url,
-        };
+            const splitted = url.split('/');
+            if (splitted.length === 1 || (url[0] === '@' && splitted.length === 2)) {
+                // resolve using `style` field.
+                url = await styleResolve(url, rootDir) || url;
+            }
+
+            if (!url) {
+                return null;
+            }
+
+            // return the found url.
+            return new URL(url);
+        },
+        async load(canonicalUrl) {
+            return {
+                contents: await readFile(canonicalUrl.href, 'utf8'),
+                syntax: 'scss',
+            };
+        },
     };
+
+    return nodeResolver;
 }

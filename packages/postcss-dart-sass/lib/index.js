@@ -117,7 +117,7 @@ function originalPositionFor(mapping, consumers) {
 }
 
 /**
- * @typedef {import('sass').Options & { rootDir?: string }} PluginOptions
+ * @typedef {import('sass').Options<'async'> & { rootDir?: string }} PluginOptions
  */
 
 /**
@@ -210,48 +210,26 @@ export default function(options = {}) {
                 },
             });
 
+            const rootDir = options.rootDir || process.cwd();
             const outFile = (result.opts.to || result.opts.from);
 
             /**
-             * @type {import('sass').Options}
+             * @type {import('sass').Options<'async'>}
              */
             const computedOptions = {
-                file: result.opts.from,
-                outFile,
-                data: initialCss.css,
-                includePaths: [
-                    options.rootDir || process.cwd(),
+                loadPaths: [rootDir],
+                importers: [
+                    ...(Array.isArray(options.importers) ? options.importers : options.importers ? [options.importers] : []),
+                    sassResolver(rootDir),
                 ],
-                importer: Array.isArray(options.importer) ? [
-                    ...options.importer,
-                    sassResolver(),
-                ] : options.importer ? [
-                    options.importer,
-                    sassResolver(),
-                ] : sassResolver(),
-                indentWidth: 4,
-                outputStyle: 'expanded',
+                style: 'expanded',
                 ...options,
                 sourceMap: true,
-                sourceMapContents: true,
-                omitSourceMapUrl: true,
-                sourceMapEmbed: false,
             };
 
-            /**
-             * @type {import('sass').Result}
-             */
-            const sassResult = await new Promise((resolve, reject) => {
-                sass.render(computedOptions, (err, result) => {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        resolve(result);
-                    }
-                });
-            });
+            const sassResult = await sass.compileStringAsync(initialCss.css, computedOptions);
             const sassCssOutput = sassResult.css.toString();
-            const sassMap = JSON.parse(/** @type {string} */(sassResult.map && sassResult.map.toString()));
+            const sassMap = JSON.parse(/** @type {string} */(sassResult.sourceMap && sassResult.sourceMap.toString()));
 
             const parsed = await parse(sassCssOutput.replace(/\/\*#[^*]+?\*\//g, (match) => ''.padStart(match.length, ' ')), {
                 ...result.opts,
@@ -302,7 +280,7 @@ export default function(options = {}) {
             result.root = parsed;
 
             const dependencies = await Promise.all(
-                sassResult.stats.includedFiles.map(async (fileName) => {
+                sassResult.loadedUrls.map(async (fileName) => {
                     try {
                         await access(fileName);
                         return fileName;

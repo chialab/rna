@@ -110,7 +110,7 @@ export function createLogger(name = 'rna') {
             console.groupEnd();
         },
         /**
-         * @param {import('@web/dev-server-core').ErrorWithLocation} error
+         * @param {Error} error
          */
         logSyntaxError(error) {
             // eslint-disable-next-line no-console

@@ -113,6 +113,7 @@ export default function({
                 const loadFile = (path, options = {}) => load({
                     pluginData: null,
                     namespace: 'file',
+                    suffix: '',
                     ...options,
                     path,
                 });

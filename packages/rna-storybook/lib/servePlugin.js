@@ -15,10 +15,6 @@ import { MANAGER_SCRIPT, MANAGER_STYLE, PREVIEW_SCRIPT, PREVIEW_MODULE_SCRIPT, P
 const regexpReplaceWebsocket = /<!-- injected by web-dev-server -->(.|\s)*<\/script>/m;
 
 /**
- * @typedef {import('@web/dev-server-core').Plugin} Plugin
- */
-
-/**
  * @param {string} source
  */
 export function appendManagerParam(source) {
@@ -49,12 +45,12 @@ export function servePlugin(config) {
     } = config;
 
     /**
-     * @type {import('@web/dev-server-core').DevServerCoreConfig}
+     * @type {import('@chialab/es-dev-server').DevServerCoreConfig}
      */
     let serverConfig;
 
     /**
-     * @type {Plugin}
+     * @type {import('@chialab/es-dev-server').Plugin}
      */
     const plugin = {
         name: 'rna-storybook',

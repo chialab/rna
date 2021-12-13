@@ -1,7 +1,7 @@
 {
   "name": "@chialab/cjs-to-esm",
   "type": "module",
-  "version": "0.14.0",
+  "version": "0.14.1",
   "description": "A commonjs to esm converter.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",
@@ -31,7 +31,7 @@
     "node": ">=13"
   },
   "dependencies": {
-    "@chialab/estransform": "^0.14.0"
+    "@chialab/estransform": "^0.14.1"
   },
   "devDependencies": {
     "typescript": "^4.3.0"

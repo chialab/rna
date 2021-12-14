@@ -1,5 +1,5 @@
 import path from 'path';
-import { walk, parse, TokenType, getIdentifierValue, getBlock } from '@chialab/estransform';
+import { walk, parse, TokenType, getIdentifierValue, getBlock, splitArgs } from '@chialab/estransform';
 import metaUrlPlugin from '@chialab/esbuild-plugin-meta-url';
 import { useRna } from '@chialab/esbuild-rna';
 
@@ -80,10 +80,15 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                     }
 
                     const block = getBlock(processor, TokenType.parenL, TokenType.parenR);
-                    const firstArg = block[2];
+                    const argsBlock = block.slice(2, -1);
+                    const [firstArg, secondArg] = splitArgs(argsBlock);
+                    if (!firstArg) {
+                        return;
+                    }
 
-                    if (firstArg.type !== TokenType.string
-                        && firstArg.type !== TokenType.name) {
+                    const isStringLiteral = firstArg.length === 1 && firstArg[0].type === TokenType.string;
+                    const isIdentifier = firstArg.length === 1 && firstArg[0].type === TokenType.name;
+                    if (!isStringLiteral && !isIdentifier && !proxy) {
                         return;
                     }
 
@@ -97,15 +102,15 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                         jsxFactory: undefined,
                     };
 
-                    if (block[3] && block[3].type === TokenType.comma && block[4].type === TokenType.braceL) {
+                    if (secondArg && secondArg.length >= 4 && secondArg[0].type === TokenType.braceL) {
                         if (
                             (
-                                (block[5].type === TokenType.string && processor.stringValueForToken(block[5]) === 'type')
-                                || (block[5].type === TokenType.name && processor.identifierNameForToken(block[5]) === 'type')
+                                (secondArg[1].type === TokenType.string && processor.stringValueForToken(secondArg[1]) === 'type')
+                                || (secondArg[1].type === TokenType.name && processor.identifierNameForToken(secondArg[1]) === 'type')
                             )
-                            && block[6].type === TokenType.colon
-                            && block[7].type === TokenType.string
-                            && processor.stringValueForToken(block[7]) === 'module'
+                            && secondArg[2].type === TokenType.colon
+                            && secondArg[3].type === TokenType.string
+                            && processor.stringValueForToken(secondArg[3]) === 'module'
                         ) {
                             transformOptions.format = 'esm';
                         }
@@ -115,12 +120,15 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                     const end = block[block.length - 1].end;
 
                     promises.push(Promise.resolve().then(async () => {
-                        const value = firstArg.type === TokenType.string ?
-                            processor.stringValueForToken(firstArg) :
-                            getIdentifierValue(processor, firstArg);
+                        const value = isStringLiteral ?
+                            processor.stringValueForToken(firstArg[0]) :
+                            isIdentifier ?
+                                getIdentifierValue(processor, firstArg[0]) :
+                                null;
+
                         if (typeof value !== 'string') {
                             if (proxy) {
-                                const arg = code.substring(firstArg.start, firstArg.end);
+                                const arg = code.substring(firstArg[0].start, firstArg[firstArg.length - 1].end);
                                 helpers.overwrite(start, end, `new ${Ctr}(${createBlobProxy(arg, transformOptions)})`);
                             }
                             return;

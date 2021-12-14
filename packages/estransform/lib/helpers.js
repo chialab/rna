@@ -130,6 +130,48 @@ export function getStatement(processor) {
 }
 
 /**
+ * @param {import('./types.js').Token[]} tokens
+ */
+export function splitArgs(tokens) {
+    /**
+     * @type {import('./types.js').Token[][]}
+     */
+    const args = [];
+
+    /**
+     * @type {import('./types.js').Token[]}
+     */
+    let currentArg = [];
+
+    let count = 0;
+
+    let token = tokens.shift();
+    while (token) {
+        if (token.type === TokenType.braceL || token.type === TokenType.parenL) {
+            count++;
+        } else if (token.type === TokenType.braceR || token.type === TokenType.parenR) {
+            count--;
+        }
+
+        if (!count && token.type === TokenType.comma) {
+            args.push(currentArg);
+            currentArg = [];
+            token = tokens.shift();
+            continue;
+        }
+
+        currentArg.push(token);
+        token = tokens.shift();
+    }
+
+    if (currentArg.length) {
+        args.push(currentArg);
+    }
+
+    return args;
+}
+
+/**
  * Extract comments for a code range delmited by node span.
  * @param {string} code The original code.
  * @param {number} start The start index.

@@ -86,8 +86,36 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                         return;
                     }
 
-                    const isStringLiteral = firstArg.length === 1 && firstArg[0].type === TokenType.string;
-                    const isIdentifier = firstArg.length === 1 && firstArg[0].type === TokenType.name;
+                    let reference = firstArg[0];
+
+                    if (firstArg[0].type === TokenType._new
+                        && firstArg[1].type === TokenType.name
+                        && processor.identifierNameForToken(firstArg[1]) === 'URL'
+                    ) {
+                        const firstParen = firstArg.findIndex((token) => token.type === TokenType.parenL);
+                        const lastParen = -firstArg.slice(0).reverse().findIndex((token) => token.type === TokenType.parenR);
+                        const [urlArgs, metaArgs] = splitArgs(firstArg.slice(firstParen + 1, lastParen - 1));
+
+                        if (
+                            metaArgs
+                            && metaArgs.length === 5
+                            && metaArgs[0].type === TokenType.name
+                            && processor.identifierNameForToken(metaArgs[0]) === 'import'
+                            && metaArgs[1].type === TokenType.dot
+                            && metaArgs[2].type === TokenType.name
+                            && processor.identifierNameForToken(metaArgs[2]) === 'meta'
+                            && metaArgs[3].type === TokenType.dot
+                            && metaArgs[4].type === TokenType.name
+                            && processor.identifierNameForToken(metaArgs[4]) === 'url'
+                        ) {
+                            if (urlArgs.length === 1) {
+                                reference = urlArgs[0];
+                            }
+                        }
+                    }
+
+                    const isStringLiteral = reference && reference.type === TokenType.string;
+                    const isIdentifier = reference && reference.type === TokenType.name;
                     if (!isStringLiteral && !isIdentifier && !proxy) {
                         return;
                     }
@@ -121,9 +149,9 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
 
                     promises.push(Promise.resolve().then(async () => {
                         const value = isStringLiteral ?
-                            processor.stringValueForToken(firstArg[0]) :
+                            processor.stringValueForToken(reference) :
                             isIdentifier ?
-                                getIdentifierValue(processor, firstArg[0]) :
+                                getIdentifierValue(processor, reference) :
                                 null;
 
                         if (typeof value !== 'string') {

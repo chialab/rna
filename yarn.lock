@@ -9947,7 +9947,7 @@ polished@^4.0.5:
   dependencies:
     "@babel/runtime" "^7.14.0"
 
-polyfill-library@^3.105.0, polyfill-library@^3.110.1:
+polyfill-library@^3.105.0:
   version "3.110.1"
   resolved "https://registry.npmjs.org/polyfill-library/-/polyfill-library-3.110.1.tgz#a6c8cf0c6ed52d8b73633dc95e2963153cefcfaf"
   integrity sha512-OTgQPd6If8DQSrAXcFU2soHXrCHAJpGkBgWRSqEEcydauxzmuU3T1s15wOPfSd1gj8mXbiIrPaDndt0zy4hFTA==

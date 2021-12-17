@@ -16,6 +16,7 @@ esbuild.build({
         '@chialab/wds-plugin-hmr-css',
         '@chialab/wds-plugin-node-resolve',
         '@chialab/wds-plugin-rna',
+        '@chialab/wds-plugin-legacy',
         '@web/dev-server-hmr',
         'yamlparser',
         'fsevents',

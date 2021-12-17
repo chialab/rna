@@ -14,6 +14,12 @@ esbuild.build({
         '@chialab/node-resolve',
     ],
     banner: {
-        js: 'import { createRequire } from \'module\';\nconst require = createRequire(import.meta.url);\n',
+        js: `import { dirname as __pathDirname } from 'path';
+import { createRequire as __moduleCreateRequire } from 'module';
+
+const require = __moduleCreateRequire(import.meta.url);
+const __filename = new URL(import.meta.url).pathname;
+const __dirname = __pathDirname(__filename);
+`,
     },
 });

@@ -3,7 +3,7 @@
   "type": "module",
   "version": "0.14.4",
   "description": "Test helpers for ES modules.",
-  "main": "dist/index.js",
+  "main": "lib/index.js",
   "typings": "./types/index.d.ts",
   "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
   "license": "MIT",
@@ -19,11 +19,10 @@
   ],
   "scripts": {
     "types": "tsc",
-    "build": "rimraf dist && node build.js",
-    "prepack": "yarn types && yarn build"
+    "prepack": "yarn types"
   },
   "files": [
-    "dist",
+    "lib",
     "types",
     "package.json",
     "README.md",
@@ -33,12 +32,11 @@
     "node": ">=13"
   },
   "dependencies": {
-    "istanbul-reports": "^3.1.1"
-  },
-  "devDependencies": {
     "@types/mocha": "^8.2.3",
     "c8": "^7.7.2",
-    "mocha": "^8.4.0",
+    "mocha": "^8.4.0"
+  },
+  "devDependencies": {
     "typescript": "^4.3.0"
   }
 }

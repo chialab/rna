@@ -66,7 +66,7 @@ export default function(options = {}) {
 
                 if (isSass) {
                     const sassPlugin = await import('@chialab/postcss-dart-sass')
-                        .then(({ default: postcssSass }) => postcssSass({
+                        .then(({ default: postcssSass, alternatives }) => postcssSass({
                             rootDir,
                             importers: [{
                                 async canonicalize(url) {
@@ -75,24 +75,36 @@ export default function(options = {}) {
                                         url = url.replace(/^(~|package:)/, '');
                                     }
 
-                                    try {
-                                        const result = await resolve({
-                                            kind: 'import-rule',
-                                            path: url,
-                                            importer: args.path,
-                                            namespace: 'file',
-                                            pluginData: null,
-                                            resolveDir: rootDir,
-                                        });
-
-                                        if (!result || !result.path) {
-                                            return null;
-                                        }
-
-                                        return new URL(`file://${result.path}`);
-                                    } catch (e) {
-                                        return null;
+                                    const splitted = url.split('/');
+                                    const checks = [];
+                                    if (splitted.length === 1 || (url[0] === '@' && splitted.length === 2)) {
+                                        checks.push(url);
+                                    } else {
+                                        checks.push(...alternatives(url));
                                     }
+
+                                    for (let i = 0; i < checks.length; i++) {
+                                        try {
+                                            const result = await resolve({
+                                                kind: 'import-rule',
+                                                path: checks[i],
+                                                importer: args.path,
+                                                namespace: 'file',
+                                                pluginData: null,
+                                                resolveDir: rootDir,
+                                            });
+
+                                            if (!result || !result.path) {
+                                                return null;
+                                            }
+
+                                            return new URL(`file://${result.path}`);
+                                        } catch (e) {
+                                            //
+                                        }
+                                    }
+
+                                    return null;
                                 },
                                 async load(canonicalUrl) {
                                     const result = await load({

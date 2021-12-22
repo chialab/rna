@@ -2,9 +2,12 @@ import { access } from 'fs/promises';
 import path from 'path';
 import sass from 'sass';
 import { SourceMapConsumer, SourceMapGenerator } from 'source-map';
-import sassResolver from './sassResolver.js';
+import sassResolver, { alternatives } from './sassResolver.js';
 
 const sassMatch = /#sass$/;
+
+export { alternatives };
+export const resolver = sassResolver;
 
 /**
  * @param {*[]} maps

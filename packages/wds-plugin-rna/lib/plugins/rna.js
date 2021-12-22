@@ -113,6 +113,9 @@ export async function createConfig(entrypoint, config) {
                     .then(({ default: plugin }) => plugin({
                         emit: false,
                     })),
+                import('@chialab/esbuild-plugin-postcss')
+                    .then(({ default: plugin }) => plugin())
+                    .catch(() => ({ name: 'postcss', setup() { } })),
             ]),
             ...(config.plugins || []),
         ],

@@ -167,7 +167,7 @@ function createDefaultResolver(outFile) {
             if (declSource.start) {
                 const position = map.consumer().originalPositionFor(declSource.start);
                 if (position && position.source) {
-                    const resolved = path.resolve(path.dirname(outFile), position.source);
+                    const resolved = path.resolve(path.dirname(outFile), position.source.replace(/^file:\/\//, ''));
                     if (await exists(resolved)) {
                         return resolved;
                     }
@@ -217,7 +217,7 @@ export default function(options = {}) {
             const outFile = (result.opts.to || result.opts.from);
 
             /**
-             * @type {import('sass').Options<'async'>}
+             * @type {import('sass').Options<'async'> & { url?: URL }}
              */
             const computedOptions = {
                 loadPaths: [rootDir],
@@ -229,6 +229,10 @@ export default function(options = {}) {
                 ...options,
                 sourceMap: true,
             };
+
+            if (result.opts.from) {
+                computedOptions.url = new URL(result.opts.from);
+            }
 
             const sassResult = await sass.compileStringAsync(initialCss.css, computedOptions);
             const sassCssOutput = sassResult.css.toString();
@@ -282,10 +286,10 @@ export default function(options = {}) {
             result.root = parsed;
 
             const dependencies = await Promise.all(
-                sassResult.loadedUrls.map(async (fileName) => {
+                sassResult.loadedUrls.map(async (url) => {
                     try {
-                        await access(fileName);
-                        return fileName;
+                        await access(url.pathname);
+                        return url.pathname;
                     } catch (err) {
                         //
                     }

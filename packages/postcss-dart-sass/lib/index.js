@@ -231,7 +231,7 @@ export default function(options = {}) {
             };
 
             if (result.opts.from) {
-                computedOptions.url = new URL(result.opts.from);
+                computedOptions.url = new URL(`file://${result.opts.from}`);
             }
 
             const sassResult = await sass.compileStringAsync(initialCss.css, computedOptions);

@@ -151,7 +151,7 @@ export function rnaPlugin(config) {
     let serverFileWatcher;
 
     /**
-     * @type {{ [key: string]: Promise<string> }}
+     * @type {{ [key: string]: Promise<Buffer> }}
      */
     const virtualFs = {};
 
@@ -262,7 +262,7 @@ export function rnaPlugin(config) {
             const filePath = getRequestFilePath(context.url, rootDir);
             if (filePath in virtualFs) {
                 return {
-                    body: await virtualFs[filePath],
+                    body: /** @type {string} */ (/** @type {unknown} */ (await virtualFs[filePath])),
                     transformCacheKey: false,
                 };
             }
@@ -292,8 +292,10 @@ export function rnaPlugin(config) {
                         });
 
                         const outputFiles = /** @type {import('esbuild').OutputFile[]} */ (result.outputFiles);
-                        outputFiles.forEach(({ path, text }) => {
-                            virtualFs[path] = Promise.resolve(text);
+                        outputFiles.forEach(({ path, contents }) => {
+                            virtualFs[path] = Promise.resolve(
+                                Buffer.from(contents.buffer.slice(contents.byteOffset, contents.byteLength + contents.byteOffset))
+                            );
                         });
 
                         watchDependencies(result);
@@ -302,7 +304,7 @@ export function rnaPlugin(config) {
                     });
 
                 return {
-                    body: await virtualFs[filePath],
+                    body: /** @type {string} */ (/** @type {unknown} */ (await virtualFs[filePath])),
                     headers: {
                         'content-type': 'text/css',
                     },
@@ -442,8 +444,10 @@ export function rnaPlugin(config) {
                         throw new Error('Failed to bundle dependency');
                     }
 
-                    result.outputFiles.forEach(({ path, text }) => {
-                        virtualFs[path] = Promise.resolve(text);
+                    result.outputFiles.forEach(({ path, contents }) => {
+                        virtualFs[path] = Promise.resolve(
+                            Buffer.from(contents.buffer.slice(contents.byteOffset, contents.byteLength + contents.byteOffset))
+                        );
                     });
 
                     watchDependencies(result);

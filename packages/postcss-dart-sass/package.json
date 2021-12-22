@@ -1,7 +1,7 @@
 {
   "name": "@chialab/postcss-dart-sass",
   "type": "module",
-  "version": "0.14.7",
+  "version": "0.14.8",
   "description": "A postcss plugin that uses dart sass to transpile scss files.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",

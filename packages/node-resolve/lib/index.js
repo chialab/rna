@@ -108,13 +108,6 @@ export function isHtml(filePath) {
 export const resolve = createResolver();
 
 /**
- * Resolve assets references.
- */
-export const assetResolve = createResolver({
-    preferRelative: true,
-});
-
-/**
  * A style specific resolver.
  * It refers to the style field in the package json.
  */

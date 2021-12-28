@@ -1,7 +1,6 @@
 import path from 'path';
 import * as cheerio from 'cheerio';
 import beautify from 'js-beautify';
-import { assetResolve } from '@chialab/node-resolve';
 import { useRna } from '@chialab/esbuild-rna';
 
 /**
@@ -62,7 +61,7 @@ export default function({
         name: 'html',
         setup(build) {
             const { plugins = [], write = true } = build.initialOptions;
-            const { resolve, load, workingDir, rootDir, outDir, onTransform, emitFile, emitChunk } = useRna(build);
+            const { load, workingDir, rootDir, outDir, onTransform, emitFile, emitChunk } = useRna(build);
             if (!outDir) {
                 throw new Error('Cannot use the html plugin without an outdir.');
             }
@@ -97,14 +96,13 @@ export default function({
                 /**
                  * @param {string} file
                  */
-                const resolveFile = (file) => resolve({
+                const resolveFile = (file) => build.resolve(file.startsWith('./') || file.startsWith('../') ? file : `./${file}`, {
                     kind: 'dynamic-import',
-                    path: file,
                     importer: args.path,
                     resolveDir: rootDir,
                     pluginData: null,
                     namespace: 'file',
-                }, assetResolve);
+                });
 
                 /**
                  * @param {string} path

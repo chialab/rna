@@ -48,7 +48,7 @@
     "@chialab/esbuild-rna": "^0.14.10",
     "@chialab/rna-config-loader": "^0.14.10",
     "@chialab/rna-logger": "^0.14.10",
-    "esbuild": "^0.14.0"
+    "esbuild": "^0.14.8"
   },
   "peerDependencies": {
     "@chialab/esbuild-plugin-babel": "^0.14.0",

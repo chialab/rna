@@ -9,7 +9,7 @@ export function mdxPlugin() {
     const plugin = {
         name: 'storybook-mdx',
         async setup(build) {
-            const { onResolve, onLoad } = useRna(build);
+            const { onLoad } = useRna(build);
             /**
              * @type {import('esbuild').BuildOptions['loader']}
              */
@@ -18,7 +18,7 @@ export function mdxPlugin() {
                 '.mdx': 'tsx',
             };
 
-            onResolve({ filter: /\.mdx$/ }, (args) => ({
+            build.onResolve({ filter: /\.mdx$/ }, (args) => ({
                 path: args.path,
             }));
 

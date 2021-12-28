@@ -1,5 +1,4 @@
 import { readFile } from 'fs/promises';
-import { useRna } from '@chialab/esbuild-rna';
 import { pkgUp } from '@chialab/node-resolve';
 
 /**
@@ -21,9 +20,7 @@ export default function({ dependencies = true, peerDependencies = false, optiona
     const plugin = {
         name: 'external',
         async setup(build) {
-            const { onResolve } = useRna(build);
-
-            onResolve({ filter: /^https?:\/\// }, (args) => ({
+            build.onResolve({ filter: /^https?:\/\// }, (args) => ({
                 path: args.path,
                 external: true,
             }));

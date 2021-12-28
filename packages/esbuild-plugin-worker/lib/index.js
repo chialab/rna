@@ -46,7 +46,7 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
         name: 'worker',
         async setup(build) {
             const { sourcesContent, sourcemap } = build.initialOptions;
-            const { onTransform, resolve, emitChunk, setupPlugin, rootDir } = useRna(build);
+            const { onTransform, emitChunk, setupPlugin, rootDir } = useRna(build);
             await setupPlugin(plugin, [metaUrlPlugin({ emit })], 'after');
 
             onTransform({ loaders: ['tsx', 'ts', 'jsx', 'js'] }, async (args) => {
@@ -162,9 +162,8 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                             return;
                         }
 
-                        const { path: resolvedPath } = await resolve({
+                        const { path: resolvedPath } = await build.resolve(value, {
                             kind: 'dynamic-import',
-                            path: value,
                             importer: args.path,
                             namespace: 'file',
                             resolveDir: rootDir,

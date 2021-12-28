@@ -1,0 +1,41 @@
+{
+  "name": "@chialab/es-dev-server",
+  "type": "module",
+  "version": "0.14.4",
+  "description": "Dev server for ES modules.",
+  "main": "dist/index.js",
+  "typings": "./types/index.d.ts",
+  "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chialab/rna",
+    "directory": "packages/es-dev-server"
+  },
+  "keywords": [
+    "dev-server",
+    "hmr",
+    "es"
+  ],
+  "scripts": {
+    "types": "tsc",
+    "build": "rimraf dist && node build.js",
+    "prepack": "yarn types && yarn build"
+  },
+  "files": [
+    "dist",
+    "types",
+    "package.json",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=13"
+  },
+  "devDependencies": {
+    "@types/mocha": "^8.2.3",
+    "@web/dev-server-core": "^0.3.8",
+    "get-port": "^6.0.0",
+    "typescript": "^4.3.0"
+  }
+}

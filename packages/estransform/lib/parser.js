@@ -1,121 +1,115 @@
-import { parse as swcParse } from '@swc/core';
-import { Visitor as swcVisitor } from '@swc/core/Visitor.js';
+import MagicString from 'magic-string';
+import { parse as sucraseParse } from 'sucrase/dist/parser/index.js';
+import NameManagerModule from 'sucrase/dist/NameManager.js';
+import { HelperManager } from 'sucrase/dist/HelperManager.js';
+import TokenProcessorModule from 'sucrase/dist/TokenProcessor.js';
 
 /**
- * @typedef {{ [ K in keyof swcVisitor ]: K extends `visit${infer V}` ? V : never }[keyof swcVisitor]} VisitorKeys
+ * @param {*} mod
  */
+function interopImport(mod) {
+    return (typeof mod.default !== 'undefined' ? mod.default : mod);
+}
+
+export const NameManager = /** @type {typeof import('sucrase/dist/NameManager').default} */ (interopImport(NameManagerModule));
+export const TokenProcessor = /** @type {typeof import('sucrase/dist/TokenProcessor').default} */ (interopImport(TokenProcessorModule));
 
 /**
- * @typedef {{ [key in VisitorKeys]?: (node: Parameters<swcVisitor[`visit${key}`]>[0]) => ReturnType<swcVisitor[`visit${key}`]> | void }} Visitor
+ * Walk through tokens and wait async visitors.
+ *
+ * @param {InstanceType<TokenProcessor>} processor
+ * @param {(token: import('./types.js').Token, index: number, processor: InstanceType<TokenProcessor>) => void|false|Promise<void|false>} callback
  */
+export async function walk(processor, callback) {
+    if (processor.isAtEnd()) {
+        processor.reset();
+    }
 
-/**
- * Walk through the AST of a JavaScript source.
- * @param {import('./types.js').Node} node
- * @param {Visitor} visitor
- */
-export const walk = (node, visitor) => {
-    const v = new swcVisitor();
-    const type = /** @type {'Program'} */ (node.type);
-    const keys = /** @type {VisitorKeys[]} */ (Object.keys(visitor));
+    while (!processor.isAtEnd()) {
+        const token = processor.currentToken();
+        const index = processor.currentIndex();
 
-    // Fix missing method in swc
-    v.visitTsType = (node) => node;
+        let result = callback(token, index, processor);
+        if (result instanceof Promise) {
+            result = await result;
+        }
 
-    keys.forEach((nodeType) => {
-        if (!visitor[nodeType]) {
+        if (result === false) {
             return;
         }
-        const callback = /** @type {swcVisitor['visitProgram']} */ (visitor[nodeType]);
-        const methodKey = /** @type {'visitProgram'} */ (`visit${nodeType}`);
-        const original = v[methodKey];
 
-        /**
-         * @param {Parameters<typeof original>[0]} node
-         */
-        v[methodKey] = function(node) {
-            const result = callback.call(this, node);
-            if (result !== undefined) {
-                return result;
-            }
-
-            return original.call(this, node);
-        };
-    });
-
-    return v[`visit${type}`](/** @type {import('./types.js').Program} */ (node));
-};
+        processor.nextToken();
+    }
+}
 
 /**
- * Parse JavaScript code using the SWC parser.
  * @param {string} code The code to parse.
- * @return The root AST node.
+ * @param {string} [fileName] The source file name.
  */
-export async function parse(code) {
-    // Swc uses byte offsets while magic string uses string offsets.
-    // So, we need to convert double byte characters to single byte.
-    if (Buffer.byteLength(code) !== code.length) {
-        let str = '';
-        for (let i = 0, len = code.length; i < len; i++) {
-            const char = code[i];
-            if (Buffer.byteLength(char, 'utf8') > 1) {
-                str += '_';
-            } else {
-                str += char;
-            }
-        }
+export function parse(code, fileName) {
+    const program = sucraseParse(code, true, true, false);
+    const nameManager = new NameManager(code, program.tokens);
+    const helperManager = new HelperManager(nameManager);
+    const processor = new TokenProcessor(code, program.tokens, false, true, helperManager);
+    const magicCode = new MagicString(code);
 
-        code = str;
-    }
+    let changed = false;
 
-    // We add an empty expression statement at the begin of the file in order
-    // to compute the correct offset for files that starts with comments and spaces.
-    const ast = await swcParse(`;${code}`, {
-        syntax: 'typescript',
-        tsx: true,
-        decorators: true,
-        dynamicImport: true,
-        // does not work with js api
-        comments: false,
-    });
-
-    return ast;
-}
-
-/**
- * Swc does not reset the parser state after parsing.
- * So, spans need to be re-indexed.
- * @param {import('./types.js').Program} program
- * @param {import('./types.js').Node & import('@swc/core').HasSpan} node
- * @returns
- */
-export function getSpanLocation(program, node) {
     return {
-        start: node.span.start - program.span.start - 1,
-        end: node.span.end - program.span.start - 1,
+        program,
+        nameManager,
+        helperManager,
+        processor,
+        helpers: {
+            /**
+             * @param {string} code
+             * @param {number} [index]
+             */
+            prepend(code, index) {
+                changed = true;
+                if (index != null) {
+                    magicCode.prependLeft(index, code);
+                } else {
+                    magicCode.prepend(code);
+                }
+            },
+            /**
+             * @param {string} code
+             * @param {number} [index]
+             */
+            append(code, index) {
+                changed = true;
+                if (index != null) {
+                    magicCode.appendRight(index, code);
+                } else {
+                    magicCode.append(code);
+                }
+            },
+            /**
+             * @param {number} start
+             * @param {number} end
+             * @param {string} code
+             */
+            overwrite(start, end, code) {
+                changed = true;
+                magicCode.overwrite(start, end, code);
+            },
+            isDirty() {
+                return changed;
+            },
+            /**
+             * @param {{ sourcemap?: boolean; sourcesContent?: boolean }} options
+             */
+            generate(options = {}) {
+                return {
+                    code: magicCode.toString(),
+                    map: options.sourcemap ? magicCode.generateMap({
+                        source: fileName,
+                        includeContent: options.sourcesContent,
+                        hires: true,
+                    }) : null,
+                };
+            },
+        },
     };
-}
-
-/**
- * Extract comments for a code range delmited by node span.
- * @param {string} code The original code.
- * @param {import('./types.js').Program} program The program ast.
- * @param {import('./types.js').Node & import('@swc/core').HasSpan} node The requested node.
- */
-export function getNodeComments(code, program, node) {
-    const loc = getSpanLocation(program, node);
-    const chunk = code.substr(loc.start, loc.end - loc.start);
-    const matches = chunk.match(/\/\*[\s\S]*?\*\/|(?:[^\\:]|^)\/\/.*$/gm);
-    if (!matches) {
-        return [];
-    }
-
-    return matches.map((comment) =>
-        // remove comment delimiters
-        comment
-            .trim()
-            .replace(/^\/\*+\s*/, '')
-            .replace(/\s*\*+\/$/, '')
-            .replace(/^\/\/\s*/, '')
-    );
 }

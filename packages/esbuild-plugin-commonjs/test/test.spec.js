@@ -236,11 +236,15 @@ export {
 // test.spec.js
 var test_spec_default = {
   method() {
-    try {
-      if (typeof __require === "function") {
-        return __require("fs");
-      }
-    } catch (err) {
+    if (typeof __require === "function") {
+      (() => {
+        try {
+          return (() => {
+            return __require("fs");
+          })();
+        } catch (err) {
+        }
+      })();
     }
   }
 };

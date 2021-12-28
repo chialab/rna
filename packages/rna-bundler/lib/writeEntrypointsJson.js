@@ -83,7 +83,7 @@ export async function writeEntrypointsJson(entrypoints, result, rootDir, outputF
  * Write entrypoints.json for dev server
  * @param {string[]} entrypoints The build entrypoints.
  * @param {string} outputFile The output file or dir.
- * @param {import('@web/dev-server-core').DevServer} server The server instance.
+ * @param {import('@chialab/es-dev-server').DevServer} server The server instance.
  * @param {import('@chialab/rna-config-loader').Format} format The output format.
  */
 export async function writeDevEntrypointsJson(entrypoints, outputFile, server, format) {

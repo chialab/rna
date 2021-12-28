@@ -1,9 +1,9 @@
 {
   "name": "@chialab/esbuild-plugin-html",
   "type": "module",
-  "version": "0.13.13",
+  "version": "0.14.4",
   "description": "A HTML loader plugin for esbuild.",
-  "main": "lib/index.js",
+  "main": "dist/index.js",
   "typings": "./types/index.d.ts",
   "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
   "license": "MIT",
@@ -21,10 +21,11 @@
   ],
   "scripts": {
     "types": "tsc",
-    "prepack": "yarn types"
+    "build": "rimraf dist && node build.js",
+    "prepack": "yarn types && yarn build"
   },
   "files": [
-    "lib",
+    "dist",
     "types",
     "package.json",
     "README.md",
@@ -34,18 +35,18 @@
     "node": ">=13"
   },
   "dependencies": {
-    "@chialab/esbuild-rna": "^0.13.13",
-    "@chialab/node-resolve": "^0.13.11",
+    "@chialab/esbuild-rna": "^0.14.4",
+    "@chialab/node-resolve": "^0.14.4"
+  },
+  "devDependencies": {
     "@jimp/custom": "^0.16.1",
     "@jimp/jpeg": "^0.16.1",
     "@jimp/plugin-resize": "^0.16.1",
     "@jimp/png": "^0.16.1",
-    "cheerio": "^1.0.0-rc.9",
-    "js-beautify": "^1.14.0"
-  },
-  "devDependencies": {
     "@types/js-beautify": "^1.13.3",
-    "esbuild": "^0.13.0",
+    "cheerio": "^1.0.0-rc.9",
+    "esbuild": "^0.14.0",
+    "js-beautify": "^1.14.0",
     "typescript": "^4.3.0"
   }
 }

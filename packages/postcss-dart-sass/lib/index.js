@@ -2,9 +2,12 @@ import { access } from 'fs/promises';
 import path from 'path';
 import sass from 'sass';
 import { SourceMapConsumer, SourceMapGenerator } from 'source-map';
-import sassResolver from './sassResolver.js';
+import sassResolver, { alternatives } from './sassResolver.js';
 
 const sassMatch = /#sass$/;
+
+export { alternatives };
+export const resolver = sassResolver;
 
 /**
  * @param {*[]} maps
@@ -117,7 +120,7 @@ function originalPositionFor(mapping, consumers) {
 }
 
 /**
- * @typedef {import('sass').Options & { rootDir?: string }} PluginOptions
+ * @typedef {import('sass').Options<'async'> & { rootDir?: string }} PluginOptions
  */
 
 /**
@@ -164,7 +167,7 @@ function createDefaultResolver(outFile) {
             if (declSource.start) {
                 const position = map.consumer().originalPositionFor(declSource.start);
                 if (position && position.source) {
-                    const resolved = path.resolve(path.dirname(outFile), position.source);
+                    const resolved = path.resolve(path.dirname(outFile), position.source.replace(/^file:\/\//, ''));
                     if (await exists(resolved)) {
                         return resolved;
                     }
@@ -210,53 +213,34 @@ export default function(options = {}) {
                 },
             });
 
+            const rootDir = options.rootDir || process.cwd();
             const outFile = (result.opts.to || result.opts.from);
 
             /**
-             * @type {import('sass').Options}
+             * @type {import('sass').Options<'async'> & { url?: URL }}
              */
             const computedOptions = {
-                file: result.opts.from,
-                outFile,
-                data: initialCss.css,
-                includePaths: [
-                    options.rootDir || process.cwd(),
+                loadPaths: [rootDir],
+                importers: [
+                    ...(Array.isArray(options.importers) ? options.importers : options.importers ? [options.importers] : []),
+                    sassResolver(rootDir),
                 ],
-                importer: Array.isArray(options.importer) ? [
-                    ...options.importer,
-                    sassResolver(),
-                ] : options.importer ? [
-                    options.importer,
-                    sassResolver(),
-                ] : sassResolver(),
-                indentWidth: 4,
-                outputStyle: 'expanded',
+                style: 'expanded',
                 ...options,
                 sourceMap: true,
-                sourceMapContents: true,
-                omitSourceMapUrl: true,
-                sourceMapEmbed: false,
             };
 
-            /**
-             * @type {import('sass').Result}
-             */
-            const sassResult = await new Promise((resolve, reject) => {
-                sass.render(computedOptions, (err, result) => {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        resolve(result);
-                    }
-                });
-            });
+            if (result.opts.from) {
+                computedOptions.url = new URL(`file://${result.opts.from}`);
+            }
+
+            const sassResult = await sass.compileStringAsync(initialCss.css, computedOptions);
             const sassCssOutput = sassResult.css.toString();
-            const sassMap = JSON.parse(/** @type {string} */(sassResult.map && sassResult.map.toString()));
 
             const parsed = await parse(sassCssOutput.replace(/\/\*#[^*]+?\*\//g, (match) => ''.padStart(match.length, ' ')), {
                 ...result.opts,
                 map: {
-                    prev: await mergeSourceMaps(sassMap),
+                    prev: await mergeSourceMaps(sassResult.sourceMap),
                     annotation: false,
                     inline: false,
                     sourcesContent: true,
@@ -302,10 +286,10 @@ export default function(options = {}) {
             result.root = parsed;
 
             const dependencies = await Promise.all(
-                sassResult.stats.includedFiles.map(async (fileName) => {
+                sassResult.loadedUrls.map(async (url) => {
                     try {
-                        await access(fileName);
-                        return fileName;
+                        await access(url.pathname);
+                        return url.pathname;
                     } catch (err) {
                         //
                     }

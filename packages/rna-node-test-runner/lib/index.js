@@ -1,4 +1,9 @@
+import os from 'os';
+import path from 'path';
+import { Worker } from 'worker_threads';
+import { mkdtemp } from 'fs/promises';
 import { readConfigFile, mergeConfig, locateConfigFile } from '@chialab/rna-config-loader';
+import { CoverageReport } from '@chialab/es-test-runner';
 
 /**
  * @typedef {Object} TestRunnerConfig
@@ -12,13 +17,7 @@ import { readConfigFile, mergeConfig, locateConfigFile } from '@chialab/rna-conf
  * @param {TestRunnerConfig} config
  */
 export async function test(config) {
-    const { default: os } = await import('os');
-    const { promises: fs } = await import('fs');
-    const { default: path } = await import('path');
-    const { Worker } = await import('worker_threads');
-    const { Report } = await import('c8');
-
-    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'rna-nyc'));
+    const tmpDir = await mkdtemp(path.join(os.tmpdir(), 'rna-nyc'));
     process.env.NODE_V8_COVERAGE = tmpDir;
 
     const worker = new Worker(new URL('./worker.js', import.meta.url), {
@@ -41,7 +40,7 @@ export async function test(config) {
         worker.postMessage({ event: 'run' });
     });
 
-    const report = new Report({
+    const report = new CoverageReport({
         include: ['**'],
         exclude: [
             'node_modules/**',

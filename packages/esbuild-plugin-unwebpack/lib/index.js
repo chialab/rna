@@ -1,6 +1,6 @@
 import path from 'path';
 import { glob } from '@chialab/node-resolve';
-import { MagicString, getSpanLocation, getNodeComments, parse, walk } from '@chialab/estransform';
+import { TokenType, getBlock, getNodeComments, parse, walk } from '@chialab/estransform';
 import { useRna } from '@chialab/esbuild-rna';
 
 /**
@@ -27,144 +27,134 @@ export default function() {
                 }
 
                 /**
-                 * @type {MagicString|undefined}
-                 */
-                let magicCode;
-
-                /**
                  * @type {Promise<void>[]}
                  */
                 const promises = [];
 
-                const ast = await parse(code);
-                walk(ast, {
-                    /**
-                     * @param {import('@chialab/estransform').CallExpression} node
-                     */
-                    CallExpression(node) {
-                        if (node.callee.type !== 'Identifier' ||
-                            node.callee.value !== 'import') {
-                            return;
-                        }
+                const { helpers, processor } = await parse(code, args.path);
+                await walk(processor, (token) => {
+                    if (!processor.matches3(TokenType._import, TokenType.parenL, TokenType.backQuote) ||
+                        processor.identifierNameForToken(token) !== 'import') {
+                        return;
+                    }
 
-                        const firstArg = node.arguments[0] && node.arguments[0].expression;
-                        if (firstArg.type !== 'TemplateLiteral') {
-                            return;
-                        }
+                    const block = getBlock(processor, TokenType.parenL, TokenType.parenR);
+                    const start = block[0].start;
+                    const end = block[block.length - 1].end;
+                    const comments = getNodeComments(code, start, end);
+                    const included = comments.find((value) => value.startsWith('webpackInclude:'));
+                    if (!included) {
+                        return;
+                    }
 
-                        const comments = getNodeComments(code, ast, node);
-                        const included = comments.find((value) => value.startsWith('webpackInclude:'));
-                        if (!included) {
-                            return;
-                        }
+                    const excluded = comments.find((value) => value.startsWith('webpackExclude:'));
+                    const include = new RegExp(included.replace('webpackInclude:', '').trim().replace(/^\//, '').replace(/\/$/, ''));
+                    const exclude = excluded && new RegExp(excluded.replace('webpackExclude:', '').trim().replace(/^\//, '').replace(/\/$/, ''));
+                    const initial = code.substring(block[3].start, block[3].end);
+                    const identifier = processor.identifierNameForToken(block[5]);
 
-                        const excluded = comments.find((value) => value.startsWith('webpackExclude:'));
-                        const include = new RegExp(included.replace('webpackInclude:', '').trim().replace(/^\//, '').replace(/\/$/, ''));
-                        const exclude = excluded && new RegExp(excluded.replace('webpackExclude:', '').trim().replace(/^\//, '').replace(/\/$/, ''));
-                        const initial = firstArg.quasis[0].raw.value;
-                        const identifier = firstArg.expressions[0].type === 'Identifier' && firstArg.expressions[0].value;
+                    promises.push((async () => {
+                        const matched = await glob(`${initial}*`, {
+                            cwd: path.dirname(args.path),
+                        });
+                        const map = matched
+                            .filter((name) => name.match(include) && (!exclude || !name.match(exclude)))
+                            .reduce((map, name) => {
+                                map[name.replace(include, '')] = `./${name}`;
+                                return map;
+                            }, /** @type {{ [key: string]: string }} */({}));
 
-                        const loc = getSpanLocation(ast, node);
-                        magicCode = magicCode || new MagicString(code);
-
-                        promises.push((async () => {
-                            const map = (await glob(`${initial}*`, {
-                                cwd: path.dirname(args.path),
-                            }))
-                                .filter((name) => name.match(include) && (!exclude || !name.match(exclude)))
-                                .reduce((map, name) => {
-                                    map[name.replace(include, '')] = `./${name}`;
-                                    return map;
-                                }, /** @type {{ [key: string]: string }} */({}));
-
-                            magicCode.overwrite(loc.start, loc.end, `({ ${Object.keys(map).map((key) => `'${key}': () => import('${map[key]}')`).join(', ')} })[${identifier}]()`);
-                        })());
-                    },
-
-                    /**
-                     * @param {import('@chialab/estransform').IfStatement} node
-                     */
-                    IfStatement(node) {
-                        const remove = () => {
-                            const loc = getSpanLocation(ast, node);
-                            magicCode = magicCode || new MagicString(code);
-                            magicCode.overwrite(loc.start, loc.end, '');
-                        };
-
-                        // if (module.hot) {
-                        if (node.test.type === 'MemberExpression' &&
-                            node.test.object.type === 'Identifier' &&
-                            node.test.object.value === 'module' &&
-                            node.test.property.type === 'Identifier' &&
-                            node.test.property.value === 'hot'
-                        ) {
-                            remove();
-                            return;
-                        }
-
-                        // if (import.meta.webpackHot) {
-                        if (node.test.type === 'MemberExpression' &&
-                            node.test.object.type === 'MetaProperty' &&
-                            node.test.property.type === 'Identifier' &&
-                            node.test.property.value === 'webpackHot'
-                        ) {
-                            remove();
-                            return;
-                        }
-
-                        // if (module && module.hot) {
-                        if (node.test.type === 'BinaryExpression' &&
-                            node.test.left.type === 'Identifier' &&
-                            node.test.left.value === 'module' &&
-                            node.test.right.type === 'MemberExpression' &&
-                            node.test.right.object.type === 'Identifier' &&
-                            node.test.right.object.value === 'module' &&
-                            node.test.right.property.type === 'Identifier' &&
-                            node.test.right.property.value === 'hot'
-                        ) {
-                            remove();
-                            return;
-                        }
-
-                        // if (module && module.hot && module.hot.decline) {
-                        if (node.test.type === 'BinaryExpression' &&
-                            node.test.left.type === 'BinaryExpression' &&
-                            node.test.left.left.type === 'Identifier' &&
-                            node.test.left.left.value === 'module' &&
-                            node.test.left.right.type === 'MemberExpression' &&
-                            node.test.left.right.object.type === 'Identifier' &&
-                            node.test.left.right.object.value === 'module' &&
-                            node.test.left.right.property.type === 'Identifier' &&
-                            node.test.left.right.property.value === 'hot' &&
-                            node.test.right.type === 'MemberExpression' &&
-                            node.test.right.object.type === 'MemberExpression' &&
-                            node.test.right.object.object.type === 'Identifier' &&
-                            node.test.right.object.object.value === 'module' &&
-                            node.test.right.object.property.type === 'Identifier' &&
-                            node.test.right.object.property.value === 'hot' &&
-                            node.test.right.property.type === 'Identifier' &&
-                            node.test.right.property.value === 'decline'
-                        ) {
-                            remove();
-                            return;
-                        }
-                    },
+                        helpers.overwrite(start, end, `({ ${Object.keys(map).map((key) => `'${key}': () => import('${map[key]}')`).join(', ')} })[${identifier}]()`);
+                    })());
                 });
 
                 await Promise.all(promises);
 
-                if (!magicCode) {
+                await walk(processor, (token) => {
+                    if (token.type !== TokenType._if) {
+                        return;
+                    }
+
+                    const testBlock = getBlock(processor, TokenType.parenL, TokenType.parenR).slice(2, -1);
+                    const bodyBlock = getBlock(processor, TokenType.braceL, TokenType.braceR);
+
+                    const start = token.start;
+                    const end = bodyBlock[bodyBlock.length - 1].end;
+
+                    // if (module.hot) {
+                    if (testBlock.length === 3
+                        && testBlock[0].type === TokenType.name
+                        && processor.identifierNameForToken(testBlock[0]) === 'module'
+                        && testBlock[1].type === TokenType.dot
+                        && testBlock[2].type === TokenType.name
+                        && processor.identifierNameForToken(testBlock[2]) === 'hot'
+                    ) {
+                        helpers.overwrite(start, end, '');
+                        return;
+                    }
+
+                    // if (import.meta.webpackHot) {
+                    if (testBlock.length === 5
+                        && testBlock[0].type === TokenType.name
+                        && processor.identifierNameForToken(testBlock[0]) === 'import'
+                        && testBlock[1].type === TokenType.dot
+                        && testBlock[2].type === TokenType.name
+                        && processor.identifierNameForToken(testBlock[2]) === 'meta'
+                        && testBlock[3].type === TokenType.dot
+                        && testBlock[4].type === TokenType.name
+                        && processor.identifierNameForToken(testBlock[4]) === 'webpackHot'
+                    ) {
+                        helpers.overwrite(start, end, '');
+                        return;
+                    }
+
+                    // if (module && module.hot) {
+                    if (testBlock.length === 5
+                        && testBlock[0].type === TokenType.name
+                        && processor.identifierNameForToken(testBlock[0]) === 'module'
+                        && testBlock[1].type === TokenType.logicalAND
+                        && testBlock[2].type === TokenType.name
+                        && processor.identifierNameForToken(testBlock[2]) === 'module'
+                        && testBlock[3].type === TokenType.dot
+                        && testBlock[4].type === TokenType.name
+                        && processor.identifierNameForToken(testBlock[4]) === 'hot'
+                    ) {
+                        helpers.overwrite(start, end, '');
+                        return;
+                    }
+
+                    // if (module && module.hot && module.hot.decline) {
+                    if (testBlock.length === 11
+                        && testBlock[0].type === TokenType.name
+                        && processor.identifierNameForToken(testBlock[0]) === 'module'
+                        && testBlock[1].type === TokenType.logicalAND
+                        && testBlock[2].type === TokenType.name
+                        && processor.identifierNameForToken(testBlock[2]) === 'module'
+                        && testBlock[3].type === TokenType.dot
+                        && testBlock[4].type === TokenType.name
+                        && processor.identifierNameForToken(testBlock[4]) === 'hot'
+                        && testBlock[5].type === TokenType.logicalAND
+                        && testBlock[6].type === TokenType.name
+                        && processor.identifierNameForToken(testBlock[6]) === 'module'
+                        && testBlock[7].type === TokenType.dot
+                        && testBlock[8].type === TokenType.name
+                        && processor.identifierNameForToken(testBlock[8]) === 'hot'
+                        && testBlock[9].type === TokenType.dot
+                        && testBlock[10].type === TokenType.name
+                        && processor.identifierNameForToken(testBlock[10]) === 'decline'
+                    ) {
+                        helpers.overwrite(start, end, '');
+                    }
+                });
+
+                if (!helpers.isDirty()) {
                     return;
                 }
 
-                return {
-                    code: magicCode.toString(),
-                    map: sourcemap ? magicCode.generateMap({
-                        source: args.path,
-                        includeContent: sourcesContent,
-                        hires: true,
-                    }) : undefined,
-                };
+                return helpers.generate({
+                    sourcemap: !!sourcemap,
+                    sourcesContent,
+                });
             });
         },
     };

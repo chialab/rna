@@ -45,7 +45,7 @@ export default function(options = {}) {
         name: 'postcss',
         async setup(build) {
             const { sourcemap = true, absWorkingDir } = build.initialOptions || {};
-            const { onTransform, resolve, rootDir, collectDependencies, setupPlugin } = useRna(build);
+            const { onTransform, resolve, load, rootDir, collectDependencies, setupPlugin } = useRna(build);
             const config = await loadPostcssConfig(rootDir);
             setupPlugin(plugin, [cssImport()], 'before');
 
@@ -66,31 +66,64 @@ export default function(options = {}) {
 
                 if (isSass) {
                     const sassPlugin = await import('@chialab/postcss-dart-sass')
-                        .then(({ default: postcssSass }) => postcssSass({
+                        .then(({ default: postcssSass, alternatives }) => postcssSass({
                             rootDir,
-                            omitSourceMapUrl: true,
-                            sourceMapContents: true,
-                            sourceMapEmbed: false,
-                            importer(path, importer, done) {
-                                resolve({
-                                    kind: 'import-rule',
-                                    path,
-                                    importer,
-                                    namespace: 'file',
-                                    pluginData: null,
-                                    resolveDir: rootDir,
-                                }).then((result) => {
-                                    if (result.path && done) {
-                                        done({
-                                            file: result.path,
-                                        });
+                            importers: [{
+                                async canonicalize(url) {
+                                    if (url.match(/^(~|package:)/)) {
+                                        // some modules use ~ or package: for node_modules import
+                                        url = url.replace(/^(~|package:)/, '');
                                     }
-                                }).catch((error) => {
-                                    if (done) {
-                                        done(error);
+
+                                    const splitted = url.split('/');
+                                    const checks = [];
+                                    if (splitted.length === 1 || (url[0] === '@' && splitted.length === 2)) {
+                                        checks.push(url);
+                                    } else {
+                                        checks.push(...alternatives(url));
                                     }
-                                });
-                            },
+
+                                    for (let i = 0; i < checks.length; i++) {
+                                        try {
+                                            const result = await resolve({
+                                                kind: 'import-rule',
+                                                path: checks[i],
+                                                importer: args.path,
+                                                namespace: 'file',
+                                                pluginData: null,
+                                                resolveDir: rootDir,
+                                            });
+
+                                            if (!result || !result.path) {
+                                                return null;
+                                            }
+
+                                            return new URL(`file://${result.path}`);
+                                        } catch (e) {
+                                            //
+                                        }
+                                    }
+
+                                    return null;
+                                },
+                                async load(canonicalUrl) {
+                                    const result = await load({
+                                        path: canonicalUrl.pathname,
+                                        suffix: '',
+                                        namespace: 'file',
+                                        pluginData: null,
+                                    });
+
+                                    if (!result || !result.contents) {
+                                        return null;
+                                    }
+
+                                    return {
+                                        contents: result.contents.toString(),
+                                        syntax: 'scss',
+                                    };
+                                },
+                            }],
                         }));
                     plugins.push(sassPlugin);
                 }

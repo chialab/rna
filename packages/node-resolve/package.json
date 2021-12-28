@@ -1,9 +1,9 @@
 {
   "name": "@chialab/node-resolve",
   "type": "module",
-  "version": "0.13.11",
+  "version": "0.14.4",
   "description": "A promise based node resolution library based on enhanced-resolve.",
-  "main": "lib/index.js",
+  "main": "dist/index.js",
   "typings": "./types/index.d.ts",
   "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
   "license": "MIT",
@@ -21,10 +21,11 @@
   ],
   "scripts": {
     "types": "tsc",
-    "prepack": "yarn types"
+    "build": "rimraf dist && node build.js",
+    "prepack": "yarn types && yarn build"
   },
   "files": [
-    "lib",
+    "dist",
     "types",
     "package.json",
     "README.md",
@@ -33,14 +34,12 @@
   "engines": {
     "node": ">=13"
   },
-  "dependencies": {
+  "devDependencies": {
+    "@types/is-core-module": "^2.2.0",
     "enhanced-resolve": "^5.8.2",
     "fast-glob": "^3.2.0",
     "is-core-module": "^2.5.0",
-    "pkg-up": "^4.0.0"
-  },
-  "devDependencies": {
-    "@types/is-core-module": "^2.2.0",
+    "pkg-up": "^4.0.0",
     "typescript": "^4.3.0"
   }
 }

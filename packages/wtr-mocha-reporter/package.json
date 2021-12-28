@@ -1,9 +1,9 @@
 {
   "name": "@chialab/wtr-mocha-reporter",
   "type": "module",
-  "version": "0.13.0",
+  "version": "0.14.4",
   "description": "A mocha reporter interface for the Web Test Runner.",
-  "main": "lib/index.js",
+  "main": "dist/index.js",
   "typings": "./types/index.d.ts",
   "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
   "license": "MIT",
@@ -19,10 +19,11 @@
   ],
   "scripts": {
     "types": "tsc",
-    "prepack": "yarn types"
+    "build": "rimraf dist && node build.js",
+    "prepack": "yarn types && yarn build"
   },
   "files": [
-    "lib",
+    "dist",
     "types",
     "package.json",
     "README.md",
@@ -32,11 +33,11 @@
     "node": ">=13"
   },
   "dependencies": {
-    "@web/test-runner-core": "^0.10.19",
-    "chalk": "^4.1.2",
-    "mocha": "^9.0.2"
+    "@chialab/es-test-runner": "^0.14.4"
   },
   "devDependencies": {
+    "@web/test-runner-core": "^0.10.19",
+    "chalk": "^4.1.2",
     "typescript": "^4.3.0"
   }
 }

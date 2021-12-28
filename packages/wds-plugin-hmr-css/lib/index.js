@@ -1,4 +1,4 @@
-import { getRequestFilePath } from '@web/dev-server-core';
+import { getRequestFilePath } from '@chialab/es-dev-server';
 
 /**
  * @typedef {Object} CSSResource

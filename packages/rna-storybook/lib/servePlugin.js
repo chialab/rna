@@ -1,7 +1,8 @@
 import path from 'path';
 import { readFile } from 'fs/promises';
-import { getRequestFilePath } from '@web/dev-server-core';
+import esbuild from 'esbuild';
 import { isCss, isJson, isUrl, appendSearchParam } from '@chialab/node-resolve';
+import { getRequestFilePath } from '@chialab/es-dev-server';
 import { appendCssModuleParam, appendJsonModuleParam } from '@chialab/wds-plugin-rna';
 import { indexHtml, iframeHtml, managerCss, previewCss } from './templates.js';
 import { findStories } from './findStories.js';
@@ -12,10 +13,6 @@ import { createStoriesJson, createStorySpecifiers } from './createStoriesJson.js
 import { MANAGER_SCRIPT, MANAGER_STYLE, PREVIEW_SCRIPT, PREVIEW_MODULE_SCRIPT, PREVIEW_STYLE } from './entrypoints.js';
 
 const regexpReplaceWebsocket = /<!-- injected by web-dev-server -->(.|\s)*<\/script>/m;
-
-/**
- * @typedef {import('@web/dev-server-core').Plugin} Plugin
- */
 
 /**
  * @param {string} source
@@ -48,12 +45,12 @@ export function servePlugin(config) {
     } = config;
 
     /**
-     * @type {import('@web/dev-server-core').DevServerCoreConfig}
+     * @type {import('@chialab/es-dev-server').DevServerCoreConfig}
      */
     let serverConfig;
 
     /**
-     * @type {Plugin}
+     * @type {import('@chialab/es-dev-server').Plugin}
      */
     const plugin = {
         name: 'rna-storybook',
@@ -216,9 +213,7 @@ export function servePlugin(config) {
 
             if (context.path.endsWith('.mdx')) {
                 const body = await readFile(filePath, 'utf-8');
-                const { code } = await transformMdxToCsf(body, {
-                    source: filePath,
-                });
+                const { code } = await transformMdxToCsf(body, filePath, esbuild);
                 return {
                     body: code,
                 };

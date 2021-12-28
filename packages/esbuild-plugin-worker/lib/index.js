@@ -1,6 +1,6 @@
 import path from 'path';
-import { MagicString, walk, parse, getSpanLocation } from '@chialab/estransform';
-import metaUrlPlugin, { getMetaUrl } from '@chialab/esbuild-plugin-meta-url';
+import { walk, parse, TokenType, getIdentifierValue, getBlock, splitArgs } from '@chialab/estransform';
+import metaUrlPlugin from '@chialab/esbuild-plugin-meta-url';
 import { useRna } from '@chialab/esbuild-rna';
 
 /**
@@ -57,130 +57,148 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                 }
 
                 /**
-                 * @type {MagicString|undefined}
-                 */
-                let magicCode;
-
-                /**
                  * @type {Promise<void>[]}
                  */
                 const promises = [];
-                const ast = await parse(code);
-                walk(ast, {
-                    /**
-                     * @param {import('@chialab/estransform').NewExpression} node
-                     */
-                    NewExpression(node) {
-                        let callee = node.callee;
-                        if (callee.type === 'MemberExpression') {
-                            if (callee.object.type === 'Identifier') {
-                                if (
-                                    callee.object.value !== 'window' &&
-                                    callee.object.value !== 'self' &&
-                                    callee.object.value !== 'globalThis') {
-                                    return;
-                                }
+
+                const { helpers, processor } = await parse(code, args.path);
+                await walk(processor, (token) => {
+                    if (token.type !== TokenType._new) {
+                        return;
+                    }
+
+                    processor.nextToken();
+                    let Ctr = processor.identifierNameForToken(processor.currentToken());
+                    if (Ctr === 'window' || Ctr === 'self' || Ctr === 'globalThis') {
+                        processor.nextToken();
+                        processor.nextToken();
+                        Ctr = processor.identifierNameForToken(processor.currentToken());
+                    }
+
+                    if (!constructors.includes(Ctr)) {
+                        return;
+                    }
+
+                    const block = getBlock(processor, TokenType.parenL, TokenType.parenR);
+                    const argsBlock = block.slice(2, -1);
+                    const [firstArg, secondArg] = splitArgs(argsBlock);
+                    if (!firstArg) {
+                        return;
+                    }
+
+                    let reference = firstArg[0];
+
+                    if (firstArg[0].type === TokenType._new
+                        && firstArg[1].type === TokenType.name
+                        && processor.identifierNameForToken(firstArg[1]) === 'URL'
+                    ) {
+                        const firstParen = firstArg.findIndex((token) => token.type === TokenType.parenL);
+                        const lastParen = -firstArg.slice(0).reverse().findIndex((token) => token.type === TokenType.parenR);
+                        const [urlArgs, metaArgs] = splitArgs(firstArg.slice(firstParen + 1, lastParen - 1));
+
+                        if (
+                            metaArgs
+                            && metaArgs.length === 5
+                            && metaArgs[0].type === TokenType.name
+                            && processor.identifierNameForToken(metaArgs[0]) === 'import'
+                            && metaArgs[1].type === TokenType.dot
+                            && metaArgs[2].type === TokenType.name
+                            && processor.identifierNameForToken(metaArgs[2]) === 'meta'
+                            && metaArgs[3].type === TokenType.dot
+                            && metaArgs[4].type === TokenType.name
+                            && processor.identifierNameForToken(metaArgs[4]) === 'url'
+                        ) {
+                            if (urlArgs.length === 1) {
+                                reference = urlArgs[0];
                             }
-                            callee = callee.property;
                         }
-                        if (callee.type !== 'Identifier') {
-                            return;
-                        }
-                        const Ctr = callee.value;
-                        if (!constructors.includes(Ctr)) {
-                            return;
-                        }
-                        if (!node.arguments.length) {
-                            return;
-                        }
+                    }
 
-                        const firstArg = /** @type {import('@chialab/estransform').StringLiteral|import('@chialab/estransform').NewExpression|import('@chialab/estransform').MemberExpression} */ (node.arguments[0] && node.arguments[0].expression);
+                    const isStringLiteral = reference && reference.type === TokenType.string;
+                    const isIdentifier = reference && reference.type === TokenType.name;
+                    if (!isStringLiteral && !isIdentifier && !proxy) {
+                        return;
+                    }
 
-                        /**
-                         * @type {Omit<import('@chialab/esbuild-rna').EmitTransformOptions, 'entryPoint'>}
-                         */
-                        const transformOptions = {
-                            format: 'iife',
-                            bundle: true,
-                            platform: 'neutral',
-                            jsxFactory: undefined,
-                        };
-                        const workerOptions = node.arguments[1] && node.arguments[1].expression;
-                        if (workerOptions &&
-                            workerOptions.type === 'ObjectExpression' &&
-                            workerOptions.properties &&
-                            workerOptions.properties.some(
-                                /**
-                                 * @param {import('@swc/core').Property|import('@swc/core').SpreadElement} prop
-                                 */
-                                (prop) =>
-                                    prop.type === 'KeyValueProperty' &&
-                                    (prop.key.type === 'StringLiteral' || prop.key.type === 'Identifier') &&
-                                    prop.key?.value === 'type' &&
-                                    prop.value.type === 'StringLiteral' &&
-                                    prop.value?.value === 'module'
+                    /**
+                     * @type {Omit<import('@chialab/esbuild-rna').EmitTransformOptions, 'entryPoint'>}
+                     */
+                    const transformOptions = {
+                        format: 'iife',
+                        bundle: true,
+                        platform: 'neutral',
+                        jsxFactory: undefined,
+                    };
+
+                    if (secondArg && secondArg.length >= 4 && secondArg[0].type === TokenType.braceL) {
+                        if (
+                            (
+                                (secondArg[1].type === TokenType.string && processor.stringValueForToken(secondArg[1]) === 'type')
+                                || (secondArg[1].type === TokenType.name && processor.identifierNameForToken(secondArg[1]) === 'type')
                             )
+                            && secondArg[2].type === TokenType.colon
+                            && secondArg[3].type === TokenType.string
+                            && processor.stringValueForToken(secondArg[3]) === 'module'
                         ) {
                             transformOptions.format = 'esm';
                         }
+                    }
 
-                        promises.push(Promise.resolve().then(async () => {
-                            const loc = getSpanLocation(ast, node);
-                            const value = firstArg.type === 'StringLiteral' ? firstArg.value : getMetaUrl(firstArg, ast);
-                            if (typeof value !== 'string') {
-                                if (proxy) {
-                                    const firstArgLoc = getSpanLocation(ast, firstArg);
-                                    const arg = code.substring(firstArgLoc.start, firstArgLoc.end);
-                                    magicCode = magicCode || new MagicString(code);
-                                    magicCode.overwrite(loc.start, loc.end, `new ${Ctr}(${createBlobProxy(arg, transformOptions)})`);
-                                }
-                                return;
-                            }
+                    const start = token.start;
+                    const end = block[block.length - 1].end;
 
-                            const { path: resolvedPath } = await resolve({
-                                kind: 'dynamic-import',
-                                path: value,
-                                importer: args.path,
-                                namespace: 'file',
-                                resolveDir: rootDir,
-                                pluginData: undefined,
-                            });
-                            if (!resolvedPath) {
-                                return;
-                            }
+                    promises.push(Promise.resolve().then(async () => {
+                        const value = isStringLiteral ?
+                            processor.stringValueForToken(reference) :
+                            isIdentifier ?
+                                getIdentifierValue(processor, reference) :
+                                null;
 
-                            magicCode = magicCode || new MagicString(code);
-
-                            const entryPoint = emit ?
-                                (await emitChunk({
-                                    ...transformOptions,
-                                    entryPoint: resolvedPath,
-                                })).path :
-                                `./${path.relative(path.dirname(args.path), resolvedPath)}`;
-                            const arg = `new URL('${entryPoint}', import.meta.url).href`;
+                        if (typeof value !== 'string') {
                             if (proxy) {
-                                magicCode.overwrite(loc.start, loc.end, `new ${Ctr}(${createBlobProxy(arg, transformOptions)})`);
-                            } else {
-                                magicCode.overwrite(loc.start, loc.end, `new ${Ctr}(${arg})`);
+                                const arg = code.substring(firstArg[0].start, firstArg[firstArg.length - 1].end);
+                                helpers.overwrite(start, end, `new ${Ctr}(${createBlobProxy(arg, transformOptions)})`);
                             }
-                        }));
-                    },
+                            return;
+                        }
+
+                        const { path: resolvedPath } = await resolve({
+                            kind: 'dynamic-import',
+                            path: value,
+                            importer: args.path,
+                            namespace: 'file',
+                            resolveDir: rootDir,
+                            pluginData: undefined,
+                        });
+                        if (!resolvedPath) {
+                            return;
+                        }
+
+                        const entryPoint = emit ?
+                            (await emitChunk({
+                                ...transformOptions,
+                                entryPoint: resolvedPath,
+                            })).path :
+                            `./${path.relative(path.dirname(args.path), resolvedPath)}`;
+                        const arg = `new URL('${entryPoint}', import.meta.url).href`;
+                        if (proxy) {
+                            helpers.overwrite(start, end, `new ${Ctr}(${createBlobProxy(arg, transformOptions)})`);
+                        } else {
+                            helpers.overwrite(start, end, `new ${Ctr}(${arg})`);
+                        }
+                    }));
                 });
 
                 await Promise.all(promises);
 
-                if (!magicCode) {
+                if (!helpers.isDirty()) {
                     return;
                 }
 
-                return {
-                    code: magicCode.toString(),
-                    map: sourcemap ? magicCode.generateMap({
-                        source: args.path,
-                        includeContent: sourcesContent,
-                        hires: true,
-                    }) : undefined,
-                };
+                return helpers.generate({
+                    sourcemap: !!sourcemap,
+                    sourcesContent,
+                });
             });
         },
     };

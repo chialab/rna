@@ -5,8 +5,12 @@ import { createLogger } from '@chialab/rna-logger';
 import { mochaReporter } from '@chialab/wtr-mocha-reporter';
 import { HELPERS_PATH } from '@chialab/wds-plugin-node-resolve';
 import { FRAMEWORK_ALIASES } from './frameworks.js';
+import { TestRunner, TestRunnerCli } from '@web/test-runner-core';
+import { buildMiddlewares, buildPlugins } from '@chialab/rna-dev-server';
 
 const require = createRequire(import.meta.url);
+
+export { TestRunner };
 
 /**
  * @typedef {Object} TestRunnerCoreConfig
@@ -17,10 +21,6 @@ const require = createRequire(import.meta.url);
 
 /**
  * @typedef {Partial<Omit<import('@web/test-runner-core').TestRunnerCoreConfig, 'browsers'>> & TestRunnerCoreConfig} TestRunnerConfig
- */
-
-/**
- * @typedef {import('@web/test-runner-core').TestRunner} TestRunner
  */
 
 /**
@@ -44,13 +44,6 @@ const require = createRequire(import.meta.url);
  * @param {TestRunnerConfig} config
  */
 export async function startTestRunner(config) {
-    const [
-        { TestRunner, TestRunnerCli },
-        { buildMiddlewares, buildPlugins },
-    ] = await Promise.all([
-        import('@web/test-runner-core'),
-        import('@chialab/rna-dev-server'),
-    ]);
     const testFramework =
         /**
          * @type {TestFramework}
@@ -100,17 +93,17 @@ export async function startTestRunner(config) {
         ...(/** @type {*} */ (config)),
         port: config.port || 8080,
         middleware: [
-            ...(await buildMiddlewares()),
+            ...buildMiddlewares(),
             ...(config.middleware || []),
         ],
         plugins: [
-            ...(await buildPlugins({
+            ...buildPlugins({
                 ...config,
                 alias: {
                     ...FRAMEWORK_ALIASES,
                     ...(config.alias || {}),
                 },
-            })),
+            }),
             ...(config.plugins || []),
         ],
     };

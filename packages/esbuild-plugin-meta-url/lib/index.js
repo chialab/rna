@@ -1,88 +1,95 @@
 import path from 'path';
 import { isUrl, hasSearchParam } from '@chialab/node-resolve';
-import { MagicString, getSpanLocation, parse, walk } from '@chialab/estransform';
+import { parse, walk, getIdentifierValue, getBlock, TokenType } from '@chialab/estransform';
 import { useRna } from '@chialab/esbuild-rna';
 
 /**
- * Detect first level identifier for esbuild file loader imports.
- * File could be previously bundled using esbuild, so the first argument of a new URL(something, import.meta.url)
- * is not a literal anymore but an identifier.
- * Here, we are looking for its computed value.
- * @param {string} id The name of the identifier.
- * @param {import('@chialab/estransform').Program} program The ast program.
- * @return {import('@chialab/estransform').StringLiteral|undefined} The init ast node.
+ * @param {import('@chialab/estransform').TokenProcessor} processor Token processor.
+ * @return {string|undefined} The path value.
  */
-export function findIdentifierValue(id, program) {
-    const declarations = /** @type {import('@swc/core').VariableDeclaration[]} */ (program.body
-        .filter(
-            /**
-             * @param {import('@swc/core').Node} child
-             */
-            (child) => child.type === 'VariableDeclaration'
-        ));
+export function getMetaUrl(processor) {
+    let fnToken;
+    let iterator = processor.currentIndex();
+    if (processor.matches5(TokenType._new, TokenType.name, TokenType.dot, TokenType.name, TokenType.parenL)) {
+        fnToken = processor.tokenAtRelativeIndex(2);
+        iterator += 3;
+    } else if (processor.matches3(TokenType._new, TokenType.name, TokenType.parenL)) {
+        fnToken = processor.tokenAtRelativeIndex(1);
+        iterator += 2;
+    }
 
-    const declarators = declarations
-        .reduce(
-            /**
-             * @param {import('@swc/core').VariableDeclarator[]} acc
-             * @param {import('@swc/core').VariableDeclaration} child
-             */
-            (acc, child) => [...acc, ...child.declarations],
-            /** @type {import('@swc/core').VariableDeclarator[]} */([])
-        )
-        .filter(
-            /**
-             * @param {import('@swc/core').VariableDeclarator} child
-             */
-            (child) => child.type === 'VariableDeclarator'
-        );
-
-    const declarator = declarators
-        .find(
-            /**
-             * @param {import('@swc/core').VariableDeclarator} child
-             */
-            (child) => child.id && child.id.type === 'Identifier' && child.id.value === id
-        );
-
-    if (!declarator || !declarator.init || declarator.init.type !== 'StringLiteral') {
+    if (!fnToken || processor.identifierNameForToken(fnToken) !== 'URL') {
         return;
     }
 
-    return declarator.init;
-}
+    const args = [];
+    let currentArg = [];
+    let currentToken = processor.tokens[++iterator];
+    while (currentToken && currentToken.type !== TokenType.parenR) {
+        if (currentToken.type === TokenType.comma) {
+            if (!currentArg.length) {
+                return;
+            }
 
-/**
- * @param {import('@chialab/estransform').NewExpression|import('@chialab/estransform').MemberExpression} node The ast node.
- * @param {import('@chialab/estransform').Program} ast The ast program.
- * @return The path value.
- */
-export function getMetaUrl(node, ast) {
-    const callExp = /** @type {import('@chialab/estransform').CallExpression} */ (node.type === 'MemberExpression' ? node.object : node);
-    if (callExp.type !== 'CallExpression' && !callExp.callee || callExp.callee.type !== 'Identifier' || callExp.callee.value !== 'URL') {
+            args.push(currentArg);
+            currentArg = [];
+
+            currentToken = processor.tokens[++iterator];
+            continue;
+        }
+
+        if (args.length === 0) {
+            // as first argument we accept a string or a member expression
+            if (currentToken.type !== TokenType.string
+                && currentToken.type !== TokenType.name) {
+                return;
+            }
+        }
+
+        if (args.length === 1) {
+            if (currentArg.length > 5) {
+                return;
+            }
+            // the second argument must be `import.meta.url`
+            if (currentArg.length === 0
+                && (currentToken.type !== TokenType.name || processor.identifierNameForToken(currentToken) !== 'import')) {
+                return;
+            }
+            if (currentArg.length === 1 && currentToken.type !== TokenType.dot) {
+                return;
+            }
+            if (currentArg.length === 2
+                && (currentToken.type !== TokenType.name || processor.identifierNameForToken(currentToken) !== 'meta')) {
+                return;
+            }
+            if (currentArg.length === 3 && currentToken.type !== TokenType.dot) {
+                return;
+            }
+            if (currentArg.length === 4
+                && (currentToken.type !== TokenType.name || processor.identifierNameForToken(currentToken) !== 'url')) {
+                return;
+            }
+        }
+        if (args.length === 2) {
+            // we dont handle cases with more than 2 arguments.
+            return;
+        }
+
+        currentArg.push(currentToken);
+        currentToken = processor.tokens[++iterator];
+    }
+
+    if (args.length !== 1) {
         return;
     }
 
-    if (callExp.arguments.length !== 2) {
-        return;
+    const firstArg = args[0][0];
+
+    if (firstArg.type !== TokenType.string) {
+        return getIdentifierValue(processor, firstArg);
     }
 
-    const firstArgExp = callExp.arguments[0] && callExp.arguments[0].expression;
-    const arg1 = firstArgExp.type === 'Identifier' && findIdentifierValue(firstArgExp.value, ast) || firstArgExp;
-    const arg2 = callExp.arguments[1] && callExp.arguments[1].expression;
-
-    if (arg1.type !== 'StringLiteral' ||
-        arg2.type !== 'MemberExpression') {
-        return;
-    }
-
-    if (arg2.object.type !== 'MetaProperty' ||
-        arg2.property.type !== 'Identifier' ||
-        arg2.property.value !== 'url') {
-        return;
-    }
-
-    return arg1.value;
+    return processor.stringValueForToken(firstArg);
 }
 
 /**
@@ -126,75 +133,61 @@ export default function({ emit = true } = {}) {
                 }
 
                 /**
-                 * @type {MagicString|undefined}
-                 */
-                let magicCode;
-
-                /**
                  * @type {Promise<void>[]}
                  */
                 const promises = [];
 
-                const ast = await parse(code);
-                walk(ast, {
-                    /**
-                     * @param {import('@chialab/estransform').NewExpression} node
-                     */
-                    NewExpression(node) {
-                        const value = getMetaUrl(node, ast);
-                        if (typeof value !== 'string' || isUrl(value)) {
+                const { helpers, processor } = await parse(code, args.path);
+
+                await walk(processor, () => {
+                    const value = getMetaUrl(processor);
+                    if (typeof value !== 'string' || isUrl(value)) {
+                        return;
+                    }
+
+                    const tokens = getBlock(processor, TokenType.parenL, TokenType.parenR);
+                    const startToken = tokens[0];
+                    const endToken = tokens[tokens.length - 1];
+
+                    if (hasSearchParam(value, 'emit')) {
+                        // already emitted
+                        helpers.overwrite(startToken.start, endToken.end, `new URL('${value}', ${baseUrl})`);
+                        return;
+                    }
+
+                    promises.push(Promise.resolve().then(async () => {
+                        const { path: resolvedPath } = await resolve({
+                            kind: 'dynamic-import',
+                            path: value.split('?')[0],
+                            importer: args.path,
+                            namespace: 'file',
+                            resolveDir: rootDir,
+                            pluginData: null,
+                        });
+
+                        if (!resolvedPath) {
                             return;
                         }
 
-                        if (hasSearchParam(value, 'emit')) {
-                            // already emitted
-                            const loc = getSpanLocation(ast, node);
-                            magicCode = magicCode || new MagicString(code);
-                            magicCode.overwrite(loc.start, loc.end, `new URL('${value}', ${baseUrl})`);
-                            return;
-                        }
+                        const entryLoader = buildLoaders[path.extname(resolvedPath)] || 'file';
+                        const entryPoint = emit ?
+                            (entryLoader !== 'file' ? await emitChunk({ entryPoint: resolvedPath }) : await emitFile(resolvedPath)).path :
+                            `./${path.relative(path.dirname(args.path), resolvedPath)}`;
 
-                        promises.push(Promise.resolve().then(async () => {
-                            const { path: resolvedPath } = await resolve({
-                                kind: 'dynamic-import',
-                                path: value.split('?')[0],
-                                importer: args.path,
-                                namespace: 'file',
-                                resolveDir: rootDir,
-                                pluginData: null,
-                            });
-
-                            if (!resolvedPath) {
-                                return;
-                            }
-
-                            const loc = getSpanLocation(ast, node);
-                            magicCode = magicCode || new MagicString(code);
-
-                            const entryLoader = buildLoaders[path.extname(resolvedPath)] || 'file';
-                            const entryPoint = emit ?
-                                (entryLoader !== 'file' ? await emitChunk({ entryPoint: resolvedPath }) : await emitFile(resolvedPath)).path :
-                                `./${path.relative(path.dirname(args.path), resolvedPath)}`;
-
-                            magicCode.overwrite(loc.start, loc.end, `new URL('${entryPoint}', ${baseUrl})`);
-                        }));
-                    },
+                        helpers.overwrite(startToken.start, endToken.end, `new URL('${entryPoint}', ${baseUrl})`);
+                    }));
                 });
 
                 await Promise.all(promises);
 
-                if (!magicCode) {
+                if (!helpers.isDirty()) {
                     return;
                 }
 
-                return {
-                    code: magicCode.toString(),
-                    map: sourcemap ? magicCode.generateMap({
-                        source: args.path,
-                        includeContent: sourcesContent,
-                        hires: true,
-                    }) : undefined,
-                };
+                return helpers.generate({
+                    sourcemap: !!sourcemap,
+                    sourcesContent,
+                });
             });
         },
     };

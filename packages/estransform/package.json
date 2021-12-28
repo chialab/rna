@@ -1,9 +1,9 @@
 {
   "name": "@chialab/estransform",
   "type": "module",
-  "version": "0.13.13",
+  "version": "0.14.4",
   "description": "Execute multiple transformations on JavaScript sources with full sourcemaps support.",
-  "main": "lib/index.js",
+  "main": "dist/index.js",
   "typings": "./types/index.d.ts",
   "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
   "license": "MIT",
@@ -20,10 +20,11 @@
   ],
   "scripts": {
     "types": "tsc",
-    "prepack": "yarn types"
+    "build": "rimraf dist && node build.js",
+    "prepack": "yarn types && yarn build"
   },
   "files": [
-    "lib",
+    "dist",
     "types",
     "package.json",
     "README.md",
@@ -33,14 +34,13 @@
     "node": ">=13"
   },
   "dependencies": {
-    "@parcel/source-map": "^2.0.0",
-    "@swc/core": "^1.2.106",
-    "cjs-module-lexer": "^1.2.2",
-    "es-module-lexer": "^0.7.1",
-    "magic-string": "^0.25.7"
+    "@parcel/source-map": "^2.0.0"
   },
   "devDependencies": {
-    "@types/escodegen": "^0.0.7",
+    "cjs-module-lexer": "^1.2.2",
+    "es-module-lexer": "^0.7.1",
+    "magic-string": "^0.25.7",
+    "sucrase": "^3.0.0",
     "typescript": "^4.3.0"
   }
 }

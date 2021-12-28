@@ -1,9 +1,9 @@
 {
   "name": "@chialab/rna",
   "type": "module",
-  "version": "0.13.2",
+  "version": "0.14.4",
   "description": "A bundler, a server and a test runner for modern modules and applications.",
-  "main": "lib/index.js",
+  "main": "dist/index.js",
   "typings": "./types/index.d.ts",
   "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
   "license": "MIT",
@@ -21,13 +21,14 @@
   ],
   "scripts": {
     "types": "tsc",
-    "prepack": "yarn types"
+    "build": "rimraf dist && node build.js",
+    "prepack": "yarn types && yarn build"
   },
   "bin": {
-    "rna": "./lib/index.js"
+    "rna": "./dist/index.js"
   },
   "files": [
-    "lib",
+    "dist",
     "types",
     "package.json",
     "README.md",
@@ -37,12 +38,12 @@
     "node": ">=13"
   },
   "peerDependencies": {
-    "@chialab/rna-apidoc": "^0.13.0",
-    "@chialab/rna-browser-test-runner": "^0.13.0",
-    "@chialab/rna-bundler": "^0.13.0",
-    "@chialab/rna-dev-server": "^0.13.0",
-    "@chialab/rna-node-test-runner": "^0.13.0",
-    "@chialab/rna-saucelabs-test-runner": "^0.13.0"
+    "@chialab/rna-apidoc": "^0.14.0",
+    "@chialab/rna-browser-test-runner": "^0.14.0",
+    "@chialab/rna-bundler": "^0.14.0",
+    "@chialab/rna-dev-server": "^0.14.0",
+    "@chialab/rna-node-test-runner": "^0.14.0",
+    "@chialab/rna-saucelabs-test-runner": "^0.14.0"
   },
   "peerDependenciesMeta": {
     "@chialab/rna-apidoc": {
@@ -65,10 +66,10 @@
     }
   },
   "dependencies": {
-    "@chialab/rna-logger": "^0.13.0",
-    "commander": "^7.2.0"
+    "@chialab/rna-logger": "^0.14.4"
   },
   "devDependencies": {
+    "commander": "^7.2.0",
     "typescript": "^4.3.0"
   }
 }

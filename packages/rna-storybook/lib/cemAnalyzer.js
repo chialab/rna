@@ -1,7 +1,7 @@
 import typescript from 'typescript';
 import { useRna } from '@chialab/esbuild-rna';
 import { create } from '@custom-elements-manifest/analyzer/src/create.js';
-import { MagicString } from '@chialab/estransform';
+import { parse } from '@chialab/estransform';
 
 /**
  * @typedef {Object} PluginOptions
@@ -79,9 +79,9 @@ export default function({ framework = '@storybook/web-components', plugins = [] 
                         }
                     );
 
-                const magicCode = new MagicString(code);
-                magicCode.prepend(`import * as __STORYBOOK_WEB_COMPONENTS__ from '${framework}';\n`);
-                magicCode.append(`
+                const { helpers } = parse(code, args.path);
+                helpers.prepend(`import * as __STORYBOOK_WEB_COMPONENTS__ from '${framework}';\n`);
+                helpers.append(`
 ;(function() {
     const { getCustomElements, setCustomElementsManifest } = __STORYBOOK_WEB_COMPONENTS__;
     if (!setCustomElementsManifest) {
@@ -101,14 +101,10 @@ export default function({ framework = '@storybook/web-components', plugins = [] 
     });
 }())`);
 
-                return {
-                    code: magicCode.toString(),
-                    map: sourcemap ? magicCode.generateMap({
-                        source: args.path,
-                        includeContent: sourcesContent,
-                        hires: true,
-                    }) : undefined,
-                };
+                return helpers.generate({
+                    sourcemap: !!sourcemap,
+                    sourcesContent,
+                });
             });
         },
     };

@@ -2,5 +2,8 @@
   "extends": "@chialab/eslint-config/javascript/node",
   "ignorePatterns": [
     "**/fixture/*"
-  ]
+  ],
+  "rules": {
+    "import/no-unresolved": 0
+  }
 }

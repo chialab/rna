@@ -1,6 +1,10 @@
 import path from 'path';
 import nodeResolve from 'enhanced-resolve';
 import isCore from 'is-core-module';
+import glob from 'fast-glob';
+import { pkgUp } from 'pkg-up';
+
+export { glob, pkgUp };
 
 /**
  * @typedef {Object} ResolveOptions
@@ -10,6 +14,15 @@ import isCore from 'is-core-module';
  * @property {string[]} [aliasFields]
  * @property {string[]} [conditionNames]
  * @property {boolean} [symlinks]
+ * @property {boolean} [preferRelative]
+ */
+
+/**
+ * @typedef {(specifier: string, impporter: string) => Promise<string>} Resolver
+ */
+
+/**
+ * @typedef {(specifier: string, impporter: string) => string|false} SyncResolver
  */
 
 /**
@@ -23,8 +36,7 @@ export function createResolver(options = {}) {
     });
 
     /**
-     * @param {string} specifier
-     * @param {string} importer
+     * @type {Resolver}
      */
     const resolve = async function(specifier, importer) {
         const { path, searchParams } = getSearchParams(specifier);
@@ -62,8 +74,7 @@ export function createSyncResolver(options = {}) {
     });
 
     /**
-     * @param {string} specifier
-     * @param {string} importer
+     * @type {SyncResolver}
      */
     const resolve = function(specifier, importer) {
         const { path, searchParams } = getSearchParams(specifier);
@@ -124,6 +135,13 @@ export function isHtml(filePath) {
  * Generic node resolver.
  */
 export const resolve = createResolver();
+
+/**
+ * Resolve assets references.
+ */
+export const assetResolve = createResolver({
+    preferRelative: true,
+});
 
 /**
  * A style specific resolver.

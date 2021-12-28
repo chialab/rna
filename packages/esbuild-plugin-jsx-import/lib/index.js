@@ -16,9 +16,12 @@ export default function(opts = {}) {
     const plugin = {
         name: 'jsx-import',
         setup(build) {
-            const { inject = [], bundle, format, jsxFactory, jsxFragment } = build.initialOptions;
+            const { inject = [], jsxFactory, jsxFragment } = build.initialOptions;
 
-            if (!jsxFactory || !opts || !opts.jsxModule || (format === 'iife' && !bundle)) {
+            if (!jsxFactory || !opts || !opts.jsxModule) {
+                if (inject.includes(RUNTIME_ALIAS)) {
+                    inject.splice(inject.indexOf(RUNTIME_ALIAS), 1);
+                }
                 return;
             }
 

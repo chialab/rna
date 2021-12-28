@@ -1,17 +1,10 @@
 import path from 'path';
-import { mergeDependencies } from '@chialab/esbuild-helpers';
+import esbuild from 'esbuild';
+import { hasPlugin } from '@chialab/esbuild-rna';
 import { transformLoaders } from './loaders.js';
 
 /**
- * @typedef {import('esbuild').Metafile} Metafile
- */
-
-/**
- * @typedef {import('esbuild').BuildResult & { metafile: Metafile, outputFiles?: import('esbuild').OutputFile[] }} BuildResult
- */
-
-/**
- * @typedef {import('esbuild').TransformResult & { metafile: Metafile, dependencies: import('@chialab/esbuild-helpers').DependenciesMap, outputFiles?: import('esbuild').OutputFile[] }} TransformResult
+ * @typedef {import('@chialab/esbuild-rna').Result & { code: string; map?: string }} TransformResult
  */
 
 /**
@@ -20,8 +13,6 @@ import { transformLoaders } from './loaders.js';
  * @return {Promise<TransformResult>} The esbuild bundle result.
  */
 export async function transform(config) {
-    const { default: esbuild } = await import('esbuild');
-
     const {
         input,
         code,
@@ -39,8 +30,7 @@ export async function transform(config) {
         jsxFragment,
         jsxModule,
         jsxExport,
-        plugins,
-        transformPlugins,
+        plugins = [],
         logLevel,
     } = config;
 
@@ -48,48 +38,48 @@ export async function transform(config) {
         throw new Error('Missing required `code` option');
     }
 
-    /**
-     * @type {import('esbuild').PluginBuild|undefined}
-     */
-    let pluginBuild;
-
-    /**
-     * @type {import('esbuild').Plugin[]}
-     */
-    const finalPlugins = await Promise.all([
-        /**
-         * @type {import('esbuild').Plugin}
-         */
-        ({
-            name: '__rna-internal__',
-            setup(build) {
-                pluginBuild = build;
-            },
-        }),
-        import('@chialab/esbuild-plugin-env')
-            .then(({ default: plugin }) => plugin()),
-        import('@chialab/esbuild-plugin-define-this')
-            .then(({ default: plugin }) => plugin()),
-        import('@chialab/esbuild-plugin-jsx-import')
-            .then(({ default: plugin }) => plugin({ jsxModule, jsxExport })),
-        import('@chialab/esbuild-plugin-external')
-            .then(({ default: plugin }) => plugin({
-                dependencies: false,
-                peerDependencies: false,
-                optionalDependencies: false,
-            })),
+    const finalPlugins = /** @type {import('esbuild').Plugin[]} */ (await Promise.all([
+        !hasPlugin(plugins, 'env') &&
+            import('@chialab/esbuild-plugin-env')
+                .then(({ default: plugin }) => plugin()),
+        !hasPlugin(plugins, 'define-this') &&
+            import('@chialab/esbuild-plugin-define-this')
+                .then(({ default: plugin }) => plugin()),
+        !hasPlugin(plugins, 'jsx-import') &&
+            import('@chialab/esbuild-plugin-jsx-import')
+                .then(({ default: plugin }) => plugin({ jsxModule, jsxExport })),
+        !hasPlugin(plugins, 'external') &&
+            import('@chialab/esbuild-plugin-external')
+                .then(({ default: plugin }) => plugin({
+                    dependencies: false,
+                    peerDependencies: false,
+                    optionalDependencies: false,
+                })),
+        !hasPlugin(plugins, 'css-import') &&
+            import('@chialab/esbuild-plugin-css-import')
+                .then(({ default: plugin }) => plugin()),
+        !hasPlugin(plugins, 'unwebpack') &&
+            import('@chialab/esbuild-plugin-unwebpack')
+                .then(({ default: plugin }) => plugin()),
+        !hasPlugin(plugins, 'commonjs') &&
+            import('@chialab/esbuild-plugin-commonjs')
+                .then(({ default: plugin }) => plugin()),
+        !hasPlugin(plugins, 'worker') &&
+            import('@chialab/esbuild-plugin-worker')
+                .then(({ default: plugin }) => plugin({
+                    emit: false,
+                })),
+        !hasPlugin(plugins, 'meta-url') &&
+            import('@chialab/esbuild-plugin-meta-url')
+                .then(({ default: plugin }) => plugin({
+                    emit: false,
+                })),
         ...plugins,
-        import('@chialab/esbuild-plugin-transform')
-            .then(async ({ default: plugin }) =>
-                plugin([
-                    ...transformPlugins,
-                ])
-            ),
-    ]);
+    ].filter(Boolean)));
 
     const sourceFile = path.resolve(rootDir, Array.isArray(input) ? input[0] : input);
     const absWorkingDir = path.dirname(sourceFile);
-    const result = /** @type {BuildResult} */ (await esbuild.build({
+    const result = /** @type {import('@chialab/esbuild-rna').Result} */ (await esbuild.build({
         stdin: {
             contents: code,
             loader,
@@ -116,19 +106,11 @@ export async function transform(config) {
         logLevel,
     }));
 
-    if (!result.outputFiles) {
-        throw new Error(`Failed to transform "${input}"`);
-    }
+    const outputFiles = /** @type {import('esbuild').OutputFile[]} */ (result.outputFiles);
 
     return {
-        code: result.outputFiles[0].text,
-        map: result.outputFiles[1] ? result.outputFiles[1].text : '',
-        warnings: result.warnings,
-        metafile: result.metafile,
-        dependencies: mergeDependencies(
-            /** @type {import('esbuild').PluginBuild} */(pluginBuild),
-            result,
-            rootDir
-        ),
+        ...result,
+        code: outputFiles[0].text,
+        map: outputFiles[1] ? outputFiles[1].text : '',
     };
 }

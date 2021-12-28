@@ -7,10 +7,9 @@ import Jimp from './generator.js';
  * @param {number} height The launch screen size.
  * @param {number} gutter The gutter size.
  * @param {import('@jimp/core').RGBA} background The background color to use.
- * @param {string} outputFile The out file.
  * @return Launch screen buffer.
  */
-export async function generateLaunch(image, width, height, gutter, background, outputFile) {
+export async function generateLaunch(image, width, height, gutter, background) {
     image = image.clone();
 
     const gutterAlpha = image.hasAlpha() && gutter || 0;
@@ -35,5 +34,5 @@ export async function generateLaunch(image, width, height, gutter, background, o
     const color = `rgba(${launchBackground.r}, ${launchBackground.g}, ${launchBackground.b}, ${launchBackground.a})`;
     const launchBuffer = new Jimp(width, height, color);
     launchBuffer.composite(image.resize(size, size, 'bezierInterpolation'), (width - size) / 2, (height - size) / 2);
-    await launchBuffer.writeAsync(outputFile);
+    return launchBuffer.getBufferAsync('image/png');
 }

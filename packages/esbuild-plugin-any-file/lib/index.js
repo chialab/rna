@@ -1,33 +1,31 @@
-import { access, readFile } from 'fs/promises';
 import path from 'path';
-import { getStdinInput } from '@chialab/esbuild-helpers';
+import { access, readFile } from 'fs/promises';
+import { useRna } from '@chialab/esbuild-rna';
 
 /**
  * Load any unkown refrence as file.
- * @param {{ fsCheck?: boolean, shouldThrow?: (args: import('esbuild').OnLoadArgs) => boolean }} [options]
+ * @param {{ fsCheck?: boolean, shouldThrow?: boolean|((args: import('esbuild').OnLoadArgs) => boolean) }} [options]
  * @return An esbuild plugin.
  */
-export default function({ fsCheck = true, shouldThrow = () => true } = {}) {
+export default function({ fsCheck = true, shouldThrow = false } = {}) {
     /**
      * @type {import('esbuild').Plugin}
      */
     const plugin = {
         name: 'any-file',
         setup(build) {
-            const { loader: loaders = {} } = build.initialOptions;
-            const stdin = getStdinInput(build);
-            const keys = Object.keys(loaders);
+            const { onLoad, loaders } = useRna(build);
 
-            build.onLoad({ filter: /\./, namespace: 'file' }, async (args) => {
-                if (keys.includes(path.extname(args.path))) {
+            onLoad({ filter: /./ }, async (args) => {
+                if (path.extname(args.path) in loaders) {
                     return;
                 }
 
-                if (fsCheck && (!stdin || args.path !== stdin.path)) {
+                if (fsCheck) {
                     try {
                         await access(args.path);
                     } catch (err) {
-                        if (shouldThrow(args)) {
+                        if (typeof shouldThrow === 'function' ? shouldThrow(args) : shouldThrow) {
                             throw err;
                         }
 
@@ -36,9 +34,7 @@ export default function({ fsCheck = true, shouldThrow = () => true } = {}) {
                 }
 
                 return {
-                    contents: (stdin && args.path === stdin.path) ?
-                        stdin.contents :
-                        await readFile(args.path),
+                    contents: await readFile(args.path),
                     loader: 'file',
                 };
             });

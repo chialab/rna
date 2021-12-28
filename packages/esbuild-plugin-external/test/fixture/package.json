@@ -1,0 +1,17 @@
+{
+  "name": "test",
+  "private": "true",
+  "version": "0.0.0",
+  "dependencies": {
+    "dep": "0.0.0"
+  },
+  "peerDependencies": {
+    "peerdep": "0.0.0"
+  },
+  "optionalDependencies": {
+    "optionaldep": "0.0.0"
+  },
+  "devDependencies": {
+    "devdep": "0.0.0"
+  }
+}

@@ -4,53 +4,62 @@ import { readFile } from 'fs/promises';
 import commander from 'commander';
 import { createLogger, colors } from '@chialab/rna-logger';
 
-(async () => {
-    const { program } = commander;
-    const packageJson = new URL('../package.json', import.meta.url);
-    const json = JSON.parse(await readFile(packageJson, 'utf-8'));
+const argv = process.argv;
 
-    program
-        .version(json.version);
+const { program } = commander;
+const packageJson = new URL('../package.json', import.meta.url);
+const json = JSON.parse(await readFile(packageJson, 'utf-8'));
 
-    /**
-     * @param {string} name
-     * @param {string} source
-     */
-    const loadCommand = async function(name, source) {
-        try {
-            const { command } = await import(source);
-            command(program);
-        } catch (err) {
-            if ((/** @type {NodeJS.ErrnoException} */(err)).code === 'ERR_MODULE_NOT_FOUND') {
-                const logger = createLogger();
-                return program
-                    .command(name)
-                    .allowUnknownOption()
-                    .action(() => {
-                        logger.error(colors.red(colors.bold('Command not found.')));
-                        logger.error(`
+program
+    .version(json.version);
+
+/**
+ * @param {string} name
+ * @param {string} source
+ */
+const loadCommand = async function(name, source) {
+    try {
+        const { command } = await import(source);
+        command(program);
+    } catch (err) {
+        if ((/** @type {NodeJS.ErrnoException} */(err)).code === 'ERR_MODULE_NOT_FOUND') {
+            const logger = createLogger();
+            return program
+                .command(name)
+                .allowUnknownOption()
+                .action(() => {
+                    logger.error(colors.red(colors.bold('Command not found.')));
+                    logger.error(`
 ${colors.yellow('Please install the corresponding module in order to use this command:')}
 ${colors.white(`npm install -D ${colors.blue(source)}`)}
 ${colors.white(`yarn add -D ${colors.blue(source)}`)}
 `);
 
-                        process.exitCode = 1;
-                    });
-            }
-
-            throw err;
+                    process.exitCode = 1;
+                });
         }
-    };
 
-    await Promise.all([
-        loadCommand('build', '@chialab/rna-bundler'),
-        loadCommand('serve', '@chialab/rna-dev-server'),
-        loadCommand('test:browser', '@chialab/rna-browser-test-runner'),
-        loadCommand('test:node', '@chialab/rna-node-test-runner'),
-        loadCommand('test:saucelabs', '@chialab/rna-saucelabs-test-runner'),
-        loadCommand('apidoc', '@chialab/rna-apidoc'),
-    ]);
+        throw err;
+    }
+};
 
-    program
-        .parse(process.argv);
-})();
+const commands = {
+    'build': '@chialab/rna-bundler',
+    'serve': '@chialab/rna-dev-server',
+    'test:browser': '@chialab/rna-browser-test-runner',
+    'test:node': '@chialab/rna-node-test-runner',
+    'test:saucelabs': '@chialab/rna-saucelabs-test-runner',
+    'apidoc': '@chialab/rna-apidoc',
+};
+
+const command = /** @type {keyof typeof commands} */ (argv[2]);
+if (commands[command]) {
+    await loadCommand(command, commands[command]);
+} else {
+    await Promise.all(Object.keys(commands).map(
+        (key) => loadCommand(key, commands[(/** @type {keyof typeof commands} key */ (key))])
+    ));
+}
+
+program
+    .parse(argv);

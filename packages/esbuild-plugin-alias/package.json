@@ -1,7 +1,7 @@
 {
   "name": "@chialab/esbuild-plugin-alias",
   "type": "module",
-  "version": "0.12.31",
+  "version": "0.13.13",
   "description": "A plugin for esbuild that resolves aliases or empty modules.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",
@@ -33,10 +33,9 @@
     "node": ">=13"
   },
   "dependencies": {
-    "@chialab/esbuild-helpers": "^0.12.31",
-    "@chialab/estransform": "^0.12.11",
-    "@chialab/node-resolve": "^0.12.26",
-    "pkg-up": "^3.1.0"
+    "@chialab/esbuild-rna": "^0.13.13",
+    "@chialab/estransform": "^0.13.13",
+    "@chialab/node-resolve": "^0.13.11"
   },
   "devDependencies": {
     "esbuild": "^0.13.0",

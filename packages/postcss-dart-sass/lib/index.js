@@ -117,7 +117,7 @@ function originalPositionFor(mapping, consumers) {
 }
 
 /**
- * @typedef {import('sass').Options & { rootDir?: string, alias?: import('@chialab/node-resolve').AliasMap }} PluginOptions
+ * @typedef {import('sass').Options & { rootDir?: string }} PluginOptions
  */
 
 /**
@@ -222,7 +222,13 @@ export default function(options = {}) {
                 includePaths: [
                     options.rootDir || process.cwd(),
                 ],
-                importer: sassResolver({ alias: options.alias }),
+                importer: Array.isArray(options.importer) ? [
+                    ...options.importer,
+                    sassResolver(),
+                ] : options.importer ? [
+                    options.importer,
+                    sassResolver(),
+                ] : sassResolver(),
                 indentWidth: 4,
                 outputStyle: 'expanded',
                 ...options,
@@ -232,7 +238,18 @@ export default function(options = {}) {
                 sourceMapEmbed: false,
             };
 
-            const sassResult = sass.renderSync(computedOptions);
+            /**
+             * @type {import('sass').Result}
+             */
+            const sassResult = await new Promise((resolve, reject) => {
+                sass.render(computedOptions, (err, result) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(result);
+                    }
+                });
+            });
             const sassCssOutput = sassResult.css.toString();
             const sassMap = JSON.parse(/** @type {string} */(sassResult.map && sassResult.map.toString()));
 

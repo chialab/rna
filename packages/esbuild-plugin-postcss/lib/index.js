@@ -1,6 +1,7 @@
 import path from 'path';
-import { readFile } from 'fs/promises';
-import { getRootDir, getStdinInput, addBuildDependencies } from '@chialab/esbuild-helpers';
+import { useRna } from '@chialab/esbuild-rna';
+import cssImport from '@chialab/esbuild-plugin-css-import';
+import postcssrc from 'postcss-load-config';
 
 /**
  * @typedef {Object} PostcssConfig
@@ -10,15 +11,15 @@ import { getRootDir, getStdinInput, addBuildDependencies } from '@chialab/esbuil
 
 /**
  * Load local postcss config.
+ * @param {string} [cwd]
  * @return {Promise<PostcssConfig>}
  */
-async function loadPostcssConfig() {
-    const { default: postcssrc } = await import('postcss-load-config');
+async function loadPostcssConfig(cwd = process.cwd()) {
     try {
         /**
          * @type {any}
          */
-        const result = await postcssrc();
+        const result = await postcssrc({}, cwd);
         return result;
     } catch {
         //
@@ -28,11 +29,7 @@ async function loadPostcssConfig() {
 }
 
 /**
- * @typedef {import('@chialab/postcss-url-rebase').UrlRebasePluginOptions} UrlRebasePluginOptions
- */
-
-/**
- * @typedef {import('postcss').ProcessOptions & { relative?: UrlRebasePluginOptions['relative'], transform?: UrlRebasePluginOptions['transform'], alias?: import('@chialab/node-resolve').AliasMap }} PluginOptions
+ * @typedef {import('postcss').ProcessOptions & { plugins?: import('postcss').Plugin[] }} PluginOptions
  */
 
 /**
@@ -47,78 +44,100 @@ export default function(options = {}) {
     const plugin = {
         name: 'postcss',
         async setup(build) {
-            const rootDir = getRootDir(build);
-            const stdin = getStdinInput(build);
+            const { sourcemap = true, absWorkingDir } = build.initialOptions || {};
+            const { onTransform, resolve, rootDir, collectDependencies, setupPlugin } = useRna(build);
+            const config = await loadPostcssConfig(rootDir);
+            setupPlugin(plugin, [cssImport()], 'before');
 
-            build.onLoad({ filter: /\.(sc|sa|c)ss$/, namespace: 'file' }, async ({ path: filePath }) => {
-                const [
-                    { default: postcss },
-                    { default: preset },
-                    { default: urlRebase },
-                ] = await Promise.all([
-                    import('postcss'),
-                    import('@chialab/postcss-preset-chialab'),
-                    import('@chialab/postcss-url-rebase'),
-                ]);
+            onTransform({ loaders: ['css'], extensions: ['.css', '.scss', '.sass'] }, async (args) => {
+                const isSass = ['.sass', '.scss'].includes(path.extname(args.path));
 
-                const contents = (stdin && filePath === stdin.path) ?
-                    stdin.contents :
-                    await readFile(filePath, 'utf-8');
+                /**
+                 * @type {import('postcss').Plugin[]}
+                 */
+                const plugins = [...(config.plugins || [])];
+                if (!plugins.length) {
+                    await import('@chialab/postcss-preset-chialab')
+                        .then(({ default: preset }) => {
+                            plugins.push(preset());
+                        })
+                        .catch(() => false);
+                }
 
-                const config = await loadPostcssConfig();
-                const isSass = ['.sass', '.scss'].includes(path.extname(filePath));
-                const plugins = [
-                    urlRebase({
-                        root: rootDir,
-                        relative: options.relative,
-                        transform: options.transform,
-                        alias: options.alias,
-                        external: build.initialOptions.external,
-                    }),
-                    ...(config.plugins || [preset()]),
-                    ...(isSass ? [
-                        await import('@chialab/postcss-dart-sass')
-                            .then(({ default: postcssSass }) => postcssSass({
-                                rootDir,
-                                alias: options.alias,
-                                omitSourceMapUrl: true,
-                                sourceMapContents: true,
-                                sourceMapEmbed: false,
-                            })),
-                    ] : []),
-                ];
+                if (isSass) {
+                    const sassPlugin = await import('@chialab/postcss-dart-sass')
+                        .then(({ default: postcssSass }) => postcssSass({
+                            rootDir,
+                            omitSourceMapUrl: true,
+                            sourceMapContents: true,
+                            sourceMapEmbed: false,
+                            importer(path, importer, done) {
+                                resolve({
+                                    kind: 'import-rule',
+                                    path,
+                                    importer,
+                                    namespace: 'file',
+                                    pluginData: null,
+                                    resolveDir: rootDir,
+                                }).then((result) => {
+                                    if (result.path && done) {
+                                        done({
+                                            file: result.path,
+                                        });
+                                    }
+                                }).catch((error) => {
+                                    if (done) {
+                                        done(error);
+                                    }
+                                });
+                            },
+                        }));
+                    plugins.push(sassPlugin);
+                }
+
+                plugins.push(...(options.plugins || []));
+
+                if (!plugins.length) {
+                    return;
+                }
+
+                const { default: postcss } = await import('postcss');
 
                 /**
                  * @type {import('postcss').ProcessOptions}
                  */
                 const finalConfig = {
-                    from: filePath,
-                    map: {
-                        inline: false,
-                        sourcesContent: true,
-                    },
+                    from: args.path,
                     ...(config.options || {}),
                     ...options,
                     ...(isSass ? {
                         syntax: await import('postcss-scss').then(({ default: postcssSass }) => postcssSass),
                     } : {}),
+                    map: sourcemap ? {
+                        inline: false,
+                        sourcesContent: true,
+                        annotation: false,
+                    } : false,
                 };
 
-                const result = await postcss(plugins).process(contents, finalConfig);
-                const sourceMap = result.map.toJSON();
-                const cwd = process.cwd();
-                const argsDir = path.dirname(filePath);
-                sourceMap.sources = sourceMap.sources.map((source) => path.relative(argsDir, path.resolve(cwd, source)));
-                delete sourceMap.file;
-                const url = `data:application/json;base64,${Buffer.from(JSON.stringify(sourceMap)).toString('base64')}`;
+                const code = args.code;
+                const result = await postcss(plugins).process(code, finalConfig);
+                const sourceMap = result.map && result.map.toJSON();
+                if (sourceMap) {
+                    const cwd = absWorkingDir || process.cwd();
+                    const argsDir = path.dirname(args.path);
+                    sourceMap.sources = sourceMap.sources.map((source) => path.relative(argsDir, path.resolve(cwd, source)));
+                    delete sourceMap.file;
+                }
+                const sourceMapUrl = sourceMap && `data:application/json;base64,${Buffer.from(JSON.stringify(sourceMap)).toString('base64')}`;
                 const dependencies = result.messages
                     .filter(({ type }) => type === 'dependency')
                     .map(({ file }) => file);
 
-                addBuildDependencies(build, filePath, dependencies);
+                collectDependencies(args.path, dependencies);
 
                 return {
-                    contents: `${result.css.toString()}\n/*# sourceMappingURL=${url} */\n`,
+                    code: sourceMap ? `${result.css.toString()}\n/*# sourceMappingURL=${sourceMapUrl} */\n` : result.css.toString(),
                     loader: 'css',
                     watchFiles: dependencies,
                 };

@@ -1,7 +1,8 @@
 import path from 'path';
 import { rm } from 'fs/promises';
+import esbuild from 'esbuild';
 import { createLogger } from '@chialab/rna-logger';
-import { mergeDependencies } from '@chialab/esbuild-helpers';
+import { hasPlugin } from '@chialab/esbuild-rna';
 import { loaders } from './loaders.js';
 import { writeManifestJson } from './writeManifestJson.js';
 import { writeEntrypointsJson } from './writeEntrypointsJson.js';
@@ -11,13 +12,9 @@ import { writeEntrypointsJson } from './writeEntrypointsJson.js';
  */
 
 /**
- * @typedef {import('esbuild').BuildResult & { metafile: Metafile, dependencies: import('@chialab/esbuild-helpers').DependenciesMap, outputFiles?: import('esbuild').OutputFile[] }} BuildResult
- */
-
-/**
  * @param {import('@chialab/rna-config-loader').EntrypointFinalBuildConfig} config
  * @param {{ stdin?: import('esbuild').StdinOptions; entryPoints?: string[] }} entryOptions
- * @param {import('esbuild').BuildResult} result
+ * @param {import('@chialab/esbuild-rna').Result} result
  */
 async function onBuildEnd(config, entryOptions, result) {
     const {
@@ -39,10 +36,9 @@ async function onBuildEnd(config, entryOptions, result) {
 /**
  * Build and bundle sources.
  * @param {import('@chialab/rna-config-loader').EntrypointFinalBuildConfig} config
- * @return {Promise<BuildResult>} The esbuild bundle result.
+ * @return {Promise<import('@chialab/esbuild-rna').Result>} The esbuild bundle result.
  */
 export async function build(config) {
-    const { default: esbuild } = await import('esbuild');
     const logger = createLogger();
     const hasOutputFile = !!path.extname(config.output);
 
@@ -71,7 +67,6 @@ export async function build(config) {
         jsxModule,
         jsxExport,
         plugins,
-        transformPlugins,
         logLevel,
         clean,
         watch,
@@ -95,62 +90,50 @@ export async function build(config) {
         await rm(path.resolve(rootDir, outputDir), { recursive: true, force: true });
     }
 
-    /**
-     * @type {import('esbuild').PluginBuild|undefined}
-     */
-    let pluginBuild;
-
-    /**
-     * @type {import('esbuild').Plugin[]}
-     */
-    const finalPlugins = await Promise.all([
-        /**
-         * @type {import('esbuild').Plugin}
-         */
-        ({
-            name: '__rna-internal__',
-            setup(build) {
-                pluginBuild = build;
-            },
-        }),
-        import('@chialab/esbuild-plugin-emit')
-            .then(({ default: plugin }) => plugin()),
-        import('@chialab/esbuild-plugin-any-file')
-            .then(({ default: plugin }) =>
-                plugin({
-                    fsCheck: true,
-                    shouldThrow(args) {
-                        return !args.path.includes('/node_modules/');
-                    },
-                })
-            ),
-        import('@chialab/esbuild-plugin-env')
-            .then(({ default: plugin }) => plugin()),
-        import('@chialab/esbuild-plugin-define-this')
-            .then(({ default: plugin }) => plugin()),
-        import('@chialab/esbuild-plugin-jsx-import')
-            .then(({ default: plugin }) => plugin({ jsxModule, jsxExport })),
-        import('@chialab/esbuild-plugin-external')
-            .then(({ default: plugin }) => plugin({
-                dependencies: !bundle,
-                peerDependencies: !bundle,
-                optionalDependencies: !bundle,
-            })),
+    const finalPlugins = /** @type {import('esbuild').Plugin[]} */ (await Promise.all([
+        !hasPlugin(plugins, 'alias') &&
+            import('@chialab/esbuild-plugin-alias')
+                .then(({ default: plugin }) => plugin(alias)),
+        !hasPlugin(plugins, 'any-file') &&
+            import('@chialab/esbuild-plugin-any-file')
+                .then(({ default: plugin }) => plugin()),
+        !hasPlugin(plugins, 'env') &&
+            import('@chialab/esbuild-plugin-env')
+                .then(({ default: plugin }) => plugin()),
+        !hasPlugin(plugins, 'define-this') &&
+            import('@chialab/esbuild-plugin-define-this')
+                .then(({ default: plugin }) => plugin()),
+        !hasPlugin(plugins, 'jsx-import') &&
+            import('@chialab/esbuild-plugin-jsx-import')
+                .then(({ default: plugin }) => plugin({ jsxModule, jsxExport })),
+        !hasPlugin(plugins, 'external') &&
+            import('@chialab/esbuild-plugin-external')
+                .then(({ default: plugin }) => plugin({
+                    dependencies: !bundle,
+                    peerDependencies: !bundle,
+                    optionalDependencies: !bundle,
+                })),
+        !hasPlugin(plugins, 'css-import') &&
+            import('@chialab/esbuild-plugin-css-import')
+                .then(({ default: plugin }) => plugin()),
+        !hasPlugin(plugins, 'unwebpack') &&
+            import('@chialab/esbuild-plugin-unwebpack')
+                .then(({ default: plugin }) => plugin()),
+        !hasPlugin(plugins, 'commonjs') &&
+            import('@chialab/esbuild-plugin-commonjs')
+                .then(({ default: plugin }) => plugin({
+                    helperModule: true,
+                })),
+        !hasPlugin(plugins, 'worker') &&
+            import('@chialab/esbuild-plugin-worker')
+                .then(({ default: plugin }) => plugin()),
+        !hasPlugin(plugins, 'meta-url') &&
+            import('@chialab/esbuild-plugin-meta-url')
+                .then(({ default: plugin }) => plugin()),
         ...plugins,
-        import('@chialab/esbuild-plugin-transform')
-            .then(async ({ default: plugin }) =>
-                plugin([
-                    await import('@chialab/esbuild-plugin-alias')
-                        .then(({ default: plugin }) => plugin(alias)),
-                    ...transformPlugins,
-                ])
-            ),
-    ]);
+    ].filter(Boolean)));
 
-    /**
-     * @type {import('esbuild').BuildOptions}
-     */
-    const finalConfig = {
+    const result = /** @type {import('@chialab/esbuild-rna').Result} */ (await esbuild.build({
         ...entryOptions,
         outfile: hasOutputFile ? output : undefined,
         outdir: hasOutputFile ? undefined : output,
@@ -188,7 +171,7 @@ export async function build(config) {
         watch: watch && {
             onRebuild(error, result) {
                 if (result) {
-                    onBuildEnd(config, entryOptions, result);
+                    onBuildEnd(config, entryOptions, /** @type {import('@chialab/esbuild-rna').Result} */ (result));
                 }
                 if (typeof watch === 'object' &&
                     typeof watch.onRebuild === 'function') {
@@ -200,18 +183,12 @@ export async function build(config) {
         },
         write,
         allowOverwrite: !write,
-    };
-
-    const result = /** @type {BuildResult} */ (await esbuild.build(finalConfig));
+    }));
 
     await onBuildEnd(config, entryOptions, result);
 
     return {
         ...result,
-        dependencies: mergeDependencies(
-            /** @type {import('esbuild').PluginBuild} */(pluginBuild),
-            result,
-            rootDir
-        ),
+        dependencies: result.dependencies,
     };
 }

@@ -1,6 +1,6 @@
 import { readFile } from 'fs/promises';
-import pkgUp from 'pkg-up';
-import { getRootDir } from '@chialab/esbuild-helpers';
+import { useRna } from '@chialab/esbuild-rna';
+import { pkgUp } from '@chialab/node-resolve';
 
 /**
  * @typedef {Object} PluginOptions
@@ -21,17 +21,19 @@ export default function({ dependencies = true, peerDependencies = false, optiona
     const plugin = {
         name: 'external',
         async setup(build) {
-            build.onResolve({ filter: /^https?:\/\// }, (args) => ({
+            const { onResolve } = useRna(build);
+
+            onResolve({ filter: /^https?:\/\// }, (args) => ({
                 path: args.path,
                 external: true,
             }));
 
-            const { bundle, external = [] } = build.initialOptions;
+            const { bundle, external = [], sourceRoot, absWorkingDir } = build.initialOptions;
             if (!bundle) {
                 return;
             }
 
-            const rootDir = getRootDir(build);
+            const rootDir = sourceRoot || absWorkingDir || process.cwd();
             const packageFile = await pkgUp({
                 cwd: rootDir,
             });

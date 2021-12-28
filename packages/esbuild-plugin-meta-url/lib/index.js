@@ -1,87 +1,84 @@
 import path from 'path';
-import { resolve as defaultResolve, isUrl } from '@chialab/node-resolve';
-import { setupPluginDependencies } from '@chialab/esbuild-helpers';
-import emitPlugin, { emitFileOrChunk, getBaseUrl, prependImportStatement } from '@chialab/esbuild-plugin-emit';
-import { pipe, walk, getOffsetFromLocation } from '@chialab/estransform';
-import { getEntry, finalizeEntry, createFilter, getParentBuild, transformError } from '@chialab/esbuild-plugin-transform';
-
-/**
- * @typedef {{ resolve?: typeof defaultResolve }} PluginOptions
- */
+import { isUrl, hasSearchParam } from '@chialab/node-resolve';
+import { MagicString, getSpanLocation, parse, walk } from '@chialab/estransform';
+import { useRna } from '@chialab/esbuild-rna';
 
 /**
  * Detect first level identifier for esbuild file loader imports.
  * File could be previously bundled using esbuild, so the first argument of a new URL(something, import.meta.url)
  * is not a literal anymore but an identifier.
  * Here, we are looking for its computed value.
- * @param {*} node The acorn node.
  * @param {string} id The name of the identifier.
- * @param {*} program The ast program.
- * @return {*} The init acorn node.
+ * @param {import('@chialab/estransform').Program} program The ast program.
+ * @return {import('@chialab/estransform').StringLiteral|undefined} The init ast node.
  */
-export function findIdentifierValue(node, id, program) {
-    const identifier = program.body
+export function findIdentifierValue(id, program) {
+    const declarations = /** @type {import('@swc/core').VariableDeclaration[]} */ (program.body
         .filter(
             /**
-             * @param {*} child
+             * @param {import('@swc/core').Node} child
              */
             (child) => child.type === 'VariableDeclaration'
-        )
+        ));
+
+    const declarators = declarations
         .reduce(
             /**
-             * @param {*[]} acc
-             * @param {*} child
+             * @param {import('@swc/core').VariableDeclarator[]} acc
+             * @param {import('@swc/core').VariableDeclaration} child
              */
-            (acc, child) => [...acc, ...child.declarations], []
+            (acc, child) => [...acc, ...child.declarations],
+            /** @type {import('@swc/core').VariableDeclarator[]} */([])
         )
         .filter(
             /**
-             * @param {*} child
+             * @param {import('@swc/core').VariableDeclarator} child
              */
             (child) => child.type === 'VariableDeclarator'
-        )
-        .find(
-            /**
-             * @param {*} child
-             */
-            (child) => child.id && child.id.type === 'Identifier' && child.id.name === id
         );
 
-    if (!identifier || !identifier.init || identifier.init.type !== 'Literal') {
-        return node;
+    const declarator = declarators
+        .find(
+            /**
+             * @param {import('@swc/core').VariableDeclarator} child
+             */
+            (child) => child.id && child.id.type === 'Identifier' && child.id.value === id
+        );
+
+    if (!declarator || !declarator.init || declarator.init.type !== 'StringLiteral') {
+        return;
     }
 
-    return identifier.init;
+    return declarator.init;
 }
 
 /**
- * @param {*} node The acorn node.
- * @param {*} ast The ast program.
+ * @param {import('@chialab/estransform').NewExpression|import('@chialab/estransform').MemberExpression} node The ast node.
+ * @param {import('@chialab/estransform').Program} ast The ast program.
  * @return The path value.
  */
 export function getMetaUrl(node, ast) {
-    if (node.type === 'MemberExpression') {
-        node = node.object;
-    }
-    if (!node.callee || node.callee.type !== 'Identifier' || node.callee.name !== 'URL') {
+    const callExp = /** @type {import('@chialab/estransform').CallExpression} */ (node.type === 'MemberExpression' ? node.object : node);
+    if (callExp.type !== 'CallExpression' && !callExp.callee || callExp.callee.type !== 'Identifier' || callExp.callee.value !== 'URL') {
         return;
     }
 
-    if (node.arguments.length !== 2) {
+    if (callExp.arguments.length !== 2) {
         return;
     }
 
-    const arg1 = node.arguments[0].type === 'Identifier' ? findIdentifierValue(node, node.arguments[0].name, ast) : node.arguments[0];
-    const arg2 = node.arguments[1];
+    const firstArgExp = callExp.arguments[0] && callExp.arguments[0].expression;
+    const arg1 = firstArgExp.type === 'Identifier' && findIdentifierValue(firstArgExp.value, ast) || firstArgExp;
+    const arg2 = callExp.arguments[1] && callExp.arguments[1].expression;
 
-    if (arg1.type !== 'Literal' ||
+    if (arg1.type !== 'StringLiteral' ||
         arg2.type !== 'MemberExpression') {
         return;
     }
 
     if (arg2.object.type !== 'MetaProperty' ||
         arg2.property.type !== 'Identifier' ||
-        arg2.property.name !== 'url') {
+        arg2.property.value !== 'url') {
         return;
     }
 
@@ -89,81 +86,115 @@ export function getMetaUrl(node, ast) {
 }
 
 /**
+ * @typedef {{ emit?: boolean }} PluginOptions
+ */
+
+/**
  * Instantiate a plugin that converts URL references into static import
  * in order to handle assets bundling.
- * @param {PluginOptions} [options]
+ * @param {PluginOptions} options
  * @return An esbuild plugin.
  */
-export default function({ resolve = defaultResolve } = {}) {
+export default function({ emit = true } = {}) {
     /**
      * @type {import('esbuild').Plugin}
      */
     const plugin = {
         name: 'meta-url',
         async setup(build) {
-            await setupPluginDependencies(getParentBuild(build) || build, plugin, [
-                emitPlugin(),
-            ]);
+            const { platform, format, sourcesContent, sourcemap } = build.initialOptions;
+            const { onTransform, resolve, emitFile, emitChunk, rootDir, loaders: buildLoaders } = useRna(build);
 
-            const { sourcesContent } = build.initialOptions;
+            const baseUrl = (() => {
+                if (platform === 'browser' && format !== 'esm') {
+                    return 'document.currentScript && document.currentScript.src || document.baseURI';
+                }
 
-            build.onLoad({ filter: createFilter(build), namespace: 'file' }, async (args) => {
-                /**
-                 * @type {import('@chialab/estransform').Pipeline}
-                 */
-                const entry = args.pluginData || await getEntry(build, args.path);
-                if (!entry.code.includes('import.meta.url') ||
-                    !entry.code.includes('URL(')) {
+                if (platform === 'node' && format !== 'esm') {
+                    return '\'file://\' + __filename';
+                }
+
+                return 'import.meta.url';
+            })();
+
+            onTransform({ loaders: ['tsx', 'ts', 'jsx', 'js'] }, async (args) => {
+                const code = args.code;
+
+                if (!code.includes('import.meta.url') ||
+                    !code.includes('URL(')) {
                     return;
                 }
 
-                try {
-                    await pipe(entry, {
-                        source: path.basename(args.path),
-                        sourcesContent,
-                    }, async (data) => {
-                        /**
-                         * @type {{ [key: string]: string }}
-                         */
-                        const ids = {};
+                /**
+                 * @type {MagicString|undefined}
+                 */
+                let magicCode;
 
-                        /**
-                         * @type {Promise<void>[]}
-                         */
-                        const promises = [];
+                /**
+                 * @type {Promise<void>[]}
+                 */
+                const promises = [];
 
-                        walk(data.ast, {
-                            /**
-                             * @param {*} node
-                             */
-                            NewExpression(node) {
-                                const value = getMetaUrl(node, data.ast);
-                                if (typeof value !== 'string' || isUrl(value)) {
-                                    return;
-                                }
+                const ast = await parse(code);
+                walk(ast, {
+                    /**
+                     * @param {import('@chialab/estransform').NewExpression} node
+                     */
+                    NewExpression(node) {
+                        const value = getMetaUrl(node, ast);
+                        if (typeof value !== 'string' || isUrl(value)) {
+                            return;
+                        }
 
-                                promises.push((async () => {
-                                    const resolvedPath = await resolve(value, args.path);
-                                    const startOffset = getOffsetFromLocation(data.code, node.loc.start);
-                                    const endOffset = getOffsetFromLocation(data.code, node.loc.end);
-                                    if (!ids[resolvedPath]) {
-                                        const entryPoint = emitFileOrChunk(build, resolvedPath);
-                                        const { identifier } = prependImportStatement(data, entryPoint, value);
-                                        ids[resolvedPath] = identifier;
-                                    }
+                        if (hasSearchParam(value, 'emit')) {
+                            // already emitted
+                            const loc = getSpanLocation(ast, node);
+                            magicCode = magicCode || new MagicString(code);
+                            magicCode.overwrite(loc.start, loc.end, `new URL('${value}', ${baseUrl})`);
+                            return;
+                        }
 
-                                    data.magicCode.overwrite(startOffset, endOffset, `new URL(${ids[resolvedPath]}, ${getBaseUrl(build)})`);
-                                })());
-                            },
-                        });
+                        promises.push(Promise.resolve().then(async () => {
+                            const { path: resolvedPath } = await resolve({
+                                kind: 'dynamic-import',
+                                path: value.split('?')[0],
+                                importer: args.path,
+                                namespace: 'file',
+                                resolveDir: rootDir,
+                                pluginData: null,
+                            });
 
-                        await Promise.all(promises);
-                    });
-                } catch (error) {
-                    throw transformError(this.name, error);
+                            if (!resolvedPath) {
+                                return;
+                            }
+
+                            const loc = getSpanLocation(ast, node);
+                            magicCode = magicCode || new MagicString(code);
+
+                            const entryLoader = buildLoaders[path.extname(resolvedPath)] || 'file';
+                            const entryPoint = emit ?
+                                (entryLoader !== 'file' ? await emitChunk({ entryPoint: resolvedPath }) : await emitFile(resolvedPath)).path :
+                                `./${path.relative(path.dirname(args.path), resolvedPath)}`;
+
+                            magicCode.overwrite(loc.start, loc.end, `new URL('${entryPoint}', ${baseUrl})`);
+                        }));
+                    },
+                });
+
+                await Promise.all(promises);
+
+                if (!magicCode) {
+                    return;
                 }
 
-                return finalizeEntry(build, entry, { source: args.path });
+                return {
+                    code: magicCode.toString(),
+                    map: sourcemap ? magicCode.generateMap({
+                        source: args.path,
+                        includeContent: sourcesContent,
+                        hires: true,
+                    }) : undefined,
+                };
             });
         },
     };

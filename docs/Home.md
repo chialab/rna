@@ -1,32 +1,40 @@
-**RNA** is a set of plugins for popular bundlers, servers and test runners. It can be used programmatically in your configuration or via the pluggable `rna` cli.
+## RNA is a bundler
 
-### Transpile and bundle JavaScript, TypeScript, JSX, CSS and HTML
+RNA bundler is heavily based on [esbuild](https://esbuild.github.io/), *an extremely fast JavaScript bundler* with some pre-configured addons. It can bundle and optimize JavaScript, TypeScript, JSX, CSS and HTML and collect referenced assets just using languages features.
 
-The RNA ecosystem is heavily based on [esbuild](https://esbuild.github.io/), *an extremely fast JavaScript bundler* that supports TypeScript and CSS out of the box. Thanks to its plugin system, we added support for:
+The bundler is designed for modern browsers, but it can transpile code for IE11 and other legacy browsers with [Babel](https://babeljs.io/) and [PostCSS](https://postcss.org/) plugins.
 
-* **HTML entrypoints.** Using a `index.html` file as build entrypoint, you can bundle full web applications. RNA will bundle and transpile referenced scripts and styles, along with copying external file resources and generating webmanifest and favicons.
-* **Assets managment.** Collect files in your scripts using standard syntax and `URL` references.
-* **CSS in node modules.** Import CSS dependencies from the node_modules folder using the node resolution algorithm and looking for the `style` field in package.json.
+* [Build a JavaScript module](./Building-javascript)
+* [Build a CSS module](./Building-css)
+* [Build a Web App](./Building-web-apps)
 
-### Serve unbundled modules on demand with livereload and HMR
+## RNA is a dev server
 
-Build plugins are also available for the [Web Dev Server](https://modern-web.dev/docs/dev-server/overview/). Since WDS and [RNA philosophy](./Architecture) is to use standard syntax and practises in web projects, you can run a local server with hot module replacement and CSS livereload without have to bundle your web app first or to re-run a partial build for each change. Files loaded via ESM will pass through a little esbuild transpilation in order to support TypeScript, CommonJS modules and node resolution, making a great difference in developer experience. The dev server can be used also for PHP with an Encore-like approach.
+Build plugins are also available for the [Web Dev Server](https://modern-web.dev/docs/dev-server/overview/). Since both WDS and RNA aim to use standard syntax and practises in web projects, you can run a local server with hot module replacement and CSS livereload without have to bundle your web app first or to re-run a partial build for each change. Files loaded via ESM will pass through a little esbuild transpilation in order to support TypeScript, CommonJS modules and node resolution, making a great difference in developer experience. The dev server can be used also for PHP with an Encore-like approach.
 
-### Run tests in browser and node environments
+* [Dev server for web apps](./Dev-server-web-apps)
 
-Built on the Web Dev Server, a configured instance of the [Web Test Runner](https://modern-web.dev/docs/test-runner/overview/) is also available for browsers. It comes with coverage and on-the-fly legacy browsers support. The test runner works great with the [`@open-wc/testing`](https://www.npmjs.com/package/@open-wc/testing) and [`@testing-library/dom`](https://www.npmjs.com/package/@testing-library/dom) packages.
+## RNA is a browser and node test runner
+
+Built on the Web Dev Server, a configured instance of the [Web Test Runner](https://modern-web.dev/docs/test-runner/overview/) is also available for browsers. It comes with coverage and on-the-fly legacy browsers support.
 
 Since RNA aims to support both browser and Node modules, you can test your modules in Node environments using the RNA test runner based on [Mocha](https://mochajs.org/). Coverage is also available thanks to the v8 coverage tool.
 
-### Legacy support
+* [Testing in the browser](./Testing-browser)
+* [Testing in node](./Testing-node)
+* [Testing in SauceLabs](./Testing-saucelabs)
 
-Esbuild does not support lowering to ES5 syntax, that's why RNA provides a [Babel](https://babeljs.io/). If the project provides a configuration, any CSS file will also be transformed using [PostCSS](https://postcss.org/).
+## RNA is a build framework
 
----
+We built RNA to be pluggable and to be interoperable with other build systems. A lot of esbuild and postcss plugins are distribuited as standalone packages in order to be reused outside the RNA opinionated ecosystem. We also designed a micro-sdk for esbuild plugin authors that handles transform pipelines and emits chunks or files.
 
-## Quick usage
+* [Architecture](./Architecture)
+* [List of modules](./Plugins)
+* [Write a plugin](./Write-a-plugin)
 
-[<img src="https://img.shields.io/npm/v/@chialab/rna" alt="npm" />](https://www.npmjs.com/package/@chialab/rna)
+## RNA is a cli
+
+### Quick usage
 
 ```sh
 $ npm i -D \
@@ -45,4 +53,4 @@ $ npm i -D \
         "test": "rna test:browser 'test/**/*.spec'"
     }
 }
-
+```

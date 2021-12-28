@@ -1,20 +1,16 @@
 import path from 'path';
-import { readFile } from 'fs/promises';
-import { resolve as defaultResolve } from '@chialab/node-resolve';
-import emitPlugin, { emitChunk } from '@chialab/esbuild-plugin-emit';
-import { setupPluginDependencies } from '@chialab/esbuild-helpers';
-import { pipe, walk, getOffsetFromLocation, generate } from '@chialab/estransform';
-import { getEntry, finalizeEntry, createFilter, getParentBuild, transformError } from '@chialab/esbuild-plugin-transform';
+import { MagicString, walk, parse, getSpanLocation } from '@chialab/estransform';
 import metaUrlPlugin, { getMetaUrl } from '@chialab/esbuild-plugin-meta-url';
+import { useRna } from '@chialab/esbuild-rna';
 
 /**
- * @typedef {{ resolve?: typeof defaultResolve, constructors?: string[], proxy?: boolean }} PluginOptions
+ * @typedef {{ constructors?: string[], proxy?: boolean, emit?: boolean }} PluginOptions
  */
 
 /**
  * Create a blob proxy worker code.
  * @param {string} argument The url reference.
- * @param {import('@chialab/esbuild-plugin-emit').EmitTransformOptions} transformOptions The transform options for the url.
+ * @param {Omit<import('@chialab/esbuild-rna').EmitTransformOptions, 'entryPoint'>} transformOptions The transform options for the url.
  */
 function createBlobProxy(argument, transformOptions) {
     const createUrlFn = `(function(path) {
@@ -34,136 +30,158 @@ function createBlobProxy(argument, transformOptions) {
  * @param {PluginOptions} options
  * @return An esbuild plugin.
  */
-export default function({ resolve = defaultResolve, constructors = ['Worker', 'SharedWorker'], proxy = false } = {}) {
+export default function({ constructors = ['Worker', 'SharedWorker'], proxy = false, emit = true } = {}) {
+    const variants = constructors.reduce((acc, Ctr) => [
+        ...acc,
+        `new ${Ctr}`,
+        `new window.${Ctr}`,
+        `new globalThis.${Ctr}`,
+        `new self.${Ctr}`,
+    ], /** @type {string[]} */ ([]));
+
     /**
      * @type {import('esbuild').Plugin}
      */
     const plugin = {
         name: 'worker',
         async setup(build) {
-            await setupPluginDependencies(getParentBuild(build) || build, plugin, [
-                emitPlugin(),
-            ]);
+            const { sourcesContent, sourcemap } = build.initialOptions;
+            const { onTransform, resolve, emitChunk, setupPlugin, rootDir } = useRna(build);
+            await setupPlugin(plugin, [metaUrlPlugin({ emit })], 'after');
 
-            const { sourcesContent } = build.initialOptions;
+            onTransform({ loaders: ['tsx', 'ts', 'jsx', 'js'] }, async (args) => {
+                const code = args.code;
 
-            build.onResolve({ filter: /(\?|&)loader=worker$/ }, async ({ path: filePath }) => ({
-                path: filePath.split('?')[0],
-                namespace: 'worker',
-            }));
-
-            build.onLoad({ filter: /\./, namespace: 'worker' }, async ({ path: filePath }) => ({
-                contents: await readFile(filePath),
-                loader: 'file',
-            }));
-
-            build.onLoad({ filter: createFilter(build), namespace: 'file' }, async (args) => {
-                /**
-                 * @type {import('@chialab/estransform').Pipeline}
-                 */
-                const entry = args.pluginData || await getEntry(build, args.path);
-                if (constructors.every((ctr) => !entry.code.includes(ctr))) {
+                if (!variants.find((ctr) => code.includes(ctr))) {
                     return;
                 }
 
-                try {
-                    await pipe(entry, {
-                        source: path.basename(args.path),
-                        sourcesContent,
-                    }, async (data) => {
+                /**
+                 * @type {MagicString|undefined}
+                 */
+                let magicCode;
+
+                /**
+                 * @type {Promise<void>[]}
+                 */
+                const promises = [];
+                const ast = await parse(code);
+                walk(ast, {
+                    /**
+                     * @param {import('@chialab/estransform').NewExpression} node
+                     */
+                    NewExpression(node) {
+                        let callee = node.callee;
+                        if (callee.type === 'MemberExpression') {
+                            if (callee.object.type === 'Identifier') {
+                                if (
+                                    callee.object.value !== 'window' &&
+                                    callee.object.value !== 'self' &&
+                                    callee.object.value !== 'globalThis') {
+                                    return;
+                                }
+                            }
+                            callee = callee.property;
+                        }
+                        if (callee.type !== 'Identifier') {
+                            return;
+                        }
+                        const Ctr = callee.value;
+                        if (!constructors.includes(Ctr)) {
+                            return;
+                        }
+                        if (!node.arguments.length) {
+                            return;
+                        }
+
+                        const firstArg = /** @type {import('@chialab/estransform').StringLiteral|import('@chialab/estransform').NewExpression|import('@chialab/estransform').MemberExpression} */ (node.arguments[0] && node.arguments[0].expression);
+
                         /**
-                         * @type {Promise<void>[]}
+                         * @type {Omit<import('@chialab/esbuild-rna').EmitTransformOptions, 'entryPoint'>}
                          */
-                        const promises = [];
-
-                        walk(data.ast, {
-                            /**
-                             * @param {*} node
-                             */
-                            NewExpression(node) {
-                                let callee = node.callee;
-                                if (callee.type === 'MemberExpression') {
-                                    if (callee.object.name !== 'window' &&
-                                        callee.object.name !== 'self' &&
-                                        callee.object.name !== 'globalThis') {
-                                        return;
-                                    }
-                                    callee = callee.property;
-                                }
-                                const Ctr = callee.name;
-                                if (callee.type !== 'Identifier' || !constructors.includes(Ctr)) {
-                                    return;
-                                }
-                                if (!node.arguments.length) {
-                                    return;
-                                }
-
+                        const transformOptions = {
+                            format: 'iife',
+                            bundle: true,
+                            platform: 'neutral',
+                            jsxFactory: undefined,
+                        };
+                        const workerOptions = node.arguments[1] && node.arguments[1].expression;
+                        if (workerOptions &&
+                            workerOptions.type === 'ObjectExpression' &&
+                            workerOptions.properties &&
+                            workerOptions.properties.some(
                                 /**
-                                 * @type {import('@chialab/esbuild-plugin-emit').EmitTransformOptions}
+                                 * @param {import('@swc/core').Property|import('@swc/core').SpreadElement} prop
                                  */
-                                const transformOptions = {
-                                    format: 'iife',
-                                    bundle: true,
-                                    platform: 'neutral',
-                                };
-                                const options = node.arguments[1];
-                                if (options &&
-                                    options.type === 'ObjectExpression' &&
-                                    options.properties &&
-                                    options.properties.some(
-                                        /**
-                                         * @param {*} prop
-                                         */
-                                        (prop) =>
-                                            prop.type === 'Property' &&
-                                            prop.key?.name === 'type' &&
-                                            prop.value?.value === 'module'
-                                    )
-                                ) {
-                                    transformOptions.format = 'esm';
-                                    transformOptions.bundle = false;
-                                } else {
-                                    transformOptions.splitting = false;
-                                    transformOptions.inject = [];
-                                    transformOptions.plugins = [];
+                                (prop) =>
+                                    prop.type === 'KeyValueProperty' &&
+                                    (prop.key.type === 'StringLiteral' || prop.key.type === 'Identifier') &&
+                                    prop.key?.value === 'type' &&
+                                    prop.value.type === 'StringLiteral' &&
+                                    prop.value?.value === 'module'
+                            )
+                        ) {
+                            transformOptions.format = 'esm';
+                        }
+
+                        promises.push(Promise.resolve().then(async () => {
+                            const loc = getSpanLocation(ast, node);
+                            const value = firstArg.type === 'StringLiteral' ? firstArg.value : getMetaUrl(firstArg, ast);
+                            if (typeof value !== 'string') {
+                                if (proxy) {
+                                    const firstArgLoc = getSpanLocation(ast, firstArg);
+                                    const arg = code.substring(firstArgLoc.start, firstArgLoc.end);
+                                    magicCode = magicCode || new MagicString(code);
+                                    magicCode.overwrite(loc.start, loc.end, `new ${Ctr}(${createBlobProxy(arg, transformOptions)})`);
                                 }
+                                return;
+                            }
 
-                                const startOffset = getOffsetFromLocation(data.code, node.loc.start);
-                                const endOffset = getOffsetFromLocation(data.code, node.loc.end);
-                                const value = getMetaUrl(node.arguments[0], data.ast) || node.arguments[0].value;
-                                if (typeof value !== 'string') {
-                                    if (proxy) {
-                                        const arg = generate(node.arguments[0]);
-                                        data.magicCode.overwrite(startOffset, endOffset, `new ${Ctr}(${createBlobProxy(arg, transformOptions)})`);
-                                    }
-                                    return;
-                                }
+                            const { path: resolvedPath } = await resolve({
+                                kind: 'dynamic-import',
+                                path: value,
+                                importer: args.path,
+                                namespace: 'file',
+                                resolveDir: rootDir,
+                                pluginData: undefined,
+                            });
+                            if (!resolvedPath) {
+                                return;
+                            }
 
-                                promises.push(Promise.resolve().then(async () => {
-                                    const resolvedPath = await resolve(value, args.path);
-                                    const entryPoint = emitChunk(resolvedPath, transformOptions);
-                                    const arg = `new URL('${entryPoint}', import.meta.url).href`;
-                                    if (proxy) {
-                                        data.magicCode.overwrite(startOffset, endOffset, `new ${Ctr}(${createBlobProxy(arg, transformOptions)})`);
-                                    } else {
-                                        data.magicCode.overwrite(startOffset, endOffset, `new ${Ctr}(${arg})`);
-                                    }
-                                }));
-                            },
-                        });
+                            magicCode = magicCode || new MagicString(code);
 
-                        await Promise.all(promises);
-                    });
-                } catch (error) {
-                    throw transformError(this.name, error);
+                            const entryPoint = emit ?
+                                (await emitChunk({
+                                    ...transformOptions,
+                                    entryPoint: resolvedPath,
+                                })).path :
+                                `./${path.relative(path.dirname(args.path), resolvedPath)}`;
+                            const arg = `new URL('${entryPoint}', import.meta.url).href`;
+                            if (proxy) {
+                                magicCode.overwrite(loc.start, loc.end, `new ${Ctr}(${createBlobProxy(arg, transformOptions)})`);
+                            } else {
+                                magicCode.overwrite(loc.start, loc.end, `new ${Ctr}(${arg})`);
+                            }
+                        }));
+                    },
+                });
+
+                await Promise.all(promises);
+
+                if (!magicCode) {
+                    return;
                 }
 
-                return finalizeEntry(build, entry, { source: args.path });
+                return {
+                    code: magicCode.toString(),
+                    map: sourcemap ? magicCode.generateMap({
+                        source: args.path,
+                        includeContent: sourcesContent,
+                        hires: true,
+                    }) : undefined,
+                };
             });
-
-            await setupPluginDependencies(build, plugin, [
-                metaUrlPlugin({ resolve }),
-            ], 'after');
         },
     };
 

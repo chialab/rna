@@ -26,6 +26,10 @@ import path from 'path';
  */
 
 /**
+ * @typedef {import('@web/dev-server-core').Plugin} ServePlugin
+ */
+
+/**
  * @typedef {import('esbuild').LogLevel} LogLevel
  */
 
@@ -61,7 +65,6 @@ import path from 'path';
  * @property {boolean} bundle
  * @property {boolean} clean
  * @property {Plugin[]} plugins
- * @property {Plugin[]} transformPlugins
  * @property {LogLevel} logLevel
  * @property {boolean} [splitting]
  * @property {boolean|import('esbuild').WatchMode} [watch]
@@ -93,7 +96,7 @@ import path from 'path';
  * @property {string} [publicPath]
  * @property {string} [manifestPath]
  * @property {string} [entrypointsPath]
- * @property {Plugin[]} [servePlugins]
+ * @property {ServePlugin[]} [servePlugins]
  */
 
 /**
@@ -126,7 +129,7 @@ export function camelize(file) {
  */
 export function getEntryConfig(entrypoint, config) {
     const root = entrypoint.root || config.root || process.cwd();
-    const publicPath = entrypoint.publicPath || config.publicPath || root;
+    const publicPath = entrypoint.publicPath || config.publicPath || '/';
     const format = entrypoint.format || config.format || 'esm';
     const target = entrypoint.target || config.target || (format === 'iife' ? 'es5' : 'es2020');
     const platform = entrypoint.platform || config.platform || (format === 'cjs' ? 'node' : 'browser');
@@ -170,10 +173,6 @@ export function getEntryConfig(entrypoint, config) {
         plugins: [
             ...(entrypoint.plugins || []),
             ...(config.plugins || []),
-        ],
-        transformPlugins: [
-            ...(entrypoint.transformPlugins || []),
-            ...(config.transformPlugins || []),
         ],
         logLevel: config.logLevel || 'warning',
         watch: config.watch,
@@ -235,10 +234,6 @@ export function mergeConfig(...entries) {
                 plugins: [
                     ...(config.plugins || []),
                     ...(clone.plugins || []),
-                ],
-                transformPlugins: [
-                    ...(config.transformPlugins || []),
-                    ...(clone.transformPlugins || []),
                 ],
                 servePlugins: [
                     ...(config.servePlugins || []),

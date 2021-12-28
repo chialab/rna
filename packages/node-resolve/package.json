@@ -1,7 +1,7 @@
 {
   "name": "@chialab/node-resolve",
   "type": "module",
-  "version": "0.12.26",
+  "version": "0.13.11",
   "description": "A promise based node resolution library based on enhanced-resolve.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",
@@ -35,7 +35,9 @@
   },
   "dependencies": {
     "enhanced-resolve": "^5.8.2",
-    "is-core-module": "^2.5.0"
+    "fast-glob": "^3.2.0",
+    "is-core-module": "^2.5.0",
+    "pkg-up": "^4.0.0"
   },
   "devDependencies": {
     "@types/is-core-module": "^2.2.0",

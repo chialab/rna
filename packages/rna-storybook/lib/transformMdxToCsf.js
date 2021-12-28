@@ -6,19 +6,24 @@ const compilers = [createCompiler({})];
 
 /**
  * @param {string} body
- * @param {string} filePath
+ * @param {{ source: string }} options
  */
-export async function transformMdxToCsf(body, filePath) {
+export async function transformMdxToCsf(body, { source }) {
     body = `import React from 'react';
 import { mdx } from '@mdx-js/react';
 
 ${body}`;
 
-    body = await mdx(body, { compilers, filepath: filePath });
-    return esbuild.transform(body, {
+    body = await mdx(body, { compilers, filepath: source });
+
+    const result = await esbuild.transform(body, {
         loader: 'jsx',
         sourcemap: false,
         tsconfigRaw: '{ "compilerOptions": { "jsxFactory": "mdx" } }',
         jsxFactory: 'mdx',
     });
+
+    return {
+        code: result.code,
+    };
 }

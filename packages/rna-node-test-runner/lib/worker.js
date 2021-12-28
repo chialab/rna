@@ -1,7 +1,7 @@
 import path from 'path';
 import { parentPort, workerData } from 'worker_threads';
 import Mocha from 'mocha';
-import glob from 'fast-glob';
+import { glob } from '@chialab/node-resolve';
 
 const mocha = new Mocha({
     reporter: 'spec',

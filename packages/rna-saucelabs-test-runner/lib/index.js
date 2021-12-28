@@ -1,5 +1,14 @@
+import path from 'path';
+import { readFile } from 'fs/promises';
 import { readConfigFile, mergeConfig, locateConfigFile } from '@chialab/rna-config-loader';
 import { createLogger } from '@chialab/rna-logger';
+import { pkgUp } from '@chialab/node-resolve';
+import { createSauceLabsLauncher } from '@web/test-runner-saucelabs';
+import { test as coreTest } from '@chialab/rna-browser-test-runner';
+import { mochaReporter } from '@chialab/wtr-mocha-reporter';
+import { fixLauncher } from './fixLauncher.js';
+import { testName, testJob } from './info.js';
+import { sauceReporter } from './reporter.js';
 
 /**
  * Start the test runner.
@@ -8,15 +17,6 @@ import { createLogger } from '@chialab/rna-logger';
  * @return {Promise<import('@chialab/rna-browser-test-runner').TestRunner>} The test runner instance.
  */
 export async function test(config, sauceOptions) {
-    const { default: path } = await import('path');
-    const { promises: { readFile } } = await import('fs');
-    const { default: pkgUp } = await import('pkg-up');
-    const { createSauceLabsLauncher } = await import('@web/test-runner-saucelabs');
-    const { test: coreTest } = await import('@chialab/rna-browser-test-runner');
-    const { mochaReporter } = await import('@chialab/wtr-mocha-reporter');
-    const { fixLauncher } = await import('./fixLauncher.js');
-    const { testName, testJob } = await import('./info.js');
-    const { sauceReporter } = await import('./reporter.js');
     config = { ...config };
 
     const packageFile = await pkgUp();

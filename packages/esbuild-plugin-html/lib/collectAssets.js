@@ -1,57 +1,35 @@
-import path from 'path';
 import { isRelativeUrl } from '@chialab/node-resolve';
 
 /**
  * Collect and bundle each node with a src reference.
- * @param {import('cheerio').CheerioAPI} $ The cheerio selector.
- * @param {import('cheerio').Cheerio<import('cheerio').Document>} dom The DOM element.
- * @param {string} base The base dir.
- * @param {string} outdir The output dir.
- * @param {import('esbuild').BuildOptions} options Build options.
- * @return {import('./index').Build[]} A list of builds.
+ * @type {import('./index').Collector}
  */
-export function collectAssets($, dom, base, outdir, options) {
+export async function collectAssets($, dom) {
     return [
         ...dom
             .find('[src]:not(script)')
             .get()
             .filter((element) => isRelativeUrl($(element).attr('src')))
-            .map((element) => ({
-                loader: /** @type {import('esbuild').Loader} */ ('file'),
-                options: {
-                    entryPoints: [
-                        path.resolve(base, /** @type {string} */ ($(element).attr('src'))),
-                    ],
-                    entryNames: `assets/${options.entryNames || '[name]'}`,
-                    chunkNames: `assets/${options.chunkNames || '[name]'}`,
-                    assetNames: `assets/${options.assetNames || '[name]'}`,
+            .map((element) => /** @type {import('./index.js').CollectResult} */ ({
+                build: {
+                    entryPoint: /** @type {string} */ ($(element).attr('src')),
+                    loader: /** @type {import('esbuild').Loader} */ ('file'),
                 },
-                /**
-                 * @param {string} filePath
-                 */
-                finisher(filePath) {
-                    $(element).attr('src', path.relative(outdir, filePath));
+                finisher(files) {
+                    $(element).attr('src', files[0]);
                 },
             })),
         ...dom
-            .find('link[href]:not([rel="stylesheet"]):not([rel="manifest"]):not([rel*="icon"]), a[download][href], iframe[href]')
+            .find('link[href]:not([rel="stylesheet"]):not([rel="manifest"]):not([rel*="icon"]):not([rel*="apple-touch-startup-image"]), a[download][href], iframe[href]')
             .get()
             .filter((element) => isRelativeUrl($(element).attr('href')))
-            .map((element) => ({
-                loader: /** @type {import('esbuild').Loader} */ ('file'),
-                options: {
-                    entryPoints: [
-                        path.resolve(base, /** @type {string} */ ($(element).attr('href'))),
-                    ],
-                    entryNames: `assets/${options.entryNames || '[name]'}`,
-                    chunkNames: `assets/${options.chunkNames || '[name]'}`,
-                    assetNames: `assets/${options.assetNames || '[name]'}`,
+            .map((element) => /** @type {import('./index.js').CollectResult} */ ({
+                build: {
+                    entryPoint: /** @type {string} */ ($(element).attr('href')),
+                    loader: /** @type {import('esbuild').Loader} */ ('file'),
                 },
-                /**
-                 * @param {string} filePath
-                 */
-                finisher(filePath) {
-                    $(element).attr('href', path.relative(outdir, filePath));
+                finisher(files) {
+                    $(element).attr('href', files[0]);
                 },
             })),
     ];

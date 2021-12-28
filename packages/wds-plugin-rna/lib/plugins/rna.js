@@ -1,11 +1,9 @@
 import path from 'path';
-import pkgUp from 'pkg-up';
 import { getRequestFilePath } from '@web/dev-server-core';
-import { getChunkOptions } from '@chialab/esbuild-plugin-emit';
 import { getEntryConfig } from '@chialab/rna-config-loader';
-import { browserResolve, isJs, isJson, isCss, fsResolve, getSearchParam, appendSearchParam, removeSearchParam, getSearchParams, ALIAS_MODE, createAliasRegexexMap, createEmptyRegex } from '@chialab/node-resolve';
-import { isHelperImport, isOutsideRootDir, resolveRelativeImport } from '@chialab/wds-plugin-node-resolve';
-import { transform, transformLoaders, loadPlugins, loadTransformPlugins, build } from '@chialab/rna-bundler';
+import { pkgUp, browserResolve, isJs, isJson, isCss, getSearchParam, appendSearchParam, removeSearchParam, getSearchParams, ALIAS_MODE, createAliasRegexexMap, createEmptyRegex } from '@chialab/node-resolve';
+import { isHelperImport, resolveRelativeImport } from '@chialab/wds-plugin-node-resolve';
+import { transform, transformLoaders, build } from '@chialab/rna-bundler';
 import { realpath } from 'fs/promises';
 
 /**
@@ -16,7 +14,14 @@ import { realpath } from 'fs/promises';
  * @param {string} url
  */
 export function isFileRequest(url) {
-    return ['file', 'chunk'].includes(getSearchParam(url, 'emit') || '') || getSearchParam(url, 'loader') === 'file';
+    return getSearchParam(url, 'emit') === 'file' || getSearchParam(url, 'loader') === 'file';
+}
+
+/**
+ * @param {string} url
+ */
+export function isChunkRequest(url) {
+    return getSearchParam(url, 'emit') === 'chunk';
 }
 
 /**
@@ -85,14 +90,9 @@ export function getRequestLoader(context) {
 
 /**
  * @param {import('@chialab/rna-config-loader').Entrypoint} entrypoint
- * @param {import('@web/dev-server-core').DevServerCoreConfig} serverConfig
  * @param {Partial<import('@chialab/rna-config-loader').CoreTransformConfig>} config
  */
-export async function createConfig(entrypoint, serverConfig, config) {
-    const { rootDir } = serverConfig;
-    const input = /** @type {string} */ (entrypoint.input);
-    const filePath = path.resolve(rootDir, input);
-
+export async function createConfig(entrypoint, config) {
     return getEntryConfig(entrypoint, {
         sourcemap: 'inline',
         target: 'es2020',
@@ -103,32 +103,18 @@ export async function createConfig(entrypoint, serverConfig, config) {
         jsxExport: config.jsxExport,
         alias: config.alias,
         plugins: [
-            ...(await loadPlugins({
-                postcss: {
-                    alias: config.alias,
-                    async transform(importPath) {
-                        if (isOutsideRootDir(importPath)) {
-                            return;
-                        }
-
-                        return resolveRelativeImport(
-                            await fsResolve(importPath, filePath),
-                            filePath,
-                            rootDir
-                        );
-                    },
-                },
-            })),
+            ...await Promise.all([
+                import('@chialab/esbuild-plugin-worker')
+                    .then(({ default: plugin }) => plugin({
+                        proxy: true,
+                        emit: false,
+                    })),
+                import('@chialab/esbuild-plugin-meta-url')
+                    .then(({ default: plugin }) => plugin({
+                        emit: false,
+                    })),
+            ]),
             ...(config.plugins || []),
-        ],
-        transformPlugins: [
-            ...(await loadTransformPlugins({
-                commonjs: {},
-                worker: {
-                    proxy: true,
-                },
-            })),
-            ...(config.transformPlugins || []),
         ],
         logLevel: 'error',
     });
@@ -167,12 +153,12 @@ export function rnaPlugin(config) {
     const virtualFs = {};
 
     /**
-     * @type {import('@chialab/esbuild-helpers').DependenciesMap}
+     * @type {import('@chialab/esbuild-rna').DependenciesMap}
      */
     const dependenciesMap = {};
 
     /**
-     * @param {import('@chialab/rna-bundler').TransformResult|import('@chialab/rna-bundler').BuildResult} result
+     * @param {import('@chialab/rna-bundler').TransformResult|import('@chialab/esbuild-rna').Result} result
      */
     function watchDependencies({ dependencies }) {
         const watchedDependencies = Object.values(dependenciesMap).flat();
@@ -191,18 +177,6 @@ export function rnaPlugin(config) {
         }
 
         Object.assign(dependenciesMap, dependencies);
-    }
-
-    /**
-     * @param {import('@chialab/rna-bundler').BuildResult} result
-     */
-    function addToVirtualFs(result) {
-        if (!result.outputFiles) {
-            return result.outputFiles;
-        }
-        result.outputFiles.forEach(({ path, text }) => {
-            virtualFs[path] = Promise.resolve(text);
-        });
     }
 
     /**
@@ -251,7 +225,8 @@ export function rnaPlugin(config) {
             if (isJs(context.path) ||
                 isJson(context.path) ||
                 isCssModuleRequest(context.url) ||
-                isFileRequest(context.url)) {
+                isFileRequest(context.url) ||
+                isChunkRequest(context.url)) {
                 return 'js';
             }
             if (isCss(context.path)) {
@@ -288,6 +263,48 @@ export function rnaPlugin(config) {
                     transformCacheKey: false,
                 };
             }
+
+            const accepts = context.request.headers['accept'] || '';
+            if (filePath && accepts.includes('text/css')) {
+                /**
+                 * @type {import('@chialab/rna-config-loader').Entrypoint}
+                 */
+                const entrypoint = {
+                    root: rootDir,
+                    input: filePath,
+                    output: filePath,
+                    loader: 'css',
+                    bundle: true,
+                };
+
+                virtualFs[filePath] = createConfig(entrypoint, config)
+                    .then(async (transformConfig) => {
+                        const result = await build({
+                            ...transformConfig,
+                            entryNames: '[name]',
+                            assetNames: '[name]',
+                            chunkNames: '[name]',
+                            output: filePath,
+                            write: false,
+                        });
+
+                        const outputFiles = /** @type {import('esbuild').OutputFile[]} */ (result.outputFiles);
+                        outputFiles.forEach(({ path, text }) => {
+                            virtualFs[path] = Promise.resolve(text);
+                        });
+
+                        watchDependencies(result);
+
+                        return virtualFs[filePath];
+                    });
+
+                return {
+                    body: await virtualFs[filePath],
+                    headers: {
+                        'content-type': 'text/css',
+                    },
+                };
+            }
         },
 
         async transform(context) {
@@ -318,7 +335,7 @@ export function rnaPlugin(config) {
                 return;
             }
 
-            const contextConfig = getChunkOptions(context.url);
+            const contextConfig = JSON.parse(getSearchParam(context.url, 'transform') || '{}');
 
             /**
              * @type {import('@chialab/rna-config-loader').Entrypoint}
@@ -332,7 +349,7 @@ export function rnaPlugin(config) {
                 ...contextConfig,
             };
 
-            const transformConfig = await createConfig(entrypoint, serverConfig, config);
+            const transformConfig = await createConfig(entrypoint, config);
             const result = await transform(transformConfig);
             watchDependencies(result);
 
@@ -408,7 +425,7 @@ export function rnaPlugin(config) {
                 bundle: false,
             };
 
-            virtualFs[resolved] = createConfig(entrypoint, serverConfig, config)
+            virtualFs[resolved] = createConfig(entrypoint, config)
                 .then((transformConfig) =>
                     build({
                         ...transformConfig,
@@ -422,7 +439,10 @@ export function rnaPlugin(config) {
                         throw new Error('Failed to bundle dependency');
                     }
 
-                    addToVirtualFs(result);
+                    result.outputFiles.forEach(({ path, text }) => {
+                        virtualFs[path] = Promise.resolve(text);
+                    });
+
                     watchDependencies(result);
 
                     return virtualFs[resolved];

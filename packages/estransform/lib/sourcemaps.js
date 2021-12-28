@@ -1,5 +1,8 @@
 import { readFile } from 'fs/promises';
 import path from 'path';
+import sourceMapDefault from '@parcel/source-map';
+
+const { default: SourceMapNode } = sourceMapDefault;
 
 const SOURCEMAP_REGEX = /(?:(\/\*+\s*?sourceMappingURL\s*=)([\s\S]*?)(\*\/))|(?:(\/\/\s*?sourceMappingURL\s*=)(.*?)([\r\n]))/;
 
@@ -59,8 +62,6 @@ export async function mergeSourcemaps(sourceMaps) {
             ...sourceMaps[0],
         };
     }
-
-    const { default: { default: SourceMapNode } } = await import('@parcel/source-map');
 
     const sourceMap = sourceMaps.reduce(
         /**

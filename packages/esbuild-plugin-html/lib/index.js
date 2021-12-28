@@ -1,49 +1,22 @@
 import path from 'path';
-import { readFile, rename, rm } from 'fs/promises';
 import * as cheerio from 'cheerio';
-import { createResult, assignToResult, getMainOutput, getRootDir, getOutputDir, getStdinInput, esbuildFile } from '@chialab/esbuild-helpers';
+import beautify from 'js-beautify';
+import { assetResolve } from '@chialab/node-resolve';
+import { useRna } from '@chialab/esbuild-rna';
 
 /**
  * @typedef {import('esbuild').Metafile} Metafile
  */
 
 /**
- * @typedef {import('esbuild').BuildResult & { metafile: Metafile, outputFiles?: import('esbuild').OutputFile[] }} BuildResult
- */
-
-/**
  * Cheerio esm support is unstable for some Node versions.
  */
-const load = /** @type {typeof cheerio.load} */ (cheerio.load || cheerio.default?.load);
+const loadHtml = /** @type {typeof cheerio.load} */ (cheerio.load || cheerio.default?.load);
 
 /**
- * Get the common dir of source files.
- * @param {string[]} files
- * @return The common dir.
- */
-function commonDir(files) {
-    if (files.length === 0) {
-        return path.sep;
-    }
-    if (files.length === 1) {
-        return path.dirname(files[0]);
-    }
-    const res = files.slice(1).reduce((dir, file) => {
-        const xs = file.split(path.sep);
-        let i;
-        for (i = 0; dir[i] === xs[i] && i < Math.min(dir.length, xs.length); i++);
-        return dir.slice(0, i);
-    }, files[0].split(path.sep));
-
-    // Windows correctly handles paths with forward-slashes
-    return res.length > 1 ? res.join(path.sep) : path.sep;
-}
-
-/**
- * @typedef {Object} Build
- * @property {import('esbuild').Loader} [loader] The loader to use.
- * @property {Partial<import('esbuild').BuildOptions>} options The file name of the referenced file.
- * @property {(filePath: string, outputFiles: string[]) => Promise<void>|void} finisher A callback function to invoke when output file has been generated.
+ * @typedef {Object} CollectResult
+ * @property {import('@chialab/esbuild-rna').EmitTransformOptions} [build] The build instruction for collected files.
+ * @property {(files: string[]) => Promise<string[]|void>|void} [finisher] A callback function to invoke when output file has been generated.
  */
 
 /**
@@ -56,170 +29,180 @@ function commonDir(files) {
  */
 
 /**
+ * @typedef {Object} BuildOptions
+ * @property {string} outDir
+ * @property {string[]} target
+ */
+
+/**
+ * @typedef {Object} Helpers
+ * @property {(path: string, contents: string|Buffer) => Promise<import('@chialab/esbuild-rna').Chunk>} emitFile
+ * @property {(options: import('@chialab/esbuild-rna').EmitTransformOptions) => Promise<import('@chialab/esbuild-rna').Chunk>} emitChunk
+ * @property {(file: string) => Promise<import('esbuild').OnResolveResult>} resolve
+ * @property {(file: string, options: Partial<import('esbuild').OnLoadArgs>) => Promise<import('esbuild').OnLoadResult>} load
+ */
+
+/**
+ * @typedef {($: import('cheerio').CheerioAPI, dom: import('cheerio').Cheerio<import('cheerio').Document>, options: BuildOptions, helpers: Helpers) => Promise<CollectResult[]>} Collector
+ */
+
+/**
  * A HTML loader plugin for esbuild.
  * @param {PluginOptions} options
- * @param {typeof import('esbuild')} [esbuildModule]
  * @return An esbuild plugin.
  */
 export default function({
     scriptsTarget = 'es2015',
     modulesTarget = 'es2020',
-} = {}, esbuildModule) {
+} = {}) {
     /**
      * @type {import('esbuild').Plugin}
      */
     const plugin = {
         name: 'html',
         setup(build) {
-            const { entryPoints = [], assetNames, write } = build.initialOptions;
-            const stdin = getStdinInput(build);
-            const rootDir = getRootDir(build);
-            const outDir = getOutputDir(build);
-            const sourceFiles = Array.isArray(entryPoints) ? entryPoints : Object.values(entryPoints);
-            const sourceDir = sourceFiles.length ? commonDir(sourceFiles.map((file) => path.resolve(rootDir, file))) : rootDir;
+            const { plugins = [], write = true } = build.initialOptions;
+            const { resolve, load, workingDir, rootDir, outDir, onTransform, emitFile, emitChunk } = useRna(build);
+            if (!outDir) {
+                throw new Error('Cannot use the html plugin without an outdir.');
+            }
 
             // force metafile in order to collect output data.
             build.initialOptions.metafile = build.initialOptions.metafile || write !== false;
 
-            /**
-             * @type {BuildResult}
-             */
-            let collectedResult;
-
-            build.onStart(() => {
-                collectedResult = createResult();
-            });
-
-            build.onEnd(async (result) => {
-                if (result.metafile && write !== false) {
-                    const outputs = { ...result.metafile.outputs };
-                    for (const outputKey in outputs) {
-                        const output = outputs[outputKey];
-                        if (path.extname(outputKey) !== '.html') {
-                            if (output.entryPoint && path.extname(output.entryPoint) === '.html') {
-                                await rm(outputKey);
-                                try {
-                                    await rm(`${outputKey}.map`);
-                                } catch(err) {
-                                    //
-                                }
-                                delete result.metafile.outputs[outputKey];
-                            }
-                            continue;
-                        }
-                        for (const inputKey in output.inputs) {
-                            if (path.extname(inputKey) !== '.html') {
-                                continue;
-                            }
-
-                            const newOutputKey = path.join(path.dirname(outputKey), path.basename(inputKey));
-                            if (newOutputKey === outputKey) {
-                                continue;
-                            }
-
-                            await rename(
-                                outputKey,
-                                newOutputKey
-                            );
-
-                            delete result.metafile.outputs[outputKey];
-                            result.metafile.outputs[newOutputKey] = output;
-
-                            break;
-                        }
-                    }
-                }
-
-                assignToResult(result, collectedResult);
-            });
-
-            build.onLoad({ filter: /\.html$/ }, async ({ path: filePath }) => {
+            onTransform({ filter: /\.html$/ }, async (args) => {
+                const basePath = path.dirname(args.path);
                 const [
                     { collectStyles },
                     { collectScripts },
                     { collectAssets },
                     { collectWebManifest },
                     { collectIcons },
-                    esbuild,
+                    { collectScreens },
                 ] = await Promise.all([
                     import('./collectStyles.js'),
                     import('./collectScripts.js'),
                     import('./collectAssets.js'),
                     import('./collectWebManifest.js'),
                     import('./collectIcons.js'),
-                    esbuildModule || import('esbuild'),
+                    import('./collectScreens.js'),
                 ]);
 
-                const contents = (stdin && filePath === stdin.path) ?
-                    stdin.contents :
-                    await readFile(filePath, 'utf-8');
-                const basePath = path.dirname(filePath);
-                const relativePath = `./${path.relative(sourceDir, basePath)}`;
-                const relativeOutDir = path.resolve(outDir, relativePath);
-                const $ = load(contents);
+                const code = args.code;
+                const relativePath = `./${path.relative(rootDir, basePath)}`;
+                const relativeOutDir = path.resolve(path.resolve(workingDir, outDir), relativePath);
+                const $ = loadHtml(code);
                 const root = $.root();
 
-                const builds = /** @type {Build[]} */ ([
-                    ...collectIcons($, root, basePath, relativeOutDir),
-                    ...collectWebManifest($, root, basePath, relativeOutDir),
-                    ...collectStyles($, root, basePath, relativeOutDir, build.initialOptions),
-                    ...collectScripts($, root, basePath, relativeOutDir, { scriptsTarget, modulesTarget }, build.initialOptions),
-                    ...collectAssets($, root, basePath, relativeOutDir, build.initialOptions),
-                ]);
+                /**
+                 * @param {string} file
+                 */
+                const resolveFile = (file) => resolve({
+                    kind: 'dynamic-import',
+                    path: file,
+                    importer: args.path,
+                    resolveDir: rootDir,
+                    pluginData: null,
+                    namespace: 'file',
+                }, assetResolve);
 
-                for (let i = 0; i < builds.length; i++) {
-                    const currentBuild = builds[i];
+                /**
+                 * @param {string} path
+                 * @param {Partial<import('esbuild').OnLoadArgs>} [options]
+                 */
+                const loadFile = (path, options = {}) => load({
+                    pluginData: null,
+                    namespace: 'file',
+                    ...options,
+                    path,
+                });
 
-                    /** @type {string[]} */
-                    const outputFiles = [];
+                const collectOptions = { outDir: relativeOutDir, target: [scriptsTarget, modulesTarget] };
+                const collected = /** @type {CollectResult[]} */ ((await Promise.all([
+                    collectIcons($, root, collectOptions, { emitFile, emitChunk, resolve: resolveFile, load: loadFile }),
+                    collectScreens($, root, collectOptions, { emitFile, emitChunk, resolve: resolveFile, load: loadFile }),
+                    collectWebManifest($, root, collectOptions, { emitFile, emitChunk, resolve: resolveFile, load: loadFile }),
+                    collectStyles($, root, collectOptions),
+                    collectScripts($, root, collectOptions),
+                    collectAssets($, root),
+                ])).flat());
 
-                    const entryPoints = /** @type {string[]|undefined}} */ (currentBuild.options.entryPoints);
-                    if (!entryPoints || entryPoints.length === 0) {
-                        continue;
-                    }
+                const results = await Promise.all(
+                    collected.map(async (collectResult) => {
+                        const { build } = collectResult;
+                        if (!build) {
+                            return;
+                        }
 
-                    if (currentBuild.loader === 'file') {
-                        const file = entryPoints[0];
+                        const entryPoint = build.entryPoint;
+                        if (!entryPoint) {
+                            return;
+                        }
 
-                        const { result, outputFile } = await esbuildFile(file, {
-                            ...build.initialOptions,
-                            assetNames: assetNames || '[dir]/[name]',
-                            ...currentBuild.options,
+                        if (build.contents) {
+                            if (build.loader === 'file') {
+                                return emitFile(entryPoint, Buffer.from(build.contents));
+                            }
+
+                            return emitChunk({
+                                ...build,
+                                plugins: plugins.filter((plugin) => plugin.name !== 'html'),
+                            });
+                        }
+
+                        const resolvedFile = await resolveFile(entryPoint);
+                        if (!resolvedFile.path) {
+                            throw new Error(`Cannot resolve ${entryPoint}`);
+                        }
+
+                        if (build.loader === 'file') {
+                            const fileBuffer = await loadFile(resolvedFile.path, resolvedFile);
+
+                            if (!fileBuffer.contents) {
+                                throw new Error(`Cannot load ${resolvedFile.path}`);
+                            }
+
+                            return emitFile(resolvedFile.path, Buffer.from(fileBuffer.contents));
+                        }
+
+                        return emitChunk({
+                            ...build,
+                            entryPoint: resolvedFile.path,
+                            plugins: plugins.filter((plugin) => plugin.name !== 'html'),
                         });
+                    })
+                );
 
-                        outputFiles.push(outputFile);
-                        assignToResult(collectedResult, result);
-
-                        await currentBuild.finisher(outputFile, outputFiles);
-                        continue;
+                for (let i = 0; i < collected.length; i++) {
+                    const { build, finisher } = collected[i];
+                    if (finisher) {
+                        const result = results[i];
+                        if (build && result) {
+                            const outputs = result.metafile.outputs;
+                            const keys = Object.keys(outputs);
+                            const mainKey = keys.find((key) => outputs[key].entryPoint === build.entryPoint);
+                            if (mainKey) {
+                                keys.splice(keys.indexOf(mainKey), 1);
+                                keys.unshift(mainKey);
+                            }
+                            const files = keys.map((file) => {
+                                const fullFile = path.resolve(workingDir, file);
+                                const fullOutDir = path.resolve(workingDir, outDir);
+                                return path.relative(fullOutDir, fullFile);
+                            });
+                            await finisher(files);
+                        } else {
+                            await finisher([]);
+                        }
                     }
-
-                    /** @type {import('esbuild').BuildOptions} */
-                    const config = {
-                        ...build.initialOptions,
-                        outfile: undefined,
-                        outdir: relativeOutDir,
-                        metafile: true,
-                        external: [],
-                        ...currentBuild.options,
-                    };
-
-                    const result = /** @type {BuildResult} */ (await esbuild.build({
-                        assetNames: '[dir]/[name]',
-                        ...config,
-                    }));
-                    assignToResult(collectedResult, result);
-
-                    const outputFile = getMainOutput(entryPoints, result.metafile, rootDir);
-                    await currentBuild.finisher(outputFile, outputFiles);
                 }
 
                 return {
-                    contents: $.html(),
+                    code: beautify.html($.html().replace(/\n\s*$/gm, '')),
                     loader: 'file',
-                    watchFiles: builds.reduce((acc, build) => [
+                    watchFiles: collected.filter((collectResult) => collectResult.build?.entryPoint).reduce((acc, build) => [
                         ...acc,
-                        ...(/** @type {string[]} */ (build.options.entryPoints) || []),
+                        /** @type {string} */ (build.build?.entryPoint),
                     ], /** @type {string[]} */ ([])),
                 };
             });

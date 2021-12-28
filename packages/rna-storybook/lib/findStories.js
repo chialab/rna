@@ -1,5 +1,5 @@
 import path from 'path';
-import glob from 'fast-glob';
+import { glob } from '@chialab/node-resolve';
 
 /**
  * @param {string} rootDir

@@ -1,11 +1,13 @@
 import path from 'path';
 import { escapeRegexBody } from '@chialab/node-resolve';
-import { getRootDir } from '@chialab/esbuild-helpers';
+import { useRna } from '@chialab/esbuild-rna';
 
 /**
  * @typedef {Object} VirtualEntry
  * @property {string} path
  * @property {string|Buffer} contents
+ * @property {import('esbuild').Loader} [loader]
+ * @property {string} [resolveDir]
  */
 
 /**
@@ -13,29 +15,47 @@ import { getRootDir } from '@chialab/esbuild-helpers';
  */
 
 /**
+ * @typedef {{ name?: string }} PluginContext
+ */
+
+let instances = 0;
+
+export function createVirtualPlugin() {
+    return virtual.bind({ name: `virtual-${instances++}` });
+}
+
+/**
  * A virtual file system for ebuild modules.
+ * @this PluginContext
  * @param {PluginOptions} entries
  * @return An esbuild plugin.
  */
-export default function(entries) {
+export default function virtual(entries) {
     /**
      * @type {import('esbuild').Plugin}
      */
     const plugin = {
-        name: 'virtual',
+        name: this?.name || 'virtual',
         async setup(build) {
-            const rootDir = getRootDir(build);
+            const { onResolve, onLoad, rootDir, loaders } = useRna(build);
 
             entries.forEach((entry) => {
+                const resolveDir = entry.resolveDir || rootDir;
+                const virtualFilePath = path.join(resolveDir, entry.path);
                 const filter = new RegExp(escapeRegexBody(entry.path));
+                const entryFilter = new RegExp(escapeRegexBody(virtualFilePath));
 
-                build.onResolve({ filter }, () => ({
-                    path: path.resolve(rootDir, entry.path.replace(/^\/*/, '')),
-                    namespace: 'virtual',
+                onResolve({ filter }, () => ({
+                    path: virtualFilePath,
+                    namespace: 'file',
                 }));
 
-                build.onLoad({ filter, namespace: 'virtual' }, () => ({
+                onLoad({ filter: entryFilter }, (args) => ({
+                    ...args,
                     contents: entry.contents,
+                    namespace: 'file',
+                    loader: entry.loader || loaders[path.extname(args.path)] || 'file',
+                    resolveDir,
                 }));
             });
         },

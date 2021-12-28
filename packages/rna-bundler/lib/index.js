@@ -1,12 +1,11 @@
 import os from 'os';
 import path from 'path';
-import { assignToResult, createResult, remapResult } from '@chialab/esbuild-helpers';
-import { getEntryBuildConfig, mergeConfig, readConfigFile, locateConfigFile } from '@chialab/rna-config-loader';
 import { createLogger, readableSize } from '@chialab/rna-logger';
+import { getEntryBuildConfig, mergeConfig, readConfigFile, locateConfigFile } from '@chialab/rna-config-loader';
+import { assignToResult, createResult, remapResult } from '@chialab/esbuild-rna';
 import { build } from './build.js';
 import { writeManifestJson } from './writeManifestJson.js';
 import { writeEntrypointsJson, writeDevEntrypointsJson } from './writeEntrypointsJson.js';
-import { loadPlugins, loadTransformPlugins } from './loadPlugins.js';
 import { Queue } from './Queue.js';
 import { writeMetafile } from './writeMetafile.js';
 import { bundleSize } from './bundleSize.js';
@@ -14,11 +13,7 @@ import { bundleSize } from './bundleSize.js';
 export * from './loaders.js';
 export { transform } from './transform.js';
 export { build } from './build.js';
-export { loadPlugins, loadTransformPlugins, writeManifestJson, writeEntrypointsJson, writeDevEntrypointsJson };
-
-/**
- * @typedef {import('./build').BuildResult} BuildResult
- */
+export { writeManifestJson, writeEntrypointsJson, writeDevEntrypointsJson };
 
 /**
  * @typedef {import('./transform').TransformResult} TransformResult
@@ -119,7 +114,6 @@ export function command(program) {
                 }
 
                 const logger = createLogger();
-                const { default: esbuild } = await import('esbuild');
                 const manifestPath = manifestFile ? (typeof manifestFile === 'string' ? manifestFile : path.join(output, 'manifest.json')) : undefined;
                 const entrypointsPath = entrypointsFile ? (typeof entrypointsFile === 'string' ? entrypointsFile : path.join(output, 'entrypoints.json')) : undefined;
                 const external = externalString ? externalString.split(',') : [];
@@ -167,18 +161,16 @@ export function command(program) {
                  * @type {import('@chialab/rna-config-loader').Config}
                  */
                 const config = mergeConfig(userConfig, {
-                    plugins: await loadPlugins({
-                        html: {},
-                        postcss: {
-                            alias: userConfig.alias,
-                            relative: false,
-                        },
-                    }, esbuild),
-                    transformPlugins: await loadTransformPlugins({
-                        commonjs: {
-                            helperModule: true,
-                        },
-                    }),
+                    plugins: [
+                        ...await Promise.all([
+                            import('@chialab/esbuild-plugin-html')
+                                .then(({ default: plugin }) => plugin())
+                                .catch(() => ({ name: 'html', setup() {} })),
+                            import('@chialab/esbuild-plugin-postcss')
+                                .then(({ default: plugin }) => plugin())
+                                .catch(() => ({ name: 'postcss', setup() { } })),
+                        ]),
+                    ],
                 });
 
                 const { entrypoints } = config;
@@ -202,7 +194,7 @@ export function command(program) {
                                         logger.error(error);
                                     } else if (result) {
                                         if (cwd !== buildDir) {
-                                            result = remapResult(result, buildDir, cwd);
+                                            result = remapResult(/** @type {import('@chialab/esbuild-rna').Result} */(result), buildDir, cwd);
                                         }
                                         buildResults[i] = result;
                                         await onBuildEnd(true);
@@ -221,7 +213,7 @@ export function command(program) {
                 }
 
                 const buildResult = createResult();
-                const buildResults = await queue.run(os.cpus().length);
+                const buildResults = await queue.run(Math.max(1, os.cpus().length / 2));
 
                 /**
                  * @param {boolean} [rebuild]

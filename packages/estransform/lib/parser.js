@@ -1,67 +1,111 @@
-import { Parser as AcornParser } from 'acorn';
-import jsx from 'acorn-jsx';
-import { base, simple } from 'acorn-walk';
-import { extend } from 'acorn-jsx-walk';
-
-extend(base);
+import { parse as swcParse } from '@swc/core';
+import { Visitor as swcVisitor } from '@swc/core/Visitor.js';
 
 /**
- * @typedef {Object} Location
- * @property {number} line
- * @property {number} column
+ * @typedef {{ [ K in keyof swcVisitor ]: K extends `visit${infer V}` ? V : never }[keyof swcVisitor]} VisitorKeys
  */
 
 /**
- * The Acorn parser used to generate AST.
+ * @typedef {{ [key in VisitorKeys]?: (node: Parameters<swcVisitor[`visit${key}`]>[0]) => ReturnType<swcVisitor[`visit${key}`]> | void }} Visitor
  */
-export const Parser = AcornParser.extend(/** @type {*} */(jsx()));
 
 /**
  * Walk through the AST of a JavaScript source.
+ * @param {import('./types.js').Node} node
+ * @param {Visitor} visitor
  */
-export const walk = simple;
+export const walk = (node, visitor) => {
+    const v = new swcVisitor();
+    const type = /** @type {'Program'} */ (node.type);
+    const keys = /** @type {VisitorKeys[]} */ (Object.keys(visitor));
 
-/**
- * Parse JavaScript code using the Acorn parser.
- * @param {string} code The code to parse.
- * @return {import('acorn').Node} The root AST node.
- */
-export function parse(code) {
-    return Parser.parse(code, {
-        ecmaVersion: 'latest',
-        sourceType: 'module',
-        locations: true,
-    });
-}
+    // Fix missing method in swc
+    v.visitTsType = (node) => node;
 
-/**
- * Convert a location to byte offset.
- * @param {string} code
- * @param {Location} location
- * @return {number}
- */
-export function getOffsetFromLocation(code, { line, column }) {
-    let offest = 0;
-
-    const lines = code.split('\n');
-    for (let i = 0; i < line; i++) {
-        if (i === line - 1) {
-            offest += column;
-            return offest;
+    keys.forEach((nodeType) => {
+        if (!visitor[nodeType]) {
+            return;
         }
-        offest += lines[i].length + 1;
+        const callback = /** @type {swcVisitor['visitProgram']} */ (visitor[nodeType]);
+        const methodKey = /** @type {'visitProgram'} */ (`visit${nodeType}`);
+        const original = v[methodKey];
+
+        /**
+         * @param {Parameters<typeof original>[0]} node
+         */
+        v[methodKey] = function(node) {
+            const result = callback.call(this, node);
+            if (result !== undefined) {
+                return result;
+            }
+
+            return original.call(this, node);
+        };
+    });
+
+    return v[`visit${type}`](/** @type {import('./types.js').Program} */ (node));
+};
+
+/**
+ * Parse JavaScript code using the SWC parser.
+ * @param {string} code The code to parse.
+ * @return The root AST node.
+ */
+export async function parse(code) {
+    // Swc uses byte offsets while magic string uses string offsets.
+    // So, we need to convert double byte characters to single byte.
+    if (Buffer.byteLength(code) !== code.length) {
+        let str = '';
+        for (let i = 0, len = code.length; i < len; i++) {
+            const char = code[i];
+            if (Buffer.byteLength(char, 'utf8') > 1) {
+                str += '_';
+            } else {
+                str += char;
+            }
+        }
+
+        code = str;
     }
 
-    return -1;
+    // We add an empty expression statement at the begin of the file in order
+    // to compute the correct offset for files that starts with comments and spaces.
+    const ast = await swcParse(`;${code}`, {
+        syntax: 'typescript',
+        tsx: true,
+        decorators: true,
+        dynamicImport: true,
+        // does not work with js api
+        comments: false,
+    });
+
+    return ast;
 }
 
 /**
- * Extract a list of JavaScript comments in the given code chunk.
- * @param {string} code
- * @return {string[]} A list of comments.
+ * Swc does not reset the parser state after parsing.
+ * So, spans need to be re-indexed.
+ * @param {import('./types.js').Program} program
+ * @param {import('./types.js').Node & import('@swc/core').HasSpan} node
+ * @returns
  */
-export function parseComments(code) {
-    const matches = code.match(/\/\*[\s\S]*?\*\/|(?:[^\\:]|^)\/\/.*$/gm);
+export function getSpanLocation(program, node) {
+    return {
+        start: node.span.start - program.span.start - 1,
+        end: node.span.end - program.span.start - 1,
+    };
+}
+
+/**
+ * Extract comments for a code range delmited by node span.
+ * @param {string} code The original code.
+ * @param {import('./types.js').Program} program The program ast.
+ * @param {import('./types.js').Node & import('@swc/core').HasSpan} node The requested node.
+ */
+export function getNodeComments(code, program, node) {
+    const loc = getSpanLocation(program, node);
+    const chunk = code.substr(loc.start, loc.end - loc.start);
+    const matches = chunk.match(/\/\*[\s\S]*?\*\/|(?:[^\\:]|^)\/\/.*$/gm);
     if (!matches) {
         return [];
     }

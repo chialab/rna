@@ -1,22 +1,24 @@
-import { readFile } from 'fs/promises';
-import pkgUp from 'pkg-up';
-import { getRootDir } from '@chialab/esbuild-helpers';
-import { ALIAS_MODE, createAliasRegex, resolve } from '@chialab/node-resolve';
-import { createEmptyModule } from '@chialab/estransform';
 import path from 'path';
+import { readFile } from 'fs/promises';
+import { createEmptyModule } from '@chialab/estransform';
+import { ALIAS_MODE, createAliasRegex, resolve, pkgUp } from '@chialab/node-resolve';
+import { useRna } from '@chialab/esbuild-rna';
 
 /**
  * Create a module alias.
  * @param {import('esbuild').PluginBuild} build
  * @param {string} key
- * @param {import('@chialab/node-resolve').Alias} dest
+ * @param {import('@chialab/node-resolve').Alias} aliasRule
+ * @param {string} [rootDir]
  */
-export function addAlias(build, key, dest, rootDir = getRootDir(build)) {
+export function addAlias(build, key, aliasRule, rootDir) {
     const aliasFilter = createAliasRegex(key, ALIAS_MODE.FULL);
-    build.onResolve({ filter: aliasFilter }, async (args) => {
-        const aliased = typeof dest === 'function' ?
-            await dest(args.path) :
-            dest;
+    const { rootDir: buildRootDir, onResolve } = useRna(build);
+
+    onResolve({ filter: aliasFilter }, async (args) => {
+        const aliased = typeof aliasRule === 'function' ?
+            await aliasRule(args.importer) :
+            aliasRule;
 
         if (!aliased) {
             return {
@@ -32,7 +34,7 @@ export function addAlias(build, key, dest, rootDir = getRootDir(build)) {
         }
 
         return {
-            path: await resolve(aliased, args.importer || rootDir),
+            path: await resolve(aliased, args.resolveDir || args.importer || rootDir || buildRootDir),
         };
     });
 }
@@ -62,7 +64,7 @@ export default function alias(modules = {}, browserField = true) {
         name: this?.name || 'alias',
         async setup(build) {
             const { platform = 'neutral', external = [] } = build.initialOptions;
-            const rootDir = getRootDir(build);
+            const { onLoad, rootDir } = useRna(build);
 
             /**
              * @type {import('@chialab/node-resolve').AliasMap}
@@ -89,8 +91,9 @@ export default function alias(modules = {}, browserField = true) {
                 addAlias(build, alias, aliasMap[alias]);
             });
 
-            build.onLoad({ filter: /./, namespace: 'empty' }, () => ({
+            onLoad({ filter: /./, namespace: 'empty' }, () => ({
                 contents: createEmptyModule(),
+                loader: 'js',
             }));
         },
     };

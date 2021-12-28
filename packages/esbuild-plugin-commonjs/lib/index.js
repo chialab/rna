@@ -1,71 +1,60 @@
-import { REQUIRE_HELPER, HELPER_MODULE, createTransform, maybeCommonjsModule, maybeMixedModule, wrapDynamicRequire } from '@chialab/cjs-to-esm';
+import { HELPER_MODULE, transform, maybeCommonjsModule, maybeMixedModule, wrapDynamicRequire, createRequireHelperModule } from '@chialab/cjs-to-esm';
 import { escapeRegexBody } from '@chialab/node-resolve';
-import { createEmptySourcemapComment, pipe } from '@chialab/estransform';
-import { getEntry, finalizeEntry, createFilter, transformError } from '@chialab/esbuild-plugin-transform';
+import { useRna } from '@chialab/esbuild-rna';
 
 /**
- * @typedef {import('@chialab/cjs-to-esm').Options} PluginOptions
+ * @typedef {import('@chialab/cjs-to-esm').TransformOptions} PluginOptions
  */
 
 /**
  * @param {PluginOptions} [config]
  * @return An esbuild plugin.
  */
-export default function(config = {}) {
+export default function({ helperModule } = {}) {
     /**
      * @type {import('esbuild').Plugin}
      */
     const plugin = {
         name: 'commonjs',
         setup(build) {
-            const { sourcesContent, format } = build.initialOptions;
+            const { sourcesContent, format, sourcemap } = build.initialOptions;
             if (format !== 'esm') {
                 return;
             }
 
-            if (config.helperModule) {
+            const { onResolve, onLoad, onTransform } = useRna(build);
+
+            if (helperModule) {
                 const HELPER_FILTER = new RegExp(escapeRegexBody(`./${HELPER_MODULE}`));
-                build.onResolve({ filter: HELPER_FILTER }, (args) => ({
+                onResolve({ filter: HELPER_FILTER }, (args) => ({
                     path: args.path,
                     namespace: 'commonjs-helper',
                 }));
 
-                build.onLoad({ filter: HELPER_FILTER, namespace: 'commonjs-helper' }, async () => ({
-                    contents: `export default ${REQUIRE_HELPER};\n${createEmptySourcemapComment()}`,
+                onLoad({ filter: HELPER_FILTER, namespace: 'commonjs-helper' }, async () => ({
+                    contents: createRequireHelperModule(),
+                    loader: 'js',
                 }));
             }
 
-            build.onLoad({ filter: createFilter(build), namespace: 'file' }, async (args) => {
-                /**
-                 * @type {import('@chialab/estransform').Pipeline}
-                 */
-                const entry = args.pluginData || await getEntry(build, args.path);
+            onTransform({ loaders: ['tsx', 'ts', 'jsx', 'js'] }, async (args) => {
+                const code = args.code;
 
-                if (await maybeMixedModule(entry.code)) {
-                    try {
-                        await pipe(entry, {
-                            source: args.path,
-                            sourcesContent,
-                        }, wrapDynamicRequire);
-
-                    } catch (error) {
-                        throw transformError(this.name, error);
-                    }
-
-                    return finalizeEntry(build, entry, { source: args.path });
+                if (await maybeMixedModule(code)) {
+                    return wrapDynamicRequire(code, {
+                        sourcemap: !!sourcemap,
+                        source: args.path,
+                        sourcesContent,
+                    });
                 }
 
-                if (await maybeCommonjsModule(entry.code)) {
-                    try {
-                        await pipe(entry, {
-                            source: args.path,
-                            sourcesContent,
-                        }, createTransform(config));
-                    } catch (error) {
-                        throw transformError(this.name, error);
-                    }
-
-                    return finalizeEntry(build, entry, { source: args.path });
+                if (await maybeCommonjsModule(code)) {
+                    return transform(code, {
+                        sourcemap: !!sourcemap,
+                        source: args.path,
+                        sourcesContent,
+                        helperModule,
+                    });
                 }
             });
         },

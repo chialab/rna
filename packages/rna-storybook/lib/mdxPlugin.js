@@ -1,6 +1,5 @@
-import path from 'path';
-import { pipe } from '@chialab/estransform';
-import { getEntry, finalizeEntry, createFilter } from '@chialab/esbuild-plugin-transform';
+import { readFile } from 'fs/promises';
+import { useRna } from '@chialab/esbuild-rna';
 import { transformMdxToCsf } from './transformMdxToCsf.js';
 
 export function mdxPlugin() {
@@ -10,30 +9,33 @@ export function mdxPlugin() {
     const plugin = {
         name: 'storybook-mdx',
         async setup(build) {
-            const { sourcesContent } = build.initialOptions;
+            const { onResolve, onLoad } = useRna(build);
+            /**
+             * @type {import('esbuild').BuildOptions['loader']}
+             */
+            build.initialOptions.loader = {
+                ...(build.initialOptions.loader || {}),
+                '.mdx': 'tsx',
+            };
 
-            build.onResolve({ filter: /\.mdx$/ }, (args) => ({
+            onResolve({ filter: /\.mdx$/ }, (args) => ({
                 path: args.path,
             }));
 
-            build.onLoad({ filter: createFilter(build), namespace: 'file' }, async (args) => {
-                if (!args.path.endsWith('.mdx')) {
+            onLoad({ filter: /\.mdx$/ }, async (args) => {
+                try {
+                    const code = await readFile(args.path, 'utf8');
+                    const result = await transformMdxToCsf(code, {
+                        source: args.path,
+                    });
+
+                    return {
+                        contents: result.code,
+                        loader: 'js',
+                    };
+                } catch (err) {
                     return;
                 }
-
-                /**
-                 * @type {import('@chialab/estransform').Pipeline}
-                 */
-                const entry = args.pluginData || await getEntry(build, args.path);
-
-                await pipe(entry, {
-                    source: path.basename(args.path),
-                    sourcesContent,
-                }, async ({ code }) =>
-                    transformMdxToCsf(code, args.path)
-                );
-
-                return finalizeEntry(build, entry, { source: args.path });
             });
         },
     };

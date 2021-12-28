@@ -2,9 +2,28 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "./types",
-    "baseUrl": "."
+    "declarationDir": "./types",
+    "baseUrl": ".",
+    "rootDir": "./lib"
   },
   "include": [
-    "lib"
+    "lib/**/*"
+  ],
+  "references": [
+    {
+      "path": "../node-resolve"
+    },
+    {
+      "path": "../rna-browser-test-runner"
+    },
+    {
+      "path": "../rna-config-loader"
+    },
+    {
+      "path": "../rna-logger"
+    },
+    {
+      "path": "../wds-plugin-legacy"
+    }
   ]
 }

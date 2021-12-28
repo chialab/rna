@@ -17,7 +17,7 @@
     // "outFile": "./",                             /* Concatenate and emit output to single file. */
     "outDir": "./types",                            /* Redirect output structure to the directory. */
     // "rootDir": "./",                             /* Specify the root directory of input files. Use to control the output directory structure with --outDir. */
-    // "composite": true,                           /* Enable project compilation */
+    "composite": true,                              /* Enable project compilation */
     // "tsBuildInfoFile": "./",                     /* Specify file to store incremental compilation information */
     // "removeComments": true,                      /* Do not emit comments to output. */
     // "noEmit": true,                              /* Do not emit outputs. */
@@ -72,7 +72,126 @@
   "include": [
     "packages"
   ],
-  "exclude": [
-    "packages/rna-browser-test-runner/wtr-default-reporter"
+  "references": [
+    {
+      "path": "./packages/cjs-to-esm"
+    },
+    {
+      "path": "./packages/es-dev-server"
+    },
+    {
+      "path": "./packages/es-test-runner"
+    },
+    {
+      "path": "./packages/esbuild-plugin-alias"
+    },
+    {
+      "path": "./packages/esbuild-plugin-any-file"
+    },
+    {
+      "path": "./packages/esbuild-plugin-babel"
+    },
+    {
+      "path": "./packages/esbuild-plugin-commonjs"
+    },
+    {
+      "path": "./packages/esbuild-plugin-css-import"
+    },
+    {
+      "path": "./packages/esbuild-plugin-define-this"
+    },
+    {
+      "path": "./packages/esbuild-plugin-env"
+    },
+    {
+      "path": "./packages/esbuild-plugin-external"
+    },
+    {
+      "path": "./packages/esbuild-plugin-html"
+    },
+    {
+      "path": "./packages/esbuild-plugin-jsx-import"
+    },
+    {
+      "path": "./packages/esbuild-plugin-meta-url"
+    },
+    {
+      "path": "./packages/esbuild-plugin-postcss"
+    },
+    {
+      "path": "./packages/esbuild-plugin-unwebpack"
+    },
+    {
+      "path": "./packages/esbuild-plugin-virtual"
+    },
+    {
+      "path": "./packages/esbuild-plugin-worker"
+    },
+    {
+      "path": "./packages/esbuild-rna"
+    },
+    {
+      "path": "./packages/estransform"
+    },
+    {
+      "path": "./packages/node-resolve"
+    },
+    {
+      "path": "./packages/postcss-dart-sass"
+    },
+    {
+      "path": "./packages/postcss-preset-chialab"
+    },
+    {
+      "path": "./packages/postcss-url-rebase"
+    },
+    {
+      "path": "./packages/rna-apidoc"
+    },
+    {
+      "path": "./packages/rna-browser-test-runner"
+    },
+    {
+      "path": "./packages/rna-bundler"
+    },
+    {
+      "path": "./packages/rna-config-loader"
+    },
+    {
+      "path": "./packages/rna-dev-server"
+    },
+    {
+      "path": "./packages/rna-logger"
+    },
+    {
+      "path": "./packages/rna-node-test-runner"
+    },
+    {
+      "path": "./packages/rna-saucelabs-test-runner"
+    },
+    {
+      "path": "./packages/rna-storybook"
+    },
+    {
+      "path": "./packages/rna"
+    },
+    {
+      "path": "./packages/wds-plugin-hmr-css"
+    },
+    {
+      "path": "./packages/wds-plugin-legacy"
+    },
+    {
+      "path": "./packages/wds-plugin-node-resolve"
+    },
+    {
+      "path": "./packages/wds-plugin-polyfill"
+    },
+    {
+      "path": "./packages/wds-plugin-rna"
+    },
+    {
+      "path": "./packages/wtr-mocha-reporter"
+    }
   ]
 }

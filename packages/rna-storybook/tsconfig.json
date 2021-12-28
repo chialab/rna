@@ -2,10 +2,38 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "./types",
-    "baseUrl": "."
+    "declarationDir": "./types",
+    "baseUrl": ".",
+    "rootDir": "./lib"
   },
   "include": [
-    "lib",
+    "lib/**/*",
     "modules.d.ts"
+  ],
+  "references": [
+    {
+      "path": "../es-dev-server"
+    },
+    {
+      "path": "../esbuild-plugin-html"
+    },
+    {
+      "path": "../esbuild-plugin-virtual"
+    },
+    {
+      "path": "../esbuild-rna"
+    },
+    {
+      "path": "../estransform"
+    },
+    {
+      "path": "../node-resolve"
+    },
+    {
+      "path": "../wds-plugin-node-resolve"
+    },
+    {
+      "path": "../wds-plugin-rna"
+    }
   ]
 }

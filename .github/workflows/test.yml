@@ -34,10 +34,10 @@ jobs:
           node-version: '16'
           cache: 'yarn'
       - run: yarn install
-      - name: Lint
-        run: yarn lint
       - name: Typings
         run: yarn types
+      - name: Lint
+        run: yarn lint
       - name: Run tests
         run: yarn test
       - name: Upload coverage to codecov

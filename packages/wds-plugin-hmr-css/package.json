@@ -1,7 +1,7 @@
 {
   "name": "@chialab/wds-plugin-hmr-css",
   "type": "module",
-  "version": "0.14.4",
+  "version": "0.14.10",
   "description": "Enable CSS hmr for the web dev server.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",
@@ -34,7 +34,7 @@
     "node": ">=13"
   },
   "dependencies": {
-    "@chialab/es-dev-server": "^0.14.4"
+    "@chialab/es-dev-server": "^0.14.10"
   },
   "devDependencies": {
     "typescript": "^4.3.0"

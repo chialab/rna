@@ -36,6 +36,8 @@ jobs:
       - run: yarn install
       - name: Typings
         run: yarn types
+      - name: Build
+        run: yarn build
       - name: Lint
         run: yarn lint
       - name: Run tests

@@ -145,6 +145,7 @@ export default function({
 
                             return emitChunk({
                                 ...build,
+                                entryPoint: path.isAbsolute(entryPoint) ? entryPoint : path.join(path.dirname(args.path), entryPoint),
                                 plugins: plugins.filter((plugin) => plugin.name !== 'html'),
                             });
                         }

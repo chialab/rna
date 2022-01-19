@@ -8,9 +8,10 @@ import { isRelativeUrl } from '@chialab/node-resolve';
  * @param {string} target Build target.
  * @param {import('esbuild').Format} format Build format.
  * @param {string} type Script type.
+ * @param {{ [key: string]: string }} [attrs] Script attrs.
  * @return {import('./index').CollectResult|void} Plain build.
  */
-function innerCollect($, dom, selector, target, format, type) {
+function innerCollect($, dom, selector, target, format, type, attrs = {}) {
     const elements = dom.find(selector)
         .get()
         .filter((element) => !$(element).attr('src') || isRelativeUrl($(element).attr('src')));
@@ -43,12 +44,19 @@ function innerCollect($, dom, selector, target, format, type) {
             elements.forEach((element) => {
                 $(element).remove();
             });
-            $('body').append(`<script src="${jsOutput}" type="${type}"></script>`);
-            const cssOutputs = outputs.filter((output) => output.endsWith('.css'));
-            if (cssOutputs) {
-                cssOutputs.forEach((cssOutput) => {
-                    $('head').append(`<link rel="stylesheet" href="${cssOutput}" />`);
-                });
+            const script = $(`<script src="${jsOutput}" type="${type}"></script>`);
+            for (const attrName in attrs) {
+                script.attr(attrName, attrs[attrName]);
+            }
+            $('body').append(script);
+
+            if (attrs.nomodule !== '') {
+                const cssOutputs = outputs.filter((output) => output.endsWith('.css'));
+                if (cssOutputs) {
+                    cssOutputs.forEach((cssOutput) => {
+                        $('head').append(`<link rel="stylesheet" href="${cssOutput}" />`);
+                    });
+                }
             }
         },
     };
@@ -63,10 +71,19 @@ export async function collectScripts($, dom, options) {
         innerCollect(
             $,
             dom,
-            'script[src]:not([type]), script[src][type="text/javascript"], script[src][type="application/javascript"]',
+            'script[src]:not([type]):not([nomodule]), script[src][type="text/javascript"]:not([nomodule]), script[src][type="application/javascript"]:not([nomodule])',
             options.target[0],
             'iife',
             'application/javascript'
+        ),
+        innerCollect(
+            $,
+            dom,
+            'script[src]:not([type])[nomodule], script[src][type="text/javascript"][nomodule], script[src][type="application/javascript"][nomodule]',
+            options.target[0],
+            'iife',
+            'application/javascript',
+            { nomodule: '' },
         ),
         innerCollect(
             $,

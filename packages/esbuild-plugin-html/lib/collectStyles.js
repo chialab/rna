@@ -1,3 +1,4 @@
+import path from 'path';
 import crypto from 'crypto';
 import { isRelativeUrl } from '@chialab/node-resolve';
 
@@ -28,7 +29,7 @@ export async function collectStyles($, dom, options) {
 
     return [{
         build: {
-            entryPoint: `index.${hash.digest('hex').substr(0, 8)}.css`,
+            entryPoint: path.join(options.sourceDir, `index.${hash.digest('hex').substr(0, 8)}.css`),
             contents,
             loader: 'css',
             outdir: 'css',

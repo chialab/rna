@@ -29,6 +29,7 @@ const loadHtml = /** @type {typeof cheerio.load} */ (cheerio.load || cheerio.def
 
 /**
  * @typedef {Object} BuildOptions
+ * @property {string} sourceDir
  * @property {string} outDir
  * @property {string[]} target
  */
@@ -117,6 +118,7 @@ export default function({
                 });
 
                 const collectOptions = {
+                    sourceDir: path.dirname(args.path),
                     outDir: relativeOutDir,
                     target: [scriptsTarget, modulesTarget],
                 };
@@ -149,7 +151,7 @@ export default function({
 
                             return emitChunk({
                                 ...build,
-                                entryPoint: path.isAbsolute(entryPoint) ? entryPoint : path.join(path.dirname(args.path), entryPoint),
+                                entryPoint,
                                 plugins: plugins.filter((plugin) => plugin.name !== 'html'),
                             });
                         }
@@ -184,7 +186,8 @@ export default function({
                         if (build && result) {
                             const outputs = result.metafile.outputs;
                             const keys = Object.keys(outputs);
-                            const mainKey = keys.find((key) => outputs[key].entryPoint === build.entryPoint);
+                            const entryPoint = path.relative(workingDir, build.entryPoint);
+                            const mainKey = keys.find((key) => outputs[key].entryPoint === entryPoint);
                             if (mainKey) {
                                 keys.splice(keys.indexOf(mainKey), 1);
                                 keys.unshift(mainKey);

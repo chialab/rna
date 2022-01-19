@@ -1,3 +1,4 @@
+import path from 'path';
 import crypto from 'crypto';
 import { isRelativeUrl } from '@chialab/node-resolve';
 
@@ -5,13 +6,14 @@ import { isRelativeUrl } from '@chialab/node-resolve';
  * @param {import('cheerio').CheerioAPI} $ The cheerio selector.
  * @param {import('cheerio').Cheerio<import('cheerio').Document>} dom The DOM element.
  * @param {string} selector Scripts selector.
+ * @param {string} sourceDir Build sourceDir.
  * @param {string} target Build target.
  * @param {import('esbuild').Format} format Build format.
  * @param {string} type Script type.
  * @param {{ [key: string]: string }} [attrs] Script attrs.
  * @return {import('./index').CollectResult|void} Plain build.
  */
-function innerCollect($, dom, selector, target, format, type, attrs = {}) {
+function innerCollect($, dom, selector, sourceDir, target, format, type, attrs = {}) {
     const elements = dom.find(selector)
         .get()
         .filter((element) => !$(element).attr('src') || isRelativeUrl($(element).attr('src')));
@@ -33,7 +35,7 @@ function innerCollect($, dom, selector, target, format, type, attrs = {}) {
 
     return {
         build: {
-            entryPoint: `index.${hash.digest('hex').substr(0, 8)}.${format}.js`,
+            entryPoint: path.join(sourceDir, `index.${hash.digest('hex').substr(0, 8)}.${format}.js`),
             contents,
             outdir: format,
             target,
@@ -72,6 +74,7 @@ export async function collectScripts($, dom, options) {
             $,
             dom,
             'script[src]:not([type]):not([nomodule]), script[src][type="text/javascript"]:not([nomodule]), script[src][type="application/javascript"]:not([nomodule])',
+            options.sourceDir,
             options.target[0],
             'iife',
             'application/javascript'
@@ -80,6 +83,7 @@ export async function collectScripts($, dom, options) {
             $,
             dom,
             'script[src]:not([type])[nomodule], script[src][type="text/javascript"][nomodule], script[src][type="application/javascript"][nomodule]',
+            options.sourceDir,
             options.target[0],
             'iife',
             'application/javascript',
@@ -89,6 +93,7 @@ export async function collectScripts($, dom, options) {
             $,
             dom,
             'script[src][type="module"], script[type="module"]:not([src])',
+            options.sourceDir,
             options.target[1],
             'esm',
             'module'

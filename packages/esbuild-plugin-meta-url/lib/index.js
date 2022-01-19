@@ -110,7 +110,7 @@ export default function({ emit = true } = {}) {
         name: 'meta-url',
         async setup(build) {
             const { platform, format, sourcesContent, sourcemap } = build.initialOptions;
-            const { onTransform, emitFile, emitChunk, rootDir, loaders: buildLoaders } = useRna(build);
+            const { onTransform, emitFile, emitChunk, loaders: buildLoaders } = useRna(build);
 
             const baseUrl = (() => {
                 if (platform === 'browser' && format !== 'esm') {
@@ -160,7 +160,7 @@ export default function({ emit = true } = {}) {
                             kind: 'dynamic-import',
                             importer: args.path,
                             namespace: 'file',
-                            resolveDir: rootDir,
+                            resolveDir: path.dirname(args.path),
                             pluginData: null,
                         });
 

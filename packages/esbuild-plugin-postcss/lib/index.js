@@ -90,7 +90,7 @@ export default function(options = {}) {
                                                 importer: args.path,
                                                 namespace: 'file',
                                                 pluginData: null,
-                                                resolveDir: rootDir,
+                                                resolveDir: path.dirname(args.path),
                                             });
 
                                             if (!result || !result.path) {

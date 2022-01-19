@@ -87,7 +87,7 @@ export async function collectScripts($, dom, options) {
             options.target[0],
             'iife',
             'application/javascript',
-            { nomodule: '' },
+            { nomodule: '' }
         ),
         innerCollect(
             $,

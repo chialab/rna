@@ -1,7 +1,7 @@
 {
   "name": "@chialab/rna-storybook",
   "type": "module",
-  "version": "0.14.12",
+  "version": "0.14.13",
   "description": "A Storybook integration with the RNA bundler and server.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",
@@ -30,7 +30,7 @@
   },
   "dependencies": {
     "@chialab/es-dev-server": "^0.14.11",
-    "@chialab/esbuild-plugin-html": "^0.14.12",
+    "@chialab/esbuild-plugin-html": "^0.14.13",
     "@chialab/esbuild-plugin-virtual": "^0.14.11",
     "@chialab/esbuild-rna": "^0.14.11",
     "@chialab/estransform": "^0.14.11",

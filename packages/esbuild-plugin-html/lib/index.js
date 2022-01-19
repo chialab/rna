@@ -99,7 +99,7 @@ export default function({
                 const resolveFile = (file) => build.resolve(file.startsWith('./') || file.startsWith('../') ? file : `./${file}`, {
                     kind: 'dynamic-import',
                     importer: args.path,
-                    resolveDir: rootDir,
+                    resolveDir: path.dirname(args.path),
                     pluginData: null,
                     namespace: 'file',
                 });
@@ -116,7 +116,11 @@ export default function({
                     path,
                 });
 
-                const collectOptions = { outDir: relativeOutDir, target: [scriptsTarget, modulesTarget] };
+                const collectOptions = {
+                    outDir: relativeOutDir,
+                    target: [scriptsTarget, modulesTarget],
+                };
+
                 const collected = /** @type {CollectResult[]} */ ((await Promise.all([
                     collectIcons($, root, collectOptions, { emitFile, emitChunk, resolve: resolveFile, load: loadFile }),
                     collectScreens($, root, collectOptions, { emitFile, emitChunk, resolve: resolveFile, load: loadFile }),

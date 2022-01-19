@@ -1,7 +1,7 @@
 {
   "name": "@chialab/wds-plugin-rna",
   "type": "module",
-  "version": "0.14.10",
+  "version": "0.14.11",
   "description": "A plugin for the Web Dev Server to transpile sources using the RNA bundler.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",
@@ -28,17 +28,17 @@
     "node": ">=13"
   },
   "dependencies": {
-    "@chialab/es-dev-server": "^0.14.10",
-    "@chialab/esbuild-plugin-meta-url": "^0.14.10",
-    "@chialab/esbuild-plugin-worker": "^0.14.10",
-    "@chialab/node-resolve": "^0.14.10",
-    "@chialab/postcss-url-rebase": "^0.14.10",
-    "@chialab/rna-bundler": "^0.14.10",
-    "@chialab/rna-config-loader": "^0.14.10",
-    "@chialab/wds-plugin-node-resolve": "^0.14.10"
+    "@chialab/es-dev-server": "^0.14.11",
+    "@chialab/esbuild-plugin-meta-url": "^0.14.11",
+    "@chialab/esbuild-plugin-worker": "^0.14.11",
+    "@chialab/node-resolve": "^0.14.11",
+    "@chialab/postcss-url-rebase": "^0.14.11",
+    "@chialab/rna-bundler": "^0.14.11",
+    "@chialab/rna-config-loader": "^0.14.11",
+    "@chialab/wds-plugin-node-resolve": "^0.14.11"
   },
   "devDependencies": {
-    "@chialab/esbuild-rna": "^0.14.10",
+    "@chialab/esbuild-rna": "^0.14.11",
     "typescript": "^4.3.0"
   }
 }

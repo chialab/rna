@@ -20,7 +20,7 @@ export default function() {
                     return;
                 }
 
-                if (external.some((ext) => args.path.startsWith(ext))) {
+                if (external.some((ext) => args.path === ext || args.path.startsWith(`${ext}/`))) {
                     return;
                 }
 

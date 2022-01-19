@@ -119,7 +119,7 @@ export async function build(config) {
         !hasPlugin(plugins, 'unwebpack') &&
             import('@chialab/esbuild-plugin-unwebpack')
                 .then(({ default: plugin }) => plugin()),
-        !hasPlugin(plugins, 'commonjs') &&
+        !hasPlugin(plugins, 'commonjs') && !bundle &&
             import('@chialab/esbuild-plugin-commonjs')
                 .then(({ default: plugin }) => plugin({
                     helperModule: true,

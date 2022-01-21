@@ -2,9 +2,64 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "./types",
-    "baseUrl": "."
+    "declarationDir": "./types",
+    "baseUrl": ".",
+    "rootDir": "./lib"
   },
   "include": [
-    "lib"
+    "lib/**/*"
+  ],
+  "references": [
+    {
+      "path": "../esbuild-plugin-alias"
+    },
+    {
+      "path": "../esbuild-plugin-any-file"
+    },
+    {
+      "path": "../esbuild-plugin-commonjs"
+    },
+    {
+      "path": "../esbuild-plugin-css-import"
+    },
+    {
+      "path": "../esbuild-plugin-define-this"
+    },
+    {
+      "path": "../esbuild-plugin-env"
+    },
+    {
+      "path": "../esbuild-plugin-external"
+    },
+    {
+      "path": "../esbuild-plugin-jsx-import"
+    },
+    {
+      "path": "../esbuild-plugin-meta-url"
+    },
+    {
+      "path": "../esbuild-plugin-unwebpack"
+    },
+    {
+      "path": "../esbuild-plugin-worker"
+    },
+    {
+      "path": "../esbuild-rna"
+    },
+    {
+      "path": "../rna-config-loader"
+    },
+    {
+      "path": "../rna-logger"
+    },
+    {
+      "path": "../esbuild-plugin-babel"
+    },
+    {
+      "path": "../esbuild-plugin-html"
+    },
+    {
+      "path": "../esbuild-plugin-postcss"
+    }
   ]
 }

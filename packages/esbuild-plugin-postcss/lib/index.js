@@ -45,7 +45,7 @@ export default function(options = {}) {
         name: 'postcss',
         async setup(build) {
             const { sourcemap = true, absWorkingDir } = build.initialOptions || {};
-            const { onTransform, resolve, load, rootDir, collectDependencies, setupPlugin } = useRna(build);
+            const { onTransform, load, rootDir, collectDependencies, setupPlugin } = useRna(build);
             const config = await loadPostcssConfig(rootDir);
             setupPlugin(plugin, [cssImport()], 'before');
 
@@ -85,13 +85,12 @@ export default function(options = {}) {
 
                                     for (let i = 0; i < checks.length; i++) {
                                         try {
-                                            const result = await resolve({
+                                            const result = await build.resolve(checks[i], {
                                                 kind: 'import-rule',
-                                                path: checks[i],
                                                 importer: args.path,
                                                 namespace: 'file',
                                                 pluginData: null,
-                                                resolveDir: rootDir,
+                                                resolveDir: path.dirname(args.path),
                                             });
 
                                             if (!result || !result.path) {

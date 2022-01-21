@@ -37,7 +37,7 @@ export default function virtual(entries) {
     const plugin = {
         name: this?.name || 'virtual',
         async setup(build) {
-            const { onResolve, onLoad, rootDir, loaders } = useRna(build);
+            const { onLoad, rootDir, loaders } = useRna(build);
 
             entries.forEach((entry) => {
                 const resolveDir = entry.resolveDir || rootDir;
@@ -45,7 +45,7 @@ export default function virtual(entries) {
                 const filter = new RegExp(escapeRegexBody(entry.path));
                 const entryFilter = new RegExp(escapeRegexBody(virtualFilePath));
 
-                onResolve({ filter }, () => ({
+                build.onResolve({ filter }, () => ({
                     path: virtualFilePath,
                     namespace: 'file',
                 }));

@@ -121,6 +121,156 @@ body {
 `);
     });
 
+    it('should bundle webapp with modules and chunks', async () => {
+        const { outputFiles } = await esbuild.build({
+            absWorkingDir: new URL('.', import.meta.url).pathname,
+            entryPoints: [new URL('fixture/index.chunks.html', import.meta.url).pathname],
+            sourceRoot: new URL('fixture', import.meta.url).pathname,
+            outdir: 'out',
+            format: 'esm',
+            bundle: true,
+            splitting: true,
+            write: false,
+            plugins: [
+                htmlPlugin(),
+            ],
+        });
+
+        const [index, js, lib, chunk, css] = outputFiles;
+
+        expect(outputFiles).to.have.lengthOf(5);
+
+        expect(index.path.endsWith('/out/index.chunks.html')).to.be.true;
+        expect(index.text).to.be.equal(`<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="esm/index.0a253b56.esm.css">
+</head>
+
+<body>
+    <script src="esm/index.0a253b56.esm.js" type="module"></script>
+</body>
+
+</html>`);
+
+        expect(js.path.endsWith('/esm/index.0a253b56.esm.js')).to.be.true;
+        expect(js.text).to.be.equal(`import {
+  log
+} from "./chunk-GNFD7QL2.js";
+
+// fixture/index.js
+window.addEventListener("load", () => {
+  log("test");
+});
+
+// fixture/index.0a253b56.esm.js
+import("./lib-476DRX7L.js").then(({ log: log2 }) => {
+  log2("test");
+});
+`);
+
+        expect(lib.path.endsWith('/esm/lib-476DRX7L.js')).to.be.true;
+        expect(lib.text).to.be.equal(`import {
+  log
+} from "./chunk-GNFD7QL2.js";
+export {
+  log
+};
+`);
+
+        expect(chunk.path.endsWith('/esm/chunk-GNFD7QL2.js')).to.be.true;
+        expect(chunk.text).to.be.equal(`// fixture/lib.js
+var log = console.log.bind(console);
+
+export {
+  log
+};
+`);
+
+        expect(css.path.endsWith('/esm/index.0a253b56.esm.css')).to.be.true;
+        expect(css.text).to.be.equal(`/* fixture/index.css */
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+`);
+    });
+
+    it('should bundle webapp with modules and scripts', async () => {
+        const { outputFiles } = await esbuild.build({
+            absWorkingDir: new URL('.', import.meta.url).pathname,
+            entryPoints: [new URL('fixture/index.mixed.html', import.meta.url).pathname],
+            sourceRoot: new URL('fixture', import.meta.url).pathname,
+            outdir: 'out',
+            format: 'esm',
+            bundle: true,
+            write: false,
+            plugins: [
+                htmlPlugin(),
+            ],
+        });
+
+        const [index, esm, esmCss, iife] = outputFiles;
+
+        expect(outputFiles).to.have.lengthOf(5);
+
+        expect(index.path.endsWith('/out/index.mixed.html')).to.be.true;
+        expect(index.text).to.be.equal(`<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="esm/index.9aa1d192.esm.css">
+</head>
+
+<body>
+    <script src="iife/index.9aa1d192.iife.js" type="application/javascript" nomodule=""></script>
+    <script src="esm/index.9aa1d192.esm.js" type="module"></script>
+</body>
+
+</html>`);
+
+        expect(iife.path.endsWith('/out/iife/index.9aa1d192.iife.js')).to.be.true;
+        expect(iife.text).to.be.equal(`(() => {
+  // fixture/lib.js
+  var log = console.log.bind(console);
+
+  // fixture/index.js
+  window.addEventListener("load", () => {
+    log("test");
+  });
+})();
+`);
+
+        expect(esm.path.endsWith('/out/esm/index.9aa1d192.esm.js')).to.be.true;
+        expect(esm.text).to.be.equal(`// fixture/lib.js
+var log = console.log.bind(console);
+
+// fixture/index.js
+window.addEventListener("load", () => {
+  log("test");
+});
+`);
+
+        expect(esmCss.path.endsWith('/out/esm/index.9aa1d192.esm.css')).to.be.true;
+        expect(esmCss.text).to.be.equal(`/* fixture/index.css */
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+`);
+    });
+
     it('should bundle webapp with styles', async () => {
         const { outputFiles } = await esbuild.build({
             absWorkingDir: new URL('.', import.meta.url).pathname,

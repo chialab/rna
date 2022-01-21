@@ -9,7 +9,7 @@
   "scripts": {
     "clear": "rimraf 'node_modules' 'packages/*/node_modules' 'package-lock.json' 'yarn.lock'",
     "build": "lerna run build",
-    "types": "lerna run types",
+    "types": "rimraf 'packages/*/types' 'packages/*/tsconfig.tsbuildinfo' && lerna run types",
     "lint": "eslint 'packages/*/lib/**/*.js'",
     "test": "rna test:node packages/*/test/**/*.spec.js --coverage",
     "new": "plop --plopfile internals/generators/plopfile.cjs module"
@@ -19,12 +19,13 @@
     "url": "https://github.com/chialab/rna"
   },
   "devDependencies": {
-    "@types/chai": "^4.2.22",
     "@chialab/eslint-config": "^3.0.0",
     "@chialab/rna": "^0.12.2",
     "@chialab/rna-node-test-runner": "^0.12.26",
+    "@types/chai": "^4.2.22",
     "chai": "^4.3.4",
-    "eslint": "^7.19.0",
+    "eslint": "^8.0.0",
+    "jsonc-parser": "^3.0.0",
     "lerna": "^4.0.0",
     "plop": "^2.7.4",
     "rimraf": "^3.0.2",

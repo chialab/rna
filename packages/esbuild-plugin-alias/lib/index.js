@@ -13,9 +13,9 @@ import { useRna } from '@chialab/esbuild-rna';
  */
 export function addAlias(build, key, aliasRule, rootDir) {
     const aliasFilter = createAliasRegex(key, ALIAS_MODE.FULL);
-    const { rootDir: buildRootDir, onResolve } = useRna(build);
+    const { rootDir: buildRootDir } = useRna(build);
 
-    onResolve({ filter: aliasFilter }, async (args) => {
+    build.onResolve({ filter: aliasFilter }, async (args) => {
         const aliased = typeof aliasRule === 'function' ?
             await aliasRule(args.importer) :
             aliasRule;

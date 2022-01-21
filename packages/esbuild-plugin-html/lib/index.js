@@ -1,7 +1,6 @@
 import path from 'path';
 import * as cheerio from 'cheerio';
 import beautify from 'js-beautify';
-import { assetResolve } from '@chialab/node-resolve';
 import { useRna } from '@chialab/esbuild-rna';
 
 /**
@@ -30,6 +29,7 @@ const loadHtml = /** @type {typeof cheerio.load} */ (cheerio.load || cheerio.def
 
 /**
  * @typedef {Object} BuildOptions
+ * @property {string} sourceDir
  * @property {string} outDir
  * @property {string[]} target
  */
@@ -62,7 +62,7 @@ export default function({
         name: 'html',
         setup(build) {
             const { plugins = [], write = true } = build.initialOptions;
-            const { resolve, load, workingDir, rootDir, outDir, onTransform, emitFile, emitChunk } = useRna(build);
+            const { load, workingDir, rootDir, outDir, onTransform, emitFile, emitChunk } = useRna(build);
             if (!outDir) {
                 throw new Error('Cannot use the html plugin without an outdir.');
             }
@@ -97,14 +97,13 @@ export default function({
                 /**
                  * @param {string} file
                  */
-                const resolveFile = (file) => resolve({
+                const resolveFile = (file) => build.resolve(file.startsWith('./') || file.startsWith('../') ? file : `./${file}`, {
                     kind: 'dynamic-import',
-                    path: file,
                     importer: args.path,
-                    resolveDir: rootDir,
+                    resolveDir: path.dirname(args.path),
                     pluginData: null,
                     namespace: 'file',
-                }, assetResolve);
+                });
 
                 /**
                  * @param {string} path
@@ -118,7 +117,12 @@ export default function({
                     path,
                 });
 
-                const collectOptions = { outDir: relativeOutDir, target: [scriptsTarget, modulesTarget] };
+                const collectOptions = {
+                    sourceDir: path.dirname(args.path),
+                    outDir: relativeOutDir,
+                    target: [scriptsTarget, modulesTarget],
+                };
+
                 const collected = /** @type {CollectResult[]} */ ((await Promise.all([
                     collectIcons($, root, collectOptions, { emitFile, emitChunk, resolve: resolveFile, load: loadFile }),
                     collectScreens($, root, collectOptions, { emitFile, emitChunk, resolve: resolveFile, load: loadFile }),
@@ -147,6 +151,7 @@ export default function({
 
                             return emitChunk({
                                 ...build,
+                                entryPoint,
                                 plugins: plugins.filter((plugin) => plugin.name !== 'html'),
                             });
                         }
@@ -181,7 +186,8 @@ export default function({
                         if (build && result) {
                             const outputs = result.metafile.outputs;
                             const keys = Object.keys(outputs);
-                            const mainKey = keys.find((key) => outputs[key].entryPoint === build.entryPoint);
+                            const entryPoint = path.relative(workingDir, build.entryPoint);
+                            const mainKey = keys.find((key) => outputs[key].entryPoint === entryPoint);
                             if (mainKey) {
                                 keys.splice(keys.indexOf(mainKey), 1);
                                 keys.unshift(mainKey);

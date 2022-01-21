@@ -1,7 +1,7 @@
 import path from 'path';
 import crypto from 'crypto';
 import { mkdir, readFile, writeFile, rm } from 'fs/promises';
-import { appendSearchParam, browserResolve, escapeRegexBody, resolve as nodeResolve } from '@chialab/node-resolve';
+import { appendSearchParam, escapeRegexBody } from '@chialab/node-resolve';
 import { loadSourcemap, inlineSourcemap, mergeSourcemaps } from '@chialab/estransform';
 import { assignToResult, createOutputFile, createResult } from './helpers.js';
 
@@ -69,7 +69,6 @@ export * from './helpers.js';
 
 /**
  * @typedef {Object} BuildState
- * @property {{ options: OnResolveOptions, callback: ResolveCallback }[]} resolve
  * @property {{ options: OnLoadOptions, callback: LoadCallback }[]} load
  * @property {{ options: OnTransformOptions, callback: TransformCallback }[]} transform
  * @property {Map<string, Chunk>} chunks
@@ -121,13 +120,11 @@ export function useRna(build) {
         ...DEFAULT_LOADERS,
         ...loader,
     };
-    const onResolve = build.onResolve;
     const onLoad = build.onLoad;
     /**
      * @type {BuildState}
      */
     const state = buildInternals.get(build.initialOptions) || {
-        resolve: [],
         load: [],
         transform: [],
         chunks: new Map(),
@@ -176,39 +173,6 @@ export function useRna(build) {
          * Flag chunk build.
          */
         isChunk,
-        /**
-         * Iterate build.onResult hooks in order to programmatically resolve an import.
-         * @param {OnResolveArgs} args The resolve arguments.
-         * @param {import('@chialab/node-resolve').Resolver} [resolver] The fallback resolver.
-         * @return {Promise<OnResolveResult>} A resolve result.
-         */
-        async resolve(args, resolver) {
-            const { namespace = 'file', path } = args;
-            for (const { options, callback } of state.resolve) {
-                const { namespace: optionsNamespace = 'file', filter } = options;
-                if (namespace !== optionsNamespace) {
-                    continue;
-                }
-
-                if (!filter.test(path)) {
-                    continue;
-                }
-
-                const result = await callback(args);
-                if (result && result.path) {
-                    return result;
-                }
-            }
-
-            resolver = resolver || (build.initialOptions.platform === 'browser' ? browserResolve : nodeResolve);
-
-            const result = await resolver(args.path, args.importer);
-
-            return {
-                ...args,
-                path: result,
-            };
-        },
         /**
          * Iterate build.onLoad hooks in order to programmatically load file contents.
          * @param {OnLoadArgs} args The load arguments.
@@ -450,15 +414,6 @@ export function useRna(build) {
             return chunkResult;
         },
         /**
-         * Wrap esbuild onResolve hook in order to collect the resolve rule.
-         * @param {OnResolveOptions} options The filter for onResolve hook.
-         * @param {ResolveCallback} callback The function to invoke for resolution.
-         */
-        onResolve(options, callback) {
-            onResolve.call(build, options, callback);
-            state.resolve.push({ options, callback });
-        },
-        /**
          * Wrap esbuild onLoad hook in order to collect the load callback.
          * @param {OnLoadOptions} options The filter for onLoad hook.
          * @param {LoadCallback} callback The function to invoke for loading.
@@ -563,7 +518,7 @@ export function useRna(build) {
         build.initialOptions.entryPoints = [sourceFile];
         delete build.initialOptions.stdin;
 
-        rnaBuild.onResolve({ filter: new RegExp(escapeRegexBody(sourceFile)) }, (args) => ({
+        build.onResolve({ filter: new RegExp(escapeRegexBody(sourceFile)) }, (args) => ({
             path: args.path,
         }));
 

@@ -2,9 +2,34 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "./types",
-    "baseUrl": "."
+    "declarationDir": "./types",
+    "baseUrl": ".",
+    "rootDir": "./lib"
   },
   "include": [
-    "lib"
+    "lib/**/*"
+  ],
+  "references": [
+    {
+      "path": "../rna-logger"
+    },
+    {
+      "path": "../rna-apidoc"
+    },
+    {
+      "path": "../rna-browser-test-runner"
+    },
+    {
+      "path": "../rna-bundler"
+    },
+    {
+      "path": "../rna-dev-server"
+    },
+    {
+      "path": "../rna-node-test-runner"
+    },
+    {
+      "path": "../rna-saucelabs-test-runner"
+    }
   ]
 }

@@ -22,11 +22,11 @@ export default function({ helperModule } = {}) {
                 return;
             }
 
-            const { onResolve, onLoad, onTransform } = useRna(build);
+            const { onLoad, onTransform } = useRna(build);
 
             if (helperModule) {
                 const HELPER_FILTER = new RegExp(escapeRegexBody(`./${HELPER_MODULE}`));
-                onResolve({ filter: HELPER_FILTER }, (args) => ({
+                build.onResolve({ filter: HELPER_FILTER }, (args) => ({
                     path: args.path,
                     namespace: 'commonjs-helper',
                 }));

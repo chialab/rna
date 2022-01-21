@@ -1,3 +1,4 @@
+import path from 'path';
 import { isRelativeUrl } from '@chialab/node-resolve';
 import Jimp, { SUPPORTED_MIME_TYPES } from './generator.js';
 import { generateLaunch } from './generateLaunch.js';
@@ -106,7 +107,7 @@ export async function collectScreens($, dom, options, { resolve, load }) {
     return [
         ...appleLaunchScreens.map((icon) => /** @type {import('./index.js').CollectResult} */ ({
             build: {
-                entryPoint: icon.name,
+                entryPoint: path.join(options.sourceDir, icon.name),
                 contents: icon.contents,
                 loader: 'file',
                 outdir: 'icons',

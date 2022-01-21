@@ -1,3 +1,4 @@
+import path from 'path';
 import { isRelativeUrl } from '@chialab/node-resolve';
 import Jimp, { SUPPORTED_MIME_TYPES } from './generator.js';
 import { generateIcon } from './generateIcon.js';
@@ -115,7 +116,7 @@ export async function collectIcons($, dom, options, { resolve, load }) {
     return [
         ...favicons.map((icon) => /** @type {import('./index.js').CollectResult} */ ({
             build: {
-                entryPoint: icon.name,
+                entryPoint: path.join(options.sourceDir, icon.name),
                 contents: icon.contents,
                 loader: 'file',
             },
@@ -136,7 +137,7 @@ export async function collectIcons($, dom, options, { resolve, load }) {
         })),
         ...appleIcons.map((icon) => /** @type {import('./index.js').CollectResult} */ ({
             build: {
-                entryPoint: icon.name,
+                entryPoint: path.join(options.sourceDir, icon.name),
                 contents: icon.contents,
                 loader: 'file',
                 outdir: 'icons',

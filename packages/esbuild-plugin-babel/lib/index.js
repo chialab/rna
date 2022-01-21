@@ -18,9 +18,9 @@ export default function({ presets = [], plugins = [] } = {}) {
         name: 'babel',
         setup(build) {
             const { target, jsxFactory } = build.initialOptions;
-            const { onResolve, onTransform, rootDir } = useRna(build);
+            const { onTransform, rootDir } = useRna(build);
 
-            onResolve({ filter: /@babel\/runtime/ }, async (args) => ({
+            build.onResolve({ filter: /@babel\/runtime/ }, async (args) => ({
                 path: await resolve(args.path, import.meta.url),
             }));
 

@@ -2,9 +2,19 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "./types",
-    "baseUrl": "."
+    "declarationDir": "./types",
+    "baseUrl": ".",
+    "rootDir": "./lib"
   },
   "include": [
-    "lib"
+    "lib/**/*"
+  ],
+  "references": [
+    {
+      "path": "../estransform"
+    },
+    {
+      "path": "../node-resolve"
+    }
   ]
 }

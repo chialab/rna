@@ -31,16 +31,16 @@ describe('esbuild-plugin-html', () => {
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <link rel="stylesheet" href="iife/index.9aa1d192.iife.css">
+    <link rel="stylesheet" href="iife/index.css">
 </head>
 
 <body>
-    <script src="iife/index.9aa1d192.iife.js" type="application/javascript"></script>
+    <script src="iife/index.js" type="application/javascript"></script>
 </body>
 
 </html>`);
 
-        expect(js.path.endsWith('/out/iife/index.9aa1d192.iife.js')).to.be.true;
+        expect(js.path.endsWith('/out/iife/index.js')).to.be.true;
         expect(js.text).to.be.equal(`(() => {
   // fixture/lib.js
   var log = console.log.bind(console);
@@ -52,7 +52,7 @@ describe('esbuild-plugin-html', () => {
 })();
 `);
 
-        expect(css.path.endsWith('/out/iife/index.9aa1d192.iife.css')).to.be.true;
+        expect(css.path.endsWith('/out/iife/index.css')).to.be.true;
         expect(css.text).to.be.equal(`/* fixture/index.css */
 html,
 body {
@@ -216,7 +216,10 @@ body {
             ],
         });
 
-        const [index, esm, esmCss, iife] = outputFiles;
+        const [index] = outputFiles;
+        const esm = outputFiles.find((file) => file.path.endsWith('.esm.js'));
+        const esmCss = outputFiles.find((file) => file.path.endsWith('.esm.css'));
+        const iife = outputFiles.find((file) => file.path.endsWith('.iife.js'));
 
         expect(outputFiles).to.have.lengthOf(5);
 

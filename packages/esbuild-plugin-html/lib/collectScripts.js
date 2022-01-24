@@ -13,7 +13,7 @@ import { isRelativeUrl } from '@chialab/node-resolve';
  * @param {{ [key: string]: string }} [attrs] Script attrs.
  * @return {import('./index').CollectResult|void} Plain build.
  */
-function innerCollect($, dom, selector, sourceDir, target, format, type, attrs = {}) {
+function innerCollectBundle($, dom, selector, sourceDir, target, format, type, attrs = {}) {
     const elements = dom.find(selector)
         .get()
         .filter((element) => !$(element).attr('src') || isRelativeUrl($(element).attr('src')));
@@ -65,12 +65,61 @@ function innerCollect($, dom, selector, sourceDir, target, format, type, attrs =
 }
 
 /**
+ * @param {import('cheerio').CheerioAPI} $ The cheerio selector.
+ * @param {import('cheerio').Cheerio<import('cheerio').Document>} dom The DOM element.
+ * @param {string} selector Scripts selector.
+ * @param {string} sourceDir Build sourceDir.
+ * @param {string} target Build target.
+ * @param {import('esbuild').Format} format Build format.
+ * @param {string} type Script type.
+ * @param {{ [key: string]: string }} [attrs] Script attrs.
+ * @return {import('./index').CollectResult[]} Plain build.
+ */
+function innerCollect($, dom, selector, sourceDir, target, format, type, attrs = {}) {
+    const elements = dom.find(selector)
+        .get()
+        .filter((element) => !$(element).attr('src') || isRelativeUrl($(element).attr('src')));
+
+    if (!elements.length) {
+        return [];
+    }
+
+    return elements.map((element) =>
+        ({
+            build: {
+                entryPoint: /** @type {string} */ ($(element).attr('src')),
+                outdir: format,
+                target,
+                format,
+            },
+            finisher(files) {
+                const [jsOutput, ...outputs] = files;
+                const script = $(`<script src="${jsOutput}" type="${type}"></script>`);
+                for (const attrName in attrs) {
+                    script.attr(attrName, attrs[attrName]);
+                }
+                $(element).replaceWith(script);;
+
+                if (attrs.nomodule !== '') {
+                    const cssOutputs = outputs.filter((output) => output.endsWith('.css'));
+                    if (cssOutputs) {
+                        cssOutputs.forEach((cssOutput) => {
+                            $('head').append(`<link rel="stylesheet" href="${cssOutput}" />`);
+                        });
+                    }
+                }
+            },
+        })
+    );
+}
+
+/**
  * Collect and bundle each <script> reference.
  * @type {import('./index').Collector}
  */
 export async function collectScripts($, dom, options) {
     return /** @type {import('./index').CollectResult[]} */ ([
-        innerCollect(
+        ...innerCollect(
             $,
             dom,
             'script[src]:not([type]):not([nomodule]), script[src][type="text/javascript"]:not([nomodule]), script[src][type="application/javascript"]:not([nomodule])',
@@ -79,7 +128,7 @@ export async function collectScripts($, dom, options) {
             'iife',
             'application/javascript'
         ),
-        innerCollect(
+        innerCollectBundle(
             $,
             dom,
             'script[src]:not([type])[nomodule], script[src][type="text/javascript"][nomodule], script[src][type="application/javascript"][nomodule]',
@@ -89,7 +138,7 @@ export async function collectScripts($, dom, options) {
             'application/javascript',
             { nomodule: '' }
         ),
-        innerCollect(
+        innerCollectBundle(
             $,
             dom,
             'script[src][type="module"], script[type="module"]:not([src])',

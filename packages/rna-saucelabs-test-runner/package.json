@@ -39,7 +39,7 @@
     "@chialab/rna-config-loader": "^0.14.11",
     "@chialab/rna-logger": "^0.14.11",
     "@chialab/wds-plugin-legacy": "^0.14.11",
-    "@web/test-runner-saucelabs": "^0.5.0"
+    "@web/test-runner-saucelabs": "^0.7.3"
   },
   "devDependencies": {
     "commander": "^7.2.0",

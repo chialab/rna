@@ -1,16 +1,16 @@
 [
-  "android 9.0",
   "android 11.0",
+  "android 12.0",
   "ios 13.0",
   "ios 14.0",
   "ios 15.0",
+  "safari latest-1",
+  "safari latest",
   "firefox latest-2",
   "firefox latest-1",
   "firefox latest",
   "chrome latest-2",
   "chrome latest-1",
   "chrome latest",
-  "edge latest",
-  "safari latest-1",
-  "safari latest"
+  "edge latest"
 ]

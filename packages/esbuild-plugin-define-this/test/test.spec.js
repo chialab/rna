@@ -70,7 +70,7 @@ describe('esbuild-plugin-define-this', () => {
         expect(result.text).to.be.equal(`// test.spec.js
 (function(g) {
   return g;
-})(undefined);
+})(void 0);
 `);
     });
 });

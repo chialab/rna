@@ -128,6 +128,7 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                         bundle: true,
                         platform: 'neutral',
                         jsxFactory: undefined,
+                        external: [],
                     };
 
                     if (secondArg && secondArg.length >= 4 && secondArg[0].type === TokenType.braceL) {
@@ -141,6 +142,7 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                             && processor.stringValueForToken(secondArg[3]) === 'module'
                         ) {
                             transformOptions.format = 'esm';
+                            delete transformOptions.external;
                         }
                     }
 

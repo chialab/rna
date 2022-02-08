@@ -216,7 +216,10 @@ body {
             ],
         });
 
-        const [index, esm, esmCss, iife] = outputFiles;
+        const index = outputFiles.find((file) => file.path.endsWith('.html'));
+        const iife = outputFiles.find((file) => file.path.endsWith('iife.js'));
+        const esm = outputFiles.find((file) => file.path.endsWith('esm.js'));
+        const esmCss = outputFiles.find((file) => file.path.endsWith('esm.css'));
 
         expect(outputFiles).to.have.lengthOf(5);
 

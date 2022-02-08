@@ -37,27 +37,34 @@ export default function({ dependencies = true, peerDependencies = false, optiona
 
             if (packageFile) {
                 const packageJson = JSON.parse(await readFile(packageFile, 'utf-8'));
+                const collectDependencies = [];
                 if (dependencies) {
-                    external.push(...(
+                    collectDependencies.push(...(
                         dependencies === true ?
                             Object.keys(packageJson.dependencies || {}) :
                             dependencies
                     ));
                 }
                 if (peerDependencies) {
-                    external.push(...(
+                    collectDependencies.push(...(
                         peerDependencies === true ?
                             Object.keys(packageJson.peerDependencies || {}) :
                             peerDependencies
                     ));
                 }
                 if (optionalDependencies) {
-                    external.push(...(
+                    collectDependencies.push(...(
                         optionalDependencies === true ?
                             Object.keys(packageJson.optionalDependencies || {}) :
                             optionalDependencies
                     ));
                 }
+
+                collectDependencies.forEach((entry) => {
+                    if (external.indexOf(entry) === -1) {
+                        external.push(entry);
+                    }
+                });
             }
 
             build.initialOptions.external = external;

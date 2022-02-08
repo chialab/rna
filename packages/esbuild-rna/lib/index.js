@@ -93,6 +93,7 @@ export * from './helpers.js';
  * @property {string} [target]
  * @property {import('esbuild').Format} [format]
  * @property {import('esbuild').Plugin[]} [plugins]
+ * @property {string[]} [external]
  * @property {string[]} [inject]
  * @property {string|undefined} [jsxFactory]
  */
@@ -355,6 +356,7 @@ export function useRna(build) {
                 platform: options.platform ?? build.initialOptions.platform,
                 target: options.target ?? build.initialOptions.target,
                 plugins: options.plugins ?? build.initialOptions.plugins,
+                external: options.external ?? build.initialOptions.external,
                 jsxFactory: ('jsxFactory' in options) ? options.jsxFactory : build.initialOptions.jsxFactory,
                 write,
                 globalName: undefined,
@@ -387,18 +389,13 @@ export function useRna(build) {
             if (!plugins.find((plugin) => plugin.name === 'rna')) {
                 plugins.unshift(rnaPlugin());
             }
-            config.plugins = plugins;
+            config.plugins = plugins.filter((plugin) => plugin.name !== 'external');
 
             const result = /** @type {Result} */ (await esbuild.build(config));
-
-            const resolvedEntryPoint = path.resolve(rootDir, options.entryPoint);
             const outputs = result.metafile.outputs;
             const outFile = Object.entries(outputs)
                 .filter(([output]) => !output.endsWith('.map'))
-                .filter(([output]) => outputs[output].entryPoint)
-                .find(([, { entryPoint }]) =>
-                    resolvedEntryPoint === path.resolve(workingDir, /** @type {string} */ (entryPoint))
-                );
+                .find(([output]) => outputs[output].entryPoint);
 
             if (!outFile) {
                 throw new Error('Unable to locate build artifacts');

@@ -251,7 +251,7 @@ export async function transform(code, { sourcemap = true, source, sourcesContent
     const isEsModule = exports.includes('__esModule');
     const hasDefault = exports.includes('default');
 
-    if (isUmd && !isEsModule) {
+    if (isUmd) {
         let endDefinition = code.indexOf('\'use strict\';');
         if (endDefinition === -1) {
             endDefinition = code.indexOf('"use strict";');
@@ -322,7 +322,7 @@ if (${conditions.join(' && ')}) {
             helpers.append(`\nexport { ${named.map((name, index) => `__export${index} as ${name}`).join(', ')} }`);
         }
         if (isEsModule) {
-            if (hasDefault || named.length === 0) {
+            if (!isUmd && (hasDefault || named.length === 0)) {
                 helpers.append('\nexport default (module.exports != null && typeof module.exports === \'object\' && \'default\' in module.exports ? module.exports.default : module.exports);');
             }
         } else {

@@ -60,6 +60,18 @@ $ rna serve
 $ rna serve public --port 3000
 ```
 
+### As middleware
+
+```js
+import koa from 'koa';
+import { loadDevServerConfig, createDevServer, koaMiddleware } from '@chialab/rna-dev-server';
+
+const app = koa();
+const config = await loadDevServerConfig();
+const devServer = await createDevServer(config);
+app.use(koaMiddleware(devServer));
+```
+
 ---
 
 ### Integrations

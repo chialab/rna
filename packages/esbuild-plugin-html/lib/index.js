@@ -36,6 +36,7 @@ const loadHtml = /** @type {typeof cheerio.load} */ (cheerio.load || cheerio.def
 
 /**
  * @typedef {Object} Helpers
+ * @property {(ext: string, suggestion?: string) => string} createEntry
  * @property {(path: string, contents: string|Buffer) => Promise<import('@chialab/esbuild-rna').Chunk>} emitFile
  * @property {(options: import('@chialab/esbuild-rna').EmitTransformOptions) => Promise<import('@chialab/esbuild-rna').Chunk>} emitChunk
  * @property {(file: string) => Promise<import('esbuild').OnResolveResult>} resolve
@@ -93,6 +94,7 @@ export default function({
                 const relativeOutDir = path.resolve(path.resolve(workingDir, outDir), relativePath);
                 const $ = loadHtml(code);
                 const root = $.root();
+                let count = 0;
 
                 /**
                  * @param {string} file
@@ -123,12 +125,33 @@ export default function({
                     target: [scriptsTarget, modulesTarget],
                 };
 
+                /**
+                 * Get entry name.
+                 *
+                 * @param {string} ext
+                 * @param {string|undefined} suggestion
+                 * @return {string}
+                 */
+                const createEntry = (ext, suggestion) => {
+                    const i = ++count;
+
+                    return `${suggestion ? `${suggestion}${i}` : i}.${ext}`;
+                };
+
+                const helpers = {
+                    createEntry,
+                    emitFile,
+                    emitChunk,
+                    resolve: resolveFile,
+                    load: loadFile,
+                };
+
                 const collected = /** @type {CollectResult[]} */ ((await Promise.all([
-                    collectIcons($, root, collectOptions, { emitFile, emitChunk, resolve: resolveFile, load: loadFile }),
-                    collectScreens($, root, collectOptions, { emitFile, emitChunk, resolve: resolveFile, load: loadFile }),
-                    collectWebManifest($, root, collectOptions, { emitFile, emitChunk, resolve: resolveFile, load: loadFile }),
-                    collectStyles($, root, collectOptions),
-                    collectScripts($, root, collectOptions),
+                    collectIcons($, root, collectOptions, helpers),
+                    collectScreens($, root, collectOptions, helpers),
+                    collectWebManifest($, root, collectOptions, helpers),
+                    collectStyles($, root, collectOptions, helpers),
+                    collectScripts($, root, collectOptions, helpers),
                     collectAssets($, root),
                 ])).flat());
 

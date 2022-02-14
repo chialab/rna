@@ -9,6 +9,7 @@ describe('esbuild-plugin-html', () => {
             absWorkingDir: new URL('.', import.meta.url).pathname,
             entryPoints: [new URL('fixture/index.iife.html', import.meta.url).pathname],
             sourceRoot: new URL('fixture', import.meta.url).pathname,
+            chunkNames: '[name]-[hash]',
             outdir: 'out',
             format: 'esm',
             bundle: true,
@@ -31,16 +32,16 @@ describe('esbuild-plugin-html', () => {
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <link rel="stylesheet" href="iife/index.9aa1d192.iife.css">
+    <link rel="stylesheet" href="1-R3ICRKFP.css">
 </head>
 
 <body>
-    <script src="iife/index.9aa1d192.iife.js" type="application/javascript"></script>
+    <script src="1-JOUMWTNZ.js" type="application/javascript"></script>
 </body>
 
 </html>`);
 
-        expect(js.path.endsWith('/out/iife/index.9aa1d192.iife.js')).to.be.true;
+        expect(js.path.endsWith('/out/1-JOUMWTNZ.js')).to.be.true;
         expect(js.text).to.be.equal(`(() => {
   // fixture/lib.js
   var log = console.log.bind(console);
@@ -52,7 +53,7 @@ describe('esbuild-plugin-html', () => {
 })();
 `);
 
-        expect(css.path.endsWith('/out/iife/index.9aa1d192.iife.css')).to.be.true;
+        expect(css.path.endsWith('/out/1-R3ICRKFP.css')).to.be.true;
         expect(css.text).to.be.equal(`/* fixture/index.css */
 html,
 body {
@@ -67,6 +68,7 @@ body {
             absWorkingDir: new URL('.', import.meta.url).pathname,
             entryPoints: [new URL('fixture/index.esm.html', import.meta.url).pathname],
             sourceRoot: new URL('fixture', import.meta.url).pathname,
+            chunkNames: '[name]-[hash]',
             outdir: 'out',
             format: 'esm',
             bundle: true,
@@ -89,16 +91,16 @@ body {
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <link rel="stylesheet" href="esm/index.4887cfb0.esm.css">
+    <link rel="stylesheet" href="1-R3ICRKFP.css">
 </head>
 
 <body>
-    <script src="esm/index.4887cfb0.esm.js" type="module"></script>
+    <script src="1-6ZJC3XWM.js" type="module"></script>
 </body>
 
 </html>`);
 
-        expect(js.path.endsWith('/esm/index.4887cfb0.esm.js')).to.be.true;
+        expect(js.path.endsWith('1-6ZJC3XWM.js')).to.be.true;
         expect(js.text).to.be.equal(`// fixture/lib.js
 var log = console.log.bind(console);
 
@@ -107,11 +109,11 @@ window.addEventListener("load", () => {
   log("test");
 });
 
-// fixture/index.4887cfb0.esm.js
+// fixture/1.js
 log("test");
 `);
 
-        expect(css.path.endsWith('/esm/index.4887cfb0.esm.css')).to.be.true;
+        expect(css.path.endsWith('1-R3ICRKFP.css')).to.be.true;
         expect(css.text).to.be.equal(`/* fixture/index.css */
 html,
 body {
@@ -126,6 +128,7 @@ body {
             absWorkingDir: new URL('.', import.meta.url).pathname,
             entryPoints: [new URL('fixture/index.chunks.html', import.meta.url).pathname],
             sourceRoot: new URL('fixture', import.meta.url).pathname,
+            chunkNames: '[name]-[hash]',
             outdir: 'out',
             format: 'esm',
             bundle: true,
@@ -149,16 +152,16 @@ body {
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <link rel="stylesheet" href="esm/index.0a253b56.esm.css">
+    <link rel="stylesheet" href="1-R3ICRKFP.css">
 </head>
 
 <body>
-    <script src="esm/index.0a253b56.esm.js" type="module"></script>
+    <script src="1-CHKD3JX6.js" type="module"></script>
 </body>
 
 </html>`);
 
-        expect(js.path.endsWith('/esm/index.0a253b56.esm.js')).to.be.true;
+        expect(js.path.endsWith('1-CHKD3JX6.js')).to.be.true;
         expect(js.text).to.be.equal(`import {
   log
 } from "./chunk-GNFD7QL2.js";
@@ -168,13 +171,13 @@ window.addEventListener("load", () => {
   log("test");
 });
 
-// fixture/index.0a253b56.esm.js
+// fixture/1.js
 import("./lib-476DRX7L.js").then(({ log: log2 }) => {
   log2("test");
 });
 `);
 
-        expect(lib.path.endsWith('/esm/lib-476DRX7L.js')).to.be.true;
+        expect(lib.path.endsWith('lib-476DRX7L.js')).to.be.true;
         expect(lib.text).to.be.equal(`import {
   log
 } from "./chunk-GNFD7QL2.js";
@@ -183,7 +186,7 @@ export {
 };
 `);
 
-        expect(chunk.path.endsWith('/esm/chunk-GNFD7QL2.js')).to.be.true;
+        expect(chunk.path.endsWith('chunk-GNFD7QL2.js')).to.be.true;
         expect(chunk.text).to.be.equal(`// fixture/lib.js
 var log = console.log.bind(console);
 
@@ -192,7 +195,7 @@ export {
 };
 `);
 
-        expect(css.path.endsWith('/esm/index.0a253b56.esm.css')).to.be.true;
+        expect(css.path.endsWith('1-R3ICRKFP.css')).to.be.true;
         expect(css.text).to.be.equal(`/* fixture/index.css */
 html,
 body {
@@ -207,6 +210,7 @@ body {
             absWorkingDir: new URL('.', import.meta.url).pathname,
             entryPoints: [new URL('fixture/index.mixed.html', import.meta.url).pathname],
             sourceRoot: new URL('fixture', import.meta.url).pathname,
+            chunkNames: '[name]-[hash]',
             outdir: 'out',
             format: 'esm',
             bundle: true,
@@ -216,10 +220,10 @@ body {
             ],
         });
 
-        const index = outputFiles.find((file) => file.path.endsWith('.html'));
-        const iife = outputFiles.find((file) => file.path.endsWith('iife.js'));
-        const esm = outputFiles.find((file) => file.path.endsWith('esm.js'));
-        const esmCss = outputFiles.find((file) => file.path.endsWith('esm.css'));
+        const index = /** @type {import('esbuild').OutputFile} */ (outputFiles.find((file) => file.path.endsWith('.html')));
+        const iife = /** @type {import('esbuild').OutputFile} */ (outputFiles.find((file) => file.path.endsWith('1-JOUMWTNZ.js')));
+        const esm = /** @type {import('esbuild').OutputFile} */ (outputFiles.find((file) => file.path.endsWith('2-T7UKAOZB.js')));
+        const esmCss = /** @type {import('esbuild').OutputFile} */ (outputFiles.find((file) => file.path.endsWith('2-KQM7Y3VQ.css')));
 
         expect(outputFiles).to.have.lengthOf(5);
 
@@ -232,17 +236,17 @@ body {
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <link rel="stylesheet" href="esm/index.9aa1d192.esm.css">
+    <link rel="stylesheet" href="2-KQM7Y3VQ.css">
 </head>
 
 <body>
-    <script src="iife/index.9aa1d192.iife.js" type="application/javascript" nomodule=""></script>
-    <script src="esm/index.9aa1d192.esm.js" type="module"></script>
+    <script src="1-JOUMWTNZ.js" type="application/javascript" nomodule=""></script>
+    <script src="2-T7UKAOZB.js" type="module"></script>
 </body>
 
 </html>`);
 
-        expect(iife.path.endsWith('/out/iife/index.9aa1d192.iife.js')).to.be.true;
+        expect(iife.path.endsWith('/out/1-JOUMWTNZ.js')).to.be.true;
         expect(iife.text).to.be.equal(`(() => {
   // fixture/lib.js
   var log = console.log.bind(console);
@@ -254,7 +258,7 @@ body {
 })();
 `);
 
-        expect(esm.path.endsWith('/out/esm/index.9aa1d192.esm.js')).to.be.true;
+        expect(esm.path.endsWith('/out/2-T7UKAOZB.js')).to.be.true;
         expect(esm.text).to.be.equal(`// fixture/lib.js
 var log = console.log.bind(console);
 
@@ -264,7 +268,7 @@ window.addEventListener("load", () => {
 });
 `);
 
-        expect(esmCss.path.endsWith('/out/esm/index.9aa1d192.esm.css')).to.be.true;
+        expect(esmCss.path.endsWith('/out/2-KQM7Y3VQ.css')).to.be.true;
         expect(esmCss.text).to.be.equal(`/* fixture/index.css */
 html,
 body {
@@ -279,6 +283,7 @@ body {
             absWorkingDir: new URL('.', import.meta.url).pathname,
             entryPoints: [new URL('fixture/index.css.html', import.meta.url).pathname],
             sourceRoot: new URL('fixture', import.meta.url).pathname,
+            chunkNames: '[name]-[hash]',
             outdir: 'out',
             bundle: true,
             write: false,
@@ -300,7 +305,7 @@ body {
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <link rel="stylesheet" href="css/index.6c5009c1.css">
+    <link rel="stylesheet" href="css/1-OFYYZ7M5.css">
 </head>
 
 <body>
@@ -308,7 +313,7 @@ body {
 
 </html>`);
 
-        expect(css.path.endsWith('/out/css/index.6c5009c1.css')).to.be.true;
+        expect(css.path.endsWith('/out/css/1-OFYYZ7M5.css')).to.be.true;
         expect(css.text).to.be.equal(`/* fixture/index.css */
 html,
 body {
@@ -316,7 +321,7 @@ body {
   padding: 0;
 }
 
-/* fixture/index.6c5009c1.css */
+/* fixture/1.css */
 body {
   color: red;
 }
@@ -328,6 +333,7 @@ body {
             absWorkingDir: new URL('.', import.meta.url).pathname,
             entryPoints: [new URL('./index.html', import.meta.url).pathname],
             sourceRoot: new URL('.', import.meta.url).pathname,
+            chunkNames: '[name]-[hash]',
             outdir: 'out',
             bundle: true,
             write: false,
@@ -378,7 +384,7 @@ body {
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <link rel="stylesheet" href="css/index.114fa647.css">
+    <link rel="stylesheet" href="css/1-PQALMFMQ.css">
 </head>
 
 <body>
@@ -386,7 +392,7 @@ body {
 
 </html>`);
 
-        expect(css.path.endsWith('/out/css/index.114fa647.css')).to.be.true;
+        expect(css.path.endsWith('/out/css/1-PQALMFMQ.css')).to.be.true;
         expect(css.text).to.be.equal(`/* lib.css */
 html {
   padding: 0;
@@ -394,7 +400,7 @@ html {
 
 /* index.css */
 
-/* index.114fa647.css */
+/* 1.css */
 `);
     });
 

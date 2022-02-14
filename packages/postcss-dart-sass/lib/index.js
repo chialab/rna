@@ -10,7 +10,7 @@ export { alternatives };
 export const resolver = sassResolver;
 
 /**
- * @param {*[]} maps
+ * @param {import('source-map').RawSourceMap[]} maps
  */
 async function mergeSourceMaps(...maps) {
     // new sourcemap
@@ -120,7 +120,7 @@ function originalPositionFor(mapping, consumers) {
 }
 
 /**
- * @typedef {import('sass').Options<'async'> & { rootDir?: string }} PluginOptions
+ * @typedef {import('sass').LegacySharedOptions<'async'> & { rootDir?: string }} PluginOptions
  */
 
 /**
@@ -217,30 +217,42 @@ export default function(options = {}) {
             const outFile = (result.opts.to || result.opts.from);
 
             /**
-             * @type {import('sass').Options<'async'> & { url?: URL }}
+             * @type {import('sass').LegacyOptions<'async'>}
              */
             const computedOptions = {
-                loadPaths: [rootDir],
-                importers: [
-                    ...(Array.isArray(options.importers) ? options.importers : options.importers ? [options.importers] : []),
+                includePaths: [rootDir],
+                importer: [
+                    ...(Array.isArray(options.importer) ? options.importer : options.importer ? [options.importer] : []),
                     sassResolver(rootDir),
                 ],
-                style: 'expanded',
+                outputStyle: 'expanded',
                 ...options,
                 sourceMap: true,
+                omitSourceMapUrl: true,
+                data: initialCss.css,
             };
 
             if (result.opts.from) {
-                computedOptions.url = new URL(`file://${result.opts.from}`);
+                computedOptions.file = result.opts.from;
+                computedOptions.outFile = `${outFile || result.opts.from}.map`;
             }
 
-            const sassResult = await sass.compileStringAsync(initialCss.css, computedOptions);
+            /**
+             * @type {import('sass').LegacyResult}
+             */
+            const sassResult = await new Promise((resolve, reject) => sass.render(computedOptions, (err, result) => {
+                if (err) {
+                    reject(err);
+                } else if (result) {
+                    resolve(result);
+                }
+            }));
             const sassCssOutput = sassResult.css.toString();
-
+            const sassSourcemap = JSON.parse((/** @type {Buffer} */ (sassResult.map)).toString());
             const parsed = await parse(sassCssOutput.replace(/\/\*#[^*]+?\*\//g, (match) => ''.padStart(match.length, ' ')), {
                 ...result.opts,
                 map: {
-                    prev: await mergeSourceMaps(sassResult.sourceMap),
+                    prev: await mergeSourceMaps(sassSourcemap),
                     annotation: false,
                     inline: false,
                     sourcesContent: true,
@@ -286,10 +298,10 @@ export default function(options = {}) {
             result.root = parsed;
 
             const dependencies = await Promise.all(
-                sassResult.loadedUrls.map(async (url) => {
+                sassResult.stats.includedFiles.map(async (file) => {
                     try {
-                        await access(url.pathname);
-                        return url.pathname;
+                        await access(file);
+                        return file;
                     } catch (err) {
                         //
                     }

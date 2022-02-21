@@ -1,7 +1,7 @@
 {
   "name": "@chialab/wds-plugin-legacy",
   "type": "module",
-  "version": "0.14.17",
+  "version": "0.15.0-alpha.1",
   "description": "Transform esm modules served by the web dev server into SystemJS modules for legacy browser compatibility.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",
@@ -35,8 +35,8 @@
   "dependencies": {
     "@babel/core": "^7.14.2",
     "@babel/preset-env": "^7.14.2",
-    "@chialab/wds-plugin-node-resolve": "^0.14.17",
-    "@chialab/wds-plugin-polyfill": "^0.14.17",
+    "@chialab/wds-plugin-node-resolve": "^0.15.0-alpha.1",
+    "@chialab/wds-plugin-polyfill": "^0.15.0-alpha.1",
     "browserslist-useragent": "^3.0.3",
     "cheerio": "^1.0.0-rc.9",
     "regenerator-runtime": "^0.13.7",

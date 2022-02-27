@@ -6,7 +6,7 @@ import { mochaReporter } from '@chialab/wtr-mocha-reporter';
 import { HELPERS_PATH } from '@chialab/wds-plugin-node-resolve';
 import { FRAMEWORK_ALIASES } from './frameworks.js';
 import { TestRunner, TestRunnerCli } from '@web/test-runner-core';
-import { loadDevServerConfig, createDevServer, koaMiddleware } from '@chialab/rna-dev-server';
+import { loadDevServerConfig, createDevServer } from '@chialab/rna-dev-server';
 
 const require = createRequire(import.meta.url);
 
@@ -102,7 +102,7 @@ export async function startTestRunner(config) {
         ...(/** @type {*} */ (config)),
         port: config.port || 8080,
         middleware: [
-            koaMiddleware(devServer),
+            devServer.koaApp,
             ...(config.middleware || []),
         ],
         plugins: [

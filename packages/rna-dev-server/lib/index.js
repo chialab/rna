@@ -130,16 +130,6 @@ export async function createDevServer(config) {
 }
 
 /**
- * Use a dev server instance as a koa middleware.
- *
- * @param {import('@chialab/es-dev-server').DevServer} server
- * @return The koa middleware instance for the dev server.
- */
-export function koaMiddleware(server) {
-    return server.koaApp;
-}
-
-/**
  * Start the dev server.
  * @param {DevServerConfig} config
  * @return {Promise<import('@chialab/es-dev-server').DevServer>} The dev server instance.

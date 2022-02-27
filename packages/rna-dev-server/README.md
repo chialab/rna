@@ -60,23 +60,11 @@ $ rna serve
 $ rna serve public --port 3000
 ```
 
-### As middleware
-
-```js
-import koa from 'koa';
-import { loadDevServerConfig, createDevServer, koaMiddleware } from '@chialab/rna-dev-server';
-
-const app = koa();
-const config = await loadDevServerConfig();
-const devServer = await createDevServer(config);
-app.use(koaMiddleware(devServer));
-```
-
 ---
 
 ### Integrations
 
-* [RNA CakePHP](https://github.com/chialab/rna-cakephp): an Encore-like view helper to inject scripts and css
+* [RNA CakePHP](https://github.com/chialab/rna-cakephp): a view helper to inject scripts and css with livereload.
 
 ---
 

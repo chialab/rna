@@ -10,7 +10,7 @@ export function entrypointsPlugin(entrypoints = []) {
     const plugin = {
         name: 'rna-entrypoints',
 
-        async serverStart(args) {
+        async serverStart(serverStartParams) {
             if (entrypoints) {
                 await Promise.all(
                     entrypoints.map(async ({ input, entrypointsPath }) => {
@@ -19,12 +19,7 @@ export function entrypointsPlugin(entrypoints = []) {
                         }
 
                         const files = Array.isArray(input) ? input : [input];
-                        await writeDevEntrypointsJson(
-                            files,
-                            entrypointsPath,
-                            /** @type {import('@web/dev-server-core').DevServer} */(/** @type {unknown} */ (args)),
-                            'esm'
-                        );
+                        await writeDevEntrypointsJson(files, entrypointsPath, serverStartParams, 'esm');
                     })
                 );
             }

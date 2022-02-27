@@ -102,10 +102,11 @@ export async function startTestRunner(config) {
         ...(/** @type {*} */ (config)),
         port: config.port || 8080,
         middleware: [
-            devServer.koaApp,
+            ...(devServer.config.middleware || []),
             ...(config.middleware || []),
         ],
         plugins: [
+            ...(devServer.config.plugins || []),
             ...(config.plugins || []),
         ],
     };

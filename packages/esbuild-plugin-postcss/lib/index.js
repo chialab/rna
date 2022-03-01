@@ -68,61 +68,62 @@ export default function(options = {}) {
                     const sassPlugin = await import('@chialab/postcss-dart-sass')
                         .then(({ default: postcssSass, alternatives }) => postcssSass({
                             rootDir,
-                            importers: [{
-                                async canonicalize(url) {
-                                    if (url.match(/^(~|package:)/)) {
-                                        // some modules use ~ or package: for node_modules import
-                                        url = url.replace(/^(~|package:)/, '');
-                                    }
-
-                                    const splitted = url.split('/');
-                                    const checks = [];
-                                    if (splitted.length === 1 || (url[0] === '@' && splitted.length === 2)) {
-                                        checks.push(url);
-                                    } else {
-                                        checks.push(...alternatives(url));
-                                    }
-
-                                    for (let i = 0; i < checks.length; i++) {
-                                        try {
-                                            const result = await build.resolve(checks[i], {
-                                                kind: 'import-rule',
-                                                importer: args.path,
-                                                namespace: 'file',
-                                                pluginData: null,
-                                                resolveDir: path.dirname(args.path),
-                                            });
-
-                                            if (!result || !result.path) {
-                                                return null;
-                                            }
-
-                                            return new URL(`file://${result.path}`);
-                                        } catch (e) {
-                                            //
+                            importer: (url, prev, done) => {
+                                (async () => {
+                                    try {
+                                        if (url.match(/^(~|package:)/)) {
+                                            // some modules use ~ or package: for node_modules import
+                                            url = url.replace(/^(~|package:)/, '');
                                         }
+
+                                        const splitted = url.split('/');
+                                        const checks = [];
+                                        if (splitted.length === 1 || (url[0] === '@' && splitted.length === 2)) {
+                                            checks.push(url);
+                                        } else {
+                                            checks.push(...alternatives(url));
+                                        }
+
+                                        for (let i = 0; i < checks.length; i++) {
+                                            try {
+                                                const result = await build.resolve(checks[i], {
+                                                    kind: 'import-rule',
+                                                    importer: prev || args.path,
+                                                    namespace: 'file',
+                                                    pluginData: null,
+                                                    resolveDir: prev ? path.dirname(prev) : path.dirname(args.path),
+                                                });
+
+                                                if (!result || !result.path) {
+                                                    return;
+                                                }
+
+                                                try {
+                                                    const loadResult = await load({
+                                                        path: result.path,
+                                                        suffix: '',
+                                                        namespace: 'file',
+                                                        pluginData: null,
+                                                    });
+
+                                                    return done({
+                                                        file: result.path,
+                                                        contents: (/** @type {Buffer} */ (loadResult.contents)).toString(),
+                                                    });
+                                                } catch (err) {
+                                                    return done(/** @type {Error} */(err));
+                                                }
+                                            } catch (e) {
+                                                //
+                                            }
+                                        }
+
+                                        done(null);
+                                    } catch (err) {
+                                        done(/** @type {Error} */(err));
                                     }
-
-                                    return null;
-                                },
-                                async load(canonicalUrl) {
-                                    const result = await load({
-                                        path: canonicalUrl.pathname,
-                                        suffix: '',
-                                        namespace: 'file',
-                                        pluginData: null,
-                                    });
-
-                                    if (!result || !result.contents) {
-                                        return null;
-                                    }
-
-                                    return {
-                                        contents: result.contents.toString(),
-                                        syntax: 'scss',
-                                    };
-                                },
-                            }],
+                                })();
+                            },
                         }));
                     plugins.push(sassPlugin);
                 }

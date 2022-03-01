@@ -60,11 +60,28 @@ $ rna serve
 $ rna serve public --port 3000
 ```
 
+### As middleware
+
+```js
+import { createServer } from 'http';
+import express from 'express';
+import { loadDevServerConfig, createDevServer } from '@chialab/rna-dev-server';
+
+const app = express();
+const server = createServer(app);
+const config = await loadDevServerConfig({
+    rootDir: 'src',
+});
+const devServer = await createDevServer(config);
+await devServer.start(server);
+app.use(devServer.callback());
+```
+
 ---
 
 ### Integrations
 
-* [RNA CakePHP](https://github.com/chialab/rna-cakephp): an Encore-like view helper to inject scripts and css
+* [RNA CakePHP](https://github.com/chialab/rna-cakephp): a view helper to inject scripts and css with livereload.
 
 ---
 

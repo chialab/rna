@@ -6,7 +6,7 @@ import { mochaReporter } from '@chialab/wtr-mocha-reporter';
 import { HELPERS_PATH } from '@chialab/wds-plugin-node-resolve';
 import { FRAMEWORK_ALIASES } from './frameworks.js';
 import { TestRunner, TestRunnerCli } from '@web/test-runner-core';
-import { buildMiddlewares, buildPlugins } from '@chialab/rna-dev-server';
+import { loadDevServerConfig, createDevServer } from '@chialab/rna-dev-server';
 
 const require = createRequire(import.meta.url);
 
@@ -44,6 +44,15 @@ export { TestRunner };
  * @param {TestRunnerConfig} config
  */
 export async function startTestRunner(config) {
+    const devServerConfig = await loadDevServerConfig({
+        ...config,
+        alias: {
+            ...FRAMEWORK_ALIASES,
+            ...(config.alias || {}),
+        },
+    });
+    const devServer = await createDevServer(devServerConfig);
+
     const testFramework =
         /**
          * @type {TestFramework}
@@ -93,17 +102,11 @@ export async function startTestRunner(config) {
         ...(/** @type {*} */ (config)),
         port: config.port || 8080,
         middleware: [
-            ...buildMiddlewares(),
+            ...(devServer.config.middleware || []),
             ...(config.middleware || []),
         ],
         plugins: [
-            ...buildPlugins({
-                ...config,
-                alias: {
-                    ...FRAMEWORK_ALIASES,
-                    ...(config.alias || {}),
-                },
-            }),
+            ...(devServer.config.plugins || []),
             ...(config.plugins || []),
         ],
     };

@@ -1,7 +1,7 @@
 {
   "name": "@chialab/esbuild-plugin-meta-url",
   "type": "module",
-  "version": "0.14.19",
+  "version": "0.15.0-alpha.1",
   "description": "A file loader plugin for esbuild for constructed URLs using import metadata.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",
@@ -34,9 +34,9 @@
     "node": ">=13"
   },
   "dependencies": {
-    "@chialab/esbuild-rna": "^0.14.19",
-    "@chialab/estransform": "^0.14.17",
-    "@chialab/node-resolve": "^0.14.17"
+    "@chialab/esbuild-rna": "^0.15.0-alpha.1",
+    "@chialab/estransform": "^0.15.0-alpha.1",
+    "@chialab/node-resolve": "^0.15.0-alpha.1"
   },
   "devDependencies": {
     "esbuild": "^0.14.8",

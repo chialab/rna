@@ -1,12 +1,11 @@
 import path from 'path';
-import crypto from 'crypto';
 import { isRelativeUrl } from '@chialab/node-resolve';
 
 /**
  * Collect and bundle each <link> reference.
  * @type {import('./index').Collector}
  */
-export async function collectStyles($, dom, options) {
+export async function collectStyles($, dom, options, helpers) {
     const elements = dom
         .find('link[href][rel="stylesheet"], style')
         .get()
@@ -24,12 +23,9 @@ export async function collectStyles($, dom, options) {
         return $(element).html();
     }).join('\n');
 
-    const hash = crypto.createHash('sha1');
-    hash.update(contents);
-
     return [{
         build: {
-            entryPoint: path.join(options.sourceDir, `index.${hash.digest('hex').substr(0, 8)}.css`),
+            entryPoint: path.join(options.sourceDir, helpers.createEntry('css')),
             contents,
             loader: 'css',
             outdir: 'css',

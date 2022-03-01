@@ -358,6 +358,7 @@ export function useRna(build) {
                 plugins: options.plugins ?? build.initialOptions.plugins,
                 external: options.external ?? build.initialOptions.external,
                 jsxFactory: ('jsxFactory' in options) ? options.jsxFactory : build.initialOptions.jsxFactory,
+                entryNames: build.initialOptions.chunkNames || build.initialOptions.entryNames,
                 write,
                 globalName: undefined,
                 outfile: undefined,

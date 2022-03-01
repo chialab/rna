@@ -1,5 +1,4 @@
 import path from 'path';
-import crypto from 'crypto';
 import { isRelativeUrl } from '@chialab/node-resolve';
 
 /**
@@ -10,10 +9,11 @@ import { isRelativeUrl } from '@chialab/node-resolve';
  * @param {string} target Build target.
  * @param {import('esbuild').Format} format Build format.
  * @param {string} type Script type.
- * @param {{ [key: string]: string }} [attrs] Script attrs.
+ * @param {{ [key: string]: string }} attrs Script attrs.
+ * @param {import('./index.js').Helpers} helpers Helpers.
  * @return {import('./index').CollectResult|void} Plain build.
  */
-function innerCollect($, dom, selector, sourceDir, target, format, type, attrs = {}) {
+function innerCollect($, dom, selector, sourceDir, target, format, type, attrs = {}, helpers) {
     const elements = dom.find(selector)
         .get()
         .filter((element) => !$(element).attr('src') || isRelativeUrl($(element).attr('src')));
@@ -30,14 +30,10 @@ function innerCollect($, dom, selector, sourceDir, target, format, type, attrs =
         return $(element).html();
     }).join('\n');
 
-    const hash = crypto.createHash('sha1');
-    hash.update(contents);
-
     return {
         build: {
-            entryPoint: path.join(sourceDir, `index.${hash.digest('hex').substr(0, 8)}.${format}.js`),
+            entryPoint: path.join(sourceDir, helpers.createEntry('js')),
             contents,
-            outdir: format,
             target,
             format,
         },
@@ -68,7 +64,7 @@ function innerCollect($, dom, selector, sourceDir, target, format, type, attrs =
  * Collect and bundle each <script> reference.
  * @type {import('./index').Collector}
  */
-export async function collectScripts($, dom, options) {
+export async function collectScripts($, dom, options, helpers) {
     return /** @type {import('./index').CollectResult[]} */ ([
         innerCollect(
             $,
@@ -77,7 +73,9 @@ export async function collectScripts($, dom, options) {
             options.sourceDir,
             options.target[0],
             'iife',
-            'application/javascript'
+            'application/javascript',
+            {},
+            helpers
         ),
         innerCollect(
             $,
@@ -87,7 +85,8 @@ export async function collectScripts($, dom, options) {
             options.target[0],
             'iife',
             'application/javascript',
-            { nomodule: '' }
+            { nomodule: '' },
+            helpers
         ),
         innerCollect(
             $,
@@ -96,7 +95,9 @@ export async function collectScripts($, dom, options) {
             options.sourceDir,
             options.target[1],
             'esm',
-            'module'
+            'module',
+            {},
+            helpers
         ),
     ].filter(Boolean));
 }

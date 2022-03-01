@@ -28,43 +28,55 @@ import { watchPlugin } from './plugins/watch.js';
  * @typedef {Partial<import('@chialab/es-dev-server').DevServerCoreConfig> & DevServerCoreConfig} DevServerConfig
  */
 
-export function buildMiddlewares() {
-    return [
-        cors(),
-        range,
-    ];
-}
-
 /**
- * @param {DevServerConfig} config
+ * Load configuration for the dev server.
+ * @param {Partial<DevServerConfig>} [initialConfig]
+ * @param {string} [configFile]
+ * @return {Promise<DevServerConfig>}
  */
-export function buildPlugins(config) {
-    return [
-        rnaPlugin({
-            alias: config.alias,
-            jsxFactory: config.jsxFactory,
-            jsxFragment: config.jsxFragment,
-            jsxModule: config.jsxModule,
-            jsxExport: config.jsxExport,
-            plugins: config.transformPlugins,
-        }),
-        entrypointsPlugin(config.entrypoints),
-        nodeResolvePlugin({
-            alias: config.alias,
-        }),
-    ];
-}
+export async function loadDevServerConfig(initialConfig = {}, configFile = undefined) {
+    configFile = configFile || await locateConfigFile();
 
-export function buildDevPlugins() {
-    return [
-        hmrPlugin(),
-        watchPlugin(),
-        hmrCssPlugin(),
-    ];
+    const rootDir = initialConfig.rootDir || process.cwd();
+    const logger = createLogger();
+
+    /**
+     * @type {import('@chialab/rna-config-loader').Config}
+     */
+    const config = mergeConfig(
+        { root: rootDir },
+        configFile ? await readConfigFile(configFile, { root: rootDir }, 'serve') : {}
+    );
+
+    const { servePlugins = [], plugins: transformPlugins = [] } = config;
+
+    try {
+        const { legacyPlugin } = await import('@chialab/wds-plugin-legacy');
+        servePlugins.push(legacyPlugin({
+            minify: true,
+        }));
+    } catch (err) {
+        //
+    }
+
+    return {
+        rootDir: config.root,
+        entrypointsPath: config.entrypointsPath,
+        entrypoints: config.entrypoints,
+        alias: config.alias,
+        logger,
+        plugins: servePlugins,
+        transformPlugins,
+        jsxFactory: config.jsxFactory,
+        jsxFragment: config.jsxFragment,
+        jsxModule: config.jsxModule,
+        jsxExport: config.jsxExport,
+        ...initialConfig,
+    };
 }
 
 /**
- * Start the dev server.
+ * Create a dev server.
  * @param {DevServerConfig} config
  * @return {Promise<import('@chialab/es-dev-server').DevServer>} The dev server instance.
  */
@@ -90,13 +102,27 @@ export async function createDevServer(config) {
         }),
         rootDir: root,
         middleware: [
-            ...buildMiddlewares(),
+            cors(),
+            range,
             ...(config.middleware || []),
         ],
         plugins: [
             ...(config.plugins || []),
-            ...buildPlugins(config),
-            ...buildDevPlugins(),
+            rnaPlugin({
+                alias: config.alias,
+                jsxFactory: config.jsxFactory,
+                jsxFragment: config.jsxFragment,
+                jsxModule: config.jsxModule,
+                jsxExport: config.jsxExport,
+                plugins: config.transformPlugins,
+            }),
+            entrypointsPlugin(config.entrypoints),
+            nodeResolvePlugin({
+                alias: config.alias,
+            }),
+            hmrPlugin(),
+            watchPlugin(),
+            hmrCssPlugin(),
         ],
     }, config.logger || createLogger());
 
@@ -150,47 +176,14 @@ export function command(program) {
              * @param {ServeCommandOptions} options
              */
             async (root = process.cwd(), { port, config: configFile }) => {
-                configFile = configFile || await locateConfigFile();
-
-                const logger = createLogger();
-
-                /**
-                 * @type {import('@chialab/rna-config-loader').Config}
-                 */
-                const config = mergeConfig({ root }, configFile ? await readConfigFile(configFile, { root }, 'serve') : {});
-
-                const { servePlugins = [], plugins: transformPlugins = [] } = config;
-
-                try {
-                    const { legacyPlugin } = await import('@chialab/wds-plugin-legacy');
-                    servePlugins.push(legacyPlugin({
-                        minify: true,
-                    }));
-                } catch (err) {
-                    //
-                }
-
-                /**
-                 * @type {DevServerConfig}
-                 */
-                const serveConfig = {
-                    rootDir: config.root,
+                const serveConfig = await loadDevServerConfig({
+                    rootDir: root,
                     port,
-                    entrypointsPath: config.entrypointsPath,
-                    entrypoints: config.entrypoints,
-                    alias: config.alias,
-                    logger,
-                    plugins: servePlugins,
-                    transformPlugins,
-                    jsxFactory: config.jsxFactory,
-                    jsxFragment: config.jsxFragment,
-                    jsxModule: config.jsxModule,
-                    jsxExport: config.jsxExport,
-                };
+                }, configFile);
 
                 const server = await serve(serveConfig);
 
-                logger.log(`
+                serveConfig.logger?.log(`
   ${colors.bold('rna dev server started')}
 
   root:     ${colors.blue.bold(path.resolve(serveConfig.rootDir || root))}

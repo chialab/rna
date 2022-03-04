@@ -28,7 +28,6 @@ export async function collectStyles($, dom, options, helpers) {
             entryPoint: path.join(options.sourceDir, helpers.createEntry('css')),
             contents,
             loader: 'css',
-            outdir: 'css',
             target: options.target[0],
         },
         finisher(files) {

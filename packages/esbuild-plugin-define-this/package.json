@@ -1,7 +1,7 @@
 {
   "name": "@chialab/esbuild-plugin-define-this",
   "type": "module",
-  "version": "0.15.0",
+  "version": "0.15.2",
   "description": "Define the this value in an esm module.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",

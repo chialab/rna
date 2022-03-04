@@ -1,7 +1,7 @@
 {
   "name": "@chialab/es-dev-server",
   "type": "module",
-  "version": "0.15.0",
+  "version": "0.15.2",
   "description": "Dev server for ES modules.",
   "main": "dist/index.js",
   "typings": "./types/index.d.ts",

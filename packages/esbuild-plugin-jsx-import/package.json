@@ -1,7 +1,7 @@
 {
   "name": "@chialab/esbuild-plugin-jsx-import",
   "type": "module",
-  "version": "0.15.0",
+  "version": "0.15.2",
   "description": "A plugin for esbuild that enables automatic injection of the jsx module import.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",
@@ -34,8 +34,8 @@
     "node": ">=13"
   },
   "dependencies": {
-    "@chialab/estransform": "^0.15.0",
-    "@chialab/node-resolve": "^0.15.0"
+    "@chialab/estransform": "^0.15.2",
+    "@chialab/node-resolve": "^0.15.2"
   },
   "devDependencies": {
     "esbuild": "^0.14.8",

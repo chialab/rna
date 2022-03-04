@@ -1,7 +1,7 @@
 {
   "name": "@chialab/wtr-mocha-reporter",
   "type": "module",
-  "version": "0.15.2",
+  "version": "0.15.3",
   "description": "A mocha reporter interface for the Web Test Runner.",
   "main": "dist/index.js",
   "typings": "./types/index.d.ts",
@@ -33,7 +33,7 @@
     "node": ">=13"
   },
   "dependencies": {
-    "@chialab/es-test-runner": "^0.15.2"
+    "@chialab/es-test-runner": "^0.15.3"
   },
   "devDependencies": {
     "@web/test-runner-core": "^0.10.19",

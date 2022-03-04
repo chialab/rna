@@ -74,14 +74,14 @@ export function assignToResult(context, result) {
      * @type {import('./index.js').DependenciesMap}
      */
     const dependencies = context.dependencies = context.dependencies || {};
-    for (const out of Object.values(resultMeta.outputs)) {
-        if (!out.entryPoint) {
-            continue;
-        }
-
-        const entryPoint = out.entryPoint;
+    for (const out of Object.entries(result.dependencies)) {
+        const entryPoint = out[0];
         const list = dependencies[entryPoint] = dependencies[entryPoint] || [];
-        list.push(...Object.keys(out.inputs).map((file) => file));
+        out[1].forEach((dep) => {
+            if (!list.includes(dep)) {
+                list.push(dep);
+            }
+        });
     }
 }
 

@@ -109,6 +109,28 @@ const buildInternals = new WeakMap();
 const DEFAULT_LOADERS = { '.js': 'js', '.jsx': 'jsx', '.ts': 'ts', '.tsx': 'tsx' };
 
 /**
+ * Create file path replacing esbuild patterns.
+ * @see https://esbuild.github.io/api/#chunk-names
+ * @param {string} pattern The esbuild pattern.
+ * @param {string} filePath The full file path.
+ * @param {Buffer|string} buffer The file contents.
+ * @return {string}
+ */
+export function computeName(pattern, filePath, buffer) {
+    const inputFile = path.basename(filePath);
+
+    return `${pattern
+        .replace('[name]', path.basename(inputFile, path.extname(inputFile)))
+        .replace('[ext]', path.extname(inputFile))
+        .replace('[hash]', () => {
+            const hash = crypto.createHash('sha1');
+            hash.update(/** @type {Buffer} */ (buffer));
+            return hash.digest('hex').substr(0, 8);
+        })
+    }${path.extname(inputFile)}`;
+}
+
+/**
  * Enrich the esbuild build with a transformation pipeline and emit methods.
  * @param {import('esbuild').PluginBuild} build The esbuild build.
  */
@@ -281,20 +303,11 @@ export function useRna(build) {
          */
         async emitFile(source, buffer) {
             const { assetNames = '[name]' } = build.initialOptions;
-            const ext = path.extname(source);
-            const basename = path.basename(source, ext);
 
             buffer = buffer || await readFile(source);
 
-            const computedName = assetNames
-                .replace('[name]', basename)
-                .replace('[hash]', () => {
-                    const hash = crypto.createHash('sha1');
-                    hash.update(/** @type {Buffer} */ (buffer));
-                    return hash.digest('hex').substr(0, 8);
-                });
-
-            const outputFile = path.join(fullOutDir, `${computedName}${ext}`);
+            const computedName = computeName(assetNames, source, buffer);
+            const outputFile = path.join(fullOutDir, computedName);
             const bytes = buffer.length;
             if (write) {
                 await mkdir(path.dirname(outputFile), {
@@ -554,6 +567,7 @@ export function useRna(build) {
             rnaResult.dependencies = state.dependencies;
             rnaBuild.chunks.forEach((result) => assignToResult(rnaResult, result));
             rnaBuild.files.forEach((result) => assignToResult(rnaResult, result));
+            console.log(rnaResult.dependencies);
 
             if (buildResult.outputFiles && buildResult.outputFiles.length) {
                 const mainFile = buildResult.outputFiles[0].path;

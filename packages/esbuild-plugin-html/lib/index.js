@@ -1,7 +1,8 @@
 import path from 'path';
+import { copyFile, readFile, rm } from 'fs/promises';
 import * as cheerio from 'cheerio';
 import beautify from 'js-beautify';
-import { useRna } from '@chialab/esbuild-rna';
+import { computeName, useRna } from '@chialab/esbuild-rna';
 
 /**
  * @typedef {import('esbuild').Metafile} Metafile
@@ -62,7 +63,7 @@ export default function({
     const plugin = {
         name: 'html',
         setup(build) {
-            const { plugins = [], write = true } = build.initialOptions;
+            const { plugins = [], write = true, entryNames = '[name]' } = build.initialOptions;
             const { load, workingDir, rootDir, outDir, onTransform, emitFile, emitChunk } = useRna(build);
             if (!outDir) {
                 throw new Error('Cannot use the html plugin without an outdir.');
@@ -71,7 +72,46 @@ export default function({
             // force metafile in order to collect output data.
             build.initialOptions.metafile = build.initialOptions.metafile || write !== false;
 
+            /**
+             * @type {string[]}
+             */
+            const entryPoints = [];
+            if (write) {
+                build.onStart(() => {
+                    entryPoints.splice(0, entryPoints.length);
+                });
+
+                build.onEnd(async (result) => {
+                    const outputs = result.metafile && result.metafile.outputs || {};
+                    const output = Object.entries(outputs)
+                        .find(([, output]) => entryPoints.includes(
+                            path.join(workingDir, Object.keys(output.inputs)[0])
+                        ));
+
+                    if (!output) {
+                        return;
+                    }
+
+                    const [outputFile, { inputs: inputFiles }] = output;
+                    const actualOutputFile = path.join(workingDir, outputFile);
+                    const inputFile = path.basename(Object.keys(inputFiles)[0]);
+                    const buffer = await readFile(actualOutputFile);
+                    const finalOutputFile = path.join(outDir, computeName(entryNames, inputFile, buffer));
+
+                    outputs[finalOutputFile] = output[1];
+                    delete outputs[outputFile];
+
+                    await copyFile(
+                        actualOutputFile,
+                        path.join(workingDir, finalOutputFile)
+                    );
+                    await rm(actualOutputFile);
+                });
+            }
+
             onTransform({ filter: /\.html$/ }, async (args) => {
+                entryPoints.push(args.path);
+
                 const basePath = path.dirname(args.path);
                 const [
                     { collectStyles },

@@ -96,16 +96,15 @@ export default function({
                     const actualOutputFile = path.join(workingDir, outputFile);
                     const inputFile = path.basename(Object.keys(inputFiles)[0]);
                     const buffer = await readFile(actualOutputFile);
-                    const finalOutputFile = path.join(outDir, computeName(entryNames, inputFile, buffer));
+                    const finalOutputFile = path.join(workingDir, path.join(outDir, computeName(entryNames, inputFile, buffer)));
 
                     outputs[finalOutputFile] = output[1];
                     delete outputs[outputFile];
 
-                    await copyFile(
-                        actualOutputFile,
-                        path.join(workingDir, finalOutputFile)
-                    );
-                    await rm(actualOutputFile);
+                    if (actualOutputFile !== finalOutputFile) {
+                        await copyFile(actualOutputFile, finalOutputFile);
+                        await rm(actualOutputFile);
+                    }
                 });
             }
 

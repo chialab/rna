@@ -567,7 +567,6 @@ export function useRna(build) {
             rnaResult.dependencies = state.dependencies;
             rnaBuild.chunks.forEach((result) => assignToResult(rnaResult, result));
             rnaBuild.files.forEach((result) => assignToResult(rnaResult, result));
-            console.log(rnaResult.dependencies);
 
             if (buildResult.outputFiles && buildResult.outputFiles.length) {
                 const mainFile = buildResult.outputFiles[0].path;

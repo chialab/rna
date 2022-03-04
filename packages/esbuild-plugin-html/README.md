@@ -26,8 +26,8 @@ It handles both inline and file scripts. When the `type="module"` attribute is f
 This will result in producing two bundles:
 
 ```html
-<script src="esm/index-[hash].js" type="module"></script>
-<script src="iife/index-[hash].js" nomodule></script>
+<script src="index-[hash].js" type="module"></script>
+<script src="index-[hash].js" nomodule></script>
 ```
 
 ### Styles
@@ -110,11 +110,19 @@ $ yarn add @chialab/esbuild-plugin-html -D
 
 ## Usage
 
+Build artifacts will respect your esbuild configuration. Since the plugin treats HTML files as entrypoints, the resulting documents will use the pattern provided by `entryNames`, while JavaScript and CSS files will be written using the `chunkNames` config. Other files use the `assetNames` option.
+
+This is a common esbuild configuration with the html plugin:
+
 ```js
 import esbuild from 'esbuild';
 import htmlPlugin from '@chialab/esbuild-plugin-html';
 
 await esbuild.build({
+    entryPoints: ['src/index.html'],
+    outdir: 'public',
+    assetNames: 'assets/[name]-[hash]',
+    chunkNames: '[ext]/[name]-[hash]',
     plugins: [
         htmlPlugin({
             // scriptsTarget: 'es6',
@@ -122,6 +130,18 @@ await esbuild.build({
         }),
     ],
 });
+```
+
+The output structure would be something similar to:
+
+```
+public
+├── index.html
+├── assets/favicon.png
+├── css/style-YYYYY.css
+├── css/style-YYYYY.css.map
+├── js/index-YYYYY.js
+└── js/index-YYYYY.js.map
 ```
 
 ### Options

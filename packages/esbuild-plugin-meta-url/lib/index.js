@@ -170,7 +170,7 @@ export default function({ emit = true } = {}) {
 
                         const entryLoader = buildLoaders[path.extname(resolvedPath)] || 'file';
                         const entryPoint = emit ?
-                            (entryLoader !== 'file' ? await emitChunk({ entryPoint: resolvedPath }) : await emitFile(resolvedPath)).path :
+                            (entryLoader !== 'file' && entryLoader !== 'json' ? await emitChunk({ entryPoint: resolvedPath }) : await emitFile(resolvedPath)).path :
                             `./${path.relative(path.dirname(args.path), resolvedPath)}`;
 
                         helpers.overwrite(startToken.start, endToken.end, `new URL('${entryPoint}', ${baseUrl})`);

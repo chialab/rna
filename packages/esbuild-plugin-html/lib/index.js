@@ -84,7 +84,7 @@ export default function({
                 build.onEnd(async (result) => {
                     const outputs = result.metafile && result.metafile.outputs || {};
                     const output = Object.entries(outputs)
-                        .find(([, output]) => entryPoints.includes(
+                        .find(([, output]) => Object.keys(output.inputs).length && entryPoints.includes(
                             path.join(workingDir, Object.keys(output.inputs)[0])
                         ));
 
@@ -98,8 +98,8 @@ export default function({
                     const buffer = await readFile(actualOutputFile);
                     const finalOutputFile = path.join(workingDir, path.join(outDir, computeName(entryNames, inputFile, buffer)));
 
-                    outputs[finalOutputFile] = output[1];
                     delete outputs[outputFile];
+                    outputs[path.relative(workingDir, finalOutputFile)] = output[1];
 
                     if (actualOutputFile !== finalOutputFile) {
                         await copyFile(actualOutputFile, finalOutputFile);

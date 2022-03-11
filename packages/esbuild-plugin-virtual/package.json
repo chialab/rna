@@ -1,7 +1,7 @@
 {
   "name": "@chialab/esbuild-plugin-virtual",
   "type": "module",
-  "version": "0.15.4",
+  "version": "0.15.7",
   "description": "A virtual file system for ebuild modules.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",

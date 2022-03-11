@@ -26,7 +26,7 @@ export function createVirtualPlugin() {
 
 /**
  * A virtual file system for ebuild modules.
- * @this PluginContext
+ * @this PluginContext|void
  * @param {PluginOptions} entries
  * @return An esbuild plugin.
  */

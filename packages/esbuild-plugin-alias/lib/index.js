@@ -51,7 +51,7 @@ export function createAliasPlugin() {
 
 /**
  * A plugin for esbuild that resolves aliases or empty modules.
- * @this PluginContext
+ * @this PluginContext|void
  * @param {import('@chialab/node-resolve').AliasMap} modules
  * @param {boolean} [browserField]
  * @return An esbuild plugin.

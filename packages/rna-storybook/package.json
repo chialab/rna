@@ -3,7 +3,7 @@
   "type": "module",
   "version": "0.15.6",
   "description": "A Storybook integration with the RNA bundler and server.",
-  "main": "lib/index.js",
+  "main": "dist/index.js",
   "typings": "./types/index.d.ts",
   "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
   "license": "MIT",
@@ -15,10 +15,11 @@
   "keywords": [],
   "scripts": {
     "types": "tsc",
+    "build": "rimraf dist && node build.js",
     "prepack": "yarn types"
   },
   "files": [
-    "lib",
+    "dist",
     "static",
     "types",
     "package.json",
@@ -38,11 +39,17 @@
     "@chialab/wds-plugin-node-resolve": "^0.15.3",
     "@chialab/wds-plugin-rna": "^0.15.6",
     "@custom-elements-manifest/analyzer": "0.5.3",
+    "esbuild": "^0.14.8",
+    "typescript": "^4.3.0"
+  },
+  "devDependencies": {
+    "@mdx-js/mdx": "^2.0.0",
     "@storybook/csf-tools": "^6.4.0",
+    "@storybook/mdx2-csf": "^0.0.1-canary.1.838a6ca.0",
     "@storybook/store": "^6.4.0",
     "@types/lodash": "^4.14.175",
-    "esbuild": "^0.14.8",
+    "fast-glob": "^3.2.11",
     "lodash": "^4.17.21",
-    "typescript": "^4.3.0"
+    "storybook-design-token": "^2.0.0"
   }
 }

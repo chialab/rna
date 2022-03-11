@@ -1,5 +1,3 @@
-declare module '@mdx-js/mdx';
-
 declare module '@custom-elements-manifest/analyzer/src/create.js' {
     export function create(options: { modules: import('typescript').SourceFile[], plugins: any[] }): { modules: any[] };
 }
@@ -30,4 +28,9 @@ declare module '@storybook/core-server/dist/cjs/utils/StoryIndexGenerator.js' {
         initialize(): Promise<void>;
         getIndex(): Promise<any>;
     }
+}
+
+declare module '@storybook/mdx2-csf/dist/esm/index.js' {
+    export const plugin: import('unified').Plugin;
+    export function postprocess(code: string, store: unknown): string;
 }

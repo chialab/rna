@@ -24,11 +24,8 @@ export function mdxPlugin() {
 
             onLoad({ filter: /\.mdx$/ }, async (args) => {
                 try {
-                    const code = await readFile(args.path, 'utf8');
-                    const result = await transformMdxToCsf(code, args.path, build.esbuild);
-
                     return {
-                        contents: result.code,
+                        contents: await transformMdxToCsf(await readFile(args.path, 'utf8'), build.esbuild),
                         loader: 'js',
                     };
                 } catch (err) {

@@ -102,7 +102,7 @@ export async function createDevServer(config) {
         }),
         rootDir: root,
         middleware: [
-            cors(),
+            cors({ origin: '*' }),
             range,
             ...(config.middleware || []),
         ],

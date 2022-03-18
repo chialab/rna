@@ -62,7 +62,7 @@ export default function urlRebase({ root = process.cwd(), relative, transform, a
                         if (resolvedImportPath.match(aliasFilter)) {
                             const aliasValue = aliases[key];
                             const aliased = typeof aliasValue === 'function' ?
-                                await aliasValue(inputFile) :
+                                await aliasValue(resolvedImportPath, inputFile) :
                                 aliasValue;
 
                             if (!aliased) {

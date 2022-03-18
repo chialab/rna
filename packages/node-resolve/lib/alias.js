@@ -1,5 +1,5 @@
 /**
- * @typedef {string|((args: import('esbuild').OnResolveArgs) => string|false|Promise<string|false>)|false} Alias
+ * @typedef {string|((input: string, importer: string) => string|false|Promise<string|false>)|false} Alias
  */
 
 /**

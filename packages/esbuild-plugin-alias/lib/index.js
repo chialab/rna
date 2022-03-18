@@ -24,7 +24,7 @@ export function addAlias(build, key, aliasRule, rootDir) {
             };
         }
 
-        const aliased = isFunction ? await aliasRule(args) : aliasRule;
+        const aliased = isFunction ? await aliasRule(args.path, args.importer) : aliasRule;
 
         if (!aliased) {
             return {

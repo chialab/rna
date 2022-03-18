@@ -173,7 +173,7 @@ export default function(config = {}) {
                 if (source.match(regex)) {
                     const aliasValue = res.value;
                     const aliased = typeof aliasValue === 'function' ?
-                        await aliasValue(filePath) :
+                        await aliasValue(source, filePath) :
                         aliasValue;
 
                     if (!aliased) {

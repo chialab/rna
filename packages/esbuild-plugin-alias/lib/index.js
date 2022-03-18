@@ -1,5 +1,5 @@
 import path from 'path';
-import { readFile } from 'fs/promises';
+import { access, readFile } from 'fs/promises';
 import { createEmptyModule } from '@chialab/estransform';
 import { ALIAS_MODE, createAliasRegex, resolve, pkgUp } from '@chialab/node-resolve';
 import { useRna } from '@chialab/esbuild-rna';
@@ -12,13 +12,19 @@ import { useRna } from '@chialab/esbuild-rna';
  * @param {string} [rootDir]
  */
 export function addAlias(build, key, aliasRule, rootDir) {
-    const aliasFilter = createAliasRegex(key, ALIAS_MODE.FULL);
+    const isFunction = typeof aliasRule === 'function';
+    const aliasFilter = createAliasRegex(key, isFunction ? ALIAS_MODE.START : ALIAS_MODE.FULL);
     const { rootDir: buildRootDir } = useRna(build);
 
     build.onResolve({ filter: aliasFilter }, async (args) => {
-        const aliased = typeof aliasRule === 'function' ?
-            await aliasRule(args.importer) :
-            aliasRule;
+        if (!aliasRule) {
+            return {
+                path: args.path,
+                namespace: 'empty',
+            };
+        }
+
+        const aliased = isFunction ? await aliasRule(args) : aliasRule;
 
         if (!aliased) {
             return {
@@ -28,6 +34,7 @@ export function addAlias(build, key, aliasRule, rootDir) {
         }
 
         if (path.isAbsolute(aliased)) {
+            await access(aliased);
             return {
                 path: aliased,
             };

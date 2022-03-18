@@ -18,11 +18,11 @@ export { glob, pkgUp };
  */
 
 /**
- * @typedef {(specifier: string, impporter: string) => Promise<string>} Resolver
+ * @typedef {(specifier: string, importer: string) => Promise<string>} Resolver
  */
 
 /**
- * @typedef {(specifier: string, impporter: string) => string|false} SyncResolver
+ * @typedef {(specifier: string, importer: string) => string|false} SyncResolver
  */
 
 /**

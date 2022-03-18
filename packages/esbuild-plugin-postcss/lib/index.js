@@ -95,7 +95,7 @@ export default function(options = {}) {
                                                 });
 
                                                 if (!result || !result.path) {
-                                                    return;
+                                                    continue;
                                                 }
 
                                                 try {

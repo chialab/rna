@@ -1,5 +1,5 @@
 import path from 'path';
-import { access, readFile } from 'fs/promises';
+import { readFile } from 'fs/promises';
 import { createEmptyModule } from '@chialab/estransform';
 import { ALIAS_MODE, createAliasRegex, resolve, pkgUp } from '@chialab/node-resolve';
 import { useRna } from '@chialab/esbuild-rna';
@@ -34,7 +34,6 @@ export function addAlias(build, key, aliasRule, rootDir) {
         }
 
         if (path.isAbsolute(aliased)) {
-            await access(aliased);
             return {
                 path: aliased,
             };

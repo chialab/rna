@@ -111,6 +111,9 @@ export default function(options = {}) {
                                                         contents: (/** @type {Buffer} */ (loadResult.contents)).toString(),
                                                     });
                                                 } catch (err) {
+                                                    if (err && (/** @type {Error & { code?: string }} */(err)).code === 'ENOENT') {
+                                                        continue;
+                                                    }
                                                     return done(/** @type {Error} */(err));
                                                 }
                                             } catch (e) {

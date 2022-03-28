@@ -16,7 +16,7 @@
   "scripts": {
     "types": "tsc",
     "build": "rimraf dist && node build.js",
-    "prepack": "yarn types"
+    "prepack": "yarn types && yarn build"
   },
   "files": [
     "dist",

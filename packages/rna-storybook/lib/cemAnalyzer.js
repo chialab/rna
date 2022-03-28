@@ -32,7 +32,7 @@ export default function({ framework = '@storybook/web-components', plugins = [] 
 
                 const code = args.code;
                 const modules = [
-                    typescript.createSourceFile(args.path, code, typescript.ScriptTarget.ES2015, true),
+                    typescript.createSourceFile(args.path, code, typescript.ScriptTarget.ESNext, true),
                 ];
 
                 const customElementsManifest = create({ modules, plugins });

@@ -17,6 +17,7 @@ esbuild.build({
         '@chialab/estransform',
         '@chialab/node-resolve',
         '@chialab/wds-plugin-rna',
+        '@custom-elements-manifest/analyzer/src/create.js',
         'esbuild',
         'typescript',
     ],

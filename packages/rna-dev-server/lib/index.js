@@ -48,13 +48,18 @@ export async function loadDevServerConfig(initialConfig = {}, configFile = undef
         configFile ? await readConfigFile(configFile, { root: rootDir }, 'serve') : {}
     );
 
+    const finalPlugins = initialConfig.plugins || [];
     const { servePlugins = [], plugins: transformPlugins = [] } = config;
 
+    finalPlugins.push(...servePlugins);
+
     try {
-        const { legacyPlugin } = await import('@chialab/wds-plugin-legacy');
-        servePlugins.push(legacyPlugin({
-            minify: true,
-        }));
+        if (!finalPlugins.some((p) => p.name === 'legacy')) {
+            const { legacyPlugin } = await import('@chialab/wds-plugin-legacy');
+            finalPlugins.push(legacyPlugin({
+                minify: true,
+            }));
+        }
     } catch (err) {
         //
     }
@@ -65,13 +70,13 @@ export async function loadDevServerConfig(initialConfig = {}, configFile = undef
         entrypoints: config.entrypoints,
         alias: config.alias,
         logger,
-        plugins: servePlugins,
         transformPlugins,
         jsxFactory: config.jsxFactory,
         jsxFragment: config.jsxFragment,
         jsxModule: config.jsxModule,
         jsxExport: config.jsxExport,
         ...initialConfig,
+        plugins: finalPlugins,
     };
 }
 

@@ -12,6 +12,8 @@ const DEFAULT_FEATURES = {
     'fetch': {},
 };
 
+const POLYFILLED = '_polyfilled';
+
 /**
  * Inject polyfill loader into another plugin.
  * This is useful in combination with the dev server legacy plugin.
@@ -24,13 +26,16 @@ export function inject(plugin, config) {
         if (originalTransform) {
             await originalTransform.call(this, context);
         }
-        if (!context.response.is('html')) {
+        if (!context.response.is('html') || context[POLYFILLED]) {
             return;
         }
         const features = config.features || DEFAULT_FEATURES;
         if (!Object.keys(features).length) {
             return;
         }
+
+        context[POLYFILLED] = true;
+
         const consolePolyfill = 'console.log=console.log.bind(console);';
         const code = await polyfillLibrary.getPolyfillString({
             uaString: context.get('user-agent'),

@@ -11,8 +11,8 @@ function interopImport(mod) {
     return (typeof mod.default !== 'undefined' ? mod.default : mod);
 }
 
-export const NameManager = /** @type {typeof import('sucrase/dist/NameManager').default} */ (interopImport(NameManagerModule));
-export const TokenProcessor = /** @type {typeof import('sucrase/dist/TokenProcessor').default} */ (interopImport(TokenProcessorModule));
+export const NameManager = /** @type {typeof import('sucrase/dist/NameManager.js').default} */ (interopImport(NameManagerModule));
+export const TokenProcessor = /** @type {typeof import('sucrase/dist/TokenProcessor.js').default} */ (interopImport(TokenProcessorModule));
 
 /**
  * Walk through tokens and wait async visitors.

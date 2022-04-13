@@ -111,7 +111,8 @@ export {
 
         expect(result.text).to.be.equal(`(() => {
   // test.spec.js
-  var file = new URL("./file.txt?emit=file", document.currentScript && document.currentScript.src || document.baseURI);
+  var __currentScriptUrl__ = document.currentScript && document.currentScript.src || document.baseURI;
+  var file = new URL("./file.txt?emit=file", __currentScriptUrl__);
 })();
 `);
         expect(file.text).to.be.equal('test\n');

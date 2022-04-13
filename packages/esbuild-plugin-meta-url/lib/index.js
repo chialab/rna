@@ -112,12 +112,14 @@ export default function({ emit = true } = {}) {
             const { platform, format, sourcesContent, sourcemap } = build.initialOptions;
             const { onTransform, emitFile, emitChunk, loaders: buildLoaders } = useRna(build);
 
+            const usePlainScript = platform === 'browser' && format !== 'esm';
+            const isNode = platform === 'node' && format !== 'esm';
             const baseUrl = (() => {
-                if (platform === 'browser' && format !== 'esm') {
-                    return 'document.currentScript && document.currentScript.src || document.baseURI';
+                if (usePlainScript) {
+                    return '__currentScriptUrl__';
                 }
 
-                if (platform === 'node' && format !== 'esm') {
+                if (isNode) {
                     return '\'file://\' + __filename';
                 }
 
@@ -181,6 +183,10 @@ export default function({ emit = true } = {}) {
 
                 if (!helpers.isDirty()) {
                     return;
+                }
+
+                if (usePlainScript) {
+                    helpers.prepend('var __currentScriptUrl__ = document.currentScript && document.currentScript.src || document.baseURI;\n');
                 }
 
                 return helpers.generate({

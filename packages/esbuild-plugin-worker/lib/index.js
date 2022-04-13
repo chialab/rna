@@ -45,7 +45,7 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
     const plugin = {
         name: 'worker',
         async setup(build) {
-            const { sourcesContent, sourcemap } = build.initialOptions;
+            const { sourcesContent, sourcemap, format, bundle } = build.initialOptions;
             const { onTransform, emitChunk, setupPlugin } = useRna(build);
             await setupPlugin(plugin, [metaUrlPlugin({ emit })], 'after');
 
@@ -131,6 +131,8 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                         external: [],
                     };
 
+                    let isModuleType = false;
+
                     if (secondArg && secondArg.length >= 4 && secondArg[0].type === TokenType.braceL) {
                         if (
                             (
@@ -141,8 +143,10 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                             && secondArg[3].type === TokenType.string
                             && processor.stringValueForToken(secondArg[3]) === 'module'
                         ) {
+                            isModuleType = true;
                             transformOptions.format = 'esm';
                             delete transformOptions.external;
+                            delete transformOptions.bundle;
                         }
                     }
 
@@ -182,10 +186,11 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                             })).path :
                             `./${path.relative(path.dirname(args.path), resolvedPath)}`;
                         const arg = `new URL('${entryPoint}', import.meta.url).href`;
+                        const secondArg = isModuleType && format === 'esm' && !bundle && !transformOptions.bundle ? ', { type: \'module\' }' : '';
                         if (proxy) {
-                            helpers.overwrite(start, end, `new ${Ctr}(${createBlobProxy(arg, transformOptions)})`);
+                            helpers.overwrite(start, end, `new ${Ctr}(${createBlobProxy(arg, transformOptions)}${secondArg})`);
                         } else {
-                            helpers.overwrite(start, end, `new ${Ctr}(${arg})`);
+                            helpers.overwrite(start, end, `new ${Ctr}(${arg}${secondArg})`);
                         }
                     }));
                 });

@@ -86,7 +86,7 @@ export function command(program) {
             async (input, {
                 config: configFile,
                 output,
-                format = 'esm',
+                format,
                 platform,
                 bundle,
                 minify,
@@ -148,7 +148,7 @@ export function command(program) {
                 /**
                  * @type {import('@chialab/rna-config-loader').Config}
                  */
-                const userConfig = mergeConfig(configFile ? await readConfigFile(configFile, inputConfig, 'build') : {}, inputConfig, input && input.length ? {
+                const userConfig = mergeConfig({ format: 'esm' }, configFile ? await readConfigFile(configFile, inputConfig, 'build') : {}, inputConfig, input && input.length ? {
                     entrypoints: [{
                         input: input.map((entry) => path.resolve(entry)),
                         output: path.resolve(output),

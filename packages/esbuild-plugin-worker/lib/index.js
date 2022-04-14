@@ -11,8 +11,9 @@ import { useRna } from '@chialab/esbuild-rna';
  * Create a blob proxy worker code.
  * @param {string} argument The url reference.
  * @param {Omit<import('@chialab/esbuild-rna').EmitTransformOptions, 'entryPoint'>} transformOptions The transform options for the url.
+ * @param {boolean} [checkType] Should check argument type.
  */
-function createBlobProxy(argument, transformOptions) {
+function createBlobProxy(argument, transformOptions, checkType = false) {
     const createUrlFn = `(function(path) {
     const url = new URL(path);
     url.searchParams.set('transform', '${JSON.stringify(transformOptions)}');
@@ -22,7 +23,7 @@ function createBlobProxy(argument, transformOptions) {
         `'import "' + ${createUrlFn}(${argument}) + '";'` :
         `'importScripts("' + ${createUrlFn}(${argument}) + '");'`;
 
-    return `URL.createObjectURL(new Blob([${blobContent}], { type: 'text/javascript' }))`;
+    return `${checkType ? `typeof ${argument} !== 'string' ? ${argument} : ` : ''}URL.createObjectURL(new Blob([${blobContent}], { type: 'text/javascript' }))`;
 }
 
 /**
@@ -33,10 +34,10 @@ function createBlobProxy(argument, transformOptions) {
 export default function({ constructors = ['Worker', 'SharedWorker'], proxy = false, emit = true } = {}) {
     const variants = constructors.reduce((acc, Ctr) => [
         ...acc,
-        `new ${Ctr}`,
-        `new window.${Ctr}`,
-        `new globalThis.${Ctr}`,
-        `new self.${Ctr}`,
+        Ctr,
+        `window.${Ctr}`,
+        `globalThis.${Ctr}`,
+        `self.${Ctr}`,
     ], /** @type {string[]} */ ([]));
 
     /**
@@ -45,14 +46,14 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
     const plugin = {
         name: 'worker',
         async setup(build) {
-            const { sourcesContent, sourcemap, format, bundle } = build.initialOptions;
+            const { sourcesContent, sourcemap } = build.initialOptions;
             const { onTransform, emitChunk, setupPlugin } = useRna(build);
             await setupPlugin(plugin, [metaUrlPlugin({ emit })], 'after');
 
             onTransform({ loaders: ['tsx', 'ts', 'jsx', 'js'] }, async (args) => {
                 const code = args.code;
 
-                if (!variants.find((ctr) => code.includes(ctr))) {
+                if (!variants.find((ctr) => code.includes(`new ${ctr}`))) {
                     return;
                 }
 
@@ -61,7 +62,24 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                  */
                 const promises = [];
 
+                /**
+                 * @type {Set<string>}
+                 */
+                const redefined = new Set();
+
                 const { helpers, processor } = await parse(code, args.path);
+                await walk(processor, (token) => {
+                    if (token.type === TokenType._class) {
+                        processor.nextToken();
+                        if (processor.currentToken().type === TokenType.name) {
+                            const name = processor.identifierNameForToken(processor.currentToken());
+                            if (constructors.includes(name)) {
+                                redefined.add(name);
+                            }
+                        }
+                    }
+                });
+
                 await walk(processor, (token) => {
                     if (token.type !== TokenType._new) {
                         return;
@@ -72,10 +90,14 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                     if (Ctr === 'window' || Ctr === 'self' || Ctr === 'globalThis') {
                         processor.nextToken();
                         processor.nextToken();
-                        Ctr = processor.identifierNameForToken(processor.currentToken());
+                        Ctr = `${Ctr}.${processor.identifierNameForToken(processor.currentToken())}`;
                     }
 
-                    if (!constructors.includes(Ctr)) {
+                    if (redefined.has(Ctr)) {
+                        return;
+                    }
+
+                    if (!variants.includes(Ctr)) {
                         return;
                     }
 
@@ -131,8 +153,6 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                         external: [],
                     };
 
-                    let isModuleType = false;
-
                     if (secondArg && secondArg.length >= 4 && secondArg[0].type === TokenType.braceL) {
                         if (
                             (
@@ -143,15 +163,11 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                             && secondArg[3].type === TokenType.string
                             && processor.stringValueForToken(secondArg[3]) === 'module'
                         ) {
-                            isModuleType = true;
                             transformOptions.format = 'esm';
                             delete transformOptions.external;
                             delete transformOptions.bundle;
                         }
                     }
-
-                    const start = token.start;
-                    const end = block[block.length - 1].end;
 
                     promises.push(Promise.resolve().then(async () => {
                         const value = isStringLiteral ?
@@ -163,7 +179,7 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                         if (typeof value !== 'string') {
                             if (proxy) {
                                 const arg = code.substring(firstArg[0].start, firstArg[firstArg.length - 1].end);
-                                helpers.overwrite(start, end, `new ${Ctr}(${createBlobProxy(arg, transformOptions)})`);
+                                helpers.overwrite(firstArg[0].start, firstArg[firstArg.length - 1].end, createBlobProxy(arg, transformOptions, true));
                             }
                             return;
                         }
@@ -186,11 +202,10 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                             })).path :
                             `./${path.relative(path.dirname(args.path), resolvedPath)}`;
                         const arg = `new URL('${entryPoint}', import.meta.url).href`;
-                        const secondArg = isModuleType && format === 'esm' && !bundle && !transformOptions.bundle ? ', { type: \'module\' }' : '';
                         if (proxy) {
-                            helpers.overwrite(start, end, `new ${Ctr}(${createBlobProxy(arg, transformOptions)}${secondArg})`);
+                            helpers.overwrite(firstArg[0].start, firstArg[firstArg.length - 1].end, createBlobProxy(arg, transformOptions, false));
                         } else {
-                            helpers.overwrite(start, end, `new ${Ctr}(${arg}${secondArg})`);
+                            helpers.overwrite(firstArg[0].start, firstArg[firstArg.length - 1].end, arg);
                         }
                     }));
                 });

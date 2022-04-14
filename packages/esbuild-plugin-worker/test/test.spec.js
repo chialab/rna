@@ -89,7 +89,7 @@ export {
         });
 
         expect(result.text).to.be.equal(`// test.spec.js
-var worker = new Worker(new URL("./worker.js?emit=chunk", import.meta.url).href);
+var worker = new Worker(new URL("./worker.js?emit=chunk", import.meta.url).href, { type: "module" });
 export {
   worker
 };
@@ -189,7 +189,7 @@ export {
         });
 
         expect(result.text).to.be.equal(`// test.spec.js
-var worker = new Worker(URL.createObjectURL(new Blob(['importScripts("' + function(path) {
+var worker = new Worker(typeof workerName !== "string" ? workerName : URL.createObjectURL(new Blob(['importScripts("' + function(path) {
   const url = new URL(path);
   url.searchParams.set("transform", '{"format":"iife","bundle":true,"platform":"neutral","external":[]}');
   return url.href;
@@ -226,5 +226,45 @@ export {
   worker
 };
 `);
+    });
+
+    it('should detect local Worker definitions', async () => {
+        const { outputFiles: [result, worker] } = await esbuild.build({
+            absWorkingDir: new URL('.', import.meta.url).pathname,
+            stdin: {
+                resolveDir: new URL('.', import.meta.url).pathname,
+                sourcefile: new URL(import.meta.url).pathname,
+                contents: `class Worker {};
+export const local = new Worker('./worker.js');
+export const worker = new window.Worker('./worker.js');`,
+            },
+            format: 'esm',
+            outdir: 'out',
+            bundle: true,
+            write: false,
+            plugins: [
+                workerPlugin(),
+            ],
+        });
+
+        expect(result.text).to.be.equal(`// test.spec.js
+var Worker = class {
+};
+var local = new Worker("./worker.js");
+var worker = new window.Worker(new URL("./worker.js?emit=chunk", import.meta.url).href);
+export {
+  local,
+  worker
+};
+`);
+        expect(worker.text).to.be.equal(`(() => {
+  // lib.worker.js
+  var postMessage = globalThis.postMessage;
+
+  // worker.js
+  postMessage("message");
+})();
+`);
+        expect(path.dirname(result.path)).to.be.equal(path.dirname(worker.path));
     });
 });

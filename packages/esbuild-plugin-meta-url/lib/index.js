@@ -158,7 +158,7 @@ export default function({ emit = true } = {}) {
                     }
 
                     promises.push(Promise.resolve().then(async () => {
-                        const { path: resolvedPath } = await build.resolve(value.split('?')[0], {
+                        const { path: resolvedPath } = await build.resolve("./" + value.split('?')[0], {
                             kind: 'dynamic-import',
                             importer: args.path,
                             namespace: 'file',

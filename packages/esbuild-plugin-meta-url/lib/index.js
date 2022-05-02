@@ -1,6 +1,6 @@
 import path from 'path';
 import { isUrl, hasSearchParam } from '@chialab/node-resolve';
-import { parse, walk, getIdentifierValue, getBlock, TokenType } from '@chialab/estransform';
+import { parse, walk, getIdentifierValue, getBlock, getLocation, TokenType } from '@chialab/estransform';
 import { useRna } from '@chialab/esbuild-rna';
 
 /**
@@ -141,6 +141,11 @@ export default function({ emit = true } = {}) {
 
                 const { helpers, processor } = await parse(code, args.path);
 
+                /**
+                 * @type {import('esbuild').Message[]}
+                 */
+                const warnings = [];
+
                 await walk(processor, () => {
                     const value = getMetaUrl(processor);
                     if (typeof value !== 'string' || isUrl(value)) {
@@ -158,24 +163,55 @@ export default function({ emit = true } = {}) {
                     }
 
                     promises.push(Promise.resolve().then(async () => {
-                        const { path: resolvedPath } = await build.resolve(value.split('?')[0], {
-                            kind: 'dynamic-import',
-                            importer: args.path,
-                            namespace: 'file',
-                            resolveDir: path.dirname(args.path),
-                            pluginData: null,
-                        });
-
-                        if (!resolvedPath) {
-                            return;
+                        const requestName = value.split('?')[0];
+                        const candidates = [];
+                        if (requestName.startsWith('./') || requestName.startsWith('../')) {
+                            candidates.push(requestName);
+                        } else {
+                            candidates.push(`./${requestName}`, requestName);
                         }
 
-                        const entryLoader = buildLoaders[path.extname(resolvedPath)] || 'file';
-                        const entryPoint = emit ?
-                            (entryLoader !== 'file' && entryLoader !== 'json' ? await emitChunk({ entryPoint: resolvedPath }) : await emitFile(resolvedPath)).path :
-                            `./${path.relative(path.dirname(args.path), resolvedPath)}`;
+                        while (candidates.length) {
+                            const pathName = /** @type {string} */ (candidates.shift());
+                            const { path: resolvedPath } = await build.resolve(pathName, {
+                                kind: 'dynamic-import',
+                                importer: args.path,
+                                namespace: 'file',
+                                resolveDir: path.dirname(args.path),
+                                pluginData: null,
+                            });
 
-                        helpers.overwrite(startToken.start, endToken.end, `new URL('${entryPoint}', ${baseUrl})`);
+                            if (!resolvedPath) {
+                                continue;
+                            }
+
+                            if (!pathName.startsWith('./') && !pathName.startsWith('../')) {
+                                const location = getLocation(code, startToken.start);
+                                warnings.push({
+                                    pluginName: 'meta-url',
+                                    text: `Resolving '${pathName}' as module is not a standard behavior and may be removed in a future relase of the plugin.`,
+                                    location: {
+                                        file: args.path,
+                                        namespace: args.namespace,
+                                        ...location,
+                                        length: endToken.end - startToken.start,
+                                        lineText: code.split('\n')[location.line - 1],
+                                        suggestion: 'Externalize module import using a JS proxy file.',
+                                    },
+                                    notes: [],
+                                    detail: '',
+                                });
+                            }
+
+                            const entryLoader = buildLoaders[path.extname(resolvedPath)] || 'file';
+                            const entryPoint = emit ?
+                                (entryLoader !== 'file' && entryLoader !== 'json' ? await emitChunk({ entryPoint: resolvedPath }) : await emitFile(resolvedPath)).path :
+                                `./${path.relative(path.dirname(args.path), resolvedPath)}`;
+
+                            helpers.overwrite(startToken.start, endToken.end, `new URL('${entryPoint}', ${baseUrl})`);
+
+                            break;
+                        }
                     }));
                 });
 
@@ -189,10 +225,13 @@ export default function({ emit = true } = {}) {
                     helpers.prepend('var __currentScriptUrl__ = document.currentScript && document.currentScript.src || document.baseURI;\n');
                 }
 
-                return helpers.generate({
-                    sourcemap: !!sourcemap,
-                    sourcesContent,
-                });
+                return {
+                    ...helpers.generate({
+                        sourcemap: !!sourcemap,
+                        sourcesContent,
+                    }),
+                    warnings,
+                };
             });
         },
     };

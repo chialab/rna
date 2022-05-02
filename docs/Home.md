@@ -57,4 +57,4 @@ $ npm i -D \
 
 ### Tutorials
 
-* [Migrate Create React App to RNA](./tutorials/Migrate-CRA)
+* [Migrate Create React App to RNA](./Migrate-CRA)

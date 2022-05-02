@@ -8,6 +8,81 @@
 
 ---
 
+## Install
+
+```sh
+$ npm i @chialab/esbuild-plugin-html -D
+$ yarn add @chialab/esbuild-plugin-html -D
+```
+
+## Usage
+
+The plugin tries to respect esbuild configuration closely as possible. Since it treats HTML files as entrypoints, the resulting documents will use the pattern provided by `entryNames`, while JavaScript and CSS files will be written using the `chunkNames` config. Other files use the `assetNames` option.
+
+### Common configurations
+
+#### Build mode
+
+```js
+import esbuild from 'esbuild';
+import htmlPlugin from '@chialab/esbuild-plugin-html';
+
+await esbuild.build({
+    entryPoints: ['src/index.html'],
+    outdir: 'public',
+    assetNames: 'assets/[name]-[hash]',
+    chunkNames: '[ext]/[name]-[hash]',
+    plugins: [
+        htmlPlugin(),
+    ],
+});
+```
+
+The output structure would be something similar to:
+
+```
+public
+├── index.html
+├── assets/favicon-YYYYY.png
+├── css/style-YYYYY.css
+├── css/style-YYYYY.css.map
+├── js/index-YYYYY.js
+└── js/index-YYYYY.js.map
+```
+
+#### Serve mode
+
+```js
+import esbuild from 'esbuild';
+import htmlPlugin from '@chialab/esbuild-plugin-html';
+
+await esbuild.serve({
+    servedir: 'public',
+}, {
+    entryPoints: ['src/index.html'],
+    outdir: 'public',
+    assetNames: 'assets/[name]',
+    chunkNames: '[ext]/[name]',
+    plugins: [
+        htmlPlugin(),
+    ],
+});
+```
+
+### Options
+
+The HTML plugin accepts an options object with the following properties:
+
+#### `scriptsTarget`
+
+The target of the plain scripts build (`type="text/javascript"`).
+
+#### `modulesTarget`
+
+The target of the ES modules build (`type="module"`).
+
+---
+
 ## How it works
 
 **Esbuild Plugin HTML** instructs esbuild to load a HTML file as entrypoint. It parses the HTML and runs esbuild on scripts, styles, assets and icons.
@@ -98,63 +173,6 @@ This will result in:
 ```
 
 It also update `<link rel="manifest">` content if found.
-
----
-
-## Install
-
-```sh
-$ npm i @chialab/esbuild-plugin-html -D
-$ yarn add @chialab/esbuild-plugin-html -D
-```
-
-## Usage
-
-Build artifacts will respect your esbuild configuration. Since the plugin treats HTML files as entrypoints, the resulting documents will use the pattern provided by `entryNames`, while JavaScript and CSS files will be written using the `chunkNames` config. Other files use the `assetNames` option.
-
-This is a common esbuild configuration with the html plugin:
-
-```js
-import esbuild from 'esbuild';
-import htmlPlugin from '@chialab/esbuild-plugin-html';
-
-await esbuild.build({
-    entryPoints: ['src/index.html'],
-    outdir: 'public',
-    assetNames: 'assets/[name]-[hash]',
-    chunkNames: '[ext]/[name]-[hash]',
-    plugins: [
-        htmlPlugin({
-            // scriptsTarget: 'es6',
-            // modulesTarget: 'es2020',
-        }),
-    ],
-});
-```
-
-The output structure would be something similar to:
-
-```
-public
-├── index.html
-├── assets/favicon.png
-├── css/style-YYYYY.css
-├── css/style-YYYYY.css.map
-├── js/index-YYYYY.js
-└── js/index-YYYYY.js.map
-```
-
-### Options
-
-The HTML plugin accepts an options object with the following properties:
-
-#### `scriptsTarget`
-
-The target of the plain scripts build (`type="text/javascript"`).
-
-#### `modulesTarget`
-
-The target of the ES modules build (`type="module"`).
 
 ---
 

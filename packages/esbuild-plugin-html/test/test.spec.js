@@ -8,7 +8,7 @@ describe('esbuild-plugin-html', () => {
         const { outputFiles } = await esbuild.build({
             absWorkingDir: new URL('.', import.meta.url).pathname,
             entryPoints: [new URL('fixture/index.iife.html', import.meta.url).pathname],
-            sourceRoot: new URL('fixture', import.meta.url).pathname,
+            sourceRoot: '/',
             chunkNames: '[name]-[hash]',
             outdir: 'out',
             format: 'esm',
@@ -63,11 +63,73 @@ body {
 `);
     });
 
+    it('should bundle webapp with scripts and sourcemaps', async () => {
+        const { outputFiles } = await esbuild.build({
+            absWorkingDir: new URL('.', import.meta.url).pathname,
+            entryPoints: [new URL('fixture/index.iife.html', import.meta.url).pathname],
+            sourceRoot: '/',
+            chunkNames: '[name]-[hash]',
+            outdir: 'out',
+            format: 'esm',
+            bundle: true,
+            sourcemap: true,
+            write: false,
+            plugins: [
+                htmlPlugin(),
+            ],
+        });
+
+        const [index,, js,, css] = outputFiles;
+
+        expect(outputFiles).to.have.lengthOf(5);
+
+        expect(index.path.endsWith('/out/index.iife.html')).to.be.true;
+        expect(index.text).to.be.equal(`<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="1-JIRSVTF3.css">
+</head>
+
+<body>
+    <script src="1-MFHSZCSP.js" type="application/javascript"></script>
+</body>
+
+</html>`);
+
+        expect(js.path.endsWith('/out/1-MFHSZCSP.js')).to.be.true;
+        expect(js.text).to.be.equal(`(() => {
+  // fixture/lib.js
+  var log = console.log.bind(console);
+
+  // fixture/index.js
+  window.addEventListener("load", () => {
+    log("test");
+  });
+})();
+//# sourceMappingURL=1-MFHSZCSP.js.map
+`);
+
+        expect(css.path.endsWith('/out/1-JIRSVTF3.css')).to.be.true;
+        expect(css.text).to.be.equal(`/* fixture/index.css */
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+/*# sourceMappingURL=1-JIRSVTF3.css.map */
+`);
+    });
+
     it('should bundle webapp with modules', async () => {
         const { outputFiles } = await esbuild.build({
             absWorkingDir: new URL('.', import.meta.url).pathname,
             entryPoints: [new URL('fixture/index.esm.html', import.meta.url).pathname],
-            sourceRoot: new URL('fixture', import.meta.url).pathname,
+            sourceRoot: '/',
             chunkNames: '[name]-[hash]',
             outdir: 'out',
             format: 'esm',
@@ -127,7 +189,7 @@ body {
         const { outputFiles } = await esbuild.build({
             absWorkingDir: new URL('.', import.meta.url).pathname,
             entryPoints: [new URL('fixture/index.chunks.html', import.meta.url).pathname],
-            sourceRoot: new URL('fixture', import.meta.url).pathname,
+            sourceRoot: '/',
             chunkNames: '[name]-[hash]',
             outdir: 'out',
             format: 'esm',
@@ -209,7 +271,7 @@ body {
         const { outputFiles } = await esbuild.build({
             absWorkingDir: new URL('.', import.meta.url).pathname,
             entryPoints: [new URL('fixture/index.mixed.html', import.meta.url).pathname],
-            sourceRoot: new URL('fixture', import.meta.url).pathname,
+            sourceRoot: '/',
             chunkNames: '[name]-[hash]',
             outdir: 'out',
             format: 'esm',
@@ -282,7 +344,7 @@ body {
         const { outputFiles } = await esbuild.build({
             absWorkingDir: new URL('.', import.meta.url).pathname,
             entryPoints: [new URL('fixture/index.css.html', import.meta.url).pathname],
-            sourceRoot: new URL('fixture', import.meta.url).pathname,
+            sourceRoot: '/',
             chunkNames: '[name]-[hash]',
             outdir: 'out',
             bundle: true,
@@ -408,7 +470,7 @@ html {
         const { outputFiles } = await esbuild.build({
             absWorkingDir: new URL('.', import.meta.url).pathname,
             entryPoints: [new URL('fixture/index.icons.html', import.meta.url).pathname],
-            sourceRoot: new URL('fixture', import.meta.url).pathname,
+            sourceRoot: '/',
             assetNames: 'icons/[name]',
             outdir: 'out',
             format: 'esm',
@@ -457,7 +519,7 @@ html {
         const { outputFiles } = await esbuild.build({
             absWorkingDir: new URL('.', import.meta.url).pathname,
             entryPoints: [new URL('fixture/index.svgicons.html', import.meta.url).pathname],
-            sourceRoot: new URL('fixture', import.meta.url).pathname,
+            sourceRoot: '/',
             assetNames: 'icons/[name]',
             outdir: 'out',
             format: 'esm',
@@ -499,7 +561,7 @@ html {
         const { outputFiles } = await esbuild.build({
             absWorkingDir: new URL('.', import.meta.url).pathname,
             entryPoints: [new URL('fixture/index.screens.html', import.meta.url).pathname],
-            sourceRoot: new URL('fixture', import.meta.url).pathname,
+            sourceRoot: '/',
             assetNames: 'screens/[name]',
             outdir: 'out',
             format: 'esm',
@@ -548,7 +610,7 @@ html {
         const { outputFiles } = await esbuild.build({
             absWorkingDir: new URL('.', import.meta.url).pathname,
             entryPoints: [new URL('fixture/index.assets.html', import.meta.url).pathname],
-            sourceRoot: new URL('fixture', import.meta.url).pathname,
+            sourceRoot: '/',
             assetNames: 'assets/[dir]/[name]',
             outdir: 'out',
             format: 'esm',
@@ -594,7 +656,7 @@ html {
         const { outputFiles } = await esbuild.build({
             absWorkingDir: new URL('.', import.meta.url).pathname,
             entryPoints: [new URL('fixture/index.manifest.html', import.meta.url).pathname],
-            sourceRoot: new URL('fixture', import.meta.url).pathname,
+            sourceRoot: '/',
             assetNames: 'assets/[name]',
             outdir: 'out',
             format: 'esm',
@@ -707,7 +769,7 @@ html {
         const { outputFiles } = await esbuild.build({
             absWorkingDir: new URL('.', import.meta.url).pathname,
             entryPoints: [new URL('fixture/index.iife.html', import.meta.url).pathname],
-            sourceRoot: new URL('fixture', import.meta.url).pathname,
+            sourceRoot: '/',
             outbase: new URL('./', import.meta.url).pathname,
             entryNames: '[dir]/[name]',
             chunkNames: '[name]',

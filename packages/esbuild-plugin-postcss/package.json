@@ -39,8 +39,8 @@
     "postcss-load-config": "^3.0.1"
   },
   "peerDependencies": {
-    "@chialab/postcss-dart-sass": "^0.14.0",
-    "@chialab/postcss-preset-chialab": "^0.14.0",
+    "@chialab/postcss-dart-sass": "^0.15.0",
+    "@chialab/postcss-preset-chialab": "^0.15.0",
     "postcss-scss": "^4.0.0"
   },
   "peerDependenciesMeta": {

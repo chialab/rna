@@ -76,37 +76,76 @@ export default function({
              * @type {string[]}
              */
             const entryPoints = [];
-            if (write) {
-                build.onStart(() => {
-                    entryPoints.splice(0, entryPoints.length);
-                });
 
-                build.onEnd(async (result) => {
-                    const outputs = result.metafile && result.metafile.outputs || {};
-                    const output = Object.entries(outputs)
-                        .find(([, output]) => Object.keys(output.inputs).length && entryPoints.includes(
-                            path.join(workingDir, Object.keys(output.inputs)[0])
-                        ));
+            build.onStart(() => {
+                entryPoints.splice(0, entryPoints.length);
+            });
 
-                    if (!output) {
-                        return;
-                    }
+            build.onEnd(async (result) => {
+                const metafile = result.metafile;
+                if (!metafile) {
+                    return;
+                }
+                const outputs = metafile.outputs;
 
-                    const [outputFile, { inputs: inputFiles }] = output;
-                    const actualOutputFile = path.join(workingDir, outputFile);
-                    const inputFile = path.join(workingDir, Object.keys(inputFiles)[0]);
-                    const buffer = await readFile(actualOutputFile);
-                    const finalOutputFile = path.join(workingDir, path.join(outDir, computeName(entryNames, inputFile, buffer)));
+                await Promise.all(
+                    Object.entries(outputs).map(async ([outputFile, output]) => {
+                        const inputs = Object.keys(output.inputs);
+                        if (!inputs.length) {
+                            return;
+                        }
 
-                    delete outputs[outputFile];
-                    outputs[path.relative(workingDir, finalOutputFile)] = output[1];
+                        const mainInput = path.join(workingDir, inputs[0]);
+                        if (!entryPoints.includes(mainInput)) {
+                            return;
+                        }
 
-                    if (actualOutputFile !== finalOutputFile) {
-                        await copyFile(actualOutputFile, finalOutputFile);
-                        await rm(actualOutputFile);
-                    }
-                });
-            }
+                        const actualOutputFile = path.join(workingDir, outputFile);
+                        if (output.entryPoint) {
+                            // esbuild js file
+                            delete outputs[outputFile];
+
+                            if (write) {
+                                await rm(actualOutputFile);
+                            } else if (result.outputFiles) {
+                                result.outputFiles = result.outputFiles.filter((file) => file.path !== actualOutputFile);
+                            }
+
+                            if (outputs[`${outputFile}.map`]) {
+                                const actualOutputMapFile = path.join(workingDir, `${outputFile}.map`);
+                                delete outputs[`${outputFile}.map`];
+
+                                if (write) {
+                                    await rm(actualOutputMapFile);
+                                } else if (result.outputFiles) {
+                                    result.outputFiles = result.outputFiles.filter((file) => file.path !== actualOutputMapFile);
+                                }
+                            }
+                        } else {
+                            // real html output
+                            const resultOutputFile = result.outputFiles && result.outputFiles.find((file) => file.path === actualOutputFile);
+                            if (!resultOutputFile && !write) {
+                                return;
+                            }
+
+                            const buffer = resultOutputFile ? Buffer.from(resultOutputFile.contents) : await readFile(actualOutputFile);
+                            const finalOutputFile = path.join(workingDir, path.join(outDir, computeName(entryNames, mainInput, buffer)));
+
+                            delete outputs[outputFile];
+                            outputs[path.relative(workingDir, finalOutputFile)] = output;
+
+                            if (write) {
+                                if (actualOutputFile !== finalOutputFile) {
+                                    await copyFile(actualOutputFile, finalOutputFile);
+                                    await rm(actualOutputFile);
+                                }
+                            } else if (resultOutputFile) {
+                                resultOutputFile.path = finalOutputFile;
+                            }
+                        }
+                    })
+                );
+            });
 
             onTransform({ filter: /\.html$/ }, async (args) => {
                 entryPoints.push(args.path);

@@ -2,7 +2,7 @@ import path from 'path';
 import { copyFile, readFile, rm } from 'fs/promises';
 import * as cheerio from 'cheerio';
 import beautify from 'js-beautify';
-import { computeName, useRna } from '@chialab/esbuild-rna';
+import { useRna } from '@chialab/esbuild-rna';
 
 /**
  * @typedef {import('esbuild').Metafile} Metafile
@@ -64,7 +64,7 @@ export default function({
         name: 'html',
         setup(build) {
             const { plugins = [], write = true, entryNames = '[name]' } = build.initialOptions;
-            const { load, workingDir, rootDir, outDir, onTransform, emitFile, emitChunk } = useRna(build);
+            const { load, workingDir, rootDir, outDir, onTransform, emitFile, emitChunk, computeName } = useRna(build);
             if (!outDir) {
                 throw new Error('Cannot use the html plugin without an outdir.');
             }

@@ -549,7 +549,7 @@ html {
             absWorkingDir: new URL('.', import.meta.url).pathname,
             entryPoints: [new URL('fixture/index.assets.html', import.meta.url).pathname],
             sourceRoot: new URL('fixture', import.meta.url).pathname,
-            assetNames: 'assets/[name]',
+            assetNames: 'assets/[dir]/[name]',
             outdir: 'out',
             format: 'esm',
             bundle: true,
@@ -576,14 +576,14 @@ html {
 </head>
 
 <body>
-    <img src="assets/icon.png" alt="">
+    <img src="assets/img/icon.png" alt="">
 </body>
 
 </html>`);
 
         assets.sort((a1, a2) => a2.contents.byteLength - a1.contents.byteLength);
 
-        expect(assets[0].path.endsWith('/out/assets/icon.png')).to.be.true;
+        expect(assets[0].path.endsWith('/out/assets/img/icon.png')).to.be.true;
         expect(assets[0].contents.byteLength).to.be.equal(20754);
 
         expect(assets[1].path.endsWith('/out/assets/icon.svg')).to.be.true;
@@ -701,5 +701,31 @@ html {
     }
   ]
 }`);
+    });
+
+    it('should bundle webapp with outbase', async () => {
+        const { outputFiles } = await esbuild.build({
+            absWorkingDir: new URL('.', import.meta.url).pathname,
+            entryPoints: [new URL('fixture/index.iife.html', import.meta.url).pathname],
+            sourceRoot: new URL('fixture', import.meta.url).pathname,
+            outbase: new URL('./', import.meta.url).pathname,
+            entryNames: '[dir]/[name]',
+            chunkNames: '[dir]/[name]',
+            assetNames: 'assets/[name]-[hash]',
+            outdir: 'out',
+            format: 'esm',
+            bundle: true,
+            write: false,
+            plugins: [
+                htmlPlugin(),
+            ],
+        });
+
+        const [index, js, css] = outputFiles;
+
+        expect(outputFiles).to.have.lengthOf(3);
+        expect(index.path.endsWith('/out/fixture/index.iife.html')).to.be.true;
+        expect(js.path.endsWith('/out/fixture/1.js')).to.be.true;
+        expect(css.path.endsWith('/out/fixture/1.css')).to.be.true;
     });
 });

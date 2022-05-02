@@ -29,9 +29,11 @@
   },
   "dependencies": {
     "@chialab/estransform": "^0.15.14",
-    "@chialab/node-resolve": "^0.15.9"
+    "@chialab/node-resolve": "^0.15.9",
+    "commondir": "^1.0.1"
   },
   "devDependencies": {
+    "@types/commondir": "^1.0.0",
     "esbuild": "^0.14.8",
     "typescript": "^4.3.0"
   }

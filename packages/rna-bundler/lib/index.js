@@ -158,8 +158,7 @@ export function command(program) {
                     plugins: [
                         ...await Promise.all([
                             import('@chialab/esbuild-plugin-html')
-                                .then(({ default: plugin }) => plugin())
-                                .catch(() => ({ name: 'html', setup() {} })),
+                                .then(({ default: plugin }) => plugin()),
                             import('@chialab/esbuild-plugin-postcss')
                                 .then(({ default: plugin }) => plugin())
                                 .catch(() => ({ name: 'postcss', setup() { } })),

@@ -35,7 +35,7 @@
     "node": ">=13"
   },
   "peerDependencies": {
-    "@chialab/wds-plugin-legacy": "^0.14.0"
+    "@chialab/wds-plugin-legacy": "^0.15.0"
   },
   "peerDependenciesMeta": {
     "@chialab/wds-plugin-legacy": {

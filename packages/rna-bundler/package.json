@@ -51,9 +51,9 @@
     "esbuild": "^0.14.8"
   },
   "peerDependencies": {
-    "@chialab/esbuild-plugin-babel": "^0.14.0",
-    "@chialab/esbuild-plugin-html": "^0.14.0",
-    "@chialab/esbuild-plugin-postcss": "^0.14.0"
+    "@chialab/esbuild-plugin-babel": "^0.15.0",
+    "@chialab/esbuild-plugin-html": "^0.15.0",
+    "@chialab/esbuild-plugin-postcss": "^0.15.0"
   },
   "peerDependenciesMeta": {
     "@chialab/esbuild-plugin-babel": {
@@ -67,6 +67,7 @@
     }
   },
   "devDependencies": {
+    "@chialab/esbuild-plugin-postcss": "^0.15.0",
     "commander": "^7.2.0",
     "typescript": "^4.3.0"
   }

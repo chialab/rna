@@ -83,40 +83,34 @@ export function command(program) {
              * @param {string[]} input
              * @param {BuildCommandOptions} options
              */
-            async (input, {
-                config: configFile,
-                output,
-                format,
-                platform,
-                bundle,
-                minify,
-                name,
-                manifest: manifestFile,
-                entrypoints: entrypointsFile,
-                target,
-                public: publicPath,
-                entryNames,
-                chunkNames,
-                assetNames,
-                clean,
-                external: externalString,
-                map: sourcemap,
-                jsxFactory,
-                jsxFragment,
-                jsxModule,
-                jsxExport,
-                metafile: metafilePath,
-                showCompressed,
-                watch,
-            }) => {
-                if (sourcemap === true) {
-                    sourcemap = undefined;
-                }
+            async (input, options) => {
+                const {
+                    output,
+                    format,
+                    platform,
+                    bundle,
+                    minify,
+                    name,
+                    target,
+                    public: publicPath,
+                    entryNames,
+                    chunkNames,
+                    assetNames,
+                    clean,
+                    jsxFactory,
+                    jsxFragment,
+                    jsxModule,
+                    jsxExport,
+                    metafile: metafilePath,
+                    showCompressed,
+                    watch,
+                } = options;
 
                 const logger = createLogger();
-                const manifestPath = manifestFile ? (typeof manifestFile === 'string' ? manifestFile : path.join(output, 'manifest.json')) : undefined;
-                const entrypointsPath = entrypointsFile ? (typeof entrypointsFile === 'string' ? entrypointsFile : path.join(output, 'entrypoints.json')) : undefined;
-                const external = externalString ? externalString.split(',') : [];
+                const manifestPath = options.manifest ? (typeof options.manifest === 'string' ? options.manifest : path.join(output, 'manifest.json')) : undefined;
+                const entrypointsPath = options.entrypoints ? (typeof options.entrypoints === 'string' ? options.entrypoints : path.join(output, 'entrypoints.json')) : undefined;
+                const external = options.external ? options.external.split(',') : [];
+                const sourcemap = options.map === true ? undefined : options.map;
 
                 /**
                  * @type {import('@chialab/rna-config-loader').Config}
@@ -143,7 +137,7 @@ export function command(program) {
                     watch,
                 };
 
-                configFile = configFile || await locateConfigFile();
+                const configFile = options.config || await locateConfigFile();
 
                 /**
                  * @type {import('@chialab/rna-config-loader').Config}

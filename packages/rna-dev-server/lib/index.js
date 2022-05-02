@@ -15,6 +15,7 @@ import { watchPlugin } from './plugins/watch.js';
  * @typedef {Object} DevServerCoreConfig
  * @property {import('@chialab/rna-logger').Logger} [logger]
  * @property {import('@chialab/rna-config-loader').Entrypoint[]} [entrypoints]
+ * @property {string} [manifestPath]
  * @property {string} [entrypointsPath]
  * @property {import('@chialab/node-resolve').AliasMap} [alias]
  * @property {import('esbuild').Plugin[]} [transformPlugins]
@@ -164,6 +165,12 @@ export async function serve(config) {
  * @typedef {Object} ServeCommandOptions
  * @property {number} [port]
  * @property {string} [config]
+ * @property {boolean|string} [manifest]
+ * @property {boolean|string} [entrypoints]
+ * @property {string} [jsxFactory]
+ * @property {string} [jsxFragment]
+ * @property {string} [jsxModule]
+ * @property {import('@chialab/rna-config-loader').ExportType} [jsxExport]
  */
 
 /**
@@ -175,16 +182,38 @@ export function command(program) {
         .description('Start a web dev server (https://modern-web.dev/docs/dev-server/overview/) that transforms ESM imports for node resolution on demand. It also uses esbuild (https://esbuild.github.io/) to compile non standard JavaScript syntax.')
         .option('-P, --port <number>', 'server port number', parseInt)
         .option('-C, --config <path>', 'the rna config file')
+        .option('--manifest <path>', 'generate manifest file')
+        .option('--entrypoints <path>', 'generate entrypoints file')
+        .option('--jsxFactory <identifier>', 'jsx pragma')
+        .option('--jsxFragment <identifier>', 'jsx fragment')
+        .option('--jsxModule <name>', 'jsx module name')
+        .option('--jsxExport <type>', 'jsx export mode')
         .action(
             /**
              * @param {string} root
              * @param {ServeCommandOptions} options
              */
-            async (root = process.cwd(), { port, config: configFile }) => {
+            async (root = process.cwd(), options) => {
+                const {
+                    port,
+                    jsxFactory,
+                    jsxFragment,
+                    jsxModule,
+                    jsxExport,
+                } = options;
+
+                const manifestPath = options.manifest ? (typeof options.manifest === 'string' ? options.manifest : path.join(root, 'manifest.json')) : undefined;
+                const entrypointsPath = options.entrypoints ? (typeof options.entrypoints === 'string' ? options.entrypoints : path.join(root, 'entrypoints.json')) : undefined;
                 const serveConfig = await loadDevServerConfig({
                     rootDir: root,
                     port,
-                }, configFile);
+                    manifestPath,
+                    entrypointsPath,
+                    jsxFactory,
+                    jsxFragment,
+                    jsxModule,
+                    jsxExport,
+                }, options.config);
 
                 const server = await serve(serveConfig);
 

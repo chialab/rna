@@ -65,7 +65,7 @@ export function buildPlugin(config) {
             virtualPlugin = virtualPlugin || createVirtualPlugin()([
                 ...await Promise.all(
                     Object.keys(staticFiles).map(async (file) => ({
-                        path: file,
+                        path: `./${file}`,
                         contents: await readFile(staticFiles[file]),
                     }))
                 ),

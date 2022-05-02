@@ -4,7 +4,7 @@ In this tutorial we will migrate [Create React App](https://facebook.github.io/c
 
 ## Prepare the source code
 
-The RNA dev server works serving a source directory that contains one (or more) HTML entrypoints. Since CRA static files are stored under the `public` folder, we need to copy its contents to the `src` directory:
+The RNA dev server works serving a source directory that contains one (or more) HTML entrypoints. CRA static files are stored under the `public` folder, so we need to move them to the `src` directory:
 
 ```sh
 $ mv public/index.html    src/index.html
@@ -16,7 +16,7 @@ $ mv public/manifest.json src/manifest.json
 
 ### Replace `%PUBLIC_URL%` with local references
 
-Since the HTML file is now part of the build, we don't need the `%PUBLIC_URL%` placeholder anymore.
+Since the HTML file is now part of the build, we can replace `%PUBLIC_URL%` placeholders with real file references.
 
 ```diff
 - <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
@@ -38,7 +38,6 @@ Since the HTML file is now part of the build, we don't need the `%PUBLIC_URL%` p
 `react-scripts` automatically injects `index.js` and `index.css` in the HTML file, so we need to add those references in the `index.html` file:
 
 ```diff
-    <title>React App</title>
 +   <link rel="stylesheet" href="index.css">
   </head>
 ```
@@ -78,4 +77,3 @@ We will pass `--jsxModule` to make sure `React` JSX pragma is imported in JavaSc
 ```
 
 Both `serve` and `build` scripts are now ready to play with your React app 🎉
-

@@ -2,7 +2,7 @@ import path from 'path';
 import { copyFile, readFile, rm } from 'fs/promises';
 import * as cheerio from 'cheerio';
 import beautify from 'js-beautify';
-import { computeName, useRna } from '@chialab/esbuild-rna';
+import { useRna } from '@chialab/esbuild-rna';
 
 /**
  * @typedef {import('esbuild').Metafile} Metafile
@@ -64,7 +64,7 @@ export default function({
         name: 'html',
         setup(build) {
             const { plugins = [], write = true, entryNames = '[name]' } = build.initialOptions;
-            const { load, workingDir, rootDir, outDir, onTransform, emitFile, emitChunk } = useRna(build);
+            const { load, workingDir, rootDir, outDir, onTransform, emitFile, emitChunk, computeName } = useRna(build);
             if (!outDir) {
                 throw new Error('Cannot use the html plugin without an outdir.');
             }
@@ -94,7 +94,7 @@ export default function({
 
                     const [outputFile, { inputs: inputFiles }] = output;
                     const actualOutputFile = path.join(workingDir, outputFile);
-                    const inputFile = path.basename(Object.keys(inputFiles)[0]);
+                    const inputFile = path.join(workingDir, Object.keys(inputFiles)[0]);
                     const buffer = await readFile(actualOutputFile);
                     const finalOutputFile = path.join(workingDir, path.join(outDir, computeName(entryNames, inputFile, buffer)));
 
@@ -241,6 +241,8 @@ export default function({
                     })
                 );
 
+                const fullOutDir = path.dirname(path.resolve(workingDir, outDir, computeName(entryNames, args.path, '')));
+
                 for (let i = 0; i < collected.length; i++) {
                     const { build, finisher } = collected[i];
                     if (finisher) {
@@ -256,7 +258,6 @@ export default function({
                             }
                             const files = keys.map((file) => {
                                 const fullFile = path.resolve(workingDir, file);
-                                const fullOutDir = path.resolve(workingDir, outDir);
                                 return path.relative(fullOutDir, fullFile);
                             });
                             await finisher(files);

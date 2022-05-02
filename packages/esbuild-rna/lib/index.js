@@ -1,6 +1,7 @@
 import path from 'path';
 import crypto from 'crypto';
 import { mkdir, readFile, writeFile, rm } from 'fs/promises';
+import commondir from 'commondir';
 import { appendSearchParam, escapeRegexBody } from '@chialab/node-resolve';
 import { loadSourcemap, inlineSourcemap, mergeSourcemaps } from '@chialab/estransform';
 import { assignToResult, createOutputFile, createResult } from './helpers.js';
@@ -109,25 +110,17 @@ const buildInternals = new WeakMap();
 const DEFAULT_LOADERS = { '.js': 'js', '.jsx': 'jsx', '.ts': 'ts', '.tsx': 'tsx' };
 
 /**
- * Create file path replacing esbuild patterns.
- * @see https://esbuild.github.io/api/#chunk-names
- * @param {string} pattern The esbuild pattern.
- * @param {string} filePath The full file path.
- * @param {Buffer|string} buffer The file contents.
+ * Get the base out path.
+ * @param {string} cwd The current working directory.
+ * @param {string[] | Record<string, string>} entryPoints The entry points.
  * @return {string}
  */
-export function computeName(pattern, filePath, buffer) {
-    const inputFile = path.basename(filePath);
+function getOutBase(cwd, entryPoints) {
+    const files = (Array.isArray(entryPoints) ? entryPoints : Object.values(entryPoints))
+        .map((entry) => (path.isAbsolute(entry) ? entry : path.resolve(cwd, entry)))
+        .map((entry) => path.dirname(entry));
 
-    return `${pattern
-        .replace('[name]', path.basename(inputFile, path.extname(inputFile)))
-        .replace('[ext]', path.extname(inputFile))
-        .replace('[hash]', () => {
-            const hash = crypto.createHash('sha1');
-            hash.update(/** @type {Buffer} */ (buffer));
-            return hash.digest('hex').substr(0, 8);
-        })
-    }${path.extname(inputFile)}`;
+    return commondir(files);
 }
 
 /**
@@ -138,7 +131,7 @@ export function useRna(build) {
     build.initialOptions.metafile = true;
 
     const { esbuild } = build;
-    const { stdin, sourceRoot, absWorkingDir, outdir, outfile, loader = {}, write = true } = build.initialOptions;
+    const { stdin, sourceRoot, absWorkingDir, outdir, outfile, outbase, entryPoints = [], loader = {}, write = true } = build.initialOptions;
     const loaders = {
         ...DEFAULT_LOADERS,
         ...loader,
@@ -159,9 +152,10 @@ export function useRna(build) {
 
     const isChunk = 'chunk' in build.initialOptions;
     const workingDir = absWorkingDir || process.cwd();
-    const rootDir = sourceRoot || absWorkingDir || process.cwd();
+    const rootDir = sourceRoot || workingDir;
     const outDir = /** @type {string} */(outdir || (outfile && path.dirname(outfile)));
     const fullOutDir = /** @type {string} */(outDir && path.resolve(workingDir, outDir));
+    const outBase = outbase || (entryPoints.length ? getOutBase(workingDir, entryPoints) : workingDir);
 
     const rnaBuild = {
         /**
@@ -181,6 +175,10 @@ export function useRna(build) {
          */
         workingDir,
         /**
+         * Compute the outbase dir.
+         */
+        outBase,
+        /**
          * Compute the build root dir.
          */
         rootDir,
@@ -196,6 +194,28 @@ export function useRna(build) {
          * Flag chunk build.
          */
         isChunk,
+        /**
+         * Create file path replacing esbuild patterns.
+         * @see https://esbuild.github.io/api/#chunk-names
+         * @param {string} pattern The esbuild pattern.
+         * @param {string} filePath The full file path.
+         * @param {Buffer|string} buffer The file contents.
+         * @return {string}
+         */
+        computeName(pattern, filePath, buffer) {
+            const inputFile = path.basename(filePath);
+
+            return `${pattern
+                .replace('[name]', path.basename(inputFile, path.extname(inputFile)))
+                .replace('[ext]', path.extname(inputFile))
+                .replace('[dir]', path.relative(outBase, path.dirname(filePath)))
+                .replace('[hash]', () => {
+                    const hash = crypto.createHash('sha1');
+                    hash.update(/** @type {Buffer} */(buffer));
+                    return hash.digest('hex').substr(0, 8);
+                })
+            }${path.extname(inputFile)}`;
+        },
         /**
          * Iterate build.onLoad hooks in order to programmatically load file contents.
          * @param {OnLoadArgs} args The load arguments.
@@ -306,7 +326,7 @@ export function useRna(build) {
 
             buffer = buffer || await readFile(source);
 
-            const computedName = computeName(assetNames, source, buffer);
+            const computedName = rnaBuild.computeName(assetNames, source, buffer);
             const outputFile = path.join(fullOutDir, computedName);
             const bytes = buffer.length;
             if (write) {

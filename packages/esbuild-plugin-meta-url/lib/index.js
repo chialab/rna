@@ -168,7 +168,7 @@ export default function({ emit = true } = {}) {
                         if (requestName.startsWith('./') || requestName.startsWith('../')) {
                             candidates.push(requestName);
                         } else {
-                            candidates.push(requestName, `./${requestName}`);
+                            candidates.push(`./${requestName}`, requestName);
                         }
 
                         while (candidates.length) {

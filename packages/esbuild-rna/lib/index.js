@@ -1,6 +1,6 @@
 import path from 'path';
 import crypto from 'crypto';
-import { mkdir, readFile, writeFile, rm } from 'fs/promises';
+import { mkdir, readFile, writeFile } from 'fs/promises';
 import commondir from 'commondir';
 import { appendSearchParam, escapeRegexBody } from '@chialab/node-resolve';
 import { loadSourcemap, inlineSourcemap, mergeSourcemaps } from '@chialab/estransform';
@@ -582,61 +582,10 @@ export function useRna(build) {
         });
 
         build.onEnd(async (buildResult) => {
-            const loaders = { ...DEFAULT_LOADERS, ...(build.initialOptions.loader || {}) };
             const rnaResult = /** @type {Result} */ (buildResult);
             rnaResult.dependencies = state.dependencies;
             rnaBuild.chunks.forEach((result) => assignToResult(rnaResult, result));
             rnaBuild.files.forEach((result) => assignToResult(rnaResult, result));
-
-            if (buildResult.outputFiles && buildResult.outputFiles.length) {
-                const mainFile = buildResult.outputFiles[0].path;
-                const mainExt = path.extname(mainFile);
-                if (mainExt !== '.js') {
-                    const jsFile = buildResult.outputFiles[1];
-                    if (jsFile && jsFile.path.endsWith('.js')) {
-                        let realFileName = path.join(path.dirname(jsFile.path), path.basename(jsFile.path, '.js'));
-                        if (path.extname(realFileName) !== mainExt) {
-                            realFileName += mainExt;
-                        }
-                        buildResult.outputFiles[0].path = realFileName;
-                        buildResult.outputFiles.splice(1, 1);
-                    }
-                }
-            }
-
-            if (buildResult.metafile) {
-                // remove .js outputs for non js entryPoints
-                const outputs = { ...buildResult.metafile.outputs };
-                for (const outputKey in outputs) {
-                    const output = outputs[outputKey];
-                    if (!output.entryPoint) {
-                        continue;
-                    }
-
-                    const entryPoint = path.resolve(rootDir, output.entryPoint.split('?')[0]);
-                    const dependencies = Object.keys(output.inputs)
-                        .map((input) => path.resolve(rootDir, input.split('?')[0]));
-
-                    rnaBuild.collectDependencies(entryPoint, dependencies);
-
-                    if (path.extname(outputKey) === '.js') {
-                        const entryLoader = loaders[path.extname(entryPoint)] || 'file';
-                        if (entryLoader !== 'file' && entryLoader !== 'css') {
-                            continue;
-                        }
-                        if (write) {
-                            const fullOutputKey = path.join(workingDir, outputKey);
-                            await rm(fullOutputKey);
-                            try {
-                                await rm(`${fullOutputKey}.map`);
-                            } catch (err) {
-                                //
-                            }
-                        }
-                        delete buildResult.metafile.outputs[outputKey];
-                    }
-                }
-            }
         });
     }
 

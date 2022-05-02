@@ -74,6 +74,35 @@ export function getIdentifierValue(processor, id) {
 }
 
 /**
+ * Get token location.
+ * @param {string} code Source code.
+ * @param {number} index Token index.
+ * @return A location.
+ */
+export function getLocation(code, index) {
+    let it = 0;
+    let line = 1;
+    let column = -1;
+
+    if (index > code.length) {
+        throw new Error('Token index exceeds source code length');
+    }
+
+    while (it <= index) {
+        const char = code[it];
+        if (char === '\n') {
+            line++;
+            column = -1;
+        } else {
+            column++;
+        }
+        it++;
+    }
+
+    return { line, column };
+}
+
+/**
  * @param {import('./parser.js').TokenProcessor} processor
  * @param {TokenType} [openingToken]
  * @param {TokenType} [closingToken]

@@ -49,7 +49,7 @@ export * from './helpers.js';
  */
 
 /**
- * @typedef {{ code: string, map?: import('@chialab/estransform').SourceMap|null, resolveDir?: string }} OnTransformResult
+ * @typedef {{ code: string, map?: import('@chialab/estransform').SourceMap|null, resolveDir?: string, errors?: import('esbuild').Message[], warnings?: import('esbuild').Message[] }} OnTransformResult
  */
 
 /**
@@ -266,6 +266,8 @@ export function useRna(build) {
             const { transform } = state;
 
             const maps = [];
+            const warnings = [];
+            const errors = [];
             for (const { options, callback } of transform) {
                 const { namespace: optionsNamespace = 'file', filter } = options;
                 if (namespace !== optionsNamespace) {
@@ -283,6 +285,12 @@ export function useRna(build) {
                 });
                 if (result) {
                     code = result.code;
+                    if (result.warnings) {
+                        warnings.push(...result.warnings);
+                    }
+                    if (result.errors) {
+                        errors.push(...result.errors);
+                    }
                     if (result.map) {
                         maps.push(result.map);
                     }
@@ -297,6 +305,8 @@ export function useRna(build) {
                     contents: code,
                     loader,
                     resolveDir,
+                    warnings,
+                    errors,
                 };
             }
 
@@ -313,6 +323,8 @@ export function useRna(build) {
                 contents: sourceMap ? inlineSourcemap(code.toString(), sourceMap) : code,
                 loader,
                 resolveDir,
+                warnings,
+                errors,
             };
         },
         /**
@@ -324,7 +336,20 @@ export function useRna(build) {
         async emitFile(source, buffer) {
             const { assetNames = '[name]' } = build.initialOptions;
 
-            buffer = buffer || await readFile(source);
+            if (!buffer) {
+                const result = await rnaBuild.load({
+                    pluginData: null,
+                    namespace: 'file',
+                    suffix: '',
+                    path: source,
+                });
+
+                if (result.contents) {
+                    buffer = Buffer.from(result.contents);
+                } else {
+                    buffer = await readFile(source);
+                }
+            }
 
             const computedName = rnaBuild.computeName(assetNames, source, buffer);
             const outputFile = path.join(fullOutDir, computedName);

@@ -1,6 +1,7 @@
 import path from 'path';
 import esbuild from 'esbuild';
 import metaUrl from '@chialab/esbuild-plugin-meta-url';
+import virtual from '@chialab/esbuild-plugin-virtual';
 import { expect } from 'chai';
 
 describe('esbuild-plugin-meta-url', () => {
@@ -172,5 +173,57 @@ var file = new URL("./file.txt?emit=file", "file://" + __filename);
 `);
         expect(file.text).to.be.equal('test\n');
         expect(path.dirname(result.path)).to.be.equal(path.dirname(file.path));
+    });
+
+    it('should resolve a module with warnings', async () => {
+        const { warnings, outputFiles: [result, file] } = await esbuild.build({
+            absWorkingDir: new URL('.', import.meta.url).pathname,
+            stdin: {
+                resolveDir: new URL('.', import.meta.url).pathname,
+                sourcefile: new URL(import.meta.url).pathname,
+                contents: 'export const file = new URL(\'npm_module\', import.meta.url);',
+            },
+            format: 'esm',
+            outdir: 'out',
+            loader: {
+                '.txt': 'file',
+            },
+            bundle: true,
+            write: false,
+            plugins: [
+                virtual([{
+                    path: 'npm_module',
+                    contents: 'test\n',
+                    loader: 'js',
+                }]),
+                metaUrl(),
+            ],
+        });
+
+        expect(result.text).to.be.equal(`// test.spec.js
+var file = new URL("./npm_module?emit=file", import.meta.url);
+export {
+  file
+};
+`);
+        expect(file.text).to.be.equal('test\n');
+        expect(path.dirname(result.path)).to.be.equal(path.dirname(file.path));
+        expect(warnings).to.be.deep.equal([
+            {
+                pluginName: 'meta-url',
+                text: 'Resolving \'npm_module\' as module is not a standard behavior and may be removed in a future relase of the plugin.',
+                detail: '',
+                notes: [],
+                location: {
+                    column: 20,
+                    file: 'test.spec.js',
+                    length: 38,
+                    line: 1,
+                    lineText: 'export const file = new URL(\'npm_module\', import.meta.url);',
+                    namespace: 'file',
+                    suggestion: 'Externalize module import using a JS proxy file.',
+                },
+            },
+        ]);
     });
 });

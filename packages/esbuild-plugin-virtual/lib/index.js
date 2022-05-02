@@ -41,8 +41,8 @@ export default function virtual(entries) {
 
             entries.forEach((entry) => {
                 const resolveDir = entry.resolveDir || rootDir;
-                const virtualFilePath = path.join(resolveDir, entry.path);
-                const filter = new RegExp(escapeRegexBody(entry.path));
+                const virtualFilePath = path.isAbsolute(entry.path) ? entry.path : path.join(resolveDir, entry.path);
+                const filter = new RegExp(`^${escapeRegexBody(entry.path)}$`);
                 const entryFilter = new RegExp(escapeRegexBody(virtualFilePath));
 
                 build.onResolve({ filter }, () => ({

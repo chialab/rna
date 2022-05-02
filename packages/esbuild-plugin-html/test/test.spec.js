@@ -402,7 +402,7 @@ body {
             plugins: [
                 virtualPlugin([
                     {
-                        path: 'index.html',
+                        path: new URL('./index.html', import.meta.url).pathname,
                         contents: `<!DOCTYPE html>
 <html lang="en">
 <head>

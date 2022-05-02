@@ -97,26 +97,26 @@ export function buildPlugin(config) {
                     }),
                 },
                 {
-                    path: PREVIEW_MODULE_SCRIPT,
+                    path: `/${PREVIEW_MODULE_SCRIPT}`,
                     contents: await createPreviewModule(),
                 },
                 {
-                    path: MANAGER_STYLE,
+                    path: `./${MANAGER_STYLE}`,
                     contents: await managerCss(),
                 },
                 {
-                    path: PREVIEW_STYLE,
+                    path: `./${PREVIEW_STYLE}`,
                     contents: await previewCss(),
                 },
                 {
-                    path: MANAGER_SCRIPT,
+                    path: `./${MANAGER_SCRIPT}`,
                     contents: createManagerScript({
                         manager,
                         managerEntries,
                     }),
                 },
                 {
-                    path: PREVIEW_SCRIPT,
+                    path: `./${PREVIEW_SCRIPT}`,
                     contents: await createPreviewScript({
                         framework,
                         specifiers: Array.from(storyIndexEntries.keys()),

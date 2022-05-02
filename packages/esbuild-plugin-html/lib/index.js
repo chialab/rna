@@ -95,12 +95,12 @@ export default function({
                             return;
                         }
 
-                        const mainInput = path.join(workingDir, inputs[0]);
+                        const mainInput = path.resolve(workingDir, inputs[0]);
                         if (!entryPoints.includes(mainInput)) {
                             return;
                         }
 
-                        const actualOutputFile = path.join(workingDir, outputFile);
+                        const actualOutputFile = path.resolve(workingDir, outputFile);
                         if (output.entryPoint) {
                             // esbuild js file
                             delete outputs[outputFile];
@@ -112,7 +112,7 @@ export default function({
                             }
 
                             if (outputs[`${outputFile}.map`]) {
-                                const actualOutputMapFile = path.join(workingDir, `${outputFile}.map`);
+                                const actualOutputMapFile = path.resolve(workingDir, `${outputFile}.map`);
                                 delete outputs[`${outputFile}.map`];
 
                                 if (write) {
@@ -129,7 +129,7 @@ export default function({
                             }
 
                             const buffer = resultOutputFile ? Buffer.from(resultOutputFile.contents) : await readFile(actualOutputFile);
-                            const finalOutputFile = path.join(workingDir, path.join(outDir, computeName(entryNames, mainInput, buffer)));
+                            const finalOutputFile = path.resolve(workingDir, outDir, computeName(entryNames, mainInput, buffer));
 
                             delete outputs[outputFile];
                             outputs[path.relative(workingDir, finalOutputFile)] = output;

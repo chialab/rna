@@ -42,4 +42,4 @@
 
 ### Tutorials
 
-* [Migrate CRA to RNA](./docs/Migrate-CRA)
+* [Migrate CRA to RNA](./Migrate-CRA)

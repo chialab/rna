@@ -206,9 +206,19 @@ export function useRna(build) {
             const inputFile = path.basename(filePath);
 
             return `${pattern
-                .replace('[name]', path.basename(inputFile, path.extname(inputFile)))
-                .replace('[ext]', path.extname(inputFile))
-                .replace('[dir]', path.relative(outBase, path.dirname(filePath)))
+                .replace('[name]', () => path.basename(inputFile, path.extname(inputFile)))
+                .replace('[ext]', () => path.extname(inputFile))
+                .replace(/(\/)?\[dir\](\/)?/, (fullMatch, match1, match2) => {
+                    const dir = path.relative(outBase, path.dirname(filePath));
+                    if (dir) {
+                        return `${match1 || ''}${dir}${match2 || ''}`;
+                    }
+                    if (!match1 && match2) {
+                        return '';
+                    }
+                    return match1 || '';
+                })
+                .replace('[dir]', () => path.relative(outBase, path.dirname(filePath)))
                 .replace('[hash]', () => {
                     const hash = crypto.createHash('sha1');
                     hash.update(/** @type {Buffer} */(buffer));

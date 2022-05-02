@@ -765,7 +765,7 @@ html {
 }`);
     });
 
-    it('should bundle webapp with outbase', async () => {
+    it('should bundle webapp with [dir] and outbase', async () => {
         const { outputFiles } = await esbuild.build({
             absWorkingDir: new URL('.', import.meta.url).pathname,
             entryPoints: [new URL('fixture/index.iife.html', import.meta.url).pathname],
@@ -799,6 +799,47 @@ html {
 
 <body>
     <script src="../1.js" type="application/javascript"></script>
+</body>
+
+</html>`);
+
+        expect(js.path.endsWith('/out/1.js')).to.be.true;
+        expect(css.path.endsWith('/out/1.css')).to.be.true;
+    });
+
+    it('should bundle webapp with [dir] without outbase', async () => {
+        const { outputFiles } = await esbuild.build({
+            absWorkingDir: new URL('.', import.meta.url).pathname,
+            entryPoints: [new URL('fixture/index.iife.html', import.meta.url).pathname],
+            sourceRoot: '/',
+            entryNames: '[dir]/[name]',
+            chunkNames: '[name]',
+            outdir: 'out',
+            format: 'esm',
+            bundle: true,
+            write: false,
+            plugins: [
+                htmlPlugin(),
+            ],
+        });
+
+        const [index, js, css] = outputFiles;
+
+        expect(outputFiles).to.have.lengthOf(3);
+        expect(index.path.endsWith('/out/index.iife.html')).to.be.true;
+        expect(index.text).to.be.equal(`<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="1.css">
+</head>
+
+<body>
+    <script src="1.js" type="application/javascript"></script>
 </body>
 
 </html>`);

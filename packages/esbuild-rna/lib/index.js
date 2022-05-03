@@ -134,7 +134,7 @@ function getOutBase(entryPoints, basePath) {
             }
             return result.splice(0, len);
         })
-        .join(path.sep);
+        .join(path.sep) || path.sep;
 }
 
 /**

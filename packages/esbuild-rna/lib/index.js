@@ -1,7 +1,6 @@
 import path from 'path';
 import crypto from 'crypto';
 import { mkdir, readFile, writeFile } from 'fs/promises';
-import commondir from 'commondir';
 import { appendSearchParam, escapeRegexBody } from '@chialab/node-resolve';
 import { loadSourcemap, inlineSourcemap, mergeSourcemaps } from '@chialab/estransform';
 import { assignToResult, createOutputFile, createResult } from './helpers.js';
@@ -111,16 +110,31 @@ const DEFAULT_LOADERS = { '.js': 'js', '.jsx': 'jsx', '.ts': 'ts', '.tsx': 'tsx'
 
 /**
  * Get the base out path.
- * @param {string} cwd The current working directory.
  * @param {string[] | Record<string, string>} entryPoints The entry points.
+ * @param {string} basePath The current working directory.
  * @return {string}
  */
-function getOutBase(cwd, entryPoints) {
-    const files = (Array.isArray(entryPoints) ? entryPoints : Object.values(entryPoints))
-        .map((entry) => (path.isAbsolute(entry) ? entry : path.resolve(cwd, entry)))
-        .map((entry) => path.dirname(entry));
+function getOutBase(entryPoints, basePath) {
+    if (!entryPoints.length) {
+        return basePath;
+    }
 
-    return commondir(files);
+    const separator = /\/+|\\+/;
+
+    return (Array.isArray(entryPoints) ? entryPoints : Object.values(entryPoints))
+        .map((entry) => (path.isAbsolute(entry) ? entry : path.resolve(basePath, entry)))
+        .map((entry) => path.dirname(entry))
+        .map((entry) => entry.split(separator))
+        .reduce((result, chunk) => {
+            const len = Math.min(chunk.length, result.length);
+            for (let i = 0; i < len; i++) {
+                if (chunk[i] !== result[i]) {
+                    return result.splice(0, i);
+                }
+            }
+            return result.splice(0, len);
+        })
+        .join(path.sep);
 }
 
 /**
@@ -153,9 +167,10 @@ export function useRna(build) {
     const isChunk = 'chunk' in build.initialOptions;
     const workingDir = absWorkingDir || process.cwd();
     const rootDir = sourceRoot || workingDir;
-    const outDir = /** @type {string} */(outdir || (outfile && path.dirname(outfile)));
-    const fullOutDir = /** @type {string} */(outDir && path.resolve(workingDir, outDir));
-    const outBase = outbase || (entryPoints.length ? getOutBase(workingDir, entryPoints) : workingDir);
+    const outDir = outdir || (outfile && path.dirname(outfile));
+    const fullOutDir = outDir && path.resolve(workingDir, outDir);
+    const virtualOutDir = fullOutDir || workingDir;
+    const outBase = outbase || getOutBase(entryPoints, workingDir);
 
     const rnaBuild = {
         /**
@@ -362,7 +377,7 @@ export function useRna(build) {
             }
 
             const computedName = rnaBuild.computeName(assetNames, source, buffer);
-            const outputFile = path.join(fullOutDir, computedName);
+            const outputFile = path.resolve(virtualOutDir, computedName);
             const bytes = buffer.length;
             if (write) {
                 await mkdir(path.dirname(outputFile), {
@@ -400,7 +415,7 @@ export function useRna(build) {
 
             const chunkResult = {
                 ...result,
-                path: appendSearchParam(`./${path.relative(fullOutDir, outputFile)}`, 'emit', 'file'),
+                path: appendSearchParam(`./${path.relative(virtualOutDir, outputFile)}`, 'emit', 'file'),
             };
             rnaBuild.files.set(source, chunkResult);
 
@@ -418,7 +433,7 @@ export function useRna(build) {
             const config = {
                 ...build.initialOptions,
                 format,
-                outdir: options.outdir ? path.resolve(fullOutDir, `./${options.outdir}`) : fullOutDir,
+                outdir: options.outdir ? path.resolve(virtualOutDir, `./${options.outdir}`) : fullOutDir,
                 bundle: options.bundle ?? build.initialOptions.bundle,
                 splitting: format === 'esm' ? (options.splitting ?? build.initialOptions.splitting) : false,
                 platform: options.platform ?? build.initialOptions.platform,
@@ -473,7 +488,7 @@ export function useRna(build) {
             const resolvedOutputFile = path.resolve(rootDir, outFile[0]);
             const chunkResult = {
                 ...result,
-                path: appendSearchParam(`./${path.relative(fullOutDir, resolvedOutputFile)}`, 'emit', 'chunk'),
+                path: appendSearchParam(`./${path.relative(virtualOutDir, resolvedOutputFile)}`, 'emit', 'chunk'),
             };
             state.chunks.set(options.entryPoint, chunkResult);
 

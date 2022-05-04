@@ -69,7 +69,7 @@ We will pass `--jsxModule` to make sure `React` JSX pragma is imported in JavaSc
 -   "start": "react-scripts start",
 +   "start": "rna serve src --jsxModule 'react'",
 -   "build": "react-scripts build",
-+   "build": "rna build src/index.html -O public --jsxModule 'react'",
++   "build": "rna build src/index.html -O public --jsxModule 'react' --bundle",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   }

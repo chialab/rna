@@ -35,15 +35,17 @@ Since the HTML file is now part of the build, we can replace `%PUBLIC_URL%` plac
 
 ### Include scripts and styles
 
-`react-scripts` automatically injects `index.js` and `index.css` in the HTML file, so we need to add those references in the `index.html` file:
-
-```diff
-+   <link rel="stylesheet" href="index.css">
-  </head>
-```
+`react-scripts` automatically injects `index.js` in the HTML file, but RNA won't to. We need to manually add those references in the `index.html` file:
 
 ```diff
 +   <script src="index.js" type="module"></script>
+  </body>
+```
+
+Optionally, you can also include a bundle for browsers that don't support ESM modules:
+
+```diff
+    <script src="index.js" type="module"></script>
 +   <script src="index.js" nomodule=""></script>
   </body>
 ```

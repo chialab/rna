@@ -1,6 +1,6 @@
 import path from 'path';
 import { isRelativeUrl } from '@chialab/node-resolve';
-import Jimp, { SUPPORTED_MIME_TYPES } from './generator.js';
+import Jimp from './generator.js';
 import { generateLaunch } from './generateLaunch.js';
 
 const APPLE_LAUNCH_SCREENS = [
@@ -75,8 +75,25 @@ export async function collectScreens($, dom, options, { resolve, load }) {
         return [];
     }
 
-    const mimeType = splashElement.attr('type') || 'image/png';
-    if (!SUPPORTED_MIME_TYPES.includes(mimeType)) {
+    const splashFilePath = await resolve(splashHref);
+    if (!splashFilePath.path) {
+        throw new Error(`Failed to resolve icon path: ${splashHref}`);
+    }
+
+    const splashFile = await load(splashFilePath.path, splashFilePath);
+    if (!splashFile.contents) {
+        throw new Error(`Failed to load icon file: ${splashFilePath.path}`);
+    }
+
+    const imageBuffer = Buffer.from(splashFile.contents);
+
+    /**
+     * @type {InstanceType<Jimp>}
+     */
+    let image;
+    try {
+        image = await Jimp.read(imageBuffer);
+    } catch (err) {
         return [
             {
                 build: {
@@ -90,18 +107,6 @@ export async function collectScreens($, dom, options, { resolve, load }) {
         ];
     }
 
-    const splashFilePath = await resolve(splashHref);
-    if (!splashFilePath.path) {
-        throw new Error(`Failed to resolve icon path: ${splashHref}`);
-    }
-
-    const splashFile = await load(splashFilePath.path, splashFilePath);
-    if (!splashFile.contents) {
-        throw new Error(`Failed to load icon file: ${splashFilePath.path}`);
-    }
-
-    const imageBuffer = Buffer.from(splashFile.contents);
-    const image = await Jimp.read(imageBuffer);
     const appleLaunchScreens = await generateAppleLaunchScreens(image, APPLE_LAUNCH_SCREENS);
 
     return [

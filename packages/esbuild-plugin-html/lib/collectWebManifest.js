@@ -1,5 +1,5 @@
 import { isRelativeUrl } from '@chialab/node-resolve';
-import Jimp, { SUPPORTED_MIME_TYPES } from './generator.js';
+import Jimp from './generator.js';
 import { generateIcon } from './generateIcon.js';
 
 const MANIFEST_ICONS = [
@@ -86,11 +86,6 @@ export async function collectWebManifest($, dom, options, { emitFile, resolve, l
 
     icon: if (iconElement && iconElement.length) {
         const iconHref = iconElement.attr('href') || '';
-        const mimeType = iconElement.attr('type') || 'image/png';
-        if (!SUPPORTED_MIME_TYPES.includes(mimeType)) {
-            break icon;
-        }
-
         const iconFilePath = await resolve(iconHref);
         if (!iconFilePath.path) {
             throw new Error(`Failed to resolve icon path: ${iconHref}`);
@@ -102,7 +97,16 @@ export async function collectWebManifest($, dom, options, { emitFile, resolve, l
         }
 
         const imageBuffer = Buffer.from(iconFile.contents);
-        const image = await Jimp.read(imageBuffer);
+
+        /**
+         * @type {InstanceType<Jimp>}
+         */
+        let image;
+        try {
+            image = await Jimp.read(imageBuffer);
+        } catch (err) {
+            break icon;
+        }
 
         json.icons = await Promise.all(
             MANIFEST_ICONS.map(async ({ name, size }) => {

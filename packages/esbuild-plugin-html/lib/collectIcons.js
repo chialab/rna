@@ -1,6 +1,6 @@
 import path from 'path';
 import { isRelativeUrl } from '@chialab/node-resolve';
-import Jimp, { SUPPORTED_MIME_TYPES } from './generator.js';
+import Jimp from './generator.js';
 import { generateIcon } from './generateIcon.js';
 
 const FAVICONS = [
@@ -39,6 +39,17 @@ const APPLE_ICONS = [
     },
 ];
 
+const ICON_SELECTORS = [
+    'link[rel="icon"]',
+    'link[rel^="icon "]',
+    'link[rel$=" icon"]',
+    'link[rel *= " icon "]',
+];
+
+const APPLE_ICON_SELECTORS = [
+    'link[rel="apple-touch-icon"]',
+];
+
 /**
  * @param {import('./generator').Image} image The base icon buffer.
  * @param {typeof FAVICONS} favicons
@@ -68,29 +79,24 @@ async function generateAppleIcons(image, icons) {
 }
 
 /**
- * Collect and bundle favicons.
+ * Collect and bundle apple icons.
  * @type {import('./index').Collector}
  */
-export async function collectIcons($, dom, options, { resolve, load }) {
-    const iconElement = dom.find('link[rel*="icon"]').last();
-    const iconHref = iconElement.attr('href') || '';
-    if (!isRelativeUrl(iconHref)) {
+async function collectAppleIcons($, dom, options, { resolve, load }) {
+    let remove = true;
+    let iconElement = dom.find(APPLE_ICON_SELECTORS.join(',')).last();
+    if (!iconElement.length) {
+        remove = false;
+        iconElement = dom.find(ICON_SELECTORS.join(',')).last();
+    }
+
+    if (!iconElement.length) {
         return [];
     }
 
-    const mimeType = iconElement.attr('type') || 'image/png';
-    if (!SUPPORTED_MIME_TYPES.includes(mimeType)) {
-        return [
-            {
-                build: {
-                    loader: 'file',
-                    entryPoint: iconHref,
-                },
-                finisher(files) {
-                    iconElement.attr('href', files[0]);
-                },
-            },
-        ];
+    const iconHref = iconElement.attr('href') || '';
+    if (!isRelativeUrl(iconHref)) {
+        return [];
     }
 
     const iconFilePath = await resolve(iconHref);
@@ -104,17 +110,108 @@ export async function collectIcons($, dom, options, { resolve, load }) {
     }
 
     const imageBuffer = Buffer.from(iconFile.contents);
-    const image = await Jimp.read(imageBuffer);
-    const [
-        favicons,
-        appleIcons,
-    ] = await Promise.all([
-        generateFavicons(image, FAVICONS),
-        generateAppleIcons(image, APPLE_ICONS),
-    ]);
+
+    /**
+     * @type {InstanceType<Jimp>}
+     */
+    let image;
+    try {
+        image = await Jimp.read(imageBuffer);
+    } catch (err) {
+        return [
+            {
+                build: {
+                    loader: 'file',
+                    entryPoint: iconHref,
+                },
+                finisher(files) {
+                    iconElement.attr('href', files[0]);
+                },
+            },
+        ];
+    }
+
+    const icons = await generateAppleIcons(image, APPLE_ICONS);
 
     return [
-        ...favicons.map((icon) => /** @type {import('./index.js').CollectResult} */ ({
+        ...icons.map((icon) => /** @type {import('./index.js').CollectResult} */({
+            build: {
+                entryPoint: path.join(options.sourceDir, icon.name),
+                contents: icon.contents,
+                loader: 'file',
+                outdir: 'icons',
+            },
+            async finisher(files) {
+                const link = $('<link>');
+                link.attr('rel', 'apple-touch-icon');
+                link.attr('sizes', `${icon.size}x${icon.size}`);
+                link.attr('href', files[0]);
+                link.insertBefore(iconElement);
+            },
+        })),
+        ...(remove ? [{
+            finisher() {
+                iconElement.remove();
+            },
+        }] : []),
+    ];
+}
+
+/**
+ * Collect and bundle favicons.
+ * @type {import('./index').Collector}
+ */
+export async function collectIcons($, dom, options, api) {
+    const { resolve, load } = api;
+    const appleIcons = collectAppleIcons($, dom, options, api);
+
+    const iconElement = dom.find(ICON_SELECTORS.join(',')).last();
+    if (!iconElement.length) {
+        return [];
+    }
+
+    const iconHref = iconElement.attr('href') || '';
+    if (!isRelativeUrl(iconHref)) {
+        return appleIcons;
+    }
+
+    const iconFilePath = await resolve(iconHref);
+    if (!iconFilePath.path) {
+        throw new Error(`Failed to resolve icon path: ${iconHref}`);
+    }
+
+    const iconFile = await load(iconFilePath.path, iconFilePath);
+    if (!iconFile.contents) {
+        throw new Error(`Failed to load icon file: ${iconFilePath.path}`);
+    }
+
+    const imageBuffer = Buffer.from(iconFile.contents);
+
+    /**
+     * @type {InstanceType<Jimp>}
+     */
+    let image;
+    try {
+        image = await Jimp.read(imageBuffer);
+    } catch (err) {
+        return [
+            {
+                build: {
+                    loader: 'file',
+                    entryPoint: iconHref,
+                },
+                finisher(files) {
+                    iconElement.attr('href', files[0]);
+                },
+            },
+            ...(await appleIcons),
+        ];
+    }
+
+    const icons = await generateFavicons(image, FAVICONS);
+
+    return [
+        ...icons.map((icon) => /** @type {import('./index.js').CollectResult} */ ({
             build: {
                 entryPoint: path.join(options.sourceDir, icon.name),
                 contents: icon.contents,
@@ -135,21 +232,7 @@ export async function collectIcons($, dom, options, { resolve, load }) {
                 link.insertBefore(iconElement);
             },
         })),
-        ...appleIcons.map((icon) => /** @type {import('./index.js').CollectResult} */ ({
-            build: {
-                entryPoint: path.join(options.sourceDir, icon.name),
-                contents: icon.contents,
-                loader: 'file',
-                outdir: 'icons',
-            },
-            async finisher(files) {
-                const link = $('<link>');
-                link.attr('rel', 'apple-touch-icon');
-                link.attr('sizes', `${icon.size}x${icon.size}`);
-                link.attr('href', files[0]);
-                link.insertBefore(iconElement);
-            },
-        })),
+        ...(await appleIcons),
         {
             finisher() {
                 iconElement.remove();

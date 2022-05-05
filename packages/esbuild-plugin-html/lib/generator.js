@@ -13,11 +13,6 @@ const Jimp = configure({
     ],
 });
 
-export const SUPPORTED_MIME_TYPES = [
-    'image/png',
-    'image/jpeg',
-];
-
 /**
  * @template T
  * @typedef {T extends PromiseLike<infer U> ? U : T} ThenArg

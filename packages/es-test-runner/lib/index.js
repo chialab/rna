@@ -1,6 +1,8 @@
-import TestRunner, { Runner, Suite, Test } from 'mocha';
+import createTestRunner, { Runner, reporters, Suite, Test } from 'mocha';
 import { Report as CoverageReport } from 'c8';
 
-export const constants = Runner.constants;
-export { TestRunner, Runner, Suite, Test };
-export { CoverageReport };
+/**
+ * @typedef {import('mocha').MochaOptions} MochaOptions
+ */
+
+export { CoverageReport, reporters, createTestRunner, Runner, Suite, Test };

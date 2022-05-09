@@ -1,9 +1,9 @@
 import path from 'path';
 import { parentPort, workerData } from 'worker_threads';
-import { TestRunner } from '@chialab/es-test-runner';
+import { createTestRunner } from '@chialab/es-test-runner';
 import { glob } from '@chialab/node-resolve';
 
-const runner = new TestRunner({
+const runner = new createTestRunner({
     reporter: 'spec',
 });
 

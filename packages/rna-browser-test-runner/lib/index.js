@@ -149,30 +149,47 @@ export async function test(config) {
     return runner;
 }
 
+/** @typedef {'chromium'|'chrome'|'chrome-beta'|'chrome-dev'|'firefox'|'webkit'|'msedge'|'msedge-beta'|'msedge-dev'} BrowserName */
+
 /**
  * Normalize browser names.
  * @param {string[]} browsers
+ * @returns {BrowserName[]}
  */
 function normalizeBrowserNames(browsers) {
-    return browsers.map((browser) => {
+    const result = browsers.map((browser) => {
         browser = browser.toLowerCase();
 
         switch (browser) {
-            case 'chrome':
-            case 'chromium':
-                return 'chromium';
-            case 'ff':
-            case 'firefox':
-                return 'firefox';
             case 'safari':
-            case 'webkit':
                 return 'webkit';
             case 'edge':
-                return 'edge';
+                return 'msedge';
             default:
                 return browser;
         }
     });
+
+    return /** @type {BrowserName[]} */ (result);
+}
+
+/**
+ * Get the playwright product name.
+ * @param {BrowserName} browserName
+ * @returns {'chromium'|'firefox'|'webkit'}
+ */
+function getProductName(browserName) {
+    switch (browserName) {
+        case 'chrome':
+        case 'chrome-beta':
+        case 'chrome-dev':
+        case 'msedge':
+        case 'msedge-beta':
+        case 'msedge-dev':
+            return 'chromium';
+        default:
+            return browserName;
+    }
 }
 
 /**
@@ -209,32 +226,47 @@ async function createChromiumLauncher() {
 
 /**
  * Create test launchers.
- * @param {string[]} browsers
+ * @param {string[]} requestedBrowsers
  */
-async function loadLaunchers(browsers) {
-    browsers = normalizeBrowserNames(browsers);
+async function loadLaunchers(requestedBrowsers) {
+    const browsers = normalizeBrowserNames(requestedBrowsers);
 
-    if (browsers.length === 0) {
-        return [await createChromiumLauncher()];
+    try {
+        const { PlaywrightLauncher } = await import('@web/test-runner-playwright');
+
+        /**
+         * @type {(args: { browser: import('playwright').Browser }) => Promise<import('playwright').BrowserContext>}
+         */
+        const createBrowserContext = ({ browser }) => browser.newContext();
+        /**
+         * @type {(args: { context: import('playwright').BrowserContext }) => Promise<import('playwright').Page>}
+         */
+        const createPage = ({ context }) => context.newPage();
+
+        const playwrightBrowsers = browsers.length ? browsers : (/** @type {BrowserName[]} */ (['chrome', 'msedge', 'firefox', 'webkit']));
+
+        return playwrightBrowsers.map((browserName) => {
+            const launcher = new PlaywrightLauncher(getProductName(browserName), { channel: browserName }, createBrowserContext, createPage);
+            launcher.name = browserName;
+
+            return launcher;
+        });
+    } catch (err) {
+        //
     }
 
-    if (browsers.length === 1 && browsers[0] === 'chromium') {
-        return [await createChromiumLauncher()];
+    if (browsers.length) {
+        return await Promise.all(browsers.map((browserName) => {
+            switch (browserName) {
+                case 'chromium':
+                    return createChromiumLauncher();
+                default:
+                    throw new Error(`Unknown launcher for browser: ${browserName}`);
+            }
+        }));
     }
 
-    const { PlaywrightLauncher } = await import('@web/test-runner-playwright');
-    const launchOptions = {};
-
-    /**
-     * @type {(args: { browser: import('playwright').Browser }) => Promise<import('playwright').BrowserContext>}
-     */
-    const createBrowserContext = ({ browser }) => browser.newContext();
-    /**
-     * @type {(args: { context: import('playwright').BrowserContext }) => Promise<import('playwright').Page>}
-     */
-    const createPage = ({ context }) => context.newPage();
-
-    return browsers.map((browserName) => new PlaywrightLauncher(/** @type {'chromium'} */ (browserName), launchOptions, createBrowserContext, createPage));
+    return [await createChromiumLauncher()];
 }
 
 /**

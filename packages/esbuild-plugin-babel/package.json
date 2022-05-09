@@ -39,7 +39,6 @@
     "@babel/preset-env": "^7.13.15",
     "@babel/runtime": "^7.13.17",
     "@chialab/esbuild-rna": "^0.15.23",
-    "@chialab/node-resolve": "^0.15.9",
     "babel-plugin-htm": "^3.0.0"
   },
   "devDependencies": {

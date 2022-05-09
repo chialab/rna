@@ -1,6 +1,8 @@
+import { dirname } from 'path';
 import babel from '@babel/core';
-import { resolve } from '@chialab/node-resolve';
 import { useRna } from '@chialab/esbuild-rna';
+
+const resolveDir = dirname(new URL(import.meta.url).pathname);
 
 /**
  * @typedef {{ presets?: import('@babel/core').PluginItem[], plugins?: import('@babel/core').PluginItem[] }} PluginOptions
@@ -20,9 +22,16 @@ export default function({ presets = [], plugins = [] } = {}) {
             const { target, jsxFactory } = build.initialOptions;
             const { onTransform, rootDir } = useRna(build);
 
-            build.onResolve({ filter: /@babel\/runtime/ }, async (args) => ({
-                path: await resolve(args.path, import.meta.url),
-            }));
+            build.onResolve({ filter: /@babel\/runtime/ }, (args) => {
+                if (args.resolveDir === resolveDir) {
+                    return;
+                }
+
+                return build.resolve(args.path, {
+                    importer: args.importer,
+                    resolveDir,
+                });
+            });
 
             onTransform({ loaders: ['tsx', 'ts', 'jsx', 'js'] }, async (args) => {
                 if (args.path.includes('/@babel/runtime/') ||

@@ -28,5 +28,6 @@ export function reportRequest404s(logger, sessions) {
         }
         logger.groupEnd();
         logger.groupEnd();
+        logger.log();
     }
 }

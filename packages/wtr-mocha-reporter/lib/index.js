@@ -1,53 +1,89 @@
-import mocha from 'mocha';
-import { createRunner, reportMochaSuite } from './mochaRunner.js';
+import chalk from 'chalk';
+import { reporters } from '@chialab/es-test-runner';
 import { reportBrowserLogs } from './reportBrowserLogs.js';
 import { reportRequest404s } from './reportRequest404s.js';
+import { getTestProgressReport } from './getTestProgress.js';
+import { Collector } from './Collector.js';
 
 /**
  * Bind the WTR reporter to a Mocha reporter.
- * @param {typeof mocha.reporters.Base} MochaReporter The Mocha reporter class.
+ * @param {typeof reporters.Base} MochaReporter The Mocha reporter class.
  */
-export function mochaReporter(MochaReporter = mocha.reporters.Spec) {
+export function mochaReporter(MochaReporter = reporters.Spec) {
     /**
-     * @type {import('./mochaRunner').Runner}
+     * @type {import('@web/test-runner-core').ReporterArgs}
      */
-    let runner;
+    let args;
 
     /**
-     * @type {number}
+     * @type {import('@web/test-runner-core').Logger}
      */
-    let startTime;
+    let logger;
+
+    /**
+     * @type {import('@chialab/es-test-runner').MochaOptions}
+     */
+    let options;
+
+    /**
+     * @type {Map<string, Collector>}
+     */
+    const collectors = new Map();
 
     /**
      * @type {import('@web/test-runner-core').Reporter}
      */
     const reporter = {
-        start({ config }) {
-            runner = createRunner();
-            new MochaReporter(
-                runner,
-                /** @type {mocha.MochaOptions} */ (config.testFramework?.config || {})
-            );
+        start(_args) {
+            args = _args;
 
-            startTime = Date.now();
-            runner.emit(mocha.Runner.constants.EVENT_RUN_BEGIN);
+            logger = args.config.logger;
+            options = /** @type {import('@chialab/es-test-runner').MochaOptions} */ (args.config.testFramework?.config || {});
+
+            collectors.clear();
+            args.browserNames.forEach((browserName) => {
+                const collector = new Collector();
+                collectors.set(browserName, collector);
+                collector.collectStart();
+            });
+        },
+
+        getTestProgress({ testRun, focusedTestFile, testCoverage }) {
+            return getTestProgressReport(args.config, {
+                browsers: args.browsers,
+                browserNames: args.browserNames,
+                testRun,
+                testFiles: args.testFiles,
+                sessions: args.sessions,
+                startTime: args.startTime,
+                focusedTestFile,
+                watch: args.config.watch,
+                coverage: !!args.config.coverage,
+                coverageConfig: args.config.coverageConfig,
+                testCoverage,
+            });
         },
 
         onTestRunFinished() {
-            if (runner.stats) {
-                runner.stats.duration = Date.now() - startTime;
+            for (const [browserName, collector] of collectors) {
+                collector.collectEnd();
+
+                logger.log(chalk.bold(chalk.white(`Test results for ${browserName}:`)));
+                const reporter = collector.createReporter(MochaReporter, options);
+                collector.printReport(reporter, logger);
             }
-            runner.emit(mocha.Runner.constants.EVENT_RUN_END);
         },
 
-        async reportTestFileResults({ sessionsForTestFile, logger }) {
+        reportTestFileResults(args) {
+            const { sessionsForTestFile, logger } = args;
             sessionsForTestFile.forEach((session) => {
                 if (session.status !== 'FINISHED') {
                     return;
                 }
 
-                if (session.testResults) {
-                    reportMochaSuite(runner, session.testResults);
+                const collector = collectors.get(session.browser.name);
+                if (collector && session.testResults) {
+                    collector.collectSuiteResult(session.testResults);
                 }
             });
 

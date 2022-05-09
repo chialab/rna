@@ -30,5 +30,6 @@ export function reportBrowserLogs(logger, sessions) {
         logger.groupEnd();
         logger.groupEnd();
         logger.groupEnd();
+        logger.log();
     }
 }

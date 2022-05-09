@@ -5,7 +5,7 @@ import { createGzip, createBrotliCompress } from 'zlib';
  * Get the gzipped size of a file.
  *
  * @param {string} path File path
- * @return {Promise<number>} The file size in bytes
+ * @returns {Promise<number>} The file size in bytes
  */
 export function gzipSize(path) {
     return compressFileSize(path, createGzip({ level: 6 }));
@@ -15,7 +15,7 @@ export function gzipSize(path) {
  * Get the brotli size of a file.
  *
  * @param {string} path File path
- * @return {Promise<number>} The file size in bytes
+ * @returns {Promise<number>} The file size in bytes
  */
 export function brotliSize(path) {
     return compressFileSize(path, createBrotliCompress());
@@ -26,7 +26,7 @@ export function brotliSize(path) {
  *
  * @param {string} path File path
  * @param {import('zlib').BrotliCompress|import('zlib').Gzip} compressMethod Compression algorithm to use, one of `gzip` or `brotli`
- * @return {Promise<number>} The file size in bytes
+ * @returns {Promise<number>} The file size in bytes
  */
 export function compressFileSize(path, compressMethod) {
     return new Promise((resolve, reject) => {

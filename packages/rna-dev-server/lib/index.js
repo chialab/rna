@@ -33,7 +33,7 @@ import { watchPlugin } from './plugins/watch.js';
  * Load configuration for the dev server.
  * @param {Partial<DevServerConfig>} [initialConfig]
  * @param {string} [configFile]
- * @return {Promise<DevServerConfig>}
+ * @returns {Promise<DevServerConfig>}
  */
 export async function loadDevServerConfig(initialConfig = {}, configFile = undefined) {
     configFile = configFile || await locateConfigFile();
@@ -84,7 +84,7 @@ export async function loadDevServerConfig(initialConfig = {}, configFile = undef
 /**
  * Create a dev server.
  * @param {DevServerConfig} config
- * @return {Promise<import('@chialab/es-dev-server').DevServer>} The dev server instance.
+ * @returns {Promise<import('@chialab/es-dev-server').DevServer>} The dev server instance.
  */
 export async function createDevServer(config) {
     const root = config.rootDir ? path.resolve(config.rootDir) : process.cwd();
@@ -138,7 +138,7 @@ export async function createDevServer(config) {
 /**
  * Start the dev server.
  * @param {DevServerConfig} config
- * @return {Promise<import('@chialab/es-dev-server').DevServer>} The dev server instance.
+ * @returns {Promise<import('@chialab/es-dev-server').DevServer>} The dev server instance.
  */
 export async function serve(config) {
     const root = config.rootDir || process.cwd();

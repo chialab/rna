@@ -121,7 +121,7 @@ export async function startTestRunner(config) {
 /**
  * Start the test runner.
  * @param {TestRunnerConfig} config
- * @return {Promise<TestRunner>} The test runner instance.
+ * @returns {Promise<TestRunner>} The test runner instance.
  */
 export async function test(config) {
     const { runner, cli } = await startTestRunner(config);

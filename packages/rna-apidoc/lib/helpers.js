@@ -1,7 +1,7 @@
 /**
  * Generate a slug for the node.
  * @param {import('typedoc').JSONOutput.Reflection} node
- * @return {string}
+ * @returns {string}
  */
 export function slug(node) {
     return node.name
@@ -16,7 +16,7 @@ export function slug(node) {
 /**
  * @param {import('typedoc').JSONOutput.ReflectionGroup} group
  * @param {import('typedoc').JSONOutput.ProjectReflection} json
- * @return {import('typedoc').JSONOutput.Reflection[]}
+ * @returns {import('typedoc').JSONOutput.Reflection[]}
  */
 export function getChildren(group, json) {
     const projectChildren = json.children;
@@ -31,7 +31,7 @@ export function getChildren(group, json) {
 
 /**
  * @param {import('typedoc').JSONOutput.Reflection} node
- * @return {string}
+ * @returns {string}
  */
 export function getDescription(node) {
     return node.comment && node.comment.shortText || '';
@@ -39,7 +39,7 @@ export function getDescription(node) {
 
 /**
  * @param {import('typedoc').JSONOutput.DeclarationReflection} node
- * @return {string}
+ * @returns {string}
  */
 export function getReturnDescription(node) {
     if (!node.signatures) {
@@ -55,7 +55,7 @@ export function getReturnDescription(node) {
 /**
  * @param {import('typedoc').JSONOutput.Reflection} node
  * @param {string} name
- * @return {import('typedoc').JSONOutput.CommentTag[]}
+ * @returns {import('typedoc').JSONOutput.CommentTag[]}
  */
 export function getTags(node, name) {
     if (!node.comment) {

@@ -36,7 +36,7 @@ async function onBuildEnd(config, entryOptions, result) {
 /**
  * Build and bundle sources.
  * @param {import('@chialab/rna-config-loader').EntrypointFinalBuildConfig} config
- * @return {Promise<import('@chialab/esbuild-rna').Result>} The esbuild bundle result.
+ * @returns {Promise<import('@chialab/esbuild-rna').Result>} The esbuild bundle result.
  */
 export async function build(config) {
     const logger = createLogger();

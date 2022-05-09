@@ -51,7 +51,7 @@ const loadHtml = /** @type {typeof cheerio.load} */ (cheerio.load || cheerio.def
 /**
  * A HTML loader plugin for esbuild.
  * @param {PluginOptions} options
- * @return An esbuild plugin.
+ * @returns An esbuild plugin.
  */
 export default function({
     scriptsTarget = 'es2015',
@@ -208,7 +208,7 @@ export default function({
                  *
                  * @param {string} ext
                  * @param {string|undefined} suggestion
-                 * @return {string}
+                 * @returns {string}
                  */
                 const createEntry = (ext, suggestion) => {
                     const i = ++count;

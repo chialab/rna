@@ -127,7 +127,7 @@ export function createLogger(name = 'rna') {
  * Convert a number of bytes to human-readable text.
  *
  * @param {number} byteSize
- * @return {string}
+ * @returns {string}
  */
 export function readableSize(byteSize) {
     if (byteSize === undefined) {

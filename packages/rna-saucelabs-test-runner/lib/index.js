@@ -14,7 +14,7 @@ import { sauceReporter } from './reporter.js';
  * Start the test runner.
  * @param {import('@chialab/rna-browser-test-runner').TestRunnerConfig} config
  * @param {import('saucelabs').SauceLabsOptions} sauceOptions
- * @return {Promise<import('@chialab/rna-browser-test-runner').TestRunner>} The test runner instance.
+ * @returns {Promise<import('@chialab/rna-browser-test-runner').TestRunner>} The test runner instance.
  */
 export async function test(config, sauceOptions) {
     config = { ...config };

@@ -128,7 +128,7 @@ export class Collector {
      * Create and sync a Mocha suite instance.
      * @param {import('@web/test-runner-core').TestSuiteResult} suiteResult The WTR suite result.
      * @param {Suite} [parentSuite] The parent Mocha suite.
-     * @return The Mocha suite instance.
+     * @returns The Mocha suite instance.
      */
     collectSuiteResult(suiteResult, parentSuite) {
         parentSuite = parentSuite || this.suite;
@@ -149,7 +149,7 @@ export class Collector {
      * Create and sync a Mocha test instance.
      * @param {Suite} suite The current Mocha suite.
      * @param {import('@web/test-runner-core').TestResult} testResult The WTR test result.
-     * @return The Mocha test instance.
+     * @returns The Mocha test instance.
      */
     collectTestResult(suite, testResult) {
         const tests = suite.tests || [];

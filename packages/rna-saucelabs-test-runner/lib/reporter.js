@@ -4,7 +4,7 @@ import { request } from 'https';
  * @param {string} url
  * @param {import('https').RequestOptions} options
  * @param {*} data
- * @return {Promise<string>}
+ * @returns {Promise<string>}
  */
 function fetch(url, options, data) {
     return new Promise((resolve, reject) => {

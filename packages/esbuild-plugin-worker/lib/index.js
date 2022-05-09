@@ -29,7 +29,7 @@ function createBlobProxy(argument, transformOptions, checkType = false) {
 /**
  * Instantiate a plugin that collect and builds Web Workers.
  * @param {PluginOptions} options
- * @return An esbuild plugin.
+ * @returns An esbuild plugin.
  */
 export default function({ constructors = ['Worker', 'SharedWorker'], proxy = false, emit = true } = {}) {
     const variants = constructors.reduce((acc, Ctr) => [

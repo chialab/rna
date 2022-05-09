@@ -21,7 +21,7 @@ export function createEmptyModule() {
  * Here, we are looking for its computed value.
  * @param {import('./parser.js').TokenProcessor} processor The program processor.
  * @param {import('./types.js').Token} id The name of the identifier.
- * @return {string|undefined} The init token.
+ * @returns {string|undefined} The init token.
  */
 export function getIdentifierValue(processor, id) {
     const { tokens } = processor;
@@ -77,7 +77,7 @@ export function getIdentifierValue(processor, id) {
  * Get token location.
  * @param {string} code Source code.
  * @param {number} index Token index.
- * @return A location.
+ * @returns A location.
  */
 export function getLocation(code, index) {
     let it = 0;

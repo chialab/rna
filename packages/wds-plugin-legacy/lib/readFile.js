@@ -2,7 +2,7 @@ import { readFile as fsReadFile } from 'fs/promises';
 
 /**
  * Memoize fs `readFile` results.
- * @return A function with the same `readFile` signature.
+ * @returns A function with the same `readFile` signature.
  */
 const memoReadFile = function() {
     /**

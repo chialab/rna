@@ -7,7 +7,7 @@ import Jimp from './generator.js';
  * @param {number} height The launch screen size.
  * @param {number} gutter The gutter size.
  * @param {import('@jimp/core').RGBA} background The background color to use.
- * @return Launch screen buffer.
+ * @returns Launch screen buffer.
  */
 export async function generateLaunch(image, width, height, gutter, background) {
     image = image.clone();

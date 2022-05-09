@@ -27,7 +27,7 @@ import url from 'postcss-url';
 /**
  * Create the postcss preset used by Chialab.
  * @param {PresetOptions} options
- * @return {import('postcss').Plugin}
+ * @returns {import('postcss').Plugin}
  */
 export default function preset({ bundle = false, root = process.cwd(), assetsPath = '.', useHash = false } = {}) {
     return {

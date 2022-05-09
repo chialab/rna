@@ -112,7 +112,7 @@ const DEFAULT_LOADERS = { '.js': 'js', '.jsx': 'jsx', '.ts': 'ts', '.tsx': 'tsx'
  * Get the base out path.
  * @param {string[] | Record<string, string>} entryPoints The entry points.
  * @param {string} basePath The current working directory.
- * @return {string}
+ * @returns {string}
  */
 function getOutBase(entryPoints, basePath) {
     if (!entryPoints.length) {
@@ -215,7 +215,7 @@ export function useRna(build) {
          * @param {string} pattern The esbuild pattern.
          * @param {string} filePath The full file path.
          * @param {Buffer|string} buffer The file contents.
-         * @return {string}
+         * @returns {string}
          */
         computeName(pattern, filePath, buffer) {
             const inputFile = path.basename(filePath);
@@ -244,7 +244,7 @@ export function useRna(build) {
         /**
          * Iterate build.onLoad hooks in order to programmatically load file contents.
          * @param {OnLoadArgs} args The load arguments.
-         * @return {Promise<OnLoadResult>} A load result with file contents.
+         * @returns {Promise<OnLoadResult>} A load result with file contents.
          */
         async load(args) {
             const { namespace = 'file', path: filePath } = args;
@@ -356,7 +356,7 @@ export function useRna(build) {
          * Programmatically emit file reference.
          * @param {string} source The path of the file.
          * @param {string|Buffer} [buffer] File contents.
-         * @return {Promise<Chunk>} The output file reference.
+         * @returns {Promise<Chunk>} The output file reference.
          */
         async emitFile(source, buffer) {
             const { assetNames = '[name]' } = build.initialOptions;
@@ -424,7 +424,7 @@ export function useRna(build) {
         /**
          * Programmatically emit a chunk reference.
          * @param {EmitTransformOptions} options Esbuild transform options.
-         * @return {Promise<Chunk>} The output chunk reference.
+         * @returns {Promise<Chunk>} The output chunk reference.
          */
         async emitChunk(options) {
             const format = options.format ?? build.initialOptions.format;
@@ -544,7 +544,7 @@ export function useRna(build) {
          * @param {import('esbuild').Plugin} plugin The current plugin.
          * @param {import('esbuild').Plugin[]} plugins A list of required plugins .
          * @param {'before'|'after'} [mode] Where insert the missing plugin.
-         * @return {Promise<string[]>} The list of plugin names that had been added to the build.
+         * @returns {Promise<string[]>} The list of plugin names that had been added to the build.
          */
         async setupPlugin(plugin, plugins, mode = 'before') {
             if (isChunk) {
@@ -581,7 +581,7 @@ export function useRna(build) {
          * Add dependencies to the build.
          * @param {string} importer The importer path.
          * @param {string[]} dependencies A list of loaded dependencies.
-         * @return {DependenciesMap} The updated dependencies map.
+         * @returns {DependenciesMap} The updated dependencies map.
          */
         collectDependencies(importer, dependencies) {
             const map = state.dependencies;
@@ -643,7 +643,7 @@ export function useRna(build) {
 }
 
 /**
-* @return {import('esbuild').Plugin}
+* @returns {import('esbuild').Plugin}
 */
 export function rnaPlugin() {
     return {

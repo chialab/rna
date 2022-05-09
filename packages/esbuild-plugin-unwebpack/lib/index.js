@@ -5,7 +5,7 @@ import { useRna } from '@chialab/esbuild-rna';
 
 /**
  * Remove webpack features from sources.
- * @return An esbuild plugin.
+ * @returns An esbuild plugin.
  */
 export default function() {
     /**

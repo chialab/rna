@@ -12,7 +12,7 @@ function isValidId(str) {
 
 /**
  * Create a map of replacements for environment variables.
- * @return A map of variables.
+ * @returns A map of variables.
  */
 export function defineEnvVariables() {
     /**
@@ -33,7 +33,7 @@ export function defineEnvVariables() {
 
 /**
  * Pass environment variables to esbuild.
- * @return An esbuild plugin.
+ * @returns An esbuild plugin.
  */
 export default function() {
 

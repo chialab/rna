@@ -12,7 +12,7 @@ import postcssrc from 'postcss-load-config';
 /**
  * Load local postcss config.
  * @param {string} [cwd]
- * @return {Promise<PostcssConfig>}
+ * @returns {Promise<PostcssConfig>}
  */
 async function loadPostcssConfig(cwd = process.cwd()) {
     try {
@@ -35,7 +35,7 @@ async function loadPostcssConfig(cwd = process.cwd()) {
 /**
  * Instantiate a plugin that runs postcss across css files.
  * @param {PluginOptions} options
- * @return An esbuild plugin.
+ * @returns An esbuild plugin.
  */
 export default function(options = {}) {
     /**

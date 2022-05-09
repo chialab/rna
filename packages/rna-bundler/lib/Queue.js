@@ -49,7 +49,7 @@ export class Queue {
      * Exec the queue
      * @param {number} count The maximum number of running tasks.
      * @param {any[]} [results] List of results.
-     * @return A list of queue results.
+     * @returns A list of queue results.
      */
     async run(count = 1, results) {
         const promises = [];

@@ -10,7 +10,7 @@ import { transformLoaders } from './loaders.js';
 /**
  * Build and bundle sources.
  * @param {import('@chialab/rna-config-loader').EntrypointFinalConfig} config
- * @return {Promise<TransformResult>} The esbuild bundle result.
+ * @returns {Promise<TransformResult>} The esbuild bundle result.
  */
 export async function transform(config) {
     const {

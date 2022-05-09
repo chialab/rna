@@ -27,7 +27,7 @@ export function createEntrypoint(publicDir = 'public') {
 
 /**
  * @param {import('./index.js').StorybookConfig} config Storybook options.
- * @return An esbuild plugin.
+ * @returns An esbuild plugin.
  */
 export function buildPlugin(config) {
     const {

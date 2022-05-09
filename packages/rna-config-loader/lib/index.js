@@ -115,7 +115,7 @@ import path from 'path';
  * Convert a file path to CamelCase.
  *
  * @param {string} file The file path.
- * @return {string}
+ * @returns {string}
  */
 export function camelize(file) {
     const filename = path.basename(file, path.extname(file));
@@ -125,7 +125,7 @@ export function camelize(file) {
 /**
  * @param {Entrypoint} entrypoint
  * @param {Config} config
- * @return {EntrypointFinalConfig}
+ * @returns {EntrypointFinalConfig}
  */
 export function getEntryConfig(entrypoint, config) {
     const root = entrypoint.root || config.root || process.cwd();
@@ -184,7 +184,7 @@ export function getEntryConfig(entrypoint, config) {
 /**
  * @param {Entrypoint} entrypoint
  * @param {Config} config
- * @return {EntrypointFinalBuildConfig}
+ * @returns {EntrypointFinalBuildConfig}
  */
 export function getEntryBuildConfig(entrypoint, config) {
     if (!entrypoint.output) {
@@ -201,7 +201,7 @@ export function getEntryBuildConfig(entrypoint, config) {
 
 /**
  * @param {Config[]} entries
- * @return {Config}
+ * @returns {Config}
  */
 export function mergeConfig(...entries) {
     return entries
@@ -256,7 +256,7 @@ export function mergeConfig(...entries) {
  * @param {Config} inputConfig
  * @param {Mode} [mode]
  * @param {string} [cwd]
- * @return {Promise<Config>}
+ * @returns {Promise<Config>}
  */
 export async function readConfigFile(configFile, inputConfig, mode = 'build', cwd = process.cwd()) {
     configFile = path.isAbsolute(configFile) ? configFile : `./${configFile}`;
@@ -286,7 +286,7 @@ export async function readConfigFile(configFile, inputConfig, mode = 'build', cw
 /**
  * Find the config file of the project.
  * @param {string} root The root dir to check.
- * @return {Promise<string|undefined>} The path of the config file.
+ * @returns {Promise<string|undefined>} The path of the config file.
  */
 export async function locateConfigFile(root = process.cwd()) {
     const file = path.join(root, 'rna.config.js');

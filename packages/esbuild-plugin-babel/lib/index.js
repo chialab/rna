@@ -8,7 +8,7 @@ import { useRna } from '@chialab/esbuild-rna';
 
 /**
  * @param {PluginOptions} [options]
- * @return An esbuild plugin.
+ * @returns An esbuild plugin.
  */
 export default function({ presets = [], plugins = [] } = {}) {
     /**

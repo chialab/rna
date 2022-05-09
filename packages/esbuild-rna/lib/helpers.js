@@ -6,7 +6,7 @@ import path from 'path';
 
 /**
  * Create an empty metafile object.
- * @return {Metafile}
+ * @returns {Metafile}
  */
 export function createEmptyMetafile() {
     return { inputs: {}, outputs: {} };
@@ -15,7 +15,7 @@ export function createEmptyMetafile() {
 /**
  * @param {string} path
  * @param {Buffer} contents
- * @return {import('esbuild').OutputFile}
+ * @returns {import('esbuild').OutputFile}
  */
 export function createOutputFile(path, contents) {
     return {
@@ -30,7 +30,7 @@ export function createOutputFile(path, contents) {
 /**
  * @param {import('esbuild').OutputFile[]} [outputFiles]
  * @param {Metafile} [metafile]
- * @return {import('./index.js').Result}
+ * @returns {import('./index.js').Result}
  */
 export function createResult(outputFiles, metafile = createEmptyMetafile()) {
     return {
@@ -89,7 +89,7 @@ export function assignToResult(context, result) {
  * @param {import('./index.js').Result} result
  * @param {string} from
  * @param {string} to
- * @return {import('./index.js').Result}
+ * @returns {import('./index.js').Result}
  */
 export function remapResult(result, from, to) {
     const resultMeta = result.metafile || createEmptyMetafile();

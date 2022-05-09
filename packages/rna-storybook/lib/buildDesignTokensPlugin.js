@@ -5,7 +5,7 @@ import { createDesignTokens } from './createDesignTokens.js';
 
 /**
  * @param {string|string[]} globs
- * @return An esbuild plugin.
+ * @returns An esbuild plugin.
  */
 export function buildDesignTokensPlugin(globs) {
     /**

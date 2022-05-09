@@ -11,7 +11,7 @@ import { getRequestFilePath } from '@chialab/es-dev-server';
  * @param {Map<string, CSSResource>} dependencyTree
  * @param {string} filePath
  * @param {string} url
- * @return {CSSResource}
+ * @returns {CSSResource}
  */
 function ensureResource(dependencyTree, filePath, url) {
     if (!dependencyTree.has(filePath)) {
@@ -28,7 +28,7 @@ function ensureResource(dependencyTree, filePath, url) {
 /**
  * @param {Map<string, CSSResource>} dependencyTree
  * @param {string} filePath
- * @return {CSSResource[]}
+ * @returns {CSSResource[]}
  */
 function invalidateResource(dependencyTree, filePath) {
     const resource = dependencyTree.get(filePath);
@@ -78,7 +78,7 @@ function createCssLiveReload() {
 
 /**
  * Create a server plugin for CSS hmr.
- * @return A server plugin.
+ * @returns A server plugin.
  */
 export function hmrCssPlugin() {
     /**

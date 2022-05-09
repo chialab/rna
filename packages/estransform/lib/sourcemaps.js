@@ -19,7 +19,7 @@ const SOURCEMAP_REGEX = /(?:(\/\*+\s*?sourceMappingURL\s*=)([\s\S]*?)(\*\/))|(?:
 
 /**
  * @param {string} map
- * @return {SourceMap}
+ * @returns {SourceMap}
  */
 export function parseSourcemap(map) {
     return JSON.parse(map);
@@ -67,7 +67,7 @@ export async function mergeSourcemaps(sourceMaps) {
         /**
          * @param {InstanceType<SourceMapNode>|null} sourceMap
          * @param {SourceMap} map
-         * @return {InstanceType<SourceMapNode>}
+         * @returns {InstanceType<SourceMapNode>}
          */
         (sourceMap, map) => {
             const mergedMap = new SourceMapNode();

@@ -60,7 +60,7 @@ export function createAliasPlugin() {
  * @this PluginContext|void
  * @param {import('@chialab/node-resolve').AliasMap} modules
  * @param {boolean} [browserField]
- * @return An esbuild plugin.
+ * @returns An esbuild plugin.
  */
 export default function alias(modules = {}, browserField = true) {
     /**

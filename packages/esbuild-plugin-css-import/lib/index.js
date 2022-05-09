@@ -2,7 +2,7 @@ import { styleResolve } from '@chialab/node-resolve';
 
 /**
  * Resolve CSS imports using the node resolution algorithm and the `style` field in package.json.
- * @return An esbuild plugin.
+ * @returns An esbuild plugin.
  */
 export default function() {
     /**

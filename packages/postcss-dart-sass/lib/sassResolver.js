@@ -4,7 +4,7 @@ import { styleResolve } from '@chialab/node-resolve';
 /**
  * Generate a list of file paths with all style extensions.
  * @param {string} url
- * @return {string[]}
+ * @returns {string[]}
  */
 export function alternatives(url) {
     const results = path.extname(url) ?

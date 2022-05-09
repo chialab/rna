@@ -7,7 +7,7 @@ const DEFAULT_FRAGMENT = 'React.Fragment';
 /**
  * A plugin for esbuild that enables automatic injection of the jsx module import.
  * @param {{ jsxModule?: string, jsxExport?: 'named'|'namespace'|'default' }} opts
- * @return An esbuild plugin.
+ * @returns An esbuild plugin.
  */
 export default function(opts = {}) {
     const RUNTIME_ALIAS = '__jsx-runtime__.js';

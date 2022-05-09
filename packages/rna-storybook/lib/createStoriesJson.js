@@ -22,7 +22,7 @@ import { readCsfOrMdx } from '@storybook/csf-tools';
 /**
  * @param {string} story
  * @param {string} rootDir
- * @return {import('@storybook/core-common').NormalizedStoriesSpecifier}
+ * @returns {import('@storybook/core-common').NormalizedStoriesSpecifier}
  */
 function normalizeStoriesEntry(story, rootDir) {
     story = path.relative(rootDir, story);

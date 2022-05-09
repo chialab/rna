@@ -2,7 +2,7 @@ import { slug, getChildren, getDescription, getReturnDescription, getTags } from
 
 /**
  * @param {import('typedoc').JSONOutput.Reflection} node
- * @return {string}
+ * @returns {string}
  */
 function renderLink(node) {
     return `<a href="#${slug(node)}">${node.name}</a>`;
@@ -11,7 +11,7 @@ function renderLink(node) {
 /**
  * @param {import('typedoc').JSONOutput.ReflectionGroup[]} groups
  * @param {import('typedoc').JSONOutput.ProjectReflection} json
- * @return {string}
+ * @returns {string}
  */
 function renderSummary(groups, json) {
     if (!groups.length) {
@@ -28,7 +28,7 @@ ${getChildren(group, json).map((node) => renderLink(node)).join(', ')}
 /**
  * @param {import('typedoc').JSONOutput.ReflectionGroup} group
  * @param {import('typedoc').JSONOutput.ProjectReflection} json
- * @return {string}
+ * @returns {string}
  */
 function renderGroup(group, json) {
     return getChildren(group, json)
@@ -39,7 +39,7 @@ function renderGroup(group, json) {
 /**
  * @param {import('typedoc').JSONOutput.Reflection} node
  * @param {import('typedoc').JSONOutput.ProjectReflection} json
- * @return {string}
+ * @returns {string}
  */
 function renderNode(node, json) {
     switch (node.kindString) {
@@ -57,7 +57,7 @@ function renderNode(node, json) {
 
 /**
  * @param {import('typedoc').JSONOutput.Reflection} node
- * @return {string}
+ * @returns {string}
  */
 function renderKind(node) {
     if (!node.kindString) {
@@ -69,7 +69,7 @@ function renderKind(node) {
 /**
  * @param {import('typedoc').JSONOutput.DeclarationReflection} node
  * @param {import('typedoc').JSONOutput.ProjectReflection} json
- * @return {string}
+ * @returns {string}
  */
 function renderTypeAlias(node, json) {
     const description = getDescription(node);
@@ -103,7 +103,7 @@ ${renderLinks(links)}` : ''}
 /**
  * @param {import('typedoc').JSONOutput.DeclarationReflection} node
  * @param {import('typedoc').JSONOutput.ProjectReflection} json
- * @return {string}
+ * @returns {string}
  */
 function renderVariable(node, json) {
     const description = getDescription(node);
@@ -122,7 +122,7 @@ ${description.trim()}
 
 /**
  * @param {import('typedoc').JSONOutput.CommentTag[]} samples
- * @return {string}
+ * @returns {string}
  */
 function renderExamples(samples) {
     return samples
@@ -134,7 +134,7 @@ function renderExamples(samples) {
 
 /**
  * @param {import('typedoc').JSONOutput.Reflection} node
- * @return {string}
+ * @returns {string}
  */
 function renderInfo(node) {
     const deprecated = getTags(node, 'deprecated')[0];
@@ -154,7 +154,7 @@ function renderInfo(node) {
 
 /**
  * @param {import('typedoc').JSONOutput.CommentTag[]} links
- * @return {string}
+ * @returns {string}
  */
 function renderLinks(links) {
     return links
@@ -165,7 +165,7 @@ function renderLinks(links) {
 /**
  * @param {import('typedoc').JSONOutput.DeclarationReflection} node
  * @param {import('typedoc').JSONOutput.ProjectReflection} json
- * @return {string}
+ * @returns {string}
  */
 function renderFunction(node, json) {
     const signatures = node.signatures || [];
@@ -233,7 +233,7 @@ ${renderLinks(links)}
 /**
  * @param {import('typedoc').JSONOutput.ParameterReflection} node
  * @param {import('typedoc').JSONOutput.ProjectReflection} json
- * @return {string}
+ * @returns {string}
  */
 function renderParam(node, json) {
     return `${node.name}${node.flags.isOptional ? '?' : ''}: ${renderType(node.type, json)}`;
@@ -242,7 +242,7 @@ function renderParam(node, json) {
 /**
  * @param {import('typedoc').JSONOutput.SignatureReflection} node
  * @param {import('typedoc').JSONOutput.ProjectReflection} json
- * @return {string}
+ * @returns {string}
  */
 function renderSignature(node, json, arrow = true) {
     return `${node.kindString === 'Constructor signature' ? 'new ' : ''}${node.typeParameter ? renderTypeParams(node.typeParameter, json) : ''}(${node.parameters ? node.parameters.map((param) => renderParam(param, json)).join(', ') : ''})${arrow ? ' =>' : ':'} ${renderType(node, json)}`;
@@ -251,7 +251,7 @@ function renderSignature(node, json, arrow = true) {
 /**
  * @param {import('typedoc').JSONOutput.TypeParameterReflection[]} nodes
  * @param {import('typedoc').JSONOutput.ProjectReflection} json
- * @return {string}
+ * @returns {string}
  */
 function renderTypeParams(nodes, json) {
     return `&lt;${nodes.map((type) => renderTypeParam(type, json)).join(', ')}&gt;`;
@@ -260,7 +260,7 @@ function renderTypeParams(nodes, json) {
 /**
  * @param {import('typedoc').JSONOutput.TypeParameterReflection} node
  * @param {import('typedoc').JSONOutput.ProjectReflection} json
- * @return {string}
+ * @returns {string}
  */
 function renderTypeParam(node, json) {
     return `${node.name}${node.type ? ` extends ${renderType(node, json)}` : ''}`;
@@ -269,7 +269,7 @@ function renderTypeParam(node, json) {
 /**
  * @param {*} node
  * @param {import('typedoc').JSONOutput.ProjectReflection} json
- * @return {string}
+ * @returns {string}
  */
 function renderType(node, json) {
     if (node.type === 'literal') {
@@ -342,7 +342,7 @@ function renderType(node, json) {
 /**
  * @param {import('typedoc').JSONOutput.DeclarationReflection} node
  * @param {import('typedoc').JSONOutput.ProjectReflection} json
- * @return {string}
+ * @returns {string}
  */
 function renderClass(node, json) {
     const description = getDescription(node);
@@ -433,7 +433,7 @@ ${renderLinks(links)}` : ''}
 /**
  * @param {import('typedoc').JSONOutput.ContainerReflection} node
  * @param {import('typedoc').JSONOutput.ProjectReflection} json
- * @return {string}
+ * @returns {string}
  */
 function renderObject(node, json, level = 1, size = 2) {
     return `{
@@ -457,7 +457,7 @@ ${(node.children || [])
 
 /**
  * @param {import('typedoc').JSONOutput.DeclarationReflection[]} nodes
- * @return {string}
+ * @returns {string}
  */
 function renderProperties(nodes) {
     return `<table>
@@ -481,7 +481,7 @@ function renderProperties(nodes) {
 /**
  * @param {import('typedoc').JSONOutput.DeclarationReflection} node
  * @param {import('typedoc').JSONOutput.ProjectReflection} json
- * @return {string}
+ * @returns {string}
  */
 function renderProperty(node, json) {
     return `${node.name}${node.flags.isOptional ? '?' : ''}: ${renderType(node.type, json)}`;
@@ -490,7 +490,7 @@ function renderProperty(node, json) {
 /**
  * @param {import('typedoc').JSONOutput.DeclarationReflection} node
  * @param {import('typedoc').JSONOutput.ProjectReflection} json
- * @return {string}
+ * @returns {string}
  */
 function renderMethod(node, json) {
     if (!node.signatures) {

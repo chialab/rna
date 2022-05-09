@@ -1,6 +1,6 @@
 /**
  * Define the this value in an esm module.
- * @return An esbuild plugin.
+ * @returns An esbuild plugin.
  */
 export default function() {
     /**

@@ -15,7 +15,7 @@ const ESM_BROWSERS = [
 
 /**
  * Memoize `matchesUA` results.
- * @return A function with the same `matchesUA` signature.
+ * @returns A function with the same `matchesUA` signature.
  */
 const memoMatchUserAgent = () => {
     /**

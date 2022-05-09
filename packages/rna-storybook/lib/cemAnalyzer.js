@@ -11,7 +11,7 @@ import { parse } from '@chialab/estransform';
 
 /**
  * @param {PluginOptions} [options]
- * @return An esbuild plugin.
+ * @returns An esbuild plugin.
  */
 export default function({ framework = '@storybook/web-components', plugins = [] } = {}) {
     /**

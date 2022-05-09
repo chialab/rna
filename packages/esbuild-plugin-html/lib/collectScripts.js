@@ -11,7 +11,7 @@ import { isRelativeUrl } from '@chialab/node-resolve';
  * @param {string} type Script type.
  * @param {{ [key: string]: string }} attrs Script attrs.
  * @param {import('./index.js').Helpers} helpers Helpers.
- * @return {import('./index').CollectResult|void} Plain build.
+ * @returns {import('./index').CollectResult|void} Plain build.
  */
 function innerCollect($, dom, selector, sourceDir, target, format, type, attrs = {}, helpers) {
     const elements = dom.find(selector)

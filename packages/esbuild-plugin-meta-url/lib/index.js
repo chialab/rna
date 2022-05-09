@@ -5,7 +5,7 @@ import { useRna } from '@chialab/esbuild-rna';
 
 /**
  * @param {import('@chialab/estransform').TokenProcessor} processor Token processor.
- * @return {string|undefined} The path value.
+ * @returns {string|undefined} The path value.
  */
 export function getMetaUrl(processor) {
     let fnToken;
@@ -100,7 +100,7 @@ export function getMetaUrl(processor) {
  * Instantiate a plugin that converts URL references into static import
  * in order to handle assets bundling.
  * @param {PluginOptions} options
- * @return An esbuild plugin.
+ * @returns An esbuild plugin.
  */
 export default function({ emit = true } = {}) {
     /**

@@ -93,9 +93,7 @@ export async function startTestRunner(config) {
             reportDir: 'coverage',
             reporters: ['lcov', 'text-summary'],
         },
-        reporters: [
-            mochaReporter(),
-        ],
+        reporters: [mochaReporter()],
         testFramework,
         open: false,
         browserLogs: true,
@@ -151,38 +149,92 @@ export async function test(config) {
     return runner;
 }
 
-async function loadLaunchers() {
+/**
+ * Normalize browser names.
+ * @param {string[]} browsers
+ */
+function normalizeBrowserNames(browsers) {
+    return browsers.map((browser) => {
+        browser = browser.toLowerCase();
+
+        switch (browser) {
+            case 'chrome':
+            case 'chromium':
+                return 'chromium';
+            case 'ff':
+            case 'firefox':
+                return 'firefox';
+            case 'safari':
+            case 'webkit':
+                return 'webkit';
+            case 'edge':
+                return 'edge';
+            default:
+                return browser;
+        }
+    });
+}
+
+/**
+ * Create a chromium launcher using puppeteer or playwright if available.
+ * @returns A launcher.
+ */
+async function createChromiumLauncher() {
     try {
         const { puppeteerLauncher } = await import('@web/test-runner-puppeteer');
-        return [
-            puppeteerLauncher({
-                launchOptions: {
-                    args: ['--no-sandbox'],
-                },
-            }),
-        ];
+        return puppeteerLauncher({
+            launchOptions: {
+                args: ['--no-sandbox'],
+            },
+        });
     } catch (err) {
         //
     }
     try {
         const { playwrightLauncher } = await import('@web/test-runner-playwright');
-        return [
-            playwrightLauncher({ product: 'chromium' }),
-            playwrightLauncher({ product: 'firefox' }),
-            playwrightLauncher({ product: 'webkit' }),
-        ];
+        return playwrightLauncher({
+            product: 'chromium',
+        });
     } catch (err) {
         //
     }
 
     const { chromeLauncher } = await import('@web/test-runner-chrome');
-    return [
-        chromeLauncher({
-            launchOptions: {
-                args: ['--no-sandbox'],
-            },
-        }),
-    ];
+    return chromeLauncher({
+        launchOptions: {
+            args: ['--no-sandbox'],
+        },
+    });
+}
+
+/**
+ * Create test launchers.
+ * @param {string[]} browsers
+ */
+async function loadLaunchers(browsers) {
+    browsers = normalizeBrowserNames(browsers);
+
+    if (browsers.length === 0) {
+        return [await createChromiumLauncher()];
+    }
+
+    if (browsers.length === 1 && browsers[0] === 'chromium') {
+        return [await createChromiumLauncher()];
+    }
+
+    const { PlaywrightLauncher } = await import('@web/test-runner-playwright');
+    const launchOptions = {};
+
+    /**
+     * @type {(args: { browser: import('playwright').Browser }) => Promise<import('playwright').BrowserContext>}
+     */
+    const createBrowserContext = ({ browser }) => browser.newContext();
+    /**
+     * @type {(args: { context: import('playwright').BrowserContext }) => Promise<import('playwright').Page>}
+     */
+    const createPage = ({ context }) => context.newPage();
+
+    return browsers.map((browserName) => new PlaywrightLauncher(/** @type {'chromium'} */ (browserName), launchOptions, createBrowserContext, createPage));
 }
 
 /**
@@ -193,6 +245,7 @@ async function loadLaunchers() {
  * @property {boolean} [coverage]
  * @property {boolean} [manual]
  * @property {boolean} [open]
+ * @property {string[]} [browsers]
  * @property {string} [config]
  */
 
@@ -209,6 +262,7 @@ export function command(program) {
         .option('--manual', 'manual test mode')
         .option('--open', 'open the browser')
         .option('--coverage', 'add coverage to tests')
+        .option('--browsers <items>', 'comma separated list of browsers', (val) => val.split(',').map((val) => val.trim()))
         .option('-C, --config <path>', 'the rna config file')
         .action(
             /**
@@ -222,6 +276,7 @@ export function command(program) {
                 coverage,
                 manual,
                 open,
+                browsers = [],
                 config: configFile,
             }) => {
                 const root = process.cwd();
@@ -253,7 +308,7 @@ export function command(program) {
                     alias: config.alias,
                     plugins,
                     logger,
-                    browsers: await loadLaunchers(),
+                    browsers: await loadLaunchers(browsers),
                 };
 
                 if (specs.length) {

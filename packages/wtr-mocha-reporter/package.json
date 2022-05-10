@@ -1,7 +1,7 @@
 {
   "name": "@chialab/wtr-mocha-reporter",
   "type": "module",
-  "version": "0.15.28",
+  "version": "0.15.29",
   "description": "A mocha reporter interface for the Web Test Runner.",
   "main": "dist/index.js",
   "typings": "./types/index.d.ts",

@@ -3,6 +3,7 @@ import { reporters } from '@chialab/es-test-runner';
 import { reportBrowserLogs } from './reportBrowserLogs.js';
 import { reportRequest404s } from './reportRequest404s.js';
 import { getTestProgressReport } from './getTestProgress.js';
+import { reportTestFileErrors } from './reportTestFileErrors.js';
 import { Collector } from './Collector.js';
 
 /**
@@ -68,14 +69,15 @@ export function mochaReporter(MochaReporter = reporters.Spec) {
             for (const [browserName, collector] of collectors) {
                 collector.collectEnd();
 
-                logger.log(chalk.bold(chalk.white(`Test results for ${browserName}:`)));
                 const reporter = collector.createReporter(MochaReporter, options);
-                collector.printReport(reporter, logger);
+                if (reporter.stats.suites > 0 || reporter.stats.tests > 0) {
+                    logger.log(chalk.bold(chalk.white(`Test results for ${browserName}:`)));
+                    collector.printReport(reporter, logger);
+                }
             }
         },
 
-        reportTestFileResults(args) {
-            const { sessionsForTestFile, logger } = args;
+        reportTestFileResults({ sessionsForTestFile, logger }) {
             sessionsForTestFile.forEach((session) => {
                 if (session.status !== 'FINISHED') {
                     return;
@@ -89,6 +91,7 @@ export function mochaReporter(MochaReporter = reporters.Spec) {
 
             reportBrowserLogs(logger, sessionsForTestFile);
             reportRequest404s(logger, sessionsForTestFile);
+            reportTestFileErrors(logger, args.browserNames, sessionsForTestFile);
         },
     };
 

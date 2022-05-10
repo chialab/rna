@@ -119,6 +119,9 @@
       "path": "./packages/esbuild-plugin-postcss"
     },
     {
+      "path": "./packages/esbuild-plugin-require-resolve"
+    },
+    {
       "path": "./packages/esbuild-plugin-unwebpack"
     },
     {

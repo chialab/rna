@@ -95,7 +95,7 @@ export function getRequestLoader(context) {
 export async function createConfig(entrypoint, config) {
     return getEntryConfig(entrypoint, {
         sourcemap: 'inline',
-        target: 'es2020',
+        target: config.target || 'es2020',
         platform: 'browser',
         jsxFactory: config.jsxFactory,
         jsxFragment: config.jsxFragment,

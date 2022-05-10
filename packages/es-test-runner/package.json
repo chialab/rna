@@ -1,7 +1,7 @@
 {
   "name": "@chialab/es-test-runner",
   "type": "module",
-  "version": "0.15.24",
+  "version": "0.15.27",
   "description": "Test helpers for ES modules.",
   "main": "dist/index.js",
   "typings": "./types/index.d.ts",

@@ -1,7 +1,7 @@
 {
   "name": "@chialab/esbuild-plugin-css-import",
   "type": "module",
-  "version": "0.15.9",
+  "version": "0.15.26",
   "description": "Resolve CSS imports using the node resolution algorithm and the style field in package.json.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",

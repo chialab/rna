@@ -19,6 +19,7 @@ import { watchPlugin } from './plugins/watch.js';
  * @property {string} [entrypointsPath]
  * @property {import('@chialab/node-resolve').AliasMap} [alias]
  * @property {import('esbuild').Plugin[]} [transformPlugins]
+ * @property {import('@chialab/rna-config-loader').Target} [target]
  * @property {string} [jsxFactory]
  * @property {string} [jsxFragment]
  * @property {string} [jsxModule]
@@ -72,6 +73,7 @@ export async function loadDevServerConfig(initialConfig = {}, configFile = undef
         alias: config.alias,
         logger,
         transformPlugins,
+        target: config.target,
         jsxFactory: config.jsxFactory,
         jsxFragment: config.jsxFragment,
         jsxModule: config.jsxModule,
@@ -116,6 +118,7 @@ export async function createDevServer(config) {
             ...(config.plugins || []),
             rnaPlugin({
                 alias: config.alias,
+                target: config.target,
                 jsxFactory: config.jsxFactory,
                 jsxFragment: config.jsxFragment,
                 jsxModule: config.jsxModule,
@@ -167,6 +170,7 @@ export async function serve(config) {
  * @property {string} [config]
  * @property {boolean|string} [manifest]
  * @property {boolean|string} [entrypoints]
+ * @property {import('@chialab/rna-config-loader').Target} [target]
  * @property {string} [jsxFactory]
  * @property {string} [jsxFragment]
  * @property {string} [jsxModule]
@@ -184,6 +188,7 @@ export function command(program) {
         .option('-C, --config <path>', 'the rna config file')
         .option('--manifest <path>', 'generate manifest file')
         .option('--entrypoints <path>', 'generate entrypoints file')
+        .option('--target <query>', 'output targets (es5, es2015, es2020)')
         .option('--jsxFactory <identifier>', 'jsx pragma')
         .option('--jsxFragment <identifier>', 'jsx fragment')
         .option('--jsxModule <name>', 'jsx module name')
@@ -196,6 +201,7 @@ export function command(program) {
             async (root = process.cwd(), options) => {
                 const {
                     port,
+                    target,
                     jsxFactory,
                     jsxFragment,
                     jsxModule,
@@ -209,6 +215,7 @@ export function command(program) {
                     port,
                     manifestPath,
                     entrypointsPath,
+                    target,
                     jsxFactory,
                     jsxFragment,
                     jsxModule,

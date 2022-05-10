@@ -1,7 +1,7 @@
 {
   "name": "@chialab/rna-dev-server",
   "type": "module",
-  "version": "0.15.28",
+  "version": "0.15.30",
   "description": "A webapp server based on Web Dev Server.",
   "main": "dist/index.js",
   "typings": "./types/index.d.ts",

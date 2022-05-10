@@ -13,9 +13,6 @@
   "references": [
     {
       "path": "../esbuild-rna"
-    },
-    {
-      "path": "../node-resolve"
     }
   ]
 }

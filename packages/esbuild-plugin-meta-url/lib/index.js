@@ -1,5 +1,5 @@
 import path from 'path';
-import { isUrl, hasSearchParam } from '@chialab/node-resolve';
+import { isUrl, hasSearchParam, appendSearchParam } from '@chialab/node-resolve';
 import { parse, walk, getIdentifierValue, getBlock, getLocation, TokenType } from '@chialab/estransform';
 import { useRna } from '@chialab/esbuild-rna';
 
@@ -204,9 +204,16 @@ export default function({ emit = true } = {}) {
                             }
 
                             const entryLoader = buildLoaders[path.extname(resolvedPath)] || 'file';
-                            const entryPoint = emit ?
-                                (entryLoader !== 'file' && entryLoader !== 'json' ? await emitChunk({ entryPoint: resolvedPath }) : await emitFile(resolvedPath)).path :
-                                `./${path.relative(path.dirname(args.path), resolvedPath)}`;
+                            let entryPoint;
+                            if (emit) {
+                                if (entryLoader !== 'file' && entryLoader !== 'json') {
+                                    entryPoint = (await emitChunk({ entryPoint: resolvedPath })).path;
+                                } else {
+                                    entryPoint = appendSearchParam((await emitFile(resolvedPath)).path, 'emit', 'file');
+                                }
+                            } else {
+                                entryPoint = `./${path.relative(path.dirname(args.path), resolvedPath)}`;
+                            }
 
                             helpers.overwrite(startToken.start, endToken.end, `new URL('${entryPoint}', ${baseUrl})`);
 

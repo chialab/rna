@@ -49,16 +49,13 @@ $ yarn add @chialab/esbuild-plugin-worker -D
 
 ```js
 import esbuild from 'esbuild';
-import transfrom from '@chialab/esbuild-plugin-transform';
 import workerPlugin from '@chialab/esbuild-plugin-worker';
 import metaUrlPlugin from '@chialab/esbuild-plugin-meta-url';
 
 await esbuild.build({
     plugins: [
-        transfrom([
-            workerPlugin(),
-            metaUrlPlugin(),
-        ]),
+        workerPlugin(),
+        metaUrlPlugin(),
     ],
 });
 ```

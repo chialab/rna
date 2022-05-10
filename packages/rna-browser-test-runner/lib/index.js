@@ -4,9 +4,9 @@ import { readConfigFile, mergeConfig, locateConfigFile } from '@chialab/rna-conf
 import { createLogger } from '@chialab/rna-logger';
 import { mochaReporter } from '@chialab/wtr-mocha-reporter';
 import { HELPERS_PATH } from '@chialab/wds-plugin-node-resolve';
-import { FRAMEWORK_ALIASES } from './frameworks.js';
 import { TestRunner, TestRunnerCli } from '@web/test-runner-core';
 import { loadDevServerConfig, createDevServer } from '@chialab/rna-dev-server';
+import { FRAMEWORK_ALIASES } from './frameworks.js';
 
 const require = createRequire(import.meta.url);
 

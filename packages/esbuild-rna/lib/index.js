@@ -52,7 +52,7 @@ export * from './helpers.js';
  */
 
 /**
- * @typedef {(args: import('esbuild').OnLoadArgs & { code: string, loader: import('esbuild').Loader, resolveDir?: string }) => OnTransformResult | Promise<OnTransformResult | null | undefined> | null | undefined} TransformCallback
+ * @typedef {(args: import('esbuild').OnLoadArgs & { code: string, loader: import('esbuild').Loader, resolveDir?: string }) => OnTransformResult | Promise<OnTransformResult | null | undefined | void> | null | undefined | void} TransformCallback
  */
 
 /**
@@ -415,7 +415,7 @@ export function useRna(build) {
 
             const chunkResult = {
                 ...result,
-                path: appendSearchParam(`./${path.relative(virtualOutDir, outputFile)}`, 'emit', 'file'),
+                path: `./${path.relative(virtualOutDir, outputFile)}`,
             };
             rnaBuild.files.set(source, chunkResult);
 

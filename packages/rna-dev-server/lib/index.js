@@ -67,19 +67,19 @@ export async function loadDevServerConfig(initialConfig = {}, configFile = undef
     }
 
     return {
-        rootDir: config.root,
-        entrypointsPath: config.entrypointsPath,
-        entrypoints: config.entrypoints,
-        alias: config.alias,
         logger,
         transformPlugins,
-        target: config.target,
-        jsxFactory: config.jsxFactory,
-        jsxFragment: config.jsxFragment,
-        jsxModule: config.jsxModule,
-        jsxExport: config.jsxExport,
         ...initialConfig,
         plugins: finalPlugins,
+        rootDir: initialConfig.rootDir ?? config.root,
+        entrypointsPath: initialConfig.entrypointsPath ?? config.entrypointsPath,
+        entrypoints: initialConfig.entrypoints ?? config.entrypoints,
+        alias: initialConfig.alias ?? config.alias,
+        target: initialConfig.target ?? config.target,
+        jsxFactory: initialConfig.jsxFactory ?? config.jsxFactory,
+        jsxFragment: initialConfig.jsxFragment ?? config.jsxFragment,
+        jsxModule: initialConfig.jsxModule ?? config.jsxModule,
+        jsxExport: initialConfig.jsxExport ?? config.jsxExport,
     };
 }
 

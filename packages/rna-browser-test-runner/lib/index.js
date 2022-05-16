@@ -1,4 +1,5 @@
 import path from 'path';
+import { cpus } from 'os';
 import { createRequire } from 'module';
 import { readConfigFile, mergeConfig, locateConfigFile } from '@chialab/rna-config-loader';
 import { createLogger } from '@chialab/rna-logger';
@@ -75,8 +76,8 @@ export async function startTestRunner(config) {
         browserStartTimeout: 2 * 60 * 1000,
         testsStartTimeout: 20 * 1000,
         testsFinishTimeout: 2 * 60 * 1000,
-        concurrency: 2,
-        concurrentBrowsers: 2,
+        concurrency: 1,
+        concurrentBrowsers: Math.max(1, cpus().length / 2),
         files: [
             'test/**/*.test.js',
             'test/**/*.spec.js',

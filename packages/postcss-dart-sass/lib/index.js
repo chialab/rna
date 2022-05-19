@@ -1,4 +1,3 @@
-import { access } from 'fs/promises';
 import path from 'path';
 import sass from 'sass';
 import { SourceMapConsumer, SourceMapGenerator } from 'source-map';
@@ -124,68 +123,29 @@ function originalPositionFor(mapping, consumers) {
  */
 
 /**
- * @param {string} path
+ * Get the original declaration file.
+ * @param {import('postcss').Declaration} decl
+ * @param {string} filePath
  */
-async function exists(path) {
-    try {
-        await access(path);
-        return true;
-    } catch (err) {
-        return false;
+function getDeclFile(decl, filePath) {
+    const source = decl.source;
+    if (!source) {
+        return;
     }
-}
 
-/**
- * @param {string} outFile
- */
-function createDefaultResolver(outFile) {
-    /**
-     * @param {string} url
-     * @param {import('postcss').Declaration} decl
-     */
-    return async (url, decl) => {
-        if (url.indexOf('data:') === 0) {
-            return;
-        }
+    const importee = source.input && source.input.file;
+    const map = source.input && source.input.map;
+    if (!map || !source.start) {
+        return importee;
+    }
 
-        if (!outFile) {
-            return;
-        }
+    const consumer = map.consumer();
+    const position = consumer.originalPositionFor(source.start);
+    if (position && position.source) {
+        return path.resolve(filePath, position.source);
+    }
 
-        const declSource = decl.source;
-        if (!declSource) {
-            return;
-        }
-
-        const importee = declSource && declSource.input && declSource.input.file;
-        const map = declSource && declSource.input && declSource.input.map;
-        if (!importee) {
-            return;
-        }
-
-        const mapImportee = map && await (async () => {
-            if (declSource.start) {
-                const position = map.consumer().originalPositionFor(declSource.start);
-                if (position && position.source) {
-                    const resolved = path.resolve(path.dirname(outFile), position.source.replace(/^file:\/\//, ''));
-                    if (await exists(resolved)) {
-                        return resolved;
-                    }
-                }
-            }
-        })();
-
-        const file = path.resolve(
-            path.dirname(mapImportee || importee),
-            url.split('?')[0]
-        );
-
-        if (!(await exists(file))) {
-            return;
-        }
-
-        return path.relative(path.dirname(outFile), file);
-    };
+    return importee;
 }
 
 /**
@@ -199,13 +159,15 @@ export default function(options = {}) {
     const plugin = {
         postcssPlugin: 'postcss-dart-sass',
         async Once(root, { result, parse }) {
-            const extname = result.opts.from ? path.extname(result.opts.from) : null;
+            const opts = result.opts;
+            const from = opts.from;
+            const extname = from ? path.extname(from) : null;
             if (extname !== '.scss' && extname !== '.sass') {
                 return;
             }
 
             const initialCss = root.toResult({
-                ...result.opts,
+                ...opts,
                 map: {
                     inline: false,
                     annotation: false,
@@ -214,7 +176,7 @@ export default function(options = {}) {
             });
 
             const rootDir = options.rootDir || process.cwd();
-            const outFile = (result.opts.to || result.opts.from);
+            const outFile = opts.to || from;
 
             /**
              * @type {import('sass').LegacyOptions<'async'>}
@@ -232,9 +194,9 @@ export default function(options = {}) {
                 data: initialCss.css,
             };
 
-            if (result.opts.from) {
-                computedOptions.file = result.opts.from;
-                computedOptions.outFile = `${outFile || result.opts.from}.map`;
+            if (from) {
+                computedOptions.file = from;
+                computedOptions.outFile = `${outFile}.map`;
             }
 
             /**
@@ -264,30 +226,39 @@ export default function(options = {}) {
                  * @type {Promise<void>[]}
                  */
                 const promises = [];
-                const resolver = createDefaultResolver(outFile);
 
                 parsed.walkDecls((decl) => {
-                    const declSource = decl.source;
-                    const declValue = decl.value;
-                    if (!declValue || !declSource || !declSource.input) {
+                    /**
+                     * @type {string|undefined}
+                     */
+                    const originalFile = getDeclFile(decl, path.dirname(outFile));
+                    if (!originalFile) {
                         return;
                     }
 
-                    if (declValue.indexOf('url(') === -1) {
+                    if (!decl.value || decl.value.indexOf('url(') === -1) {
                         return;
                     }
 
-                    const match = declValue.match(/url\(['"]?.*?['"]?\)/ig) || [];
-                    const urls = match
-                        .map((entry) => entry.replace(/^url\(['"]?/i, '').replace(/['"]?\)$/i, ''))
-                        .filter(Boolean);
-
+                    const matches = decl.value.match(/url\(.*?\)/gi) || [];
                     promises.push(
-                        ...urls.map(async (url) => {
-                            const file = await resolver(url, decl);
-                            if (file) {
-                                decl.value = decl.value.replace(url, file);
+                        ...matches.map(async (source) => {
+                            const match = source.match(/url\((['"]?.*?['"]?)\)/);
+                            if (!match) {
+                                return;
                             }
+
+                            const requestedImportPath = match[1]
+                                .replace(/^['"]/, '')
+                                .replace(/['"]$/, '')
+                                .replace(/^~/, '');
+
+                            if (requestedImportPath.indexOf('data:') === 0) {
+                                return;
+                            }
+
+                            const resolvedImportPath = path.relative(path.dirname(outFile), path.resolve(path.dirname(originalFile), requestedImportPath));
+                            decl.value = decl.value.replace(match[0], `url('${resolvedImportPath}')`);
                         })
                     );
                 });
@@ -297,26 +268,14 @@ export default function(options = {}) {
 
             result.root = parsed;
 
-            const dependencies = await Promise.all(
-                sassResult.stats.includedFiles.map(async (file) => {
-                    try {
-                        await access(file);
-                        return file;
-                    } catch (err) {
-                        //
-                    }
-                    return null;
-                })
-            );
-
-            dependencies
+            sassResult.stats.includedFiles
                 .filter((fileName) => !!fileName)
                 .forEach((fileName) => {
                     result.messages.push({
                         type: 'dependency',
                         plugin: 'postcss-dart-sass',
                         file: fileName,
-                        parent: result.opts.from,
+                        parent: from,
                     });
                 });
         },

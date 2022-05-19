@@ -49,6 +49,14 @@ export default function(options = {}) {
             const config = await loadPostcssConfig(rootDir);
             setupPlugin(plugin, [cssImport()], 'before');
 
+            const cache = new Map();
+            build.onStart(() => {
+                cache.clear();
+            });
+            build.onEnd(() => {
+                cache.clear();
+            });
+
             onTransform({ loaders: ['css'], extensions: ['.css', '.scss', '.sass'] }, async (args) => {
                 const isSass = ['.sass', '.scss'].includes(path.extname(args.path));
 
@@ -74,6 +82,10 @@ export default function(options = {}) {
                                         if (url.match(/^(~|package:)/)) {
                                             // some modules use ~ or package: for node_modules import
                                             url = url.replace(/^(~|package:)/, '');
+                                        }
+
+                                        if (cache.has(url)) {
+                                            return done(cache.get(url));
                                         }
 
                                         const splitted = url.split('/');
@@ -106,14 +118,22 @@ export default function(options = {}) {
                                                         pluginData: null,
                                                     });
 
-                                                    return done({
+                                                    const importResult = {
                                                         file: result.path,
                                                         contents: (/** @type {Buffer} */ (loadResult.contents)).toString(),
+                                                    };
+
+                                                    cache.set(url, {
+                                                        file: result.path,
+                                                        contents: '',
                                                     });
+                                                    return done(importResult);
                                                 } catch (err) {
                                                     if (err && (/** @type {Error & { code?: string }} */(err)).code === 'ENOENT') {
                                                         continue;
                                                     }
+
+                                                    cache.set(url, err);
                                                     return done(/** @type {Error} */(err));
                                                 }
                                             } catch (e) {
@@ -121,8 +141,10 @@ export default function(options = {}) {
                                             }
                                         }
 
+                                        cache.set(url, null);
                                         done(null);
                                     } catch (err) {
+                                        cache.set(url, err);
                                         done(/** @type {Error} */(err));
                                     }
                                 })();

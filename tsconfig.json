@@ -6,8 +6,6 @@
     "allowJs": true,
     "checkJs": true,
     "declaration": true,
-    "emitDeclarationOnly": true,
-    "declarationDir": "./node_modules/.cache/",
     "outDir": "./types",
     "composite": true,
     "strict": true,

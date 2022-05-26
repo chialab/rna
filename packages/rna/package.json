@@ -24,9 +24,7 @@
     "build": "rimraf dist && node build.js",
     "prepack": "yarn types && yarn build"
   },
-  "bin": {
-    "rna": "./dist/index.js"
-  },
+  "bin": "./dist/index.js",
   "files": [
     "dist",
     "types",
@@ -55,13 +53,13 @@
     "@chialab/rna-bundler": {
       "optional": true
     },
+    "@chialab/rna-dev-server": {
+      "optional": true
+    },
     "@chialab/rna-node-test-runner": {
       "optional": true
     },
     "@chialab/rna-saucelabs-test-runner": {
-      "optional": true
-    },
-    "@chialab/rna-dev-server": {
       "optional": true
     }
   },

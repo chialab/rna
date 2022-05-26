@@ -17,9 +17,6 @@
       "path": "../esbuild-plugin-any-file"
     },
     {
-      "path": "../esbuild-plugin-babel"
-    },
-    {
       "path": "../esbuild-plugin-commonjs"
     },
     {

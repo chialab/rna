@@ -149,6 +149,9 @@
       "path": "./packages/postcss-url-rebase"
     },
     {
+      "path": "./packages/rna"
+    },
+    {
       "path": "./packages/rna-apidoc"
     },
     {
@@ -174,9 +177,6 @@
     },
     {
       "path": "./packages/rna-storybook"
-    },
-    {
-      "path": "./packages/rna"
     },
     {
       "path": "./packages/wds-plugin-hmr-css"

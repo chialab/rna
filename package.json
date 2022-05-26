@@ -1,15 +1,15 @@
 {
-  "name": "@chialab/rna",
+  "name": "@chialab/rna-project",
   "private": true,
   "type": "module",
-  "version": "0.12.0",
+  "version": "0.15.0",
   "description": "A build framework, a bundler, a server and a test runner for modern modules and applications.",
   "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
   "license": "MIT",
   "scripts": {
     "clear": "rimraf 'node_modules' 'packages/*/node_modules' 'package-lock.json' 'yarn.lock'",
-    "build": "lerna run build",
-    "types": "rimraf 'packages/*/types' 'packages/*/tsconfig.tsbuildinfo' && lerna run types",
+    "build": "yarn workspaces foreach --topological-dev --verbose run build",
+    "types": "rimraf 'packages/*/types' 'packages/*/tsconfig.tsbuildinfo' && yarn workspaces foreach --topological-dev --verbose run types",
     "lint": "eslint 'packages/*/lib/**/*.js'",
     "test": "rna test:node packages/*/test/**/*.spec.js --coverage",
     "new": "plop --plopfile internals/generators/plopfile.cjs module"
@@ -20,18 +20,19 @@
   },
   "devDependencies": {
     "@chialab/eslint-config": "^3.0.0",
-    "@chialab/rna": "^0.12.2",
-    "@chialab/rna-node-test-runner": "^0.12.26",
+    "@chialab/rna": "^0.15.0",
+    "@chialab/rna-node-test-runner": "^0.15.0",
     "@types/chai": "^4.2.22",
+    "@yarnpkg/core": "^4.0.0-rc.6",
     "chai": "^4.3.4",
     "eslint": "^8.0.0",
     "jsonc-parser": "^3.0.0",
-    "lerna": "^4.0.0",
     "plop": "^2.7.4",
     "rimraf": "^3.0.2",
     "typescript": "^4.3.0"
   },
   "workspaces": [
     "packages/*"
-  ]
+  ],
+  "packageManager": "yarn@3.2.1"
 }

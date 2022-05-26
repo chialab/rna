@@ -156,12 +156,6 @@ export default function({ emit = true } = {}) {
                     const startToken = tokens[0];
                     const endToken = tokens[tokens.length - 1];
 
-                    if (hasSearchParam(value, 'emit')) {
-                        // already emitted
-                        helpers.overwrite(startToken.start, endToken.end, `new URL('${value}', ${baseUrl})`);
-                        return;
-                    }
-
                     promises.push(Promise.resolve().then(async () => {
                         const requestName = value.split('?')[0];
                         const candidates = [];

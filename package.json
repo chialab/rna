@@ -11,6 +11,7 @@
     "build": "yarn workspaces foreach --topological-dev --verbose run build",
     "types": "rimraf 'packages/*/types' 'packages/*/tsconfig.tsbuildinfo' && yarn workspaces foreach --topological-dev --verbose run types",
     "lint": "eslint 'packages/*/lib/**/*.js'",
+    "typecheck": "tsc --noEmit",
     "test": "rna test:node packages/*/test/**/*.spec.js --coverage",
     "new": "plop --plopfile internals/generators/plopfile.cjs module"
   },
@@ -19,6 +20,7 @@
     "url": "https://github.com/chialab/rna"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.22.0",
     "@chialab/eslint-config": "^3.0.0",
     "@chialab/rna": "^0.15.0",
     "@chialab/rna-node-test-runner": "^0.15.0",

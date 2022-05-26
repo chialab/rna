@@ -102,6 +102,7 @@ jobs:
     timeout-minutes: 10
     needs:
       - test
+      - check
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v2
@@ -114,6 +115,12 @@ jobs:
 
       - name: Install project dependencies
         run: yarn install
+
+      - name: Fetch build artifacts
+        uses: actions/cache@v2
+        with:
+          path: ./packages
+          key: build-packages-${{ github.sha }}
 
       - name: Create Release Pull Request or Publish to npm
         id: changesets

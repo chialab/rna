@@ -1,5 +1,5 @@
 import path from 'path';
-import { isUrl, hasSearchParam, appendSearchParam } from '@chialab/node-resolve';
+import { isUrl, appendSearchParam } from '@chialab/node-resolve';
 import { parse, walk, getIdentifierValue, getBlock, getLocation, TokenType } from '@chialab/estransform';
 import { useRna } from '@chialab/esbuild-rna';
 

@@ -217,15 +217,33 @@ export default function({ emit = true } = {}) {
 
                             helpers.overwrite(startToken.start, endToken.end, `new URL('${entryPoint}', ${baseUrl})`);
 
-                            break;
+                            return;
                         }
+
+                        const location = getLocation(code, startToken.start);
+                        warnings.push({
+                            pluginName: 'meta-url',
+                            text: `Unable to resolve '${requestName}' reference.`,
+                            location: {
+                                file: args.path,
+                                namespace: args.namespace,
+                                ...location,
+                                length: endToken.end - startToken.start,
+                                lineText: code.split('\n')[location.line - 1],
+                                suggestion: '',
+                            },
+                            notes: [],
+                            detail: '',
+                        });
                     }));
                 });
 
                 await Promise.all(promises);
 
                 if (!helpers.isDirty()) {
-                    return;
+                    return {
+                        warnings,
+                    };
                 }
 
                 if (usePlainScript) {

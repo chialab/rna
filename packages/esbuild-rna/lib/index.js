@@ -48,7 +48,7 @@ export * from './helpers.js';
  */
 
 /**
- * @typedef {{ code: string, map?: import('@chialab/estransform').SourceMap|null, resolveDir?: string, errors?: import('esbuild').Message[], warnings?: import('esbuild').Message[] }} OnTransformResult
+ * @typedef {{ code?: string, map?: import('@chialab/estransform').SourceMap|null, resolveDir?: string, errors?: import('esbuild').Message[], warnings?: import('esbuild').Message[] }} OnTransformResult
  */
 
 /**
@@ -309,7 +309,9 @@ export function useRna(build) {
                     loader,
                 });
                 if (result) {
-                    code = result.code;
+                    if (result.code) {
+                        code = result.code;
+                    }
                     if (result.warnings) {
                         warnings.push(...result.warnings);
                     }

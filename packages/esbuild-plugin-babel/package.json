@@ -19,7 +19,7 @@
     "es5"
   ],
   "scripts": {
-    "types": "rimraf 'types' '*.tsbuildinfo' && tsc --declaration --emitDeclarationOnly --declarationDir ./types",
+    "types": "tsc -b",
     "prepack": "yarn types"
   },
   "files": [

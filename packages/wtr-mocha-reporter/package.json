@@ -18,7 +18,7 @@
     "mocha"
   ],
   "scripts": {
-    "types": "rimraf 'types' '*.tsbuildinfo' && tsc --declaration --emitDeclarationOnly --declarationDir ./types",
+    "types": "tsc -b",
     "build": "rimraf dist && node build.js",
     "prepack": "yarn types && yarn build"
   },

@@ -1883,8 +1883,8 @@ __metadata:
   linkType: soft
 
 "@chialab/eslint-config@npm:^3.0.0":
-  version: 3.1.3
-  resolution: "@chialab/eslint-config@npm:3.1.3"
+  version: 3.2.0
+  resolution: "@chialab/eslint-config@npm:3.2.0"
   dependencies:
     "@babel/core": ^7.12.16
     "@babel/eslint-parser": ^7.12.13
@@ -1902,7 +1902,7 @@ __metadata:
     eslint-plugin-mocha: ^8.0.0
   peerDependencies:
     eslint: ">= 3"
-  checksum: 7efa29527d1e121abf38800d6a9c0aface8cfaa0f62a7bc7bf4ac1cdf01030b20956488a87b015b14f95e514e45786f4541aba4eb5fb44982e8792591258f81a
+  checksum: 162eba55fc8e841795dda626628677c5c8b627f350e33982d127a53205c137ca13f94509ee017d7f44a156ce174aa75e8477e2a6b18283c33236cd4c56354041
   languageName: node
   linkType: hard
 

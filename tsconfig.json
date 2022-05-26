@@ -1,12 +1,11 @@
 {
   "compilerOptions": {
-    "incremental": true,
     "target": "esnext",
     "module": "esnext",
     "allowJs": true,
     "checkJs": true,
     "declaration": true,
-    "outDir": "./types",
+    "emitDeclarationOnly": true,
     "composite": true,
     "strict": true,
     "moduleResolution": "node",
@@ -14,10 +13,7 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": [
-    "packages/*/lib",
-    "packages/*/*.d.ts"
-  ],
+  "include": [],
   "references": [
     {
       "path": "./packages/cjs-to-esm"

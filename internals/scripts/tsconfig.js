@@ -1,19 +1,18 @@
 import { readFile, writeFile } from 'fs/promises';
-import { dirname, relative, resolve } from 'path';
-import { Project } from '@lerna/project';
+import { relative, resolve } from 'path';
+import { Configuration, Project } from '@yarnpkg/core';
 import { modify, applyEdits } from 'jsonc-parser';
 
-const ROOT = resolve(
-    dirname(import.meta.url.replace('file://', '')),
-    '../../'
-);
+const ROOT = resolve(new URL(import.meta.url).pathname, '../../../');
+const config = Configuration.create(ROOT, ROOT);
 
-Project.getPackages(ROOT)
-    .then(async (packages) => {
+Project.find(config, ROOT)
+    .then(async ({ project }) => {
+        const packages = project.topLevelWorkspace.getRecursiveWorkspaceChildren();
         const tsconfig = resolve(ROOT, 'tsconfig.json');
         const content = await readFile(tsconfig, 'utf-8');
         const references = packages.map((pkg) => ({
-            path: `./${relative(ROOT, pkg.location)}`,
+            path: `./${relative(ROOT, pkg.cwd)}`,
         }));
         const edits = modify(content, ['references'], references, {
             formattingOptions: {
@@ -27,20 +26,19 @@ Project.getPackages(ROOT)
 
         await Promise.all(
             packages.map(async (pkg) => {
-                const root = pkg.location;
-                const tsconfig = resolve(root, 'tsconfig.json');
+                const { cwd, manifest: { dependencies, peerDependencies } } = pkg;
+                const tsconfig = resolve(cwd, 'tsconfig.json');
                 const content = await readFile(tsconfig, 'utf-8');
+
                 try {
-                    const dependencies = {
-                        ...(pkg.get('dependencies') || {}),
-                        ...(pkg.get('peerDependencies') || {}),
-                    };
-                    const references = Object.keys(dependencies)
-                        .map((key) => packages.find((pkg) => pkg.get('name') === key))
+                    const references = Array.from(dependencies.values())
+                        .concat(Array.from(peerDependencies.values()))
+                        .map((dep) => packages.find(({ manifest }) => manifest.name.scope === dep.scope && manifest.name.name === dep.name))
                         .filter((pkg) => !!pkg)
                         .map((pkg) => ({
-                            path: relative(root, pkg.location),
+                            path: relative(cwd, pkg.cwd),
                         }));
+
                     const edits = modify(content, ['references'], references, {
                         formattingOptions: {
                             insertSpaces: true,

@@ -1,0 +1,95 @@
+name: Pull Request
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v2
+
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          cache: yarn
+
+      - name: Install project dependencies
+        run: yarn install
+
+      - name: Upload build artifacts
+        uses: actions/cache@v2
+        with:
+          path: ./packages
+          key: build-packages-${{ github.sha }}
+
+      - name: Run typings script
+        run: yarn types
+
+      - name: Run build script
+        run: yarn build
+
+  check:
+    name: Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: build
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v2
+
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          cache: yarn
+
+      - name: Install project dependencies
+        run: yarn install
+
+      - name: Fetch build artifacts
+        uses: actions/cache@v2
+        with:
+          path: ./packages
+          key: build-packages-${{ github.sha }}
+
+      - name: Typecheck
+        run: yarn typecheck
+
+      - name: Lint
+        run: yarn lint
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: build
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v2
+
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          cache: yarn
+
+      - name: Install project dependencies
+        run: yarn install
+
+      - name: Fetch build artifacts
+        uses: actions/cache@v2
+        with:
+          path: ./packages
+          key: build-packages-${{ github.sha }}
+
+      - name: Run tests
+        run: yarn test
+
+      - name: Upload coverage to codecov
+        uses: codecov/codecov-action@v1
+        with:
+          file: coverage/lcov.info

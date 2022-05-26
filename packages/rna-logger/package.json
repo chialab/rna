@@ -14,7 +14,7 @@
   },
   "keywords": [],
   "scripts": {
-    "types": "tsc",
+    "types": "rimraf 'types' '*.tsbuildinfo' && tsc --declaration --emitDeclarationOnly --declarationDir ./types",
     "build": "rimraf dist && node build.js",
     "prepack": "yarn types && yarn build"
   },
@@ -32,6 +32,7 @@
     "@types/debug": "^4.1.6",
     "chalk": "^4.1.1",
     "debug": "^4.3.2",
+    "rimraf": "^3.0.2",
     "typescript": "^4.3.0"
   }
 }

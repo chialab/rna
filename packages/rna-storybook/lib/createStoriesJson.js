@@ -4,7 +4,7 @@
  */
 
 import path from 'path';
-import { autoTitleFromSpecifier, sortStoriesV7 } from '@storybook/store';
+import { userOrAutoTitleFromSpecifier, sortStoriesV7 } from '@storybook/store';
 import { readCsfOrMdx } from '@storybook/csf-tools';
 
 /**
@@ -50,8 +50,10 @@ async function extractStories(specifier, entry, absolutePath, root) {
      */
     const fileStories = {};
     const importPath = relativePath[0] === '.' ? relativePath : `./${relativePath}`;
-    const defaultTitle = autoTitleFromSpecifier(importPath, specifier);
-    const csf = (await readCsfOrMdx(absolutePath, { defaultTitle })).parse();
+    const defaultTitle = userOrAutoTitleFromSpecifier(importPath, specifier);
+    const csf = (await readCsfOrMdx(absolutePath, {
+        makeTitle: (userTitle) => userTitle ?? defaultTitle,
+    })).parse();
     csf.stories.forEach(({ id, name }) => {
         fileStories[id] = {
             id,

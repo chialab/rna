@@ -21,8 +21,8 @@ const loadHtml = /** @type {typeof cheerio.load} */ (cheerio.load || cheerio.def
 
 /**
  * @typedef {Object} PluginOptions
- * @property {import('@chialab/rna-config-loader').Target} [scriptsTarget]
- * @property {import('@chialab/rna-config-loader').Target} [modulesTarget]
+ * @property {string} [scriptsTarget]
+ * @property {string} [modulesTarget]
  * @property {string} [entryNames]
  * @property {string} [chunkNames]
  * @property {string} [assetNames]

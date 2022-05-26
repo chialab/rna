@@ -20,7 +20,7 @@
     "livereload"
   ],
   "scripts": {
-    "types": "tsc",
+    "types": "rimraf 'types' '*.tsbuildinfo' && tsc --declaration --emitDeclarationOnly --declarationDir ./types",
     "prepack": "yarn types"
   },
   "files": [
@@ -37,6 +37,7 @@
     "@chialab/es-dev-server": "^0.15.28"
   },
   "devDependencies": {
+    "rimraf": "^3.0.2",
     "typescript": "^4.3.0"
   }
 }

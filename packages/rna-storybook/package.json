@@ -14,7 +14,7 @@
   },
   "keywords": [],
   "scripts": {
-    "types": "tsc",
+    "types": "rimraf 'types' '*.tsbuildinfo' && tsc --declaration --emitDeclarationOnly --declarationDir ./types",
     "build": "rimraf dist && node build.js",
     "prepack": "yarn types && yarn build"
   },
@@ -40,6 +40,7 @@
     "@chialab/wds-plugin-rna": "^0.15.37",
     "@custom-elements-manifest/analyzer": "0.5.3",
     "esbuild": "^0.14.8",
+    "rimraf": "^3.0.2",
     "typescript": "^4.3.0"
   },
   "devDependencies": {

@@ -14,7 +14,7 @@
   },
   "keywords": [],
   "scripts": {
-    "types": "tsc",
+    "types": "rimraf 'types' '*.tsbuildinfo' && tsc --declaration --emitDeclarationOnly --declarationDir ./types",
     "prepack": "yarn types"
   },
   "files": [
@@ -36,6 +36,7 @@
     "@types/sass": "^1.16.1",
     "@types/source-map": "^0.5.7",
     "postcss": "^8.0.0",
+    "rimraf": "^3.0.2",
     "typescript": "^4.3.0"
   }
 }

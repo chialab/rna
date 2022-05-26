@@ -14,7 +14,7 @@
   },
   "keywords": [],
   "scripts": {
-    "types": "tsc -b",
+    "types": "rimraf './{types,*.tsbuildinfo}' && tsc -b",
     "build": "rimraf dist && node build.js",
     "prepack": "yarn types && yarn build"
   },

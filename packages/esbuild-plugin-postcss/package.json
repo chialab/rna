@@ -19,7 +19,7 @@
     "postcss"
   ],
   "scripts": {
-    "types": "tsc -b",
+    "types": "rimraf './{types,*.tsbuildinfo}' && tsc -b",
     "prepack": "yarn types"
   },
   "files": [

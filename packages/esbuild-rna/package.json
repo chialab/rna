@@ -1,7 +1,7 @@
 {
   "name": "@chialab/esbuild-rna",
   "type": "module",
-  "version": "0.15.28",
+  "version": "0.15.37",
   "description": "A framework for esbuild plugins with transform and emit capabilities.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",

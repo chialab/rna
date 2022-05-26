@@ -7,9 +7,9 @@
   "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
   "license": "MIT",
   "scripts": {
-    "clear": "rimraf 'node_modules' 'packages/*/node_modules' 'package-lock.json' 'yarn.lock'",
+    "clear": "rimraf 'node_modules' 'packages/*/node_modules' 'package-lock.json' 'yarn.lock' 'packages/*/types' 'packages/*/dist' '**/tsconfig.tsbuildinfo'",
     "build": "yarn workspaces foreach --topological-dev --verbose run build",
-    "types": "rimraf 'packages/*/types' 'tsconfig.tsbuildinfo' 'packages/*/tsconfig.tsbuildinfo' && tsc -b",
+    "types": "rimraf 'packages/*/types' 'tsconfig.tsbuildinfo' 'packages/*/tsconfig.tsbuildinfo' && yarn workspaces foreach --topological-dev --verbose run types",
     "lint": "eslint 'packages/*/lib/**/*.js'",
     "typecheck": "tsc --noEmit",
     "test": "rna test:node packages/*/test/**/*.spec.js --coverage",

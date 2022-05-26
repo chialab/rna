@@ -20,7 +20,7 @@
     "bundle"
   ],
   "scripts": {
-    "types": "tsc",
+    "types": "rimraf 'types' '*.tsbuildinfo' && tsc --declaration --emitDeclarationOnly --declarationDir ./types",
     "build": "rimraf dist && node build.js",
     "prepack": "yarn types && yarn build"
   },
@@ -47,6 +47,7 @@
     "cheerio": "^1.0.0-rc.9",
     "esbuild": "^0.14.8",
     "js-beautify": "^1.14.0",
+    "rimraf": "^3.0.2",
     "typescript": "^4.3.0"
   }
 }

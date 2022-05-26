@@ -19,7 +19,7 @@
     "babel"
   ],
   "scripts": {
-    "types": "tsc",
+    "types": "rimraf 'types' '*.tsbuildinfo' && tsc --declaration --emitDeclarationOnly --declarationDir ./types",
     "prepack": "yarn types"
   },
   "files": [
@@ -47,6 +47,7 @@
     "@types/babel__preset-env": "^7.9.1",
     "@types/browserslist-useragent": "^3.0.3",
     "@web/dev-server-core": "^0.3.8",
+    "rimraf": "^3.0.2",
     "typescript": "^4.3.0"
   }
 }

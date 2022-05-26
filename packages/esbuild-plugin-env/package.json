@@ -20,7 +20,7 @@
     "variables"
   ],
   "scripts": {
-    "types": "tsc",
+    "types": "rimraf 'types' '*.tsbuildinfo' && tsc --declaration --emitDeclarationOnly --declarationDir ./types",
     "prepack": "yarn types"
   },
   "files": [
@@ -35,6 +35,7 @@
   },
   "devDependencies": {
     "esbuild": "^0.14.8",
+    "rimraf": "^3.0.2",
     "typescript": "^4.3.0"
   }
 }

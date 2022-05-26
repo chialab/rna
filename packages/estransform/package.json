@@ -19,7 +19,7 @@
     "sourcemaps"
   ],
   "scripts": {
-    "types": "tsc",
+    "types": "rimraf 'types' '*.tsbuildinfo' && tsc --declaration --emitDeclarationOnly --declarationDir ./types",
     "build": "rimraf dist && node build.js",
     "prepack": "yarn types && yarn build"
   },
@@ -40,6 +40,7 @@
     "cjs-module-lexer": "^1.2.2",
     "es-module-lexer": "^0.7.1",
     "magic-string": "^0.25.7",
+    "rimraf": "^3.0.2",
     "sucrase": "^3.0.0",
     "typescript": "^4.3.0"
   }

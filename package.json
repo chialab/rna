@@ -9,7 +9,7 @@
   "scripts": {
     "clear": "rimraf 'node_modules' 'packages/*/node_modules' 'package-lock.json' 'yarn.lock'",
     "build": "yarn workspaces foreach --topological-dev --verbose run build",
-    "types": "rimraf 'packages/*/types' 'packages/*/tsconfig.tsbuildinfo' && yarn workspaces foreach --topological-dev --verbose run types",
+    "types": "rimraf 'packages/*/types' 'tsconfig.tsbuildinfo' 'packages/*/tsconfig.tsbuildinfo' && tsc -b",
     "lint": "eslint 'packages/*/lib/**/*.js'",
     "typecheck": "tsc --noEmit",
     "test": "rna test:node packages/*/test/**/*.spec.js --coverage",

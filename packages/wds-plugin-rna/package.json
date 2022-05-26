@@ -14,7 +14,7 @@
   },
   "keywords": [],
   "scripts": {
-    "types": "tsc",
+    "types": "rimraf 'types' '*.tsbuildinfo' && tsc --declaration --emitDeclarationOnly --declarationDir ./types",
     "prepack": "yarn types"
   },
   "files": [
@@ -39,6 +39,7 @@
   },
   "devDependencies": {
     "@chialab/esbuild-rna": "^0.15.37",
+    "rimraf": "^3.0.2",
     "typescript": "^4.3.0"
   }
 }

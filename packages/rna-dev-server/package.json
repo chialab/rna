@@ -21,7 +21,7 @@
     "hmr"
   ],
   "scripts": {
-    "types": "tsc",
+    "types": "rimraf 'types' '*.tsbuildinfo' && tsc --declaration --emitDeclarationOnly --declarationDir ./types",
     "build": "rimraf dist && node build.js",
     "prepack": "yarn types && yarn build"
   },
@@ -59,6 +59,7 @@
     "@web/dev-server-hmr": "^0.1.8",
     "commander": "^7.2.0",
     "koa-range": "^0.3.0",
+    "rimraf": "^3.0.2",
     "typescript": "^4.3.0"
   }
 }

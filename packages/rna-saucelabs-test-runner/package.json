@@ -20,7 +20,7 @@
     "testing"
   ],
   "scripts": {
-    "types": "tsc",
+    "types": "rimraf 'types' '*.tsbuildinfo' && tsc --declaration --emitDeclarationOnly --declarationDir ./types",
     "prepack": "yarn types"
   },
   "files": [
@@ -43,6 +43,7 @@
   },
   "devDependencies": {
     "commander": "^7.2.0",
+    "rimraf": "^3.0.2",
     "typescript": "^4.3.0"
   }
 }

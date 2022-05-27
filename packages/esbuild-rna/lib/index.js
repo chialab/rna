@@ -668,6 +668,20 @@ export function useRna(build) {
             rnaResult.dependencies = state.dependencies;
             rnaBuild.chunks.forEach((result) => assignToResult(rnaResult, result));
             rnaBuild.files.forEach((result) => assignToResult(rnaResult, result));
+
+            const outputs = { ...rnaResult.metafile.outputs };
+            for (const outputKey in outputs) {
+                const output = outputs[outputKey];
+                if (!output.entryPoint) {
+                    continue;
+                }
+
+                const entryPoint = path.resolve(rootDir, output.entryPoint.split('?')[0]);
+                const dependencies = Object.keys(output.inputs)
+                    .map((input) => path.resolve(rootDir, input.split('?')[0]));
+
+                rnaBuild.collectDependencies(entryPoint, dependencies);
+            }
         });
     }
 

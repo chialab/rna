@@ -46,7 +46,7 @@
   "devDependencies": {
     "@mdx-js/mdx": "^2.0.0",
     "@storybook/csf-tools": "^6.4.0",
-    "@storybook/mdx2-csf": "^0.0.1-canary.1.838a6ca.0",
+    "@storybook/mdx2-csf": "^0.0.3",
     "@storybook/store": "^6.4.0",
     "@types/lodash": "^4.14.175",
     "fast-glob": "^3.2.11",

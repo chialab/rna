@@ -4,6 +4,13 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'docs/**'
+    tags-ignore:
+      - '*'
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
 
 jobs:
   docs:

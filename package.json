@@ -12,7 +12,8 @@
     "types": "rimraf 'packages/*/{types,*.tsbuildinfo}' && tsc -b",
     "lint": "eslint 'packages/*/lib/**/*.js'",
     "test": "rna test:node packages/*/test/**/*.spec.js --coverage",
-    "new": "plop --plopfile internals/generators/plopfile.cjs module"
+    "new": "plop --plopfile internals/generators/plopfile.cjs module",
+    "version": "changeset version && YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn install"
   },
   "repository": {
     "type": "git",

@@ -18,10 +18,6 @@
     "commonjs",
     "esm"
   ],
-  "scripts": {
-    "types": "rimraf './{types,*.tsbuildinfo}' && tsc -b",
-    "prepack": "yarn types"
-  },
   "files": [
     "lib",
     "types",
@@ -38,7 +34,6 @@
     "@chialab/node-resolve": "^0.15.28"
   },
   "devDependencies": {
-    "rimraf": "^3.0.2",
     "typescript": "^4.3.0"
   }
 }

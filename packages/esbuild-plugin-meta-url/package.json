@@ -19,10 +19,6 @@
     "import",
     "meta"
   ],
-  "scripts": {
-    "types": "rimraf './{types,*.tsbuildinfo}' && tsc -b",
-    "prepack": "yarn types"
-  },
   "files": [
     "lib",
     "types",
@@ -40,7 +36,6 @@
   },
   "devDependencies": {
     "esbuild": "^0.14.8",
-    "rimraf": "^3.0.2",
     "typescript": "^4.3.0"
   }
 }

@@ -17,10 +17,6 @@
     "plugin",
     "file-loader"
   ],
-  "scripts": {
-    "types": "rimraf './{types,*.tsbuildinfo}' && tsc -b",
-    "prepack": "yarn types"
-  },
   "files": [
     "lib",
     "types",
@@ -35,7 +31,6 @@
     "@chialab/esbuild-rna": "^0.15.37"
   },
   "devDependencies": {
-    "rimraf": "^3.0.2",
     "typescript": "^4.3.0"
   }
 }

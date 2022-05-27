@@ -20,9 +20,7 @@
     "esm"
   ],
   "scripts": {
-    "types": "rimraf './{types,*.tsbuildinfo}' && tsc -b",
-    "build": "rimraf dist && node build.js",
-    "prepack": "yarn types && yarn build"
+    "build": "rimraf dist && node build.js"
   },
   "files": [
     "dist",

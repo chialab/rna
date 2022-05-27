@@ -1,7 +1,7 @@
 import path from 'path';
 import crypto from 'crypto';
 import { mkdir, readFile, writeFile } from 'fs/promises';
-import { appendSearchParam, escapeRegexBody } from '@chialab/node-resolve';
+import { escapeRegexBody } from '@chialab/node-resolve';
 import { loadSourcemap, inlineSourcemap, mergeSourcemaps } from '@chialab/estransform';
 import { assignToResult, createOutputFile, createResult } from './helpers.js';
 
@@ -355,6 +355,23 @@ export function useRna(build) {
             };
         },
         /**
+         * Check if path has been emitted by build.
+         * @param {string} path The path to check.
+         */
+        isEmittedPath(path) {
+            for (const chunk of state.chunks.values()) {
+                if (chunk.path === path) {
+                    return true;
+                }
+            }
+            for (const file of state.files.values()) {
+                if (file.path === path) {
+                    return true;
+                }
+            }
+            return false;
+        },
+        /**
          * Programmatically emit file reference.
          * @param {string} source The path of the file.
          * @param {string|Buffer} [buffer] File contents.
@@ -490,7 +507,7 @@ export function useRna(build) {
             const resolvedOutputFile = path.resolve(rootDir, outFile[0]);
             const chunkResult = {
                 ...result,
-                path: appendSearchParam(`./${path.relative(virtualOutDir, resolvedOutputFile)}`, 'emit', 'chunk'),
+                path: `./${path.relative(virtualOutDir, resolvedOutputFile)}`,
             };
             state.chunks.set(options.entryPoint, chunkResult);
 

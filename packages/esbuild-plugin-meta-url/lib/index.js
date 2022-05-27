@@ -110,7 +110,7 @@ export default function({ emit = true } = {}) {
         name: 'meta-url',
         async setup(build) {
             const { platform, format, sourcesContent, sourcemap } = build.initialOptions;
-            const { onTransform, emitFile, emitChunk, loaders: buildLoaders } = useRna(build);
+            const { onTransform, isEmittedPath, emitFile, emitChunk, loaders: buildLoaders } = useRna(build);
 
             const usePlainScript = platform === 'browser' && format !== 'esm';
             const isNode = platform === 'node' && format !== 'esm';
@@ -149,6 +149,10 @@ export default function({ emit = true } = {}) {
                 await walk(processor, () => {
                     const value = getMetaUrl(processor);
                     if (typeof value !== 'string' || isUrl(value)) {
+                        return;
+                    }
+
+                    if (isEmittedPath(value)) {
                         return;
                     }
 
@@ -198,15 +202,16 @@ export default function({ emit = true } = {}) {
                             }
 
                             const entryLoader = buildLoaders[path.extname(resolvedPath)] || 'file';
+                            const isChunk = entryLoader !== 'file' && entryLoader !== 'json';
                             let entryPoint;
                             if (emit) {
-                                if (entryLoader !== 'file' && entryLoader !== 'json') {
+                                if (isChunk) {
                                     entryPoint = (await emitChunk({ entryPoint: resolvedPath })).path;
                                 } else {
-                                    entryPoint = appendSearchParam((await emitFile(resolvedPath)).path, 'emit', 'file');
+                                    entryPoint = (await emitFile(resolvedPath)).path;
                                 }
                             } else {
-                                entryPoint = `./${path.relative(path.dirname(args.path), resolvedPath)}`;
+                                entryPoint = appendSearchParam(`./${path.relative(path.dirname(args.path), resolvedPath)}`, 'emit', isChunk ? 'chunk' : 'file');
                             }
 
                             helpers.overwrite(startToken.start, endToken.end, `new URL('${entryPoint}', ${baseUrl})`);
@@ -217,7 +222,7 @@ export default function({ emit = true } = {}) {
                         const location = getLocation(code, startToken.start);
                         warnings.push({
                             pluginName: 'meta-url',
-                            text: `Unable to resolve '${requestName}' reference.`,
+                            text: `Unable to resolve '${requestName}' file.`,
                             location: {
                                 file: args.path,
                                 namespace: args.namespace,

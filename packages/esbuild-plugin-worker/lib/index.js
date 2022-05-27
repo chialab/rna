@@ -1,7 +1,8 @@
 import path from 'path';
-import { walk, parse, TokenType, getIdentifierValue, getBlock, splitArgs } from '@chialab/estransform';
+import { walk, parse, TokenType, getIdentifierValue, getLocation, getBlock, splitArgs } from '@chialab/estransform';
 import metaUrlPlugin from '@chialab/esbuild-plugin-meta-url';
 import { useRna } from '@chialab/esbuild-rna';
+import { appendSearchParam } from '@chialab/node-resolve';
 
 /**
  * @typedef {{ constructors?: string[], proxy?: boolean, emit?: boolean }} PluginOptions
@@ -47,7 +48,7 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
         name: 'worker',
         async setup(build) {
             const { sourcesContent, sourcemap } = build.initialOptions;
-            const { onTransform, emitChunk, setupPlugin } = useRna(build);
+            const { onTransform, emitChunk, isEmittedPath, setupPlugin } = useRna(build);
             await setupPlugin(plugin, [metaUrlPlugin({ emit })], 'after');
 
             onTransform({ loaders: ['tsx', 'ts', 'jsx', 'js'] }, async (args) => {
@@ -80,6 +81,11 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                     }
                 });
 
+                /**
+                 * @type {import('esbuild').Message[]}
+                 */
+                const warnings = [];
+
                 await walk(processor, (token) => {
                     if (token.type !== TokenType._new) {
                         return;
@@ -108,9 +114,11 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                         return;
                     }
 
-                    let reference = firstArg[0];
+                    const startToken = firstArg[0];
+                    const endToken = firstArg[firstArg.length - 1];
+                    let reference = startToken;
 
-                    if (firstArg[0].type === TokenType._new
+                    if (startToken.type === TokenType._new
                         && firstArg[1].type === TokenType.name
                         && processor.identifierNameForToken(firstArg[1]) === 'URL'
                     ) {
@@ -184,23 +192,50 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                             return;
                         }
 
-                        const { path: resolvedPath } = await build.resolve(value, {
+                        if (isEmittedPath(value)) {
+                            return;
+                        }
+
+                        const { path: resolvedPath, external } = await build.resolve(value, {
                             kind: 'dynamic-import',
                             importer: args.path,
                             namespace: 'file',
                             resolveDir: path.dirname(args.path),
                             pluginData: undefined,
                         });
-                        if (!resolvedPath) {
+
+                        if (external) {
                             return;
                         }
 
-                        const entryPoint = emit ?
-                            (await emitChunk({
+                        if (!resolvedPath) {
+                            const location = getLocation(code, startToken.start);
+                            warnings.push({
+                                pluginName: 'worker',
+                                text: `Unable to resolve '${value}' file.`,
+                                location: {
+                                    file: args.path,
+                                    namespace: args.namespace,
+                                    ...location,
+                                    length: endToken.end - startToken.start,
+                                    lineText: code.split('\n')[location.line - 1],
+                                    suggestion: '',
+                                },
+                                notes: [],
+                                detail: '',
+                            });
+                            return;
+                        }
+
+                        let entryPoint = appendSearchParam(`./${path.relative(path.dirname(args.path), resolvedPath)}`, 'emit', 'chunk');
+                        if (emit) {
+                            const emittedChunk = await emitChunk({
                                 ...transformOptions,
                                 entryPoint: resolvedPath,
-                            })).path :
-                            `./${path.relative(path.dirname(args.path), resolvedPath)}`;
+                            });
+                            entryPoint = emittedChunk.path;
+                        }
+
                         const arg = `new URL('${entryPoint}', import.meta.url).href`;
                         if (proxy) {
                             helpers.overwrite(firstArg[0].start, firstArg[firstArg.length - 1].end, createBlobProxy(arg, transformOptions, false));
@@ -213,13 +248,18 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                 await Promise.all(promises);
 
                 if (!helpers.isDirty()) {
-                    return;
+                    return {
+                        warnings,
+                    };
                 }
 
-                return helpers.generate({
-                    sourcemap: !!sourcemap,
-                    sourcesContent,
-                });
+                return {
+                    ...helpers.generate({
+                        sourcemap: !!sourcemap,
+                        sourcesContent,
+                    }),
+                    warnings,
+                };
             });
         },
     };

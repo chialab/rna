@@ -14,7 +14,8 @@ export async function transformMdxToCsf(body, esbuild) {
         providerImportSource: '@mdx-js/react',
     })).toString();
 
-    body = postprocess(body, store.exports);
+    body = postprocess(body, store.exports)
+        .replace('export default MDXContent;', '');
 
     const { code } = await esbuild.transform(body, {
         loader: 'jsx',

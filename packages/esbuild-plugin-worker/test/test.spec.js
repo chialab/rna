@@ -22,7 +22,7 @@ describe('esbuild-plugin-worker', () => {
         });
 
         expect(result.text).to.be.equal(`// test.spec.js
-var worker = new Worker(new URL("./worker.js", import.meta.url).href);
+var worker = new Worker(new URL("./worker.js?hash=20beb8ee", import.meta.url).href);
 export {
   worker
 };
@@ -55,7 +55,7 @@ export {
             ],
         });
 
-        expect(result.text).to.be.equal(`const worker = new Worker(new URL("./worker.js", import.meta.url).href);
+        expect(result.text).to.be.equal(`const worker = new Worker(new URL("./worker.js?hash=20beb8ee", import.meta.url).href);
 export {
   worker
 };
@@ -89,7 +89,7 @@ export {
         });
 
         expect(result.text).to.be.equal(`// test.spec.js
-var worker = new Worker(new URL("./worker.js", import.meta.url).href, { type: "module" });
+var worker = new Worker(new URL("./worker.js?hash=a564928d", import.meta.url).href, { type: "module" });
 export {
   worker
 };
@@ -122,7 +122,7 @@ postMessage("message");
 
         const [result, worker] = outputFiles;
 
-        expect(result.text).to.be.equal(`const worker = new Worker(new URL("./worker.js", import.meta.url).href, { type: "module" });
+        expect(result.text).to.be.equal(`const worker = new Worker(new URL("./worker.js?hash=5a665960", import.meta.url).href, { type: "module" });
 export {
   worker
 };
@@ -155,7 +155,7 @@ var worker = new Worker(URL.createObjectURL(new Blob(['importScripts("' + functi
   const url = new URL(path);
   url.searchParams.set("transform", '{"format":"iife","bundle":true,"platform":"neutral","external":[]}');
   return url.href;
-}(new URL("./worker.js", import.meta.url).href) + '");'], { type: "text/javascript" })));
+}(new URL("./worker.js?hash=20beb8ee", import.meta.url).href) + '");'], { type: "text/javascript" })));
 export {
   worker
 };
@@ -219,7 +219,7 @@ export const fakeWorker = new ctx.Worker('./worker.js');`,
         });
 
         expect(result.text).to.be.equal(`// test.spec.js
-var worker = new Worker(new URL("./worker.js", import.meta.url).href);
+var worker = new Worker(new URL("./worker.js?hash=20beb8ee", import.meta.url).href);
 var fakeWorker = new ctx.Worker("./worker.js");
 export {
   fakeWorker,
@@ -251,7 +251,7 @@ export const worker = new window.Worker('./worker.js');`,
 var Worker = class {
 };
 var local = new Worker("./worker.js");
-var worker = new window.Worker(new URL("./worker.js", import.meta.url).href);
+var worker = new window.Worker(new URL("./worker.js?hash=20beb8ee", import.meta.url).href);
 export {
   local,
   worker

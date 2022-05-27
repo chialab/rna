@@ -2150,7 +2150,7 @@ __metadata:
     "@custom-elements-manifest/analyzer": 0.5.3
     "@mdx-js/mdx": ^2.0.0
     "@storybook/csf-tools": ^6.4.0
-    "@storybook/mdx2-csf": ^0.0.1-canary.1.838a6ca.0
+    "@storybook/mdx2-csf": ^0.0.3
     "@storybook/store": ^6.4.0
     "@types/lodash": ^4.14.175
     esbuild: ^0.14.8
@@ -2852,9 +2852,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/mdx2-csf@npm:^0.0.1-canary.1.838a6ca.0":
-  version: 0.0.1
-  resolution: "@storybook/mdx2-csf@npm:0.0.1"
+"@storybook/mdx2-csf@npm:^0.0.3":
+  version: 0.0.3
+  resolution: "@storybook/mdx2-csf@npm:0.0.3"
   dependencies:
     "@babel/generator": ^7.12.11
     "@babel/parser": ^7.12.11
@@ -2864,7 +2864,7 @@ __metadata:
     js-string-escape: ^1.0.1
     loader-utils: ^2.0.0
     lodash: ^4.17.21
-  checksum: 0c0b7f4fad65884d59d827cc683e0ef8c84e7f80da7997d2b7b8cd8fc6731a16030b43d3132db563c7493b3fb28d13a21c22ed6e965d4000710686b0a1b2cab2
+  checksum: 70792346109ec929929a3b0c6b3aaa66eb7c687e27f9742b603a679b0bf663e6194cbfa344371024d8d45ee843374bcabac13fc181cf4469f5a41834967aeba0
   languageName: node
   linkType: hard
 

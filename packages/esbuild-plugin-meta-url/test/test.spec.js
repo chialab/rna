@@ -26,7 +26,7 @@ describe('esbuild-plugin-meta-url', () => {
         });
 
         expect(result.text).to.be.equal(`// test.spec.js
-var file = new URL("./file.txt", import.meta.url);
+var file = new URL("./file.txt?hash=4e1243bd", import.meta.url);
 export {
   file
 };
@@ -69,10 +69,10 @@ export {
         });
 
         expect(result.text).to.be.equal(`// file1.js
-var file = new URL("./file-4e1243bd.txt", import.meta.url);
+var file = new URL("./file-4e1243bd.txt?hash=4e1243bd", import.meta.url);
 
 // file2.js
-var file2 = new URL("./file-4e1243bd.txt", import.meta.url);
+var file2 = new URL("./file-4e1243bd.txt?hash=4e1243bd", import.meta.url);
 export {
   file,
   file2
@@ -101,7 +101,7 @@ export const file = new URL(fileName, import.meta.url);`,
         });
 
         expect(result.text).to.be.equal(`// test.spec.js
-var file = new URL("./file.txt", import.meta.url);
+var file = new URL("./file.txt?hash=4e1243bd", import.meta.url);
 export {
   file
 };
@@ -160,7 +160,7 @@ export {
         expect(result.text).to.be.equal(`(() => {
   // test.spec.js
   var __currentScriptUrl__ = document.currentScript && document.currentScript.src || document.baseURI;
-  var file = new URL("./file.txt", __currentScriptUrl__);
+  var file = new URL("./file.txt?hash=4e1243bd", __currentScriptUrl__);
 })();
 `);
         expect(file.text).to.be.equal('test\n');
@@ -212,7 +212,7 @@ __export(test_spec_exports, {
   file: () => file
 });
 module.exports = __toCommonJS(test_spec_exports);
-var file = new URL("./file.txt", "file://" + __filename);
+var file = new URL("./file.txt?hash=4e1243bd", "file://" + __filename);
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   file
@@ -248,7 +248,7 @@ var file = new URL("./file.txt", "file://" + __filename);
         });
 
         expect(result.text).to.be.equal(`// test.spec.js
-var file = new URL("./npm_module", import.meta.url);
+var file = new URL("./npm_module?hash=4e1243bd", import.meta.url);
 export {
   file
 };

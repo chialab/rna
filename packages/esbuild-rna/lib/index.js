@@ -1,7 +1,7 @@
 import path from 'path';
 import crypto from 'crypto';
 import { mkdir, readFile, writeFile } from 'fs/promises';
-import { escapeRegexBody } from '@chialab/node-resolve';
+import { appendSearchParam, escapeRegexBody, getSearchParam } from '@chialab/node-resolve';
 import { loadSourcemap, inlineSourcemap, mergeSourcemaps } from '@chialab/estransform';
 import { assignToResult, createOutputFile, createResult } from './helpers.js';
 
@@ -60,7 +60,7 @@ export * from './helpers.js';
  */
 
 /**
- * @typedef {Result & { path: string }} Chunk
+ * @typedef {Result & { id: string; path: string }} Chunk
  */
 
 /**
@@ -135,6 +135,17 @@ function getOutBase(entryPoints, basePath) {
             return result.splice(0, len);
         })
         .join(path.sep) || path.sep;
+}
+
+/**
+ * Create hash for the given buffer.
+ * @param {Buffer} buffer The buffer.
+ * @returns An hash.
+ */
+function createHash(buffer) {
+    const hash = crypto.createHash('sha1');
+    hash.update(/** @type {Buffer} */(buffer));
+    return hash.digest('hex').substring(0, 8);
 }
 
 /**
@@ -234,11 +245,7 @@ export function useRna(build) {
                     return match1 || '';
                 })
                 .replace('[dir]', () => path.relative(outBase, path.dirname(filePath)))
-                .replace('[hash]', () => {
-                    const hash = crypto.createHash('sha1');
-                    hash.update(/** @type {Buffer} */(buffer));
-                    return hash.digest('hex').substr(0, 8);
-                })
+                .replace('[hash]', () => createHash(/** @type {Buffer} */(buffer)))
             }${path.extname(inputFile)}`;
         },
         /**
@@ -359,13 +366,14 @@ export function useRna(build) {
          * @param {string} path The path to check.
          */
         isEmittedPath(path) {
+            const id = getSearchParam(path, 'hash');
             for (const chunk of state.chunks.values()) {
-                if (chunk.path === path) {
+                if (chunk.id === id) {
                     return true;
                 }
             }
             for (const file of state.files.values()) {
-                if (file.path === path) {
+                if (file.id === id) {
                     return true;
                 }
             }
@@ -432,9 +440,11 @@ export function useRna(build) {
                 }
             );
 
+            const id = createHash(Buffer.from(buffer));
             const chunkResult = {
                 ...result,
-                path: `./${path.relative(virtualOutDir, outputFile)}`,
+                id,
+                path: appendSearchParam(`./${path.relative(virtualOutDir, outputFile)}`, 'hash', id),
             };
             rnaBuild.files.set(source, chunkResult);
 
@@ -505,9 +515,12 @@ export function useRna(build) {
             }
 
             const resolvedOutputFile = path.resolve(rootDir, outFile[0]);
+            const buffer = result.outputFiles ? result.outputFiles[0].contents : await readFile(resolvedOutputFile);
+            const id = createHash(Buffer.from(buffer));
             const chunkResult = {
                 ...result,
-                path: `./${path.relative(virtualOutDir, resolvedOutputFile)}`,
+                id,
+                path: appendSearchParam(`./${path.relative(virtualOutDir, resolvedOutputFile)}`, 'hash', id),
             };
             state.chunks.set(options.entryPoint, chunkResult);
 

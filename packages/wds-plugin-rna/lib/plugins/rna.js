@@ -14,14 +14,7 @@ import { realpath } from 'fs/promises';
  * @param {string} url
  */
 export function isFileRequest(url) {
-    return getSearchParam(url, 'emit') === 'file' || getSearchParam(url, 'loader') === 'file';
-}
-
-/**
- * @param {string} url
- */
-export function isChunkRequest(url) {
-    return getSearchParam(url, 'emit') === 'chunk';
+    return getSearchParam(url, 'loader') === 'file';
 }
 
 /**
@@ -75,7 +68,6 @@ document.head.appendChild(link);
  * @param {string} source
  */
 export function convertFileToJsModule(source) {
-    source = removeSearchParam(source, 'emit');
     source = removeSearchParam(source, 'loader');
     return `export default new URL('${source}', import.meta.url).href;`;
 }
@@ -228,8 +220,7 @@ export function rnaPlugin(config) {
             if (isJs(context.path) ||
                 isJson(context.path) ||
                 isCssModuleRequest(context.url) ||
-                isFileRequest(context.url) ||
-                isChunkRequest(context.url)) {
+                isFileRequest(context.url)) {
                 return 'js';
             }
             if (isCss(context.path)) {

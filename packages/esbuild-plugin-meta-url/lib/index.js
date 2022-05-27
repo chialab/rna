@@ -1,5 +1,5 @@
 import path from 'path';
-import { isUrl, appendSearchParam } from '@chialab/node-resolve';
+import { isUrl } from '@chialab/node-resolve';
 import { parse, walk, getIdentifierValue, getBlock, getLocation, TokenType } from '@chialab/estransform';
 import { useRna } from '@chialab/esbuild-rna';
 
@@ -211,7 +211,7 @@ export default function({ emit = true } = {}) {
                                     entryPoint = (await emitFile(resolvedPath)).path;
                                 }
                             } else {
-                                entryPoint = appendSearchParam(`./${path.relative(path.dirname(args.path), resolvedPath)}`, 'emit', isChunk ? 'chunk' : 'file');
+                                entryPoint = `./${path.relative(path.dirname(args.path), resolvedPath)}`;
                             }
 
                             helpers.overwrite(startToken.start, endToken.end, `new URL('${entryPoint}', ${baseUrl})`);

@@ -2,7 +2,6 @@ import path from 'path';
 import { walk, parse, TokenType, getIdentifierValue, getLocation, getBlock, splitArgs } from '@chialab/estransform';
 import metaUrlPlugin from '@chialab/esbuild-plugin-meta-url';
 import { useRna } from '@chialab/esbuild-rna';
-import { appendSearchParam } from '@chialab/node-resolve';
 
 /**
  * @typedef {{ constructors?: string[], proxy?: boolean, emit?: boolean }} PluginOptions
@@ -227,7 +226,7 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                             return;
                         }
 
-                        let entryPoint = appendSearchParam(`./${path.relative(path.dirname(args.path), resolvedPath)}`, 'emit', 'chunk');
+                        let entryPoint = `./${path.relative(path.dirname(args.path), resolvedPath)}`;
                         if (emit) {
                             const emittedChunk = await emitChunk({
                                 ...transformOptions,

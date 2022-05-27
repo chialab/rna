@@ -26,9 +26,56 @@ describe('esbuild-plugin-meta-url', () => {
         });
 
         expect(result.text).to.be.equal(`// test.spec.js
-var file = new URL("./file.txt?emit=file", import.meta.url);
+var file = new URL("./file.txt", import.meta.url);
 export {
   file
+};
+`);
+        expect(file.text).to.be.equal('test\n');
+        expect(path.dirname(result.path)).to.be.equal(path.dirname(file.path));
+    });
+
+    it('should load a file that was part of another build', async () => {
+        const { outputFiles: [result, file] } = await esbuild.build({
+            absWorkingDir: new URL('.', import.meta.url).pathname,
+            stdin: {
+                resolveDir: new URL('.', import.meta.url).pathname,
+                sourcefile: new URL(import.meta.url).pathname,
+                contents: 'export * from \'./file1.js\';export * from \'./file2.js\';',
+            },
+            assetNames: '[name]-[hash]',
+            format: 'esm',
+            outdir: 'out',
+            loader: {
+                '.txt': 'file',
+            },
+            bundle: true,
+            write: false,
+            plugins: [
+                virtual([
+                    {
+                        path: './file1.js',
+                        contents: 'export const file = new URL(\'./file.txt\', import.meta.url);',
+                        loader: 'js',
+                    },
+                    {
+                        path: './file2.js',
+                        contents: 'export const file2 = new URL(\'./file.txt\', import.meta.url);',
+                        loader: 'js',
+                    },
+                ]),
+                metaUrl(),
+            ],
+        });
+
+        expect(result.text).to.be.equal(`// file1.js
+var file = new URL("./file-4e1243bd.txt", import.meta.url);
+
+// file2.js
+var file2 = new URL("./file-4e1243bd.txt", import.meta.url);
+export {
+  file,
+  file2
 };
 `);
         expect(file.text).to.be.equal('test\n');
@@ -54,7 +101,7 @@ export const file = new URL(fileName, import.meta.url);`,
         });
 
         expect(result.text).to.be.equal(`// test.spec.js
-var file = new URL("./file.txt?emit=file", import.meta.url);
+var file = new URL("./file.txt", import.meta.url);
 export {
   file
 };
@@ -113,7 +160,7 @@ export {
         expect(result.text).to.be.equal(`(() => {
   // test.spec.js
   var __currentScriptUrl__ = document.currentScript && document.currentScript.src || document.baseURI;
-  var file = new URL("./file.txt?emit=file", __currentScriptUrl__);
+  var file = new URL("./file.txt", __currentScriptUrl__);
 })();
 `);
         expect(file.text).to.be.equal('test\n');
@@ -165,7 +212,7 @@ __export(test_spec_exports, {
   file: () => file
 });
 module.exports = __toCommonJS(test_spec_exports);
-var file = new URL("./file.txt?emit=file", "file://" + __filename);
+var file = new URL("./file.txt", "file://" + __filename);
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   file
@@ -201,7 +248,7 @@ var file = new URL("./file.txt?emit=file", "file://" + __filename);
         });
 
         expect(result.text).to.be.equal(`// test.spec.js
-var file = new URL("./npm_module?emit=file", import.meta.url);
+var file = new URL("./npm_module", import.meta.url);
 export {
   file
 };
@@ -222,6 +269,56 @@ export {
                     lineText: 'export const file = new URL(\'npm_module\', import.meta.url);',
                     namespace: 'file',
                     suggestion: 'Externalize module import using a JS proxy file.',
+                },
+            },
+        ]);
+    });
+
+    it('should not resolve a module with warnings', async () => {
+        const { warnings, outputFiles: [result] } = await esbuild.build({
+            absWorkingDir: new URL('.', import.meta.url).pathname,
+            stdin: {
+                resolveDir: new URL('.', import.meta.url).pathname,
+                sourcefile: new URL(import.meta.url).pathname,
+                contents: 'export const file = new URL(\'./missing.txt\', import.meta.url);',
+            },
+            format: 'esm',
+            outdir: 'out',
+            loader: {
+                '.txt': 'file',
+            },
+            bundle: true,
+            write: false,
+            plugins: [
+                virtual([{
+                    path: 'npm_module',
+                    contents: 'test\n',
+                    loader: 'js',
+                }]),
+                metaUrl(),
+            ],
+        });
+
+        expect(result.text).to.be.equal(`// test.spec.js
+var file = new URL("./missing.txt", import.meta.url);
+export {
+  file
+};
+`);
+        expect(warnings).to.be.deep.equal([
+            {
+                pluginName: 'meta-url',
+                text: 'Unable to resolve \'./missing.txt\' file.',
+                detail: '',
+                notes: [],
+                location: {
+                    column: 20,
+                    file: 'test.spec.js',
+                    length: 41,
+                    line: 1,
+                    lineText: 'export const file = new URL(\'./missing.txt\', import.meta.url);',
+                    namespace: 'file',
+                    suggestion: '',
                 },
             },
         ]);

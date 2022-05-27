@@ -18,10 +18,6 @@
     "polyfill",
     "polyfill.io"
   ],
-  "scripts": {
-    "types": "rimraf './{types,*.tsbuildinfo}' && tsc -b",
-    "prepack": "yarn types"
-  },
   "files": [
     "lib",
     "types",
@@ -37,7 +33,6 @@
   },
   "devDependencies": {
     "@web/dev-server-core": "^0.3.8",
-    "rimraf": "^3.0.2",
     "typescript": "^4.3.0"
   }
 }

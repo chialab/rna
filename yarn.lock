@@ -1628,7 +1628,6 @@ __metadata:
   resolution: "@chialab/cjs-to-esm@workspace:packages/cjs-to-esm"
   dependencies:
     "@chialab/estransform": ^0.15.28
-    rimraf: ^3.0.2
     typescript: ^4.3.0
   languageName: unknown
   linkType: soft
@@ -1666,7 +1665,6 @@ __metadata:
     "@chialab/estransform": ^0.15.28
     "@chialab/node-resolve": ^0.15.28
     esbuild: ^0.14.8
-    rimraf: ^3.0.2
     typescript: ^4.3.0
   languageName: unknown
   linkType: soft
@@ -1676,7 +1674,6 @@ __metadata:
   resolution: "@chialab/esbuild-plugin-any-file@workspace:packages/esbuild-plugin-any-file"
   dependencies:
     "@chialab/esbuild-rna": ^0.15.37
-    rimraf: ^3.0.2
     typescript: ^4.3.0
   languageName: unknown
   linkType: soft
@@ -1695,7 +1692,6 @@ __metadata:
     "@types/babel__plugin-transform-runtime": ^7.9.1
     "@types/babel__preset-env": ^7.9.1
     babel-plugin-htm: ^3.0.0
-    rimraf: ^3.0.2
     typescript: ^4.3.0
   languageName: unknown
   linkType: soft
@@ -1707,7 +1703,6 @@ __metadata:
     "@chialab/cjs-to-esm": ^0.15.28
     "@chialab/esbuild-rna": ^0.15.37
     "@chialab/node-resolve": ^0.15.28
-    rimraf: ^3.0.2
     typescript: ^4.3.0
   languageName: unknown
   linkType: soft
@@ -1717,7 +1712,6 @@ __metadata:
   resolution: "@chialab/esbuild-plugin-css-import@workspace:packages/esbuild-plugin-css-import"
   dependencies:
     "@chialab/node-resolve": ^0.15.28
-    rimraf: ^3.0.2
     typescript: ^4.3.0
   languageName: unknown
   linkType: soft
@@ -1726,7 +1720,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@chialab/esbuild-plugin-define-this@workspace:packages/esbuild-plugin-define-this"
   dependencies:
-    rimraf: ^3.0.2
     typescript: ^4.3.0
   languageName: unknown
   linkType: soft
@@ -1736,7 +1729,6 @@ __metadata:
   resolution: "@chialab/esbuild-plugin-env@workspace:packages/esbuild-plugin-env"
   dependencies:
     esbuild: ^0.14.8
-    rimraf: ^3.0.2
     typescript: ^4.3.0
   languageName: unknown
   linkType: soft
@@ -1746,7 +1738,6 @@ __metadata:
   resolution: "@chialab/esbuild-plugin-external@workspace:packages/esbuild-plugin-external"
   dependencies:
     "@chialab/node-resolve": ^0.15.28
-    rimraf: ^3.0.2
     typescript: ^4.3.0
   languageName: unknown
   linkType: soft
@@ -1777,7 +1768,6 @@ __metadata:
     "@chialab/estransform": ^0.15.28
     "@chialab/node-resolve": ^0.15.28
     esbuild: ^0.14.8
-    rimraf: ^3.0.2
     typescript: ^4.3.0
   languageName: unknown
   linkType: soft
@@ -1790,7 +1780,6 @@ __metadata:
     "@chialab/estransform": ^0.15.28
     "@chialab/node-resolve": ^0.15.28
     esbuild: ^0.14.8
-    rimraf: ^3.0.2
     typescript: ^4.3.0
   languageName: unknown
   linkType: soft
@@ -1808,7 +1797,6 @@ __metadata:
     postcss: ^8.2.5
     postcss-load-config: ^3.0.1
     postcss-scss: ^4.0.0
-    rimraf: ^3.0.2
     typescript: ^4.3.0
   peerDependencies:
     "@chialab/postcss-dart-sass": ^0.15.0
@@ -1830,7 +1818,6 @@ __metadata:
   dependencies:
     "@chialab/esbuild-rna": ^0.15.37
     "@chialab/estransform": ^0.15.28
-    rimraf: ^3.0.2
     typescript: ^4.3.0
   languageName: unknown
   linkType: soft
@@ -1842,7 +1829,6 @@ __metadata:
     "@chialab/esbuild-rna": ^0.15.37
     "@chialab/estransform": ^0.15.28
     "@chialab/node-resolve": ^0.15.28
-    rimraf: ^3.0.2
     typescript: ^4.3.0
   languageName: unknown
   linkType: soft
@@ -1853,7 +1839,6 @@ __metadata:
   dependencies:
     "@chialab/esbuild-rna": ^0.15.37
     "@chialab/node-resolve": ^0.15.28
-    rimraf: ^3.0.2
     typescript: ^4.3.0
   languageName: unknown
   linkType: soft
@@ -1865,7 +1850,6 @@ __metadata:
     "@chialab/esbuild-plugin-meta-url": ^0.15.39
     "@chialab/esbuild-rna": ^0.15.38
     "@chialab/estransform": ^0.15.28
-    rimraf: ^3.0.2
     typescript: ^4.3.0
   languageName: unknown
   linkType: soft
@@ -1877,7 +1861,6 @@ __metadata:
     "@chialab/estransform": ^0.15.28
     "@chialab/node-resolve": ^0.15.28
     esbuild: ^0.14.8
-    rimraf: ^3.0.2
     typescript: ^4.3.0
   languageName: unknown
   linkType: soft
@@ -1951,7 +1934,6 @@ __metadata:
     "@types/sass": ^1.16.1
     "@types/source-map": ^0.5.7
     postcss: ^8.0.0
-    rimraf: ^3.0.2
     sass: ^1.42.1
     source-map: ^0.7.3
     typescript: ^4.3.0
@@ -1980,7 +1962,6 @@ __metadata:
     postcss-pseudo-class-any-link: ^7.0.0
     postcss-replace-overflow-wrap: ^4.0.0
     postcss-url: ^10.0.0
-    rimraf: ^3.0.2
     typescript: ^4.3.0
   languageName: unknown
   linkType: soft
@@ -1991,7 +1972,6 @@ __metadata:
   dependencies:
     "@chialab/node-resolve": ^0.15.28
     postcss: ^8.2.5
-    rimraf: ^3.0.2
     typescript: ^4.3.0
   languageName: unknown
   linkType: soft
@@ -2002,7 +1982,6 @@ __metadata:
   dependencies:
     "@chialab/rna-logger": ^0.15.28
     commander: ^7.2.0
-    rimraf: ^3.0.2
     typedoc: ^0.21.5
     typescript: ^4.3.0
   languageName: unknown
@@ -2023,7 +2002,6 @@ __metadata:
     "@web/test-runner-playwright": ^0.8.8
     "@web/test-runner-puppeteer": ^0.10.2
     commander: ^7.2.0
-    rimraf: ^3.0.2
     typescript: ^4.3.0
   peerDependencies:
     "@chialab/wds-plugin-legacy": ^0.15.0
@@ -2055,7 +2033,6 @@ __metadata:
     "@chialab/rna-logger": ^0.15.28
     commander: ^7.2.0
     esbuild: ^0.14.8
-    rimraf: ^3.0.2
     typescript: ^4.3.0
   peerDependencies:
     "@chialab/esbuild-plugin-postcss": ^0.15.0
@@ -2070,7 +2047,6 @@ __metadata:
   resolution: "@chialab/rna-config-loader@workspace:packages/rna-config-loader"
   dependencies:
     "@chialab/node-resolve": ^0.15.28
-    rimraf: ^3.0.2
     typescript: ^4.3.0
   languageName: unknown
   linkType: soft
@@ -2109,7 +2085,6 @@ __metadata:
     "@types/debug": ^4.1.6
     chalk: ^4.1.1
     debug: ^4.3.2
-    rimraf: ^3.0.2
     typescript: ^4.3.0
   languageName: unknown
   linkType: soft
@@ -2122,7 +2097,6 @@ __metadata:
     "@chialab/node-resolve": ^0.15.28
     "@chialab/rna-config-loader": ^0.15.28
     commander: ^7.2.0
-    rimraf: ^3.0.2
     typescript: ^4.3.0
   languageName: unknown
   linkType: soft
@@ -2157,7 +2131,6 @@ __metadata:
     "@chialab/wds-plugin-legacy": ^0.15.28
     "@web/test-runner-saucelabs": ^0.7.3
     commander: ^7.2.0
-    rimraf: ^3.0.2
     typescript: ^4.3.0
   languageName: unknown
   linkType: soft
@@ -2227,7 +2200,6 @@ __metadata:
   resolution: "@chialab/wds-plugin-hmr-css@workspace:packages/wds-plugin-hmr-css"
   dependencies:
     "@chialab/es-dev-server": ^0.15.28
-    rimraf: ^3.0.2
     typescript: ^4.3.0
   languageName: unknown
   linkType: soft
@@ -2247,7 +2219,6 @@ __metadata:
     browserslist-useragent: ^3.0.3
     cheerio: ^1.0.0-rc.9
     regenerator-runtime: ^0.13.7
-    rimraf: ^3.0.2
     systemjs: ^6.9.0
     typescript: ^4.3.0
   languageName: unknown
@@ -2260,7 +2231,6 @@ __metadata:
     "@chialab/estransform": ^0.15.28
     "@chialab/node-resolve": ^0.15.28
     "@web/dev-server-core": ^0.3.8
-    rimraf: ^3.0.2
     typescript: ^4.3.0
   languageName: unknown
   linkType: soft
@@ -2271,7 +2241,6 @@ __metadata:
   dependencies:
     "@web/dev-server-core": ^0.3.8
     polyfill-library: ^3.105.0
-    rimraf: ^3.0.2
     typescript: ^4.3.0
   languageName: unknown
   linkType: soft
@@ -2289,7 +2258,6 @@ __metadata:
     "@chialab/rna-bundler": ^0.15.37
     "@chialab/rna-config-loader": ^0.15.28
     "@chialab/wds-plugin-node-resolve": ^0.15.28
-    rimraf: ^3.0.2
     typescript: ^4.3.0
   languageName: unknown
   linkType: soft

@@ -16,10 +16,6 @@
     "postcss",
     "css"
   ],
-  "scripts": {
-    "types": "rimraf './{types,*.tsbuildinfo}' && tsc -b",
-    "prepack": "yarn types"
-  },
   "files": [
     "lib",
     "types",
@@ -35,7 +31,6 @@
   },
   "devDependencies": {
     "postcss": "^8.2.5",
-    "rimraf": "^3.0.2",
     "typescript": "^4.3.0"
   }
 }

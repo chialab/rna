@@ -18,10 +18,6 @@
     "babel",
     "es5"
   ],
-  "scripts": {
-    "types": "rimraf './{types,*.tsbuildinfo}' && tsc -b",
-    "prepack": "yarn types"
-  },
   "files": [
     "lib",
     "types",
@@ -45,7 +41,6 @@
     "@types/babel__core": "^7.1.14",
     "@types/babel__plugin-transform-runtime": "^7.9.1",
     "@types/babel__preset-env": "^7.9.1",
-    "rimraf": "^3.0.2",
     "typescript": "^4.3.0"
   }
 }

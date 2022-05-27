@@ -2,6 +2,7 @@ import path from 'path';
 import { walk, parse, TokenType, getIdentifierValue, getLocation, getBlock, splitArgs } from '@chialab/estransform';
 import metaUrlPlugin from '@chialab/esbuild-plugin-meta-url';
 import { useRna } from '@chialab/esbuild-rna';
+import { appendSearchParam } from '@chialab/node-resolve';
 
 /**
  * @typedef {{ constructors?: string[], proxy?: boolean, emit?: boolean }} PluginOptions
@@ -47,7 +48,7 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
         name: 'worker',
         async setup(build) {
             const { sourcesContent, sourcemap } = build.initialOptions;
-            const { onTransform, emitChunk, setupPlugin } = useRna(build);
+            const { onTransform, emitChunk, isEmittedPath, setupPlugin } = useRna(build);
             await setupPlugin(plugin, [metaUrlPlugin({ emit })], 'after');
 
             onTransform({ loaders: ['tsx', 'ts', 'jsx', 'js'] }, async (args) => {
@@ -191,6 +192,10 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                             return;
                         }
 
+                        if (isEmittedPath(value)) {
+                            return;
+                        }
+
                         const { path: resolvedPath, external } = await build.resolve(value, {
                             kind: 'dynamic-import',
                             importer: args.path,
@@ -222,13 +227,13 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                             return;
                         }
 
-                        let entryPoint = `./${path.relative(path.dirname(args.path), value)}`;
+                        let entryPoint = appendSearchParam(`./${path.relative(path.dirname(args.path), resolvedPath)}`, 'emit', 'chunk');
                         if (emit) {
                             const emittedChunk = await emitChunk({
                                 ...transformOptions,
-                                entryPoint: value,
+                                entryPoint: resolvedPath,
                             });
-                            entryPoint = emittedChunk.path, 'chunk';
+                            entryPoint = emittedChunk.path;
                         }
 
                         const arg = `new URL('${entryPoint}', import.meta.url).href`;

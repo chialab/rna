@@ -1,5 +1,11 @@
 # @chialab/esbuild-rna
 
+## 0.15.40
+
+### Patch Changes
+
+- Fix dependencies collection
+
 ## 0.15.39
 
 ### Patch Changes

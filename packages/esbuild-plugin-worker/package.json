@@ -26,7 +26,8 @@
   "dependencies": {
     "@chialab/esbuild-plugin-meta-url": "^0.15.40",
     "@chialab/esbuild-rna": "^0.15.39",
-    "@chialab/estransform": "^0.15.28"
+    "@chialab/estransform": "^0.15.28",
+    "@chialab/node-resolve": "^0.15.28"
   },
   "devDependencies": {
     "typescript": "^4.3.0"

@@ -1,5 +1,6 @@
 import path from 'path';
 import { walk, parse, TokenType, getIdentifierValue, getLocation, getBlock, splitArgs } from '@chialab/estransform';
+import { appendSearchParam, getSearchParam } from '@chialab/node-resolve';
 import metaUrlPlugin from '@chialab/esbuild-plugin-meta-url';
 import { useRna } from '@chialab/esbuild-rna';
 
@@ -10,7 +11,7 @@ import { useRna } from '@chialab/esbuild-rna';
 /**
  * Create a blob proxy worker code.
  * @param {string} argument The url reference.
- * @param {Omit<import('@chialab/esbuild-rna').EmitTransformOptions, 'entryPoint'>} transformOptions The transform options for the url.
+ * @param {import('@chialab/esbuild-rna').EmitTransformOptions} transformOptions The transform options for the url.
  * @param {boolean} [checkType] Should check argument type.
  */
 function createBlobProxy(argument, transformOptions, checkType = false) {
@@ -150,7 +151,7 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                     }
 
                     /**
-                     * @type {Omit<import('@chialab/esbuild-rna').EmitTransformOptions, 'entryPoint'>}
+                     * @type {import('@chialab/esbuild-rna').EmitTransformOptions}
                      */
                     const transformOptions = {
                         format: 'iife',
@@ -191,7 +192,8 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                             return;
                         }
 
-                        if (isEmittedPath(value)) {
+                        const id = getSearchParam(value, 'hash');
+                        if (id && isEmittedPath(id)) {
                             return;
                         }
 
@@ -226,16 +228,16 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                             return;
                         }
 
-                        let entryPoint = `./${path.relative(path.dirname(args.path), resolvedPath)}`;
+                        let entryPoint = path.relative(path.dirname(args.path), resolvedPath);
                         if (emit) {
                             const emittedChunk = await emitChunk({
                                 ...transformOptions,
-                                entryPoint: resolvedPath,
+                                path: resolvedPath,
                             });
-                            entryPoint = emittedChunk.path;
+                            entryPoint = appendSearchParam(emittedChunk.path, 'hash', emittedChunk.id);
                         }
 
-                        const arg = `new URL('${entryPoint}', import.meta.url).href`;
+                        const arg = `new URL('./${entryPoint}', import.meta.url).href`;
                         if (proxy) {
                             helpers.overwrite(firstArg[0].start, firstArg[firstArg.length - 1].end, createBlobProxy(arg, transformOptions, false));
                         } else {

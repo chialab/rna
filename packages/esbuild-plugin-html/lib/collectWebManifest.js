@@ -45,7 +45,7 @@ const MANIFEST_ICONS = [
  * Collect and bundle webmanifests.
  * @type {import('./index').Collector}
  */
-export async function collectWebManifest($, dom, options, { emitFile, resolve, load }) {
+export async function collectWebManifest($, dom, options, helpers) {
     const htmlElement = dom.find('html');
     const baseElement = dom.find('base');
     const titleElement = dom.find('title');
@@ -62,12 +62,12 @@ export async function collectWebManifest($, dom, options, { emitFile, resolve, l
         return [];
     }
 
-    const manifestFilePath = await resolve(manifestHref);
+    const manifestFilePath = await helpers.resolve(manifestHref);
     if (!manifestFilePath.path) {
         throw new Error(`Failed to resolve manifest path: ${manifestHref}`);
     }
 
-    const manifestFile = await load(manifestFilePath.path, manifestFilePath);
+    const manifestFile = await helpers.load(manifestFilePath.path, manifestFilePath);
     if (!manifestFile.contents) {
         throw new Error(`Failed to load manifest file: ${manifestFilePath.path}`);
     }
@@ -86,12 +86,12 @@ export async function collectWebManifest($, dom, options, { emitFile, resolve, l
 
     icon: if (iconElement && iconElement.length) {
         const iconHref = iconElement.attr('href') || '';
-        const iconFilePath = await resolve(iconHref);
+        const iconFilePath = await helpers.resolve(iconHref);
         if (!iconFilePath.path) {
             throw new Error(`Failed to resolve icon path: ${iconHref}`);
         }
 
-        const iconFile = await load(iconFilePath.path, iconFilePath);
+        const iconFile = await helpers.load(iconFilePath.path, iconFilePath);
         if (!iconFile.contents) {
             throw new Error(`Failed to load icon file: ${iconFilePath.path}`);
         }
@@ -111,7 +111,7 @@ export async function collectWebManifest($, dom, options, { emitFile, resolve, l
         json.icons = await Promise.all(
             MANIFEST_ICONS.map(async ({ name, size }) => {
                 const contents = await generateIcon(image, size, 0, { r: 255, g: 255, b: 255, a: 1 });
-                const result = await emitFile(name, contents);
+                const result = await helpers.emitFile(name, contents);
                 return {
                     src: result.path,
                     sizes: `${size}x${size}`,
@@ -121,16 +121,13 @@ export async function collectWebManifest($, dom, options, { emitFile, resolve, l
         );
     }
 
-    return [
-        {
-            build: {
-                entryPoint: manifestFilePath.path,
-                contents: JSON.stringify(json, null, 2),
-                loader: 'file',
-            },
-            async finisher(files) {
-                $(element).attr('href', files[0]);
-            },
-        },
-    ];
+    const entryPoint = manifestFilePath.path;
+    const file = await helpers.emitFile(entryPoint, JSON.stringify(json, null, 2));
+
+    $(element).attr('href', file.path);
+
+    return [{
+        ...file,
+        watchFiles: [entryPoint],
+    }];
 }

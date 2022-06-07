@@ -15,27 +15,69 @@ export async function collectStyles($, dom, options, helpers) {
         return [];
     }
 
-    const contents = elements.map((element) => {
-        if ($(element).attr('href')) {
-            return `@import './${$(element).attr('href')}';`;
+    /**
+     * @type {Map<import('cheerio').Element, import('@chialab/esbuild-rna').VirtualEntry|string>}
+     */
+    const builds = new Map();
+
+    /**
+     * @type {Map<string, import('cheerio').Element>}
+     */
+    const entrypoints = new Map();
+
+    await Promise.all(elements.map(async (element) => {
+        const href = $(element).attr('href');
+        if (href) {
+            const resolvedFile = await helpers.resolve(`./${href}`);
+            if (!resolvedFile.path) {
+                return;
+            }
+
+            builds.set(element, resolvedFile.path);
+            entrypoints.set(resolvedFile.path, element);
+        } else {
+            const entryPoint = path.join(options.sourceDir, helpers.createEntry('css'));
+            builds.set(element, {
+                path: entryPoint,
+                contents: $(element).html() || '',
+                loader: 'css',
+            });
+            entrypoints.set(entryPoint, element);
+        }
+    }));
+
+    const result = await helpers.emitBuild({
+        entryPoints: [...builds.values()],
+        loader: 'css',
+        target: options.target[0],
+    });
+
+    Object.entries(result.metafile.outputs).forEach(([outName, output]) => {
+        if (outName.endsWith('.map')) {
+            // ignore map files
+            return;
+        }
+        if (!output.entryPoint) {
+            // ignore chunks
+            return;
         }
 
-        return $(element).html();
-    }).join('\n');
+        const entryPoint = path.join(options.workingDir, output.entryPoint);
+        const element = entrypoints.get(entryPoint);
+        if (!element) {
+            // unknown entrypoint
+            return;
+        }
 
-    return [{
-        build: {
-            entryPoint: path.join(options.sourceDir, helpers.createEntry('css')),
-            contents,
-            loader: 'css',
-            target: options.target[0],
-        },
-        finisher(files) {
-            elements.forEach((element) => {
-                $(element).remove();
-            });
+        const fullOutName = path.join(options.workingDir, outName);
+        const relativeOutName = path.relative(options.outDir, fullOutName);
 
-            $('head').append(`<link rel="stylesheet" href="${files[0]}" />`);
-        },
-    }];
+        if ($(element).is('link')) {
+            $(element).attr('href', relativeOutName);
+        } else {
+            $(element).html(`@import '${relativeOutName}'`);
+        }
+    });
+
+    return [result];
 }

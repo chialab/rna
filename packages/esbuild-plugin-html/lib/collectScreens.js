@@ -2,6 +2,16 @@ import path from 'path';
 import { isRelativeUrl } from '@chialab/node-resolve';
 import Jimp from './generator.js';
 import { generateLaunch } from './generateLaunch.js';
+import { collectAsset } from './collectAssets.js';
+
+/**
+ * @typedef {Object} Screen
+ * @property {string} name The screen name.
+ * @property {Buffer} contents The icon buffer.
+ * @property {number} width The screen width.
+ * @property {number} height The screen height.
+ * @property {string} query The screen media query.
+ */
 
 const APPLE_LAUNCH_SCREENS = [
     {
@@ -51,6 +61,7 @@ const APPLE_LAUNCH_SCREENS = [
 /**
  * @param {import('./generator').Image} image The base icon buffer.
  * @param {typeof APPLE_LAUNCH_SCREENS} launchScreens
+ * @returns {Promise<Screen[]>}
  */
 async function generateAppleLaunchScreens(image, launchScreens) {
     return Promise.all(
@@ -65,70 +76,65 @@ async function generateAppleLaunchScreens(image, launchScreens) {
 }
 
 /**
+ * @param {import('cheerio').CheerioAPI} $ The cheerio selector.
+ * @param {import('cheerio').Cheerio<import('cheerio').Element>} element The DOM element.
+ * @param {Screen} screen The generated screen file.
+ * @param {import('./index.js').BuildOptions} options Build options.
+ * @param {import('./index.js').Helpers} helpers Helpers.
+ * @returns {Promise<import('@chialab/esbuild-rna').OnTransformResult>} Plain build.
+ */
+export async function collectScreen($, element, screen, options, helpers) {
+    const entryPoint = path.join(options.sourceDir, screen.name);
+    const file = await helpers.emitFile(entryPoint, screen.contents);
+
+    const link = $('<link>');
+    link.attr('rel', 'apple-touch-startup-image');
+    link.attr('media', screen.query);
+    link.attr('href', file.path);
+    link.insertBefore(element);
+
+    return {
+        ...file,
+        watchFiles: [entryPoint],
+    };
+}
+
+/**
  * Collect and bundle apple screens.
  * @type {import('./index').Collector}
  */
-export async function collectScreens($, dom, options, { resolve, load }) {
+export async function collectScreens($, dom, options, helpers) {
     const splashElement = dom.find('link[rel*="apple-touch-startup-image"]').last();
     const splashHref = splashElement.attr('href') || '';
     if (!isRelativeUrl(splashHref)) {
         return [];
     }
 
-    const splashFilePath = await resolve(splashHref);
+    const splashFilePath = await helpers.resolve(splashHref);
     if (!splashFilePath.path) {
         throw new Error(`Failed to resolve icon path: ${splashHref}`);
     }
 
-    const splashFile = await load(splashFilePath.path, splashFilePath);
+    const splashFile = await helpers.load(splashFilePath.path, splashFilePath);
     if (!splashFile.contents) {
         throw new Error(`Failed to load icon file: ${splashFilePath.path}`);
     }
 
     const imageBuffer = Buffer.from(splashFile.contents);
 
-    /**
-     * @type {InstanceType<Jimp>}
-     */
-    let image;
     try {
-        image = await Jimp.read(imageBuffer);
+        const image = await Jimp.read(imageBuffer);
+        const appleLaunchScreens = await generateAppleLaunchScreens(image, APPLE_LAUNCH_SCREENS);
+        const results = await Promise.all(appleLaunchScreens.map((icon) => collectScreen($, splashElement, icon, options, helpers)));
+        splashElement.remove();
+
+        return results;
     } catch (err) {
-        return [
-            {
-                build: {
-                    loader: 'file',
-                    entryPoint: splashHref,
-                },
-                finisher(files) {
-                    splashElement.attr('href', files[0]);
-                },
-            },
-        ];
+        const result = await collectAsset($, splashElement, 'href', options, helpers);
+        if (result) {
+            return [result];
+        }
+
+        return [];
     }
-
-    const appleLaunchScreens = await generateAppleLaunchScreens(image, APPLE_LAUNCH_SCREENS);
-
-    return [
-        ...appleLaunchScreens.map((icon) => /** @type {import('./index.js').CollectResult} */ ({
-            build: {
-                entryPoint: path.join(options.sourceDir, icon.name),
-                contents: icon.contents,
-                loader: 'file',
-                outdir: 'icons',
-            },
-            async finisher(files) {
-                const link = $('<link>');
-                link.attr('rel', 'apple-touch-startup-image');
-                link.attr('media', icon.query);
-                link.attr('href', files[0]);
-                link.insertBefore(splashElement);
-            },
-        })),
-        {
-            finisher() {
-                splashElement.remove();
-            },
-        },
-    ];
 }

@@ -1,7 +1,7 @@
 import path from 'path';
 import crypto from 'crypto';
 import { mkdir, readFile, writeFile } from 'fs/promises';
-import { appendSearchParam, escapeRegexBody, getSearchParam } from '@chialab/node-resolve';
+import { escapeRegexBody } from '@chialab/node-resolve';
 import { loadSourcemap, inlineSourcemap, mergeSourcemaps } from '@chialab/estransform';
 import { assignToResult, createOutputFile, createResult } from './helpers.js';
 
@@ -48,7 +48,7 @@ export * from './helpers.js';
  */
 
 /**
- * @typedef {{ code?: string, map?: import('@chialab/estransform').SourceMap|null, resolveDir?: string, errors?: import('esbuild').Message[], warnings?: import('esbuild').Message[] }} OnTransformResult
+ * @typedef {{ code?: string, map?: import('@chialab/estransform').SourceMap|null, resolveDir?: string, errors?: import('esbuild').Message[], warnings?: import('esbuild').Message[], watchFiles?: string[] }} OnTransformResult
  */
 
 /**
@@ -68,11 +68,20 @@ export * from './helpers.js';
  */
 
 /**
+ * @typedef {Object} VirtualEntry
+ * @property {string} path
+ * @property {string|Buffer} contents
+ * @property {import('esbuild').Loader} [loader]
+ * @property {string} [resolveDir]
+ */
+
+/**
  * @typedef {Object} BuildState
  * @property {{ options: OnLoadOptions, callback: LoadCallback }[]} load
  * @property {{ options: OnTransformOptions, callback: TransformCallback }[]} transform
  * @property {Map<string, Chunk>} chunks
  * @property {Map<string, Chunk>} files
+ * @property {Set<Result>} builds
  * @property {DependenciesMap} dependencies
  * @property {boolean} initialized
  */
@@ -83,10 +92,8 @@ export * from './helpers.js';
 
 /**
  * @typedef {Object} EmitTransformOptions
- * @property {string} entryPoint
  * @property {import('esbuild').Loader} [loader]
  * @property {string} [outdir]
- * @property {string|Buffer} [contents]
  * @property {boolean} [bundle]
  * @property {boolean} [splitting]
  * @property {import('esbuild').Platform} [platform]
@@ -96,6 +103,14 @@ export * from './helpers.js';
  * @property {string[]} [external]
  * @property {string[]} [inject]
  * @property {string|undefined} [jsxFactory]
+ */
+
+/**
+ * @typedef {EmitTransformOptions & { path: string; contents?: string|Buffer }} EmitChunkOptions
+ */
+
+/**
+ * @typedef {EmitTransformOptions & { entryPoints: (string|VirtualEntry)[] }} EmitBuildOptions
  */
 
 /**
@@ -170,6 +185,7 @@ export function useRna(build) {
         transform: [],
         chunks: new Map(),
         files: new Map(),
+        builds: new Set(),
         dependencies: {},
         initialized: false,
     };
@@ -192,6 +208,10 @@ export function useRna(build) {
          * A map of emitted files.
          */
         files: state.files,
+        /**
+         * A map of emitted builds.
+         */
+        builds: state.builds,
         /**
          * A list of collected dependencies.
          */
@@ -363,10 +383,9 @@ export function useRna(build) {
         },
         /**
          * Check if path has been emitted by build.
-         * @param {string} path The path to check.
+         * @param {string} id The chunk id.
          */
-        isEmittedPath(path) {
-            const id = getSearchParam(path, 'hash');
+        isEmittedPath(id) {
             for (const chunk of state.chunks.values()) {
                 if (chunk.id === id) {
                     return true;
@@ -444,7 +463,7 @@ export function useRna(build) {
             const chunkResult = {
                 ...result,
                 id,
-                path: appendSearchParam(`./${path.relative(virtualOutDir, outputFile)}`, 'hash', id),
+                path: path.relative(virtualOutDir, outputFile),
             };
             rnaBuild.files.set(source, chunkResult);
 
@@ -452,7 +471,7 @@ export function useRna(build) {
         },
         /**
          * Programmatically emit a chunk reference.
-         * @param {EmitTransformOptions} options Esbuild transform options.
+         * @param {EmitChunkOptions} options Esbuild transform options.
          * @returns {Promise<Chunk>} The output chunk reference.
          */
         async emitChunk(options) {
@@ -485,13 +504,13 @@ export function useRna(build) {
             if (options.contents) {
                 delete config.entryPoints;
                 config.stdin = {
-                    sourcefile: options.entryPoint,
+                    sourcefile: options.path,
                     contents: options.contents.toString(),
                     loader: options.loader,
                     resolveDir: rootDir,
                 };
             } else {
-                config.entryPoints = [options.entryPoint];
+                config.entryPoints = [options.path];
             }
 
             if (config.define) {
@@ -520,11 +539,68 @@ export function useRna(build) {
             const chunkResult = {
                 ...result,
                 id,
-                path: appendSearchParam(`./${path.relative(virtualOutDir, resolvedOutputFile)}`, 'hash', id),
+                path: path.relative(virtualOutDir, resolvedOutputFile),
             };
-            state.chunks.set(options.entryPoint, chunkResult);
+            state.chunks.set(options.path, chunkResult);
 
             return chunkResult;
+        },
+        /**
+         * Programmatically emit a sub build.
+         * @param {EmitBuildOptions} options Esbuild build options.
+         * @returns {Promise<Result>} The output build reference.
+         */
+        async emitBuild(options) {
+            const format = options.format ?? build.initialOptions.format;
+            const entryPoints = options.entryPoints;
+
+            /** @type {import('esbuild').BuildOptions} */
+            const config = {
+                ...build.initialOptions,
+                entryPoints: entryPoints.map((entryPoint) => {
+                    if (typeof entryPoint === 'string') {
+                        return entryPoint;
+                    }
+
+                    return entryPoint.path;
+                }),
+                format,
+                outdir: options.outdir ? path.resolve(virtualOutDir, `./${options.outdir}`) : fullOutDir,
+                bundle: options.bundle ?? build.initialOptions.bundle,
+                splitting: format === 'esm' ? (options.splitting ?? build.initialOptions.splitting ?? true) : false,
+                platform: options.platform ?? build.initialOptions.platform,
+                target: options.target ?? build.initialOptions.target,
+                plugins: options.plugins ?? build.initialOptions.plugins,
+                external: options.external ?? build.initialOptions.external,
+                jsxFactory: ('jsxFactory' in options) ? options.jsxFactory : build.initialOptions.jsxFactory,
+                entryNames: build.initialOptions.chunkNames || build.initialOptions.entryNames,
+                write,
+                globalName: undefined,
+                outfile: undefined,
+                metafile: true,
+            };
+
+            const plugins = config.plugins || [];
+            plugins.unshift({
+                name: 'emit-virtual-modules',
+                async setup(build) {
+                    const { addVirtualModule } = useRna(build);
+
+                    entryPoints.forEach((entryPoint) => {
+                        if (typeof entryPoint !== 'object') {
+                            return;
+                        }
+                        if (entryPoint.contents) {
+                            addVirtualModule(entryPoint);
+                        }
+                    });
+                },
+            });
+
+            const result = /** @type {Result} */ (await esbuild.build(config));
+            state.builds.add(result);
+
+            return result;
         },
         /**
          * Wrap esbuild onLoad hook in order to collect the load callback.
@@ -624,6 +700,33 @@ export function useRna(build) {
 
             return map;
         },
+        /**
+         * Add a virtual module to the build.
+         * @param {VirtualEntry} entry The virtual module entry.
+         */
+        addVirtualModule(entry) {
+            const resolveDir = entry.resolveDir || rootDir;
+            const virtualFilePath = path.isAbsolute(entry.path) ? entry.path : path.join(resolveDir, entry.path);
+            const virtualFilter = new RegExp(escapeRegexBody(virtualFilePath));
+
+            build.onResolve({ filter: new RegExp(escapeRegexBody(entry.path)) }, () => ({
+                path: virtualFilePath,
+                namespace: 'file',
+            }));
+
+            build.onResolve({ filter: virtualFilter }, () => ({
+                path: virtualFilePath,
+                namespace: 'file',
+            }));
+
+            rnaBuild.onLoad({ filter: virtualFilter }, (args) => ({
+                ...args,
+                contents: entry.contents,
+                namespace: 'file',
+                loader: entry.loader || loaders[path.extname(args.path)] || 'file',
+                resolveDir: entry.resolveDir || path.dirname(virtualFilePath),
+            }));
+        },
     };
 
     if (stdin && stdin.sourcefile) {
@@ -631,14 +734,11 @@ export function useRna(build) {
         build.initialOptions.entryPoints = [sourceFile];
         delete build.initialOptions.stdin;
 
-        build.onResolve({ filter: new RegExp(escapeRegexBody(sourceFile)) }, (args) => ({
-            path: args.path,
-        }));
-
-        rnaBuild.onLoad({ filter: new RegExp(escapeRegexBody(sourceFile)) }, () => ({
+        rnaBuild.addVirtualModule({
+            path: sourceFile,
             contents: stdin.contents,
-            loader: stdin.loader || loaders[path.extname(sourceFile)] || 'file',
-        }));
+            loader: stdin.loader,
+        });
     }
 
     if (!state.initialized) {
@@ -666,8 +766,9 @@ export function useRna(build) {
         build.onEnd(async (buildResult) => {
             const rnaResult = /** @type {Result} */ (buildResult);
             rnaResult.dependencies = state.dependencies;
-            rnaBuild.chunks.forEach((result) => assignToResult(rnaResult, result));
-            rnaBuild.files.forEach((result) => assignToResult(rnaResult, result));
+            state.chunks.forEach((result) => assignToResult(rnaResult, result));
+            state.files.forEach((result) => assignToResult(rnaResult, result));
+            state.builds.forEach((result) => assignToResult(rnaResult, result));
 
             if (rnaResult.metafile) {
                 const outputs = { ...rnaResult.metafile.outputs };

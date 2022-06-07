@@ -3,7 +3,7 @@ import htmlPlugin from '@chialab/esbuild-plugin-html';
 import virtualPlugin from '@chialab/esbuild-plugin-virtual';
 import { expect } from 'chai';
 
-describe.only('esbuild-plugin-html', () => {
+describe('esbuild-plugin-html', () => {
     it('should bundle webapp with scripts', async () => {
         const { outputFiles } = await esbuild.build({
             absWorkingDir: new URL('.', import.meta.url).pathname,
@@ -520,7 +520,7 @@ body {
 `,
                     },
                     {
-                        path: './index.css',
+                        path: new URL('./index.css', import.meta.url).pathname,
                         contents: '@import \'lib.css\';',
                         loader: 'css',
                     },
@@ -881,7 +881,9 @@ html {
             ],
         });
 
-        const [index, js, css] = outputFiles;
+        const [index, ...files] = outputFiles;
+        const js = files.find((file) => file.path.endsWith('.js'));
+        const css = files.find((file) => file.path.endsWith('.css'));
 
         expect(outputFiles).to.have.lengthOf(3);
         expect(index.path.endsWith('/out/fixture/index.iife.html')).to.be.true;
@@ -893,17 +895,27 @@ html {
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <link rel="stylesheet" href="../1.css">
+    <script type="application/javascript">
+        (function() {
+            function loadStyle(url) {
+                var l = document.createElement('link');
+                l.rel = 'stylesheet';
+                l.href = url;
+                document.head.appendChild(l);
+            }
+            loadStyle('../index.css');
+        }());
+    </script>
 </head>
 
 <body>
-    <script src="../1.js" type="application/javascript"></script>
+    <script src="../index.js" type="application/javascript"></script>
 </body>
 
 </html>`);
 
-        expect(js.path.endsWith('/out/1.js')).to.be.true;
-        expect(css.path.endsWith('/out/1.css')).to.be.true;
+        expect(js.path.endsWith('/out/index.js')).to.be.true;
+        expect(css.path.endsWith('/out/index.css')).to.be.true;
     });
 
     it('should bundle webapp with [dir] without outbase', async () => {
@@ -922,7 +934,9 @@ html {
             ],
         });
 
-        const [index, js, css] = outputFiles;
+        const [index, ...files] = outputFiles;
+        const js = files.find((file) => file.path.endsWith('.js'));
+        const css = files.find((file) => file.path.endsWith('.css'));
 
         expect(outputFiles).to.have.lengthOf(3);
         expect(index.path.endsWith('/out/index.iife.html')).to.be.true;
@@ -934,16 +948,26 @@ html {
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <link rel="stylesheet" href="1.css">
+    <script type="application/javascript">
+        (function() {
+            function loadStyle(url) {
+                var l = document.createElement('link');
+                l.rel = 'stylesheet';
+                l.href = url;
+                document.head.appendChild(l);
+            }
+            loadStyle('index.css');
+        }());
+    </script>
 </head>
 
 <body>
-    <script src="1.js" type="application/javascript"></script>
+    <script src="index.js" type="application/javascript"></script>
 </body>
 
 </html>`);
 
-        expect(js.path.endsWith('/out/1.js')).to.be.true;
-        expect(css.path.endsWith('/out/1.css')).to.be.true;
+        expect(js.path.endsWith('/out/index.js')).to.be.true;
+        expect(css.path.endsWith('/out/index.css')).to.be.true;
     });
 });

@@ -26,6 +26,7 @@ const loadHtml = /** @type {typeof cheerio.load} */ (cheerio.load || cheerio.def
  * @typedef {Object} BuildOptions
  * @property {string} sourceDir
  * @property {string} outDir
+ * @property {string} entryDir
  * @property {string} workingDir
  * @property {string[]} target
  */
@@ -170,7 +171,7 @@ export default function({
                 /**
                  * @param {string} file
                  */
-                const resolveFile = (file) => build.resolve(file.startsWith('./') || file.startsWith('../') ? file : `./${file}`, {
+                const resolveFile = (file) => build.resolve(path.resolve(path.dirname(args.path), file), {
                     kind: 'dynamic-import',
                     importer: args.path,
                     resolveDir: path.dirname(args.path),
@@ -194,6 +195,7 @@ export default function({
                     sourceDir: path.dirname(args.path),
                     workingDir,
                     outDir: path.resolve(workingDir, outDir),
+                    entryDir: path.dirname(path.resolve(workingDir, outDir, computeName(entryNames, args.path, ''))),
                     target: [scriptsTarget, modulesTarget],
                 };
 

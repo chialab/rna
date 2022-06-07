@@ -59,7 +59,7 @@ export default function() {
                         });
 
                         const emittedFile = await emitFile(resolvedFilePath);
-                        helpers.overwrite(stringToken.start, stringToken.end, appendSearchParam(`'./${emittedFile.path}'`, 'hash', emittedFile.id));
+                        helpers.overwrite(stringToken.start, stringToken.end, `'./${appendSearchParam(emittedFile.path, 'hash', emittedFile.id)}'`);
                     })());
                 });
 

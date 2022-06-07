@@ -28,7 +28,7 @@ export async function collectStyles($, dom, options, helpers) {
     await Promise.all(elements.map(async (element) => {
         const href = $(element).attr('href');
         if (href) {
-            const resolvedFile = await helpers.resolve(`./${href}`);
+            const resolvedFile = await helpers.resolve(href);
             if (!resolvedFile.path) {
                 return;
             }
@@ -70,7 +70,7 @@ export async function collectStyles($, dom, options, helpers) {
         }
 
         const fullOutName = path.join(options.workingDir, outName);
-        const relativeOutName = path.relative(options.outDir, fullOutName);
+        const relativeOutName = path.relative(options.entryDir, fullOutName);
 
         if ($(element).is('link')) {
             $(element).attr('href', relativeOutName);

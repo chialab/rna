@@ -3,7 +3,7 @@
   "type": "module",
   "version": "0.15.37",
   "description": "A HTML loader plugin for esbuild.",
-  "main": "lib/index.js",
+  "main": "dist/index.js",
   "typings": "./types/index.d.ts",
   "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
   "license": "MIT",

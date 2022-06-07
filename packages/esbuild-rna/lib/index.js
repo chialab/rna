@@ -709,12 +709,7 @@ export function useRna(build) {
             const virtualFilePath = path.isAbsolute(entry.path) ? entry.path : path.join(resolveDir, entry.path);
             const virtualFilter = new RegExp(escapeRegexBody(virtualFilePath));
 
-            build.onResolve({ filter: new RegExp(escapeRegexBody(entry.path)) }, () => ({
-                path: virtualFilePath,
-                namespace: 'file',
-            }));
-
-            build.onResolve({ filter: virtualFilter }, () => ({
+            build.onResolve({ filter: new RegExp(`^${escapeRegexBody(entry.path)}$`) }, () => ({
                 path: virtualFilePath,
                 namespace: 'file',
             }));

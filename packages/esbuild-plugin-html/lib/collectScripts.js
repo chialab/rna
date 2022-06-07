@@ -34,7 +34,7 @@ async function innerCollect($, dom, elements, target, format, type, attrs = {}, 
     await Promise.all(elements.map(async (element) => {
         const src = $(element).attr('src');
         if (src) {
-            const resolvedFile = await helpers.resolve(`./${src}`);
+            const resolvedFile = await helpers.resolve(src);
             if (!resolvedFile.path) {
                 return;
             }
@@ -77,7 +77,7 @@ async function innerCollect($, dom, elements, target, format, type, attrs = {}, 
         }
 
         const fullOutName = path.join(options.workingDir, outName);
-        const relativeOutName = path.relative(options.outDir, fullOutName);
+        const relativeOutName = path.relative(options.entryDir, fullOutName);
 
         if ($(element).attr('src')) {
             $(element).attr('src', relativeOutName);
@@ -107,7 +107,7 @@ function loadStyle(url) {
 
 ${styleFiles.map((outName) => {
             const fullOutFile = path.join(options.workingDir, outName);
-            const relativeOutFile = path.relative(options.outDir, fullOutFile);
+            const relativeOutFile = path.relative(options.entryDir, fullOutFile);
             return `loadStyle('${relativeOutFile}');`;
         }).join('\n')}
 }());`);

@@ -1,7 +1,7 @@
 {
   "name": "@chialab/estransform",
   "type": "module",
-  "version": "0.15.28",
+  "version": "0.16.0",
   "description": "Execute multiple transformations on JavaScript sources with full sourcemaps support.",
   "main": "dist/index.js",
   "typings": "./types/index.d.ts",

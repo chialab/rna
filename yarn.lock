@@ -1623,16 +1623,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@chialab/cjs-to-esm@^0.15.28, @chialab/cjs-to-esm@workspace:packages/cjs-to-esm":
+"@chialab/cjs-to-esm@^0.16.0, @chialab/cjs-to-esm@workspace:packages/cjs-to-esm":
   version: 0.0.0-use.local
   resolution: "@chialab/cjs-to-esm@workspace:packages/cjs-to-esm"
   dependencies:
-    "@chialab/estransform": ^0.15.28
+    "@chialab/estransform": ^0.16.0
     typescript: ^4.3.0
   languageName: unknown
   linkType: soft
 
-"@chialab/es-dev-server@^0.15.28, @chialab/es-dev-server@workspace:packages/es-dev-server":
+"@chialab/es-dev-server@^0.16.0, @chialab/es-dev-server@workspace:packages/es-dev-server":
   version: 0.0.0-use.local
   resolution: "@chialab/es-dev-server@workspace:packages/es-dev-server"
   dependencies:
@@ -1644,7 +1644,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@chialab/es-test-runner@^0.15.28, @chialab/es-test-runner@workspace:packages/es-test-runner":
+"@chialab/es-test-runner@^0.16.0, @chialab/es-test-runner@workspace:packages/es-test-runner":
   version: 0.0.0-use.local
   resolution: "@chialab/es-test-runner@workspace:packages/es-test-runner"
   dependencies:
@@ -1657,23 +1657,32 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@chialab/esbuild-plugin-alias@^0.15.37, @chialab/esbuild-plugin-alias@workspace:packages/esbuild-plugin-alias":
+"@chialab/es-test-runner@npm:^0.15.28":
+  version: 0.15.28
+  resolution: "@chialab/es-test-runner@npm:0.15.28"
+  dependencies:
+    istanbul-reports: ^3.1.1
+  checksum: 1a049a5edacfa20d9f45d0192577c9f41ed81a987e51db9689d50f554c8144a73afb42b39a28b4e3f1ab961c6a1f482aa9fe072415745b8890087d67ca911cd0
+  languageName: node
+  linkType: hard
+
+"@chialab/esbuild-plugin-alias@^0.16.0, @chialab/esbuild-plugin-alias@workspace:packages/esbuild-plugin-alias":
   version: 0.0.0-use.local
   resolution: "@chialab/esbuild-plugin-alias@workspace:packages/esbuild-plugin-alias"
   dependencies:
-    "@chialab/esbuild-rna": ^0.15.37
-    "@chialab/estransform": ^0.15.28
-    "@chialab/node-resolve": ^0.15.28
+    "@chialab/esbuild-rna": ^0.16.0
+    "@chialab/estransform": ^0.16.0
+    "@chialab/node-resolve": ^0.16.0
     esbuild: ^0.14.8
     typescript: ^4.3.0
   languageName: unknown
   linkType: soft
 
-"@chialab/esbuild-plugin-any-file@^0.15.37, @chialab/esbuild-plugin-any-file@workspace:packages/esbuild-plugin-any-file":
+"@chialab/esbuild-plugin-any-file@^0.16.0, @chialab/esbuild-plugin-any-file@workspace:packages/esbuild-plugin-any-file":
   version: 0.0.0-use.local
   resolution: "@chialab/esbuild-plugin-any-file@workspace:packages/esbuild-plugin-any-file"
   dependencies:
-    "@chialab/esbuild-rna": ^0.15.37
+    "@chialab/esbuild-rna": ^0.16.0
     typescript: ^4.3.0
   languageName: unknown
   linkType: soft
@@ -1687,7 +1696,7 @@ __metadata:
     "@babel/plugin-transform-runtime": ^7.13.15
     "@babel/preset-env": ^7.13.15
     "@babel/runtime": ^7.13.17
-    "@chialab/esbuild-rna": ^0.15.37
+    "@chialab/esbuild-rna": ^0.16.0
     "@types/babel__core": ^7.1.14
     "@types/babel__plugin-transform-runtime": ^7.9.1
     "@types/babel__preset-env": ^7.9.1
@@ -1696,27 +1705,27 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@chialab/esbuild-plugin-commonjs@^0.15.37, @chialab/esbuild-plugin-commonjs@workspace:packages/esbuild-plugin-commonjs":
+"@chialab/esbuild-plugin-commonjs@^0.16.0, @chialab/esbuild-plugin-commonjs@workspace:packages/esbuild-plugin-commonjs":
   version: 0.0.0-use.local
   resolution: "@chialab/esbuild-plugin-commonjs@workspace:packages/esbuild-plugin-commonjs"
   dependencies:
-    "@chialab/cjs-to-esm": ^0.15.28
-    "@chialab/esbuild-rna": ^0.15.37
-    "@chialab/node-resolve": ^0.15.28
+    "@chialab/cjs-to-esm": ^0.16.0
+    "@chialab/esbuild-rna": ^0.16.0
+    "@chialab/node-resolve": ^0.16.0
     typescript: ^4.3.0
   languageName: unknown
   linkType: soft
 
-"@chialab/esbuild-plugin-css-import@^0.15.28, @chialab/esbuild-plugin-css-import@workspace:packages/esbuild-plugin-css-import":
+"@chialab/esbuild-plugin-css-import@^0.16.0, @chialab/esbuild-plugin-css-import@workspace:packages/esbuild-plugin-css-import":
   version: 0.0.0-use.local
   resolution: "@chialab/esbuild-plugin-css-import@workspace:packages/esbuild-plugin-css-import"
   dependencies:
-    "@chialab/node-resolve": ^0.15.28
+    "@chialab/node-resolve": ^0.16.0
     typescript: ^4.3.0
   languageName: unknown
   linkType: soft
 
-"@chialab/esbuild-plugin-define-this@^0.15.28, @chialab/esbuild-plugin-define-this@workspace:packages/esbuild-plugin-define-this":
+"@chialab/esbuild-plugin-define-this@^0.16.0, @chialab/esbuild-plugin-define-this@workspace:packages/esbuild-plugin-define-this":
   version: 0.0.0-use.local
   resolution: "@chialab/esbuild-plugin-define-this@workspace:packages/esbuild-plugin-define-this"
   dependencies:
@@ -1724,7 +1733,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@chialab/esbuild-plugin-env@^0.15.28, @chialab/esbuild-plugin-env@workspace:packages/esbuild-plugin-env":
+"@chialab/esbuild-plugin-env@^0.16.0, @chialab/esbuild-plugin-env@workspace:packages/esbuild-plugin-env":
   version: 0.0.0-use.local
   resolution: "@chialab/esbuild-plugin-env@workspace:packages/esbuild-plugin-env"
   dependencies:
@@ -1733,21 +1742,21 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@chialab/esbuild-plugin-external@^0.15.28, @chialab/esbuild-plugin-external@workspace:packages/esbuild-plugin-external":
+"@chialab/esbuild-plugin-external@^0.16.0, @chialab/esbuild-plugin-external@workspace:packages/esbuild-plugin-external":
   version: 0.0.0-use.local
   resolution: "@chialab/esbuild-plugin-external@workspace:packages/esbuild-plugin-external"
   dependencies:
-    "@chialab/node-resolve": ^0.15.28
+    "@chialab/node-resolve": ^0.16.0
     typescript: ^4.3.0
   languageName: unknown
   linkType: soft
 
-"@chialab/esbuild-plugin-html@^0.15.37, @chialab/esbuild-plugin-html@workspace:packages/esbuild-plugin-html":
+"@chialab/esbuild-plugin-html@^0.16.0, @chialab/esbuild-plugin-html@workspace:packages/esbuild-plugin-html":
   version: 0.0.0-use.local
   resolution: "@chialab/esbuild-plugin-html@workspace:packages/esbuild-plugin-html"
   dependencies:
-    "@chialab/esbuild-rna": ^0.15.37
-    "@chialab/node-resolve": ^0.15.28
+    "@chialab/esbuild-rna": ^0.16.0
+    "@chialab/node-resolve": ^0.16.0
     "@jimp/custom": ^0.16.1
     "@jimp/jpeg": ^0.16.1
     "@jimp/plugin-resize": ^0.16.1
@@ -1761,37 +1770,37 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@chialab/esbuild-plugin-jsx-import@^0.15.28, @chialab/esbuild-plugin-jsx-import@workspace:packages/esbuild-plugin-jsx-import":
+"@chialab/esbuild-plugin-jsx-import@^0.16.0, @chialab/esbuild-plugin-jsx-import@workspace:packages/esbuild-plugin-jsx-import":
   version: 0.0.0-use.local
   resolution: "@chialab/esbuild-plugin-jsx-import@workspace:packages/esbuild-plugin-jsx-import"
   dependencies:
-    "@chialab/estransform": ^0.15.28
-    "@chialab/node-resolve": ^0.15.28
+    "@chialab/estransform": ^0.16.0
+    "@chialab/node-resolve": ^0.16.0
     esbuild: ^0.14.8
     typescript: ^4.3.0
   languageName: unknown
   linkType: soft
 
-"@chialab/esbuild-plugin-meta-url@^0.15.37, @chialab/esbuild-plugin-meta-url@^0.15.40, @chialab/esbuild-plugin-meta-url@workspace:packages/esbuild-plugin-meta-url":
+"@chialab/esbuild-plugin-meta-url@^0.16.0, @chialab/esbuild-plugin-meta-url@workspace:packages/esbuild-plugin-meta-url":
   version: 0.0.0-use.local
   resolution: "@chialab/esbuild-plugin-meta-url@workspace:packages/esbuild-plugin-meta-url"
   dependencies:
-    "@chialab/esbuild-rna": ^0.15.39
-    "@chialab/estransform": ^0.15.28
-    "@chialab/node-resolve": ^0.15.28
+    "@chialab/esbuild-rna": ^0.16.0
+    "@chialab/estransform": ^0.16.0
+    "@chialab/node-resolve": ^0.16.0
     esbuild: ^0.14.8
     typescript: ^4.3.0
   languageName: unknown
   linkType: soft
 
-"@chialab/esbuild-plugin-postcss@^0.15.37, @chialab/esbuild-plugin-postcss@workspace:packages/esbuild-plugin-postcss":
+"@chialab/esbuild-plugin-postcss@^1.0.0, @chialab/esbuild-plugin-postcss@workspace:packages/esbuild-plugin-postcss":
   version: 0.0.0-use.local
   resolution: "@chialab/esbuild-plugin-postcss@workspace:packages/esbuild-plugin-postcss"
   dependencies:
-    "@chialab/esbuild-plugin-css-import": ^0.15.28
-    "@chialab/esbuild-rna": ^0.15.37
-    "@chialab/postcss-dart-sass": ^0.15.34
-    "@chialab/postcss-preset-chialab": ^0.15.28
+    "@chialab/esbuild-plugin-css-import": ^0.16.0
+    "@chialab/esbuild-rna": ^0.16.0
+    "@chialab/postcss-dart-sass": ^0.16.0
+    "@chialab/postcss-preset-chialab": ^0.16.0
     cssnano: ^5.0.11
     esbuild: ^0.14.8
     postcss: ^8.2.5
@@ -1799,8 +1808,8 @@ __metadata:
     postcss-scss: ^4.0.0
     typescript: ^4.3.0
   peerDependencies:
-    "@chialab/postcss-dart-sass": ^0.15.0
-    "@chialab/postcss-preset-chialab": ^0.15.0
+    "@chialab/postcss-dart-sass": ^0.16.0
+    "@chialab/postcss-preset-chialab": ^0.16.0
     postcss-scss: ^4.0.0
   peerDependenciesMeta:
     "@chialab/postcss-dart-sass":
@@ -1812,55 +1821,55 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@chialab/esbuild-plugin-require-resolve@^0.15.37, @chialab/esbuild-plugin-require-resolve@workspace:packages/esbuild-plugin-require-resolve":
+"@chialab/esbuild-plugin-require-resolve@^0.16.0, @chialab/esbuild-plugin-require-resolve@workspace:packages/esbuild-plugin-require-resolve":
   version: 0.0.0-use.local
   resolution: "@chialab/esbuild-plugin-require-resolve@workspace:packages/esbuild-plugin-require-resolve"
   dependencies:
-    "@chialab/esbuild-rna": ^0.15.37
-    "@chialab/estransform": ^0.15.28
-    "@chialab/node-resolve": ^0.15.28
+    "@chialab/esbuild-rna": ^0.16.0
+    "@chialab/estransform": ^0.16.0
+    "@chialab/node-resolve": ^0.16.0
     typescript: ^4.3.0
   languageName: unknown
   linkType: soft
 
-"@chialab/esbuild-plugin-unwebpack@^0.15.37, @chialab/esbuild-plugin-unwebpack@workspace:packages/esbuild-plugin-unwebpack":
+"@chialab/esbuild-plugin-unwebpack@^0.16.0, @chialab/esbuild-plugin-unwebpack@workspace:packages/esbuild-plugin-unwebpack":
   version: 0.0.0-use.local
   resolution: "@chialab/esbuild-plugin-unwebpack@workspace:packages/esbuild-plugin-unwebpack"
   dependencies:
-    "@chialab/esbuild-rna": ^0.15.37
-    "@chialab/estransform": ^0.15.28
-    "@chialab/node-resolve": ^0.15.28
+    "@chialab/esbuild-rna": ^0.16.0
+    "@chialab/estransform": ^0.16.0
+    "@chialab/node-resolve": ^0.16.0
     typescript: ^4.3.0
   languageName: unknown
   linkType: soft
 
-"@chialab/esbuild-plugin-virtual@^0.15.37, @chialab/esbuild-plugin-virtual@workspace:packages/esbuild-plugin-virtual":
+"@chialab/esbuild-plugin-virtual@^0.16.0, @chialab/esbuild-plugin-virtual@workspace:packages/esbuild-plugin-virtual":
   version: 0.0.0-use.local
   resolution: "@chialab/esbuild-plugin-virtual@workspace:packages/esbuild-plugin-virtual"
   dependencies:
-    "@chialab/esbuild-rna": ^0.15.37
+    "@chialab/esbuild-rna": ^0.16.0
     typescript: ^4.3.0
   languageName: unknown
   linkType: soft
 
-"@chialab/esbuild-plugin-worker@^0.15.37, @chialab/esbuild-plugin-worker@^0.15.39, @chialab/esbuild-plugin-worker@workspace:packages/esbuild-plugin-worker":
+"@chialab/esbuild-plugin-worker@^0.16.0, @chialab/esbuild-plugin-worker@workspace:packages/esbuild-plugin-worker":
   version: 0.0.0-use.local
   resolution: "@chialab/esbuild-plugin-worker@workspace:packages/esbuild-plugin-worker"
   dependencies:
-    "@chialab/esbuild-plugin-meta-url": ^0.15.40
-    "@chialab/esbuild-rna": ^0.15.39
-    "@chialab/estransform": ^0.15.28
-    "@chialab/node-resolve": ^0.15.28
+    "@chialab/esbuild-plugin-meta-url": ^0.16.0
+    "@chialab/esbuild-rna": ^0.16.0
+    "@chialab/estransform": ^0.16.0
+    "@chialab/node-resolve": ^0.16.0
     typescript: ^4.3.0
   languageName: unknown
   linkType: soft
 
-"@chialab/esbuild-rna@^0.15.37, @chialab/esbuild-rna@^0.15.39, @chialab/esbuild-rna@workspace:packages/esbuild-rna":
+"@chialab/esbuild-rna@^0.16.0, @chialab/esbuild-rna@workspace:packages/esbuild-rna":
   version: 0.0.0-use.local
   resolution: "@chialab/esbuild-rna@workspace:packages/esbuild-rna"
   dependencies:
-    "@chialab/estransform": ^0.15.28
-    "@chialab/node-resolve": ^0.15.28
+    "@chialab/estransform": ^0.16.0
+    "@chialab/node-resolve": ^0.16.0
     esbuild: ^0.14.8
     typescript: ^4.3.0
   languageName: unknown
@@ -1899,7 +1908,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@chialab/estransform@^0.15.28, @chialab/estransform@workspace:packages/estransform":
+"@chialab/estransform@^0.16.0, @chialab/estransform@workspace:packages/estransform":
   version: 0.0.0-use.local
   resolution: "@chialab/estransform@workspace:packages/estransform"
   dependencies:
@@ -1913,7 +1922,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@chialab/node-resolve@^0.15.28, @chialab/node-resolve@workspace:packages/node-resolve":
+"@chialab/node-resolve@^0.16.0, @chialab/node-resolve@workspace:packages/node-resolve":
   version: 0.0.0-use.local
   resolution: "@chialab/node-resolve@workspace:packages/node-resolve"
   dependencies:
@@ -1927,11 +1936,18 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@chialab/postcss-dart-sass@^0.15.34, @chialab/postcss-dart-sass@workspace:packages/postcss-dart-sass":
+"@chialab/node-resolve@npm:^0.15.28":
+  version: 0.15.28
+  resolution: "@chialab/node-resolve@npm:0.15.28"
+  checksum: ee26c3cea58e26ce462f798e8a0f2e849f0b89d0b7452919814548fe26943eb9d0c0f4ff5a47c8f856300a3f67c92c6edbd246124783a0738e1073f8ebdabe1a
+  languageName: node
+  linkType: hard
+
+"@chialab/postcss-dart-sass@^0.16.0, @chialab/postcss-dart-sass@workspace:packages/postcss-dart-sass":
   version: 0.0.0-use.local
   resolution: "@chialab/postcss-dart-sass@workspace:packages/postcss-dart-sass"
   dependencies:
-    "@chialab/node-resolve": ^0.15.28
+    "@chialab/node-resolve": ^0.16.0
     "@types/sass": ^1.16.1
     "@types/source-map": ^0.5.7
     postcss: ^8.0.0
@@ -1941,11 +1957,11 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@chialab/postcss-preset-chialab@^0.15.28, @chialab/postcss-preset-chialab@workspace:packages/postcss-preset-chialab":
+"@chialab/postcss-preset-chialab@^0.16.0, @chialab/postcss-preset-chialab@workspace:packages/postcss-preset-chialab":
   version: 0.0.0-use.local
   resolution: "@chialab/postcss-preset-chialab@workspace:packages/postcss-preset-chialab"
   dependencies:
-    "@chialab/postcss-url-rebase": ^0.15.28
+    "@chialab/postcss-url-rebase": ^0.16.0
     autoprefixer: ^10.2.4
     postcss: ^8.2.5
     postcss-color-hex-alpha: ^8.0.0
@@ -1967,11 +1983,11 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@chialab/postcss-url-rebase@^0.15.28, @chialab/postcss-url-rebase@workspace:packages/postcss-url-rebase":
+"@chialab/postcss-url-rebase@^0.16.0, @chialab/postcss-url-rebase@workspace:packages/postcss-url-rebase":
   version: 0.0.0-use.local
   resolution: "@chialab/postcss-url-rebase@workspace:packages/postcss-url-rebase"
   dependencies:
-    "@chialab/node-resolve": ^0.15.28
+    "@chialab/node-resolve": ^0.16.0
     postcss: ^8.2.5
     typescript: ^4.3.0
   languageName: unknown
@@ -1981,22 +1997,22 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@chialab/rna-apidoc@workspace:packages/rna-apidoc"
   dependencies:
-    "@chialab/rna-logger": ^0.15.28
+    "@chialab/rna-logger": ^0.16.0
     commander: ^7.2.0
     typedoc: ^0.21.5
     typescript: ^4.3.0
   languageName: unknown
   linkType: soft
 
-"@chialab/rna-browser-test-runner@^0.15.37, @chialab/rna-browser-test-runner@workspace:packages/rna-browser-test-runner":
+"@chialab/rna-browser-test-runner@^1.0.0, @chialab/rna-browser-test-runner@workspace:packages/rna-browser-test-runner":
   version: 0.0.0-use.local
   resolution: "@chialab/rna-browser-test-runner@workspace:packages/rna-browser-test-runner"
   dependencies:
-    "@chialab/rna-config-loader": ^0.15.28
-    "@chialab/rna-dev-server": ^0.15.37
-    "@chialab/rna-logger": ^0.15.28
-    "@chialab/wds-plugin-node-resolve": ^0.15.28
-    "@chialab/wtr-mocha-reporter": ^0.15.29
+    "@chialab/rna-config-loader": ^0.16.0
+    "@chialab/rna-dev-server": ^1.0.0
+    "@chialab/rna-logger": ^0.16.0
+    "@chialab/wds-plugin-node-resolve": ^0.16.0
+    "@chialab/wtr-mocha-reporter": ^0.16.0
     "@web/test-runner-chrome": ^0.10.0
     "@web/test-runner-core": ^0.10.18
     "@web/test-runner-mocha": ^0.7.3
@@ -2005,64 +2021,73 @@ __metadata:
     commander: ^7.2.0
     typescript: ^4.3.0
   peerDependencies:
-    "@chialab/wds-plugin-legacy": ^0.15.0
+    "@chialab/wds-plugin-legacy": ^0.16.0
   peerDependenciesMeta:
     "@chialab/wds-plugin-legacy":
       optional: true
   languageName: unknown
   linkType: soft
 
-"@chialab/rna-bundler@^0.15.37, @chialab/rna-bundler@workspace:packages/rna-bundler":
+"@chialab/rna-bundler@^1.0.0, @chialab/rna-bundler@workspace:packages/rna-bundler":
   version: 0.0.0-use.local
   resolution: "@chialab/rna-bundler@workspace:packages/rna-bundler"
   dependencies:
-    "@chialab/esbuild-plugin-alias": ^0.15.37
-    "@chialab/esbuild-plugin-any-file": ^0.15.37
-    "@chialab/esbuild-plugin-commonjs": ^0.15.37
-    "@chialab/esbuild-plugin-css-import": ^0.15.28
-    "@chialab/esbuild-plugin-define-this": ^0.15.28
-    "@chialab/esbuild-plugin-env": ^0.15.28
-    "@chialab/esbuild-plugin-external": ^0.15.28
-    "@chialab/esbuild-plugin-html": ^0.15.37
-    "@chialab/esbuild-plugin-jsx-import": ^0.15.28
-    "@chialab/esbuild-plugin-meta-url": ^0.15.37
-    "@chialab/esbuild-plugin-postcss": ^0.15.37
-    "@chialab/esbuild-plugin-unwebpack": ^0.15.37
-    "@chialab/esbuild-plugin-worker": ^0.15.37
-    "@chialab/esbuild-rna": ^0.15.37
-    "@chialab/rna-config-loader": ^0.15.28
-    "@chialab/rna-logger": ^0.15.28
+    "@chialab/esbuild-plugin-alias": ^0.16.0
+    "@chialab/esbuild-plugin-any-file": ^0.16.0
+    "@chialab/esbuild-plugin-commonjs": ^0.16.0
+    "@chialab/esbuild-plugin-css-import": ^0.16.0
+    "@chialab/esbuild-plugin-define-this": ^0.16.0
+    "@chialab/esbuild-plugin-env": ^0.16.0
+    "@chialab/esbuild-plugin-external": ^0.16.0
+    "@chialab/esbuild-plugin-html": ^0.16.0
+    "@chialab/esbuild-plugin-jsx-import": ^0.16.0
+    "@chialab/esbuild-plugin-meta-url": ^0.16.0
+    "@chialab/esbuild-plugin-postcss": ^1.0.0
+    "@chialab/esbuild-plugin-unwebpack": ^0.16.0
+    "@chialab/esbuild-plugin-worker": ^0.16.0
+    "@chialab/esbuild-rna": ^0.16.0
+    "@chialab/rna-config-loader": ^0.16.0
+    "@chialab/rna-logger": ^0.16.0
     commander: ^7.2.0
     esbuild: ^0.14.8
     typescript: ^4.3.0
   peerDependencies:
-    "@chialab/esbuild-plugin-postcss": ^0.15.0
+    "@chialab/esbuild-plugin-postcss": ^1.0.0
   peerDependenciesMeta:
     "@chialab/esbuild-plugin-postcss":
       optional: true
   languageName: unknown
   linkType: soft
 
-"@chialab/rna-config-loader@^0.15.28, @chialab/rna-config-loader@workspace:packages/rna-config-loader":
+"@chialab/rna-config-loader@^0.16.0, @chialab/rna-config-loader@workspace:packages/rna-config-loader":
   version: 0.0.0-use.local
   resolution: "@chialab/rna-config-loader@workspace:packages/rna-config-loader"
   dependencies:
-    "@chialab/node-resolve": ^0.15.28
+    "@chialab/node-resolve": ^0.16.0
     typescript: ^4.3.0
   languageName: unknown
   linkType: soft
 
-"@chialab/rna-dev-server@^0.15.37, @chialab/rna-dev-server@workspace:packages/rna-dev-server":
+"@chialab/rna-config-loader@npm:^0.15.28":
+  version: 0.15.28
+  resolution: "@chialab/rna-config-loader@npm:0.15.28"
+  dependencies:
+    "@chialab/node-resolve": ^0.15.28
+  checksum: 57706e7d75742ed144bc0287d882fe01b2f5b66bfcd6c52617810846e8e1542a5cca3e03919315e04dd4ecbff885c36eb4e8184555f88e5d766f0e0da5d98d4b
+  languageName: node
+  linkType: hard
+
+"@chialab/rna-dev-server@^1.0.0, @chialab/rna-dev-server@workspace:packages/rna-dev-server":
   version: 0.0.0-use.local
   resolution: "@chialab/rna-dev-server@workspace:packages/rna-dev-server"
   dependencies:
-    "@chialab/es-dev-server": ^0.15.28
-    "@chialab/esbuild-plugin-require-resolve": ^0.15.37
-    "@chialab/rna-config-loader": ^0.15.28
-    "@chialab/rna-logger": ^0.15.28
-    "@chialab/wds-plugin-hmr-css": ^0.15.28
-    "@chialab/wds-plugin-node-resolve": ^0.15.28
-    "@chialab/wds-plugin-rna": ^0.15.37
+    "@chialab/es-dev-server": ^0.16.0
+    "@chialab/esbuild-plugin-require-resolve": ^0.16.0
+    "@chialab/rna-config-loader": ^0.16.0
+    "@chialab/rna-logger": ^0.16.0
+    "@chialab/wds-plugin-hmr-css": ^0.16.0
+    "@chialab/wds-plugin-node-resolve": ^0.16.0
+    "@chialab/wds-plugin-rna": ^0.16.0
     "@koa/cors": ^3.1.0
     "@types/koa-range": ^0.3.2
     "@types/koa__cors": ^3.0.2
@@ -2072,14 +2097,14 @@ __metadata:
     rimraf: ^3.0.2
     typescript: ^4.3.0
   peerDependencies:
-    "@chialab/wds-plugin-legacy": ^0.15.0
+    "@chialab/wds-plugin-legacy": ^0.16.0
   peerDependenciesMeta:
     "@chialab/wds-plugin-legacy":
       optional: true
   languageName: unknown
   linkType: soft
 
-"@chialab/rna-logger@^0.15.28, @chialab/rna-logger@workspace:packages/rna-logger":
+"@chialab/rna-logger@^0.16.0, @chialab/rna-logger@workspace:packages/rna-logger":
   version: 0.0.0-use.local
   resolution: "@chialab/rna-logger@workspace:packages/rna-logger"
   dependencies:
@@ -2090,13 +2115,31 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@chialab/rna-node-test-runner@^0.15.0, @chialab/rna-node-test-runner@workspace:packages/rna-node-test-runner":
-  version: 0.0.0-use.local
-  resolution: "@chialab/rna-node-test-runner@workspace:packages/rna-node-test-runner"
+"@chialab/rna-logger@npm:^0.15.28":
+  version: 0.15.28
+  resolution: "@chialab/rna-logger@npm:0.15.28"
+  checksum: fe33e45fd1785d341a7da0182801a462ff903c0265577953c494617f63427b5093f3cb66c34016d3c43c9fa3e05c7122346252efd49f630becbb18e6b3518f99
+  languageName: node
+  linkType: hard
+
+"@chialab/rna-node-test-runner@npm:^0.15.0":
+  version: 0.15.28
+  resolution: "@chialab/rna-node-test-runner@npm:0.15.28"
   dependencies:
     "@chialab/es-test-runner": ^0.15.28
     "@chialab/node-resolve": ^0.15.28
     "@chialab/rna-config-loader": ^0.15.28
+  checksum: 3697e31774adbc82d356a1182a1b8279986239577b3b1fd80c9a927cca3a1757437607f1d427087c89e1001ee4c93696eea6fe39077af566a58c3c92fd919569
+  languageName: node
+  linkType: hard
+
+"@chialab/rna-node-test-runner@workspace:packages/rna-node-test-runner":
+  version: 0.0.0-use.local
+  resolution: "@chialab/rna-node-test-runner@workspace:packages/rna-node-test-runner"
+  dependencies:
+    "@chialab/es-test-runner": ^0.16.0
+    "@chialab/node-resolve": ^0.16.0
+    "@chialab/rna-config-loader": ^0.16.0
     commander: ^7.2.0
     typescript: ^4.3.0
   languageName: unknown
@@ -2125,11 +2168,11 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@chialab/rna-saucelabs-test-runner@workspace:packages/rna-saucelabs-test-runner"
   dependencies:
-    "@chialab/node-resolve": ^0.15.28
-    "@chialab/rna-browser-test-runner": ^0.15.37
-    "@chialab/rna-config-loader": ^0.15.28
-    "@chialab/rna-logger": ^0.15.28
-    "@chialab/wds-plugin-legacy": ^0.15.28
+    "@chialab/node-resolve": ^0.16.0
+    "@chialab/rna-browser-test-runner": ^1.0.0
+    "@chialab/rna-config-loader": ^0.16.0
+    "@chialab/rna-logger": ^0.16.0
+    "@chialab/wds-plugin-legacy": ^0.16.0
     "@web/test-runner-saucelabs": ^0.7.3
     commander: ^7.2.0
     typescript: ^4.3.0
@@ -2140,14 +2183,14 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@chialab/rna-storybook@workspace:packages/rna-storybook"
   dependencies:
-    "@chialab/es-dev-server": ^0.15.28
-    "@chialab/esbuild-plugin-html": ^0.15.37
-    "@chialab/esbuild-plugin-virtual": ^0.15.37
-    "@chialab/esbuild-rna": ^0.15.39
-    "@chialab/estransform": ^0.15.28
-    "@chialab/node-resolve": ^0.15.28
-    "@chialab/wds-plugin-node-resolve": ^0.15.28
-    "@chialab/wds-plugin-rna": ^0.15.38
+    "@chialab/es-dev-server": ^0.16.0
+    "@chialab/esbuild-plugin-html": ^0.16.0
+    "@chialab/esbuild-plugin-virtual": ^0.16.0
+    "@chialab/esbuild-rna": ^0.16.0
+    "@chialab/estransform": ^0.16.0
+    "@chialab/node-resolve": ^0.16.0
+    "@chialab/wds-plugin-node-resolve": ^0.16.0
+    "@chialab/wds-plugin-rna": ^0.16.0
     "@custom-elements-manifest/analyzer": 0.5.3
     "@mdx-js/mdx": ^2.0.0
     "@storybook/csf-tools": ^6.4.0
@@ -2163,14 +2206,11 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@chialab/rna@^0.15.0, @chialab/rna@workspace:packages/rna":
-  version: 0.0.0-use.local
-  resolution: "@chialab/rna@workspace:packages/rna"
+"@chialab/rna@npm:^0.15.0":
+  version: 0.15.29
+  resolution: "@chialab/rna@npm:0.15.29"
   dependencies:
     "@chialab/rna-logger": ^0.15.28
-    commander: ^7.2.0
-    rimraf: ^3.0.2
-    typescript: ^4.3.0
   peerDependencies:
     "@chialab/rna-apidoc": ^0.15.0
     "@chialab/rna-browser-test-runner": ^0.15.0
@@ -2192,27 +2232,61 @@ __metadata:
     "@chialab/rna-saucelabs-test-runner":
       optional: true
   bin:
+    rna: dist/index.js
+  checksum: 7a78c70ee7caeacf6f6fa4b976ddaa0a4ba9be1fcf8e580603ae988e21ba7d94726163a9f7d24c70006827ffe870e9805f4824374ccfed61ffff5c1d9b7036bd
+  languageName: node
+  linkType: hard
+
+"@chialab/rna@workspace:packages/rna":
+  version: 0.0.0-use.local
+  resolution: "@chialab/rna@workspace:packages/rna"
+  dependencies:
+    "@chialab/rna-logger": ^0.16.0
+    commander: ^7.2.0
+    rimraf: ^3.0.2
+    typescript: ^4.3.0
+  peerDependencies:
+    "@chialab/rna-apidoc": ^0.16.0
+    "@chialab/rna-browser-test-runner": ^1.0.0
+    "@chialab/rna-bundler": ^1.0.0
+    "@chialab/rna-dev-server": ^1.0.0
+    "@chialab/rna-node-test-runner": ^0.16.0
+    "@chialab/rna-saucelabs-test-runner": ^0.16.0
+  peerDependenciesMeta:
+    "@chialab/rna-apidoc":
+      optional: true
+    "@chialab/rna-browser-test-runner":
+      optional: true
+    "@chialab/rna-bundler":
+      optional: true
+    "@chialab/rna-dev-server":
+      optional: true
+    "@chialab/rna-node-test-runner":
+      optional: true
+    "@chialab/rna-saucelabs-test-runner":
+      optional: true
+  bin:
     rna: ./dist/index.js
   languageName: unknown
   linkType: soft
 
-"@chialab/wds-plugin-hmr-css@^0.15.28, @chialab/wds-plugin-hmr-css@workspace:packages/wds-plugin-hmr-css":
+"@chialab/wds-plugin-hmr-css@^0.16.0, @chialab/wds-plugin-hmr-css@workspace:packages/wds-plugin-hmr-css":
   version: 0.0.0-use.local
   resolution: "@chialab/wds-plugin-hmr-css@workspace:packages/wds-plugin-hmr-css"
   dependencies:
-    "@chialab/es-dev-server": ^0.15.28
+    "@chialab/es-dev-server": ^0.16.0
     typescript: ^4.3.0
   languageName: unknown
   linkType: soft
 
-"@chialab/wds-plugin-legacy@^0.15.28, @chialab/wds-plugin-legacy@workspace:packages/wds-plugin-legacy":
+"@chialab/wds-plugin-legacy@^0.16.0, @chialab/wds-plugin-legacy@workspace:packages/wds-plugin-legacy":
   version: 0.0.0-use.local
   resolution: "@chialab/wds-plugin-legacy@workspace:packages/wds-plugin-legacy"
   dependencies:
     "@babel/core": ^7.14.2
     "@babel/preset-env": ^7.14.2
-    "@chialab/wds-plugin-node-resolve": ^0.15.28
-    "@chialab/wds-plugin-polyfill": ^0.15.28
+    "@chialab/wds-plugin-node-resolve": ^0.16.0
+    "@chialab/wds-plugin-polyfill": ^0.16.0
     "@types/babel__core": ^7.1.14
     "@types/babel__preset-env": ^7.9.1
     "@types/browserslist-useragent": ^3.0.3
@@ -2225,18 +2299,18 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@chialab/wds-plugin-node-resolve@^0.15.28, @chialab/wds-plugin-node-resolve@workspace:packages/wds-plugin-node-resolve":
+"@chialab/wds-plugin-node-resolve@^0.16.0, @chialab/wds-plugin-node-resolve@workspace:packages/wds-plugin-node-resolve":
   version: 0.0.0-use.local
   resolution: "@chialab/wds-plugin-node-resolve@workspace:packages/wds-plugin-node-resolve"
   dependencies:
-    "@chialab/estransform": ^0.15.28
-    "@chialab/node-resolve": ^0.15.28
+    "@chialab/estransform": ^0.16.0
+    "@chialab/node-resolve": ^0.16.0
     "@web/dev-server-core": ^0.3.8
     typescript: ^4.3.0
   languageName: unknown
   linkType: soft
 
-"@chialab/wds-plugin-polyfill@^0.15.28, @chialab/wds-plugin-polyfill@workspace:packages/wds-plugin-polyfill":
+"@chialab/wds-plugin-polyfill@^0.16.0, @chialab/wds-plugin-polyfill@workspace:packages/wds-plugin-polyfill":
   version: 0.0.0-use.local
   resolution: "@chialab/wds-plugin-polyfill@workspace:packages/wds-plugin-polyfill"
   dependencies:
@@ -2246,28 +2320,28 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@chialab/wds-plugin-rna@^0.15.37, @chialab/wds-plugin-rna@^0.15.38, @chialab/wds-plugin-rna@workspace:packages/wds-plugin-rna":
+"@chialab/wds-plugin-rna@^0.16.0, @chialab/wds-plugin-rna@workspace:packages/wds-plugin-rna":
   version: 0.0.0-use.local
   resolution: "@chialab/wds-plugin-rna@workspace:packages/wds-plugin-rna"
   dependencies:
-    "@chialab/es-dev-server": ^0.15.28
-    "@chialab/esbuild-plugin-meta-url": ^0.15.40
-    "@chialab/esbuild-plugin-worker": ^0.15.39
-    "@chialab/esbuild-rna": ^0.15.39
-    "@chialab/node-resolve": ^0.15.28
-    "@chialab/postcss-url-rebase": ^0.15.28
-    "@chialab/rna-bundler": ^0.15.37
-    "@chialab/rna-config-loader": ^0.15.28
-    "@chialab/wds-plugin-node-resolve": ^0.15.28
+    "@chialab/es-dev-server": ^0.16.0
+    "@chialab/esbuild-plugin-meta-url": ^0.16.0
+    "@chialab/esbuild-plugin-worker": ^0.16.0
+    "@chialab/esbuild-rna": ^0.16.0
+    "@chialab/node-resolve": ^0.16.0
+    "@chialab/postcss-url-rebase": ^0.16.0
+    "@chialab/rna-bundler": ^1.0.0
+    "@chialab/rna-config-loader": ^0.16.0
+    "@chialab/wds-plugin-node-resolve": ^0.16.0
     typescript: ^4.3.0
   languageName: unknown
   linkType: soft
 
-"@chialab/wtr-mocha-reporter@^0.15.29, @chialab/wtr-mocha-reporter@workspace:packages/wtr-mocha-reporter":
+"@chialab/wtr-mocha-reporter@^0.16.0, @chialab/wtr-mocha-reporter@workspace:packages/wtr-mocha-reporter":
   version: 0.0.0-use.local
   resolution: "@chialab/wtr-mocha-reporter@workspace:packages/wtr-mocha-reporter"
   dependencies:
-    "@chialab/es-test-runner": ^0.15.28
+    "@chialab/es-test-runner": ^0.16.0
     "@web/test-runner-core": ^0.10.19
     chalk: ^4.1.2
     rimraf: ^3.0.2

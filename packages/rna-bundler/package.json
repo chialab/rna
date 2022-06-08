@@ -1,7 +1,7 @@
 {
   "name": "@chialab/rna-bundler",
   "type": "module",
-  "version": "0.15.37",
+  "version": "1.0.0",
   "description": "A JavaScript, CSS and HTML bundler based on esbuild.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",
@@ -30,25 +30,25 @@
     "node": ">=13"
   },
   "dependencies": {
-    "@chialab/esbuild-plugin-alias": "^0.15.37",
-    "@chialab/esbuild-plugin-any-file": "^0.15.37",
-    "@chialab/esbuild-plugin-commonjs": "^0.15.37",
-    "@chialab/esbuild-plugin-css-import": "^0.15.28",
-    "@chialab/esbuild-plugin-define-this": "^0.15.28",
-    "@chialab/esbuild-plugin-env": "^0.15.28",
-    "@chialab/esbuild-plugin-external": "^0.15.28",
-    "@chialab/esbuild-plugin-html": "^0.15.37",
-    "@chialab/esbuild-plugin-jsx-import": "^0.15.28",
-    "@chialab/esbuild-plugin-meta-url": "^0.15.37",
-    "@chialab/esbuild-plugin-unwebpack": "^0.15.37",
-    "@chialab/esbuild-plugin-worker": "^0.15.37",
-    "@chialab/esbuild-rna": "^0.15.37",
-    "@chialab/rna-config-loader": "^0.15.28",
-    "@chialab/rna-logger": "^0.15.28",
+    "@chialab/esbuild-plugin-alias": "^0.16.0",
+    "@chialab/esbuild-plugin-any-file": "^0.16.0",
+    "@chialab/esbuild-plugin-commonjs": "^0.16.0",
+    "@chialab/esbuild-plugin-css-import": "^0.16.0",
+    "@chialab/esbuild-plugin-define-this": "^0.16.0",
+    "@chialab/esbuild-plugin-env": "^0.16.0",
+    "@chialab/esbuild-plugin-external": "^0.16.0",
+    "@chialab/esbuild-plugin-html": "^0.16.0",
+    "@chialab/esbuild-plugin-jsx-import": "^0.16.0",
+    "@chialab/esbuild-plugin-meta-url": "^0.16.0",
+    "@chialab/esbuild-plugin-unwebpack": "^0.16.0",
+    "@chialab/esbuild-plugin-worker": "^0.16.0",
+    "@chialab/esbuild-rna": "^0.16.0",
+    "@chialab/rna-config-loader": "^0.16.0",
+    "@chialab/rna-logger": "^0.16.0",
     "esbuild": "^0.14.8"
   },
   "peerDependencies": {
-    "@chialab/esbuild-plugin-postcss": "^0.15.0"
+    "@chialab/esbuild-plugin-postcss": "^1.0.0"
   },
   "peerDependenciesMeta": {
     "@chialab/esbuild-plugin-postcss": {
@@ -56,7 +56,7 @@
     }
   },
   "devDependencies": {
-    "@chialab/esbuild-plugin-postcss": "^0.15.37",
+    "@chialab/esbuild-plugin-postcss": "^1.0.0",
     "commander": "^7.2.0",
     "typescript": "^4.3.0"
   }

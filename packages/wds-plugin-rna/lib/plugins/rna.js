@@ -2,7 +2,7 @@ import path from 'path';
 import { getRequestFilePath } from '@chialab/es-dev-server';
 import { getEntryConfig } from '@chialab/rna-config-loader';
 import { pkgUp, browserResolve, isJs, isJson, isCss, getSearchParam, appendSearchParam, removeSearchParam, getSearchParams, ALIAS_MODE, createAliasRegexexMap, createEmptyRegex } from '@chialab/node-resolve';
-import { isHelperImport, resolveRelativeImport } from '@chialab/wds-plugin-node-resolve';
+import { isHelperImport, resolveRelativeImport, isPlainScript } from '@chialab/wds-plugin-node-resolve';
 import { transform, transformLoaders, build } from '@chialab/rna-bundler';
 import { realpath } from 'fs/promises';
 
@@ -341,8 +341,8 @@ export function rnaPlugin(config) {
                 input: `./${path.relative(rootDir, filePath)}`,
                 code: /** @type {string} */ (context.body),
                 loader,
-                bundle: false,
                 ...contextConfig,
+                bundle: isPlainScript(context),
             };
 
             const transformConfig = await createConfig(entrypoint, config);
@@ -369,6 +369,10 @@ export function rnaPlugin(config) {
         async resolveImport({ source, context }) {
             if (source.match(emptyRegex)) {
                 return;
+            }
+
+            if (config.jsxModule && source === '__jsx__.js') {
+                source = config.jsxModule;
             }
 
             const { rootDir } = serverConfig;

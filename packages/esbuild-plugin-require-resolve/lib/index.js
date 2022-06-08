@@ -1,6 +1,5 @@
 import path from 'path';
 import { TokenType, parse, walk } from '@chialab/estransform';
-import { appendSearchParam } from '@chialab/node-resolve';
 import { useRna } from '@chialab/esbuild-rna';
 
 /**
@@ -59,7 +58,7 @@ export default function() {
                         });
 
                         const emittedFile = await emitFile(resolvedFilePath);
-                        helpers.overwrite(stringToken.start, stringToken.end, `'./${appendSearchParam(emittedFile.path, 'hash', emittedFile.id)}'`);
+                        helpers.overwrite(stringToken.start, stringToken.end, `'./${emittedFile.path}'`);
                     })());
                 });
 

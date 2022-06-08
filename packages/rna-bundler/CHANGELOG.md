@@ -1,6 +1,6 @@
 # @chialab/rna-bundler
 
-## 1.0.0
+## 0.16.0
 
 ### Minor Changes
 

@@ -1,6 +1,5 @@
 import path from 'path';
 import { TokenType, parse, walk } from '@chialab/estransform';
-import { appendSearchParam } from '@chialab/node-resolve';
 import { useRna } from '@chialab/esbuild-rna';
 
 /**

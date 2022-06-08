@@ -32,6 +32,7 @@ export default function(opts = {}) {
                 return;
             }
 
+            const jsxModule = opts.jsxModule;
             const jsxExport = opts.jsxExport || jsxFactory === DEFAULT_FACTORY ? 'default' : undefined;
 
             if (!inject.includes(RUNTIME_ALIAS)) {
@@ -47,14 +48,25 @@ export default function(opts = {}) {
                 specs.push(jsxFragment.split('.')[0]);
             }
 
+            build.onResolve({ filter: /^__jsx__.js$/ }, async (args) => {
+                const options = { ...args, path: undefined };
+                delete options.path;
+
+                const resolveModule = await build.resolve(jsxModule, options);
+                return {
+                    ...resolveModule,
+                    sideEffects: false,
+                };
+            });
+
             build.onLoad({ filter: RUNTIME_REGEX }, () => {
                 let contents = '';
                 if (jsxExport === 'default') {
-                    contents = `export { default as ${identifier} } from '${opts.jsxModule}';`;
+                    contents = `export { default as ${identifier} } from '__jsx__.js';`;
                 } else if (jsxExport === 'namespace') {
-                    contents = `export * as ${identifier} from '${opts.jsxModule}';`;
+                    contents = `export * as ${identifier} from '__jsx__.js';`;
                 } else {
-                    contents = `export { ${specs.join(',')} } from '${opts.jsxModule}';`;
+                    contents = `export { ${specs.join(',')} } from '__jsx__.js';`;
                 }
 
                 contents += createEmptySourcemapComment();

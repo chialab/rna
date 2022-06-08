@@ -2,6 +2,16 @@ import path from 'path';
 import { isRelativeUrl } from '@chialab/node-resolve';
 import Jimp from './generator.js';
 import { generateIcon } from './generateIcon.js';
+import { collectAsset } from './collectAssets.js';
+
+/**
+ * @typedef {Object} Icon
+ * @property {string} name The icon name.
+ * @property {number} size The icon size.
+ * @property {Buffer} contents The icon buffer.
+ * @property {number} [gutter] The icon gutter.
+ * @property {{ r: number; g: number; b: number; a: number; }} [background] The icon background.
+ */
 
 const FAVICONS = [
     {
@@ -53,6 +63,7 @@ const APPLE_ICON_SELECTORS = [
 /**
  * @param {import('./generator').Image} image The base icon buffer.
  * @param {typeof FAVICONS} favicons
+ * @returns {Promise<Icon[]>}
  */
 async function generateFavicons(image, favicons) {
     return Promise.all(
@@ -79,10 +90,43 @@ async function generateAppleIcons(image, icons) {
 }
 
 /**
+ * @param {import('cheerio').CheerioAPI} $ The cheerio selector.
+ * @param {import('cheerio').Cheerio<import('cheerio').Element>} element The DOM element.
+ * @param {Icon} icon The generated icon file.
+ * @param {string} rel Rel attribute.
+ * @param {boolean} shortcut Should include shortcut.
+ * @param {import('./index.js').BuildOptions} options Build options.
+ * @param {import('./index.js').Helpers} helpers Helpers.
+ * @returns {Promise<import('@chialab/esbuild-rna').OnTransformResult>} Plain build.
+ */
+export async function collectIcon($, element, icon, rel, shortcut, options, helpers) {
+    const entryPoint = path.join(options.sourceDir, icon.name);
+    const file = await helpers.emitFile(entryPoint, icon.contents);
+
+    if (icon.size === 196 && shortcut) {
+        const link = $('<link>');
+        link.attr('rel', 'shortcut icon');
+        link.attr('href', file.path);
+        link.insertBefore(element);
+    }
+
+    const link = $('<link>');
+    link.attr('rel', rel);
+    link.attr('sizes', `${icon.size}x${icon.size}`);
+    link.attr('href', file.path);
+    link.insertBefore(element);
+
+    return {
+        ...file,
+        watchFiles: [entryPoint],
+    };
+}
+
+/**
  * Collect and bundle apple icons.
  * @type {import('./index').Collector}
  */
-async function collectAppleIcons($, dom, options, { resolve, load }) {
+async function collectAppleIcons($, dom, options, helpers) {
     let remove = true;
     let iconElement = dom.find(APPLE_ICON_SELECTORS.join(',')).last();
     if (!iconElement.length) {
@@ -99,71 +143,43 @@ async function collectAppleIcons($, dom, options, { resolve, load }) {
         return [];
     }
 
-    const iconFilePath = await resolve(iconHref);
+    const iconFilePath = await helpers.resolve(iconHref);
     if (!iconFilePath.path) {
         throw new Error(`Failed to resolve icon path: ${iconHref}`);
     }
 
-    const iconFile = await load(iconFilePath.path, iconFilePath);
+    const iconFile = await helpers.load(iconFilePath.path, iconFilePath);
     if (!iconFile.contents) {
         throw new Error(`Failed to load icon file: ${iconFilePath.path}`);
     }
 
     const imageBuffer = Buffer.from(iconFile.contents);
 
-    /**
-     * @type {InstanceType<Jimp>}
-     */
-    let image;
     try {
-        image = await Jimp.read(imageBuffer);
+        const image = await Jimp.read(imageBuffer);
+        const icons = await generateAppleIcons(image, APPLE_ICONS);
+        const results = await Promise.all(icons.map((icon) => collectIcon($, iconElement, icon, 'apple-touch-icon', false, options, helpers)));
+        if (remove) {
+            iconElement.remove();
+        }
+
+        return results;
     } catch (err) {
-        return [
-            {
-                build: {
-                    loader: 'file',
-                    entryPoint: iconHref,
-                },
-                finisher(files) {
-                    iconElement.attr('href', files[0]);
-                },
-            },
-        ];
+        const result = await collectAsset($, iconElement, 'href', options, helpers);
+        if (result) {
+            return [result];
+        }
+
+        return [];
     }
-
-    const icons = await generateAppleIcons(image, APPLE_ICONS);
-
-    return [
-        ...icons.map((icon) => /** @type {import('./index.js').CollectResult} */({
-            build: {
-                entryPoint: path.join(options.sourceDir, icon.name),
-                contents: icon.contents,
-                loader: 'file',
-                outdir: 'icons',
-            },
-            async finisher(files) {
-                const link = $('<link>');
-                link.attr('rel', 'apple-touch-icon');
-                link.attr('sizes', `${icon.size}x${icon.size}`);
-                link.attr('href', files[0]);
-                link.insertBefore(iconElement);
-            },
-        })),
-        ...(remove ? [{
-            finisher() {
-                iconElement.remove();
-            },
-        }] : []),
-    ];
 }
 
 /**
  * Collect and bundle favicons.
  * @type {import('./index').Collector}
  */
-export async function collectIcons($, dom, options, api) {
-    const { resolve, load } = api;
-    const appleIcons = collectAppleIcons($, dom, options, api);
+export async function collectIcons($, dom, options, helpers) {
+    const { resolve, load } = helpers;
 
     const iconElement = dom.find(ICON_SELECTORS.join(',')).last();
     if (!iconElement.length) {
@@ -172,7 +188,7 @@ export async function collectIcons($, dom, options, api) {
 
     const iconHref = iconElement.attr('href') || '';
     if (!isRelativeUrl(iconHref)) {
-        return appleIcons;
+        return collectAppleIcons($, dom, options, helpers);
     }
 
     const iconFilePath = await resolve(iconHref);
@@ -187,56 +203,20 @@ export async function collectIcons($, dom, options, api) {
 
     const imageBuffer = Buffer.from(iconFile.contents);
 
-    /**
-     * @type {InstanceType<Jimp>}
-     */
-    let image;
     try {
-        image = await Jimp.read(imageBuffer);
+        const image = await Jimp.read(imageBuffer);
+        const icons = await generateFavicons(image, FAVICONS);
+        const results = await Promise.all(icons.map((icon) => collectIcon($, iconElement, icon, 'icon', true, options, helpers)));
+        results.push(...await collectAppleIcons($, dom, options, helpers));
+        iconElement.remove();
+
+        return results;
     } catch (err) {
-        return [
-            {
-                build: {
-                    loader: 'file',
-                    entryPoint: iconHref,
-                },
-                finisher(files) {
-                    iconElement.attr('href', files[0]);
-                },
-            },
-            ...(await appleIcons),
-        ];
+        const result = await collectAsset($, iconElement, 'href', options, helpers);
+        if (result) {
+            return [result];
+        }
+
+        return [];
     }
-
-    const icons = await generateFavicons(image, FAVICONS);
-
-    return [
-        ...icons.map((icon) => /** @type {import('./index.js').CollectResult} */ ({
-            build: {
-                entryPoint: path.join(options.sourceDir, icon.name),
-                contents: icon.contents,
-                loader: 'file',
-            },
-            async finisher(files) {
-                if (icon.size === 196) {
-                    const link = $('<link>');
-                    link.attr('rel', 'shortcut icon');
-                    link.attr('href', files[0]);
-                    link.insertBefore(iconElement);
-                }
-
-                const link = $('<link>');
-                link.attr('rel', 'icon');
-                link.attr('sizes', `${icon.size}x${icon.size}`);
-                link.attr('href', files[0]);
-                link.insertBefore(iconElement);
-            },
-        })),
-        ...(await appleIcons),
-        {
-            finisher() {
-                iconElement.remove();
-            },
-        },
-    ];
 }

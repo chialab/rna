@@ -4,60 +4,117 @@ import { isRelativeUrl } from '@chialab/node-resolve';
 /**
  * @param {import('cheerio').CheerioAPI} $ The cheerio selector.
  * @param {import('cheerio').Cheerio<import('cheerio').Document>} dom The DOM element.
- * @param {string} selector Scripts selector.
- * @param {string} sourceDir Build sourceDir.
+ * @param {import('cheerio').Element[]} elements List of nodes.
  * @param {string} target Build target.
  * @param {import('esbuild').Format} format Build format.
  * @param {string} type Script type.
  * @param {{ [key: string]: string }} attrs Script attrs.
+ * @param {import('./index.js').BuildOptions} options Build options.
  * @param {import('./index.js').Helpers} helpers Helpers.
- * @returns {import('./index').CollectResult|void} Plain build.
+ * @returns {Promise<import('@chialab/esbuild-rna').OnTransformResult[]>} Plain build.
  */
-function innerCollect($, dom, selector, sourceDir, target, format, type, attrs = {}, helpers) {
-    const elements = dom.find(selector)
-        .get()
+async function innerCollect($, dom, elements, target, format, type, attrs = {}, options, helpers) {
+    elements = elements
         .filter((element) => !$(element).attr('src') || isRelativeUrl($(element).attr('src')));
 
     if (!elements.length) {
-        return;
+        return [];
     }
 
-    const contents = elements.map((element) => {
-        if ($(element).attr('src')) {
-            return `import './${$(element).attr('src')}';`;
+    /**
+     * @type {Map<import('cheerio').Element, import('@chialab/esbuild-rna').VirtualEntry|string>}
+     */
+    const builds = new Map();
+
+    /**
+     * @type {Map<string, import('cheerio').Element>}
+     */
+    const entrypoints = new Map();
+
+    await Promise.all(elements.map(async (element) => {
+        const src = $(element).attr('src');
+        if (src) {
+            const resolvedFile = await helpers.resolve(src);
+            if (!resolvedFile.path) {
+                return;
+            }
+
+            builds.set(element, resolvedFile.path);
+            entrypoints.set(resolvedFile.path, element);
+        } else {
+            const entryPoint = path.join(options.sourceDir, helpers.createEntry('js'));
+            builds.set(element, {
+                path: entryPoint,
+                contents: $(element).html() || '',
+            });
+            entrypoints.set(entryPoint, element);
+        }
+    }));
+
+    const result = await helpers.emitBuild({
+        entryPoints: [...builds.values()],
+        target,
+        format,
+    });
+
+    const outputs = result.metafile.outputs;
+    const styleFiles = Object.keys(outputs).filter((outName) => outName.endsWith('.css'));
+    Object.entries(outputs).forEach(([outName, output]) => {
+        if (outName.endsWith('.map')) {
+            // ignore map files
+            return;
+        }
+        if (!output.entryPoint) {
+            // ignore chunks
+            return;
         }
 
-        return $(element).html();
-    }).join('\n');
+        const entryPoint = path.join(options.workingDir, output.entryPoint);
+        const element = entrypoints.get(entryPoint);
+        if (!element) {
+            // unknown entrypoint
+            return;
+        }
 
-    return {
-        build: {
-            entryPoint: path.join(sourceDir, helpers.createEntry('js')),
-            contents,
-            target,
-            format,
-        },
-        finisher(files) {
-            const [jsOutput, ...outputs] = files;
-            elements.forEach((element) => {
-                $(element).remove();
-            });
-            const script = $(`<script src="${jsOutput}" type="${type}"></script>`);
-            for (const attrName in attrs) {
-                script.attr(attrName, attrs[attrName]);
-            }
-            $('body').append(script);
+        const fullOutName = path.join(options.workingDir, outName);
+        const relativeOutName = path.relative(options.entryDir, fullOutName);
 
-            if (attrs.nomodule !== '') {
-                const cssOutputs = outputs.filter((output) => output.endsWith('.css'));
-                if (cssOutputs) {
-                    cssOutputs.forEach((cssOutput) => {
-                        $('head').append(`<link rel="stylesheet" href="${cssOutput}" />`);
-                    });
-                }
-            }
-        },
-    };
+        if ($(element).attr('src')) {
+            $(element).attr('src', relativeOutName);
+            $(element).html('');
+        } else {
+            $(element).html(`import './${relativeOutName}'`);
+        }
+        $(element).removeAttr('type').attr('type', type);
+        for (const attrName in attrs) {
+            $(element).removeAttr(attrName).attr(attrName, attrs[attrName]);
+        }
+    });
+
+    if (styleFiles.length) {
+        const script = $('<script>');
+        for (const attrName in attrs) {
+            $(script).attr(attrName, attrs[attrName]);
+        }
+        $(script).attr('type', type);
+        $(script).html(`(function() {
+function loadStyle(url) {
+    var l = document.createElement('link');
+    l.rel = 'stylesheet';
+    l.href = url;
+    document.head.appendChild(l);
+}
+
+${styleFiles.map((outName) => {
+            const fullOutFile = path.join(options.workingDir, outName);
+            const relativeOutFile = path.relative(options.entryDir, fullOutFile);
+            return `loadStyle('${relativeOutFile}');`;
+        }).join('\n')}
+}());`);
+        dom.find('head').append(script);
+    }
+
+    return [result];
 }
 
 /**
@@ -65,39 +122,47 @@ function innerCollect($, dom, selector, sourceDir, target, format, type, attrs =
  * @type {import('./index').Collector}
  */
 export async function collectScripts($, dom, options, helpers) {
-    return /** @type {import('./index').CollectResult[]} */ ([
-        innerCollect(
+    const moduleElements = dom.find('script[src][type="module"], script[type="module"]:not([src])').get();
+    const nomoduleElements = dom.find('script[src]:not([type])[nomodule], script[src][type="text/javascript"][nomodule], script[src][type="application/javascript"][nomodule]').get();
+    const scriptElements = dom.find('script[src]:not([type]):not([nomodule]), script[src][type="text/javascript"]:not([nomodule]), script[src][type="application/javascript"]:not([nomodule])').get();
+
+    const results = [
+        await innerCollect(
             $,
             dom,
-            'script[src]:not([type]):not([nomodule]), script[src][type="text/javascript"]:not([nomodule]), script[src][type="application/javascript"]:not([nomodule])',
-            options.sourceDir,
-            options.target[0],
-            'iife',
-            'application/javascript',
-            {},
-            helpers
-        ),
-        innerCollect(
-            $,
-            dom,
-            'script[src]:not([type])[nomodule], script[src][type="text/javascript"][nomodule], script[src][type="application/javascript"][nomodule]',
-            options.sourceDir,
-            options.target[0],
-            'iife',
-            'application/javascript',
-            { nomodule: '' },
-            helpers
-        ),
-        innerCollect(
-            $,
-            dom,
-            'script[src][type="module"], script[type="module"]:not([src])',
-            options.sourceDir,
+            moduleElements,
             options.target[1],
             'esm',
             'module',
             {},
+            options,
             helpers
         ),
-    ].filter(Boolean));
+    ];
+
+    results.push(await innerCollect(
+        $,
+        dom,
+        nomoduleElements,
+        options.target[0],
+        'iife',
+        'application/javascript',
+        { nomodule: '' },
+        options,
+        helpers
+    ));
+
+    results.push(await innerCollect(
+        $,
+        dom,
+        scriptElements,
+        options.target[0],
+        'iife',
+        'application/javascript',
+        {},
+        options,
+        helpers
+    ));
+
+    return results.flat();
 }

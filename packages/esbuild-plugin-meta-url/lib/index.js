@@ -1,5 +1,5 @@
 import path from 'path';
-import { isUrl } from '@chialab/node-resolve';
+import { appendSearchParam, getSearchParam, isUrl } from '@chialab/node-resolve';
 import { parse, walk, getIdentifierValue, getBlock, getLocation, TokenType } from '@chialab/estransform';
 import { useRna } from '@chialab/esbuild-rna';
 
@@ -152,7 +152,8 @@ export default function({ emit = true } = {}) {
                         return;
                     }
 
-                    if (isEmittedPath(value)) {
+                    const id = getSearchParam(value, 'hash');
+                    if (id && isEmittedPath(id)) {
                         return;
                     }
 
@@ -206,15 +207,17 @@ export default function({ emit = true } = {}) {
                             let entryPoint;
                             if (emit) {
                                 if (isChunk) {
-                                    entryPoint = (await emitChunk({ entryPoint: resolvedPath })).path;
+                                    const chunk = await emitChunk({ path: resolvedPath });
+                                    entryPoint = appendSearchParam(chunk.path, 'hash', chunk.id);
                                 } else {
-                                    entryPoint = (await emitFile(resolvedPath)).path;
+                                    const file = await emitFile(resolvedPath);
+                                    entryPoint = appendSearchParam(file.path, 'hash', file.id);
                                 }
                             } else {
-                                entryPoint = `./${path.relative(path.dirname(args.path), resolvedPath)}`;
+                                entryPoint = path.relative(path.dirname(args.path), resolvedPath);
                             }
 
-                            helpers.overwrite(startToken.start, endToken.end, `new URL('${entryPoint}', ${baseUrl})`);
+                            helpers.overwrite(startToken.start, endToken.end, `new URL('./${entryPoint}', ${baseUrl})`);
 
                             return;
                         }

@@ -1818,6 +1818,7 @@ __metadata:
   dependencies:
     "@chialab/esbuild-rna": ^0.15.37
     "@chialab/estransform": ^0.15.28
+    "@chialab/node-resolve": ^0.15.28
     typescript: ^4.3.0
   languageName: unknown
   linkType: soft
@@ -1838,7 +1839,6 @@ __metadata:
   resolution: "@chialab/esbuild-plugin-virtual@workspace:packages/esbuild-plugin-virtual"
   dependencies:
     "@chialab/esbuild-rna": ^0.15.37
-    "@chialab/node-resolve": ^0.15.28
     typescript: ^4.3.0
   languageName: unknown
   linkType: soft
@@ -1850,6 +1850,7 @@ __metadata:
     "@chialab/esbuild-plugin-meta-url": ^0.15.40
     "@chialab/esbuild-rna": ^0.15.39
     "@chialab/estransform": ^0.15.28
+    "@chialab/node-resolve": ^0.15.28
     typescript: ^4.3.0
   languageName: unknown
   linkType: soft

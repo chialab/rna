@@ -32,16 +32,26 @@ describe('esbuild-plugin-html', () => {
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <link rel="stylesheet" href="1-R3ICRKFP.css">
+    <script type="application/javascript">
+        (function() {
+            function loadStyle(url) {
+                var l = document.createElement('link');
+                l.rel = 'stylesheet';
+                l.href = url;
+                document.head.appendChild(l);
+            }
+            loadStyle('index-UMVLUHQU.css');
+        }());
+    </script>
 </head>
 
 <body>
-    <script src="1-JOUMWTNZ.js" type="application/javascript"></script>
+    <script src="index-PASUIUF5.js" type="application/javascript"></script>
 </body>
 
 </html>`);
 
-        expect(js.path.endsWith('/out/1-JOUMWTNZ.js')).to.be.true;
+        expect(js.path.endsWith('/out/index-PASUIUF5.js')).to.be.true;
         expect(js.text).to.be.equal(`(() => {
   // fixture/lib.js
   var log = console.log.bind(console);
@@ -53,7 +63,7 @@ describe('esbuild-plugin-html', () => {
 })();
 `);
 
-        expect(css.path.endsWith('/out/1-R3ICRKFP.css')).to.be.true;
+        expect(css.path.endsWith('/out/index-UMVLUHQU.css')).to.be.true;
         expect(css.text).to.be.equal(`/* fixture/index.css */
 html,
 body {
@@ -92,16 +102,26 @@ body {
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <link rel="stylesheet" href="1-JIRSVTF3.css">
+    <script type="application/javascript">
+        (function() {
+            function loadStyle(url) {
+                var l = document.createElement('link');
+                l.rel = 'stylesheet';
+                l.href = url;
+                document.head.appendChild(l);
+            }
+            loadStyle('index-CECUKMCO.css');
+        }());
+    </script>
 </head>
 
 <body>
-    <script src="1-MFHSZCSP.js" type="application/javascript"></script>
+    <script src="index-2REWJ4YW.js" type="application/javascript"></script>
 </body>
 
 </html>`);
 
-        expect(js.path.endsWith('/out/1-MFHSZCSP.js')).to.be.true;
+        expect(js.path.endsWith('/out/index-2REWJ4YW.js')).to.be.true;
         expect(js.text).to.be.equal(`(() => {
   // fixture/lib.js
   var log = console.log.bind(console);
@@ -111,17 +131,17 @@ body {
     log("test");
   });
 })();
-//# sourceMappingURL=1-MFHSZCSP.js.map
+//# sourceMappingURL=index-2REWJ4YW.js.map
 `);
 
-        expect(css.path.endsWith('/out/1-JIRSVTF3.css')).to.be.true;
+        expect(css.path.endsWith('/out/index-CECUKMCO.css')).to.be.true;
         expect(css.text).to.be.equal(`/* fixture/index.css */
 html,
 body {
   margin: 0;
   padding: 0;
 }
-/*# sourceMappingURL=1-JIRSVTF3.css.map */
+/*# sourceMappingURL=index-CECUKMCO.css.map */
 `);
     });
 
@@ -140,9 +160,13 @@ body {
             ],
         });
 
-        const [index, js, css] = outputFiles;
+        const [index, ...files] = outputFiles;
+        const jsFile = files.find((file) => file.path.includes('/out/index') && file.path.endsWith('.js'));
+        const jsSource = files.find((file) => file.path.includes('/out/1-') && file.path.endsWith('.js'));
+        const jsChunk = files.find((file) => file.path.includes('/out/chunk-') && file.path.endsWith('.js'));
+        const css = files.find((file) => file.path.endsWith('.css'));
 
-        expect(outputFiles).to.have.lengthOf(3);
+        expect(outputFiles).to.have.lengthOf(5);
 
         expect(index.path.endsWith('/out/index.esm.html')).to.be.true;
         expect(index.text).to.be.equal(`<!DOCTYPE html>
@@ -153,29 +177,58 @@ body {
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <link rel="stylesheet" href="1-R3ICRKFP.css">
+    <script type="module">
+        (function() {
+            function loadStyle(url) {
+                var l = document.createElement('link');
+                l.rel = 'stylesheet';
+                l.href = url;
+                document.head.appendChild(l);
+            }
+            loadStyle('index-UMVLUHQU.css');
+        }());
+    </script>
 </head>
 
 <body>
-    <script src="1-6ZJC3XWM.js" type="module"></script>
+    <script src="index-7DQE4SCR.js" type="module"></script>
+    <script type="module">
+        import './1-ZOQZ7JHL.js'
+    </script>
 </body>
 
 </html>`);
 
-        expect(js.path.endsWith('1-6ZJC3XWM.js')).to.be.true;
-        expect(js.text).to.be.equal(`// fixture/lib.js
-var log = console.log.bind(console);
+        expect(jsFile.path.endsWith('index-7DQE4SCR.js')).to.be.true;
+        expect(jsFile.text).to.be.equal(`import {
+  log
+} from "./chunk-VLQWHBZB.js";
 
 // fixture/index.js
 window.addEventListener("load", () => {
   log("test");
 });
+`);
+
+        expect(jsSource.path.endsWith('/1-ZOQZ7JHL.js')).to.be.true;
+        expect(jsSource.text).to.be.equal(`import {
+  log
+} from "./chunk-VLQWHBZB.js";
 
 // fixture/1.js
 log("test");
 `);
 
-        expect(css.path.endsWith('1-R3ICRKFP.css')).to.be.true;
+        expect(jsChunk.path.endsWith('/chunk-VLQWHBZB.js')).to.be.true;
+        expect(jsChunk.text).to.be.equal(`// fixture/lib.js
+var log = console.log.bind(console);
+
+export {
+  log
+};
+`);
+
+        expect(css.path.endsWith('/index-UMVLUHQU.css')).to.be.true;
         expect(css.text).to.be.equal(`/* fixture/index.css */
 html,
 body {
@@ -201,9 +254,14 @@ body {
             ],
         });
 
-        const [index, js, lib, chunk, css] = outputFiles;
+        const [index, ...files] = outputFiles;
+        const jsFile = files.find((file) => file.path.includes('/out/index') && file.path.endsWith('.js'));
+        const jsSource = files.find((file) => file.path.includes('/out/1-') && file.path.endsWith('.js'));
+        const jsLib = files.find((file) => file.path.includes('/out/lib-') && file.path.endsWith('.js'));
+        const jsChunk = files.find((file) => file.path.includes('/out/chunk-') && file.path.endsWith('.js'));
+        const css = files.find((file) => file.path.endsWith('.css'));
 
-        expect(outputFiles).to.have.lengthOf(5);
+        expect(outputFiles).to.have.lengthOf(6);
 
         expect(index.path.endsWith('/out/index.chunks.html')).to.be.true;
         expect(index.text).to.be.equal(`<!DOCTYPE html>
@@ -214,17 +272,30 @@ body {
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <link rel="stylesheet" href="1-R3ICRKFP.css">
+    <script type="module">
+        (function() {
+            function loadStyle(url) {
+                var l = document.createElement('link');
+                l.rel = 'stylesheet';
+                l.href = url;
+                document.head.appendChild(l);
+            }
+            loadStyle('index-UMVLUHQU.css');
+        }());
+    </script>
 </head>
 
 <body>
-    <script src="1-CHKD3JX6.js" type="module"></script>
+    <script type="module">
+        import './1-GWHRC5DW.js'
+    </script>
+    <script src="index-NISLXZJK.js" type="module"></script>
 </body>
 
 </html>`);
 
-        expect(js.path.endsWith('1-CHKD3JX6.js')).to.be.true;
-        expect(js.text).to.be.equal(`import {
+        expect(jsFile.path.endsWith('/index-NISLXZJK.js')).to.be.true;
+        expect(jsFile.text).to.be.equal(`import {
   log
 } from "./chunk-GNFD7QL2.js";
 
@@ -232,15 +303,17 @@ body {
 window.addEventListener("load", () => {
   log("test");
 });
+`);
 
-// fixture/1.js
-import("./lib-476DRX7L.js").then(({ log: log2 }) => {
-  log2("test");
+        expect(jsSource.path.endsWith('/1-GWHRC5DW.js')).to.be.true;
+        expect(jsSource.text).to.be.equal(`// fixture/1.js
+import("./lib-476DRX7L.js").then(({ log }) => {
+  log("test");
 });
 `);
 
-        expect(lib.path.endsWith('lib-476DRX7L.js')).to.be.true;
-        expect(lib.text).to.be.equal(`import {
+        expect(jsLib.path.endsWith('/lib-476DRX7L.js')).to.be.true;
+        expect(jsLib.text).to.be.equal(`import {
   log
 } from "./chunk-GNFD7QL2.js";
 export {
@@ -248,8 +321,8 @@ export {
 };
 `);
 
-        expect(chunk.path.endsWith('chunk-GNFD7QL2.js')).to.be.true;
-        expect(chunk.text).to.be.equal(`// fixture/lib.js
+        expect(jsChunk.path.endsWith('/chunk-GNFD7QL2.js')).to.be.true;
+        expect(jsChunk.text).to.be.equal(`// fixture/lib.js
 var log = console.log.bind(console);
 
 export {
@@ -257,7 +330,7 @@ export {
 };
 `);
 
-        expect(css.path.endsWith('1-R3ICRKFP.css')).to.be.true;
+        expect(css.path.endsWith('/index-UMVLUHQU.css')).to.be.true;
         expect(css.text).to.be.equal(`/* fixture/index.css */
 html,
 body {
@@ -283,9 +356,9 @@ body {
         });
 
         const index = /** @type {import('esbuild').OutputFile} */ (outputFiles.find((file) => file.path.endsWith('.html')));
-        const iife = /** @type {import('esbuild').OutputFile} */ (outputFiles.find((file) => file.path.endsWith('1-JOUMWTNZ.js')));
-        const esm = /** @type {import('esbuild').OutputFile} */ (outputFiles.find((file) => file.path.endsWith('2-T7UKAOZB.js')));
-        const esmCss = /** @type {import('esbuild').OutputFile} */ (outputFiles.find((file) => file.path.endsWith('2-KQM7Y3VQ.css')));
+        const iife = /** @type {import('esbuild').OutputFile} */ (outputFiles.find((file) => file.path.endsWith('index-PASUIUF5.js')));
+        const esm = /** @type {import('esbuild').OutputFile} */ (outputFiles.find((file) => file.path.endsWith('index-6PRLBFYO.js')));
+        const css = /** @type {import('esbuild').OutputFile} */ (outputFiles.find((file) => file.path.endsWith('index-UMVLUHQU.css')));
 
         expect(outputFiles).to.have.lengthOf(5);
 
@@ -298,17 +371,38 @@ body {
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <link rel="stylesheet" href="2-KQM7Y3VQ.css">
+    <script type="module">
+        (function() {
+            function loadStyle(url) {
+                var l = document.createElement('link');
+                l.rel = 'stylesheet';
+                l.href = url;
+                document.head.appendChild(l);
+            }
+            loadStyle('index-UMVLUHQU.css');
+        }());
+    </script>
+    <script nomodule="" type="application/javascript">
+        (function() {
+            function loadStyle(url) {
+                var l = document.createElement('link');
+                l.rel = 'stylesheet';
+                l.href = url;
+                document.head.appendChild(l);
+            }
+            loadStyle('index-UMVLUHQU.css');
+        }());
+    </script>
 </head>
 
 <body>
-    <script src="1-JOUMWTNZ.js" type="application/javascript" nomodule=""></script>
-    <script src="2-T7UKAOZB.js" type="module"></script>
+    <script src="index-6PRLBFYO.js" type="module"></script>
+    <script src="index-PASUIUF5.js" type="application/javascript" nomodule=""></script>
 </body>
 
 </html>`);
 
-        expect(iife.path.endsWith('/out/1-JOUMWTNZ.js')).to.be.true;
+        expect(iife.path.endsWith('/out/index-PASUIUF5.js')).to.be.true;
         expect(iife.text).to.be.equal(`(() => {
   // fixture/lib.js
   var log = console.log.bind(console);
@@ -320,7 +414,7 @@ body {
 })();
 `);
 
-        expect(esm.path.endsWith('/out/2-T7UKAOZB.js')).to.be.true;
+        expect(esm.path.endsWith('/out/index-6PRLBFYO.js')).to.be.true;
         expect(esm.text).to.be.equal(`// fixture/lib.js
 var log = console.log.bind(console);
 
@@ -330,8 +424,8 @@ window.addEventListener("load", () => {
 });
 `);
 
-        expect(esmCss.path.endsWith('/out/2-KQM7Y3VQ.css')).to.be.true;
-        expect(esmCss.text).to.be.equal(`/* fixture/index.css */
+        expect(css.path.endsWith('/out/index-UMVLUHQU.css')).to.be.true;
+        expect(css.text).to.be.equal(`/* fixture/index.css */
 html,
 body {
   margin: 0;
@@ -354,9 +448,11 @@ body {
             ],
         });
 
-        const [index, css] = outputFiles;
+        const [index, ...cssFiles] = outputFiles;
+        const cssFile = cssFiles.find((output) => output.path.includes('/out/index'));
+        const cssSource = cssFiles.find((output) => output.path.includes('/out/1-'));
 
-        expect(outputFiles).to.have.lengthOf(2);
+        expect(outputFiles).to.have.lengthOf(3);
 
         expect(index.path.endsWith('/out/index.css.html')).to.be.true;
         expect(index.text).to.be.equal(`<!DOCTYPE html>
@@ -367,7 +463,10 @@ body {
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <link rel="stylesheet" href="1-OFYYZ7M5.css">
+    <link rel="stylesheet" href="index-UMVLUHQU.css">
+    <style>
+        @import '1-EKADEBHI.css'
+    </style>
 </head>
 
 <body>
@@ -375,15 +474,17 @@ body {
 
 </html>`);
 
-        expect(css.path.endsWith('/out/1-OFYYZ7M5.css')).to.be.true;
-        expect(css.text).to.be.equal(`/* fixture/index.css */
+        expect(cssFile.path.endsWith('/out/index-UMVLUHQU.css')).to.be.true;
+        expect(cssFile.text).to.be.equal(`/* fixture/index.css */
 html,
 body {
   margin: 0;
   padding: 0;
 }
+`);
 
-/* fixture/1.css */
+        expect(cssSource.path.endsWith('/out/1-EKADEBHI.css')).to.be.true;
+        expect(cssSource.text).to.be.equal(`/* fixture/1.css */
 body {
   color: red;
 }
@@ -419,7 +520,7 @@ body {
 `,
                     },
                     {
-                        path: './index.css',
+                        path: new URL('./index.css', import.meta.url).pathname,
                         contents: '@import \'lib.css\';',
                         loader: 'css',
                     },
@@ -446,7 +547,7 @@ body {
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <link rel="stylesheet" href="1-PQALMFMQ.css">
+    <link rel="stylesheet" href="index-JHCCFNW4.css">
 </head>
 
 <body>
@@ -454,15 +555,13 @@ body {
 
 </html>`);
 
-        expect(css.path.endsWith('/out/1-PQALMFMQ.css')).to.be.true;
+        expect(css.path.endsWith('/out/index-JHCCFNW4.css')).to.be.true;
         expect(css.text).to.be.equal(`/* lib.css */
 html {
   padding: 0;
 }
 
 /* index.css */
-
-/* 1.css */
 `);
     });
 
@@ -669,7 +768,7 @@ html {
 
         const [index, ...assets] = outputFiles;
         const icons = assets.slice(0, 9);
-        const manifest = assets[assets.length - 1];
+        const manifest = assets[9];
 
         expect(outputFiles).to.have.lengthOf(17);
 
@@ -717,47 +816,47 @@ html {
   "lang": "en",
   "icons": [
     {
-      "src": "./assets/android-chrome-36x36.png?hash=b3c59d86",
+      "src": "assets/android-chrome-36x36.png",
       "sizes": "36x36",
       "type": "image/png"
     },
     {
-      "src": "./assets/android-chrome-48x48.png?hash=888e8a41",
+      "src": "assets/android-chrome-48x48.png",
       "sizes": "48x48",
       "type": "image/png"
     },
     {
-      "src": "./assets/android-chrome-72x72.png?hash=7e749c52",
+      "src": "assets/android-chrome-72x72.png",
       "sizes": "72x72",
       "type": "image/png"
     },
     {
-      "src": "./assets/android-chrome-96x96.png?hash=760fa674",
+      "src": "assets/android-chrome-96x96.png",
       "sizes": "96x96",
       "type": "image/png"
     },
     {
-      "src": "./assets/android-chrome-144x144.png?hash=4dc61811",
+      "src": "assets/android-chrome-144x144.png",
       "sizes": "144x144",
       "type": "image/png"
     },
     {
-      "src": "./assets/android-chrome-192x192.png?hash=9a8c49b7",
+      "src": "assets/android-chrome-192x192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "./assets/android-chrome-256x256.png?hash=19ceae5d",
+      "src": "assets/android-chrome-256x256.png",
       "sizes": "256x256",
       "type": "image/png"
     },
     {
-      "src": "./assets/android-chrome-384x384.png?hash=599c2926",
+      "src": "assets/android-chrome-384x384.png",
       "sizes": "384x384",
       "type": "image/png"
     },
     {
-      "src": "./assets/android-chrome-512x512.png?hash=373686d8",
+      "src": "assets/android-chrome-512x512.png",
       "sizes": "512x512",
       "type": "image/png"
     }
@@ -782,7 +881,9 @@ html {
             ],
         });
 
-        const [index, js, css] = outputFiles;
+        const [index, ...files] = outputFiles;
+        const js = files.find((file) => file.path.endsWith('.js'));
+        const css = files.find((file) => file.path.endsWith('.css'));
 
         expect(outputFiles).to.have.lengthOf(3);
         expect(index.path.endsWith('/out/fixture/index.iife.html')).to.be.true;
@@ -794,17 +895,27 @@ html {
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <link rel="stylesheet" href="../1.css">
+    <script type="application/javascript">
+        (function() {
+            function loadStyle(url) {
+                var l = document.createElement('link');
+                l.rel = 'stylesheet';
+                l.href = url;
+                document.head.appendChild(l);
+            }
+            loadStyle('../index.css');
+        }());
+    </script>
 </head>
 
 <body>
-    <script src="../1.js" type="application/javascript"></script>
+    <script src="../index.js" type="application/javascript"></script>
 </body>
 
 </html>`);
 
-        expect(js.path.endsWith('/out/1.js')).to.be.true;
-        expect(css.path.endsWith('/out/1.css')).to.be.true;
+        expect(js.path.endsWith('/out/index.js')).to.be.true;
+        expect(css.path.endsWith('/out/index.css')).to.be.true;
     });
 
     it('should bundle webapp with [dir] without outbase', async () => {
@@ -823,7 +934,9 @@ html {
             ],
         });
 
-        const [index, js, css] = outputFiles;
+        const [index, ...files] = outputFiles;
+        const js = files.find((file) => file.path.endsWith('.js'));
+        const css = files.find((file) => file.path.endsWith('.css'));
 
         expect(outputFiles).to.have.lengthOf(3);
         expect(index.path.endsWith('/out/index.iife.html')).to.be.true;
@@ -835,16 +948,26 @@ html {
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <link rel="stylesheet" href="1.css">
+    <script type="application/javascript">
+        (function() {
+            function loadStyle(url) {
+                var l = document.createElement('link');
+                l.rel = 'stylesheet';
+                l.href = url;
+                document.head.appendChild(l);
+            }
+            loadStyle('index.css');
+        }());
+    </script>
 </head>
 
 <body>
-    <script src="1.js" type="application/javascript"></script>
+    <script src="index.js" type="application/javascript"></script>
 </body>
 
 </html>`);
 
-        expect(js.path.endsWith('/out/1.js')).to.be.true;
-        expect(css.path.endsWith('/out/1.css')).to.be.true;
+        expect(js.path.endsWith('/out/index.js')).to.be.true;
+        expect(css.path.endsWith('/out/index.css')).to.be.true;
     });
 });

@@ -158,7 +158,9 @@ export function command(program) {
                     plugins: [
                         ...await Promise.all([
                             import('@chialab/esbuild-plugin-html')
-                                .then(({ default: plugin }) => plugin()),
+                                .then(({ default: plugin }) => plugin({
+                                    modulesTarget: userConfig.target || 'es2020',
+                                })),
                             import('@chialab/esbuild-plugin-postcss')
                                 .then(({ default: plugin }) => plugin())
                                 .catch(() => ({ name: 'postcss', setup() { } })),

@@ -81,6 +81,21 @@ export function getRequestLoader(context) {
 }
 
 /**
+ * @param {import('koa').Context} context
+ */
+export function isPlainScript(context) {
+    const headers = context.headers;
+    if ('sec-fetch-mode' in headers) {
+        return headers['sec-fetch-mode'] === 'no-cors';
+    }
+    if (!context['origin']) {
+        return true;
+    }
+
+    return false;
+}
+
+/**
  * @param {import('@chialab/rna-config-loader').Entrypoint} entrypoint
  * @param {Partial<import('@chialab/rna-config-loader').CoreTransformConfig>} config
  */
@@ -341,8 +356,8 @@ export function rnaPlugin(config) {
                 input: `./${path.relative(rootDir, filePath)}`,
                 code: /** @type {string} */ (context.body),
                 loader,
-                bundle: false,
                 ...contextConfig,
+                bundle: isPlainScript(context),
             };
 
             const transformConfig = await createConfig(entrypoint, config);
@@ -369,6 +384,10 @@ export function rnaPlugin(config) {
         async resolveImport({ source, context }) {
             if (source.match(emptyRegex)) {
                 return;
+            }
+
+            if (config.jsxModule && source === '__jsx__.js') {
+                source = config.jsxModule;
             }
 
             const { rootDir } = serverConfig;

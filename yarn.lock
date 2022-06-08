@@ -2210,7 +2210,7 @@ __metadata:
   dependencies:
     "@babel/core": ^7.14.2
     "@babel/preset-env": ^7.14.2
-    "@chialab/wds-plugin-node-resolve": ^0.16.0
+    "@chialab/wds-plugin-node-resolve": ^0.16.1
     "@chialab/wds-plugin-polyfill": ^0.16.0
     "@types/babel__core": ^7.1.14
     "@types/babel__preset-env": ^7.9.1
@@ -2224,7 +2224,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@chialab/wds-plugin-node-resolve@^0.16.0, @chialab/wds-plugin-node-resolve@workspace:packages/wds-plugin-node-resolve":
+"@chialab/wds-plugin-node-resolve@^0.16.0, @chialab/wds-plugin-node-resolve@^0.16.1, @chialab/wds-plugin-node-resolve@workspace:packages/wds-plugin-node-resolve":
   version: 0.0.0-use.local
   resolution: "@chialab/wds-plugin-node-resolve@workspace:packages/wds-plugin-node-resolve"
   dependencies:
@@ -2257,7 +2257,7 @@ __metadata:
     "@chialab/postcss-url-rebase": ^0.16.0
     "@chialab/rna-bundler": ^0.16.0
     "@chialab/rna-config-loader": ^0.16.0
-    "@chialab/wds-plugin-node-resolve": ^0.16.0
+    "@chialab/wds-plugin-node-resolve": ^0.16.1
     typescript: ^4.3.0
   languageName: unknown
   linkType: soft

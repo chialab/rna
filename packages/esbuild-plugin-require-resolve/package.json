@@ -1,7 +1,7 @@
 {
   "name": "@chialab/esbuild-plugin-require-resolve",
   "type": "module",
-  "version": "0.16.0",
+  "version": "0.16.1",
   "description": "A file loader plugin for esbuild for `require.resolve` statements.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",

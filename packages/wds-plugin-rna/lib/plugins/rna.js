@@ -2,7 +2,7 @@ import path from 'path';
 import { getRequestFilePath } from '@chialab/es-dev-server';
 import { getEntryConfig } from '@chialab/rna-config-loader';
 import { pkgUp, browserResolve, isJs, isJson, isCss, getSearchParam, appendSearchParam, removeSearchParam, getSearchParams, ALIAS_MODE, createAliasRegexexMap, createEmptyRegex } from '@chialab/node-resolve';
-import { isHelperImport, resolveRelativeImport } from '@chialab/wds-plugin-node-resolve';
+import { isHelperImport, resolveRelativeImport, isPlainScript } from '@chialab/wds-plugin-node-resolve';
 import { transform, transformLoaders, build } from '@chialab/rna-bundler';
 import { realpath } from 'fs/promises';
 
@@ -78,21 +78,6 @@ export function convertFileToJsModule(source) {
 export function getRequestLoader(context) {
     const fileExtension = path.posix.extname(context.path);
     return transformLoaders[fileExtension];
-}
-
-/**
- * @param {import('koa').Context} context
- */
-export function isPlainScript(context) {
-    const headers = context.headers;
-    if ('sec-fetch-mode' in headers) {
-        return headers['sec-fetch-mode'] === 'no-cors';
-    }
-    if (!context['origin']) {
-        return true;
-    }
-
-    return false;
 }
 
 /**

@@ -1,7 +1,7 @@
 import path from 'path';
 import { getRequestFilePath, PluginSyntaxError, PluginError } from '@web/dev-server-core';
 import { createEmptyModule } from '@chialab/estransform';
-import { ALIAS_MODE, browserResolve, createAliasRegexexMap, createEmptyRegex, getSearchParams, isUrl } from '@chialab/node-resolve';
+import { ALIAS_MODE, browserResolve, createAliasRegexexMap, createEmptyRegex, getSearchParam, getSearchParams, isUrl } from '@chialab/node-resolve';
 
 /**
  * @typedef {import('@web/dev-server-core').Plugin} Plugin
@@ -63,6 +63,25 @@ export function toBrowserPath(filePath) {
  */
 export function isOutsideRootDir(browserPath) {
     return browserPath.startsWith(OUTSIDE_ROOT_KEY);
+}
+
+/**
+ * Check if script is loaded as plain script or module.
+ * @param {import('koa').Context} context
+ */
+export function isPlainScript(context) {
+    if (getSearchParam(context.url, 'type') === 'module') {
+        return false;
+    }
+    const headers = context.headers;
+    if ('sec-fetch-mode' in headers) {
+        return headers['sec-fetch-mode'] === 'no-cors';
+    }
+    if (!context['origin']) {
+        return true;
+    }
+
+    return false;
 }
 
 /**

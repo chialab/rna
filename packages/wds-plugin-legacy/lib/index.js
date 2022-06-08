@@ -1,6 +1,6 @@
 import { createRequire } from 'module';
 import { inject } from '@chialab/wds-plugin-polyfill';
-import { createHelperUrl } from '@chialab/wds-plugin-node-resolve';
+import { createHelperUrl, isPlainScript } from '@chialab/wds-plugin-node-resolve';
 import { checkEsmSupport } from './checkEsmSupport.js';
 import { readFile } from './readFile.js';
 import { transform } from './transform.js';
@@ -47,7 +47,18 @@ export function legacyPlugin(config = {}) {
             }
             if (context.path === systemHelper) {
                 return {
-                    body: await readFile(systemUrl),
+                    body: `${await readFile(systemUrl)}
+
+var createScript = System.constructor.prototype.createScript;
+System.constructor.prototype.createScript = function (url) {
+    if (url.indexOf('?') === -1) {
+        url += '?type=module';
+    } else {
+        url += '&type=module';
+    }
+    return createScript.call(this, url);
+};
+`,
                 };
             }
             if (context.path === regeneratorHelper) {
@@ -59,7 +70,7 @@ export function legacyPlugin(config = {}) {
 
         async transform(context) {
             const ua = context.get('user-agent');
-            if (checkEsmSupport(ua)) {
+            if (checkEsmSupport(ua) || isPlainScript(context)) {
                 return;
             }
             if (context.path === systemHelper ||
@@ -92,7 +103,7 @@ export function legacyPlugin(config = {}) {
                             continue;
                         }
                         $script.removeAttr('src');
-                        $script.text(`window.import('${src}');`);
+                        $script.text(`window.import('./${src}');`);
                     } else {
                         const content = $script.html() || '';
                         const src = `/script-${inlineScripts.size}.js`;

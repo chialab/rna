@@ -21,7 +21,7 @@
   - @chialab/esbuild-plugin-env@0.16.0
   - @chialab/esbuild-plugin-external@0.16.0
   - @chialab/esbuild-plugin-jsx-import@0.16.0
-  - @chialab/esbuild-plugin-postcss@1.0.0
+  - @chialab/esbuild-plugin-postcss@0.16.0
   - @chialab/esbuild-plugin-unwebpack@0.16.0
   - @chialab/rna-config-loader@0.16.0
   - @chialab/rna-logger@0.16.0

@@ -14,7 +14,7 @@
   - @chialab/es-dev-server@0.16.0
   - @chialab/node-resolve@0.16.0
   - @chialab/postcss-url-rebase@0.16.0
-  - @chialab/rna-bundler@1.0.0
+  - @chialab/rna-bundler@0.16.0
   - @chialab/rna-config-loader@0.16.0
   - @chialab/wds-plugin-node-resolve@0.16.0
 

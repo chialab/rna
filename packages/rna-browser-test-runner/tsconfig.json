@@ -23,6 +23,9 @@
       "path": "../wds-plugin-node-resolve"
     },
     {
+      "path": "../wtr-coverage-reporter"
+    },
+    {
       "path": "../wtr-mocha-reporter"
     },
     {

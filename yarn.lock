@@ -1650,6 +1650,7 @@ __metadata:
   dependencies:
     "@types/mocha": ^8.2.3
     c8: ^7.7.2
+    istanbul-lib-report: ^3.0.0
     istanbul-reports: ^3.1.1
     mocha: ^8.4.0
     rimraf: ^3.0.2
@@ -1995,6 +1996,7 @@ __metadata:
     "@chialab/rna-dev-server": ^0.16.0
     "@chialab/rna-logger": ^0.16.0
     "@chialab/wds-plugin-node-resolve": ^0.16.0
+    "@chialab/wtr-coverage-reporter": ^0.16.0
     "@chialab/wtr-mocha-reporter": ^0.16.0
     "@web/test-runner-chrome": ^0.10.0
     "@web/test-runner-core": ^0.10.18
@@ -2258,6 +2260,16 @@ __metadata:
     "@chialab/rna-bundler": ^0.16.0
     "@chialab/rna-config-loader": ^0.16.0
     "@chialab/wds-plugin-node-resolve": ^0.16.1
+    typescript: ^4.3.0
+  languageName: unknown
+  linkType: soft
+
+"@chialab/wtr-coverage-reporter@^0.16.0, @chialab/wtr-coverage-reporter@workspace:packages/wtr-coverage-reporter":
+  version: 0.0.0-use.local
+  resolution: "@chialab/wtr-coverage-reporter@workspace:packages/wtr-coverage-reporter"
+  dependencies:
+    "@chialab/es-test-runner": ^0.16.0
+    "@web/test-runner-core": ^0.10.19
     typescript: ^4.3.0
   languageName: unknown
   linkType: soft

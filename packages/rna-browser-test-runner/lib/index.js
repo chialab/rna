@@ -4,6 +4,7 @@ import { createRequire } from 'module';
 import { readConfigFile, mergeConfig, locateConfigFile } from '@chialab/rna-config-loader';
 import { createLogger } from '@chialab/rna-logger';
 import { mochaReporter } from '@chialab/wtr-mocha-reporter';
+import { coverageReporter } from '@chialab/wtr-coverage-reporter';
 import { HELPERS_PATH } from '@chialab/wds-plugin-node-resolve';
 import { TestRunner, TestRunnerCli } from '@web/test-runner-core';
 import { loadDevServerConfig, createDevServer } from '@chialab/rna-dev-server';
@@ -92,9 +93,12 @@ export async function startTestRunner(config) {
             threshold: { statements: 0, functions: 0, branches: 0, lines: 0 },
             report: true,
             reportDir: 'coverage',
-            reporters: ['lcov', 'text-summary'],
+            reporters: ['lcov'],
         },
-        reporters: [mochaReporter()],
+        reporters: [
+            mochaReporter(),
+            coverageReporter(),
+        ],
         testFramework,
         open: false,
         browserLogs: true,

@@ -43,6 +43,7 @@
     "@chialab/rna-dev-server": "^0.16.0",
     "@chialab/rna-logger": "^0.16.0",
     "@chialab/wds-plugin-node-resolve": "^0.16.0",
+    "@chialab/wtr-coverage-reporter": "^0.16.0",
     "@chialab/wtr-mocha-reporter": "^0.16.0",
     "@web/test-runner-chrome": "^0.10.0",
     "@web/test-runner-core": "^0.10.18",

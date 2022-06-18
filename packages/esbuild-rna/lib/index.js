@@ -4,6 +4,7 @@ import { mkdir, readFile, writeFile } from 'fs/promises';
 import { escapeRegexBody } from '@chialab/node-resolve';
 import { loadSourcemap, inlineSourcemap, mergeSourcemaps } from '@chialab/estransform';
 import { assignToResult, createOutputFile, createResult } from './helpers.js';
+import { BuildManager } from './BuildManager.js';
 
 export * from './helpers.js';
 
@@ -24,7 +25,11 @@ export * from './helpers.js';
  */
 
 /**
- * @typedef {(args: OnResolveArgs) => OnResolveResult | Promise<OnResolveResult | null | undefined> | null | undefined} ResolveCallback
+ * @typedef {import('esbuild').Metafile} Metafile
+ */
+
+/**
+ * @typedef {(args: OnResolveArgs) => Promise<OnResolveResult | null | undefined> | OnResolveResult | null | undefined} ResolveCallback
  */
 
 /**
@@ -40,35 +45,35 @@ export * from './helpers.js';
  */
 
 /**
- * @typedef {(args: OnLoadArgs) => OnLoadResult | Promise<OnLoadResult | null | undefined> | null | undefined} LoadCallback
+ * @typedef {import('./BuildState.js').LoadCallback} LoadCallback
  */
 
 /**
- * @typedef {import('esbuild').OnLoadArgs & { code?: string | Uint8Array, loader?: import('esbuild').Loader, resolveDir?: string }} OnTransformArgs
+ * @typedef {import('./BuildState.js').OnTransformArgs} OnTransformArgs
  */
 
 /**
- * @typedef {{ filter?: RegExp; loaders?: import('esbuild').Loader[]; extensions?: string[]; namespace?: string }} OnTransformOptions
+ * @typedef {import('./BuildState.js').OnTransformOptions} OnTransformOptions
  */
 
 /**
- * @typedef {{ code?: string, map?: import('@chialab/estransform').SourceMap|null, resolveDir?: string, errors?: import('esbuild').Message[], warnings?: import('esbuild').Message[], watchFiles?: string[] }} OnTransformResult
+ * @typedef {import('./BuildState.js').OnTransformResult} OnTransformResult
  */
 
 /**
- * @typedef {(args: import('esbuild').OnLoadArgs & { code: string, loader: import('esbuild').Loader, resolveDir?: string }) => OnTransformResult | Promise<OnTransformResult | null | undefined | void> | null | undefined | void} TransformCallback
+ * @typedef {import('./BuildState.js').TransformCallback} TransformCallback
  */
 
 /**
- * @typedef {import('esbuild').BuildResult & { metafile: Metafile; dependencies: DependenciesMap }} Result
+ * @typedef {import('./BuildState.js').Result} Result
  */
 
 /**
- * @typedef {Result & { id: string; path: string }} Chunk
+ * @typedef {import('./BuildState.js').Chunk} Chunk
  */
 
 /**
- * @typedef {{ [key: string]: string[] }} DependenciesMap
+ * @typedef {import('./BuildState.js').DependenciesMap} DependenciesMap
  */
 
 /**
@@ -80,18 +85,7 @@ export * from './helpers.js';
  */
 
 /**
- * @typedef {Object} BuildState
- * @property {{ options: OnLoadOptions, callback: LoadCallback }[]} load
- * @property {{ options: OnTransformOptions, callback: TransformCallback }[]} transform
- * @property {Map<string, Chunk>} chunks
- * @property {Map<string, Chunk>} files
- * @property {Set<Result>} builds
- * @property {DependenciesMap} dependencies
- * @property {boolean} initialized
- */
-
-/**
- * @typedef {import('esbuild').Metafile} Metafile
+ * @typedef {import('./BuildState.js').BuildState} BuildState
  */
 
 /**
@@ -118,9 +112,9 @@ export * from './helpers.js';
  */
 
 /**
- * @type {WeakMap<import('esbuild').BuildOptions, BuildState>}
+ * Build manager instance.
  */
-const buildInternals = new WeakMap();
+const manager = new BuildManager();
 
 /**
  * @type {{ [ext: string]: import('esbuild').Loader }}
@@ -181,20 +175,7 @@ export function useRna(build) {
         ...loader,
     };
     const onLoad = build.onLoad;
-    /**
-     * @type {BuildState}
-     */
-    const state = buildInternals.get(build.initialOptions) || {
-        load: [],
-        transform: [],
-        chunks: new Map(),
-        files: new Map(),
-        builds: new Set(),
-        dependencies: {},
-        initialized: false,
-    };
-    buildInternals.set(build.initialOptions, state);
-
+    const state = manager.getState(build);
     const isChunk = 'chunk' in build.initialOptions;
     const workingDir = absWorkingDir || process.cwd();
     const rootDir = sourceRoot || workingDir;

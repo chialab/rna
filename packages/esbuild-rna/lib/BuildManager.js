@@ -1,23 +1,23 @@
-import { createBuildState } from './BuildState.js';
+import { Build } from './Build.js';
 
 /**
  * Create and collect build states.
  */
 export class BuildManager {
     /**
-     * @type {WeakMap<import('esbuild').BuildOptions, import('./BuildState.js').BuildState>}
+     * @type {WeakMap<import('esbuild').BuildOptions, Build>}
      */
     builds = new WeakMap();
 
     /**
-     * Get or create a build state.
-     * @param {import('esbuild').PluginBuild} build
-     * @returns A build state.
+     * Create build hanlder.
+     * @param {import('esbuild').PluginBuild} pluginBuild
+     * @returns A build handler.
      */
-    getState(build) {
-        const state = this.builds.get(build.initialOptions) || createBuildState();
-        this.builds.set(build.initialOptions, state);
+    getBuild(pluginBuild) {
+        const build = this.builds.get(pluginBuild.initialOptions) || new Build(pluginBuild);
+        this.builds.set(pluginBuild.initialOptions, build);
 
-        return state;
+        return build;
     }
 }

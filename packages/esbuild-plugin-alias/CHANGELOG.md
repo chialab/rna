@@ -1,5 +1,13 @@
 # @chialab/esbuild-plugin-alias
 
+## 0.16.1
+
+### Patch Changes
+
+- c742389: Storybook build
+- Updated dependencies [c742389]
+  - @chialab/esbuild-rna@0.16.1
+
 ## 0.16.0
 
 ### Minor Changes

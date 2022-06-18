@@ -39,7 +39,7 @@ async function innerCollect($, dom, elements, target, format, type, attrs = {}, 
                 return;
             }
 
-            builds.set(element, resolvedFile.path);
+            builds.set(element, src);
             entrypoints.set(resolvedFile.path, element);
         } else {
             const entryPoint = path.join(options.sourceDir, helpers.createEntry('js'));

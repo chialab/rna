@@ -171,7 +171,7 @@ export default function({
                 /**
                  * @param {string} file
                  */
-                const resolveFile = (file) => build.resolve(path.resolve(path.dirname(args.path), file), {
+                const resolveFile = (file) => build.resolve(file, {
                     kind: 'dynamic-import',
                     importer: args.path,
                     resolveDir: path.dirname(args.path),

@@ -33,7 +33,7 @@ export async function collectStyles($, dom, options, helpers) {
                 return;
             }
 
-            builds.set(element, resolvedFile.path);
+            builds.set(element, href);
             entrypoints.set(resolvedFile.path, element);
         } else {
             const entryPoint = path.join(options.sourceDir, helpers.createEntry('css'));

@@ -32,7 +32,7 @@ export default preview;`;
  */
 export async function createPreviewScript({ framework, specifiers, previewEntries = [] }) {
     return `import { composeConfigs } from '@storybook/preview-web';
-import preview from '/${PREVIEW_MODULE_SCRIPT}';
+import preview from '${PREVIEW_MODULE_SCRIPT}';
 import * as framework from '${framework}';
 ${previewEntries.map((previewScript, index) => `import * as preview${index} from '${previewScript}';`).join('\n')}
 

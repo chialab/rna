@@ -1,4 +1,5 @@
 import path from 'path';
+import crypto from 'crypto';
 
 /**
  * @typedef {import('esbuild').Loader} Loader
@@ -305,5 +306,46 @@ export class Build {
      */
     resolve(path, options) {
         return this.build.resolve(path, options);
+    }
+
+    /**
+     * Create an hash for the given buffer.
+     * @param {Buffer|Uint8Array|string} buffer The buffer input.
+     * @returns A buffer hash.
+     */
+    hash(buffer) {
+        const hash = crypto.createHash('sha1');
+        hash.update(Buffer.from(buffer));
+        return hash.digest('hex').substring(0, 8);
+    }
+
+    /**
+     * Create file path replacing esbuild patterns.
+     * @see https://esbuild.github.io/api/#chunk-names
+     * @param {string} pattern The esbuild pattern.
+     * @param {string} filePath The full file path.
+     * @param {Buffer|string} buffer The file contents.
+     * @returns {string}
+     */
+    computeName(pattern, filePath, buffer) {
+        const outBase = this.getOutBase();
+        const inputFile = path.basename(filePath);
+
+        return `${pattern
+            .replace('[name]', () => path.basename(inputFile, path.extname(inputFile)))
+            .replace('[ext]', () => path.extname(inputFile))
+            .replace(/(\/)?\[dir\](\/)?/, (fullMatch, match1, match2) => {
+                const dir = path.relative(outBase, path.dirname(filePath));
+                if (dir) {
+                    return `${match1 || ''}${dir}${match2 || ''}`;
+                }
+                if (!match1 && match2) {
+                    return '';
+                }
+                return match1 || '';
+            })
+            .replace('[dir]', () => path.relative(outBase, path.dirname(filePath)))
+            .replace('[hash]', () => this.hash(buffer))
+        }${path.extname(inputFile)}`;
     }
 }

@@ -2,7 +2,7 @@ import path from 'path';
 import { mkdir, readFile, writeFile } from 'fs/promises';
 import { escapeRegexBody } from '@chialab/node-resolve';
 import { loadSourcemap, inlineSourcemap, mergeSourcemaps } from '@chialab/estransform';
-import { assignToResult, createOutputFile, createResult, createHash } from './helpers.js';
+import { assignToResult, createOutputFile, createResult } from './helpers.js';
 import { BuildManager } from './BuildManager.js';
 
 export * from './helpers.js';
@@ -194,26 +194,7 @@ export function useRna(pluginBuild) {
          * @param {Buffer|string} buffer The file contents.
          * @returns {string}
          */
-        computeName(pattern, filePath, buffer) {
-            const inputFile = path.basename(filePath);
-
-            return `${pattern
-                .replace('[name]', () => path.basename(inputFile, path.extname(inputFile)))
-                .replace('[ext]', () => path.extname(inputFile))
-                .replace(/(\/)?\[dir\](\/)?/, (fullMatch, match1, match2) => {
-                    const dir = path.relative(build.getOutBase(), path.dirname(filePath));
-                    if (dir) {
-                        return `${match1 || ''}${dir}${match2 || ''}`;
-                    }
-                    if (!match1 && match2) {
-                        return '';
-                    }
-                    return match1 || '';
-                })
-                .replace('[dir]', () => path.relative(build.getOutBase(), path.dirname(filePath)))
-                .replace('[hash]', () => createHash(/** @type {Buffer} */(buffer)))
-            }${path.extname(inputFile)}`;
-        },
+        computeName: build.computeName.bind(build),
         /**
          * Resolve a module trying to load it as local file first.
          * @param {string} path
@@ -432,7 +413,7 @@ export function useRna(pluginBuild) {
                 }
             );
 
-            const id = createHash(Buffer.from(buffer));
+            const id = build.id(buffer);
             const chunkResult = {
                 ...result,
                 id,
@@ -508,7 +489,7 @@ export function useRna(pluginBuild) {
 
             const resolvedOutputFile = path.resolve(build.getSourceRoot(), outFile[0]);
             const buffer = result.outputFiles ? result.outputFiles[0].contents : await readFile(resolvedOutputFile);
-            const id = createHash(Buffer.from(buffer));
+            const id = build.id(buffer);
             const chunkResult = {
                 ...result,
                 id,

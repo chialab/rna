@@ -1,20 +1,8 @@
 import path from 'path';
-import crypto from 'crypto';
 
 /**
  * @typedef {import('esbuild').Metafile} Metafile
  */
-
-/**
- * Create hash for the given buffer.
- * @param {Buffer} buffer The buffer.
- * @returns An hash.
- */
-export function createHash(buffer) {
-    const hash = crypto.createHash('sha1');
-    hash.update(/** @type {Buffer} */(buffer));
-    return hash.digest('hex').substring(0, 8);
-}
 
 /**
  * Create an empty metafile object.

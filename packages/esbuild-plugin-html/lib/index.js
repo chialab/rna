@@ -61,7 +61,7 @@ export default function({
         name: 'html',
         setup(build) {
             const { write = true, entryNames = '[name]' } = build.initialOptions;
-            const { load, workingDir, outDir, onTransform, emitFile, emitChunk, emitBuild, computeName } = useRna(build);
+            const { load, workingDir, outDir, onTransform, resolveLocallyFirst, emitFile, emitChunk, emitBuild, computeName } = useRna(build);
             if (!outDir) {
                 throw new Error('Cannot use the html plugin without an outdir.');
             }
@@ -171,7 +171,7 @@ export default function({
                 /**
                  * @param {string} file
                  */
-                const resolveFile = (file) => build.resolve(file, {
+                const resolveFile = (file) => resolveLocallyFirst(file, {
                     kind: 'dynamic-import',
                     importer: args.path,
                     resolveDir: path.dirname(args.path),

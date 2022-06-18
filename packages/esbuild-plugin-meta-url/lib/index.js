@@ -110,7 +110,7 @@ export default function({ emit = true } = {}) {
         name: 'meta-url',
         async setup(build) {
             const { platform, format, sourcesContent, sourcemap } = build.initialOptions;
-            const { onTransform, isEmittedPath, emitFile, emitChunk, loaders: buildLoaders } = useRna(build);
+            const { onTransform, isEmittedPath, resolveLocallyFirst, emitFile, emitChunk, loaders: buildLoaders } = useRna(build);
 
             const usePlainScript = platform === 'browser' && format !== 'esm';
             const isNode = platform === 'node' && format !== 'esm';
@@ -163,32 +163,20 @@ export default function({ emit = true } = {}) {
 
                     promises.push(Promise.resolve().then(async () => {
                         const requestName = value.split('?')[0];
-                        const candidates = [];
-                        if (requestName.startsWith('./') || requestName.startsWith('../')) {
-                            candidates.push(requestName);
-                        } else {
-                            candidates.push(`./${requestName}`, requestName);
-                        }
+                        const { path: resolvedPath, pluginData: localFile } = await resolveLocallyFirst(requestName, {
+                            kind: 'dynamic-import',
+                            importer: args.path,
+                            namespace: 'file',
+                            resolveDir: path.dirname(args.path),
+                            pluginData: null,
+                        });
 
-                        while (candidates.length) {
-                            const pathName = /** @type {string} */ (candidates.shift());
-                            const { path: resolvedPath } = await build.resolve(pathName, {
-                                kind: 'dynamic-import',
-                                importer: args.path,
-                                namespace: 'file',
-                                resolveDir: path.dirname(args.path),
-                                pluginData: null,
-                            });
-
-                            if (!resolvedPath) {
-                                continue;
-                            }
-
-                            if (!pathName.startsWith('./') && !pathName.startsWith('../')) {
+                        if (resolvedPath) {
+                            if (!localFile) {
                                 const location = getLocation(code, startToken.start);
                                 warnings.push({
                                     pluginName: 'meta-url',
-                                    text: `Resolving '${pathName}' as module is not a standard behavior and may be removed in a future relase of the plugin.`,
+                                    text: `Resolving '${requestName}' as module is not a standard behavior and may be removed in a future relase of the plugin.`,
                                     location: {
                                         file: args.path,
                                         namespace: args.namespace,

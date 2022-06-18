@@ -520,7 +520,7 @@ body {
 `,
                     },
                     {
-                        path: new URL('./index.css', import.meta.url).pathname,
+                        path: 'index.css',
                         contents: '@import \'lib.css\';',
                         loader: 'css',
                     },

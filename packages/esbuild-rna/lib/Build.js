@@ -118,6 +118,9 @@ import crypto from 'crypto';
  * Esbuild build handler.
  */
 export class Build {
+    static RESOLVED_AS_FILE = 1;
+    static RESOLVED_AS_MODULE = 2;
+
     /**
      * Build state.
      * @type {BuildState}
@@ -306,6 +309,45 @@ export class Build {
      */
     resolve(path, options) {
         return this.build.resolve(path, options);
+    }
+
+    /**
+     * Resolve a module trying to load it as local file first.
+     * EcmaScript specs requires every import specifier to use relative paths.
+     * Many bundlers, like esbuild, supports also module resolution when the specifier is not a relative path.
+     * Esbuild resolve method looks for a file module if the path starts with `./` or `../`,
+     * fallbacking to module resolution if not.
+     * But urls are allowed to to specify path name without relative paths (eg new URL('file.png', import.meta.url)).
+     * Since RNA aims to support those kind of file reference,
+     * using the `resolveLocallyFirst` method it is possible to load loca file module if they exists,
+     * fallbacking to esbuild default module resolution if not.
+     * @param {string} path
+     * @param {ResolveOptions} [options]
+     * @returns Resolved path.
+     */
+    async resolveLocallyFirst(path, options) {
+        const isLocalSpecifier = path.startsWith('./') || path.startsWith('../');
+        if (!isLocalSpecifier) {
+            // force local file resolution first
+            const result = await this.resolve(`./${path}`, options);
+
+            if (result.path) {
+                return {
+                    ...result,
+                    pluginData: Build.RESOLVED_AS_FILE,
+                };
+            }
+        }
+
+        const result = await this.resolve(path, options);
+        if (result.path) {
+            return {
+                ...result,
+                pluginData: isLocalSpecifier ? Build.RESOLVED_AS_FILE : Build.RESOLVED_AS_MODULE,
+            };
+        }
+
+        return result;
     }
 
     /**

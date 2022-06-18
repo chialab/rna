@@ -5,6 +5,7 @@ import { loadSourcemap, inlineSourcemap, mergeSourcemaps } from '@chialab/estran
 import { assignToResult, createOutputFile, createResult } from './helpers.js';
 import { BuildManager } from './BuildManager.js';
 
+export * from './Build.js';
 export * from './helpers.js';
 
 /**
@@ -201,30 +202,7 @@ export function useRna(pluginBuild) {
          * @param {ResolveOptions} [options]
          * @returns Resolved path.
          */
-        async resolveLocallyFirst(path, options) {
-            const isLocalSpecifier = path.startsWith('./') || path.startsWith('../');
-            if (!isLocalSpecifier) {
-                // force local file resolution first
-                const result = await build.resolve(`./${path}`, options);
-
-                if (result.path) {
-                    return {
-                        ...result,
-                        pluginData: true,
-                    };
-                }
-            }
-
-            const result = await build.resolve(path, options);
-            if (result.path) {
-                return {
-                    ...result,
-                    pluginData: isLocalSpecifier,
-                };
-            }
-
-            return result;
-        },
+        resolveLocallyFirst: build.resolveLocallyFirst.bind(build),
         /**
          * Iterate build.onLoad hooks in order to programmatically load file contents.
          * @param {OnLoadArgs} args The load arguments.
@@ -413,7 +391,7 @@ export function useRna(pluginBuild) {
                 }
             );
 
-            const id = build.id(buffer);
+            const id = build.hash(buffer);
             const chunkResult = {
                 ...result,
                 id,
@@ -489,7 +467,7 @@ export function useRna(pluginBuild) {
 
             const resolvedOutputFile = path.resolve(build.getSourceRoot(), outFile[0]);
             const buffer = result.outputFiles ? result.outputFiles[0].contents : await readFile(resolvedOutputFile);
-            const id = build.id(buffer);
+            const id = build.hash(buffer);
             const chunkResult = {
                 ...result,
                 id,

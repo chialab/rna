@@ -1,7 +1,7 @@
 import path from 'path';
 import { appendSearchParam, getSearchParam, isUrl } from '@chialab/node-resolve';
 import { parse, walk, getIdentifierValue, getBlock, getLocation, TokenType } from '@chialab/estransform';
-import { useRna } from '@chialab/esbuild-rna';
+import { Build, useRna } from '@chialab/esbuild-rna';
 
 /**
  * @param {import('@chialab/estransform').TokenProcessor} processor Token processor.
@@ -163,7 +163,7 @@ export default function({ emit = true } = {}) {
 
                     promises.push(Promise.resolve().then(async () => {
                         const requestName = value.split('?')[0];
-                        const { path: resolvedPath, pluginData: localFile } = await resolveLocallyFirst(requestName, {
+                        const { path: resolvedPath, pluginData } = await resolveLocallyFirst(requestName, {
                             kind: 'dynamic-import',
                             importer: args.path,
                             namespace: 'file',
@@ -172,7 +172,7 @@ export default function({ emit = true } = {}) {
                         });
 
                         if (resolvedPath) {
-                            if (!localFile) {
+                            if (pluginData !== Build.RESOLVED_AS_FILE) {
                                 const location = getLocation(code, startToken.start);
                                 warnings.push({
                                     pluginName: 'meta-url',

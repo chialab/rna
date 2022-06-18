@@ -71,7 +71,7 @@ export function createOutputFile(path, contents) {
 /**
  * @param {import('esbuild').OutputFile[]} [outputFiles]
  * @param {Metafile} [metafile]
- * @returns {import('./BuildState.js').Result}
+ * @returns {import('./Build.js').Result}
  */
 export function createResult(outputFiles, metafile = createEmptyMetafile()) {
     return {
@@ -87,8 +87,8 @@ export function createResult(outputFiles, metafile = createEmptyMetafile()) {
  * Merge esbuild results into a single object
  * that collects all inputs and outputs references, errors and warnings.
  * This is useful when running multiple builds in separated process.
- * @param {import('./BuildState.js').Result} context
- * @param {import('./BuildState.js').Result} result
+ * @param {import('./Build.js').Result} context
+ * @param {import('./Build.js').Result} result
  */
 export function assignToResult(context, result) {
     context.errors.push(...result.errors);
@@ -112,7 +112,7 @@ export function assignToResult(context, result) {
     };
 
     /**
-     * @type {import('./BuildState.js').DependenciesMap}
+     * @type {import('./Build.js').DependenciesMap}
      */
     const dependencies = context.dependencies = context.dependencies || {};
     for (const out of Object.entries(result.dependencies)) {
@@ -127,10 +127,10 @@ export function assignToResult(context, result) {
 }
 
 /**
- * @param {import('./BuildState.js').Result} result
+ * @param {import('./Build.js').Result} result
  * @param {string} from
  * @param {string} to
- * @returns {import('./BuildState.js').Result}
+ * @returns {import('./Build.js').Result}
  */
 export function remapResult(result, from, to) {
     const resultMeta = result.metafile || createEmptyMetafile();

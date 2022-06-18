@@ -44,35 +44,35 @@ export * from './helpers.js';
  */
 
 /**
- * @typedef {import('./BuildState.js').LoadCallback} LoadCallback
+ * @typedef {import('./Build.js').LoadCallback} LoadCallback
  */
 
 /**
- * @typedef {import('./BuildState.js').OnTransformArgs} OnTransformArgs
+ * @typedef {import('./Build.js').OnTransformArgs} OnTransformArgs
  */
 
 /**
- * @typedef {import('./BuildState.js').OnTransformOptions} OnTransformOptions
+ * @typedef {import('./Build.js').OnTransformOptions} OnTransformOptions
  */
 
 /**
- * @typedef {import('./BuildState.js').OnTransformResult} OnTransformResult
+ * @typedef {import('./Build.js').OnTransformResult} OnTransformResult
  */
 
 /**
- * @typedef {import('./BuildState.js').TransformCallback} TransformCallback
+ * @typedef {import('./Build.js').TransformCallback} TransformCallback
  */
 
 /**
- * @typedef {import('./BuildState.js').Result} Result
+ * @typedef {import('./Build.js').Result} Result
  */
 
 /**
- * @typedef {import('./BuildState.js').Chunk} Chunk
+ * @typedef {import('./Build.js').Chunk} Chunk
  */
 
 /**
- * @typedef {import('./BuildState.js').DependenciesMap} DependenciesMap
+ * @typedef {import('./Build.js').DependenciesMap} DependenciesMap
  */
 
 /**
@@ -84,7 +84,7 @@ export * from './helpers.js';
  */
 
 /**
- * @typedef {import('./BuildState.js').BuildState} BuildState
+ * @typedef {import('./Build.js').BuildState} BuildState
  */
 
 /**

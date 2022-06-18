@@ -12,6 +12,10 @@ export * from './helpers.js';
  */
 
 /**
+ * @typedef {import('esbuild').ResolveOptions} ResolveOptions
+ */
+
+/**
  * @typedef {import('esbuild').OnResolveArgs} OnResolveArgs
  */
 
@@ -267,6 +271,36 @@ export function useRna(build) {
                 .replace('[dir]', () => path.relative(outBase, path.dirname(filePath)))
                 .replace('[hash]', () => createHash(/** @type {Buffer} */(buffer)))
             }${path.extname(inputFile)}`;
+        },
+        /**
+         * Resolve a module trying to load it as local file first.
+         * @param {string} path
+         * @param {ResolveOptions} [options]
+         * @returns Resolved path.
+         */
+        async resolveLocallyFirst(path, options) {
+            const isLocalSpecifier = path.startsWith('./') || path.startsWith('../');
+            if (!isLocalSpecifier) {
+                // force local file resolution first
+                const result = await build.resolve(`./${path}`, options);
+
+                if (result.path) {
+                    return {
+                        ...result,
+                        pluginData: true,
+                    };
+                }
+            }
+
+            const result = await build.resolve(path, options);
+            if (result.path) {
+                return {
+                    ...result,
+                    pluginData: isLocalSpecifier,
+                };
+            }
+
+            return result;
         },
         /**
          * Iterate build.onLoad hooks in order to programmatically load file contents.

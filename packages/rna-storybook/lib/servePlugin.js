@@ -106,6 +106,10 @@ export function servePlugin(config) {
                 source = appendJsonModuleParam(source);
             }
 
+            if (source === PREVIEW_MODULE_SCRIPT) {
+                return appendPreviewParam(`/${PREVIEW_MODULE_SCRIPT}`);
+            }
+
             if (context.path === `/${MANAGER_SCRIPT}` ||
                 context.URL.searchParams.has('manager')) {
                 return appendManagerParam(source);
@@ -119,7 +123,7 @@ export function servePlugin(config) {
         },
 
         async resolveImport({ source }) {
-            if (source === `/${PREVIEW_MODULE_SCRIPT}`) {
+            if (source === PREVIEW_MODULE_SCRIPT) {
                 return source;
             }
         },

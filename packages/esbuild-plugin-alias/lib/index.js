@@ -1,7 +1,7 @@
 import path from 'path';
 import { readFile } from 'fs/promises';
 import { createEmptyModule } from '@chialab/estransform';
-import { ALIAS_MODE, createAliasRegex, resolve, pkgUp } from '@chialab/node-resolve';
+import { ALIAS_MODE, createAliasRegex, pkgUp } from '@chialab/node-resolve';
 import { useRna } from '@chialab/esbuild-rna';
 
 /**
@@ -39,9 +39,13 @@ export function addAlias(build, key, aliasRule, rootDir) {
             };
         }
 
-        return {
-            path: await resolve(aliased, args.resolveDir || args.importer || rootDir || buildRootDir),
-        };
+        return build.resolve(aliased, {
+            importer: args.importer,
+            namespace: args.namespace,
+            resolveDir: args.resolveDir || rootDir || buildRootDir,
+            kind: args.kind,
+            pluginData: args.pluginData,
+        });
     });
 }
 

@@ -1,3 +1,5 @@
+import path from 'path';
+
 /**
  * @typedef {import('esbuild').Loader} Loader
  */
@@ -156,6 +158,81 @@ export class Build {
     }
 
     /**
+     * Compute the working dir of the build.
+     * @returns {string} The working dir.
+     */
+    getWorkingDir() {
+        return this.getOptions().absWorkingDir || process.cwd();
+    }
+
+    /**
+     * Compute the source root of the build.
+     * @returns {string} The source root.
+     */
+    getSourceRoot() {
+        return this.getOptions().sourceRoot || this.getWorkingDir();
+    }
+
+    /**
+     * Compute the output base dir of the build.
+     * @returns {string} The output base dir.
+     */
+    getOutBase() {
+        const options = this.getOptions();
+        if (options.outbase) {
+            return options.outbase;
+        }
+
+        const workingDir = this.getWorkingDir();
+        const entryPoints = options.entryPoints || [];
+        if (!entryPoints.length) {
+            return workingDir;
+        }
+
+        const separator = /\/+|\\+/;
+
+        return (Array.isArray(entryPoints) ? entryPoints : Object.values(entryPoints))
+            .map((entry) => (path.isAbsolute(entry) ? entry : path.resolve(workingDir, entry)))
+            .map((entry) => path.dirname(entry))
+            .map((entry) => entry.split(separator))
+            .reduce((result, chunk) => {
+                const len = Math.min(chunk.length, result.length);
+                for (let i = 0; i < len; i++) {
+                    if (chunk[i] !== result[i]) {
+                        return result.splice(0, i);
+                    }
+                }
+                return result.splice(0, len);
+            })
+            .join(path.sep) || path.sep;
+    }
+
+    /**
+     * Compute the output dir of the build.
+     * @returns {string|undefined} The output dir.
+     */
+    getOutDir() {
+        const options = this.getOptions();
+        if (options.outdir) {
+            return options.outdir;
+        }
+        if (options.outfile) {
+            return path.dirname(options.outfile);
+        }
+    }
+
+    /**
+     * Compute the full output dir of the build.
+     * @returns {string|undefined} The full output dir.
+     */
+    getFullOutDir() {
+        const outDir = this.getOutDir();
+        if (outDir) {
+            return path.resolve(this.getWorkingDir(), outDir);
+        }
+    }
+
+    /**
      * Get configured build loaders.
      * @returns {{ [ext: string]: import('esbuild').Loader }}
      */
@@ -167,6 +244,15 @@ export class Build {
             '.tsx': 'tsx',
             ...(this.getOptions().loader || {}),
         };
+    }
+
+    /**
+     * Get the defined loader for given file path.
+     * @param {string} filePath
+     * @returns {Loader|null} The loader name.
+     */
+    getLoader(filePath) {
+        return this.getLoaders()[path.extname(filePath)] || null;
     }
 
     /**

@@ -6,35 +6,6 @@ import crypto from 'crypto';
  */
 
 /**
- * Get the base out path.
- * @param {string[] | Record<string, string>} entryPoints The entry points.
- * @param {string} basePath The current working directory.
- * @returns {string}
- */
-export function getOutBase(entryPoints, basePath) {
-    if (!entryPoints.length) {
-        return basePath;
-    }
-
-    const separator = /\/+|\\+/;
-
-    return (Array.isArray(entryPoints) ? entryPoints : Object.values(entryPoints))
-        .map((entry) => (path.isAbsolute(entry) ? entry : path.resolve(basePath, entry)))
-        .map((entry) => path.dirname(entry))
-        .map((entry) => entry.split(separator))
-        .reduce((result, chunk) => {
-            const len = Math.min(chunk.length, result.length);
-            for (let i = 0; i < len; i++) {
-                if (chunk[i] !== result[i]) {
-                    return result.splice(0, i);
-                }
-            }
-            return result.splice(0, len);
-        })
-        .join(path.sep) || path.sep;
-}
-
-/**
  * Create hash for the given buffer.
  * @param {Buffer} buffer The buffer.
  * @returns An hash.

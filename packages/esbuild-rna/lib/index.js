@@ -2,7 +2,7 @@ import path from 'path';
 import { mkdir, readFile, writeFile } from 'fs/promises';
 import { escapeRegexBody } from '@chialab/node-resolve';
 import { loadSourcemap, inlineSourcemap, mergeSourcemaps } from '@chialab/estransform';
-import { assignToResult, createOutputFile, createResult, getOutBase, createHash } from './helpers.js';
+import { assignToResult, createOutputFile, createResult, createHash } from './helpers.js';
 import { BuildManager } from './BuildManager.js';
 
 export * from './helpers.js';
@@ -122,23 +122,8 @@ const manager = new BuildManager();
 export function useRna(pluginBuild) {
     const build = manager.getBuild(pluginBuild);
     const esbuild = build.getBuilder();
-    const {
-        stdin,
-        sourceRoot,
-        absWorkingDir,
-        outdir,
-        outfile,
-        outbase,
-        entryPoints = [],
-        write = true,
-    } = build.getOptions();
-    const loaders = build.getLoaders();
-    const workingDir = absWorkingDir || process.cwd();
-    const rootDir = sourceRoot || workingDir;
-    const outDir = outdir || (outfile && path.dirname(outfile));
-    const fullOutDir = outDir && path.resolve(workingDir, outDir);
-    const virtualOutDir = fullOutDir || workingDir;
-    const outBase = outbase || getOutBase(entryPoints, workingDir);
+    const { stdin, write = true } = build.getOptions();
+    const virtualOutDir = build.getFullOutDir() || build.getWorkingDir();
 
     const rnaBuild = {
         /**
@@ -168,23 +153,33 @@ export function useRna(pluginBuild) {
         /**
          * Compute the working dir.
          */
-        workingDir,
-        /**
-         * Compute the outbase dir.
-         */
-        outBase,
+        get workingDir() {
+            return build.getWorkingDir();
+        },
         /**
          * Compute the build root dir.
          */
-        rootDir,
+        get rootDir() {
+            return build.getSourceRoot();
+        },
+        /**
+         * Compute the outbase dir.
+         */
+        get outBase() {
+            return build.getOutBase();
+        },
         /**
          * Compute the build output dir.
          */
-        outDir,
+        get outDir() {
+            return build.getOutDir();
+        },
         /**
          * Compute loaders.
          */
-        loaders,
+        get loaders() {
+            return build.getLoaders();
+        },
         /**
          * Flag chunk build.
          */
@@ -206,7 +201,7 @@ export function useRna(pluginBuild) {
                 .replace('[name]', () => path.basename(inputFile, path.extname(inputFile)))
                 .replace('[ext]', () => path.extname(inputFile))
                 .replace(/(\/)?\[dir\](\/)?/, (fullMatch, match1, match2) => {
-                    const dir = path.relative(outBase, path.dirname(filePath));
+                    const dir = path.relative(build.getOutBase(), path.dirname(filePath));
                     if (dir) {
                         return `${match1 || ''}${dir}${match2 || ''}`;
                     }
@@ -215,7 +210,7 @@ export function useRna(pluginBuild) {
                     }
                     return match1 || '';
                 })
-                .replace('[dir]', () => path.relative(outBase, path.dirname(filePath)))
+                .replace('[dir]', () => path.relative(build.getOutBase(), path.dirname(filePath)))
                 .replace('[hash]', () => createHash(/** @type {Buffer} */(buffer)))
             }${path.extname(inputFile)}`;
         },
@@ -283,7 +278,7 @@ export function useRna(pluginBuild) {
          * @param {OnTransformArgs} args
          */
         async transform(args) {
-            const loader = args.loader || loaders[path.extname(args.path)] || 'file';
+            const loader = args.loader || build.getLoader(args.path) || 'file';
 
             let { code, resolveDir } = /** @type {{ code: string|Uint8Array; resolveDir?: string }} */ (args.code ?
                 args :
@@ -416,22 +411,22 @@ export function useRna(pluginBuild) {
                 ],
                 {
                     inputs: {
-                        [path.relative(workingDir, source)]: {
+                        [path.relative(build.getWorkingDir(), source)]: {
                             bytes,
                             imports: [],
                         },
                     },
                     outputs: {
-                        [path.relative(workingDir, outputFile)]: {
+                        [path.relative(build.getWorkingDir(), outputFile)]: {
                             bytes,
                             inputs: {
-                                [path.relative(workingDir, source)]: {
+                                [path.relative(build.getWorkingDir(), source)]: {
                                     bytesInOutput: bytes,
                                 },
                             },
                             imports: [],
                             exports: [],
-                            entryPoint: path.relative(workingDir, source),
+                            entryPoint: path.relative(build.getWorkingDir(), source),
                         },
                     },
                 }
@@ -459,7 +454,7 @@ export function useRna(pluginBuild) {
             const config = {
                 ...build.getOptions(),
                 format,
-                outdir: options.outdir ? path.resolve(virtualOutDir, `./${options.outdir}`) : fullOutDir,
+                outdir: options.outdir ? path.resolve(virtualOutDir, `./${options.outdir}`) : build.getFullOutDir(),
                 bundle: options.bundle ?? build.getOptions().bundle,
                 splitting: format === 'esm' ? (options.splitting ?? build.getOptions().splitting) : false,
                 platform: options.platform ?? build.getOptions().platform,
@@ -485,7 +480,7 @@ export function useRna(pluginBuild) {
                     sourcefile: options.path,
                     contents: options.contents.toString(),
                     loader: options.loader,
-                    resolveDir: rootDir,
+                    resolveDir: build.getSourceRoot(),
                 };
             } else {
                 config.entryPoints = [options.path];
@@ -511,7 +506,7 @@ export function useRna(pluginBuild) {
                 throw new Error('Unable to locate build artifacts');
             }
 
-            const resolvedOutputFile = path.resolve(rootDir, outFile[0]);
+            const resolvedOutputFile = path.resolve(build.getSourceRoot(), outFile[0]);
             const buffer = result.outputFiles ? result.outputFiles[0].contents : await readFile(resolvedOutputFile);
             const id = createHash(Buffer.from(buffer));
             const chunkResult = {
@@ -543,7 +538,7 @@ export function useRna(pluginBuild) {
                     return entryPoint.path;
                 }),
                 format,
-                outdir: options.outdir ? path.resolve(virtualOutDir, `./${options.outdir}`) : fullOutDir,
+                outdir: options.outdir ? path.resolve(virtualOutDir, `./${options.outdir}`) : build.getFullOutDir(),
                 bundle: options.bundle ?? build.getOptions().bundle,
                 splitting: format === 'esm' ? (options.splitting ?? build.getOptions().splitting ?? true) : false,
                 platform: options.platform ?? build.getOptions().platform,
@@ -613,6 +608,7 @@ export function useRna(pluginBuild) {
                 bodies.push(options.filter.source);
             }
             if (options.loaders) {
+                const loaders = build.getLoaders();
                 const keys = Object.keys(loaders);
                 const filterLoaders = options.loaders || [];
                 const tsxExtensions = keys.filter((key) => filterLoaders.includes(loaders[key]));
@@ -683,7 +679,7 @@ export function useRna(pluginBuild) {
          * @param {VirtualEntry} entry The virtual module entry.
          */
         addVirtualModule(entry) {
-            const resolveDir = entry.resolveDir || rootDir;
+            const resolveDir = entry.resolveDir || build.getSourceRoot();
             const virtualFilePath = path.isAbsolute(entry.path) ? entry.path : path.join(resolveDir, entry.path);
             const virtualFilter = new RegExp(escapeRegexBody(virtualFilePath));
 
@@ -696,14 +692,14 @@ export function useRna(pluginBuild) {
                 ...args,
                 contents: entry.contents,
                 namespace: 'file',
-                loader: entry.loader || loaders[path.extname(args.path)] || 'file',
+                loader: entry.loader || build.getLoader(args.path) || 'file',
                 resolveDir: entry.resolveDir || path.dirname(virtualFilePath),
             }));
         },
     };
 
     if (stdin && stdin.sourcefile) {
-        const sourceFile = path.resolve(rootDir, stdin.sourcefile);
+        const sourceFile = path.resolve(build.getSourceRoot(), stdin.sourcefile);
         build.getOptions().entryPoints = [sourceFile];
         delete build.getOptions().stdin;
 
@@ -725,12 +721,12 @@ export function useRna(pluginBuild) {
 
             if (Array.isArray(entryPoints)) {
                 entryPoints.forEach((entryPoint) => {
-                    entryPoint = path.resolve(workingDir, entryPoint);
+                    entryPoint = path.resolve(build.getWorkingDir(), entryPoint);
                     rnaBuild.collectDependencies(entryPoint, [entryPoint]);
                 });
             } else {
                 for (let [, entryPoint] of Object.entries(entryPoints)) {
-                    entryPoint = path.resolve(workingDir, entryPoint);
+                    entryPoint = path.resolve(build.getWorkingDir(), entryPoint);
                     rnaBuild.collectDependencies(entryPoint, [entryPoint]);
                 }
             }
@@ -751,9 +747,9 @@ export function useRna(pluginBuild) {
                         continue;
                     }
 
-                    const entryPoint = path.resolve(rootDir, output.entryPoint.split('?')[0]);
+                    const entryPoint = path.resolve(build.getSourceRoot(), output.entryPoint.split('?')[0]);
                     const dependencies = Object.keys(output.inputs)
-                        .map((input) => path.resolve(rootDir, input.split('?')[0]));
+                        .map((input) => path.resolve(build.getSourceRoot(), input.split('?')[0]));
 
                     rnaBuild.collectDependencies(entryPoint, dependencies);
                 }

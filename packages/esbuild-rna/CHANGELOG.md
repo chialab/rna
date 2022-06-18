@@ -1,5 +1,11 @@
 # @chialab/esbuild-rna
 
+## 0.16.1
+
+### Patch Changes
+
+- c742389: Storybook build
+
 ## 0.16.0
 
 ### Minor Changes

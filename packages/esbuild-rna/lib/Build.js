@@ -167,17 +167,6 @@ import { createOutputFile, createResult, assignToResult } from './helpers.js';
  */
 
 /**
- * @typedef {Object} BuildState
- * @property {OnLoadRule[]} load
- * @property {OnTransformRule[]} transform
- * @property {Map<string, Chunk>} chunks
- * @property {Map<string, File>} files
- * @property {Set<Result>} builds
- * @property {DependenciesMap} dependencies
- * @property {boolean} initialized
- */
-
-/**
  * Esbuild build handler.
  */
 export class Build {
@@ -201,20 +190,52 @@ export class Build {
     pluginBuild;
 
     /**
-     * Build state.
-     * @type {BuildState}
+     * OnLoad rules.
+     * @type {OnLoadRule[]}
      * @readonly
      * @private
      */
-    state = {
-        load: [],
-        transform: [],
-        chunks: new Map(),
-        files: new Map(),
-        builds: new Set(),
-        dependencies: {},
-        initialized: false,
-    };
+    onLoadRules = [];
+
+    /**
+     * OnTransform rules.
+     * @type {OnTransformRule[]}
+     * @readonly
+     * @private
+     */
+    onTransformRules = [];
+
+    /**
+     * Build chunks.
+     * @type {Map<string, Chunk>}
+     * @readonly
+     * @private
+     */
+    chunks = new Map();
+
+    /**
+     * Build files.
+     * @type {Map<string, File>}
+     * @readonly
+     * @private
+     */
+    files = new Map();
+
+    /**
+     * Build sub-builds.
+     * @type {Set<Result>}
+     * @readonly
+     * @private
+     */
+    builds = new Set();
+
+    /**
+     * Build dependencies map.
+     * @type {DependenciesMap}
+     * @readonly
+     * @private
+     */
+    dependencies = {};
 
     /**
      * Create a build instance and state.
@@ -249,9 +270,9 @@ export class Build {
         this.onEnd(async (buildResult) => {
             const rnaResult = /** @type {Result} */ (buildResult);
             rnaResult.dependencies = this.getDependencies();
-            this.state.chunks.forEach((result) => assignToResult(rnaResult, result));
-            this.state.files.forEach((result) => assignToResult(rnaResult, result));
-            this.state.builds.forEach((result) => assignToResult(rnaResult, result));
+            this.chunks.forEach((result) => assignToResult(rnaResult, result));
+            this.files.forEach((result) => assignToResult(rnaResult, result));
+            this.builds.forEach((result) => assignToResult(rnaResult, result));
 
             if (rnaResult.metafile) {
                 const outputs = { ...rnaResult.metafile.outputs };
@@ -428,7 +449,7 @@ export class Build {
      * @returns {Map<string, Chunk>} A list of chunks.
      */
     getChunks() {
-        return new Map(this.state.chunks);
+        return new Map(this.chunks);
     }
 
     /**
@@ -436,7 +457,7 @@ export class Build {
      * @returns {Map<string, File>} A list of files.
      */
     getFiles() {
-        return new Map(this.state.files);
+        return new Map(this.files);
     }
 
     /**
@@ -444,7 +465,7 @@ export class Build {
      * @returns {Set<Result>} A list of builds.
      */
     getBuilds() {
-        return new Set(this.state.builds);
+        return new Set(this.builds);
     }
 
     /**
@@ -453,7 +474,7 @@ export class Build {
      */
     getDependencies() {
         return {
-            ...this.state.dependencies,
+            ...this.dependencies,
         };
     }
 
@@ -509,7 +530,7 @@ export class Build {
                 code: result.contents,
             });
         });
-        this.state.load.push({ options, callback });
+        this.onLoadRules.push({ options, callback });
     }
 
     /**
@@ -536,7 +557,7 @@ export class Build {
         }
         const filter = options.filter = new RegExp(`(${bodies.join(')|(')})`);
         this.pluginBuild.onLoad({ filter }, (args) => this.transform(args));
-        this.state.transform.push({ options, callback });
+        this.onTransformRules.push({ options, callback });
     }
 
     /**
@@ -605,7 +626,7 @@ export class Build {
     async load(args) {
         const { namespace = 'file', path: filePath } = args;
 
-        for (const { options, callback } of this.state.load) {
+        for (const { options, callback } of this.onLoadRules) {
             const { namespace: optionsNamespace = 'file', filter } = options;
             if (namespace !== optionsNamespace) {
                 continue;
@@ -647,7 +668,7 @@ export class Build {
         const maps = [];
         const warnings = [];
         const errors = [];
-        for (const { options, callback } of this.state.transform) {
+        for (const { options, callback } of this.onTransformRules) {
             const { namespace: optionsNamespace = 'file', filter } = options;
             if (namespace !== optionsNamespace) {
                 continue;
@@ -820,7 +841,7 @@ export class Build {
      * @returns {DependenciesMap} The updated dependencies map.
      */
     collectDependencies(importer, dependencies) {
-        const map = this.state.dependencies;
+        const map = this.dependencies;
         map[importer] = [
             ...(map[importer] || []),
             ...dependencies,
@@ -835,12 +856,12 @@ export class Build {
      * @returns {boolean} True if path has been emitted by the build.
      */
     isEmittedPath(id) {
-        for (const chunk of this.state.chunks.values()) {
+        for (const chunk of this.chunks.values()) {
             if (chunk.id === id) {
                 return true;
             }
         }
-        for (const file of this.state.files.values()) {
+        for (const file of this.files.values()) {
             if (file.id === id) {
                 return true;
             }
@@ -916,7 +937,7 @@ export class Build {
             id,
             path: path.relative(virtualOutDir, outputFile),
         };
-        this.state.files.set(source, chunkResult);
+        this.files.set(source, chunkResult);
 
         return chunkResult;
     }
@@ -996,7 +1017,7 @@ export class Build {
             id,
             path: path.relative(virtualOutDir, resolvedOutputFile),
         };
-        this.state.chunks.set(options.path, chunkResult);
+        this.chunks.set(options.path, chunkResult);
 
         return chunkResult;
     }
@@ -1057,7 +1078,7 @@ export class Build {
         });
 
         const result = await this.build(config);
-        this.state.builds.add(result);
+        this.builds.add(result);
 
         return result;
     }

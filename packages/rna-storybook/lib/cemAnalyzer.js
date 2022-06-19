@@ -19,14 +19,14 @@ export default function({ framework = '@storybook/web-components', plugins = [] 
      */
     const plugin = {
         name: 'rna-storybook-cem',
-        setup(build) {
-            const { sourcesContent, sourcemap } = build.initialOptions;
-            const { onTransform, rootDir } = useRna(build);
+        setup(pluginBuild) {
+            const build = useRna(pluginBuild);
+            const { sourcesContent, sourcemap } = build.getOptions();
 
-            onTransform({ loaders: ['tsx', 'ts', 'jsx', 'js'] }, async (args) => {
+            build.onTransform({ loaders: ['tsx', 'ts', 'jsx', 'js'] }, async (args) => {
                 if (args.path.includes('/node_modules/') ||
                     args.path.includes('/@storybook/') ||
-                    !args.path.startsWith(rootDir)) {
+                    !args.path.startsWith(build.getSourceRoot())) {
                     return;
                 }
 

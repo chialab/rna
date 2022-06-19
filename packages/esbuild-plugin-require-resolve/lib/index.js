@@ -13,11 +13,11 @@ export default function() {
      */
     const plugin = {
         name: 'require-resolve',
-        setup(build) {
-            const { sourcesContent, sourcemap } = build.initialOptions;
-            const { onTransform, emitFile } = useRna(build);
+        setup(pluginBuild) {
+            const build = useRna(pluginBuild);
+            const { sourcesContent, sourcemap } = build.getOptions();
 
-            onTransform({ loaders: ['tsx', 'ts', 'jsx', 'js'] }, async (args) => {
+            build.onTransform({ loaders: ['tsx', 'ts', 'jsx', 'js'] }, async (args) => {
                 if (!args.code.includes('require.resolve')) {
                     return;
                 }
@@ -57,7 +57,7 @@ export default function() {
                             resolveDir: path.dirname(args.path),
                         });
 
-                        const emittedFile = await emitFile(resolvedFilePath);
+                        const emittedFile = await build.emitFile(resolvedFilePath);
                         helpers.overwrite(stringToken.start, stringToken.end, `'./${emittedFile.path}'`);
                     })());
                 });

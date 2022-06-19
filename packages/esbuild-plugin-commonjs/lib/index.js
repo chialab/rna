@@ -16,13 +16,12 @@ export default function({ helperModule } = {}) {
      */
     const plugin = {
         name: 'commonjs',
-        setup(build) {
-            const { sourcesContent, format, sourcemap } = build.initialOptions;
+        setup(pluginBuild) {
+            const build = useRna(pluginBuild);
+            const { sourcesContent, format, sourcemap } = build.getOptions();
             if (format !== 'esm') {
                 return;
             }
-
-            const { onLoad, onTransform } = useRna(build);
 
             if (helperModule) {
                 const HELPER_FILTER = new RegExp(escapeRegexBody(`./${HELPER_MODULE}`));
@@ -31,13 +30,13 @@ export default function({ helperModule } = {}) {
                     namespace: 'commonjs-helper',
                 }));
 
-                onLoad({ filter: HELPER_FILTER, namespace: 'commonjs-helper' }, async () => ({
+                build.onLoad({ filter: HELPER_FILTER, namespace: 'commonjs-helper' }, async () => ({
                     contents: createRequireHelperModule(),
                     loader: 'js',
                 }));
             }
 
-            onTransform({ loaders: ['tsx', 'ts', 'jsx', 'js'] }, async (args) => {
+            build.onTransform({ loaders: ['tsx', 'ts', 'jsx', 'js'] }, async (args) => {
                 const code = args.code;
 
                 if (await maybeMixedModule(code)) {

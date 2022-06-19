@@ -43,21 +43,22 @@ export default function(options = {}) {
      */
     const plugin = {
         name: 'postcss',
-        async setup(build) {
-            const { sourcemap = true, absWorkingDir } = build.initialOptions || {};
-            const { onTransform, load, rootDir, collectDependencies, setupPlugin } = useRna(build);
-            const config = await loadPostcssConfig(rootDir);
-            setupPlugin(plugin, [cssImport()], 'before');
+        async setup(pluginBuild) {
+            const build = useRna(pluginBuild);
+            const { sourcemap = true, absWorkingDir } = build.getOptions();
+            const config = await loadPostcssConfig(build.getSourceRoot());
+            build.setupPlugin(plugin, [cssImport()], 'before');
 
             const cache = new Map();
             build.onStart(() => {
                 cache.clear();
             });
+
             build.onEnd(() => {
                 cache.clear();
             });
 
-            onTransform({ loaders: ['css'], extensions: ['.css', '.scss', '.sass'] }, async (args) => {
+            build.onTransform({ loaders: ['css'], extensions: ['.css', '.scss', '.sass'] }, async (args) => {
                 const isSass = ['.sass', '.scss'].includes(path.extname(args.path));
 
                 /**
@@ -75,7 +76,7 @@ export default function(options = {}) {
                 if (isSass) {
                     const sassPlugin = await import('@chialab/postcss-dart-sass')
                         .then(({ default: postcssSass, alternatives }) => postcssSass({
-                            rootDir,
+                            rootDir: build.getSourceRoot(),
                             importer: (url, prev, done) => {
                                 (async () => {
                                     try {
@@ -111,7 +112,7 @@ export default function(options = {}) {
                                                 }
 
                                                 try {
-                                                    const loadResult = await load({
+                                                    const loadResult = await build.load({
                                                         path: result.path,
                                                         suffix: '',
                                                         namespace: 'file',
@@ -192,7 +193,7 @@ export default function(options = {}) {
                     .filter(({ type }) => type === 'dependency')
                     .map(({ file }) => file);
 
-                collectDependencies(args.path, dependencies);
+                build.collectDependencies(args.path, dependencies);
 
                 return {
                     code: sourceMap ? `${result.css.toString()}\n/*# sourceMappingURL=${sourceMapUrl} */\n` : result.css.toString(),

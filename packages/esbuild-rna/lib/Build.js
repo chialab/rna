@@ -427,6 +427,17 @@ export class Build {
     }
 
     /**
+     * Set a loader rule.
+     * @param {string} ext The file extension.
+     * @param {Loader} loader The loader name.
+     */
+    setLoader(ext, loader) {
+        const laoders = this.getLoaders();
+        laoders[ext] = loader;
+        this.setOption('loader', laoders);
+    }
+
+    /**
      * Get list of build plugins.
      * @returns {Plugin[]} A list of plugin.
      */

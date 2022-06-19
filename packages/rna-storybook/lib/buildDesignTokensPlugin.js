@@ -13,11 +13,11 @@ export function buildDesignTokensPlugin(globs) {
      */
     const plugin = {
         name: 'storybook-design-tokens',
-        async setup(build) {
-            const { isChunk, rootDir, outDir: realOutDir } = useRna(build);
-            const outDir = realOutDir || rootDir;
+        async setup(pluginBuild) {
+            const build = useRna(pluginBuild);
+            const outDir = build.getOutDir() || build.getSourceRoot();
 
-            if (!isChunk) {
+            if (!build.isChunk()) {
                 build.onEnd(async () => {
                     await mkdir(outDir, { recursive: true });
                     await writeFile(path.join(outDir, 'design-tokens.source.json'), JSON.stringify(

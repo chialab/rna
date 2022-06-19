@@ -8,24 +8,18 @@ export function mdxPlugin() {
      */
     const plugin = {
         name: 'storybook-mdx',
-        async setup(build) {
-            const { onLoad } = useRna(build);
-            /**
-             * @type {import('esbuild').BuildOptions['loader']}
-             */
-            build.initialOptions.loader = {
-                ...(build.initialOptions.loader || {}),
-                '.mdx': 'tsx',
-            };
+        async setup(pluginBuild) {
+            const build = useRna(pluginBuild);
+            build.setLoader('.mdx', 'tsx');
 
             build.onResolve({ filter: /\.mdx$/ }, (args) => ({
                 path: args.path,
             }));
 
-            onLoad({ filter: /\.mdx$/ }, async (args) => {
+            build.onLoad({ filter: /\.mdx$/ }, async (args) => {
                 try {
                     return {
-                        contents: await transformMdxToCsf(await readFile(args.path, 'utf8'), build.esbuild),
+                        contents: await transformMdxToCsf(await readFile(args.path, 'utf8'), build.getBuilder()),
                         loader: 'js',
                     };
                 } catch (err) {

@@ -46,12 +46,12 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
      */
     const plugin = {
         name: 'worker',
-        async setup(build) {
-            const { sourcesContent, sourcemap } = build.initialOptions;
-            const { onTransform, emitChunk, isEmittedPath, setupPlugin } = useRna(build);
-            await setupPlugin(plugin, [metaUrlPlugin({ emit })], 'after');
+        async setup(pluginBuild) {
+            const build = useRna(pluginBuild);
+            const { sourcesContent, sourcemap } = build.getOptions();
+            await build.setupPlugin(plugin, [metaUrlPlugin({ emit })], 'after');
 
-            onTransform({ loaders: ['tsx', 'ts', 'jsx', 'js'] }, async (args) => {
+            build.onTransform({ loaders: ['tsx', 'ts', 'jsx', 'js'] }, async (args) => {
                 const code = args.code;
 
                 if (!variants.find((ctr) => code.includes(`new ${ctr}`))) {
@@ -193,7 +193,7 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                         }
 
                         const id = getSearchParam(value, 'hash');
-                        if (id && isEmittedPath(id)) {
+                        if (id && build.isEmittedPath(id)) {
                             return;
                         }
 
@@ -230,7 +230,7 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
 
                         let entryPoint = path.relative(path.dirname(args.path), resolvedPath);
                         if (emit) {
-                            const emittedChunk = await emitChunk({
+                            const emittedChunk = await build.emitChunk({
                                 ...transformOptions,
                                 path: resolvedPath,
                             });

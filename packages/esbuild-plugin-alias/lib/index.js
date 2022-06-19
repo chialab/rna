@@ -6,15 +6,15 @@ import { useRna } from '@chialab/esbuild-rna';
 
 /**
  * Create a module alias.
- * @param {import('esbuild').PluginBuild} build
+ * @param {import('esbuild').PluginBuild} pluginBuild
  * @param {string} key
  * @param {import('@chialab/node-resolve').Alias} aliasRule
  * @param {string} [rootDir]
  */
-export function addAlias(build, key, aliasRule, rootDir) {
+export function addAlias(pluginBuild, key, aliasRule, rootDir) {
     const isFunction = typeof aliasRule === 'function';
     const aliasFilter = createAliasRegex(key, isFunction ? ALIAS_MODE.START : ALIAS_MODE.FULL);
-    const { rootDir: buildRootDir } = useRna(build);
+    const build = useRna(pluginBuild);
 
     build.onResolve({ filter: aliasFilter }, async (args) => {
         if (!aliasRule) {
@@ -42,7 +42,7 @@ export function addAlias(build, key, aliasRule, rootDir) {
         return build.resolve(aliased, {
             importer: args.importer,
             namespace: args.namespace,
-            resolveDir: args.resolveDir || rootDir || buildRootDir,
+            resolveDir: args.resolveDir || rootDir || build.getSourceRoot(),
             kind: args.kind,
             pluginData: args.pluginData,
         });
@@ -72,9 +72,9 @@ export default function alias(modules = {}, browserField = true) {
      */
     const plugin = {
         name: this?.name || 'alias',
-        async setup(build) {
-            const { platform = 'neutral', external = [] } = build.initialOptions;
-            const { onLoad, rootDir } = useRna(build);
+        async setup(pluginBuild) {
+            const build = useRna(pluginBuild);
+            const { platform = 'neutral', external = [] } = build.getOptions();
 
             /**
              * @type {import('@chialab/node-resolve').AliasMap}
@@ -83,7 +83,7 @@ export default function alias(modules = {}, browserField = true) {
 
             if (browserField && platform === 'browser') {
                 const packageFile = await pkgUp({
-                    cwd: rootDir,
+                    cwd: build.getSourceRoot(),
                 });
                 if (packageFile) {
                     const packageJson = JSON.parse(await readFile(packageFile, 'utf-8'));
@@ -98,10 +98,10 @@ export default function alias(modules = {}, browserField = true) {
             });
 
             Object.keys(aliasMap).forEach((alias) => {
-                addAlias(build, alias, aliasMap[alias]);
+                addAlias(pluginBuild, alias, aliasMap[alias]);
             });
 
-            onLoad({ filter: /./, namespace: 'empty' }, () => ({
+            build.onLoad({ filter: /./, namespace: 'empty' }, () => ({
                 contents: createEmptyModule(),
                 loader: 'js',
             }));

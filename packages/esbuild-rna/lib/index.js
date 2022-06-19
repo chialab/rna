@@ -1,5 +1,4 @@
 import path from 'path';
-import { assignToResult } from './helpers.js';
 import { BuildManager } from './BuildManager.js';
 
 export * from './Build.js';
@@ -119,32 +118,30 @@ const manager = new BuildManager();
  */
 export function useRna(pluginBuild) {
     const build = manager.getBuild(pluginBuild);
-    const { stdin } = build.getOptions();
-
     const rnaBuild = {
         /**
          * A map of emitted chunks.
          */
         get chunks() {
-            return build.state.chunks;
+            return build.getChunks();
         },
         /**
          * A map of emitted files.
          */
         get files() {
-            return build.state.files;
+            return build.getFiles();
         },
         /**
          * A map of emitted builds.
          */
         get builds() {
-            return build.state.builds;
+            return build.getBuilds();
         },
         /**
          * A list of collected dependencies.
          */
         get dependencies() {
-            return build.state.dependencies;
+            return build.getDependencies();
         },
         /**
          * Compute the working dir.
@@ -252,52 +249,14 @@ export function useRna(pluginBuild) {
          * @param {'before'|'after'} [mode] Where insert the missing plugin.
          * @returns {Promise<string[]>} The list of plugin names that had been added to the build.
          */
-        async setupPlugin(plugin, plugins, mode = 'before') {
-            if (build.isChunk()) {
-                return [];
-            }
-
-            const installedPlugins = build.getOptions().plugins = build.getOptions().plugins || [];
-
-            /**
-             * @type {string[]}
-             */
-            const pluginsToInstall = [];
-
-            let last = plugin;
-            for (let i = 0; i < plugins.length; i++) {
-                const dependency = plugins[i];
-                if (installedPlugins.find((p) => p.name === dependency.name)) {
-                    continue;
-                }
-
-                pluginsToInstall.push(dependency.name);
-                const io = installedPlugins.indexOf(last);
-                installedPlugins.splice(mode === 'before' ? io : (io + 1), 0, dependency);
-                if (mode === 'after') {
-                    last = dependency;
-                }
-
-                await dependency.setup(build.pluginBuild);
-            }
-
-            return pluginsToInstall;
-        },
+        setupPlugin: build.setupPlugin.bind(build),
         /**
          * Add dependencies to the build.
          * @param {string} importer The importer path.
          * @param {string[]} dependencies A list of loaded dependencies.
          * @returns {DependenciesMap} The updated dependencies map.
          */
-        collectDependencies(importer, dependencies) {
-            const map = build.state.dependencies;
-            map[importer] = [
-                ...(map[importer] || []),
-                ...dependencies,
-            ];
-
-            return map;
-        },
+        collectDependencies: build.collectDependencies.bind(build),
         /**
          * Add a virtual module to the build.
          * @param {VirtualEntry} entry The virtual module entry.
@@ -305,62 +264,16 @@ export function useRna(pluginBuild) {
         addVirtualModule: build.addVirtualModule.bind(build),
     };
 
+    const stdin = build.getOption('stdin');
     if (stdin && stdin.sourcefile) {
         const sourceFile = path.resolve(build.getSourceRoot(), stdin.sourcefile);
-        build.getOptions().entryPoints = [sourceFile];
-        delete build.getOptions().stdin;
+        build.setOption('entryPoints', [sourceFile]);
+        build.deleteOption('stdin');
 
         rnaBuild.addVirtualModule({
             path: sourceFile,
             contents: stdin.contents,
             loader: stdin.loader,
-        });
-    }
-
-    if (!build.state.initialized) {
-        build.state.initialized = true;
-
-        build.onStart(() => {
-            const entryPoints = build.getOptions().entryPoints;
-            if (!entryPoints) {
-                return;
-            }
-
-            if (Array.isArray(entryPoints)) {
-                entryPoints.forEach((entryPoint) => {
-                    entryPoint = path.resolve(build.getWorkingDir(), entryPoint);
-                    rnaBuild.collectDependencies(entryPoint, [entryPoint]);
-                });
-            } else {
-                for (let [, entryPoint] of Object.entries(entryPoints)) {
-                    entryPoint = path.resolve(build.getWorkingDir(), entryPoint);
-                    rnaBuild.collectDependencies(entryPoint, [entryPoint]);
-                }
-            }
-        });
-
-        build.onEnd(async (buildResult) => {
-            const rnaResult = /** @type {Result} */ (buildResult);
-            rnaResult.dependencies = build.state.dependencies;
-            build.state.chunks.forEach((result) => assignToResult(rnaResult, result));
-            build.state.files.forEach((result) => assignToResult(rnaResult, result));
-            build.state.builds.forEach((result) => assignToResult(rnaResult, result));
-
-            if (rnaResult.metafile) {
-                const outputs = { ...rnaResult.metafile.outputs };
-                for (const outputKey in outputs) {
-                    const output = outputs[outputKey];
-                    if (!output.entryPoint) {
-                        continue;
-                    }
-
-                    const entryPoint = path.resolve(build.getSourceRoot(), output.entryPoint.split('?')[0]);
-                    const dependencies = Object.keys(output.inputs)
-                        .map((input) => path.resolve(build.getSourceRoot(), input.split('?')[0]));
-
-                    rnaBuild.collectDependencies(entryPoint, dependencies);
-                }
-            }
         });
     }
 

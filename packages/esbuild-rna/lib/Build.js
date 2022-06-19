@@ -3,10 +3,34 @@ import crypto from 'crypto';
 import { mkdir, readFile, writeFile } from 'fs/promises';
 import { loadSourcemap, inlineSourcemap, mergeSourcemaps } from '@chialab/estransform';
 import { escapeRegexBody } from '@chialab/node-resolve';
-import { createOutputFile, createResult } from './helpers.js';
+import { createOutputFile, createResult, assignToResult } from './helpers.js';
+
+/**
+ * @typedef {import('esbuild').Message} Message
+ */
 
 /**
  * @typedef {import('esbuild').Loader} Loader
+ */
+
+/**
+ * @typedef {import('esbuild').Platform} Platform
+ */
+
+/**
+ * @typedef {import('esbuild').Format} Format
+ */
+
+/**
+ * @typedef {import('esbuild').Plugin} Plugin
+ */
+
+/**
+ * @typedef {import('esbuild').PluginBuild} PluginBuild
+ */
+
+/**
+ * @typedef {import('esbuild').BuildOptions} BuildOptions
  */
 
 /**
@@ -57,7 +81,7 @@ import { createOutputFile, createResult } from './helpers.js';
  * @typedef {Object} VirtualEntry
  * @property {string} path
  * @property {string|Buffer} contents
- * @property {import('esbuild').Loader} [loader]
+ * @property {Loader} [loader]
  * @property {string} [resolveDir]
  */
 
@@ -67,10 +91,10 @@ import { createOutputFile, createResult } from './helpers.js';
  * @property {string} [outdir]
  * @property {boolean} [bundle]
  * @property {boolean} [splitting]
- * @property {import('esbuild').Platform} [platform]
+ * @property {Platform} [platform]
  * @property {string} [target]
- * @property {import('esbuild').Format} [format]
- * @property {import('esbuild').Plugin[]} [plugins]
+ * @property {Format} [format]
+ * @property {Plugin[]} [plugins]
  * @property {string[]} [external]
  * @property {string[]} [inject]
  * @property {string|undefined} [jsxFactory]
@@ -101,6 +125,10 @@ import { createOutputFile, createResult } from './helpers.js';
  */
 
 /**
+ * @typedef {Result & { id: string; path: string }} File
+ */
+
+/**
  * @typedef {Object} OnLoadRule
  * @property {OnLoadOptions} options
  * @property {LoadCallback} callback
@@ -115,7 +143,7 @@ import { createOutputFile, createResult } from './helpers.js';
  */
 
 /**
- * @typedef {import('esbuild').OnLoadArgs & { code?: string | Uint8Array, loader?: import('esbuild').Loader, resolveDir?: string }} OnTransformArgs
+ * @typedef {OnLoadArgs & { code?: string | Uint8Array, loader?: Loader, resolveDir?: string }} OnTransformArgs
  */
 
 /**
@@ -123,8 +151,8 @@ import { createOutputFile, createResult } from './helpers.js';
  * @property {string} [code]
  * @property {import('@chialab/estransform').SourceMap|null} [map]
  * @property {string} [resolveDir]
- * @property {import('esbuild').Message[]} [errors]
- * @property {import('esbuild').Message[]} [warnings]
+ * @property {Message[]} [errors]
+ * @property {Message[]} [warnings]
  * @property {string[]} [watchFiles]
  */
 
@@ -143,7 +171,7 @@ import { createOutputFile, createResult } from './helpers.js';
  * @property {OnLoadRule[]} load
  * @property {OnTransformRule[]} transform
  * @property {Map<string, Chunk>} chunks
- * @property {Map<string, Chunk>} files
+ * @property {Map<string, File>} files
  * @property {Set<Result>} builds
  * @property {DependenciesMap} dependencies
  * @property {boolean} initialized
@@ -157,9 +185,26 @@ export class Build {
     static RESOLVED_AS_MODULE = 2;
 
     /**
+     * Manager instance.
+     * @type {import('./BuildManager.js').BuildManager}
+     * @readonly
+     * @private
+     */
+    manager;
+
+    /**
+     * Esbuild plugin build.
+     * @type {PluginBuild}
+     * @readonly
+     * @private
+     */
+    pluginBuild;
+
+    /**
      * Build state.
      * @type {BuildState}
      * @readonly
+     * @private
      */
     state = {
         load: [],
@@ -173,13 +218,58 @@ export class Build {
 
     /**
      * Create a build instance and state.
-     * @param {import('esbuild').PluginBuild} build
+     * @param {PluginBuild} build
      * @param {import('./BuildManager.js').BuildManager} manager
      */
     constructor(build, manager) {
         build.initialOptions.metafile = true;
         this.manager = manager;
         this.pluginBuild = build;
+
+        this.onStart(() => {
+            const entryPoints = this.getOption('entryPoints');
+            if (!entryPoints) {
+                return;
+            }
+
+            const workingDir = this.getWorkingDir();
+            if (Array.isArray(entryPoints)) {
+                entryPoints.forEach((entryPoint) => {
+                    entryPoint = path.resolve(workingDir, entryPoint);
+                    this.collectDependencies(entryPoint, [entryPoint]);
+                });
+            } else {
+                for (let [, entryPoint] of Object.entries(entryPoints)) {
+                    entryPoint = path.resolve(workingDir, entryPoint);
+                    this.collectDependencies(entryPoint, [entryPoint]);
+                }
+            }
+        });
+
+        this.onEnd(async (buildResult) => {
+            const rnaResult = /** @type {Result} */ (buildResult);
+            rnaResult.dependencies = this.getDependencies();
+            this.state.chunks.forEach((result) => assignToResult(rnaResult, result));
+            this.state.files.forEach((result) => assignToResult(rnaResult, result));
+            this.state.builds.forEach((result) => assignToResult(rnaResult, result));
+
+            if (rnaResult.metafile) {
+                const outputs = { ...rnaResult.metafile.outputs };
+                for (const outputKey in outputs) {
+                    const output = outputs[outputKey];
+                    if (!output.entryPoint) {
+                        continue;
+                    }
+
+                    const sourceRoot = this.getSourceRoot();
+                    const entryPoint = path.resolve(sourceRoot, output.entryPoint.split('?')[0]);
+                    const dependencies = Object.keys(output.inputs)
+                        .map((input) => path.resolve(sourceRoot, input.split('?')[0]));
+
+                    this.collectDependencies(entryPoint, dependencies);
+                }
+            }
+        });
     }
 
     /**
@@ -199,11 +289,39 @@ export class Build {
     }
 
     /**
+     * Get build option.
+     * @template {keyof BuildOptions} K Option key.
+     * @param {K} key The option key to get.
+     * @returns {BuildOptions[K]} The option value.
+     */
+    getOption(key) {
+        return this.pluginBuild.initialOptions[key];
+    }
+
+    /**
+     * Set build option.
+     * @template {keyof BuildOptions} K Option key.
+     * @param {K} key The option key to update.
+     * @param {BuildOptions[K]} value The value to set.
+     */
+    setOption(key, value) {
+        this.pluginBuild.initialOptions[key] = value;
+    }
+
+    /**
+     * Delete a build option.
+     * @param {keyof BuildOptions} key The option key to remove.
+     */
+    deleteOption(key) {
+        delete this.pluginBuild.initialOptions[key];
+    }
+
+    /**
      * Compute the working dir of the build.
      * @returns {string} The working dir.
      */
     getWorkingDir() {
-        return this.getOptions().absWorkingDir || process.cwd();
+        return this.getOption('absWorkingDir') || process.cwd();
     }
 
     /**
@@ -211,7 +329,7 @@ export class Build {
      * @returns {string} The source root.
      */
     getSourceRoot() {
-        return this.getOptions().sourceRoot || this.getWorkingDir();
+        return this.getOption('sourceRoot') || this.getWorkingDir();
     }
 
     /**
@@ -275,7 +393,7 @@ export class Build {
 
     /**
      * Get configured build loaders.
-     * @returns {{ [ext: string]: import('esbuild').Loader }}
+     * @returns {{ [ext: string]: Loader }}
      */
     getLoaders() {
         return {
@@ -283,16 +401,16 @@ export class Build {
             '.jsx': 'jsx',
             '.ts': 'ts',
             '.tsx': 'tsx',
-            ...(this.getOptions().loader || {}),
+            ...(this.getOption('loader') || {}),
         };
     }
 
     /**
      * Get list of build plugins.
-     * @returns {import('esbuild').Plugin[]} A list of plugin.
+     * @returns {Plugin[]} A list of plugin.
      */
     getPlugins() {
-        return this.getOptions().plugins || [];
+        return this.getOption('plugins') || [];
     }
 
     /**
@@ -301,7 +419,42 @@ export class Build {
      * @returns {Loader|null} The loader name.
      */
     getLoader(filePath) {
-        return this.getLoaders()[path.extname(filePath)] || null;
+        const loaders = this.getLoaders();
+        return loaders[path.extname(filePath)] || null;
+    }
+
+    /**
+     * Get the list of emitted chunks.
+     * @returns {Map<string, Chunk>} A list of chunks.
+     */
+    getChunks() {
+        return new Map(this.state.chunks);
+    }
+
+    /**
+     * Get the list of emitted files.
+     * @returns {Map<string, File>} A list of files.
+     */
+    getFiles() {
+        return new Map(this.state.files);
+    }
+
+    /**
+     * Get the list of emitted builds.
+     * @returns {Set<Result>} A list of builds.
+     */
+    getBuilds() {
+        return new Set(this.state.builds);
+    }
+
+    /**
+     * Get collected dependencies.
+     * @returns {DependenciesMap} The dependencies map.
+     */
+    getDependencies() {
+        return {
+            ...this.state.dependencies,
+        };
     }
 
     /**
@@ -388,7 +541,7 @@ export class Build {
 
     /**
      * Run esbuild build with given options.
-     * @param {import('esbuild').BuildOptions} options
+     * @param {BuildOptions} options
      * @returns {Promise<Result>} Build result with manifest.
      */
     async build(options) {
@@ -621,6 +774,62 @@ export class Build {
     }
 
     /**
+     * Insert dependency plugins in the build plugins list.
+     * @param {Plugin} plugin The current plugin.
+     * @param {Plugin[]} plugins A list of required plugins .
+     * @param {'before'|'after'} [mode] Where insert the missing plugin.
+     * @returns {Promise<string[]>} The list of plugin names that had been added to the build.
+     */
+    async setupPlugin(plugin, plugins, mode = 'before') {
+        if (this.isChunk()) {
+            return [];
+        }
+
+        const initialOptions = this.getOptions();
+        const installedPlugins = initialOptions.plugins = this.getPlugins();
+
+        /**
+         * @type {string[]}
+         */
+        const pluginsToInstall = [];
+
+        let last = plugin;
+        for (let i = 0; i < plugins.length; i++) {
+            const dependency = plugins[i];
+            if (installedPlugins.find((p) => p.name === dependency.name)) {
+                continue;
+            }
+
+            pluginsToInstall.push(dependency.name);
+            const io = installedPlugins.indexOf(last);
+            installedPlugins.splice(mode === 'before' ? io : (io + 1), 0, dependency);
+            if (mode === 'after') {
+                last = dependency;
+            }
+
+            await dependency.setup(this.pluginBuild);
+        }
+
+        return pluginsToInstall;
+    }
+
+    /**
+     * Add dependencies to the build.
+     * @param {string} importer The importer path.
+     * @param {string[]} dependencies A list of loaded dependencies.
+     * @returns {DependenciesMap} The updated dependencies map.
+     */
+    collectDependencies(importer, dependencies) {
+        const map = this.state.dependencies;
+        map[importer] = [
+            ...(map[importer] || []),
+            ...dependencies,
+        ];
+
+        return map;
+    }
+
+    /**
      * Check if path has been emitted by build.
      * @param {string} id The chunk id to check.
      * @returns {boolean} True if path has been emitted by the build.
@@ -646,7 +855,6 @@ export class Build {
      * @returns {Promise<Chunk>} The output file reference.
      */
     async emitFile(source, buffer) {
-        const { assetNames = '[name]', write = true } = this.getOptions();
         const workingDir = this.getWorkingDir();
         const virtualOutDir = this.getFullOutDir() || this.getWorkingDir();
 
@@ -665,9 +873,10 @@ export class Build {
             }
         }
 
-        const computedName = this.computeName(assetNames, source, buffer);
+        const computedName = this.computeName(this.getOption('assetNames') || '[name]', source, buffer);
         const outputFile = path.resolve(virtualOutDir, computedName);
         const bytes = buffer.length;
+        const write = this.getOption('write') ?? true;
         if (write) {
             await mkdir(path.dirname(outputFile), {
                 recursive: true,
@@ -675,32 +884,31 @@ export class Build {
             await writeFile(outputFile, buffer);
         }
 
-        const result = createResult(
-            write ? undefined : [
-                createOutputFile(outputFile, Buffer.from(buffer)),
-            ],
-            {
-                inputs: {
-                    [path.relative(workingDir, source)]: {
-                        bytes,
-                        imports: [],
-                    },
+        const outputFiles = !write ?
+            [createOutputFile(outputFile, Buffer.from(buffer))] :
+            undefined;
+
+        const result = createResult(outputFiles, {
+            inputs: {
+                [path.relative(workingDir, source)]: {
+                    bytes,
+                    imports: [],
                 },
-                outputs: {
-                    [path.relative(workingDir, outputFile)]: {
-                        bytes,
-                        inputs: {
-                            [path.relative(workingDir, source)]: {
-                                bytesInOutput: bytes,
-                            },
+            },
+            outputs: {
+                [path.relative(workingDir, outputFile)]: {
+                    bytes,
+                    inputs: {
+                        [path.relative(workingDir, source)]: {
+                            bytesInOutput: bytes,
                         },
-                        imports: [],
-                        exports: [],
-                        entryPoint: path.relative(workingDir, source),
                     },
+                    imports: [],
+                    exports: [],
+                    entryPoint: path.relative(workingDir, source),
                 },
-            }
-        );
+            },
+        });
 
         const id = this.hash(buffer);
         const chunkResult = {
@@ -720,10 +928,10 @@ export class Build {
      */
     async emitChunk(options) {
         const initialOptions = this.getOptions();
-        const format = options.format ?? initialOptions.format;
+        const format = options.format || this.getOption('format');
         const virtualOutDir = this.getFullOutDir() || this.getWorkingDir();
 
-        /** @type {import('esbuild').BuildOptions} */
+        /** @type {BuildOptions} */
         const config = {
             ...initialOptions,
             format,
@@ -801,11 +1009,11 @@ export class Build {
     async emitBuild(options) {
         const manager = this.manager;
         const initialOptions = this.getOptions();
-        const format = options.format ?? initialOptions.format;
+        const format = options.format || this.getOption('format');
         const virtualOutDir = this.getFullOutDir() || this.getWorkingDir();
         const entryPoints = options.entryPoints;
 
-        /** @type {import('esbuild').BuildOptions} */
+        /** @type {BuildOptions} */
         const config = {
             ...this.getOptions(),
             entryPoints: entryPoints.map((entryPoint) => {

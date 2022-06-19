@@ -15,7 +15,7 @@ export class BuildManager {
      * @returns A build handler.
      */
     getBuild(pluginBuild) {
-        const build = this.builds.get(pluginBuild.initialOptions) || new Build(pluginBuild);
+        const build = this.builds.get(pluginBuild.initialOptions) || new Build(pluginBuild, this);
         this.builds.set(pluginBuild.initialOptions, build);
 
         return build;

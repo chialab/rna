@@ -52,15 +52,16 @@ export function buildPlugin(config) {
      */
     const plugin = {
         name: 'storybook',
-        async setup(build) {
-            if (!build.initialOptions.chunkNames || build.initialOptions.chunkNames === '[name]') {
-                build.initialOptions.chunkNames = '[name]-[hash]';
+        async setup(pluginBuild) {
+            const build = useRna(pluginBuild);
+            if (build.getOption('chunkNames') === '[name]') {
+                build.setOption('chunkNames', '[name]-[hash]');
             }
 
-            const { isChunk, rootDir, outDir: realOutDir, setupPlugin } = useRna(build);
+            const rootDir = build.getSourceRoot();
+            const outDir = build.getOutDir() || rootDir;
             const stories = await findStories(rootDir, storyPatterns);
             const storyIndexEntries = await createStorySpecifiers(stories, rootDir);
-            const outDir = realOutDir || rootDir;
 
             virtualPlugin = virtualPlugin || createVirtualPlugin()([
                 ...await Promise.all(
@@ -125,13 +126,13 @@ export function buildPlugin(config) {
                 },
             ]);
 
-            await setupPlugin(plugin, [
+            await build.setupPlugin(plugin, [
                 virtualPlugin,
                 mdxPlugin(),
                 htmlPlugin(),
             ], 'before');
 
-            if (!isChunk) {
+            if (!build.isChunk()) {
                 build.onEnd(async () => {
                     await mkdir(outDir, { recursive: true });
                     await writeFile(path.join(outDir, 'stories.json'), JSON.stringify(

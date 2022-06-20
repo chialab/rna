@@ -13,11 +13,11 @@ export default function({ fsCheck = true, shouldThrow = false } = {}) {
      */
     const plugin = {
         name: 'any-file',
-        setup(build) {
-            const { onLoad, loaders } = useRna(build);
+        setup(pluginBuild) {
+            const build = useRna(pluginBuild);
 
-            onLoad({ filter: /./ }, async (args) => {
-                if (path.extname(args.path) in loaders) {
+            build.onLoad({ filter: /./ }, async (args) => {
+                if (path.extname(args.path) in build.getLoaders()) {
                     return;
                 }
 

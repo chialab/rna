@@ -13,11 +13,11 @@ export default function() {
      */
     const plugin = {
         name: 'unwebpack',
-        setup(build) {
-            const { sourcesContent, sourcemap } = build.initialOptions;
-            const { onTransform } = useRna(build);
+        setup(pluginBuild) {
+            const build = useRna(pluginBuild);
+            const { sourcesContent, sourcemap } = build.getOptions();
 
-            onTransform({ loaders: ['tsx', 'ts', 'jsx', 'js'] }, async (args) => {
+            build.onTransform({ loaders: ['tsx', 'ts', 'jsx', 'js'] }, async (args) => {
                 const code = args.code;
 
                 if (!code.includes('module.hot') &&

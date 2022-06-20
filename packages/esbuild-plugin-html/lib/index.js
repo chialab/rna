@@ -59,20 +59,22 @@ export default function({
      */
     const plugin = {
         name: 'html',
-        setup(build) {
-            const { write = true, entryNames = '[name]' } = build.initialOptions;
-            const { load, workingDir, outDir, onTransform, resolveLocallyFirst, emitFile, emitChunk, emitBuild, computeName } = useRna(build);
+        setup(pluginBuild) {
+            const build = useRna(pluginBuild);
+            const { write = true } = build.getOptions();
+            const outDir = build.getOutDir();
             if (!outDir) {
                 throw new Error('Cannot use the html plugin without an outdir.');
             }
 
             // force metafile in order to collect output data.
-            build.initialOptions.metafile = build.initialOptions.metafile || write !== false;
+            build.setOption('metafile', build.getOption('metafile') || write !== false);
 
             /**
              * @type {string[]}
              */
             const entryPoints = [];
+            const workingDir = build.getWorkingDir();
 
             build.onStart(() => {
                 entryPoints.splice(0, entryPoints.length);
@@ -92,12 +94,12 @@ export default function({
                             return;
                         }
 
-                        const mainInput = path.resolve(workingDir, inputs[0]);
+                        const mainInput = build.resolvePath(inputs[0]);
                         if (!entryPoints.includes(mainInput)) {
                             return;
                         }
 
-                        const actualOutputFile = path.resolve(workingDir, outputFile);
+                        const actualOutputFile = build.resolvePath(outputFile);
                         if (output.entryPoint) {
                             // esbuild js file
                             delete outputs[outputFile];
@@ -109,7 +111,7 @@ export default function({
                             }
 
                             if (outputs[`${outputFile}.map`]) {
-                                const actualOutputMapFile = path.resolve(workingDir, `${outputFile}.map`);
+                                const actualOutputMapFile = build.resolvePath(`${outputFile}.map`);
                                 delete outputs[`${outputFile}.map`];
 
                                 if (write) {
@@ -126,10 +128,10 @@ export default function({
                             }
 
                             const buffer = resultOutputFile ? Buffer.from(resultOutputFile.contents) : await readFile(actualOutputFile);
-                            const finalOutputFile = path.resolve(workingDir, outDir, computeName(entryNames, mainInput, buffer));
+                            const finalOutputFile = build.resolveOutputFile(mainInput, buffer);
 
                             delete outputs[outputFile];
-                            outputs[path.relative(workingDir, finalOutputFile)] = output;
+                            outputs[build.getOutputName(finalOutputFile)] = output;
 
                             if (write) {
                                 if (actualOutputFile !== finalOutputFile) {
@@ -144,7 +146,7 @@ export default function({
                 );
             });
 
-            onTransform({ filter: /\.html$/ }, async (args) => {
+            build.onTransform({ filter: /\.html$/ }, async (args) => {
                 entryPoints.push(args.path);
 
                 const [
@@ -171,7 +173,7 @@ export default function({
                 /**
                  * @param {string} file
                  */
-                const resolveFile = (file) => resolveLocallyFirst(file, {
+                const resolveFile = (file) => build.resolveLocallyFirst(file, {
                     kind: 'dynamic-import',
                     importer: args.path,
                     resolveDir: path.dirname(args.path),
@@ -183,7 +185,7 @@ export default function({
                  * @param {string} path
                  * @param {Partial<import('esbuild').OnLoadArgs>} [options]
                  */
-                const loadFile = (path, options = {}) => load({
+                const loadFile = (path, options = {}) => build.load({
                     pluginData: null,
                     namespace: 'file',
                     suffix: '',
@@ -194,8 +196,8 @@ export default function({
                 const collectOptions = {
                     sourceDir: path.dirname(args.path),
                     workingDir,
-                    outDir: path.resolve(workingDir, outDir),
-                    entryDir: path.dirname(path.resolve(workingDir, outDir, computeName(entryNames, args.path, ''))),
+                    outDir: /** @type {string} */ (build.getFullOutDir()),
+                    entryDir: build.resolveOutputDir(args.path),
                     target: [scriptsTarget, modulesTarget],
                 };
 
@@ -214,9 +216,9 @@ export default function({
 
                 const helpers = {
                     createEntry,
-                    emitFile,
-                    emitChunk,
-                    emitBuild,
+                    emitFile: build.emitFile.bind(build),
+                    emitChunk: build.emitChunk.bind(build),
+                    emitBuild: build.emitBuild.bind(build),
                     resolve: resolveFile,
                     load: loadFile,
                 };

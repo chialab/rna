@@ -18,9 +18,9 @@ export default function({ presets = [], plugins = [] } = {}) {
      */
     const plugin = {
         name: 'babel',
-        setup(build) {
-            const { target, jsxFactory } = build.initialOptions;
-            const { onTransform, rootDir } = useRna(build);
+        setup(pluginBuild) {
+            const build = useRna(pluginBuild);
+            const { target, jsxFactory } = build.getOptions();
 
             build.onResolve({ filter: /@babel\/runtime/ }, (args) => {
                 if (args.resolveDir === resolveDir) {
@@ -33,7 +33,7 @@ export default function({ presets = [], plugins = [] } = {}) {
                 });
             });
 
-            onTransform({ loaders: ['tsx', 'ts', 'jsx', 'js'] }, async (args) => {
+            build.onTransform({ loaders: ['tsx', 'ts', 'jsx', 'js'] }, async (args) => {
                 if (args.path.includes('/@babel/runtime/') ||
                     args.path.includes('/core-js/') ||
                     args.path.includes('regenerator-runtime')) {
@@ -45,7 +45,7 @@ export default function({ presets = [], plugins = [] } = {}) {
 
                 /** @type {import('@babel/core').TransformOptions} */
                 const config = {
-                    cwd: rootDir,
+                    cwd: build.getSourceRoot(),
                     ast: false,
                     compact: false,
                     filename: args.path,

@@ -1,12 +1,8 @@
 import path from 'path';
 
 /**
- * @typedef {import('esbuild').Metafile} Metafile
- */
-
-/**
  * Create an empty metafile object.
- * @returns {Metafile}
+ * @returns {import('esbuild').Metafile}
  */
 export function createEmptyMetafile() {
     return { inputs: {}, outputs: {} };
@@ -29,8 +25,8 @@ export function createOutputFile(path, contents) {
 
 /**
  * @param {import('esbuild').OutputFile[]} [outputFiles]
- * @param {Metafile} [metafile]
- * @returns {import('./index.js').Result}
+ * @param {import('esbuild').Metafile} [metafile]
+ * @returns {import('./Build.js').Result}
  */
 export function createResult(outputFiles, metafile = createEmptyMetafile()) {
     return {
@@ -46,8 +42,8 @@ export function createResult(outputFiles, metafile = createEmptyMetafile()) {
  * Merge esbuild results into a single object
  * that collects all inputs and outputs references, errors and warnings.
  * This is useful when running multiple builds in separated process.
- * @param {import('./index.js').Result} context
- * @param {import('./index.js').Result} result
+ * @param {import('./Build.js').Result} context
+ * @param {import('./Build.js').Result} result
  */
 export function assignToResult(context, result) {
     context.errors.push(...result.errors);
@@ -71,7 +67,7 @@ export function assignToResult(context, result) {
     };
 
     /**
-     * @type {import('./index.js').DependenciesMap}
+     * @type {import('./Build.js').DependenciesMap}
      */
     const dependencies = context.dependencies = context.dependencies || {};
     for (const out of Object.entries(result.dependencies)) {
@@ -86,10 +82,10 @@ export function assignToResult(context, result) {
 }
 
 /**
- * @param {import('./index.js').Result} result
+ * @param {import('./Build.js').Result} result
  * @param {string} from
  * @param {string} to
- * @returns {import('./index.js').Result}
+ * @returns {import('./Build.js').Result}
  */
 export function remapResult(result, from, to) {
     const resultMeta = result.metafile || createEmptyMetafile();
@@ -107,13 +103,13 @@ export function remapResult(result, from, to) {
                     const newPath = path.relative(to, path.resolve(from, input));
                     acc[newPath] = inputs[input];
                     return acc;
-                }, /** @type {Metafile['inputs']} */({})),
+                }, /** @type {import('esbuild').Metafile['inputs']} */({})),
             outputs: Object.keys(outputs)
                 .reduce((acc, output) => {
                     const newPath = path.relative(to, path.resolve(from, output));
                     acc[newPath] = outputs[output];
                     return acc;
-                }, /** @type {Metafile['outputs']} */ ({})),
+                }, /** @type {import('esbuild').Metafile['outputs']} */ ({})),
         },
     };
 }

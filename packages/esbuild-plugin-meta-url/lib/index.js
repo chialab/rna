@@ -1,7 +1,7 @@
 import path from 'path';
 import { appendSearchParam, getSearchParam, isUrl } from '@chialab/node-resolve';
 import { parse, walk, getIdentifierValue, getBlock, getLocation, TokenType } from '@chialab/estransform';
-import { useRna } from '@chialab/esbuild-rna';
+import { Build, useRna } from '@chialab/esbuild-rna';
 
 /**
  * @param {import('@chialab/estransform').TokenProcessor} processor Token processor.
@@ -108,9 +108,9 @@ export default function({ emit = true } = {}) {
      */
     const plugin = {
         name: 'meta-url',
-        async setup(build) {
-            const { platform, format, sourcesContent, sourcemap } = build.initialOptions;
-            const { onTransform, isEmittedPath, resolveLocallyFirst, emitFile, emitChunk, loaders: buildLoaders } = useRna(build);
+        async setup(pluginBuild) {
+            const build = useRna(pluginBuild);
+            const { platform, format, sourcesContent, sourcemap } = build.getOptions();
 
             const usePlainScript = platform === 'browser' && format !== 'esm';
             const isNode = platform === 'node' && format !== 'esm';
@@ -126,7 +126,7 @@ export default function({ emit = true } = {}) {
                 return 'import.meta.url';
             })();
 
-            onTransform({ loaders: ['tsx', 'ts', 'jsx', 'js'] }, async (args) => {
+            build.onTransform({ loaders: ['tsx', 'ts', 'jsx', 'js'] }, async (args) => {
                 const code = args.code;
 
                 if (!code.includes('import.meta.url') ||
@@ -153,7 +153,7 @@ export default function({ emit = true } = {}) {
                     }
 
                     const id = getSearchParam(value, 'hash');
-                    if (id && isEmittedPath(id)) {
+                    if (id && build.isEmittedPath(id)) {
                         return;
                     }
 
@@ -163,7 +163,7 @@ export default function({ emit = true } = {}) {
 
                     promises.push(Promise.resolve().then(async () => {
                         const requestName = value.split('?')[0];
-                        const { path: resolvedPath, pluginData: localFile } = await resolveLocallyFirst(requestName, {
+                        const { path: resolvedPath, pluginData } = await build.resolveLocallyFirst(requestName, {
                             kind: 'dynamic-import',
                             importer: args.path,
                             namespace: 'file',
@@ -172,7 +172,7 @@ export default function({ emit = true } = {}) {
                         });
 
                         if (resolvedPath) {
-                            if (!localFile) {
+                            if (pluginData !== Build.RESOLVED_AS_FILE) {
                                 const location = getLocation(code, startToken.start);
                                 warnings.push({
                                     pluginName: 'meta-url',
@@ -190,15 +190,15 @@ export default function({ emit = true } = {}) {
                                 });
                             }
 
-                            const entryLoader = buildLoaders[path.extname(resolvedPath)] || 'file';
+                            const entryLoader = build.getLoader(resolvedPath) || 'file';
                             const isChunk = entryLoader !== 'file' && entryLoader !== 'json';
                             let entryPoint;
                             if (emit) {
                                 if (isChunk) {
-                                    const chunk = await emitChunk({ path: resolvedPath });
+                                    const chunk = await build.emitChunk({ path: resolvedPath });
                                     entryPoint = appendSearchParam(chunk.path, 'hash', chunk.id);
                                 } else {
-                                    const file = await emitFile(resolvedPath);
+                                    const file = await build.emitFile(resolvedPath);
                                     entryPoint = appendSearchParam(file.path, 'hash', file.id);
                                 }
                             } else {

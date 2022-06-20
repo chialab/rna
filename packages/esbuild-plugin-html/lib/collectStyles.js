@@ -1,5 +1,6 @@
 import path from 'path';
 import { isRelativeUrl } from '@chialab/node-resolve';
+import { Build } from '@chialab/esbuild-rna';
 
 /**
  * Collect and bundle each <link> reference.
@@ -33,7 +34,7 @@ export async function collectStyles($, dom, options, helpers) {
                 return;
             }
 
-            builds.set(element, resolvedFile.pluginData ? resolvedFile.path : href);
+            builds.set(element, resolvedFile.pluginData === Build.RESOLVED_AS_FILE ? resolvedFile.path : href);
             entrypoints.set(resolvedFile.path, element);
         } else {
             const entryPoint = path.join(options.sourceDir, helpers.createEntry('css'));

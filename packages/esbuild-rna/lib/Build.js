@@ -172,6 +172,9 @@ import { createOutputFile, createResult, assignToResult } from './helpers.js';
 export class Build {
     static RESOLVED_AS_FILE = 1;
     static RESOLVED_AS_MODULE = 2;
+    static ENTRY = 1;
+    static CHUNK = 2;
+    static ASSET = 3;
 
     /**
      * Manager instance.
@@ -253,15 +256,14 @@ export class Build {
                 return;
             }
 
-            const workingDir = this.getWorkingDir();
             if (Array.isArray(entryPoints)) {
                 entryPoints.forEach((entryPoint) => {
-                    entryPoint = path.resolve(workingDir, entryPoint);
+                    entryPoint = this.resolvePath(entryPoint);
                     this.collectDependencies(entryPoint, [entryPoint]);
                 });
             } else {
                 for (let [, entryPoint] of Object.entries(entryPoints)) {
-                    entryPoint = path.resolve(workingDir, entryPoint);
+                    entryPoint = this.resolvePath(entryPoint);
                     this.collectDependencies(entryPoint, [entryPoint]);
                 }
             }
@@ -282,10 +284,9 @@ export class Build {
                         continue;
                     }
 
-                    const sourceRoot = this.getSourceRoot();
-                    const entryPoint = path.resolve(sourceRoot, output.entryPoint.split('?')[0]);
+                    const entryPoint = this.resolveSourcePath(output.entryPoint.split('?')[0]);
                     const dependencies = Object.keys(output.inputs)
-                        .map((input) => path.resolve(sourceRoot, input.split('?')[0]));
+                        .map((input) => this.resolveSourcePath(input.split('?')[0]));
 
                     this.collectDependencies(entryPoint, dependencies);
                 }
@@ -372,7 +373,7 @@ export class Build {
         const separator = /\/+|\\+/;
 
         return (Array.isArray(entryPoints) ? entryPoints : Object.values(entryPoints))
-            .map((entry) => (path.isAbsolute(entry) ? entry : path.resolve(workingDir, entry)))
+            .map((entry) => (path.isAbsolute(entry) ? entry : this.resolvePath(entry)))
             .map((entry) => path.dirname(entry))
             .map((entry) => entry.split(separator))
             .reduce((result, chunk) => {
@@ -408,7 +409,7 @@ export class Build {
     getFullOutDir() {
         const outDir = this.getOutDir();
         if (outDir) {
-            return path.resolve(this.getWorkingDir(), outDir);
+            return this.resolvePath(outDir);
         }
     }
 
@@ -806,6 +807,71 @@ export class Build {
     }
 
     /**
+     * Resolve file path from build working dir.
+     * @param {string} filePath The file path to resolve.
+     * @returns {string} Resolved file path.
+     */
+    resolvePath(filePath) {
+        return path.resolve(this.getWorkingDir(), filePath);
+    }
+
+    /**
+     * Resolve file path from source root dir.
+     * @param {string} filePath The file path to resolve.
+     * @returns {string} Resolved file path.
+     */
+    resolveSourcePath(filePath) {
+        return path.resolve(this.getSourceRoot(), filePath);
+    }
+
+    /**
+     * Resolve file path of an output file.
+     * @param {string} filePath The output file path.
+     * @param {number} [type] The type of the file.
+     * @returns {string} Resolved file path.
+     */
+    resolveOutputDir(filePath, type = Build.ENTRY) {
+        const key = type === Build.ENTRY ? 'entryNames' :
+            type === Build.CHUNK ? 'chunkNames' :
+                'assetNames';
+
+        return path.dirname(this.resolvePath(
+            path.join(
+                this.getOutDir() || '',
+                this.computeName(this.getOption(key) || '[name]', filePath, '')
+            )
+        ));
+    }
+
+    /**
+     * Resolve file path of an output file.
+     * @param {string} filePath The output file path.
+     * @param {Buffer} buffer The output file buffer.
+     * @param {number} [type] The type of the file.
+     * @returns {string} Resolved file path.
+     */
+    resolveOutputFile(filePath, buffer, type = Build.ENTRY) {
+        const key = type === Build.ENTRY ? 'entryNames' :
+            type === Build.CHUNK ? 'chunkNames' :
+                'assetNames';
+
+        return path.resolve(
+            this.getWorkingDir(),
+            this.getOutDir() || this.getSourceRoot(),
+            this.computeName(this.getOption(key) || '[name]', filePath, buffer)
+        );
+    }
+
+    /**
+     * Get the output name in manifest of a file.
+     * @param {string} filePath The output file path.
+     * @returns {string} Relative output name.
+     */
+    getOutputName(filePath) {
+        return path.relative(this.getWorkingDir(), filePath);
+    }
+
+    /**
      * Insert dependency plugins in the build plugins list.
      * @param {Plugin} plugin The current plugin.
      * @param {Plugin[]} plugins A list of required plugins .
@@ -905,8 +971,7 @@ export class Build {
             }
         }
 
-        const computedName = this.computeName(this.getOption('assetNames') || '[name]', source, buffer);
-        const outputFile = path.resolve(virtualOutDir, computedName);
+        const outputFile = this.resolveOutputFile(source, Buffer.from(buffer), Build.ASSET);
         const bytes = buffer.length;
         const write = this.getOption('write') ?? true;
         if (write) {
@@ -1020,7 +1085,7 @@ export class Build {
             throw new Error('Unable to locate build artifacts');
         }
 
-        const resolvedOutputFile = path.resolve(this.getSourceRoot(), outFile[0]);
+        const resolvedOutputFile = this.resolveSourcePath(outFile[0]);
         const buffer = result.outputFiles ? result.outputFiles[0].contents : await readFile(resolvedOutputFile);
         const id = this.hash(buffer);
         const chunkResult = {
@@ -1042,7 +1107,6 @@ export class Build {
         const manager = this.manager;
         const initialOptions = this.getOptions();
         const format = options.format || this.getOption('format');
-        const virtualOutDir = this.getFullOutDir() || this.getWorkingDir();
         const entryPoints = options.entryPoints;
 
         /** @type {BuildOptions} */
@@ -1056,7 +1120,7 @@ export class Build {
                 return entryPoint.path;
             }),
             format,
-            outdir: options.outdir ? path.resolve(virtualOutDir, `./${options.outdir}`) : this.getFullOutDir(),
+            outdir: options.outdir ? this.resolvePath(options.outdir) : this.getFullOutDir(),
             bundle: options.bundle ?? initialOptions.bundle,
             splitting: format === 'esm' ? (options.splitting ?? initialOptions.splitting ?? true) : false,
             platform: options.platform ?? initialOptions.platform,

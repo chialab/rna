@@ -61,7 +61,7 @@ export default function({
         name: 'html',
         setup(pluginBuild) {
             const build = useRna(pluginBuild);
-            const { write = true, entryNames = '[name]' } = build.getOptions();
+            const { write = true } = build.getOptions();
             const outDir = build.getOutDir();
             if (!outDir) {
                 throw new Error('Cannot use the html plugin without an outdir.');
@@ -94,12 +94,12 @@ export default function({
                             return;
                         }
 
-                        const mainInput = path.resolve(workingDir, inputs[0]);
+                        const mainInput = build.resolvePath(inputs[0]);
                         if (!entryPoints.includes(mainInput)) {
                             return;
                         }
 
-                        const actualOutputFile = path.resolve(workingDir, outputFile);
+                        const actualOutputFile = build.resolvePath(outputFile);
                         if (output.entryPoint) {
                             // esbuild js file
                             delete outputs[outputFile];
@@ -111,7 +111,7 @@ export default function({
                             }
 
                             if (outputs[`${outputFile}.map`]) {
-                                const actualOutputMapFile = path.resolve(workingDir, `${outputFile}.map`);
+                                const actualOutputMapFile = build.resolvePath(`${outputFile}.map`);
                                 delete outputs[`${outputFile}.map`];
 
                                 if (write) {
@@ -128,10 +128,10 @@ export default function({
                             }
 
                             const buffer = resultOutputFile ? Buffer.from(resultOutputFile.contents) : await readFile(actualOutputFile);
-                            const finalOutputFile = path.resolve(workingDir, outDir, build.computeName(entryNames, mainInput, buffer));
+                            const finalOutputFile = build.resolveOutputFile(mainInput, buffer);
 
                             delete outputs[outputFile];
-                            outputs[path.relative(workingDir, finalOutputFile)] = output;
+                            outputs[build.getOutputName(finalOutputFile)] = output;
 
                             if (write) {
                                 if (actualOutputFile !== finalOutputFile) {
@@ -196,8 +196,8 @@ export default function({
                 const collectOptions = {
                     sourceDir: path.dirname(args.path),
                     workingDir,
-                    outDir: path.resolve(workingDir, outDir),
-                    entryDir: path.dirname(path.resolve(workingDir, outDir, build.computeName(entryNames, args.path, ''))),
+                    outDir: /** @type {string} */ (build.getFullOutDir()),
+                    entryDir: build.resolveOutputDir(args.path),
                     target: [scriptsTarget, modulesTarget],
                 };
 

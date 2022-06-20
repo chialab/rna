@@ -1,4 +1,3 @@
-import path from 'path';
 import { BuildManager } from './BuildManager.js';
 
 export * from './Build.js';
@@ -17,7 +16,7 @@ export function useRna(pluginBuild) {
     const build = manager.getBuild(pluginBuild);
     const stdin = build.getOption('stdin');
     if (stdin && stdin.sourcefile) {
-        const sourceFile = path.resolve(build.getSourceRoot(), stdin.sourcefile);
+        const sourceFile = build.resolveSourcePath(stdin.sourcefile);
         build.setOption('entryPoints', [sourceFile]);
         build.deleteOption('stdin');
 

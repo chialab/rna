@@ -136,8 +136,6 @@ export function command(program) {
                  */
                 const config = mergeConfig({ root }, configFile ? await readConfigFile(configFile, { root }, 'serve') : {});
 
-                const { legacyPlugin } = await import('@chialab/wds-plugin-legacy');
-
                 /**
                  * @type {import('@chialab/rna-browser-test-runner').TestRunnerConfig}
                  */
@@ -152,11 +150,6 @@ export function command(program) {
                     open,
                     alias: config.alias,
                     browsers,
-                    plugins: [
-                        legacyPlugin({
-                            minify: true,
-                        }),
-                    ],
                 };
 
                 if (specs.length) {

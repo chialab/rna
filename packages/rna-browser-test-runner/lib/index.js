@@ -352,15 +352,6 @@ export function command(program) {
                     testRunnerConfig.files = specs;
                 }
 
-                try {
-                    const { legacyPlugin } = await import('@chialab/wds-plugin-legacy');
-                    plugins.push(legacyPlugin({
-                        minify: true,
-                    }));
-                } catch (err) {
-                    //
-                }
-
                 await test(testRunnerConfig);
             }
         );

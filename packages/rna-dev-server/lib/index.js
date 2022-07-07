@@ -50,8 +50,9 @@ export async function loadDevServerConfig(initialConfig = {}, configFile = undef
         configFile ? await readConfigFile(configFile, { root: rootDir }, 'serve') : {}
     );
 
-    const finalPlugins = initialConfig.plugins || [];
-    const { servePlugins = [], plugins: transformPlugins = [] } = config;
+    const servePlugins = config.servePlugins || [];
+    const transformPlugins = [...(config.plugins || [])];
+    const finalPlugins = [...(initialConfig.plugins || [])];
 
     finalPlugins.push(...servePlugins);
 

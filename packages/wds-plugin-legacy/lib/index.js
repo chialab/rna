@@ -103,7 +103,7 @@ System.constructor.prototype.createScript = function (url) {
                             continue;
                         }
                         $script.removeAttr('src');
-                        $script.text(`window.import('./${src}');`);
+                        $script.text(`window.import('${src.startsWith('/') ? src : `./${src}`}');`);
                     } else {
                         const content = $script.html() || '';
                         const src = `/script-${inlineScripts.size}.js`;

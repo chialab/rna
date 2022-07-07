@@ -46,13 +46,14 @@ describe('esbuild-plugin-html', () => {
 </head>
 
 <body>
-    <script src="index-PASUIUF5.js" type="application/javascript"></script>
+    <script src="index-JEYWDNLH.js" type="application/javascript"></script>
 </body>
 
 </html>`);
 
-        expect(js.path.endsWith('/out/index-PASUIUF5.js')).to.be.true;
-        expect(js.text).to.be.equal(`(() => {
+        expect(js.path.endsWith('/out/index-JEYWDNLH.js')).to.be.true;
+        expect(js.text).to.be.equal(`"use strict";
+(() => {
   // fixture/lib.js
   var log = console.log.bind(console);
 
@@ -116,13 +117,14 @@ body {
 </head>
 
 <body>
-    <script src="index-2REWJ4YW.js" type="application/javascript"></script>
+    <script src="index-FIAOTJ3G.js" type="application/javascript"></script>
 </body>
 
 </html>`);
 
-        expect(js.path.endsWith('/out/index-2REWJ4YW.js')).to.be.true;
-        expect(js.text).to.be.equal(`(() => {
+        expect(js.path.endsWith('/out/index-FIAOTJ3G.js')).to.be.true;
+        expect(js.text).to.be.equal(`"use strict";
+(() => {
   // fixture/lib.js
   var log = console.log.bind(console);
 
@@ -131,7 +133,7 @@ body {
     log("test");
   });
 })();
-//# sourceMappingURL=index-2REWJ4YW.js.map
+//# sourceMappingURL=index-FIAOTJ3G.js.map
 `);
 
         expect(css.path.endsWith('/out/index-CECUKMCO.css')).to.be.true;
@@ -356,7 +358,7 @@ body {
         });
 
         const index = /** @type {import('esbuild').OutputFile} */ (outputFiles.find((file) => file.path.endsWith('.html')));
-        const iife = /** @type {import('esbuild').OutputFile} */ (outputFiles.find((file) => file.path.endsWith('index-PASUIUF5.js')));
+        const iife = /** @type {import('esbuild').OutputFile} */ (outputFiles.find((file) => file.path.endsWith('index-JEYWDNLH.js')));
         const esm = /** @type {import('esbuild').OutputFile} */ (outputFiles.find((file) => file.path.endsWith('index-6PRLBFYO.js')));
         const css = /** @type {import('esbuild').OutputFile} */ (outputFiles.find((file) => file.path.endsWith('index-UMVLUHQU.css')));
 
@@ -397,13 +399,14 @@ body {
 
 <body>
     <script src="index-6PRLBFYO.js" type="module"></script>
-    <script src="index-PASUIUF5.js" type="application/javascript" nomodule=""></script>
+    <script src="index-JEYWDNLH.js" type="application/javascript" nomodule=""></script>
 </body>
 
 </html>`);
 
-        expect(iife.path.endsWith('/out/index-PASUIUF5.js')).to.be.true;
-        expect(iife.text).to.be.equal(`(() => {
+        expect(iife.path.endsWith('/out/index-JEYWDNLH.js')).to.be.true;
+        expect(iife.text).to.be.equal(`"use strict";
+(() => {
   // fixture/lib.js
   var log = console.log.bind(console);
 

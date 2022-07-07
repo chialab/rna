@@ -257,6 +257,7 @@ export {
         expect(path.dirname(result.path)).to.be.equal(path.dirname(file.path));
         expect(warnings).to.be.deep.equal([
             {
+                id: '',
                 pluginName: 'meta-url',
                 text: 'Resolving \'npm_module\' as module is not a standard behavior and may be removed in a future relase of the plugin.',
                 detail: '',
@@ -307,6 +308,7 @@ export {
 `);
         expect(warnings).to.be.deep.equal([
             {
+                id: '',
                 pluginName: 'meta-url',
                 text: 'Unable to resolve \'./missing.txt\' file.',
                 detail: '',

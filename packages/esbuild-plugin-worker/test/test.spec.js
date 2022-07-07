@@ -22,12 +22,13 @@ describe('esbuild-plugin-worker', () => {
         });
 
         expect(result.text).to.be.equal(`// test.spec.js
-var worker = new Worker(new URL("./worker.js?hash=20beb8ee", import.meta.url).href);
+var worker = new Worker(new URL("./worker.js?hash=5f77c0c4", import.meta.url).href);
 export {
   worker
 };
 `);
-        expect(worker.text).to.be.equal(`(() => {
+        expect(worker.text).to.be.equal(`"use strict";
+(() => {
   // lib.worker.js
   var postMessage = globalThis.postMessage;
 
@@ -55,12 +56,13 @@ export {
             ],
         });
 
-        expect(result.text).to.be.equal(`const worker = new Worker(new URL("./worker.js?hash=20beb8ee", import.meta.url).href);
+        expect(result.text).to.be.equal(`const worker = new Worker(new URL("./worker.js?hash=5f77c0c4", import.meta.url).href);
 export {
   worker
 };
 `);
-        expect(worker.text).to.be.equal(`(() => {
+        expect(worker.text).to.be.equal(`"use strict";
+(() => {
   // lib.worker.js
   var postMessage = globalThis.postMessage;
 
@@ -155,12 +157,13 @@ var worker = new Worker(URL.createObjectURL(new Blob(['importScripts("' + functi
   const url = new URL(path);
   url.searchParams.set("transform", '{"format":"iife","bundle":true,"platform":"neutral","external":[]}');
   return url.href;
-}(new URL("./worker.js?hash=20beb8ee", import.meta.url).href) + '");'], { type: "text/javascript" })));
+}(new URL("./worker.js?hash=5f77c0c4", import.meta.url).href) + '");'], { type: "text/javascript" })));
 export {
   worker
 };
 `);
-        expect(worker.text).to.be.equal(`(() => {
+        expect(worker.text).to.be.equal(`"use strict";
+(() => {
   // lib.worker.js
   var postMessage = globalThis.postMessage;
 
@@ -219,7 +222,7 @@ export const fakeWorker = new ctx.Worker('./worker.js');`,
         });
 
         expect(result.text).to.be.equal(`// test.spec.js
-var worker = new Worker(new URL("./worker.js?hash=20beb8ee", import.meta.url).href);
+var worker = new Worker(new URL("./worker.js?hash=5f77c0c4", import.meta.url).href);
 var fakeWorker = new ctx.Worker("./worker.js");
 export {
   fakeWorker,
@@ -251,13 +254,14 @@ export const worker = new window.Worker('./worker.js');`,
 var Worker = class {
 };
 var local = new Worker("./worker.js");
-var worker = new window.Worker(new URL("./worker.js?hash=20beb8ee", import.meta.url).href);
+var worker = new window.Worker(new URL("./worker.js?hash=5f77c0c4", import.meta.url).href);
 export {
   local,
   worker
 };
 `);
-        expect(worker.text).to.be.equal(`(() => {
+        expect(worker.text).to.be.equal(`"use strict";
+(() => {
   // lib.worker.js
   var postMessage = globalThis.postMessage;
 

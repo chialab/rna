@@ -212,6 +212,7 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                         if (!resolvedPath) {
                             const location = getLocation(code, startToken.start);
                             warnings.push({
+                                id: 'worker-reference-not-found',
                                 pluginName: 'worker',
                                 text: `Unable to resolve '${value}' file.`,
                                 location: {

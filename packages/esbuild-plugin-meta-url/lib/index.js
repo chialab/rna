@@ -175,6 +175,7 @@ export default function({ emit = true } = {}) {
                             if (pluginData !== Build.RESOLVED_AS_FILE) {
                                 const location = getLocation(code, startToken.start);
                                 warnings.push({
+                                    id: 'import-meta-module-resolution',
                                     pluginName: 'meta-url',
                                     text: `Resolving '${requestName}' as module is not a standard behavior and may be removed in a future relase of the plugin.`,
                                     location: {
@@ -212,6 +213,7 @@ export default function({ emit = true } = {}) {
 
                         const location = getLocation(code, startToken.start);
                         warnings.push({
+                            id: 'import-meta-reference-not-found',
                             pluginName: 'meta-url',
                             text: `Unable to resolve '${requestName}' file.`,
                             location: {

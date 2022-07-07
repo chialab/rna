@@ -1993,12 +1993,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@chialab/rna-browser-test-runner@^0.16.0, @chialab/rna-browser-test-runner@workspace:packages/rna-browser-test-runner":
+"@chialab/rna-browser-test-runner@^0.16.2, @chialab/rna-browser-test-runner@workspace:packages/rna-browser-test-runner":
   version: 0.0.0-use.local
   resolution: "@chialab/rna-browser-test-runner@workspace:packages/rna-browser-test-runner"
   dependencies:
     "@chialab/rna-config-loader": ^0.16.0
-    "@chialab/rna-dev-server": ^0.16.0
+    "@chialab/rna-dev-server": ^0.16.2
     "@chialab/rna-logger": ^0.16.0
     "@chialab/wds-plugin-node-resolve": ^0.16.0
     "@chialab/wtr-coverage-reporter": ^0.16.1
@@ -2011,7 +2011,7 @@ __metadata:
     commander: ^7.2.0
     typescript: ^4.3.0
   peerDependencies:
-    "@chialab/wds-plugin-legacy": ^0.16.0
+    "@chialab/wds-plugin-legacy": ^0.16.2
   peerDependenciesMeta:
     "@chialab/wds-plugin-legacy":
       optional: true
@@ -2058,7 +2058,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@chialab/rna-dev-server@^0.16.0, @chialab/rna-dev-server@workspace:packages/rna-dev-server":
+"@chialab/rna-dev-server@^0.16.2, @chialab/rna-dev-server@workspace:packages/rna-dev-server":
   version: 0.0.0-use.local
   resolution: "@chialab/rna-dev-server@workspace:packages/rna-dev-server"
   dependencies:
@@ -2078,7 +2078,7 @@ __metadata:
     rimraf: ^3.0.2
     typescript: ^4.3.0
   peerDependencies:
-    "@chialab/wds-plugin-legacy": ^0.16.0
+    "@chialab/wds-plugin-legacy": ^0.16.2
   peerDependenciesMeta:
     "@chialab/wds-plugin-legacy":
       optional: true
@@ -2132,10 +2132,10 @@ __metadata:
   resolution: "@chialab/rna-saucelabs-test-runner@workspace:packages/rna-saucelabs-test-runner"
   dependencies:
     "@chialab/node-resolve": ^0.16.0
-    "@chialab/rna-browser-test-runner": ^0.16.0
+    "@chialab/rna-browser-test-runner": ^0.16.2
     "@chialab/rna-config-loader": ^0.16.0
     "@chialab/rna-logger": ^0.16.0
-    "@chialab/wds-plugin-legacy": ^0.16.0
+    "@chialab/wds-plugin-legacy": ^0.16.2
     "@web/test-runner-saucelabs": ^0.7.3
     commander: ^7.2.0
     typescript: ^4.3.0
@@ -2211,7 +2211,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@chialab/wds-plugin-legacy@^0.16.0, @chialab/wds-plugin-legacy@workspace:packages/wds-plugin-legacy":
+"@chialab/wds-plugin-legacy@^0.16.2, @chialab/wds-plugin-legacy@workspace:packages/wds-plugin-legacy":
   version: 0.0.0-use.local
   resolution: "@chialab/wds-plugin-legacy@workspace:packages/wds-plugin-legacy"
   dependencies:

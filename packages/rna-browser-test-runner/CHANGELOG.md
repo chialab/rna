@@ -1,5 +1,14 @@
 # @chialab/rna-browser-test-runner
 
+## 0.16.2
+
+### Patch Changes
+
+- Correctly initialize legacy plugin in test runner
+- Updated dependencies
+  - @chialab/rna-dev-server@0.16.2
+  - @chialab/wds-plugin-legacy@0.16.2
+
 ## 0.16.1
 
 ### Patch Changes

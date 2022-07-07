@@ -1,5 +1,13 @@
 # @chialab/rna-dev-server
 
+## 0.16.2
+
+### Patch Changes
+
+- Correctly initialize legacy plugin in test runner
+- Updated dependencies
+  - @chialab/wds-plugin-legacy@0.16.2
+
 ## 0.16.0
 
 ### Minor Changes

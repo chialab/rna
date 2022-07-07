@@ -1,5 +1,11 @@
 # @chialab/wds-plugin-legacy
 
+## 0.16.2
+
+### Patch Changes
+
+- Correctly initialize legacy plugin in test runner
+
 ## 0.16.1
 
 ### Patch Changes

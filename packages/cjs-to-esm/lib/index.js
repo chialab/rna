@@ -294,7 +294,7 @@ export default (__umdMainKey ? __umdGlobal[__umdMainKey] : undefined);`);
             thisMatch = THIS_PARAM.exec(code);
         }
     } else if (exports.length > 0 || reexports.length > 0) {
-        helpers.prepend(`var global = globalThis;
+        helpers.prepend(`var global = ${GLOBAL_HELPER};
 var exports = {};
 var module = {
     get exports() {

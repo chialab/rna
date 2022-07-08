@@ -1,5 +1,11 @@
 # @chialab/cjs-to-esm
 
+## 0.16.1
+
+### Patch Changes
+
+- Correctly detect global object in cjs transformation.
+
 ## 0.16.0
 
 ### Minor Changes

@@ -1,5 +1,13 @@
 # @chialab/rna-saucelabs-test-runner
 
+## 0.16.2
+
+### Patch Changes
+
+- Fix transpiled code for legacy browsers.
+- Updated dependencies
+  - @chialab/wds-plugin-legacy@0.16.3
+
 ## 0.16.1
 
 ### Patch Changes

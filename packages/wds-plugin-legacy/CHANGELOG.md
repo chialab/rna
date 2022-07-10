@@ -1,5 +1,11 @@
 # @chialab/wds-plugin-legacy
 
+## 0.16.3
+
+### Patch Changes
+
+- Fix transpiled code for legacy browsers.
+
 ## 0.16.2
 
 ### Patch Changes

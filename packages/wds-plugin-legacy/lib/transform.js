@@ -38,7 +38,10 @@ export async function babelTransform(content, url) {
     if (!result) {
         return content;
     }
-    return /** @type {string} */ (result.code);
+    return /** @type {string} */ (result.code)
+        // Yes, I know it is an horrible hack,
+        // but global SystemJS "use strict" mode breaks some modules like axe.
+        .replace('"use strict";', '');
 }
 
 /**

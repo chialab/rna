@@ -2,10 +2,10 @@ import crypto from 'crypto';
 import { createRequire } from 'module';
 import { inject } from '@chialab/wds-plugin-polyfill';
 import { createHelperUrl, isPlainScript } from '@chialab/wds-plugin-node-resolve';
+import * as cheerio from 'cheerio';
 import { checkEsmSupport } from './checkEsmSupport.js';
 import { readFile } from './readFile.js';
 import { transform } from './transform.js';
-import * as cheerio from 'cheerio';
 
 const require = createRequire(import.meta.url);
 

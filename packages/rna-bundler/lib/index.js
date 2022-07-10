@@ -24,7 +24,7 @@ export { writeManifestJson, writeEntrypointsJson, writeDevEntrypointsJson };
  * @property {string} output
  * @property {string} [config]
  * @property {import('@chialab/rna-config-loader').Format} [format]
- * @property {import('@chialab/rna-config-loader').Target} [target]
+ * @property {string} [target]
  * @property {import('@chialab/rna-config-loader').Platform} [platform]
  * @property {boolean} [bundle]
  * @property {boolean} [minify]

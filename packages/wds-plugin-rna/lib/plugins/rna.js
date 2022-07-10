@@ -1,10 +1,11 @@
 import path from 'path';
+import { realpath } from 'fs/promises';
 import { getRequestFilePath } from '@chialab/es-dev-server';
 import { getEntryConfig } from '@chialab/rna-config-loader';
 import { pkgUp, browserResolve, isJs, isJson, isCss, getSearchParam, appendSearchParam, removeSearchParam, getSearchParams, ALIAS_MODE, createAliasRegexexMap, createEmptyRegex } from '@chialab/node-resolve';
 import { isHelperImport, resolveRelativeImport, isPlainScript } from '@chialab/wds-plugin-node-resolve';
 import { transform, transformLoaders, build } from '@chialab/rna-bundler';
-import { realpath } from 'fs/promises';
+import { resolveUserAgent } from 'browserslist-useragent';
 
 /**
  * @typedef {import('@chialab/es-dev-server').Plugin} Plugin
@@ -73,7 +74,9 @@ export function convertFileToJsModule(source) {
 }
 
 /**
+ * Get the esbuild loader to use from context.
  * @param {import('koa').Context} context
+ * @return The esbuild loader name.
  */
 export function getRequestLoader(context) {
     const fileExtension = path.posix.extname(context.path);
@@ -81,13 +84,32 @@ export function getRequestLoader(context) {
 }
 
 /**
+ * Get the esbuild target to use from context.
+ * @param {import('koa').Context} context
+ * @returns The esbuild target name.
+ */
+export function getBrowserTarget(context) {
+    const browserTarget = resolveUserAgent(context.get('user-agent'));
+    switch (browserTarget.family.toLowerCase()) {
+        case 'chrome':
+        case 'safari':
+        case 'firefox':
+        case 'edge':
+            return `${browserTarget.family.toLowerCase()}${browserTarget.version.split('.')[0]}`;
+    }
+
+    return 'es2020';
+}
+
+/**
  * @param {import('@chialab/rna-config-loader').Entrypoint} entrypoint
  * @param {Partial<import('@chialab/rna-config-loader').CoreTransformConfig>} config
+ * @param {import('koa').Context} context
  */
-export async function createConfig(entrypoint, config) {
+export async function createConfig(entrypoint, config, context) {
     return getEntryConfig(entrypoint, {
         sourcemap: 'inline',
-        target: config.target || 'es2020',
+        target: getBrowserTarget(context),
         platform: 'browser',
         jsxFactory: config.jsxFactory,
         jsxFragment: config.jsxFragment,
@@ -187,6 +209,10 @@ export function rnaPlugin(config) {
     const plugin = {
         name: 'rna',
 
+        transformCacheKey(context) {
+            return getBrowserTarget(context);
+        },
+
         async serverStart({ config, fileWatcher }) {
             serverConfig = config;
             serverFileWatcher = fileWatcher;
@@ -271,7 +297,7 @@ export function rnaPlugin(config) {
                     bundle: true,
                 };
 
-                virtualFs[filePath] = createConfig(entrypoint, config)
+                virtualFs[filePath] = createConfig(entrypoint, config, context)
                     .then(async (transformConfig) => {
                         const result = await build({
                             ...transformConfig,
@@ -345,7 +371,7 @@ export function rnaPlugin(config) {
                 bundle: isPlainScript(context),
             };
 
-            const transformConfig = await createConfig(entrypoint, config);
+            const transformConfig = await createConfig(entrypoint, config, context);
             const result = await transform(transformConfig);
             watchDependencies(result);
 
@@ -425,7 +451,7 @@ export function rnaPlugin(config) {
                 bundle: false,
             };
 
-            virtualFs[resolved] = createConfig(entrypoint, config)
+            virtualFs[resolved] = createConfig(entrypoint, config, context)
                 .then((transformConfig) =>
                     build({
                         ...transformConfig,

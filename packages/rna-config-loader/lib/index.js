@@ -10,10 +10,6 @@ import path from 'path';
  */
 
 /**
- * @typedef {'esnext'|'es2021'|'es2020'|'es2019'|'es2018'|'es2017'|'es2016'|'es2015'|'es5'} Target
- */
-
-/**
  * @typedef {import('esbuild').Loader} Loader
  */
 
@@ -48,7 +44,7 @@ import path from 'path';
 /**
  * @typedef {Object} CoreTransformConfig
  * @property {Format} format
- * @property {Target} target
+ * @property {string} target
  * @property {Platform} platform
  * @property {SourcemapType} sourcemap
  * @property {string} entryNames

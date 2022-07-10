@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import { createRequire } from 'module';
 import { inject } from '@chialab/wds-plugin-polyfill';
 import { createHelperUrl, isPlainScript } from '@chialab/wds-plugin-node-resolve';
@@ -12,6 +13,17 @@ const require = createRequire(import.meta.url);
  * Cheerio esm support is unstable for some Node versions.
  */
 const load = /** typeof cheerio.load */ (cheerio.load || cheerio.default?.load);
+
+/**
+ * Create an hash for the given buffer.
+ * @param {Buffer|Uint8Array|string} buffer The buffer input.
+ * @returns A buffer hash.
+ */
+function hash(buffer) {
+    const hash = crypto.createHash('sha1');
+    hash.update(Buffer.from(buffer));
+    return hash.digest('hex').substring(0, 8);
+}
 
 /**
  * Convert esm modules to the SystemJS module format.
@@ -106,7 +118,7 @@ System.constructor.prototype.createScript = function (url) {
                         $script.text(`window.import('${src.startsWith('/') ? src : `./${src}`}');`);
                     } else {
                         const content = $script.html() || '';
-                        const src = `/script-${inlineScripts.size}.js`;
+                        const src = `/script-${hash(content)}.js`;
                         inlineScripts.set(src, content);
                         $script.text(`window.import('${src}');`);
                     }

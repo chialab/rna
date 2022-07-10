@@ -1,5 +1,15 @@
 # @chialab/rna-dev-server
 
+## 0.16.3
+
+### Patch Changes
+
+- 2bf9f7d: Use user agent to detect target in RNA plugin
+- Updated dependencies [2bf9f7d]
+  - @chialab/rna-config-loader@0.16.1
+  - @chialab/wds-plugin-legacy@0.16.4
+  - @chialab/wds-plugin-rna@0.16.2
+
 ## 0.16.2
 
 ### Patch Changes

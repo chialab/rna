@@ -1,5 +1,11 @@
 # @chialab/wds-plugin-legacy
 
+## 0.16.4
+
+### Patch Changes
+
+- 2bf9f7d: Use user agent to detect target in RNA plugin
+
 ## 0.16.3
 
 ### Patch Changes

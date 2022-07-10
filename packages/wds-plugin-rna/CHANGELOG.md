@@ -1,5 +1,11 @@
 # @chialab/wds-plugin-rna
 
+## 0.16.3
+
+### Patch Changes
+
+- Fix build target in dev server.
+
 ## 0.16.2
 
 ### Patch Changes

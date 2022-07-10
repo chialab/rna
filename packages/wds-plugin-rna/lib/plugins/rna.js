@@ -90,27 +90,18 @@ export function getRequestLoader(context) {
  */
 export function getBrowserTarget(context) {
     const browserTarget = resolveUserAgent(context.get('user-agent'));
-    switch (browserTarget.family.toLowerCase()) {
-        case 'chrome':
-        case 'safari':
-        case 'firefox':
-        case 'edge':
-            return `${browserTarget.family.toLowerCase()}${browserTarget.version.split('.')[0]}`;
-    }
-
-    return 'es2020';
+    return `${browserTarget.family.toLowerCase()}${browserTarget.version.split('.')[0]}`;
 }
 
 /**
  * @param {import('@chialab/rna-config-loader').Entrypoint} entrypoint
  * @param {Partial<import('@chialab/rna-config-loader').CoreTransformConfig>} config
- * @param {import('koa').Context} context
  */
-export async function createConfig(entrypoint, config, context) {
+export async function createConfig(entrypoint, config) {
     return getEntryConfig(entrypoint, {
         sourcemap: 'inline',
-        target: getBrowserTarget(context),
         platform: 'browser',
+        target: config.target,
         jsxFactory: config.jsxFactory,
         jsxFragment: config.jsxFragment,
         jsxModule: config.jsxModule,
@@ -165,7 +156,7 @@ export function rnaPlugin(config) {
     let serverFileWatcher;
 
     /**
-     * @type {{ [key: string]: Promise<Buffer> }}
+     * @type {{ [path: string]: { [target: string]: Promise<Buffer> }}}
      */
     const virtualFs = {};
 
@@ -197,6 +188,7 @@ export function rnaPlugin(config) {
     }
 
     /**
+     * Remove cache.
      * @param {string} path
      */
     function invalidateVirtualFs(path) {
@@ -277,10 +269,10 @@ export function rnaPlugin(config) {
 
             const { rootDir } = serverConfig;
             const filePath = getRequestFilePath(context.url, rootDir);
-            if (filePath in virtualFs) {
+            const target = getBrowserTarget(context);
+            if (virtualFs[filePath] && target in virtualFs[filePath]) {
                 return {
-                    body: /** @type {string} */ (/** @type {unknown} */ (await virtualFs[filePath])),
-                    transformCacheKey: false,
+                    body: /** @type {string} */ (/** @type {unknown} */ (await virtualFs[filePath][target])),
                 };
             }
 
@@ -297,7 +289,11 @@ export function rnaPlugin(config) {
                     bundle: true,
                 };
 
-                virtualFs[filePath] = createConfig(entrypoint, config, context)
+                virtualFs[filePath] = virtualFs[filePath] || {};
+                virtualFs[filePath][target] = createConfig(entrypoint, {
+                    ...config,
+                    target,
+                })
                     .then(async (transformConfig) => {
                         const result = await build({
                             ...transformConfig,
@@ -310,18 +306,19 @@ export function rnaPlugin(config) {
 
                         const outputFiles = /** @type {import('esbuild').OutputFile[]} */ (result.outputFiles);
                         outputFiles.forEach(({ path, contents }) => {
-                            virtualFs[path] = Promise.resolve(
+                            virtualFs[path] = virtualFs[path] || {};
+                            virtualFs[path][target] = Promise.resolve(
                                 Buffer.from(contents.buffer.slice(contents.byteOffset, contents.byteLength + contents.byteOffset))
                             );
                         });
 
                         watchDependencies(result);
 
-                        return virtualFs[filePath];
+                        return virtualFs[filePath][target];
                     });
 
                 return {
-                    body: /** @type {string} */ (/** @type {unknown} */ (await virtualFs[filePath])),
+                    body: /** @type {string} */ (/** @type {unknown} */ (await virtualFs[filePath][target])),
                     headers: {
                         'content-type': 'text/css',
                     },
@@ -353,7 +350,8 @@ export function rnaPlugin(config) {
 
             const { rootDir } = serverConfig;
             const filePath = getRequestFilePath(context.url, rootDir);
-            if (filePath in virtualFs) {
+            const target = getBrowserTarget(context);
+            if (virtualFs[filePath] && target in virtualFs[filePath]) {
                 return;
             }
 
@@ -371,7 +369,10 @@ export function rnaPlugin(config) {
                 bundle: isPlainScript(context),
             };
 
-            const transformConfig = await createConfig(entrypoint, config, context);
+            const transformConfig = await createConfig(entrypoint, {
+                ...config,
+                target,
+            });
             const result = await transform(transformConfig);
             watchDependencies(result);
 
@@ -434,7 +435,8 @@ export function rnaPlugin(config) {
                 return;
             }
 
-            if (resolved in virtualFs) {
+            const target = getBrowserTarget(context);
+            if (virtualFs[resolved] && target in virtualFs[resolved]) {
                 return resolveRelativeImport(resolved, filePath, rootDir);
             }
 
@@ -451,7 +453,11 @@ export function rnaPlugin(config) {
                 bundle: false,
             };
 
-            virtualFs[resolved] = createConfig(entrypoint, config, context)
+            virtualFs[resolved] = virtualFs[resolved] || {};
+            virtualFs[resolved][target] = createConfig(entrypoint, {
+                ...config,
+                target,
+            })
                 .then((transformConfig) =>
                     build({
                         ...transformConfig,
@@ -466,14 +472,15 @@ export function rnaPlugin(config) {
                     }
 
                     result.outputFiles.forEach(({ path, contents }) => {
-                        virtualFs[path] = Promise.resolve(
+                        virtualFs[path] = virtualFs[path] || {};
+                        virtualFs[path][target] = Promise.resolve(
                             Buffer.from(contents.buffer.slice(contents.byteOffset, contents.byteLength + contents.byteOffset))
                         );
                     });
 
                     watchDependencies(result);
 
-                    return virtualFs[resolved];
+                    return virtualFs[resolved][target];
                 });
 
             return resolveRelativeImport(resolved, filePath, rootDir);

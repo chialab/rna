@@ -48,7 +48,7 @@ export function legacyPlugin(config = {}) {
         name: 'legacy',
 
         transformCacheKey(context) {
-            return checkEsmSupport(context.get('user-agent')) ? undefined : 'legacy';
+            return checkEsmSupport(context) ? undefined : 'legacy';
         },
 
         async serve(context) {
@@ -81,8 +81,7 @@ System.constructor.prototype.createScript = function (url) {
         },
 
         async transform(context) {
-            const ua = context.get('user-agent');
-            if (checkEsmSupport(ua) || isPlainScript(context)) {
+            if (checkEsmSupport(context) || isPlainScript(context)) {
                 return;
             }
             if (context.path === systemHelper ||

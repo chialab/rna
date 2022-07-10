@@ -24,13 +24,14 @@ const memoMatchUserAgent = () => {
     const cache = {};
 
     /**
-     * @type {typeof matchesUA}
+     * @param {import('koa').Context} context
      */
-    const match = (ua, caps = { browsers: ESM_BROWSERS }) => {
+    const match = (context) => {
+        const ua = context.get('user-agent');
         if (ua in cache) {
             return cache[ua];
         }
-        return cache[ua] = matchesUA(ua, caps);
+        return cache[ua] = matchesUA(ua, { browsers: ESM_BROWSERS });
     };
 
     return match;

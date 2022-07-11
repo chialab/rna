@@ -125,7 +125,7 @@ export function getBrowserTarget(context) {
             }
             return `ios${version}`;
         default:
-            return `${family}${version}`;
+            return 'es2020';
     }
 }
 

@@ -90,7 +90,43 @@ export function getRequestLoader(context) {
  */
 export function getBrowserTarget(context) {
     const browserTarget = resolveUserAgent(context.get('user-agent'));
-    return `${browserTarget.family.toLowerCase()}${browserTarget.version.split('.')[0]}`;
+    const family = browserTarget.family.toLowerCase();
+    const version = browserTarget.version;
+    const [major, minor] = version.split('.').map((v) => parseInt(v));
+    switch (family) {
+        case 'chrome':
+            if (major < 63) {
+                return 'chrome63';
+            }
+            return `chrome${version}`;
+        case 'firefox':
+            if (major < 67) {
+                return 'firefox67';
+            }
+            return `firefox${version}`;
+        case 'edge':
+            if (major < 79) {
+                return 'edge79';
+            }
+            return `edge${version}`;
+        case 'opera':
+            if (major < 50) {
+                return 'opera50';
+            }
+            return `opera${version}`;
+        case 'safari':
+            if (major < 11 || (major === 11 && minor < 1)) {
+                return 'safari11.1';
+            }
+            return `safari${version}`;
+        case 'ios':
+            if (major < 11 || (major === 11 && minor < 3)) {
+                return 'ios11.3';
+            }
+            return `ios${version}`;
+        default:
+            return `${family}${version}`;
+    }
 }
 
 /**

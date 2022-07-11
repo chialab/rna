@@ -1,5 +1,11 @@
 # @chialab/wds-plugin-rna
 
+## 0.16.4
+
+### Patch Changes
+
+- Fix minimum browser target in dev server.
+
 ## 0.16.3
 
 ### Patch Changes

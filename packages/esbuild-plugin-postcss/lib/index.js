@@ -45,7 +45,7 @@ export default function(options = {}) {
         name: 'postcss',
         async setup(pluginBuild) {
             const build = useRna(pluginBuild);
-            const { sourcemap = true, absWorkingDir } = build.getOptions();
+            const { sourcemap = true, absWorkingDir, target } = build.getOptions();
             const config = await loadPostcssConfig(build.getSourceRoot());
             build.setupPlugin(plugin, [cssImport()], 'before');
 
@@ -66,9 +66,31 @@ export default function(options = {}) {
                  */
                 const plugins = [...(config.plugins || [])];
                 if (!plugins.length) {
-                    await import('@chialab/postcss-preset-chialab')
+                    const presetTargets = (Array.isArray(target) ? target : (target || '').split(','))
+                        .filter((entry) => entry.trim())
+                        .map((entry) => entry.toLowerCase())
+                        .filter((entry) =>
+                            entry.startsWith('chrome') ||
+                            entry.startsWith('edge') ||
+                            entry.startsWith('firefox') ||
+                            entry.startsWith('ie') ||
+                            entry.startsWith('ios') ||
+                            entry.startsWith('opera') ||
+                            entry.startsWith('safari')
+                        )
+                        .map((entry) => entry.replace(/([a-z]+)(.*)/, '$1 $2'));
+
+                    await import('postcss-preset-env')
                         .then(({ default: preset }) => {
-                            plugins.push(preset());
+                            plugins.push(/** @type {import('postcss').Plugin} */(preset({
+                                browsers: presetTargets.length ? presetTargets.join(',') : 'last 2 versions',
+                                preserve: true,
+                                autoprefixer: {
+                                    grid: true,
+                                    flexbox: true,
+                                    remove: false,
+                                },
+                            })));
                         })
                         .catch(() => false);
                 }

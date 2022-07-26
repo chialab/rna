@@ -18,9 +18,6 @@
     },
     {
       "path": "../postcss-dart-sass"
-    },
-    {
-      "path": "../postcss-preset-chialab"
     }
   ]
 }

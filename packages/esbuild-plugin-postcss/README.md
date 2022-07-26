@@ -28,7 +28,7 @@ await esbuild.build({
 });
 ```
 
-This plugin looks for a postcss configuration in the project and fallbacks to out custom [preset](https://www.npmjs.com/package/@chialab/postcss-preset-chialab).
+This plugin looks for a postcss configuration in the project and fallbacks to out custom [postcss-preset-env](https://www.npmjs.com/package/postcss-preset-env).
 
 ### Sass
 

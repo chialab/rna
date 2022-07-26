@@ -1,5 +1,11 @@
 # @chialab/esbuild-plugin-postcss
 
+## 0.16.1
+
+### Patch Changes
+
+- b9f55a7: Replace chialab preset with postcss env
+
 ## 0.16.0
 
 ### Minor Changes

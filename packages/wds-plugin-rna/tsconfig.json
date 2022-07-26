@@ -23,9 +23,6 @@
       "path": "../node-resolve"
     },
     {
-      "path": "../postcss-url-rebase"
-    },
-    {
       "path": "../rna-bundler"
     },
     {

@@ -1,5 +1,11 @@
 # @chialab/wds-plugin-rna
 
+## 0.16.6
+
+### Patch Changes
+
+- 0983a15: Remove unnecessary dependency
+
 ## 0.16.5
 
 ### Patch Changes

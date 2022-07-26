@@ -1,7 +1,7 @@
 {
   "name": "@chialab/esbuild-plugin-any-file",
   "type": "module",
-  "version": "0.16.0",
+  "version": "0.16.1",
   "description": "A loader plugin for esbuild for files with unknown loader.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",
@@ -28,7 +28,7 @@
     "node": ">=13"
   },
   "dependencies": {
-    "@chialab/esbuild-rna": "^0.16.0"
+    "@chialab/esbuild-rna": "^0.16.2"
   },
   "devDependencies": {
     "typescript": "^4.3.0"

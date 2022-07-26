@@ -1,5 +1,11 @@
 # @chialab/rna
 
+## 0.16.4
+
+### Patch Changes
+
+- Refactored rna decorator interface
+
 ## 0.16.3
 
 ### Patch Changes

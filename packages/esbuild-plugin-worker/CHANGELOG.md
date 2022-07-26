@@ -1,5 +1,14 @@
 # @chialab/esbuild-plugin-worker
 
+## 0.16.1
+
+### Patch Changes
+
+- Refactored rna decorator interface
+- Updated dependencies
+  - @chialab/esbuild-plugin-meta-url@0.16.2
+  - @chialab/esbuild-rna@0.16.2
+
 ## 0.16.0
 
 ### Minor Changes

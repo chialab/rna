@@ -1,5 +1,11 @@
 # @chialab/esbuild-rna
 
+## 0.16.2
+
+### Patch Changes
+
+- Refactored rna decorator interface
+
 ## 0.16.1
 
 ### Patch Changes

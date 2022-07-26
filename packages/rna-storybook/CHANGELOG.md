@@ -1,5 +1,15 @@
 # @chialab/rna-storybook
 
+## 0.16.2
+
+### Patch Changes
+
+- Refactored rna decorator interface
+- Updated dependencies
+  - @chialab/esbuild-plugin-html@0.16.2
+  - @chialab/esbuild-plugin-virtual@0.16.1
+  - @chialab/esbuild-rna@0.16.2
+
 ## 0.16.1
 
 ### Patch Changes

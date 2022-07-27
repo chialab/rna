@@ -1,5 +1,11 @@
 # @chialab/rna-bundler
 
+## 0.16.2
+
+### Patch Changes
+
+- 9e0d655: Fix jsx importer loader order
+
 ## 0.16.1
 
 ### Patch Changes

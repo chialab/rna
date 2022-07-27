@@ -1,5 +1,11 @@
 # @chialab/rna
 
+## 0.16.5
+
+### Patch Changes
+
+- 7f2eccc: Correctly detect failing plugin in transform hook
+
 ## 0.16.4
 
 ### Patch Changes

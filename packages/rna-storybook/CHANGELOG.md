@@ -1,5 +1,15 @@
 # @chialab/rna-storybook
 
+## 0.16.3
+
+### Patch Changes
+
+- 7f2eccc: Correctly detect failing plugin in transform hook
+- Updated dependencies [7f2eccc]
+  - @chialab/esbuild-plugin-html@0.16.3
+  - @chialab/esbuild-plugin-virtual@0.16.2
+  - @chialab/esbuild-rna@0.16.3
+
 ## 0.16.2
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # @chialab/esbuild-plugin-unwebpack
 
+## 0.16.2
+
+### Patch Changes
+
+- 7f2eccc: Correctly detect failing plugin in transform hook
+- Updated dependencies [7f2eccc]
+  - @chialab/esbuild-rna@0.16.3
+
 ## 0.16.1
 
 ### Patch Changes

@@ -126,7 +126,7 @@ export function buildPlugin(config) {
                 },
             ]);
 
-            await build.setupPlugin(plugin, [
+            await build.setupPlugin([
                 virtualPlugin,
                 mdxPlugin(),
                 htmlPlugin(),

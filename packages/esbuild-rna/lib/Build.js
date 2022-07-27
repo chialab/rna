@@ -177,6 +177,12 @@ export class Build {
     static ASSET = 3;
 
     /**
+     * The current plugin instance.
+     * @type {Plugin}
+     */
+    plugin = { name: 'unknown', setup() {} };
+
+    /**
      * The current plugin name.
      * @type {string}
      */
@@ -426,8 +432,12 @@ export class Build {
     getLoaders() {
         return {
             '.js': 'js',
+            '.mjs': 'js',
+            '.cjs': 'js',
             '.jsx': 'jsx',
             '.ts': 'ts',
+            '.mts': 'ts',
+            '.cts': 'ts',
             '.tsx': 'tsx',
             ...(this.getOption('loader') || {}),
         };
@@ -741,9 +751,8 @@ export class Build {
                 } else {
                     throw error;
                 }
+                break;
             }
-
-            break;
         }
 
         if (code === args.code) {
@@ -905,12 +914,11 @@ export class Build {
 
     /**
      * Insert dependency plugins in the build plugins list.
-     * @param {Plugin} plugin The current plugin.
      * @param {Plugin[]} plugins A list of required plugins .
      * @param {'before'|'after'} [mode] Where insert the missing plugin.
      * @returns {Promise<string[]>} The list of plugin names that had been added to the build.
      */
-    async setupPlugin(plugin, plugins, mode = 'before') {
+    async setupPlugin(plugins, mode = 'before') {
         if (this.isChunk()) {
             return [];
         }
@@ -923,7 +931,7 @@ export class Build {
          */
         const pluginsToInstall = [];
 
-        let last = plugin;
+        let last = this.plugin;
         for (let i = 0; i < plugins.length; i++) {
             const dependency = plugins[i];
             if (installedPlugins.find((p) => p.name === dependency.name)) {

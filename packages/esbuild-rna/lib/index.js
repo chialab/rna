@@ -33,6 +33,7 @@ export function useRna(pluginInstance, pluginBuild) {
     }
 
     const extendedBuild = /** @type {import('./Build.js').Build} */ (Object.create(build));
+    extendedBuild.plugin = pluginInstance;
     extendedBuild.pluginName = pluginInstance.name;
     return extendedBuild;
 }

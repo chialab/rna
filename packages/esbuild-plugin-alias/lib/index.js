@@ -6,15 +6,16 @@ import { useRna } from '@chialab/esbuild-rna';
 
 /**
  * Create a module alias.
+ * @param {import('esbuild').Plugin} pluginInstance
  * @param {import('esbuild').PluginBuild} pluginBuild
  * @param {string} key
  * @param {import('@chialab/node-resolve').Alias} aliasRule
  * @param {string} [rootDir]
  */
-export function addAlias(pluginBuild, key, aliasRule, rootDir) {
+export function addAlias(pluginInstance, pluginBuild, key, aliasRule, rootDir) {
     const isFunction = typeof aliasRule === 'function';
     const aliasFilter = createAliasRegex(key, isFunction ? ALIAS_MODE.START : ALIAS_MODE.FULL);
-    const build = useRna(pluginBuild);
+    const build = useRna(pluginInstance, pluginBuild);
 
     build.onResolve({ filter: aliasFilter }, async (args) => {
         if (!aliasRule) {
@@ -73,7 +74,7 @@ export default function alias(modules = {}, browserField = true) {
     const plugin = {
         name: this?.name || 'alias',
         async setup(pluginBuild) {
-            const build = useRna(pluginBuild);
+            const build = useRna(plugin, pluginBuild);
             const { platform = 'neutral', external = [] } = build.getOptions();
 
             /**
@@ -98,7 +99,7 @@ export default function alias(modules = {}, browserField = true) {
             });
 
             Object.keys(aliasMap).forEach((alias) => {
-                addAlias(pluginBuild, alias, aliasMap[alias]);
+                addAlias(plugin, pluginBuild, alias, aliasMap[alias]);
             });
 
             build.onLoad({ filter: /./, namespace: 'empty' }, () => ({

@@ -60,7 +60,7 @@ export default function({
     const plugin = {
         name: 'html',
         setup(pluginBuild) {
-            const build = useRna(pluginBuild);
+            const build = useRna(plugin, pluginBuild);
             const { write = true } = build.getOptions();
             const outDir = build.getOutDir();
             if (!outDir) {

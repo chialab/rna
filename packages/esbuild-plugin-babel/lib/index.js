@@ -19,7 +19,7 @@ export default function({ presets = [], plugins = [] } = {}) {
     const plugin = {
         name: 'babel',
         setup(pluginBuild) {
-            const build = useRna(pluginBuild);
+            const build = useRna(plugin, pluginBuild);
             const { target, jsxFactory } = build.getOptions();
 
             build.onResolve({ filter: /@babel\/runtime/ }, (args) => {

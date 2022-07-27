@@ -44,10 +44,10 @@ export default function(options = {}) {
     const plugin = {
         name: 'postcss',
         async setup(pluginBuild) {
-            const build = useRna(pluginBuild);
+            const build = useRna(plugin, pluginBuild);
             const { sourcemap = true, absWorkingDir, target } = build.getOptions();
             const config = await loadPostcssConfig(build.getSourceRoot());
-            build.setupPlugin(plugin, [cssImport()], 'before');
+            build.setupPlugin([cssImport()], 'before');
 
             const cache = new Map();
             build.onStart(() => {
@@ -78,7 +78,10 @@ export default function(options = {}) {
                             entry.startsWith('opera') ||
                             entry.startsWith('safari')
                         )
-                        .map((entry) => entry.replace(/([a-z]+)(.*)/, '$1 $2'));
+                        // split browser name and version
+                        .map((entry) => entry.replace(/([a-z]+)(.*)/, '$1 $2').split(' '))
+                        // keep only major and minor version information
+                        .map(([browser, version]) => `${browser} ${version.split('.').slice(0, 2).join('.')}`);
 
                     await import('postcss-preset-env')
                         .then(({ default: preset }) => {

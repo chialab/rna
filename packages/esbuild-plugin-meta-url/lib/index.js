@@ -109,7 +109,7 @@ export default function({ emit = true } = {}) {
     const plugin = {
         name: 'meta-url',
         async setup(pluginBuild) {
-            const build = useRna(pluginBuild);
+            const build = useRna(plugin, pluginBuild);
             const { platform, format, sourcesContent, sourcemap } = build.getOptions();
 
             const usePlainScript = platform === 'browser' && format !== 'esm';

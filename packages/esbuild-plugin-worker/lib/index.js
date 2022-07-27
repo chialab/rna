@@ -47,9 +47,9 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
     const plugin = {
         name: 'worker',
         async setup(pluginBuild) {
-            const build = useRna(pluginBuild);
+            const build = useRna(plugin, pluginBuild);
             const { sourcesContent, sourcemap } = build.getOptions();
-            await build.setupPlugin(plugin, [metaUrlPlugin({ emit })], 'after');
+            await build.setupPlugin([metaUrlPlugin({ emit })], 'after');
 
             build.onTransform({ loaders: ['tsx', 'ts', 'jsx', 'js'] }, async (args) => {
                 const code = args.code;

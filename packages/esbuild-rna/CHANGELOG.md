@@ -1,5 +1,11 @@
 # @chialab/esbuild-rna
 
+## 0.16.3
+
+### Patch Changes
+
+- 7f2eccc: Correctly detect failing plugin in transform hook
+
 ## 0.16.2
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @chialab/esbuild-rna
 
+## 0.16.4
+
+### Patch Changes
+
+- 9bbfdcc: Fix dependencies collection
+
 ## 0.16.3
 
 ### Patch Changes

@@ -283,7 +283,6 @@ export class Build {
 
         this.onEnd(async (buildResult) => {
             const rnaResult = /** @type {Result} */ (buildResult);
-            rnaResult.dependencies = this.getDependencies();
             this.chunks.forEach((result) => assignToResult(rnaResult, result));
             this.files.forEach((result) => assignToResult(rnaResult, result));
             this.builds.forEach((result) => assignToResult(rnaResult, result));
@@ -303,6 +302,7 @@ export class Build {
                     this.collectDependencies(entryPoint, dependencies);
                 }
             }
+            rnaResult.dependencies = this.getDependencies();
         });
     }
 
@@ -959,10 +959,10 @@ export class Build {
      */
     collectDependencies(importer, dependencies) {
         const map = this.dependencies;
-        map[importer] = [
+        map[importer] = [...new Set([
             ...(map[importer] || []),
             ...dependencies,
-        ];
+        ])];
 
         return map;
     }

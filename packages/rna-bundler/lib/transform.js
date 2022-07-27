@@ -39,15 +39,15 @@ export async function transform(config) {
     }
 
     const finalPlugins = /** @type {import('esbuild').Plugin[]} */ (await Promise.all([
+        !hasPlugin(plugins, 'jsx-import') &&
+            import('@chialab/esbuild-plugin-jsx-import')
+                .then(({ default: plugin }) => plugin({ jsxModule, jsxExport })),
         !hasPlugin(plugins, 'env') &&
             import('@chialab/esbuild-plugin-env')
                 .then(({ default: plugin }) => plugin()),
         !hasPlugin(plugins, 'define-this') &&
             import('@chialab/esbuild-plugin-define-this')
                 .then(({ default: plugin }) => plugin()),
-        !hasPlugin(plugins, 'jsx-import') &&
-            import('@chialab/esbuild-plugin-jsx-import')
-                .then(({ default: plugin }) => plugin({ jsxModule, jsxExport })),
         !hasPlugin(plugins, 'external') &&
             import('@chialab/esbuild-plugin-external')
                 .then(({ default: plugin }) => plugin({

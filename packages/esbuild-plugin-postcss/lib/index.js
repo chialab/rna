@@ -44,7 +44,7 @@ export default function(options = {}) {
     const plugin = {
         name: 'postcss',
         async setup(pluginBuild) {
-            const build = useRna(pluginBuild);
+            const build = useRna(plugin, pluginBuild);
             const { sourcemap = true, absWorkingDir, target } = build.getOptions();
             const config = await loadPostcssConfig(build.getSourceRoot());
             build.setupPlugin(plugin, [cssImport()], 'before');

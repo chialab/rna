@@ -53,7 +53,7 @@ export function buildPlugin(config) {
     const plugin = {
         name: 'storybook',
         async setup(pluginBuild) {
-            const build = useRna(pluginBuild);
+            const build = useRna(plugin, pluginBuild);
             if (build.getOption('chunkNames') === '[name]') {
                 build.setOption('chunkNames', '[name]-[hash]');
             }

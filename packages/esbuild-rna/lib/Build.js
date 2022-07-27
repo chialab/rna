@@ -177,6 +177,12 @@ export class Build {
     static ASSET = 3;
 
     /**
+     * The current plugin name.
+     * @type {string}
+     */
+    pluginName = '';
+
+    /**
      * Manager instance.
      * @type {import('./BuildManager.js').BuildManager}
      * @readonly
@@ -678,7 +684,15 @@ export class Build {
 
         const { namespace = 'file', path: filePath } = args;
         const maps = [];
+
+        /**
+         * @type {Message[]}
+         */
         const warnings = [];
+
+        /**
+         * @type {Message[]}
+         */
         const errors = [];
         for (const { options, callback } of this.onTransformRules) {
             const { namespace: optionsNamespace = 'file', filter } = options;
@@ -690,28 +704,46 @@ export class Build {
                 continue;
             }
 
-            const result = await callback({
-                ...args,
-                code: typeof code !== 'string' ? code.toString() : code,
-                loader,
-            });
-            if (result) {
-                if (result.code) {
-                    code = result.code;
+            try {
+                const result = await callback({
+                    ...args,
+                    code: typeof code !== 'string' ? code.toString() : code,
+                    loader,
+                });
+                if (result) {
+                    if (result.code) {
+                        code = result.code;
+                    }
+                    if (result.warnings) {
+                        warnings.push(...result.warnings);
+                    }
+                    if (result.errors) {
+                        errors.push(...result.errors);
+                    }
+                    if (result.map) {
+                        maps.push(result.map);
+                    }
+                    if (result.resolveDir) {
+                        resolveDir = result.resolveDir;
+                    }
                 }
-                if (result.warnings) {
-                    warnings.push(...result.warnings);
-                }
-                if (result.errors) {
-                    errors.push(...result.errors);
-                }
-                if (result.map) {
-                    maps.push(result.map);
-                }
-                if (result.resolveDir) {
-                    resolveDir = result.resolveDir;
+            } catch (error) {
+                if (error instanceof Error) {
+                    const pluginName = this.pluginName;
+                    errors.push({
+                        id: 'transform-error',
+                        pluginName,
+                        text: error.message,
+                        location: null,
+                        notes: [],
+                        detail: error,
+                    });
+                } else {
+                    throw error;
                 }
             }
+
+            break;
         }
 
         if (code === args.code) {

@@ -9,10 +9,15 @@ export * from './helpers.js';
 const manager = new BuildManager();
 
 /**
+ * @typedef {import('./Build').Build & { pluginName: string }} PluginBuild
+ */
+
+/**
  * Enrich the esbuild build with a transformation pipeline and emit methods.
+ * @param {import('esbuild').Plugin} pluginInstance The esbuild plugin instance.
  * @param {import('esbuild').PluginBuild} pluginBuild The esbuild build.
  */
-export function useRna(pluginBuild) {
+export function useRna(pluginInstance, pluginBuild) {
     const build = manager.getBuild(pluginBuild);
     const stdin = build.getOption('stdin');
     if (stdin && stdin.sourcefile) {
@@ -26,17 +31,25 @@ export function useRna(pluginBuild) {
             loader: stdin.loader,
         });
     }
-    return build;
+
+    const extendedBuild = /** @type {import('./Build.js').Build} */ (Object.create(build));
+    extendedBuild.pluginName = pluginInstance.name;
+    return extendedBuild;
 }
 
 /**
 * @returns {import('esbuild').Plugin}
 */
 export function rnaPlugin() {
-    return {
+    /**
+     * @type {import('esbuild').Plugin}
+     */
+    const plugin = {
         name: 'rna',
         setup(build) {
-            useRna(build);
+            useRna(plugin, build);
         },
     };
+
+    return plugin;
 }

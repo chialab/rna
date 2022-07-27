@@ -20,7 +20,7 @@ export default function({ framework = '@storybook/web-components', plugins = [] 
     const plugin = {
         name: 'rna-storybook-cem',
         setup(pluginBuild) {
-            const build = useRna(pluginBuild);
+            const build = useRna(plugin, pluginBuild);
             const { sourcesContent, sourcemap } = build.getOptions();
 
             build.onTransform({ loaders: ['tsx', 'ts', 'jsx', 'js'] }, async (args) => {

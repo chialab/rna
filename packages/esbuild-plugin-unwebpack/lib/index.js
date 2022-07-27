@@ -14,7 +14,7 @@ export default function() {
     const plugin = {
         name: 'unwebpack',
         setup(pluginBuild) {
-            const build = useRna(pluginBuild);
+            const build = useRna(plugin, pluginBuild);
             const { sourcesContent, sourcemap } = build.getOptions();
 
             build.onTransform({ loaders: ['tsx', 'ts', 'jsx', 'js'] }, async (args) => {

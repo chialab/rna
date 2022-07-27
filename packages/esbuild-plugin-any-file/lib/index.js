@@ -14,7 +14,7 @@ export default function({ fsCheck = true, shouldThrow = false } = {}) {
     const plugin = {
         name: 'any-file',
         setup(pluginBuild) {
-            const build = useRna(pluginBuild);
+            const build = useRna(plugin, pluginBuild);
 
             build.onLoad({ filter: /./ }, async (args) => {
                 if (path.extname(args.path) in build.getLoaders()) {

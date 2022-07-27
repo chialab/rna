@@ -14,7 +14,7 @@ export function buildDesignTokensPlugin(globs) {
     const plugin = {
         name: 'storybook-design-tokens',
         async setup(pluginBuild) {
-            const build = useRna(pluginBuild);
+            const build = useRna(plugin, pluginBuild);
             const outDir = build.getOutDir() || build.getSourceRoot();
 
             if (!build.isChunk()) {

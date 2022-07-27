@@ -17,7 +17,7 @@ export default function({ helperModule } = {}) {
     const plugin = {
         name: 'commonjs',
         setup(pluginBuild) {
-            const build = useRna(pluginBuild);
+            const build = useRna(plugin, pluginBuild);
             const { sourcesContent, format, sourcemap } = build.getOptions();
             if (format !== 'esm') {
                 return;

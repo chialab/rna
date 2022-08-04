@@ -116,7 +116,7 @@ export async function collectScreens($, dom, options, helpers) {
     }
 
     const splashFile = await helpers.load(splashFilePath.path, splashFilePath);
-    if (!splashFile.contents) {
+    if (!splashFile || !splashFile.contents) {
         throw new Error(`Failed to load icon file: ${splashFilePath.path}`);
     }
 

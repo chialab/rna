@@ -68,7 +68,7 @@ export async function collectWebManifest($, dom, options, helpers) {
     }
 
     const manifestFile = await helpers.load(manifestFilePath.path, manifestFilePath);
-    if (!manifestFile.contents) {
+    if (!manifestFile || !manifestFile.contents) {
         throw new Error(`Failed to load manifest file: ${manifestFilePath.path}`);
     }
 
@@ -92,7 +92,7 @@ export async function collectWebManifest($, dom, options, helpers) {
         }
 
         const iconFile = await helpers.load(iconFilePath.path, iconFilePath);
-        if (!iconFile.contents) {
+        if (!iconFile || !iconFile.contents) {
             throw new Error(`Failed to load icon file: ${iconFilePath.path}`);
         }
 

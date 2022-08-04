@@ -144,6 +144,10 @@ export default function(options = {}) {
                                                         pluginData: null,
                                                     });
 
+                                                    if (!loadResult) {
+                                                        throw new Error('No contents');
+                                                    }
+
                                                     const importResult = {
                                                         file: result.path,
                                                         contents: (/** @type {Buffer} */ (loadResult.contents)).toString(),

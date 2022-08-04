@@ -5,7 +5,7 @@ esbuild.build({
     outdir: 'dist',
     bundle: true,
     splitting: false,
-    minify: true,
+    minify: false,
     sourcemap: true,
     format: 'esm',
     platform: 'node',

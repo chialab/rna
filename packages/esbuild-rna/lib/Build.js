@@ -649,7 +649,7 @@ export class Build {
     /**
      * Iterate build.onLoad hooks in order to programmatically load file contents.
      * @param {OnLoadArgs} args The load arguments.
-     * @returns {Promise<OnLoadResult>} A load result with file contents.
+     * @returns {Promise<OnLoadResult|undefined>} A load result with file contents.
      */
     async load(args) {
         const { namespace = 'file', path: filePath } = args;
@@ -670,27 +670,43 @@ export class Build {
             }
         }
 
-        return {
-            contents: await readFile(filePath),
-        };
+        try {
+            return {
+                contents: await readFile(filePath),
+            };
+        } catch (err) {
+            //
+        }
     }
 
     /**
      * Load file contents and exec compatible transformation rules collected by `onTransform`.
      * @param {OnTransformArgs} args The transform arguments.
-     * @returns {Promise<OnLoadResult>} A load result with transform file contents.
+     * @returns {Promise<OnLoadResult|undefined>} A load result with transform file contents.
      */
     async transform(args) {
         const loader = args.loader || this.getLoader(args.path) || 'file';
 
-        let { code, resolveDir } = /** @type {{ code: string|Uint8Array; resolveDir?: string }} */ (args.code ?
-            args :
-            await Promise.resolve()
-                .then(() => this.load(args))
-                .then(({ contents, resolveDir }) => ({
-                    code: contents,
-                    resolveDir,
-                })));
+        /**
+         * @type {string|Uint8Array}
+         */
+        let code;
+        /**
+         * @type {string|undefined}
+         */
+        let resolveDir;
+        if (args.code) {
+            code = args.code;
+            resolveDir = args.resolveDir;
+        } else {
+            const loadResult = await this.load(args);
+            if (!loadResult || !loadResult.contents) {
+                return;
+            }
+
+            code = loadResult.contents;
+            resolveDir = loadResult.resolveDir;
+        }
 
         const { namespace = 'file', path: filePath } = args;
         const maps = [];
@@ -1004,7 +1020,7 @@ export class Build {
                 path: source,
             });
 
-            if (result.contents) {
+            if (result && result.contents) {
                 buffer = Buffer.from(result.contents);
             } else {
                 buffer = await readFile(source);

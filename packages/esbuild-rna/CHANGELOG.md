@@ -1,5 +1,14 @@
 # @chialab/esbuild-rna
 
+## 0.16.5
+
+### Patch Changes
+
+- 8119806: Refactor load callback
+- Updated dependencies [8119806]
+  - @chialab/estransform@0.16.2
+  - @chialab/node-resolve@0.16.1
+
 ## 0.16.4
 
 ### Patch Changes

@@ -1,5 +1,14 @@
 # @chialab/rna
 
+## 0.16.6
+
+### Patch Changes
+
+- 8119806: Refactor load callback
+- Updated dependencies [8119806]
+  - @chialab/rna-dev-server@0.16.4
+  - @chialab/rna-logger@0.16.1
+
 ## 0.16.5
 
 ### Patch Changes

@@ -5,11 +5,10 @@ import { isCss, isJson, isUrl, appendSearchParam } from '@chialab/node-resolve';
 import { getRequestFilePath } from '@chialab/es-dev-server';
 import { appendCssModuleParam, appendJsonModuleParam } from '@chialab/wds-plugin-rna';
 import { indexHtml, iframeHtml, managerCss, previewCss } from './templates.js';
-import { findStories } from './findStories.js';
 import { createManagerScript } from './createManager.js';
 import { createPreviewModule, createPreviewScript } from './createPreview.js';
 import { transformMdxToCsf } from './transformMdxToCsf.js';
-import { createStoriesJson, createStorySpecifiers } from './createStoriesJson.js';
+import { createStoryIndexGenerator } from './createStoryIndexGenerator.js';
 import { MANAGER_SCRIPT, MANAGER_STYLE, PREVIEW_SCRIPT, PREVIEW_MODULE_SCRIPT, PREVIEW_STYLE } from './entrypoints.js';
 
 const regexpReplaceWebsocket = /<!-- injected by web-dev-server -->(.|\s)*<\/script>/m;
@@ -50,6 +49,11 @@ export function servePlugin(config) {
     let serverConfig;
 
     /**
+     * @type {Promise<import('./StoryIndexGenerator.js').StoryIndexGenerator>}
+     */
+    let generatorPromise;
+
+    /**
      * @type {import('@chialab/es-dev-server').Plugin}
      */
     const plugin = {
@@ -60,6 +64,10 @@ export function servePlugin(config) {
 
             const { rootDir } = serverConfig;
             const fileWatcher = args.fileWatcher;
+
+            generatorPromise = createStoryIndexGenerator(rootDir, storiesPattern, {
+                storySort: config.storySort,
+            });
 
             /**
              * @param {string} filePath
@@ -156,12 +164,12 @@ export function servePlugin(config) {
                 });
             }
 
-            if (context.path === '/stories.json') {
-                const stories = await findStories(rootDir, storiesPattern);
+            if (context.path === '/index.json' || context.path === '/stories.json') {
+                const generator = await generatorPromise;
+                const index = await generator.getIndex();
+
                 return {
-                    body: JSON.stringify(await createStoriesJson(stories, rootDir, {
-                        storySort: config.storySort,
-                    })),
+                    body: JSON.stringify(index),
                 };
             }
 
@@ -196,12 +204,12 @@ export function servePlugin(config) {
             }
 
             if (context.path.startsWith(`/${PREVIEW_SCRIPT}`)) {
-                const stories = await findStories(rootDir, storiesPattern);
-                const storyIndexEntries = await createStorySpecifiers(stories, rootDir);
+                const generator = await generatorPromise;
+                const index = await generator.getIndex();
 
                 return createPreviewScript({
                     framework,
-                    specifiers: Array.from(storyIndexEntries.keys()),
+                    specifiers: Object.values(index.entries),
                     previewEntries: [
                         ...previewEntries,
                     ],

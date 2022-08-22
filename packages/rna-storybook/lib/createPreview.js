@@ -3,7 +3,7 @@ import { PREVIEW_MODULE_SCRIPT } from './entrypoints.js';
 /**
  * @typedef {Object} PreviewOptions
  * @property {string} framework
- * @property {import('./createStoriesJson.js').NormalizedStoriesSpecifier[]} specifiers
+ * @property {import('@storybook/store').V2CompatIndexEntry[]} specifiers
  * @property {string[]} [previewEntries]
  */
 
@@ -33,11 +33,11 @@ export default preview;`;
 export async function createPreviewScript({ framework, specifiers, previewEntries = [] }) {
     return `import { composeConfigs } from '@storybook/preview-web';
 import preview from '${PREVIEW_MODULE_SCRIPT}';
-import * as framework from '${framework}';
+import * as framework from '${framework}/preview';
 ${previewEntries.map((previewScript, index) => `import * as preview${index} from '${previewScript}';`).join('\n')}
 
 const importers = {
-    ${specifiers.map(({ directory, files }) => `'${directory}/${files}': async () => import('${directory}/${files}?story')`).join(',\n')}
+    ${specifiers.map(({ importPath }) => `'${importPath}': async () => import('${importPath}?story')`).join(',\n')}
 };
 
 preview.initialize({

@@ -41,14 +41,14 @@
   },
   "devDependencies": {
     "@mdx-js/mdx": "^2.0.0",
-    "@storybook/csf-tools": "^6.4.0",
+    "@storybook/core-server": "^7.0.0-alpha.0",
+    "@storybook/csf-tools": "^7.0.0-alpha.0",
     "@storybook/mdx2-csf": "^0.0.3",
-    "@storybook/store": "^6.4.0",
+    "@storybook/store": "^7.0.0-alpha.0",
     "@types/lodash": "^4.14.175",
     "fast-glob": "^3.2.11",
     "lodash": "^4.17.21",
     "rimraf": "^3.0.2",
-    "storybook-design-token": "^2.0.0",
     "typescript": "^4.3.0"
   }
 }

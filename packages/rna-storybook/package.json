@@ -37,7 +37,7 @@
     "@chialab/wds-plugin-node-resolve": "^0.16.0",
     "@chialab/wds-plugin-rna": "^0.16.0",
     "@custom-elements-manifest/analyzer": "0.5.3",
-    "esbuild": "^0.14.8"
+    "esbuild": "^0.15.0"
   },
   "devDependencies": {
     "@mdx-js/mdx": "^2.0.0",

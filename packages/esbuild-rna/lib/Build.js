@@ -80,7 +80,7 @@ import { createOutputFile, createResult, assignToResult } from './helpers.js';
 /**
  * @typedef {Object} VirtualEntry
  * @property {string} path
- * @property {string|Buffer} contents
+ * @property {string|Buffer|Uint8Array} contents
  * @property {Loader} [loader]
  * @property {string} [resolveDir]
  */

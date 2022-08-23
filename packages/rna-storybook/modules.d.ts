@@ -6,7 +6,7 @@ declare module '@custom-elements-manifest/analyzer/src/create.js' {
 }
 
 declare module '@storybook/core-server/dist/cjs/utils/StoryIndexGenerator.js' {
-    import type { StoryIndexGenerator } from '@storybook/core-server';
+    import { StoryIndexGenerator } from '@storybook/core-server';
 
     export { StoryIndexGenerator };
 }

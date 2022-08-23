@@ -38,7 +38,6 @@
     "@chialab/esbuild-plugin-env": "^0.16.0",
     "@chialab/esbuild-plugin-external": "^0.16.0",
     "@chialab/esbuild-plugin-html": "^0.16.0",
-    "@chialab/esbuild-plugin-jsx-import": "^0.16.0",
     "@chialab/esbuild-plugin-meta-url": "^0.16.0",
     "@chialab/esbuild-plugin-unwebpack": "^0.16.0",
     "@chialab/esbuild-plugin-worker": "^0.16.0",

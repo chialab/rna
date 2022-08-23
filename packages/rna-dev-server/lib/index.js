@@ -14,16 +14,16 @@ import { watchPlugin } from './plugins/watch.js';
 /**
  * @typedef {Object} DevServerCoreConfig
  * @property {import('@chialab/rna-logger').Logger} [logger]
- * @property {import('@chialab/rna-config-loader').Entrypoint[]} [entrypoints]
+ * @property {import('@chialab/rna-config-loader').EntrypointConfig[]} [entrypoints]
  * @property {string} [manifestPath]
  * @property {string} [entrypointsPath]
- * @property {import('@chialab/node-resolve').AliasMap} [alias]
+ * @property {import('@chialab/rna-config-loader').AliasMap} [alias]
  * @property {import('esbuild').Plugin[]} [transformPlugins]
- * @property {string} [target]
+ * @property {string | string[]} [target]
+ * @property {'transform'|'preserve'|'automatic'} [jsx]
+ * @property {string} [jsxImportSource]
  * @property {string} [jsxFactory]
  * @property {string} [jsxFragment]
- * @property {string} [jsxModule]
- * @property {import('@chialab/rna-config-loader').ExportType} [jsxExport]
  */
 
 /**
@@ -43,7 +43,7 @@ export async function loadDevServerConfig(initialConfig = {}, configFile = undef
     const logger = createLogger();
 
     /**
-     * @type {import('@chialab/rna-config-loader').Config}
+     * @type {import('@chialab/rna-config-loader').ProjectConfig}
      */
     const config = mergeConfig(
         { root: rootDir },
@@ -77,10 +77,10 @@ export async function loadDevServerConfig(initialConfig = {}, configFile = undef
         entrypoints: initialConfig.entrypoints ?? config.entrypoints,
         alias: initialConfig.alias ?? config.alias,
         target: initialConfig.target ?? config.target,
+        jsx: initialConfig.jsx ?? config.jsx,
+        jsxImportSource: initialConfig.jsxImportSource ?? config.jsxImportSource,
         jsxFactory: initialConfig.jsxFactory ?? config.jsxFactory,
         jsxFragment: initialConfig.jsxFragment ?? config.jsxFragment,
-        jsxModule: initialConfig.jsxModule ?? config.jsxModule,
-        jsxExport: initialConfig.jsxExport ?? config.jsxExport,
     };
 }
 
@@ -120,10 +120,10 @@ export async function createDevServer(config) {
             rnaPlugin({
                 alias: config.alias,
                 target: config.target,
+                jsx: config.jsx,
+                jsxImportSource: config.jsxImportSource,
                 jsxFactory: config.jsxFactory,
                 jsxFragment: config.jsxFragment,
-                jsxModule: config.jsxModule,
-                jsxExport: config.jsxExport,
                 plugins: config.transformPlugins,
             }),
             entrypointsPlugin(config.entrypoints),
@@ -172,10 +172,10 @@ export async function serve(config) {
  * @property {boolean|string} [manifest]
  * @property {boolean|string} [entrypoints]
  * @property {string} [target]
+ * @property {'transform'|'preserve'|'automatic'} [jsx]
+ * @property {string} [jsxImportSource]
  * @property {string} [jsxFactory]
  * @property {string} [jsxFragment]
- * @property {string} [jsxModule]
- * @property {import('@chialab/rna-config-loader').ExportType} [jsxExport]
  */
 
 /**
@@ -190,10 +190,10 @@ export function command(program) {
         .option('--manifest <path>', 'generate manifest file')
         .option('--entrypoints <path>', 'generate entrypoints file')
         .option('--target <query>', 'output targets (es5, es2015, es2020)')
+        .option('--jsx <mode>', 'jsx transform mode')
         .option('--jsxFactory <identifier>', 'jsx pragma')
         .option('--jsxFragment <identifier>', 'jsx fragment')
-        .option('--jsxModule <name>', 'jsx module name')
-        .option('--jsxExport <type>', 'jsx export mode')
+        .option('--jsxImportSource <name>', 'jsx module name')
         .action(
             /**
              * @param {string} root
@@ -203,10 +203,10 @@ export function command(program) {
                 const {
                     port,
                     target,
+                    jsx,
+                    jsxImportSource,
                     jsxFactory,
                     jsxFragment,
-                    jsxModule,
-                    jsxExport,
                 } = options;
 
                 const manifestPath = options.manifest ? (typeof options.manifest === 'string' ? options.manifest : path.join(root, 'manifest.json')) : undefined;
@@ -217,10 +217,10 @@ export function command(program) {
                     manifestPath,
                     entrypointsPath,
                     target,
+                    jsx,
+                    jsxImportSource,
                     jsxFactory,
                     jsxFragment,
-                    jsxModule,
-                    jsxExport,
                 }, options.config);
 
                 const server = await serve(serveConfig);

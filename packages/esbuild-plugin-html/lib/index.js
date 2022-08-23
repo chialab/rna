@@ -16,7 +16,7 @@ const loadHtml = /** @type {typeof cheerio.load} */ (cheerio.load || cheerio.def
 /**
  * @typedef {Object} PluginOptions
  * @property {string} [scriptsTarget]
- * @property {string} [modulesTarget]
+ * @property {string|string[]} [modulesTarget]
  * @property {string} [entryNames]
  * @property {string} [chunkNames]
  * @property {string} [assetNames]
@@ -28,7 +28,7 @@ const loadHtml = /** @type {typeof cheerio.load} */ (cheerio.load || cheerio.def
  * @property {string} outDir
  * @property {string} entryDir
  * @property {string} workingDir
- * @property {string[]} target
+ * @property {(string | string[])[]} target
  */
 
 /**

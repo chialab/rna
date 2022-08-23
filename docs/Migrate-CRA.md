@@ -63,15 +63,15 @@ $ yarn add -D @chialab/rna @chialab/rna-bundler @chialab/rna-dev-server
 
 Then, we are ready to update the `package.json` file to replace `react-scripts` witn `rna`.
 
-We will pass `--jsxModule` to make sure `React` JSX pragma is imported in JavaScript files. Other JSX configurations for React are automatically loaded by `esbuild`.
+We will pass `--jsxImportSource` to make sure `React` JSX pragma is imported in JavaScript files. Other JSX configurations for React are automatically loaded by `esbuild`.
 
 ```diff
 {
   "scripts": {
 -   "start": "react-scripts start",
-+   "start": "rna serve src --jsxModule 'react'",
++   "start": "rna serve src --jsx automatic --jsxImportSource 'react'",
 -   "build": "react-scripts build",
-+   "build": "rna build src/index.html -O public --jsxModule 'react' --bundle",
++   "build": "rna build src/index.html -O public --jsx automatic --jsxImportSource 'react' --bundle",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   }

@@ -26,13 +26,14 @@ Project.find(config, ROOT)
 
         await Promise.all(
             packages.map(async (pkg) => {
-                const { cwd, manifest: { dependencies, peerDependencies } } = pkg;
+                const { cwd, manifest: { dependencies, peerDependencies, devDependencies } } = pkg;
                 const tsconfig = resolve(cwd, 'tsconfig.json');
                 const content = await readFile(tsconfig, 'utf-8');
 
                 try {
                     const references = Array.from(dependencies.values())
                         .concat(Array.from(peerDependencies.values()))
+                        .concat(Array.from(devDependencies.values()))
                         .map((dep) => packages.find(({ manifest }) => manifest.name.scope === dep.scope && manifest.name.name === dep.name))
                         .filter((pkg) => !!pkg)
                         .map((pkg) => ({

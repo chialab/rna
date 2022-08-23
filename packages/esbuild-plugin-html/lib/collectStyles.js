@@ -49,7 +49,6 @@ export async function collectStyles($, dom, options, helpers) {
 
     const result = await helpers.emitBuild({
         entryPoints: [...builds.values()],
-        loader: 'css',
         target: options.target[0],
     });
 

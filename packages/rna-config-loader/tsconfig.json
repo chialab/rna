@@ -12,6 +12,9 @@
   "references": [
     {
       "path": "../node-resolve"
+    },
+    {
+      "path": "../es-dev-server"
     }
   ]
 }

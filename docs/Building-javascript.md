@@ -264,7 +264,7 @@ Although JSX is not part of EcmaScript standards, it is largerly used by many pr
 Esbuild supports JSX transpilation, so RNA does it too. A plugin for auto importing the JSX pragma from a module is also available with the bundler.
 
 ```sh
-$ npx rna build src/index.js --output public/index.js --jsxFactory h --jsxFragment Fragment --jsxModule '@chialab/dna'
+$ npx rna build src/index.js --output public/index.js --jsx automatic --jsxImportSource '@chialab/dna'
 ```
 
 **Input**

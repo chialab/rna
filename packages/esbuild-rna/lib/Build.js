@@ -34,6 +34,10 @@ import { createOutputFile, createResult, assignToResult } from './helpers.js';
  */
 
 /**
+ * @typedef {import('esbuild').TransformOptions} TransformOptions
+ */
+
+/**
  * @typedef {import('esbuild').OnStartResult} OnStartResult
  */
 
@@ -80,32 +84,17 @@ import { createOutputFile, createResult, assignToResult } from './helpers.js';
 /**
  * @typedef {Object} VirtualEntry
  * @property {string} path
- * @property {string|Buffer} contents
+ * @property {string|Buffer|Uint8Array} contents
  * @property {Loader} [loader]
  * @property {string} [resolveDir]
  */
 
 /**
- * @typedef {Object} EmitTransformOptions
- * @property {Loader} [loader]
- * @property {string} [outdir]
- * @property {boolean} [bundle]
- * @property {boolean} [splitting]
- * @property {Platform} [platform]
- * @property {string} [target]
- * @property {Format} [format]
- * @property {Plugin[]} [plugins]
- * @property {string[]} [external]
- * @property {string[]} [inject]
- * @property {string|undefined} [jsxFactory]
+ * @typedef {BuildOptions & { path: string; contents?: string | Buffer }} EmitChunkOptions
  */
 
 /**
- * @typedef {EmitTransformOptions & { path: string; contents?: string|Buffer }} EmitChunkOptions
- */
-
-/**
- * @typedef {EmitTransformOptions & { entryPoints: (string|VirtualEntry)[] }} EmitBuildOptions
+ * @typedef {Omit<BuildOptions, 'entryPoints'> & { entryPoints: (string | VirtualEntry)[] }} EmitBuildOptions
  */
 
 /**
@@ -1095,12 +1084,7 @@ export class Build {
             splitting: format === 'esm' ? (options.splitting ?? initialOptions.splitting) : false,
             platform: options.platform ?? initialOptions.platform,
             target: options.target ?? initialOptions.target,
-            plugins: options.plugins ?
-                [
-                    ...this.getPlugins().filter((p) => p.name === 'rna'),
-                    ...options.plugins,
-                ] :
-                this.getPlugins().filter((plugin) => plugin.name !== 'external'),
+            plugins: options.plugins ?? initialOptions.plugins,
             external: options.external ?? initialOptions.external,
             jsxFactory: ('jsxFactory' in options) ? options.jsxFactory : initialOptions.jsxFactory,
             entryNames: initialOptions.chunkNames || initialOptions.entryNames,
@@ -1120,7 +1104,6 @@ export class Build {
             config.stdin = {
                 sourcefile: options.path,
                 contents: options.contents.toString(),
-                loader: options.loader,
                 resolveDir: this.getSourceRoot(),
             };
         } else {

@@ -3,13 +3,14 @@ import { mkdir, readFile, writeFile } from 'fs/promises';
 import { useRna } from '@chialab/esbuild-rna';
 import { createVirtualPlugin } from '@chialab/esbuild-plugin-virtual';
 import htmlPlugin from '@chialab/esbuild-plugin-html';
+import { escapeRegexBody } from '@chialab/node-resolve';
+import { definitions } from '@storybook/ui/dist/globals';
 import { indexHtml, iframeHtml, managerCss, previewCss } from './templates.js';
 import { createManagerScript } from './createManager.js';
-import { findStories } from './findStories.js';
 import { createPreviewModule, createPreviewScript } from './createPreview.js';
 import { mdxPlugin } from './mdxPlugin.js';
 import { MANAGER_SCRIPT, MANAGER_STYLE, PREVIEW_MODULE_SCRIPT, PREVIEW_SCRIPT, PREVIEW_STYLE } from './entrypoints.js';
-import { createStoriesJson, createStorySpecifiers } from './createStoriesJson.js';
+import { createStoryIndexGenerator } from './createStoryIndexGenerator.js';
 
 /**
  * Create the entrypoint for the Storybook build.
@@ -32,9 +33,8 @@ export function createEntrypoint(publicDir = 'public') {
 export function buildPlugin(config) {
     const {
         framework,
-        stories: storyPatterns = [],
+        stories: storiesPatterns = [],
         static: staticFiles = {},
-        manager = '@storybook/core-client/dist/esm/manager/index.js',
         managerEntries = [],
         previewEntries = [],
         managerHead,
@@ -60,8 +60,10 @@ export function buildPlugin(config) {
 
             const rootDir = build.getSourceRoot();
             const outDir = build.getOutDir() || rootDir;
-            const stories = await findStories(rootDir, storyPatterns);
-            const storyIndexEntries = await createStorySpecifiers(stories, rootDir);
+            const generator = await createStoryIndexGenerator(rootDir, storiesPatterns, {
+                storySort: config.storySort,
+            });
+            const index = await generator.getIndex();
 
             virtualPlugin = virtualPlugin || createVirtualPlugin()([
                 ...await Promise.all(
@@ -112,7 +114,6 @@ export function buildPlugin(config) {
                 {
                     path: MANAGER_SCRIPT,
                     contents: createManagerScript({
-                        manager,
                         managerEntries,
                     }),
                 },
@@ -120,7 +121,7 @@ export function buildPlugin(config) {
                     path: PREVIEW_SCRIPT,
                     contents: await createPreviewScript({
                         framework,
-                        specifiers: Array.from(storyIndexEntries.keys()),
+                        specifiers: Object.values(index.entries),
                         previewEntries,
                     }),
                 },
@@ -132,14 +133,37 @@ export function buildPlugin(config) {
                 htmlPlugin(),
             ], 'before');
 
+            const entryPoints = build.getOption('entryPoints');
+            if (Array.isArray(entryPoints) && entryPoints.includes(MANAGER_SCRIPT)) {
+                const aliasFilter = new RegExp(`^(${Object.keys(definitions).map((defName) => escapeRegexBody(defName)).join('|')})$`);
+                build.onResolve({ filter: aliasFilter }, (args) => ({
+                    path: args.path,
+                    namespace: 'storybookui',
+                }));
+
+                build.onLoad({ filter: aliasFilter, namespace: 'storybookui' }, (args) => {
+                    const moduleName = /** @type {'react' | 'react-dom' | '@storybook/components' | '@storybook/channels' | '@storybook/core-events' | '@storybook/router' | '@storybook/theming' | '@storybook/api' | '@storybook/addons' | '@storybook/client-logger'} */ (args.path);
+                    if (moduleName in definitions) {
+                        const definition = definitions[moduleName];
+                        return {
+                            contents: `import global from 'global';
+import '@storybook/ui/dist/runtime';
+
+const _default = global['${definition.varName}'];
+
+export const { ${definition.namedExports.join(', ')} } = _default;
+export default _default;
+`,
+                            loader: 'js',
+                        };
+                    }
+                });
+            }
+
             if (!build.isChunk()) {
                 build.onEnd(async () => {
                     await mkdir(outDir, { recursive: true });
-                    await writeFile(path.join(outDir, 'stories.json'), JSON.stringify(
-                        await createStoriesJson(stories, rootDir, {
-                            storySort: config.storySort,
-                        })
-                    ));
+                    await writeFile(path.join(outDir, 'index.json'), JSON.stringify(index));
                 });
             }
         },

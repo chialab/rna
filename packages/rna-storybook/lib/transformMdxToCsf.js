@@ -1,5 +1,5 @@
 import { toEstree } from 'hast-util-to-estree';
-import { plugin, postprocess } from '@storybook/mdx2-csf/dist/esm/index.js';
+import { plugin, postprocess } from '@storybook/mdx2-csf/dist/cjs/index.js';
 import { compile } from '@mdx-js/mdx';
 
 /**

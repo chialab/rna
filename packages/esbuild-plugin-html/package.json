@@ -43,7 +43,7 @@
     "@jimp/png": "^0.16.1",
     "@types/js-beautify": "^1.13.3",
     "cheerio": "^1.0.0-rc.9",
-    "esbuild": "^0.14.8",
+    "esbuild": "^0.15.0",
     "js-beautify": "^1.14.0",
     "rimraf": "^3.0.2",
     "typescript": "^4.3.0"

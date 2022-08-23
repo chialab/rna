@@ -38,73 +38,43 @@ import path from 'path';
  */
 
 /**
- * @typedef {'default'|'named'|'namespace'} ExportType
+ * @typedef {import('@chialab/node-resolve').AliasMap} AliasMap
  */
 
 /**
- * @typedef {Object} CoreTransformConfig
- * @property {Format} format
- * @property {string} target
- * @property {Platform} platform
- * @property {SourcemapType} sourcemap
- * @property {string} entryNames
- * @property {string} chunkNames
- * @property {string} assetNames
- * @property {DefineMap} define
- * @property {string[]} external
- * @property {import('@chialab/node-resolve').AliasMap} alias
- * @property {string} [jsxFactory]
- * @property {string} [jsxFragment]
- * @property {string} [jsxModule]
- * @property {ExportType} [jsxExport]
- * @property {boolean} minify
- * @property {boolean} bundle
- * @property {boolean} clean
- * @property {Plugin[]} plugins
- * @property {LogLevel} logLevel
- * @property {boolean} [splitting]
- * @property {boolean|import('esbuild').WatchMode} [watch]
+ * @typedef {'build'|'serve'} Mode
  */
 
 /**
- * @typedef {Object} EntrypointConfig
+ * @typedef {Object} RnaConfig
+ * @property {string} [root]
+ * @property {string} [publicPath]
+ * @property {string} [manifestPath]
+ * @property {string} [entrypointsPath]
+ * @property {boolean} [clean]
+ * @property {AliasMap} [alias]
+ */
+
+/**
+ * @typedef {Object} RnaEntrypointConfig
  * @property {string|string[]} input
  * @property {string} [output]
- * @property {boolean} [bundle]
- * @property {Loader} [loader]
- * @property {string} [globalName]
  * @property {string} [name]
  * @property {string} [code]
- * @property {string} [root]
- * @property {string} [publicPath]
- * @property {string} [manifestPath]
- * @property {string} [entrypointsPath]
  */
 
 /**
- * @typedef {Partial<CoreTransformConfig> & EntrypointConfig} Entrypoint
+ * @typedef {BuildOptions & RnaConfig & RnaEntrypointConfig} EntrypointConfig
  */
 
 /**
- * @typedef {Object} ProjectConfig
- * @property {Entrypoint[]} [entrypoints]
- * @property {string} [root]
- * @property {string} [publicPath]
- * @property {string} [manifestPath]
- * @property {string} [entrypointsPath]
+ * @typedef {Object} RnaProjectConfig
+ * @property {EntrypointConfig[]} [entrypoints]
  * @property {ServePlugin[]} [servePlugins]
  */
 
 /**
- * @typedef {Partial<CoreTransformConfig> & ProjectConfig} Config
- */
-
-/**
- * @typedef {CoreTransformConfig & Entrypoint & Omit<ProjectConfig, 'entrypoints'> & { root: string, publicPath: string, write?: boolean }} EntrypointFinalConfig
- */
-
-/**
- * @typedef {EntrypointFinalConfig & { output: string }} EntrypointFinalBuildConfig
+ * @typedef {BuildOptions & RnaConfig & RnaProjectConfig} ProjectConfig
  */
 
 /**
@@ -119,9 +89,9 @@ export function camelize(file) {
 }
 
 /**
- * @param {Entrypoint} entrypoint
- * @param {Config} config
- * @returns {EntrypointFinalConfig}
+ * @param {EntrypointConfig} entrypoint
+ * @param {ProjectConfig} config
+ * @returns {ProjectConfig & { input: string|string[] }}
  */
 export function getEntryConfig(entrypoint, config) {
     const root = entrypoint.root || config.root || process.cwd();
@@ -162,10 +132,10 @@ export function getEntryConfig(entrypoint, config) {
             ...(entrypoint.alias || {}),
             ...(config.alias || {}),
         },
+        jsx: entrypoint.jsx || config.jsx,
         jsxFactory: entrypoint.jsxFactory || config.jsxFactory,
         jsxFragment: entrypoint.jsxFragment || config.jsxFragment,
-        jsxModule: entrypoint.jsxModule || config.jsxModule,
-        jsxExport: entrypoint.jsxExport || config.jsxExport,
+        jsxImportSource: entrypoint.jsxImportSource || config.jsxImportSource,
         plugins: [
             ...(entrypoint.plugins || []),
             ...(config.plugins || []),
@@ -178,9 +148,9 @@ export function getEntryConfig(entrypoint, config) {
 }
 
 /**
- * @param {Entrypoint} entrypoint
- * @param {Config} config
- * @returns {EntrypointFinalBuildConfig}
+ * @param {EntrypointConfig} entrypoint
+ * @param {ProjectConfig} config
+ * @returns {EntrypointConfig}
  */
 export function getEntryBuildConfig(entrypoint, config) {
     if (!entrypoint.output) {
@@ -189,23 +159,23 @@ export function getEntryBuildConfig(entrypoint, config) {
 
     const format = entrypoint.format || config.format;
 
-    return /** @type {EntrypointFinalBuildConfig} */ (getEntryConfig({
+    return /** @type {EntrypointConfig} */ (getEntryConfig({
         ...entrypoint,
         globalName: entrypoint.globalName || entrypoint.name || (format === 'iife' ? camelize(entrypoint.output) : undefined),
     }, config));
 }
 
 /**
- * @param {Config[]} entries
- * @returns {Config}
+ * @param {ProjectConfig[]} entries
+ * @returns {ProjectConfig}
  */
 export function mergeConfig(...entries) {
     return entries
         .reduce((config, entry) => {
-            const keys = /** @type {(keyof Config)[]} */ (Object.keys(entry));
+            const keys = /** @type {(keyof ProjectConfig)[]} */ (Object.keys(entry));
 
             /**
-             * @type {Config}
+             * @type {ProjectConfig}
              */
             const clone = keys
                 .reduce((config, key) => {
@@ -240,43 +210,36 @@ export function mergeConfig(...entries) {
 }
 
 /**
- * @typedef {'build'|'serve'} Mode
+ *
+ * @param {ProjectConfig|Promise<ProjectConfig>|((input: ProjectConfig, mode: Mode) => ProjectConfig|Promise<ProjectConfig>)} inputConfig
+ * @param {ProjectConfig} initialConfig
+ * @param {Mode} mode
+ * @returns {Promise<ProjectConfig>}
  */
+async function computeConfigFile(inputConfig, initialConfig, mode) {
+    if (typeof inputConfig === 'function') {
+        return computeConfigFile(inputConfig(initialConfig, mode), initialConfig, mode);
+    }
 
-/**
- * @typedef {Config|Promise<Config>|((input: Config, mode: Mode) => Config|Promise<Config>)} InputConfig
- */
+    if (inputConfig instanceof Promise) {
+        return computeConfigFile(await inputConfig, initialConfig, mode);
+    }
+
+    return inputConfig || {};
+}
 
 /**
  * @param {string} configFile
- * @param {Config} inputConfig
+ * @param {ProjectConfig} initialConfig
  * @param {Mode} [mode]
  * @param {string} [cwd]
- * @returns {Promise<Config>}
+ * @returns {Promise<ProjectConfig>}
  */
-export async function readConfigFile(configFile, inputConfig, mode = 'build', cwd = process.cwd()) {
+export async function readConfigFile(configFile, initialConfig, mode = 'build', cwd = process.cwd()) {
     configFile = path.isAbsolute(configFile) ? configFile : `./${configFile}`;
-    const configModule = await import(path.resolve(cwd, configFile));
+    const { default: inputConfig } = await import(path.resolve(cwd, configFile));
 
-    /**
-     * @type {InputConfig}
-     */
-    let config = configModule.default;
-
-    // eslint-disable-next-line no-constant-condition
-    while (true) {
-        if (typeof config === 'function') {
-            config = config(inputConfig, mode);
-            continue;
-        }
-
-        if (config instanceof Promise) {
-            config = await config;
-            continue;
-        }
-
-        return config || {};
-    }
+    return computeConfigFile(inputConfig, initialConfig, mode);
 }
 
 /**

@@ -72,10 +72,10 @@ Options:
   --name <identifier>         the iife global name
   --external [modules]        comma separated external packages
   --no-map                    do not generate sourcemaps
+  --jsx <mode>                jsx transformation mode (transform, preserve, automatic)
   --jsxFactory <identifier>   jsx pragma
   --jsxFragment <identifier>  jsx fragment
-  --jsxModule <name>          jsx module name
-  --jsxExport <type>          jsx export mode
+  --jsxImportSource <name>    jsx module name
   -h, --help                  display help for command
 ```
 

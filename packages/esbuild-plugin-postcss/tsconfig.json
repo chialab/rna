@@ -18,6 +18,9 @@
     },
     {
       "path": "../postcss-dart-sass"
+    },
+    {
+      "path": "../postcss-dart-sass"
     }
   ]
 }

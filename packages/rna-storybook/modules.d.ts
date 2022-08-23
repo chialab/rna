@@ -1,36 +1,20 @@
 declare module '@custom-elements-manifest/analyzer/src/create.js' {
-    export function create(options: { modules: import('typescript').SourceFile[], plugins: any[] }): { modules: any[] };
-}
+    import type { SourceFile } from 'typescript';
 
-declare module '@storybook/core-common' {
-    export interface StoriesSpecifier {
-        titlePrefix?: string;
-        directory: string;
-        files?: string;
-    }
-
-    export type NormalizedStoriesSpecifier = Required<StoriesSpecifier> & {
-        importPathMatcher: RegExp;
-    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    export function create(options: { modules: SourceFile[]; plugins: any[] }): { modules: any[] };
 }
 
 declare module '@storybook/core-server/dist/cjs/utils/StoryIndexGenerator.js' {
-    import { Path } from '@storybook/store';
-    import { NormalizedStoriesSpecifier } from '@storybook/core-common';
+    import { StoryIndexGenerator } from '@storybook/core-server';
 
-    export class StoryIndexGenerator {
-        constructor(specifiers: NormalizedStoriesSpecifier[], options: {
-            workingDir: Path;
-            configDir: Path;
-            storiesV2Compatibility: boolean;
-        });
-
-        initialize(): Promise<void>;
-        getIndex(): Promise<any>;
-    }
+    export { StoryIndexGenerator };
 }
 
-declare module '@storybook/mdx2-csf/dist/esm/index.js' {
-    export const plugin: import('unified').Plugin;
+declare module '@storybook/mdx2-csf/dist/cjs/index.js' {
+    import type { Plugin } from 'unified';
+
+    export const plugin: Plugin;
     export function postprocess(code: string, store: unknown): string;
+    export function compile();
 }

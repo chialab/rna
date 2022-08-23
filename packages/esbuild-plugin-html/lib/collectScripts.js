@@ -6,7 +6,7 @@ import { Build } from '@chialab/esbuild-rna';
  * @param {import('cheerio').CheerioAPI} $ The cheerio selector.
  * @param {import('cheerio').Cheerio<import('cheerio').Document>} dom The DOM element.
  * @param {import('cheerio').Element[]} elements List of nodes.
- * @param {string} target Build target.
+ * @param {string|string[]} target Build target.
  * @param {import('esbuild').Format} format Build format.
  * @param {string} type Script type.
  * @param {{ [key: string]: string }} attrs Script attrs.

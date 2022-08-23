@@ -1,7 +1,7 @@
 import { writeDevEntrypointsJson } from '@chialab/rna-bundler';
 
 /**
- * @param {import('@chialab/rna-config-loader').Entrypoint[]} [entrypoints]
+ * @param {import('@chialab/rna-config-loader').EntrypointConfig[]} [entrypoints]
  */
 export function entrypointsPlugin(entrypoints = []) {
     /**

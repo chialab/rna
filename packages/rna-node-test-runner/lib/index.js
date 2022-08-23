@@ -98,7 +98,7 @@ export function command(program) {
                 configFile = configFile || await locateConfigFile();
 
                 /**
-                 * @type {import('@chialab/rna-config-loader').Config}
+                 * @type {import('@chialab/rna-config-loader').ProjectConfig}
                  */
                 const config = mergeConfig({ root }, configFile ? await readConfigFile(configFile, { root }, 'serve') : {});
 

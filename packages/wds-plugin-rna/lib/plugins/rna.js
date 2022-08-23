@@ -399,7 +399,6 @@ export function rnaPlugin(config) {
                 root: rootDir,
                 input: `./${path.relative(rootDir, filePath)}`,
                 code: /** @type {string} */ (context.body),
-                loader,
                 ...contextConfig,
                 bundle: isPlainScript(context),
             };

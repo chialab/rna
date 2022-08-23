@@ -83,7 +83,12 @@ export async function build(config) {
             ...(platform === 'browser' ? ['browser'] : []),
             'main',
         ],
-        ...otherOptions
+        resolveExtensions,
+        conditions,
+        publicPath,
+        inject,
+        banner,
+        footer,
     } = config;
 
     const entryOptions = {};
@@ -144,7 +149,6 @@ export async function build(config) {
 
     const result = /** @type {import('@chialab/esbuild-rna').Result} */ (await esbuild.build({
         ...entryOptions,
-        ...otherOptions,
         outfile: hasOutputFile ? output : undefined,
         outdir: hasOutputFile ? undefined : output,
         format,
@@ -188,6 +192,12 @@ export async function build(config) {
         },
         write,
         allowOverwrite: !write,
+        resolveExtensions,
+        conditions,
+        publicPath,
+        inject,
+        banner,
+        footer,
     }));
 
     await onBuildEnd(config, entryOptions, result);

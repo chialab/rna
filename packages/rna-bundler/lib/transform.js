@@ -32,7 +32,12 @@ export async function transform(config) {
         jsxImportSource,
         plugins = [],
         logLevel,
-        ...otherOptions
+        resolveExtensions,
+        conditions,
+        publicPath,
+        inject,
+        banner,
+        footer,
     } = config;
 
     if (code == null) {
@@ -78,7 +83,6 @@ export async function transform(config) {
     const sourceFile = path.resolve(rootDir, Array.isArray(input) ? input[0] : input);
     const absWorkingDir = path.dirname(sourceFile);
     const result = /** @type {import('@chialab/esbuild-rna').Result} */ (await esbuild.build({
-        ...otherOptions,
         stdin: {
             contents: code,
             resolveDir: rootDir,
@@ -104,6 +108,12 @@ export async function transform(config) {
         absWorkingDir,
         plugins: finalPlugins,
         logLevel,
+        resolveExtensions,
+        conditions,
+        publicPath,
+        inject,
+        banner,
+        footer,
     }));
 
     const outputFiles = /** @type {import('esbuild').OutputFile[]} */ (result.outputFiles);

@@ -25,8 +25,8 @@ export default function({ dependencies = true, peerDependencies = false, optiona
                 external: true,
             }));
 
-            const { bundle, external = [], sourceRoot, absWorkingDir } = build.initialOptions;
-            if (!bundle) {
+            const { bundle, format, external = [], sourceRoot, absWorkingDir } = build.initialOptions;
+            if (!bundle || format === 'iife') {
                 return;
             }
 

@@ -247,6 +247,7 @@ export class Build {
      * @param {import('./BuildManager.js').BuildManager} manager
      */
     constructor(build, manager) {
+        this.initialOptions = { ...build.initialOptions };
         build.initialOptions.metafile = true;
         this.manager = manager;
         this.pluginBuild = build;
@@ -301,6 +302,14 @@ export class Build {
      */
     getBuilder() {
         return this.pluginBuild.esbuild;
+    }
+
+    /**
+     * Get initial build options.
+     * @returns The initial options object.
+     */
+    getInitialOptions() {
+        return this.initialOptions;
     }
 
     /**
@@ -1069,26 +1078,26 @@ export class Build {
      * @returns {Promise<Chunk>} The output chunk reference.
      */
     async emitChunk(options) {
-        const initialOptions = this.getOptions();
+        const buildOptions = this.getOptions();
         const format = options.format || this.getOption('format');
         const virtualOutDir = this.getFullOutDir() || this.getWorkingDir();
 
         /** @type {BuildOptions} */
         const config = {
-            ...initialOptions,
+            ...buildOptions,
             format,
             outdir: options.outdir ?
                 path.resolve(virtualOutDir, `./${options.outdir}`) :
                 this.getFullOutDir(),
-            bundle: options.bundle ?? initialOptions.bundle,
-            splitting: format === 'esm' ? (options.splitting ?? initialOptions.splitting) : false,
-            platform: options.platform ?? initialOptions.platform,
-            target: options.target ?? initialOptions.target,
-            plugins: options.plugins ?? initialOptions.plugins,
-            external: options.external ?? initialOptions.external,
-            jsxFactory: ('jsxFactory' in options) ? options.jsxFactory : initialOptions.jsxFactory,
-            entryNames: initialOptions.chunkNames || initialOptions.entryNames,
-            write: initialOptions.write ?? true,
+            bundle: options.bundle ?? buildOptions.bundle,
+            splitting: format === 'esm' ? (options.splitting ?? buildOptions.splitting) : false,
+            platform: options.platform ?? buildOptions.platform,
+            target: options.target ?? buildOptions.target,
+            plugins: options.plugins ?? buildOptions.plugins,
+            external: options.external ?? this.getInitialOptions().external,
+            jsxFactory: ('jsxFactory' in options) ? options.jsxFactory : buildOptions.jsxFactory,
+            entryNames: buildOptions.chunkNames || buildOptions.entryNames,
+            write: buildOptions.write ?? true,
             globalName: undefined,
             outfile: undefined,
             metafile: true,
@@ -1144,7 +1153,7 @@ export class Build {
      */
     async emitBuild(options) {
         const manager = this.manager;
-        const initialOptions = this.getOptions();
+        const buildOptions = this.getOptions();
         const format = options.format || this.getOption('format');
         const entryPoints = options.entryPoints;
 
@@ -1160,15 +1169,15 @@ export class Build {
             }),
             format,
             outdir: options.outdir ? this.resolvePath(options.outdir) : this.getFullOutDir(),
-            bundle: options.bundle ?? initialOptions.bundle,
-            splitting: format === 'esm' ? (options.splitting ?? initialOptions.splitting ?? true) : false,
-            platform: options.platform ?? initialOptions.platform,
-            target: options.target ?? initialOptions.target,
-            plugins: options.plugins ?? initialOptions.plugins,
-            external: options.external ?? initialOptions.external,
-            jsxFactory: ('jsxFactory' in options) ? options.jsxFactory : initialOptions.jsxFactory,
-            entryNames: initialOptions.chunkNames || initialOptions.entryNames,
-            write: initialOptions.write ?? true,
+            bundle: options.bundle ?? buildOptions.bundle,
+            splitting: format === 'esm' ? (options.splitting ?? buildOptions.splitting ?? true) : false,
+            platform: options.platform ?? buildOptions.platform,
+            target: options.target ?? buildOptions.target,
+            plugins: options.plugins ?? buildOptions.plugins,
+            external: options.external ?? this.getInitialOptions().external,
+            jsxFactory: ('jsxFactory' in options) ? options.jsxFactory : buildOptions.jsxFactory,
+            entryNames: buildOptions.chunkNames || buildOptions.entryNames,
+            write: buildOptions.write ?? true,
             globalName: undefined,
             outfile: undefined,
             metafile: true,

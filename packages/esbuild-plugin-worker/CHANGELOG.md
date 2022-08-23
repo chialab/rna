@@ -1,5 +1,13 @@
 # @chialab/esbuild-plugin-worker
 
+## 0.17.1
+
+### Patch Changes
+
+- Fix worker chunk generation
+- Updated dependencies
+  - @chialab/esbuild-rna@0.17.1
+
 ## 0.17.0
 
 ### Minor Changes

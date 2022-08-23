@@ -1,5 +1,11 @@
 # @chialab/esbuild-rna
 
+## 0.17.1
+
+### Patch Changes
+
+- Fix worker chunk generation
+
 ## 0.17.0
 
 ### Minor Changes

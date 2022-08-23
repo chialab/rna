@@ -157,8 +157,6 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                         format: 'iife',
                         bundle: true,
                         platform: 'neutral',
-                        jsxFactory: undefined,
-                        external: [],
                     };
 
                     if (secondArg && secondArg.length >= 4 && secondArg[0].type === TokenType.braceL) {

@@ -1,7 +1,7 @@
 {
   "name": "@chialab/esbuild-plugin-worker",
   "type": "module",
-  "version": "0.17.0",
+  "version": "0.17.1",
   "description": "Collect and transpile Web Workers with esbuild.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",
@@ -25,7 +25,7 @@
   },
   "dependencies": {
     "@chialab/esbuild-plugin-meta-url": "^0.17.0",
-    "@chialab/esbuild-rna": "^0.17.0",
+    "@chialab/esbuild-rna": "^0.17.1",
     "@chialab/estransform": "^0.17.0",
     "@chialab/node-resolve": "^0.17.0"
   },

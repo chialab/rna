@@ -111,19 +111,6 @@ export async function build(config) {
         !hasPlugin(plugins, 'env') &&
             import('@chialab/esbuild-plugin-env')
                 .then(({ default: plugin }) => plugin()),
-        !hasPlugin(plugins, 'define-this') &&
-            import('@chialab/esbuild-plugin-define-this')
-                .then(({ default: plugin }) => plugin()),
-        !hasPlugin(plugins, 'external') &&
-            import('@chialab/esbuild-plugin-external')
-                .then(({ default: plugin }) => plugin({
-                    dependencies: !bundle,
-                    peerDependencies: !bundle,
-                    optionalDependencies: !bundle,
-                })),
-        !hasPlugin(plugins, 'css-import') &&
-            import('@chialab/esbuild-plugin-css-import')
-                .then(({ default: plugin }) => plugin()),
         !hasPlugin(plugins, 'unwebpack') &&
             import('@chialab/esbuild-plugin-unwebpack')
                 .then(({ default: plugin }) => plugin()),
@@ -139,6 +126,19 @@ export async function build(config) {
             import('@chialab/esbuild-plugin-meta-url')
                 .then(({ default: plugin }) => plugin()),
         ...plugins,
+        !hasPlugin(plugins, 'define-this') &&
+            import('@chialab/esbuild-plugin-define-this')
+                .then(({ default: plugin }) => plugin()),
+        !hasPlugin(plugins, 'css-import') &&
+            import('@chialab/esbuild-plugin-css-import')
+                .then(({ default: plugin }) => plugin()),
+        !hasPlugin(plugins, 'external') &&
+            import('@chialab/esbuild-plugin-external')
+                .then(({ default: plugin }) => plugin({
+                    dependencies: !bundle,
+                    peerDependencies: !bundle,
+                    optionalDependencies: !bundle,
+                })),
         !hasPlugin(plugins, 'alias') &&
             import('@chialab/esbuild-plugin-alias')
                 .then(({ default: plugin }) => plugin(alias)),

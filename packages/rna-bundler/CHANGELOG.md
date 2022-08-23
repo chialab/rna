@@ -1,5 +1,15 @@
 # @chialab/rna-bundler
 
+## 0.17.2
+
+### Patch Changes
+
+- Fix worker chunk generation
+- Updated dependencies
+  - @chialab/esbuild-plugin-external@0.17.1
+  - @chialab/esbuild-plugin-worker@0.17.1
+  - @chialab/esbuild-rna@0.17.1
+
 ## 0.17.1
 
 ### Patch Changes

@@ -1,6 +1,17 @@
 # @chialab/rna
 
-## 1.0.0
+## 0.17.1
+
+### Patch Changes
+
+- Fix versioning
+- Updated dependencies
+  - @chialab/rna-browser-test-runner@0.17.1
+  - @chialab/rna-bundler@0.17.1
+  - @chialab/rna-dev-server@0.17.1
+  - @chialab/rna-saucelabs-test-runner@0.17.1
+
+## 0.17.0
 
 ### Minor Changes
 
@@ -10,9 +21,9 @@
 
 - Updated dependencies [f975706]
   - @chialab/rna-apidoc@0.17.0
-  - @chialab/rna-browser-test-runner@1.0.0
-  - @chialab/rna-bundler@1.0.0
-  - @chialab/rna-dev-server@1.0.0
+  - @chialab/rna-browser-test-runner@0.17.0
+  - @chialab/rna-bundler@0.17.0
+  - @chialab/rna-dev-server@0.17.0
   - @chialab/rna-logger@0.17.0
   - @chialab/rna-node-test-runner@0.17.0
   - @chialab/rna-saucelabs-test-runner@0.17.0

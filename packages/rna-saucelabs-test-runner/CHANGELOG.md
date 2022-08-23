@@ -1,5 +1,13 @@
 # @chialab/rna-saucelabs-test-runner
 
+## 0.17.1
+
+### Patch Changes
+
+- Fix versioning
+- Updated dependencies
+  - @chialab/rna-browser-test-runner@0.17.1
+
 ## 0.17.0
 
 ### Minor Changes
@@ -10,7 +18,7 @@
 
 - Updated dependencies [f975706]
   - @chialab/node-resolve@0.17.0
-  - @chialab/rna-browser-test-runner@1.0.0
+  - @chialab/rna-browser-test-runner@0.17.0
   - @chialab/rna-config-loader@0.17.0
   - @chialab/rna-logger@0.17.0
   - @chialab/wds-plugin-legacy@0.17.0

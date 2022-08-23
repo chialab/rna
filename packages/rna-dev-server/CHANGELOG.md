@@ -1,6 +1,14 @@
 # @chialab/rna-dev-server
 
-## 1.0.0
+## 0.17.1
+
+### Patch Changes
+
+- Fix versioning
+- Updated dependencies
+  - @chialab/wds-plugin-rna@0.17.1
+
+## 0.17.0
 
 ### Minor Changes
 

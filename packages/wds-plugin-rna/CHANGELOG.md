@@ -1,5 +1,13 @@
 # @chialab/wds-plugin-rna
 
+## 0.17.1
+
+### Patch Changes
+
+- Fix versioning
+- Updated dependencies
+  - @chialab/rna-bundler@0.17.1
+
 ## 0.17.0
 
 ### Minor Changes
@@ -13,7 +21,7 @@
   - @chialab/esbuild-plugin-meta-url@0.17.0
   - @chialab/esbuild-plugin-worker@0.17.0
   - @chialab/node-resolve@0.17.0
-  - @chialab/rna-bundler@1.0.0
+  - @chialab/rna-bundler@0.17.0
   - @chialab/rna-config-loader@0.17.0
   - @chialab/wds-plugin-node-resolve@0.17.0
 

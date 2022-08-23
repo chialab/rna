@@ -1,6 +1,12 @@
 # @chialab/esbuild-plugin-postcss
 
-## 1.0.0
+## 0.17.1
+
+### Patch Changes
+
+- Fix versioning
+
+## 0.17.0
 
 ### Minor Changes
 

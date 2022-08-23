@@ -1,6 +1,14 @@
 # @chialab/rna-bundler
 
-## 1.0.0
+## 0.17.1
+
+### Patch Changes
+
+- Fix versioning
+- Updated dependencies
+  - @chialab/esbuild-plugin-postcss@0.17.1
+
+## 0.17.0
 
 ### Minor Changes
 
@@ -18,7 +26,7 @@
   - @chialab/esbuild-plugin-external@0.17.0
   - @chialab/esbuild-plugin-html@0.17.0
   - @chialab/esbuild-plugin-meta-url@0.17.0
-  - @chialab/esbuild-plugin-postcss@1.0.0
+  - @chialab/esbuild-plugin-postcss@0.17.0
   - @chialab/esbuild-plugin-unwebpack@0.17.0
   - @chialab/esbuild-plugin-worker@0.17.0
   - @chialab/esbuild-rna@0.17.0

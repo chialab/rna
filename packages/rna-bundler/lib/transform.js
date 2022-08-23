@@ -9,15 +9,15 @@ import { transformLoaders } from './loaders.js';
 
 /**
  * Build and bundle sources.
- * @param {import('@chialab/rna-config-loader').EntrypointFinalConfig} config
+ * @param {import('@chialab/rna-config-loader').EntrypointConfig} config
  * @returns {Promise<TransformResult>} The esbuild bundle result.
  */
 export async function transform(config) {
     const {
         input,
         code,
-        root: rootDir,
-        loader,
+        root: rootDir = process.cwd(),
+        loader = transformLoaders,
         format,
         platform,
         target,
@@ -26,12 +26,13 @@ export async function transform(config) {
         minify,
         globalName,
         define,
+        jsx,
         jsxFactory,
         jsxFragment,
-        jsxModule,
-        jsxExport,
+        jsxImportSource,
         plugins = [],
         logLevel,
+        ...otherOptions
     } = config;
 
     if (code == null) {
@@ -39,9 +40,6 @@ export async function transform(config) {
     }
 
     const finalPlugins = /** @type {import('esbuild').Plugin[]} */ (await Promise.all([
-        !hasPlugin(plugins, 'jsx-import') &&
-            import('@chialab/esbuild-plugin-jsx-import')
-                .then(({ default: plugin }) => plugin({ jsxModule, jsxExport })),
         !hasPlugin(plugins, 'env') &&
             import('@chialab/esbuild-plugin-env')
                 .then(({ default: plugin }) => plugin()),
@@ -80,9 +78,9 @@ export async function transform(config) {
     const sourceFile = path.resolve(rootDir, Array.isArray(input) ? input[0] : input);
     const absWorkingDir = path.dirname(sourceFile);
     const result = /** @type {import('@chialab/esbuild-rna').Result} */ (await esbuild.build({
+        ...otherOptions,
         stdin: {
             contents: code,
-            loader,
             resolveDir: rootDir,
             sourcefile: sourceFile,
         },
@@ -95,9 +93,11 @@ export async function transform(config) {
         minify,
         format,
         define,
+        jsx,
+        jsxImportSource,
         jsxFactory,
         jsxFragment,
-        loader: transformLoaders,
+        loader,
         metafile: true,
         preserveSymlinks: true,
         sourcesContent: true,

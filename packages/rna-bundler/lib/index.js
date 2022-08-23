@@ -38,10 +38,10 @@ export { writeManifestJson, writeEntrypointsJson, writeDevEntrypointsJson };
  * @property {boolean} [clean]
  * @property {string} [external]
  * @property {boolean} [map]
+ * @property {'transform'|'preserve'|'automatic'} [jsx]
+ * @property {string} [jsxImportSource]
  * @property {string} [jsxFactory]
  * @property {string} [jsxFragment]
- * @property {string} [jsxModule]
- * @property {import('@chialab/rna-config-loader').ExportType} [jsxExport]
  * @property {string} [metafile]
  * @property {boolean} [showCompressed]
  * @property {boolean} [watch]
@@ -73,10 +73,10 @@ export function command(program) {
         .option('--external [modules]', 'comma separated external packages')
         .option('--metafile <path>', 'write JSON metadata file about the build')
         .option('--show-compressed', 'show compressed size of files in build summary')
+        .option('--jsx <mode>', 'jsx transform mode')
+        .option('--jsxImportSource <name>', 'jsx module name')
         .option('--jsxFactory <identifier>', 'jsx pragma')
         .option('--jsxFragment <identifier>', 'jsx fragment')
-        .option('--jsxModule <name>', 'jsx module name')
-        .option('--jsxExport <type>', 'jsx export mode')
         .option('-W, --watch', 'live re-build on sources changes')
         .action(
             /**
@@ -97,10 +97,10 @@ export function command(program) {
                     chunkNames,
                     assetNames,
                     clean,
+                    jsx,
+                    jsxImportSource,
                     jsxFactory,
                     jsxFragment,
-                    jsxModule,
-                    jsxExport,
                     metafile: metafilePath,
                     showCompressed,
                     watch,
@@ -113,7 +113,7 @@ export function command(program) {
                 const sourcemap = options.map === true ? undefined : options.map;
 
                 /**
-                 * @type {import('@chialab/rna-config-loader').Config}
+                 * @type {import('@chialab/rna-config-loader').ProjectConfig}
                  */
                 const inputConfig = {
                     format,
@@ -130,17 +130,17 @@ export function command(program) {
                     chunkNames,
                     assetNames,
                     sourcemap,
+                    jsx,
                     jsxFactory,
                     jsxFragment,
-                    jsxModule,
-                    jsxExport,
+                    jsxImportSource,
                     watch,
                 };
 
                 const configFile = options.config || await locateConfigFile();
 
                 /**
-                 * @type {import('@chialab/rna-config-loader').Config}
+                 * @type {import('@chialab/rna-config-loader').ProjectConfig}
                  */
                 const userConfig = mergeConfig({ format: 'esm' }, configFile ? await readConfigFile(configFile, inputConfig, 'build') : {}, inputConfig, input && input.length ? {
                     entrypoints: [{
@@ -152,7 +152,7 @@ export function command(program) {
                 } : {});
 
                 /**
-                 * @type {import('@chialab/rna-config-loader').Config}
+                 * @type {import('@chialab/rna-config-loader').ProjectConfig}
                  */
                 const config = mergeConfig(userConfig, {
                     plugins: [
@@ -180,7 +180,7 @@ export function command(program) {
                     const entrypoint = entrypoints[i];
                     queue.add(async () => {
                         const buildConfig = getEntryBuildConfig(entrypoint, config);
-                        const buildDir = buildConfig.root;
+                        const buildDir = buildConfig.root || process.cwd();
                         const result = await build({
                             ...buildConfig,
                             watch: buildConfig.watch && {

@@ -30,6 +30,9 @@
     },
     {
       "path": "../wds-plugin-legacy"
+    },
+    {
+      "path": "../esbuild-plugin-require-resolve"
     }
   ]
 }

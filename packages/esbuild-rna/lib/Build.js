@@ -34,6 +34,10 @@ import { createOutputFile, createResult, assignToResult } from './helpers.js';
  */
 
 /**
+ * @typedef {import('esbuild').TransformOptions} TransformOptions
+ */
+
+/**
  * @typedef {import('esbuild').OnStartResult} OnStartResult
  */
 
@@ -86,26 +90,11 @@ import { createOutputFile, createResult, assignToResult } from './helpers.js';
  */
 
 /**
- * @typedef {Object} EmitTransformOptions
- * @property {Loader} [loader]
- * @property {string} [outdir]
- * @property {boolean} [bundle]
- * @property {boolean} [splitting]
- * @property {Platform} [platform]
- * @property {string} [target]
- * @property {Format} [format]
- * @property {Plugin[]} [plugins]
- * @property {string[]} [external]
- * @property {string[]} [inject]
- * @property {string|undefined} [jsxFactory]
+ * @typedef {BuildOptions & { path: string; contents?: string | Buffer }} EmitChunkOptions
  */
 
 /**
- * @typedef {EmitTransformOptions & { path: string; contents?: string|Buffer }} EmitChunkOptions
- */
-
-/**
- * @typedef {EmitTransformOptions & { entryPoints: (string|VirtualEntry)[] }} EmitBuildOptions
+ * @typedef {Omit<BuildOptions, 'entryPoints'> & { entryPoints: (string | VirtualEntry)[] }} EmitBuildOptions
  */
 
 /**
@@ -1120,7 +1109,6 @@ export class Build {
             config.stdin = {
                 sourcefile: options.path,
                 contents: options.contents.toString(),
-                loader: options.loader,
                 resolveDir: this.getSourceRoot(),
             };
         } else {

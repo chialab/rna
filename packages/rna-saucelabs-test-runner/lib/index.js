@@ -130,10 +130,6 @@ export function command(program) {
                 configFile = configFile || await locateConfigFile();
 
                 const logger = createLogger();
-
-                /**
-                 * @type {import('@chialab/rna-config-loader').Config}
-                 */
                 const config = mergeConfig({ root }, configFile ? await readConfigFile(configFile, { root }, 'serve') : {});
 
                 /**

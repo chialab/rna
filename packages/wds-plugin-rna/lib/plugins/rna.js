@@ -130,18 +130,18 @@ export function getBrowserTarget(context) {
 }
 
 /**
- * @param {import('@chialab/rna-config-loader').Entrypoint} entrypoint
- * @param {Partial<import('@chialab/rna-config-loader').CoreTransformConfig>} config
+ * @param {import('@chialab/rna-config-loader').EntrypointConfig} entrypoint
+ * @param {Partial<import('@chialab/rna-config-loader').EntrypointConfig>} config
  */
 export async function createConfig(entrypoint, config) {
     return getEntryConfig(entrypoint, {
         sourcemap: 'inline',
         platform: 'browser',
         target: config.target,
+        jsx: config.jsx,
+        jsxImportSource: config.jsxImportSource,
         jsxFactory: config.jsxFactory,
         jsxFragment: config.jsxFragment,
-        jsxModule: config.jsxModule,
-        jsxExport: config.jsxExport,
         alias: config.alias,
         plugins: [
             ...await Promise.all([
@@ -174,7 +174,7 @@ function isBareModuleSource(name) {
 }
 
 /**
- * @param {Partial<import('@chialab/rna-config-loader').CoreTransformConfig>} config
+ * @param {Partial<import('@chialab/rna-config-loader').EntrypointConfig>} config
  */
 export function rnaPlugin(config) {
     const aliasMap = config.alias || {};
@@ -315,13 +315,12 @@ export function rnaPlugin(config) {
             const accepts = context.request.headers['accept'] || '';
             if (filePath && accepts.includes('text/css')) {
                 /**
-                 * @type {import('@chialab/rna-config-loader').Entrypoint}
+                 * @type {import('@chialab/rna-config-loader').EntrypointConfig}
                  */
                 const entrypoint = {
                     root: rootDir,
                     input: filePath,
                     output: filePath,
-                    loader: 'css',
                     bundle: true,
                 };
 
@@ -394,7 +393,7 @@ export function rnaPlugin(config) {
             const contextConfig = JSON.parse(getSearchParam(context.url, 'transform') || '{}');
 
             /**
-             * @type {import('@chialab/rna-config-loader').Entrypoint}
+             * @type {import('@chialab/rna-config-loader').EntrypointConfig}
              */
             const entrypoint = {
                 root: rootDir,
@@ -434,8 +433,8 @@ export function rnaPlugin(config) {
                 return;
             }
 
-            if (config.jsxModule && source === '__jsx__.js') {
-                source = config.jsxModule;
+            if (config.jsxImportSource && source === '__jsx__.js') {
+                source = config.jsxImportSource;
             }
 
             const { rootDir } = serverConfig;
@@ -480,12 +479,11 @@ export function rnaPlugin(config) {
             const moduleRootDir = modulePackageFile ? path.dirname(modulePackageFile) : rootDir;
 
             /**
-             * @type {import('@chialab/rna-config-loader').Entrypoint}
+             * @type {import('@chialab/rna-config-loader').EntrypointConfig}
              */
             const entrypoint = {
                 root: moduleRootDir,
                 input: `./${path.relative(moduleRootDir, resolved)}`,
-                loader: getRequestLoader(context),
                 bundle: false,
             };
 
@@ -499,7 +497,6 @@ export function rnaPlugin(config) {
                         ...transformConfig,
                         chunkNames: '[name]-[hash]',
                         output: resolved,
-                        jsxModule: undefined,
                         write: false,
                     })
                 ).then((result) => {

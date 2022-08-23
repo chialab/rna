@@ -11,7 +11,7 @@ import { useRna } from '@chialab/esbuild-rna';
 /**
  * Create a blob proxy worker code.
  * @param {string} argument The url reference.
- * @param {import('@chialab/esbuild-rna').EmitTransformOptions} transformOptions The transform options for the url.
+ * @param {import('@chialab/esbuild-rna').BuildOptions} transformOptions The transform options for the url.
  * @param {boolean} [checkType] Should check argument type.
  */
 function createBlobProxy(argument, transformOptions, checkType = false) {
@@ -151,7 +151,7 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                     }
 
                     /**
-                     * @type {import('@chialab/esbuild-rna').EmitTransformOptions}
+                     * @type {import('@chialab/esbuild-rna').BuildOptions}
                      */
                     const transformOptions = {
                         format: 'iife',

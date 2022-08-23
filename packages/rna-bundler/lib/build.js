@@ -108,12 +108,6 @@ export async function build(config) {
     }
 
     const finalPlugins = /** @type {import('esbuild').Plugin[]} */ (await Promise.all([
-        !hasPlugin(plugins, 'alias') &&
-            import('@chialab/esbuild-plugin-alias')
-                .then(({ default: plugin }) => plugin(alias)),
-        !hasPlugin(plugins, 'any-file') &&
-            import('@chialab/esbuild-plugin-any-file')
-                .then(({ default: plugin }) => plugin()),
         !hasPlugin(plugins, 'env') &&
             import('@chialab/esbuild-plugin-env')
                 .then(({ default: plugin }) => plugin()),
@@ -133,7 +127,7 @@ export async function build(config) {
         !hasPlugin(plugins, 'unwebpack') &&
             import('@chialab/esbuild-plugin-unwebpack')
                 .then(({ default: plugin }) => plugin()),
-        !hasPlugin(plugins, 'commonjs') && !bundle &&
+        !hasPlugin(plugins, 'commonjs') &&
             import('@chialab/esbuild-plugin-commonjs')
                 .then(({ default: plugin }) => plugin({
                     helperModule: true,
@@ -145,6 +139,12 @@ export async function build(config) {
             import('@chialab/esbuild-plugin-meta-url')
                 .then(({ default: plugin }) => plugin()),
         ...plugins,
+        !hasPlugin(plugins, 'alias') &&
+            import('@chialab/esbuild-plugin-alias')
+                .then(({ default: plugin }) => plugin(alias)),
+        !hasPlugin(plugins, 'any-file') &&
+            import('@chialab/esbuild-plugin-any-file')
+                .then(({ default: plugin }) => plugin()),
     ].filter(Boolean)));
 
     const result = /** @type {import('@chialab/esbuild-rna').Result} */ (await esbuild.build({

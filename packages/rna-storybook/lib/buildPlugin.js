@@ -3,6 +3,8 @@ import { mkdir, readFile, writeFile } from 'fs/promises';
 import { useRna } from '@chialab/esbuild-rna';
 import { createVirtualPlugin } from '@chialab/esbuild-plugin-virtual';
 import htmlPlugin from '@chialab/esbuild-plugin-html';
+import { escapeRegexBody } from '@chialab/node-resolve';
+import { definitions } from '@storybook/ui/dist/globals';
 import { indexHtml, iframeHtml, managerCss, previewCss } from './templates.js';
 import { createManagerScript } from './createManager.js';
 import { createPreviewModule, createPreviewScript } from './createPreview.js';
@@ -33,7 +35,6 @@ export function buildPlugin(config) {
         framework,
         stories: storiesPatterns = [],
         static: staticFiles = {},
-        manager = '@storybook/core-client/dist/esm/manager/index.js',
         managerEntries = [],
         previewEntries = [],
         managerHead,
@@ -113,7 +114,6 @@ export function buildPlugin(config) {
                 {
                     path: MANAGER_SCRIPT,
                     contents: createManagerScript({
-                        manager,
                         managerEntries,
                     }),
                 },
@@ -132,6 +132,33 @@ export function buildPlugin(config) {
                 mdxPlugin(),
                 htmlPlugin(),
             ], 'before');
+
+            const entryPoints = build.getOption('entryPoints');
+            if (Array.isArray(entryPoints) && entryPoints.includes(MANAGER_SCRIPT)) {
+                const aliasFilter = new RegExp(`^(${Object.keys(definitions).map((defName) => escapeRegexBody(defName)).join('|')})$`);
+                build.onResolve({ filter: aliasFilter }, (args) => ({
+                    path: args.path,
+                    namespace: 'storybookui',
+                }));
+
+                build.onLoad({ filter: aliasFilter, namespace: 'storybookui' }, (args) => {
+                    const moduleName = /** @type {'react' | 'react-dom' | '@storybook/components' | '@storybook/channels' | '@storybook/core-events' | '@storybook/router' | '@storybook/theming' | '@storybook/api' | '@storybook/addons' | '@storybook/client-logger'} */ (args.path);
+                    if (moduleName in definitions) {
+                        const definition = definitions[moduleName];
+                        return {
+                            contents: `import global from 'global';
+import '@storybook/ui/dist/runtime';
+
+const _default = global['${definition.varName}'];
+
+export const { ${definition.namedExports.join(', ')} } = _default;
+export default _default;
+`,
+                            loader: 'js',
+                        };
+                    }
+                });
+            }
 
             if (!build.isChunk()) {
                 build.onEnd(async () => {

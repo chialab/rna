@@ -2269,6 +2269,7 @@ __metadata:
     "@storybook/csf-tools": ^7.0.0-alpha.0
     "@storybook/mdx2-csf": ^0.0.3
     "@storybook/store": ^7.0.0-alpha.0
+    "@storybook/ui": ^7.0.0-alpha.0
     "@types/lodash": ^4.14.175
     esbuild: ^0.15.0
     fast-glob: ^3.2.11
@@ -3443,7 +3444,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/ui@npm:7.0.0-alpha.23":
+"@storybook/ui@npm:7.0.0-alpha.23, @storybook/ui@npm:^7.0.0-alpha.0":
   version: 7.0.0-alpha.23
   resolution: "@storybook/ui@npm:7.0.0-alpha.23"
   checksum: 874a035999005fb259218d973c3e8f052ba2e4796c1d8458147a4b00d219d94a165c515142eedaaa2d40ec628206040687b0b81e46d685582558176c9341455c

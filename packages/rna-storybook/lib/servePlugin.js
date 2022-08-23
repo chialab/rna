@@ -4,6 +4,7 @@ import esbuild from 'esbuild';
 import { isCss, isJson, isUrl, appendSearchParam } from '@chialab/node-resolve';
 import { getRequestFilePath } from '@chialab/es-dev-server';
 import { appendCssModuleParam, appendJsonModuleParam } from '@chialab/wds-plugin-rna';
+import { definitions } from '@storybook/ui/dist/globals';
 import { indexHtml, iframeHtml, managerCss, previewCss } from './templates.js';
 import { createManagerScript } from './createManager.js';
 import { createPreviewModule, createPreviewScript } from './createPreview.js';
@@ -14,20 +15,6 @@ import { MANAGER_SCRIPT, MANAGER_STYLE, PREVIEW_SCRIPT, PREVIEW_MODULE_SCRIPT, P
 const regexpReplaceWebsocket = /<!-- injected by web-dev-server -->(.|\s)*<\/script>/m;
 
 /**
- * @param {string} source
- */
-export function appendManagerParam(source) {
-    return appendSearchParam(source, 'manager', 'true');
-}
-
-/**
- * @param {string} source
- */
-export function appendPreviewParam(source) {
-    return appendSearchParam(source, 'preview', 'true');
-}
-
-/**
  * @param {import('./index.js').StorybookConfig} config
  */
 export function servePlugin(config) {
@@ -35,7 +22,6 @@ export function servePlugin(config) {
         framework,
         stories: storiesPattern,
         static: staticFiles = {},
-        manager = '@storybook/core-client/dist/esm/manager/index.js',
         managerEntries = [],
         previewEntries = [],
         managerHead,
@@ -115,24 +101,30 @@ export function servePlugin(config) {
             }
 
             if (source === PREVIEW_MODULE_SCRIPT) {
-                return appendPreviewParam(`/${PREVIEW_MODULE_SCRIPT}`);
+                return appendSearchParam(`/${PREVIEW_MODULE_SCRIPT}`, 'preview', 'true');
             }
 
             if (context.path === `/${MANAGER_SCRIPT}` ||
                 context.URL.searchParams.has('manager')) {
-                return appendManagerParam(source);
+                return appendSearchParam(source, 'manager', 'true');
             }
 
             if (context.path === `/${PREVIEW_SCRIPT}` ||
                 context.URL.searchParams.has('preview') ||
                 context.URL.searchParams.has('story')) {
-                return appendPreviewParam(source);
+                return appendSearchParam(source, 'preview', 'true');
             }
         },
 
-        async resolveImport({ source }) {
+        async resolveImport({ context, source }) {
             if (source === PREVIEW_MODULE_SCRIPT) {
                 return source;
+            }
+
+            if (context.URL.searchParams.has('manager')) {
+                if (source in definitions) {
+                    return `/__storybook_ui__/${source}`;
+                }
             }
         },
 
@@ -188,9 +180,23 @@ export function servePlugin(config) {
                 });
             }
 
+            if (context.path.startsWith('/__storybook_ui__/')) {
+                const moduleName = /** @type {'react' | 'react-dom' | '@storybook/components' | '@storybook/channels' | '@storybook/core-events' | '@storybook/router' | '@storybook/theming' | '@storybook/api' | '@storybook/addons' | '@storybook/client-logger'} */ (context.path.split('?')[0].replace('/__storybook_ui__/', ''));
+                if (moduleName in definitions) {
+                    const definition = definitions[moduleName];
+                    return `import global from 'global';
+import '@storybook/ui/dist/runtime';
+
+const _default = global['${definition.varName}'];
+
+export const { ${definition.namedExports.join(', ')} } = _default;
+export default _default;
+`;
+                }
+            }
+
             if (context.path.startsWith(`/${MANAGER_SCRIPT}`)) {
                 return createManagerScript({
-                    manager,
                     managerEntries,
                 });
             }

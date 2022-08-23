@@ -1084,12 +1084,7 @@ export class Build {
             splitting: format === 'esm' ? (options.splitting ?? initialOptions.splitting) : false,
             platform: options.platform ?? initialOptions.platform,
             target: options.target ?? initialOptions.target,
-            plugins: options.plugins ?
-                [
-                    ...this.getPlugins().filter((p) => p.name === 'rna'),
-                    ...options.plugins,
-                ] :
-                this.getPlugins().filter((plugin) => plugin.name !== 'external'),
+            plugins: options.plugins ?? initialOptions.plugins,
             external: options.external ?? initialOptions.external,
             jsxFactory: ('jsxFactory' in options) ? options.jsxFactory : initialOptions.jsxFactory,
             entryNames: initialOptions.chunkNames || initialOptions.entryNames,

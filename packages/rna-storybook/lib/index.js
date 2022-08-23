@@ -14,7 +14,6 @@ import './fixMdxParser.js';
 /**
  * @typedef {Object} StorybookConfig
  * @property {string} framework
- * @property {string} manager
  * @property {string[]} stories
  * @property {{ [key: string]: string }} [static]
  * @property {string[]} [managerEntries]

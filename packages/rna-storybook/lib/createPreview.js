@@ -31,13 +31,15 @@ export default preview;`;
  * @param {PreviewOptions} options
  */
 export async function createPreviewScript({ framework, specifiers, previewEntries = [] }) {
+    const importPaths = new Set(specifiers.map((spec) => spec.importPath));
+
     return `import { composeConfigs } from '@storybook/preview-web';
 import preview from '${PREVIEW_MODULE_SCRIPT}';
 import * as framework from '${framework}/preview';
 ${previewEntries.map((previewScript, index) => `import * as preview${index} from '${previewScript}';`).join('\n')}
 
 const importers = {
-    ${specifiers.map(({ importPath }) => `'${importPath}': async () => import('${importPath}?story')`).join(',\n')}
+    ${[...importPaths].map((importPath) => `'${importPath}': async () => import('${importPath}?story')`).join(',\n')}
 };
 
 preview.initialize({

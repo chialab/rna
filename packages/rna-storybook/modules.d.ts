@@ -6,26 +6,9 @@ declare module '@custom-elements-manifest/analyzer/src/create.js' {
 }
 
 declare module '@storybook/core-server/dist/cjs/utils/StoryIndexGenerator.js' {
-    import type { Path, StoryId, V2CompatIndexEntry } from '@storybook/store';
-    import type { StoryIndexer, NormalizedStoriesSpecifier, DocsOptions } from '@storybook/core-common';
+    import type { StoryIndexGenerator } from '@storybook/core-server';
 
-    export class StoryIndexGenerator {
-        constructor(specifiers: NormalizedStoriesSpecifier[], options: {
-            workingDir: Path;
-            configDir: Path;
-            storyStoreV7: boolean;
-            storiesV2Compatibility: boolean;
-            storyIndexers: StoryIndexer[];
-            docs: DocsOptions;
-        });
-
-        initialize(): Promise<void>;
-
-        getIndex(): Promise<Record<StoryId, V2CompatIndexEntry>>;
-
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        getStorySortParameter(): Promise<any> {}
-    }
+    export { StoryIndexGenerator };
 }
 
 declare module '@storybook/mdx2-csf/dist/cjs/index.js' {

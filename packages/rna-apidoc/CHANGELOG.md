@@ -1,5 +1,16 @@
 # @chialab/rna-apidoc
 
+## 0.17.0
+
+### Minor Changes
+
+- f975706: Move to esbuild 0.15
+
+### Patch Changes
+
+- Updated dependencies [f975706]
+  - @chialab/rna-logger@0.17.0
+
 ## 0.16.0
 
 ### Minor Changes

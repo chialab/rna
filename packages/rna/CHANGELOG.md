@@ -1,5 +1,22 @@
 # @chialab/rna
 
+## 1.0.0
+
+### Minor Changes
+
+- f975706: Move to esbuild 0.15
+
+### Patch Changes
+
+- Updated dependencies [f975706]
+  - @chialab/rna-apidoc@0.17.0
+  - @chialab/rna-browser-test-runner@1.0.0
+  - @chialab/rna-bundler@1.0.0
+  - @chialab/rna-dev-server@1.0.0
+  - @chialab/rna-logger@0.17.0
+  - @chialab/rna-node-test-runner@0.17.0
+  - @chialab/rna-saucelabs-test-runner@0.17.0
+
 ## 0.16.6
 
 ### Patch Changes

@@ -1,5 +1,23 @@
 # @chialab/rna-storybook
 
+## 0.17.0
+
+### Minor Changes
+
+- f975706: Move to esbuild 0.15
+
+### Patch Changes
+
+- Updated dependencies [f975706]
+  - @chialab/es-dev-server@0.17.0
+  - @chialab/esbuild-plugin-html@0.17.0
+  - @chialab/esbuild-plugin-virtual@0.17.0
+  - @chialab/esbuild-rna@0.17.0
+  - @chialab/estransform@0.17.0
+  - @chialab/node-resolve@0.17.0
+  - @chialab/wds-plugin-node-resolve@0.17.0
+  - @chialab/wds-plugin-rna@0.17.0
+
 ## 0.16.4
 
 ### Patch Changes

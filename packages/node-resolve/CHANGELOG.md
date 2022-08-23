@@ -1,5 +1,11 @@
 # @chialab/node-resolve
 
+## 0.17.0
+
+### Minor Changes
+
+- f975706: Move to esbuild 0.15
+
 ## 0.16.1
 
 ### Patch Changes

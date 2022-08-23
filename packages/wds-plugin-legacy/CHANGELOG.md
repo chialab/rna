@@ -1,5 +1,17 @@
 # @chialab/wds-plugin-legacy
 
+## 0.17.0
+
+### Minor Changes
+
+- f975706: Move to esbuild 0.15
+
+### Patch Changes
+
+- Updated dependencies [f975706]
+  - @chialab/wds-plugin-node-resolve@0.17.0
+  - @chialab/wds-plugin-polyfill@0.17.0
+
 ## 0.16.4
 
 ### Patch Changes

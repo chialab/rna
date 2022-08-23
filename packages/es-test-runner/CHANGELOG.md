@@ -1,5 +1,11 @@
 # @chialab/es-test-runner
 
+## 0.17.0
+
+### Minor Changes
+
+- f975706: Move to esbuild 0.15
+
 ## 0.16.2
 
 ### Patch Changes

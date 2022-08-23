@@ -1,7 +1,7 @@
 {
   "name": "@chialab/node-resolve",
   "type": "module",
-  "version": "0.16.1",
+  "version": "0.17.0",
   "description": "A promise based node resolution library based on enhanced-resolve.",
   "main": "dist/index.js",
   "typings": "./types/index.d.ts",

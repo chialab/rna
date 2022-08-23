@@ -1,5 +1,18 @@
 # @chialab/esbuild-plugin-postcss
 
+## 1.0.0
+
+### Minor Changes
+
+- f975706: Move to esbuild 0.15
+
+### Patch Changes
+
+- Updated dependencies [f975706]
+  - @chialab/esbuild-plugin-css-import@0.17.0
+  - @chialab/esbuild-rna@0.17.0
+  - @chialab/postcss-dart-sass@0.17.0
+
 ## 0.16.4
 
 ### Patch Changes

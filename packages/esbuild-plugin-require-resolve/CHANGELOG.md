@@ -1,5 +1,17 @@
 # @chialab/esbuild-plugin-require-resolve
 
+## 0.17.0
+
+### Minor Changes
+
+- f975706: Move to esbuild 0.15
+
+### Patch Changes
+
+- Updated dependencies [f975706]
+  - @chialab/esbuild-rna@0.17.0
+  - @chialab/estransform@0.17.0
+
 ## 0.16.3
 
 ### Patch Changes

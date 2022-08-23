@@ -1,5 +1,30 @@
 # @chialab/rna-bundler
 
+## 1.0.0
+
+### Minor Changes
+
+- f975706: Move to esbuild 0.15
+
+### Patch Changes
+
+- Updated dependencies [f975706]
+  - @chialab/esbuild-plugin-alias@0.17.0
+  - @chialab/esbuild-plugin-any-file@0.17.0
+  - @chialab/esbuild-plugin-commonjs@0.17.0
+  - @chialab/esbuild-plugin-css-import@0.17.0
+  - @chialab/esbuild-plugin-define-this@0.17.0
+  - @chialab/esbuild-plugin-env@0.17.0
+  - @chialab/esbuild-plugin-external@0.17.0
+  - @chialab/esbuild-plugin-html@0.17.0
+  - @chialab/esbuild-plugin-meta-url@0.17.0
+  - @chialab/esbuild-plugin-postcss@1.0.0
+  - @chialab/esbuild-plugin-unwebpack@0.17.0
+  - @chialab/esbuild-plugin-worker@0.17.0
+  - @chialab/esbuild-rna@0.17.0
+  - @chialab/rna-config-loader@0.17.0
+  - @chialab/rna-logger@0.17.0
+
 ## 0.16.2
 
 ### Patch Changes

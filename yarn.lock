@@ -1889,17 +1889,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@chialab/esbuild-plugin-jsx-import@^0.16.0, @chialab/esbuild-plugin-jsx-import@workspace:packages/esbuild-plugin-jsx-import":
-  version: 0.0.0-use.local
-  resolution: "@chialab/esbuild-plugin-jsx-import@workspace:packages/esbuild-plugin-jsx-import"
-  dependencies:
-    "@chialab/estransform": ^0.16.0
-    "@chialab/node-resolve": ^0.16.0
-    esbuild: ^0.15.0
-    typescript: ^4.3.0
-  languageName: unknown
-  linkType: soft
-
 "@chialab/esbuild-plugin-meta-url@^0.16.0, @chialab/esbuild-plugin-meta-url@^0.16.3, @chialab/esbuild-plugin-meta-url@workspace:packages/esbuild-plugin-meta-url":
   version: 0.0.0-use.local
   resolution: "@chialab/esbuild-plugin-meta-url@workspace:packages/esbuild-plugin-meta-url"
@@ -2150,7 +2139,6 @@ __metadata:
     "@chialab/esbuild-plugin-env": ^0.16.0
     "@chialab/esbuild-plugin-external": ^0.16.0
     "@chialab/esbuild-plugin-html": ^0.16.0
-    "@chialab/esbuild-plugin-jsx-import": ^0.16.0
     "@chialab/esbuild-plugin-meta-url": ^0.16.0
     "@chialab/esbuild-plugin-postcss": ^0.16.0
     "@chialab/esbuild-plugin-unwebpack": ^0.16.0

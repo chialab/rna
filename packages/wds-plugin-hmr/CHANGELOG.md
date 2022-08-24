@@ -1,4 +1,4 @@
-# @chialab/wds-plugin-hmr-css
+# @chialab/wds-plugin-hmr
 
 ## 0.17.0
 

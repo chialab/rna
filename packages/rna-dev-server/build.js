@@ -14,7 +14,7 @@ esbuild.build({
         '@chialab/es-dev-server',
         '@chialab/rna-config-loader',
         '@chialab/rna-logger',
-        '@chialab/wds-plugin-hmr-css',
+        '@chialab/wds-plugin-hmr',
         '@chialab/wds-plugin-node-resolve',
         '@chialab/wds-plugin-rna',
         '@chialab/wds-plugin-legacy',

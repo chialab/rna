@@ -80,7 +80,7 @@ function createCssLiveReload() {
  * Create a server plugin for CSS hmr.
  * @returns A server plugin.
  */
-export function hmrCssPlugin() {
+export function hmrCss() {
     /**
      * @type {Map<string, CSSResource>}
      */
@@ -91,10 +91,12 @@ export function hmrCssPlugin() {
      * @type {import('@web/dev-server-core').Plugin}
      */
     const plugin = {
-        name: 'hmr-css',
+        name: 'js-css-hmr',
         injectWebSocket: true,
 
-        async serverStart({ webSockets, fileWatcher, config }) {
+        async serverStart(args) {
+            const { webSockets, fileWatcher, config } = args;
+
             if (!fileWatcher) {
                 throw new Error('Cannot use HMR when watch mode is disabled.');
             }

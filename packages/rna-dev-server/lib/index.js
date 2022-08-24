@@ -7,9 +7,6 @@ import cors from '@koa/cors';
 import range from 'koa-range';
 import nodeResolvePlugin from '@chialab/wds-plugin-node-resolve';
 import { rnaPlugin, entrypointsPlugin } from '@chialab/wds-plugin-rna';
-import { hmrCssPlugin } from '@chialab/wds-plugin-hmr-css';
-import { hmrPlugin } from '@web/dev-server-hmr';
-import { hmrReload } from './plugins/hmrReload.js';
 
 /**
  * @typedef {Object} DevServerCoreConfig
@@ -116,9 +113,9 @@ export async function createDevServer(config) {
         }),
     ];
     if (!plugins.find((plugin) => plugin.name === 'hmr' || plugin.name === 'wc-hmr')) {
+        const { hmrPlugin } = await import('@chialab/wds-plugin-hmr');
         plugins.push(hmrPlugin());
     }
-    plugins.push(hmrCssPlugin(), hmrReload());
 
     const server = new DevServer({
         appIndex: index ? appIndex : undefined,

@@ -20,7 +20,7 @@
       "path": "../rna-logger"
     },
     {
-      "path": "../wds-plugin-hmr-css"
+      "path": "../wds-plugin-hmr"
     },
     {
       "path": "../wds-plugin-node-resolve"

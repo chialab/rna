@@ -2247,13 +2247,12 @@ __metadata:
     "@chialab/esbuild-plugin-require-resolve": ^0.17.0
     "@chialab/rna-config-loader": ^0.17.0
     "@chialab/rna-logger": ^0.17.0
-    "@chialab/wds-plugin-hmr-css": ^0.17.0
+    "@chialab/wds-plugin-hmr": ^0.17.0
     "@chialab/wds-plugin-node-resolve": ^0.17.0
     "@chialab/wds-plugin-rna": ^0.17.1
     "@koa/cors": ^3.1.0
     "@types/koa-range": ^0.3.2
     "@types/koa__cors": ^3.0.2
-    "@web/dev-server-hmr": ^0.1.8
     commander: ^7.2.0
     koa-range: ^0.3.0
     rimraf: ^3.0.2
@@ -2384,21 +2383,22 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@chialab/wds-plugin-hmr-css@^0.17.0, @chialab/wds-plugin-hmr-css@workspace:packages/wds-plugin-hmr-css":
-  version: 0.0.0-use.local
-  resolution: "@chialab/wds-plugin-hmr-css@workspace:packages/wds-plugin-hmr-css"
-  dependencies:
-    "@chialab/es-dev-server": ^0.17.0
-    typescript: ^4.3.0
-  languageName: unknown
-  linkType: soft
-
 "@chialab/wds-plugin-hmr-dna@workspace:packages/wds-plugin-hmr-dna":
   version: 0.0.0-use.local
   resolution: "@chialab/wds-plugin-hmr-dna@workspace:packages/wds-plugin-hmr-dna"
   dependencies:
     "@open-wc/dev-server-hmr": ^0.1.2-next.0
     rimraf: ^3.0.2
+    typescript: ^4.3.0
+  languageName: unknown
+  linkType: soft
+
+"@chialab/wds-plugin-hmr@^0.17.0, @chialab/wds-plugin-hmr@workspace:packages/wds-plugin-hmr":
+  version: 0.0.0-use.local
+  resolution: "@chialab/wds-plugin-hmr@workspace:packages/wds-plugin-hmr"
+  dependencies:
+    "@chialab/es-dev-server": ^0.17.0
+    "@web/dev-server-hmr": ^0.1.8
     typescript: ^4.3.0
   languageName: unknown
   linkType: soft

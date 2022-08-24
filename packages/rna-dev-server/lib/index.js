@@ -8,8 +8,8 @@ import range from 'koa-range';
 import nodeResolvePlugin from '@chialab/wds-plugin-node-resolve';
 import { rnaPlugin, entrypointsPlugin } from '@chialab/wds-plugin-rna';
 import { hmrCssPlugin } from '@chialab/wds-plugin-hmr-css';
-import { hmrPlugin } from './plugins/hmr.js';
-import { watchPlugin } from './plugins/watch.js';
+import { hmrPlugin } from '@web/dev-server-hmr';
+import { hmrReload } from './plugins/hmrReload.js';
 
 /**
  * @typedef {Object} DevServerCoreConfig
@@ -98,6 +98,28 @@ export async function createDevServer(config) {
     } catch {
         //
     }
+
+    const plugins = [
+        rnaPlugin({
+            alias: config.alias,
+            target: config.target,
+            jsx: config.jsx,
+            jsxImportSource: config.jsxImportSource,
+            jsxFactory: config.jsxFactory,
+            jsxFragment: config.jsxFragment,
+            plugins: config.transformPlugins,
+        }),
+        entrypointsPlugin(config.entrypoints),
+        ...(config.plugins || []),
+        nodeResolvePlugin({
+            alias: config.alias,
+        }),
+    ];
+    if (!plugins.find((plugin) => plugin.name === 'hmr' || plugin.name === 'wc-hmr')) {
+        plugins.push(hmrPlugin());
+    }
+    plugins.push(hmrCssPlugin(), hmrReload());
+
     const server = new DevServer({
         appIndex: index ? appIndex : undefined,
         ...config,
@@ -115,25 +137,7 @@ export async function createDevServer(config) {
             range,
             ...(config.middleware || []),
         ],
-        plugins: [
-            ...(config.plugins || []),
-            rnaPlugin({
-                alias: config.alias,
-                target: config.target,
-                jsx: config.jsx,
-                jsxImportSource: config.jsxImportSource,
-                jsxFactory: config.jsxFactory,
-                jsxFragment: config.jsxFragment,
-                plugins: config.transformPlugins,
-            }),
-            entrypointsPlugin(config.entrypoints),
-            nodeResolvePlugin({
-                alias: config.alias,
-            }),
-            hmrPlugin(),
-            watchPlugin(),
-            hmrCssPlugin(),
-        ],
+        plugins,
     }, config.logger || createLogger());
 
     return server;

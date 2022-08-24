@@ -1,8 +1,8 @@
 {
-  "name": "@chialab/{{ dashCase name }}",
+  "name": "@chialab/wds-plugin-hmr-dna",
   "type": "module",
   "version": "0.17.0",
-  "description": "{{ description }}",
+  "description": "Hot module replacement plugin for DNA components.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",
   "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
@@ -10,11 +10,21 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/chialab/rna",
-    "directory": "packages/{{ dashCase name }}"
+    "directory": "packages/wds-plugin-hmr-dna"
   },
-  "keywords": [],
+  "keywords": [
+    "dev-server",
+    "dna",
+    "web-components",
+    "esm",
+    "livereload",
+    "hmr"
+  ],
+  "scripts": {
+    "build": "rimraf dist && node build.js"
+  },
   "files": [
-    "lib",
+    "dist",
     "types",
     "package.json",
     "README.md",
@@ -23,8 +33,9 @@
   "engines": {
     "node": ">=13"
   },
-  "dependencies": {},
   "devDependencies": {
+    "@open-wc/dev-server-hmr": "^0.1.2-next.0",
+    "rimraf": "^3.0.2",
     "typescript": "^4.3.0"
   }
 }

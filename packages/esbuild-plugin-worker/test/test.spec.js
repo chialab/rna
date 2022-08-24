@@ -155,7 +155,7 @@ postMessage("message");
         expect(result.text).to.be.equal(`// test.spec.js
 var worker = new Worker(URL.createObjectURL(new Blob(['importScripts("' + function(path) {
   const url = new URL(path);
-  url.searchParams.set("transform", '{"format":"iife","bundle":true,"platform":"neutral","external":[]}');
+  url.searchParams.set("transform", '{"format":"iife","bundle":true,"platform":"neutral"}');
   return url.href;
 }(new URL("./worker.js?hash=5f77c0c4", import.meta.url).href) + '");'], { type: "text/javascript" })));
 export {
@@ -194,7 +194,7 @@ export {
         expect(result.text).to.be.equal(`// test.spec.js
 var worker = new Worker(typeof workerName !== "string" ? workerName : URL.createObjectURL(new Blob(['importScripts("' + function(path) {
   const url = new URL(path);
-  url.searchParams.set("transform", '{"format":"iife","bundle":true,"platform":"neutral","external":[]}');
+  url.searchParams.set("transform", '{"format":"iife","bundle":true,"platform":"neutral"}');
   return url.href;
 }(workerName) + '");'], { type: "text/javascript" })));
 export {

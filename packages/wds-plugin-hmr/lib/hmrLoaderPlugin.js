@@ -4,7 +4,7 @@ import { hmrPlugin as createBaseHmrPlugin } from '@web/dev-server-hmr';
  * Create a server plugin that injects hmr.js module.
  * @returns A server plugin.
  */
-export function hmrLoader() {
+export function hmrLoaderPlugin() {
     const baseHmrPlugin = createBaseHmrPlugin();
 
     /**
@@ -13,9 +13,17 @@ export function hmrLoader() {
     const plugin = {
         name: 'hmr-loader',
 
-        serverStart: baseHmrPlugin.serverStart,
-        resolveImport: baseHmrPlugin.resolveImport,
-        serve: baseHmrPlugin.serve,
+        serverStart(args) {
+            return baseHmrPlugin.serverStart && baseHmrPlugin.serverStart(args);
+        },
+
+        resolveImport(args) {
+            return baseHmrPlugin.resolveImport && baseHmrPlugin.resolveImport(args);
+        },
+
+        serve(context) {
+            return baseHmrPlugin.serve && baseHmrPlugin.serve(context);
+        },
 
         async transform(context) {
             if (context.path === '/__web-dev-server__web-socket.js') {

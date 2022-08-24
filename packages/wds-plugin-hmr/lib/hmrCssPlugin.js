@@ -80,7 +80,7 @@ function createCssLiveReload() {
  * Create a server plugin for CSS hmr.
  * @returns A server plugin.
  */
-export function hmrCss() {
+export function hmrCssPlugin() {
     /**
      * @type {Map<string, CSSResource>}
      */
@@ -91,7 +91,7 @@ export function hmrCss() {
      * @type {import('@web/dev-server-core').Plugin}
      */
     const plugin = {
-        name: 'js-css-hmr',
+        name: 'css-hmr',
         injectWebSocket: true,
 
         async serverStart(args) {

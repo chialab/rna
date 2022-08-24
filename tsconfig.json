@@ -121,6 +121,9 @@
       "path": "./packages/wds-plugin-hmr"
     },
     {
+      "path": "./packages/wds-plugin-hmr-dna"
+    },
+    {
       "path": "./packages/wds-plugin-legacy"
     },
     {

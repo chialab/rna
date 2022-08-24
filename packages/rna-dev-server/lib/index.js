@@ -112,7 +112,7 @@ export async function createDevServer(config) {
             alias: config.alias,
         }),
     ];
-    if (!plugins.find((plugin) => plugin.name === 'hmr' || plugin.name === 'wc-hmr')) {
+    if (!plugins.find((plugin) => plugin.name.match(/(^|-)hmr$/))) {
         const { hmrPlugin } = await import('@chialab/wds-plugin-hmr');
         plugins.push(hmrPlugin());
     }

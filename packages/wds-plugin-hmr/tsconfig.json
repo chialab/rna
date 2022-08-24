@@ -12,6 +12,9 @@
   "references": [
     {
       "path": "../es-dev-server"
+    },
+    {
+      "path": "../esbuild-plugin-require-resolve"
     }
   ]
 }

@@ -3,7 +3,7 @@
   "type": "module",
   "version": "0.17.0",
   "description": "Enable ES modules and CSS hot module replacement for the web dev server.",
-  "main": "lib/index.js",
+  "main": "dist/index.js",
   "typings": "./types/index.d.ts",
   "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
   "license": "MIT",
@@ -19,8 +19,11 @@
     "css",
     "livereload"
   ],
+  "scripts": {
+    "build": "rimraf dist && node build.js"
+  },
   "files": [
-    "lib",
+    "dist",
     "types",
     "package.json",
     "README.md",
@@ -33,7 +36,9 @@
     "@chialab/es-dev-server": "^0.17.0"
   },
   "devDependencies": {
+    "@chialab/esbuild-plugin-require-resolve": "^0.17.0",
     "@web/dev-server-hmr": "^0.1.8",
+    "rimraf": "^3.0.2",
     "typescript": "^4.3.0"
   }
 }

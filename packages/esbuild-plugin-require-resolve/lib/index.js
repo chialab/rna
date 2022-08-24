@@ -56,6 +56,9 @@ export default function() {
                             importer: args.path,
                             resolveDir: path.dirname(args.path),
                         });
+                        if (!resolvedFilePath) {
+                            return;
+                        }
 
                         const emittedFile = await build.emitFile(resolvedFilePath);
                         helpers.overwrite(stringToken.start, stringToken.end, `'./${emittedFile.path}'`);

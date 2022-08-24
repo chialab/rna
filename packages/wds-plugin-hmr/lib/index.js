@@ -1,15 +1,16 @@
-import { hmrLoader } from './hmrLoader.js';
-import { hmrCss } from './hmrCss.js';
+import { mergePluginHooks } from '@chialab/es-dev-server';
+import { hmrLoaderPlugin } from './hmrLoaderPlugin.js';
+import { hmrCssPlugin } from './hmrCssPlugin.js';
 
-export { hmrLoader, hmrCss };
+export { hmrLoaderPlugin, hmrCssPlugin };
 
 /**
  * Create a server plugin for hmr.
  * @returns A server plugin.
  */
 export function hmrPlugin() {
-    const baseHmrPlugin = hmrLoader();
-    const baseCssHmr = hmrCss();
+    const basePlugin = hmrLoaderPlugin();
+    const baseCssPlugin = hmrCssPlugin();
 
     /**
      * @type {import('@web/dev-server-core').Plugin}
@@ -18,38 +19,7 @@ export function hmrPlugin() {
         name: 'hmr',
         injectWebSocket: true,
 
-        async serverStart(args) {
-            if (baseHmrPlugin.serverStart) {
-                await baseHmrPlugin.serverStart(args);
-            }
-            if (baseCssHmr.serverStart) {
-                await baseCssHmr.serverStart(args);
-            }
-        },
-
-        async serve(context) {
-            if (baseHmrPlugin.serve) {
-                return baseHmrPlugin.serve(context);
-            }
-        },
-
-        async resolveImport(args) {
-            if (baseHmrPlugin.resolveImport) {
-                return baseHmrPlugin.resolveImport(args);
-            }
-        },
-
-        async transform(context) {
-            let result;
-            if (baseCssHmr.transform) {
-                result = await baseCssHmr.transform(context);
-            }
-            if (result == null && baseHmrPlugin.transform) {
-                result = await baseHmrPlugin.transform(context);
-            }
-
-            return result;
-        },
+        ...mergePluginHooks(basePlugin, baseCssPlugin),
     };
 
     return plugin;

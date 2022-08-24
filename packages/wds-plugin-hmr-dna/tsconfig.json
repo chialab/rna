@@ -9,5 +9,16 @@
   "include": [
     "lib/**/*",
     "modules.d.ts"
+  ],
+  "references": [
+    {
+      "path": "../es-dev-server"
+    },
+    {
+      "path": "../estransform"
+    },
+    {
+      "path": "../wds-plugin-hmr"
+    }
   ]
 }

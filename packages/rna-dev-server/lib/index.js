@@ -111,7 +111,8 @@ export async function createDevServer(config) {
         nodeResolvePlugin({
             alias: config.alias,
         }),
-        ...(config.plugins || []).filter((plugin) => plugin.enforce !== 'pre'),
+        ...(config.plugins || []).filter((plugin) => !plugin.enforce),
+        ...(config.plugins || []).filter((plugin) => plugin.enforce === 'post'),
     ];
     if (!plugins.find((plugin) => plugin.name.match(/(^|-)hmr$/))) {
         const { hmrPlugin, hmrCssPlugin } = await import('@chialab/wds-plugin-hmr');

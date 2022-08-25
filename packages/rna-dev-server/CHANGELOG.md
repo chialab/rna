@@ -1,5 +1,13 @@
 # @chialab/rna-dev-server
 
+## 0.17.5
+
+### Patch Changes
+
+- 5bfe3a8: Enforce plugins order in dev server
+- Updated dependencies [5bfe3a8]
+  - @chialab/es-dev-server@0.17.1
+
 ## 0.17.4
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @chialab/esbuild-rna
 
+## 0.17.2
+
+### Patch Changes
+
+- a4e5e32: Shallow clone initial build options
+
 ## 0.17.1
 
 ### Patch Changes

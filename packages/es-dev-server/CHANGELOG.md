@@ -1,5 +1,11 @@
 # @chialab/es-dev-server
 
+## 0.17.1
+
+### Patch Changes
+
+- 5bfe3a8: Enforce plugins order in dev server
+
 ## 0.17.0
 
 ### Minor Changes

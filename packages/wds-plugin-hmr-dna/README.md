@@ -18,8 +18,14 @@ $ yarn add @chialab/wds-plugin-hmr-dna -D
 ## Usage
 
 ```js
-import '@chialab/wds-plugin-hmr-dna';
+import { startDevServer } from '@web/dev-server';
+import { hmrPlugin } from '@chialab/wds-plugin-hmr-dna';
 
+await startDevServer({
+    plugins: [
+        hmrPlugin(),
+    ],
+});
 ```
 
 ---

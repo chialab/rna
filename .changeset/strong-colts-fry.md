@@ -1,5 +1,4 @@
 ---
-"@chialab/es-dev-server": patch
 "@chialab/esbuild-plugin-require-resolve": patch
 "@chialab/rna-dev-server": patch
 "@chialab/rna": patch

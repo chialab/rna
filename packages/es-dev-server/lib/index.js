@@ -1,6 +1,5 @@
 import getPort, { portNumbers } from 'get-port';
-import { DevServer as CoreDevServer, getRequestFilePath, PluginError, PluginSyntaxError } from '@web/dev-server-core';
-import { mergePluginHooks } from './utils.js';
+import { DevServer as CoreDevServer, getRequestFilePath } from '@web/dev-server-core';
 
 /**
  * @typedef {import('@web/dev-server-core').Plugin} Plugin
@@ -86,8 +85,5 @@ export {
     DevServer,
     getPort,
     portNumbers,
-    getRequestFilePath,
-    mergePluginHooks,
-    PluginError,
-    PluginSyntaxError
+    getRequestFilePath
 };

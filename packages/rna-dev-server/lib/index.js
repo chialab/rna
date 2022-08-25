@@ -113,8 +113,8 @@ export async function createDevServer(config) {
         }),
     ];
     if (!plugins.find((plugin) => plugin.name.match(/(^|-)hmr$/))) {
-        const { hmrPlugin } = await import('@chialab/wds-plugin-hmr');
-        plugins.push(hmrPlugin());
+        const { hmrPlugin, hmrCssPlugin } = await import('@chialab/wds-plugin-hmr');
+        plugins.push(hmrPlugin(), hmrCssPlugin());
     }
 
     const server = new DevServer({

@@ -1,5 +1,14 @@
 # @chialab/rna-dev-server
 
+## 0.17.2
+
+### Patch Changes
+
+- 90f3b25: Improve HMR
+- Updated dependencies [90f3b25]
+  - @chialab/wds-plugin-hmr@0.17.1
+  - @chialab/wds-plugin-node-resolve@0.17.1
+
 ## 0.17.1
 
 ### Patch Changes

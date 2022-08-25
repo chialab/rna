@@ -97,6 +97,7 @@ export async function createDevServer(config) {
     }
 
     const plugins = [
+        ...(config.plugins || []),
         rnaPlugin({
             alias: config.alias,
             target: config.target,
@@ -107,7 +108,6 @@ export async function createDevServer(config) {
             plugins: config.transformPlugins,
         }),
         entrypointsPlugin(config.entrypoints),
-        ...(config.plugins || []),
         nodeResolvePlugin({
             alias: config.alias,
         }),

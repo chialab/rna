@@ -1,5 +1,11 @@
 # @chialab/rna-dev-server
 
+## 0.17.3
+
+### Patch Changes
+
+- Fix dev server plugins order
+
 ## 0.17.2
 
 ### Patch Changes

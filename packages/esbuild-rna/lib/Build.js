@@ -247,7 +247,11 @@ export class Build {
      * @param {import('./BuildManager.js').BuildManager} manager
      */
     constructor(build, manager) {
-        this.initialOptions = { ...build.initialOptions };
+        this.initialOptions = {
+            ...build.initialOptions,
+            define: {...(build.initialOptions.define || {})},
+            external: [...(build.initialOptions.external || [])],
+        };
         build.initialOptions.metafile = true;
         this.manager = manager;
         this.pluginBuild = build;

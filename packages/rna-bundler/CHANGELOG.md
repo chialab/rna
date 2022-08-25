@@ -1,5 +1,16 @@
 # @chialab/rna-bundler
 
+## 0.17.3
+
+### Patch Changes
+
+- 90f3b25: Improve HMR
+- Updated dependencies [90f3b25]
+  - @chialab/esbuild-plugin-commonjs@0.17.1
+  - @chialab/esbuild-plugin-meta-url@0.17.1
+  - @chialab/esbuild-plugin-unwebpack@0.17.1
+  - @chialab/esbuild-plugin-worker@0.17.2
+
 ## 0.17.2
 
 ### Patch Changes

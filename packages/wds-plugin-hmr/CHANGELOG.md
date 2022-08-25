@@ -1,5 +1,11 @@
 # @chialab/wds-plugin-hmr
 
+## 0.17.1
+
+### Patch Changes
+
+- 90f3b25: Improve HMR
+
 ## 0.17.0
 
 ### Minor Changes

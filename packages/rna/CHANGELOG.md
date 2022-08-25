@@ -1,5 +1,14 @@
 # @chialab/rna
 
+## 0.17.2
+
+### Patch Changes
+
+- 90f3b25: Improve HMR
+- Updated dependencies [90f3b25]
+  - @chialab/rna-bundler@0.17.3
+  - @chialab/rna-dev-server@0.17.2
+
 ## 0.17.1
 
 ### Patch Changes

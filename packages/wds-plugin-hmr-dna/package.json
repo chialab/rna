@@ -1,7 +1,7 @@
 {
   "name": "@chialab/wds-plugin-hmr-dna",
   "type": "module",
-  "version": "0.17.0",
+  "version": "0.17.1",
   "description": "Hot module replacement plugin for DNA components.",
   "main": "dist/index.js",
   "typings": "./types/index.d.ts",
@@ -35,8 +35,8 @@
   },
   "dependencies": {
     "@chialab/es-dev-server": "^0.17.0",
-    "@chialab/estransform": "^0.17.0",
-    "@chialab/wds-plugin-hmr": "^0.17.0"
+    "@chialab/estransform": "^0.17.1",
+    "@chialab/wds-plugin-hmr": "^0.17.1"
   },
   "devDependencies": {
     "rimraf": "^3.0.2",

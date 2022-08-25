@@ -1,5 +1,14 @@
 # @chialab/esbuild-plugin-worker
 
+## 0.17.2
+
+### Patch Changes
+
+- 90f3b25: Improve HMR
+- Updated dependencies [90f3b25]
+  - @chialab/esbuild-plugin-meta-url@0.17.1
+  - @chialab/estransform@0.17.1
+
 ## 0.17.1
 
 ### Patch Changes

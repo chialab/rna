@@ -1824,7 +1824,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@chialab/esbuild-plugin-commonjs@^0.17.0, @chialab/esbuild-plugin-commonjs@workspace:packages/esbuild-plugin-commonjs":
+"@chialab/esbuild-plugin-commonjs@^0.17.1, @chialab/esbuild-plugin-commonjs@workspace:packages/esbuild-plugin-commonjs":
   version: 0.0.0-use.local
   resolution: "@chialab/esbuild-plugin-commonjs@workspace:packages/esbuild-plugin-commonjs"
   dependencies:
@@ -1889,12 +1889,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@chialab/esbuild-plugin-meta-url@^0.17.0, @chialab/esbuild-plugin-meta-url@workspace:packages/esbuild-plugin-meta-url":
+"@chialab/esbuild-plugin-meta-url@^0.17.0, @chialab/esbuild-plugin-meta-url@^0.17.1, @chialab/esbuild-plugin-meta-url@workspace:packages/esbuild-plugin-meta-url":
   version: 0.0.0-use.local
   resolution: "@chialab/esbuild-plugin-meta-url@workspace:packages/esbuild-plugin-meta-url"
   dependencies:
     "@chialab/esbuild-rna": ^0.17.0
-    "@chialab/estransform": ^0.17.0
+    "@chialab/estransform": ^0.17.1
     "@chialab/node-resolve": ^0.17.0
     esbuild: ^0.15.0
     typescript: ^4.3.0
@@ -1927,22 +1927,22 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@chialab/esbuild-plugin-require-resolve@^0.17.0, @chialab/esbuild-plugin-require-resolve@workspace:packages/esbuild-plugin-require-resolve":
+"@chialab/esbuild-plugin-require-resolve@^0.17.1, @chialab/esbuild-plugin-require-resolve@workspace:packages/esbuild-plugin-require-resolve":
   version: 0.0.0-use.local
   resolution: "@chialab/esbuild-plugin-require-resolve@workspace:packages/esbuild-plugin-require-resolve"
   dependencies:
     "@chialab/esbuild-rna": ^0.17.0
-    "@chialab/estransform": ^0.17.0
+    "@chialab/estransform": ^0.17.1
     typescript: ^4.3.0
   languageName: unknown
   linkType: soft
 
-"@chialab/esbuild-plugin-unwebpack@^0.17.0, @chialab/esbuild-plugin-unwebpack@workspace:packages/esbuild-plugin-unwebpack":
+"@chialab/esbuild-plugin-unwebpack@^0.17.1, @chialab/esbuild-plugin-unwebpack@workspace:packages/esbuild-plugin-unwebpack":
   version: 0.0.0-use.local
   resolution: "@chialab/esbuild-plugin-unwebpack@workspace:packages/esbuild-plugin-unwebpack"
   dependencies:
     "@chialab/esbuild-rna": ^0.17.0
-    "@chialab/estransform": ^0.17.0
+    "@chialab/estransform": ^0.17.1
     "@chialab/node-resolve": ^0.17.0
     typescript: ^4.3.0
   languageName: unknown
@@ -1957,13 +1957,13 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@chialab/esbuild-plugin-worker@^0.17.0, @chialab/esbuild-plugin-worker@^0.17.1, @chialab/esbuild-plugin-worker@workspace:packages/esbuild-plugin-worker":
+"@chialab/esbuild-plugin-worker@^0.17.0, @chialab/esbuild-plugin-worker@^0.17.2, @chialab/esbuild-plugin-worker@workspace:packages/esbuild-plugin-worker":
   version: 0.0.0-use.local
   resolution: "@chialab/esbuild-plugin-worker@workspace:packages/esbuild-plugin-worker"
   dependencies:
-    "@chialab/esbuild-plugin-meta-url": ^0.17.0
+    "@chialab/esbuild-plugin-meta-url": ^0.17.1
     "@chialab/esbuild-rna": ^0.17.1
-    "@chialab/estransform": ^0.17.0
+    "@chialab/estransform": ^0.17.1
     "@chialab/node-resolve": ^0.17.0
     typescript: ^4.3.0
   languageName: unknown
@@ -2013,7 +2013,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@chialab/estransform@^0.17.0, @chialab/estransform@workspace:packages/estransform":
+"@chialab/estransform@^0.17.0, @chialab/estransform@^0.17.1, @chialab/estransform@workspace:packages/estransform":
   version: 0.0.0-use.local
   resolution: "@chialab/estransform@workspace:packages/estransform"
   dependencies:
@@ -2133,16 +2133,16 @@ __metadata:
   dependencies:
     "@chialab/esbuild-plugin-alias": ^0.17.0
     "@chialab/esbuild-plugin-any-file": ^0.17.0
-    "@chialab/esbuild-plugin-commonjs": ^0.17.0
+    "@chialab/esbuild-plugin-commonjs": ^0.17.1
     "@chialab/esbuild-plugin-css-import": ^0.17.0
     "@chialab/esbuild-plugin-define-this": ^0.17.0
     "@chialab/esbuild-plugin-env": ^0.17.0
     "@chialab/esbuild-plugin-external": ^0.17.1
     "@chialab/esbuild-plugin-html": ^0.17.0
-    "@chialab/esbuild-plugin-meta-url": ^0.17.0
+    "@chialab/esbuild-plugin-meta-url": ^0.17.1
     "@chialab/esbuild-plugin-postcss": ^0.17.1
-    "@chialab/esbuild-plugin-unwebpack": ^0.17.0
-    "@chialab/esbuild-plugin-worker": ^0.17.1
+    "@chialab/esbuild-plugin-unwebpack": ^0.17.1
+    "@chialab/esbuild-plugin-worker": ^0.17.2
     "@chialab/esbuild-rna": ^0.17.1
     "@chialab/rna-config-loader": ^0.17.0
     "@chialab/rna-logger": ^0.17.0
@@ -2172,11 +2172,11 @@ __metadata:
   resolution: "@chialab/rna-dev-server@workspace:packages/rna-dev-server"
   dependencies:
     "@chialab/es-dev-server": ^0.17.0
-    "@chialab/esbuild-plugin-require-resolve": ^0.17.0
+    "@chialab/esbuild-plugin-require-resolve": ^0.17.1
     "@chialab/rna-config-loader": ^0.17.0
     "@chialab/rna-logger": ^0.17.0
-    "@chialab/wds-plugin-hmr": ^0.17.0
-    "@chialab/wds-plugin-node-resolve": ^0.17.0
+    "@chialab/wds-plugin-hmr": ^0.17.1
+    "@chialab/wds-plugin-node-resolve": ^0.17.1
     "@chialab/wds-plugin-rna": ^0.17.1
     "@koa/cors": ^3.1.0
     "@types/koa-range": ^0.3.2
@@ -2258,9 +2258,9 @@ __metadata:
     "@chialab/esbuild-plugin-html": ^0.17.0
     "@chialab/esbuild-plugin-virtual": ^0.17.0
     "@chialab/esbuild-rna": ^0.17.0
-    "@chialab/estransform": ^0.17.0
+    "@chialab/estransform": ^0.17.1
     "@chialab/node-resolve": ^0.17.0
-    "@chialab/wds-plugin-node-resolve": ^0.17.0
+    "@chialab/wds-plugin-node-resolve": ^0.17.1
     "@chialab/wds-plugin-rna": ^0.17.0
     "@custom-elements-manifest/analyzer": 0.5.3
     "@mdx-js/mdx": ^2.0.0
@@ -2289,8 +2289,8 @@ __metadata:
   peerDependencies:
     "@chialab/rna-apidoc": ^0.17.0
     "@chialab/rna-browser-test-runner": ^0.17.1
-    "@chialab/rna-bundler": ^0.17.1
-    "@chialab/rna-dev-server": ^0.17.1
+    "@chialab/rna-bundler": ^0.17.3
+    "@chialab/rna-dev-server": ^0.17.2
     "@chialab/rna-node-test-runner": ^0.17.0
     "@chialab/rna-saucelabs-test-runner": ^0.17.1
   peerDependenciesMeta:
@@ -2316,19 +2316,19 @@ __metadata:
   resolution: "@chialab/wds-plugin-hmr-dna@workspace:packages/wds-plugin-hmr-dna"
   dependencies:
     "@chialab/es-dev-server": ^0.17.0
-    "@chialab/estransform": ^0.17.0
-    "@chialab/wds-plugin-hmr": ^0.17.0
+    "@chialab/estransform": ^0.17.1
+    "@chialab/wds-plugin-hmr": ^0.17.1
     rimraf: ^3.0.2
     typescript: ^4.3.0
   languageName: unknown
   linkType: soft
 
-"@chialab/wds-plugin-hmr@^0.17.0, @chialab/wds-plugin-hmr@workspace:packages/wds-plugin-hmr":
+"@chialab/wds-plugin-hmr@^0.17.1, @chialab/wds-plugin-hmr@workspace:packages/wds-plugin-hmr":
   version: 0.0.0-use.local
   resolution: "@chialab/wds-plugin-hmr@workspace:packages/wds-plugin-hmr"
   dependencies:
     "@chialab/es-dev-server": ^0.17.0
-    "@chialab/esbuild-plugin-require-resolve": ^0.17.0
+    "@chialab/esbuild-plugin-require-resolve": ^0.17.1
     "@web/dev-server-hmr": ^0.1.8
     rimraf: ^3.0.2
     typescript: ^4.3.0
@@ -2355,11 +2355,11 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@chialab/wds-plugin-node-resolve@^0.17.0, @chialab/wds-plugin-node-resolve@workspace:packages/wds-plugin-node-resolve":
+"@chialab/wds-plugin-node-resolve@^0.17.0, @chialab/wds-plugin-node-resolve@^0.17.1, @chialab/wds-plugin-node-resolve@workspace:packages/wds-plugin-node-resolve":
   version: 0.0.0-use.local
   resolution: "@chialab/wds-plugin-node-resolve@workspace:packages/wds-plugin-node-resolve"
   dependencies:
-    "@chialab/estransform": ^0.17.0
+    "@chialab/estransform": ^0.17.1
     "@chialab/node-resolve": ^0.17.0
     "@web/dev-server-core": ^0.3.8
     typescript: ^4.3.0

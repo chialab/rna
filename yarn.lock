@@ -1759,7 +1759,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@chialab/es-dev-server@^0.17.0, @chialab/es-dev-server@workspace:packages/es-dev-server":
+"@chialab/es-dev-server@^0.17.0, @chialab/es-dev-server@^0.17.1, @chialab/es-dev-server@workspace:packages/es-dev-server":
   version: 0.0.0-use.local
   resolution: "@chialab/es-dev-server@workspace:packages/es-dev-server"
   dependencies:
@@ -1969,7 +1969,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@chialab/esbuild-rna@^0.17.0, @chialab/esbuild-rna@^0.17.1, @chialab/esbuild-rna@workspace:packages/esbuild-rna":
+"@chialab/esbuild-rna@^0.17.0, @chialab/esbuild-rna@^0.17.1, @chialab/esbuild-rna@^0.17.2, @chialab/esbuild-rna@workspace:packages/esbuild-rna":
   version: 0.0.0-use.local
   resolution: "@chialab/esbuild-rna@workspace:packages/esbuild-rna"
   dependencies:
@@ -2171,7 +2171,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@chialab/rna-dev-server@workspace:packages/rna-dev-server"
   dependencies:
-    "@chialab/es-dev-server": ^0.17.0
+    "@chialab/es-dev-server": ^0.17.1
     "@chialab/esbuild-plugin-require-resolve": ^0.17.1
     "@chialab/rna-config-loader": ^0.17.0
     "@chialab/rna-logger": ^0.17.0
@@ -2254,10 +2254,10 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@chialab/rna-storybook@workspace:packages/rna-storybook"
   dependencies:
-    "@chialab/es-dev-server": ^0.17.0
+    "@chialab/es-dev-server": ^0.17.1
     "@chialab/esbuild-plugin-html": ^0.17.0
     "@chialab/esbuild-plugin-virtual": ^0.17.0
-    "@chialab/esbuild-rna": ^0.17.0
+    "@chialab/esbuild-rna": ^0.17.2
     "@chialab/estransform": ^0.17.1
     "@chialab/node-resolve": ^0.17.0
     "@chialab/wds-plugin-node-resolve": ^0.17.1
@@ -2290,7 +2290,7 @@ __metadata:
     "@chialab/rna-apidoc": ^0.17.0
     "@chialab/rna-browser-test-runner": ^0.17.1
     "@chialab/rna-bundler": ^0.17.3
-    "@chialab/rna-dev-server": ^0.17.2
+    "@chialab/rna-dev-server": ^0.17.5
     "@chialab/rna-node-test-runner": ^0.17.0
     "@chialab/rna-saucelabs-test-runner": ^0.17.1
   peerDependenciesMeta:

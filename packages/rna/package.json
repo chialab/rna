@@ -1,7 +1,7 @@
 {
   "name": "@chialab/rna",
   "type": "module",
-  "version": "0.17.2",
+  "version": "0.17.3",
   "description": "A bundler, a server and a test runner for modern modules and applications.",
   "main": "dist/index.js",
   "typings": "./types/index.d.ts",
@@ -37,7 +37,7 @@
     "@chialab/rna-apidoc": "^0.17.0",
     "@chialab/rna-browser-test-runner": "^0.17.1",
     "@chialab/rna-bundler": "^0.17.3",
-    "@chialab/rna-dev-server": "^0.17.2",
+    "@chialab/rna-dev-server": "^0.17.5",
     "@chialab/rna-node-test-runner": "^0.17.0",
     "@chialab/rna-saucelabs-test-runner": "^0.17.1"
   },

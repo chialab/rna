@@ -1,5 +1,15 @@
 # @chialab/rna-storybook
 
+## 0.17.2
+
+### Patch Changes
+
+- 5bfe3a8: Enforce plugins order in dev server
+- Updated dependencies [5bfe3a8]
+- Updated dependencies [a4e5e32]
+  - @chialab/es-dev-server@0.17.1
+  - @chialab/esbuild-rna@0.17.2
+
 ## 0.17.1
 
 ### Patch Changes

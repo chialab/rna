@@ -44,6 +44,7 @@ export function servePlugin(config) {
      */
     const plugin = {
         name: 'rna-storybook',
+        enforce: 'pre',
 
         async serverStart(args) {
             serverConfig = args.config;
@@ -101,18 +102,12 @@ export function servePlugin(config) {
             }
 
             if (source === PREVIEW_MODULE_SCRIPT) {
-                return appendSearchParam(`/${PREVIEW_MODULE_SCRIPT}`, 'preview', 'true');
+                return `/${PREVIEW_MODULE_SCRIPT}`;
             }
 
             if (context.path === `/${MANAGER_SCRIPT}` ||
                 context.URL.searchParams.has('manager')) {
                 return appendSearchParam(source, 'manager', 'true');
-            }
-
-            if (context.path === `/${PREVIEW_SCRIPT}` ||
-                context.URL.searchParams.has('preview') ||
-                context.URL.searchParams.has('story')) {
-                return appendSearchParam(source, 'preview', 'true');
             }
         },
 

@@ -91,10 +91,12 @@ export function hmrCssPlugin() {
      * @type {import('@web/dev-server-core').Plugin}
      */
     const plugin = {
-        name: 'hmr-css',
+        name: 'css-hmr',
         injectWebSocket: true,
 
-        async serverStart({ webSockets, fileWatcher, config }) {
+        async serverStart(args) {
+            const { webSockets, fileWatcher, config } = args;
+
             if (!fileWatcher) {
                 throw new Error('Cannot use HMR when watch mode is disabled.');
             }
@@ -105,47 +107,49 @@ export function hmrCssPlugin() {
 
             rootDir = config.rootDir;
 
-            /**
-             * @type {string|undefined}
-             */
-            let currentFile;
+            let lock = false;
 
             const send = webSockets.send;
             webSockets.send = function(message) {
-                if (currentFile) {
-                    const data = JSON.parse(message);
-                    if (data.type !== 'import' || !dependencyTree.has(currentFile)) {
-                        currentFile = undefined;
-                        return;
-                    }
-
-                    try {
-                        const entrypoints = invalidateResource(dependencyTree, currentFile)
-                            .map((entryPoint) => entryPoint.url);
-                        const content = createCssLiveReload();
-                        data.data.importPath = `data:text/javascript,${content}`;
-                        data.data.args = [entrypoints];
-                        message = JSON.stringify(data);
-                        currentFile = undefined;
-                    } catch (err) {
-                        //
-                    }
+                const messageData = JSON.parse(message);
+                if (messageData.type === 'hmr:reload' && lock) {
+                    return;
                 }
+                return send.call(this, message);
+            };
 
-                return send.apply(this, [message]);
+            /**
+             * @param {string} filePath
+             */
+            const handleFile = (filePath) => !!filePath.match(/\.(c|sc|sa|le)ss$/);
+
+            /**
+             * @param {string} filePath
+             */
+            const lockFile = (filePath) => {
+                lock = handleFile(filePath);
             };
 
             /**
              * @param {string} filePath
              */
             const onFileChanged = (filePath) => {
-                if (!filePath.match(/\.(c|sc|sa|le)ss$/)) {
+                if (!handleFile(filePath)) {
                     return;
                 }
 
-                currentFile = filePath;
+                try {
+                    const entrypoints = invalidateResource(dependencyTree, filePath)
+                        .map((entryPoint) => entryPoint.url);
+                    const content = createCssLiveReload();
+                    webSockets.sendImport(`data:text/javascript,${content}`, [entrypoints]);
+                } catch (err) {
+                    //
+                }
             };
 
+            fileWatcher.prependListener('change', (filePath) => lockFile(filePath));
+            fileWatcher.prependListener('unlink', (filePath) => lockFile(filePath));
             fileWatcher.on('change', (filePath) => onFileChanged(filePath));
             fileWatcher.on('unlink', (filePath) => onFileChanged(filePath));
         },

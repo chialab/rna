@@ -49,6 +49,8 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
         async setup(pluginBuild) {
             const build = useRna(plugin, pluginBuild);
             const { sourcesContent, sourcemap } = build.getOptions();
+            const workingDir = build.getWorkingDir();
+
             await build.setupPlugin([metaUrlPlugin({ emit })], 'after');
 
             build.onTransform({ loaders: ['tsx', 'ts', 'jsx', 'js'] }, async (args) => {
@@ -68,7 +70,7 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                  */
                 const redefined = new Set();
 
-                const { helpers, processor } = await parse(code, args.path);
+                const { helpers, processor } = await parse(code, path.relative(workingDir, args.path));
                 await walk(processor, (token) => {
                     if (token.type === TokenType._class) {
                         processor.nextToken();
@@ -253,11 +255,13 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                     };
                 }
 
+                const transformResult = await helpers.generate({
+                    sourcemap: !!sourcemap,
+                    sourcesContent,
+                });
+
                 return {
-                    ...helpers.generate({
-                        sourcemap: !!sourcemap,
-                        sourcesContent,
-                    }),
+                    ...transformResult,
                     warnings,
                 };
             });

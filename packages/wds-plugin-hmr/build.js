@@ -12,14 +12,6 @@ esbuild.build({
     platform: 'node',
     external: [
         '@chialab/es-dev-server',
-        '@chialab/rna-config-loader',
-        '@chialab/rna-logger',
-        '@chialab/wds-plugin-hmr',
-        '@chialab/wds-plugin-node-resolve',
-        '@chialab/wds-plugin-rna',
-        '@chialab/wds-plugin-legacy',
-        'yamlparser',
-        'fsevents',
     ],
     banner: {
         js: `import { dirname as __pathDirname } from 'path';

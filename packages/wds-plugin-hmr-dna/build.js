@@ -1,5 +1,4 @@
 import esbuild from 'esbuild';
-import requireResolvePlugin from '@chialab/esbuild-plugin-require-resolve';
 
 esbuild.build({
     entryPoints: ['lib/index.js'],
@@ -11,15 +10,9 @@ esbuild.build({
     format: 'esm',
     platform: 'node',
     external: [
+        '@chialab/estransform',
         '@chialab/es-dev-server',
-        '@chialab/rna-config-loader',
-        '@chialab/rna-logger',
         '@chialab/wds-plugin-hmr',
-        '@chialab/wds-plugin-node-resolve',
-        '@chialab/wds-plugin-rna',
-        '@chialab/wds-plugin-legacy',
-        'yamlparser',
-        'fsevents',
     ],
     banner: {
         js: `import { dirname as __pathDirname } from 'path';
@@ -30,7 +23,4 @@ const __filename = new URL(import.meta.url).pathname;
 const __dirname = __pathDirname(__filename);
 `,
     },
-    plugins: [
-        requireResolvePlugin(),
-    ],
 });

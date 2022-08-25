@@ -4,7 +4,7 @@ import sourceMapDefault from '@parcel/source-map';
 
 const { default: SourceMapNode } = sourceMapDefault;
 
-const SOURCEMAP_REGEX = /(?:(\/\*+\s*?sourceMappingURL\s*=)([\s\S]*?)(\*\/))|(?:(\/\/\s*?sourceMappingURL\s*=)(.*?)([\r\n]))/;
+const SOURCEMAP_REGEX = /(?:(\/\*+\s*?sourceMappingURL\s*=)([\s\S]*?)(\*\/))|(?:(\/\/#?\s*?sourceMappingURL\s*=)(.*?)([\r\n]|$))/;
 
 /**
  * @typedef {Object} SourceMap
@@ -27,6 +27,13 @@ export function parseSourcemap(map) {
 
 /**
  * @param {string} code
+ */
+export function removeInlineSourcemap(code) {
+    return code.split(SOURCEMAP_REGEX)[0];
+}
+
+/**
+ * @param {string} code
  * @param {string} [filePath]
  */
 export async function loadSourcemap(code, filePath) {
@@ -36,8 +43,11 @@ export async function loadSourcemap(code, filePath) {
         try {
             let content;
             if (mapUrl.startsWith('data:')) {
-                content = Buffer.from(mapUrl.split(',')[1]).toString('base64');
-                return parseSourcemap(content);
+                const [mapHeader, mapContent] = mapUrl.split(',');
+                if (mapHeader.includes(';base64')) {
+                    return parseSourcemap(Buffer.from(mapContent, 'base64').toString('ascii'));
+                }
+                return parseSourcemap(mapContent);
             }
 
             if (filePath) {

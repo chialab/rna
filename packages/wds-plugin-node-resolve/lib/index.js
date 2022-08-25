@@ -44,7 +44,7 @@ export function createHelperUrl(name) {
  * @param {string} url
  */
 export function isHelperImport(url) {
-    return url.includes('__web-dev-server__web-socket') ||
+    return url.includes('__web-dev-server__') ||
         url.includes('__web-test-runner__') ||
         url.includes(HELPERS_PATH);
 }
@@ -178,6 +178,10 @@ export default function(config = {}) {
 
         async resolveImport({ source, context, code, line, column }) {
             if (!context.response.is('js')) {
+                return;
+            }
+
+            if (isHelperImport(source)) {
                 return;
             }
 

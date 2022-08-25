@@ -7,32 +7,18 @@
     "rootDir": "./lib"
   },
   "include": [
-    "lib/**/*"
+    "lib/**/*",
+    "modules.d.ts"
   ],
   "references": [
     {
       "path": "../es-dev-server"
     },
     {
-      "path": "../rna-config-loader"
-    },
-    {
-      "path": "../rna-logger"
+      "path": "../estransform"
     },
     {
       "path": "../wds-plugin-hmr"
-    },
-    {
-      "path": "../wds-plugin-node-resolve"
-    },
-    {
-      "path": "../wds-plugin-rna"
-    },
-    {
-      "path": "../wds-plugin-legacy"
-    },
-    {
-      "path": "../esbuild-plugin-require-resolve"
     }
   ]
 }

@@ -16,6 +16,7 @@ export default function() {
         setup(pluginBuild) {
             const build = useRna(plugin, pluginBuild);
             const { sourcesContent, sourcemap } = build.getOptions();
+            const workingDir = build.getWorkingDir();
 
             build.onTransform({ loaders: ['tsx', 'ts', 'jsx', 'js'] }, async (args) => {
                 const code = args.code;
@@ -31,7 +32,7 @@ export default function() {
                  */
                 const promises = [];
 
-                const { helpers, processor } = await parse(code, args.path);
+                const { helpers, processor } = await parse(code, path.relative(workingDir, args.path));
                 await walk(processor, (token) => {
                     if (!processor.matches3(TokenType._import, TokenType.parenL, TokenType.backQuote) ||
                         processor.identifierNameForToken(token) !== 'import') {

@@ -118,7 +118,10 @@
       "path": "./packages/rna-storybook"
     },
     {
-      "path": "./packages/wds-plugin-hmr-css"
+      "path": "./packages/wds-plugin-hmr"
+    },
+    {
+      "path": "./packages/wds-plugin-hmr-dna"
     },
     {
       "path": "./packages/wds-plugin-legacy"

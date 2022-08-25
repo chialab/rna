@@ -3,6 +3,7 @@ import { parse as sucraseParse } from 'sucrase/dist/parser/index.js';
 import NameManagerModule from 'sucrase/dist/NameManager.js';
 import { HelperManager } from 'sucrase/dist/HelperManager.js';
 import TokenProcessorModule from 'sucrase/dist/TokenProcessor.js';
+import { inlineSourcemap, loadSourcemap, mergeSourcemaps, removeInlineSourcemap } from './sourcemaps.js';
 
 /**
  * @param {*} mod
@@ -43,10 +44,11 @@ export async function walk(processor, callback) {
 }
 
 /**
- * @param {string} code The code to parse.
- * @param {string} [fileName] The source file name.
+ * @param {string} inputCode The code to parse.
+ * @param {string} [filePath] The source file name.
  */
-export function parse(code, fileName) {
+export function parse(inputCode, filePath) {
+    const code = removeInlineSourcemap(inputCode);
     const program = sucraseParse(code, true, true, false);
     const nameManager = new NameManager(code, program.tokens);
     const helperManager = new HelperManager(nameManager);
@@ -98,17 +100,31 @@ export function parse(code, fileName) {
                 return changed;
             },
             /**
-             * @param {{ sourcemap?: boolean; sourcesContent?: boolean }} options
+             * @param {{ sourcemap?: boolean|'inline'; sourcesContent?: boolean }} options
              */
-            generate(options = {}) {
-                return {
-                    code: magicCode.toString(),
-                    map: options.sourcemap ? magicCode.generateMap({
-                        source: fileName,
+            async generate(options = {}) {
+                const code = magicCode.toString();
+
+                let map = null;
+                if (options.sourcemap) {
+                    const inputSourcemap = await loadSourcemap(inputCode, filePath);
+                    const newSourcemap = magicCode.generateMap({
+                        source: filePath,
                         includeContent: options.sourcesContent,
                         hires: true,
-                    }) : null,
-                };
+                    });
+
+                    map = inputSourcemap ? await mergeSourcemaps([inputSourcemap, newSourcemap]) : newSourcemap;
+                }
+
+                if (options.sourcemap === 'inline' && map) {
+                    return {
+                        code: inlineSourcemap(code, map),
+                        map,
+                    };
+                }
+
+                return { code, map };
             },
         },
     };

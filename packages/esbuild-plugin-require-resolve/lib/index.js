@@ -16,6 +16,7 @@ export default function() {
         setup(pluginBuild) {
             const build = useRna(plugin, pluginBuild);
             const { sourcesContent, sourcemap } = build.getOptions();
+            const workingDir = build.getWorkingDir();
 
             build.onTransform({ loaders: ['tsx', 'ts', 'jsx', 'js'] }, async (args) => {
                 if (!args.code.includes('require.resolve')) {
@@ -27,7 +28,7 @@ export default function() {
                  */
                 const promises = [];
 
-                const { helpers, processor } = await parse(args.code, args.path);
+                const { helpers, processor } = await parse(args.code, path.relative(workingDir, args.path));
                 await walk(processor, () => {
                     if (!processor.matches5(TokenType.name, TokenType.dot, TokenType.name, TokenType.parenL, TokenType.string)) {
                         return;

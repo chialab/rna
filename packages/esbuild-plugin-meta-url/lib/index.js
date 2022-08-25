@@ -111,6 +111,7 @@ export default function({ emit = true } = {}) {
         async setup(pluginBuild) {
             const build = useRna(plugin, pluginBuild);
             const { platform, format, sourcesContent, sourcemap } = build.getOptions();
+            const workingDir = build.getWorkingDir();
 
             const usePlainScript = platform === 'browser' && format !== 'esm';
             const isNode = platform === 'node' && format !== 'esm';
@@ -139,7 +140,7 @@ export default function({ emit = true } = {}) {
                  */
                 const promises = [];
 
-                const { helpers, processor } = await parse(code, args.path);
+                const { helpers, processor } = await parse(code, path.relative(workingDir, args.path));
 
                 /**
                  * @type {import('esbuild').Message[]}
@@ -242,11 +243,13 @@ export default function({ emit = true } = {}) {
                     helpers.prepend('var __currentScriptUrl__ = document.currentScript && document.currentScript.src || document.baseURI;\n');
                 }
 
+                const transformResult = await helpers.generate({
+                    sourcemap: !!sourcemap,
+                    sourcesContent,
+                });
+
                 return {
-                    ...helpers.generate({
-                        sourcemap: !!sourcemap,
-                        sourcesContent,
-                    }),
+                    ...transformResult,
                     warnings,
                 };
             });

@@ -1,3 +1,4 @@
+import path from 'path';
 import typescript from 'typescript';
 import { useRna } from '@chialab/esbuild-rna';
 import { create } from '@custom-elements-manifest/analyzer/src/create.js';
@@ -22,6 +23,7 @@ export default function({ framework = '@storybook/web-components', plugins = [] 
         setup(pluginBuild) {
             const build = useRna(plugin, pluginBuild);
             const { sourcesContent, sourcemap } = build.getOptions();
+            const workingDir = build.getWorkingDir();
 
             build.onTransform({ loaders: ['tsx', 'ts', 'jsx', 'js'] }, async (args) => {
                 if (args.path.includes('/node_modules/') ||
@@ -79,7 +81,7 @@ export default function({ framework = '@storybook/web-components', plugins = [] 
                         }
                     );
 
-                const { helpers } = parse(code, args.path);
+                const { helpers } = parse(code, path.relative(workingDir, args.path));
                 helpers.prepend(`import * as __STORYBOOK_WEB_COMPONENTS__ from '${framework}';\n`);
                 helpers.append(`
 ;(function() {

@@ -21,5 +21,13 @@ export function containsComponent(body) {
         .flat()
         .map((match) => match.trim());
 
-    return specs.includes('customElement') || specs.includes('customElements');
+    if (specs.includes('customElement') && body.includes('customElement(')) {
+        return true;
+    }
+
+    if (specs.includes('customElements') && body.includes('customElements.define(')) {
+        return true;
+    }
+
+    return false;
 }

@@ -1,3 +1,4 @@
+import path from 'path';
 import { parse } from '@chialab/estransform';
 import { getRequestFilePath } from '@chialab/es-dev-server';
 import { hmrPlugin as baseHmrPlugin } from '@chialab/wds-plugin-hmr';
@@ -56,13 +57,14 @@ export function hmrPlugin() {
             const body = /** @type {string} */ (context.body);
             if (context.response.is('js') && containsComponent(body)) {
                 const filePath = getRequestFilePath(context.url, rootDir);
-                const { helpers } = await parse(body, filePath);
+                const { helpers } = await parse(body, path.basename(filePath));
                 helpers.append(`import '/__web-dev-server__/hmr-dna.js';
 if (import.meta.hot) {
     import.meta.hot.accept();
 }`);
-                const { code } = helpers.generate({
-                    sourcemap: true,
+                const { code } = await helpers.generate({
+                    sourcemap: 'inline',
+                    sourcesContent: true,
                 });
 
                 context.body = code;

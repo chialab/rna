@@ -1,5 +1,11 @@
 # @chialab/rna-dev-server
 
+## 0.17.4
+
+### Patch Changes
+
+- Re-publish after build
+
 ## 0.17.3
 
 ### Patch Changes

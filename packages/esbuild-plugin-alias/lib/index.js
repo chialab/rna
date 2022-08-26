@@ -18,6 +18,9 @@ export function addAlias(pluginInstance, pluginBuild, key, aliasRule, rootDir) {
     const build = useRna(pluginInstance, pluginBuild);
 
     build.onResolve({ filter: aliasFilter }, async (args) => {
+        if (args.pluginData && args.pluginData.includes(aliasFilter)) {
+            return;
+        }
         if (!aliasRule) {
             return {
                 path: args.path,
@@ -45,7 +48,7 @@ export function addAlias(pluginInstance, pluginBuild, key, aliasRule, rootDir) {
             namespace: args.namespace,
             resolveDir: args.resolveDir || rootDir || build.getSourceRoot(),
             kind: args.kind,
-            pluginData: args.pluginData,
+            pluginData: [...(args.pluginData || []), aliasFilter],
         });
     });
 }

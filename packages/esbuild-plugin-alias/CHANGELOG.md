@@ -1,5 +1,11 @@
 # @chialab/esbuild-plugin-alias
 
+## 0.16.4
+
+### Patch Changes
+
+- Fix recursive alias resolution
+
 ## 0.16.3
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @chialab/wds-plugin-rna
 
+## 0.17.2
+
+### Patch Changes
+
+- 0fd50996: Fix public path reference for virtual files
+
 ## 0.17.1
 
 ### Patch Changes

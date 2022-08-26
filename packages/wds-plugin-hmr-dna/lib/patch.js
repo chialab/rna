@@ -1,4 +1,4 @@
-export const patch = `import { customElements } from '@chialab/dna';
+export const patch = `import { getProperties, customElements } from '@chialab/dna';
 
 const connectedNodes = new Map();
 
@@ -15,38 +15,82 @@ function unregister(node) {
     }
 }
 
-function patchConnectedCallback(ctr) {
-    const connected = ctr.prototype.connectedCallback;
-    ctr.prototype.connectedCallback = function() {
-        register(this);
-        return connected.call(this);
-    };
-}
+const proxies = new Map();
+const classes = new Map();
 
-function patchDisonnectedCallback(ctr) {
-    const disconnected = ctr.prototype.disconnectedCallback;
-    ctr.prototype.disconnectedCallback = function() {
-        unregister(this);
-        return disconnected.call(this);
-    };
-}
+const registryDefine = window.customElements.define.bind(window.customElements);
+window.customElements.define = function(name, ctr, options) {
+    if (!window.customElements.get(name)) {
+        registryDefine(name, proxies.get(name), options);
+    }
+};
 
 const define = customElements.define.bind(customElements);
 customElements.define = function(name, ctr, options) {
-    patchConnectedCallback(ctr);
-    patchDisonnectedCallback(ctr);
+    const actual = classes.get(name);
+    const connected = connectedNodes.get(name) || [];
+    connected.forEach((node) => {
+        const computedProperties = getProperties(node);
+        const actualProperties = {};
+        for (const propertyKey in computedProperties) {
+            actualProperties[propertyKey] = node.getInnerPropertyValue(propertyKey);
+        }
 
-    const actual = customElements.get(name);
-    if (!actual) {
-        define(name, ctr, options);
-    } else {
-        Object.setPrototypeOf(actual, ctr);
-        Object.setPrototypeOf(actual.prototype, ctr.prototype);
+        node.__actualProperties__ = actualProperties;
+    });
 
-        const connected = connectedNodes.get(name) || [];
-        connected.forEach((node) => {
-            node.forceUpdate();
-        });
+    const proxyClass = proxies.get(name) || class extends ctr {
+        constructor(...args) {
+            super(...args);
+        }
+
+        connectedCallback() {
+            register(this);
+            super.connectedCallback();
+        }
+
+        disconnectedCallback() {
+            unregister(this);
+            super.disconnectedCallback();
+        }
+    };
+    classes.set(name, ctr);
+    proxies.set(name, proxyClass);
+
+    if (actual) {
+        Object.setPrototypeOf(proxyClass, ctr);
+        Object.setPrototypeOf(proxyClass.prototype, ctr.prototype);
     }
+
+    delete customElements.registry[name];
+    define(name, proxyClass, options);
+
+    if (!actual) {
+        return;
+    }
+
+    connected.forEach((node) => {
+        const computedProperties = getProperties(node);
+        const actualProperties = node.__actualProperties__ || {};
+        let initializedProperties;
+        for (const propertyKey in computedProperties) {
+            if (propertyKey in actualProperties) {
+                node.setInnerPropertyValue(propertyKey, actualProperties[propertyKey]);
+            } else {
+                const property = computedProperties[propertyKey];
+                if (typeof property.initializer === 'function') {
+                    node[propertyKey] = property.initializer.call(node);
+                } else if (typeof property.defaultValue !== 'undefined') {
+                    node[propertyKey] = property.defaultValue;
+                } else if (!property.static) {
+                    initializedProperties = initializedProperties || new proxyClass();
+                    node.setInnerPropertyValue(propertyKey, initializedProperties[propertyKey]);
+                }
+                node.watchedProperties.push(propertyKey);
+            }
+        }
+        delete node.__actualProperties__;
+        node.forceUpdate();
+    });
 };
 `;

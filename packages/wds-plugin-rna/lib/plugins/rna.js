@@ -337,7 +337,7 @@ export function rnaPlugin(config) {
                             chunkNames: '[name]',
                             output: filePath,
                             write: false,
-                            publicPath: `/${path.relative(rootDir, path.dirname(filePath))}`,
+                            publicPath: '',
                         });
 
                         const outputFiles = /** @type {import('esbuild').OutputFile[]} */ (result.outputFiles);
@@ -498,7 +498,7 @@ export function rnaPlugin(config) {
                         chunkNames: '[name]-[hash]',
                         output: resolved,
                         write: false,
-                        publicPath: `/${path.relative(rootDir, path.dirname(filePath))}`,
+                        publicPath: '',
                     })
                 ).then((result) => {
                     if (!result.outputFiles) {

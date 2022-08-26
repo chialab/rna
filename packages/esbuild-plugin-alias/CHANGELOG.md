@@ -13,6 +13,12 @@
   - @chialab/estransform@0.17.0
   - @chialab/node-resolve@0.17.0
 
+## 0.16.4
+
+### Patch Changes
+
+- Fix recursive alias resolution
+
 ## 0.16.3
 
 ### Patch Changes

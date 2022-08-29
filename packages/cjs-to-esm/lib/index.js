@@ -270,17 +270,19 @@ var __umdKeys = Object.keys(__umdGlobal);
 var __newUmdKeys = Object.keys(__umdGlobal).slice(__umdKeys.length);
 var __umdMainKey = __newUmdKeys[0];
 if (__umdMainKey) {
-    var __umdModule = __umdGlobal[__umdMainKey];
-    Object.defineProperty(__umdGlobal, __umdMainKey, {
-        configurable: true,
-        get() {
-            return __umdModule;
-        },
-        set(val) {
-            __umdGlobal.__umdMainKey = __umdMainKey;
-            __umdModule = val;
-        }
-    });
+    (function() {
+        var __umdModule = __umdGlobal[__umdMainKey];
+        Object.defineProperty(__umdGlobal, __umdMainKey, {
+            configurable: true,
+            get() {
+                return __umdModule;
+            },
+            set(val) {
+                __umdGlobal.__umdMainKey = __umdMainKey;
+                __umdModule = val;
+            }
+        });
+    })();
 }
 
 __umdMainKey = __umdMainKey || __umdGlobal.__umdMainKey;

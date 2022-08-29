@@ -84,7 +84,7 @@ export async function build(config) {
             'main',
         ],
         resolveExtensions,
-        conditions,
+        conditions = ['module'],
         publicPath,
         inject,
         banner,

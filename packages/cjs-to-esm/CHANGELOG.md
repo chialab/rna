@@ -1,5 +1,11 @@
 # @chialab/cjs-to-esm
 
+## 0.17.1
+
+### Patch Changes
+
+- 76a7b9d: Make sure UMD module is not overwritten
+
 ## 0.17.0
 
 ### Minor Changes

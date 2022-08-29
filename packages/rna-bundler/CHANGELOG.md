@@ -1,5 +1,11 @@
 # @chialab/rna-bundler
 
+## 0.17.4
+
+### Patch Changes
+
+- 5408c57: Handle custom `module` condition.
+
 ## 0.17.3
 
 ### Patch Changes

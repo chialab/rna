@@ -61,14 +61,14 @@ customElements.define = function(name, ctr, options) {
     const prototype = ctr.prototype;
     const superConstructor = Object.getPrototypeOf(ctr);
     const superPrototype = Object.getPrototypeOf(prototype);
-    const constructor = function(...args) {
-        if (proxying) {
-            return Reflect.construct(superConstructor, args, proxyClass);
+    const constructor = class extends superConstructor {
+        constructor(...args) {
+            if (new.target === ctr) {
+                return new proxyClass(...args);
+            }
+            super(...args);
         }
-        return new proxyClass(...args);
     };
-    Object.setPrototypeOf(constructor, superConstructor);
-    Object.setPrototypeOf(constructor.prototype, superPrototype);
     Object.setPrototypeOf(ctr, constructor);
     Object.setPrototypeOf(ctr.prototype, constructor.prototype);
     Object.setPrototypeOf(proxyClass, ctr);

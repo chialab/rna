@@ -16,7 +16,6 @@ function unregister(node) {
 }
 
 const proxies = new Map();
-const classes = new Map();
 
 const registryDefine = window.customElements.define.bind(window.customElements);
 window.customElements.define = function(name, ctr, options) {
@@ -27,7 +26,7 @@ window.customElements.define = function(name, ctr, options) {
 
 const define = customElements.define.bind(customElements);
 customElements.define = function(name, ctr, options) {
-    const actual = classes.get(name);
+    const actual = customElements.get(name);
     const connected = connectedNodes.get(name) || [];
     connected.forEach((node) => {
         const computedProperties = getProperties(node);
@@ -39,9 +38,12 @@ customElements.define = function(name, ctr, options) {
         node.__actualProperties__ = actualProperties;
     });
 
+    let proxying = false;
     const proxyClass = proxies.get(name) || class extends ctr {
         constructor(...args) {
+            proxying = true;
             super(...args);
+            proxying = false;
         }
 
         connectedCallback() {
@@ -54,13 +56,23 @@ customElements.define = function(name, ctr, options) {
             super.disconnectedCallback();
         }
     };
-    classes.set(name, ctr);
     proxies.set(name, proxyClass);
 
-    if (actual) {
-        Object.setPrototypeOf(proxyClass, ctr);
-        Object.setPrototypeOf(proxyClass.prototype, ctr.prototype);
-    }
+    const prototype = ctr.prototype;
+    const superConstructor = Object.getPrototypeOf(ctr);
+    const superPrototype = Object.getPrototypeOf(prototype);
+    const constructor = function(...args) {
+        if (proxying) {
+            return Reflect.construct(superConstructor, args, proxyClass);
+        }
+        return new proxyClass(...args);
+    };
+    Object.setPrototypeOf(constructor, superConstructor);
+    Object.setPrototypeOf(constructor.prototype, superPrototype);
+    Object.setPrototypeOf(ctr, constructor);
+    Object.setPrototypeOf(ctr.prototype, constructor.prototype);
+    Object.setPrototypeOf(proxyClass, ctr);
+    Object.setPrototypeOf(proxyClass.prototype, prototype);
 
     delete customElements.registry[name];
     define(name, proxyClass, options);

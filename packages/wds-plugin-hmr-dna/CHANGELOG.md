@@ -1,5 +1,11 @@
 # @chialab/wds-plugin-hmr-dna
 
+## 0.17.3
+
+### Patch Changes
+
+- 7b0028e: Fix hmr for dna components created with new
+
 ## 0.17.2
 
 ### Patch Changes

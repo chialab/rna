@@ -1,5 +1,11 @@
 # @chialab/wds-plugin-hmr-dna
 
+## 0.17.4
+
+### Patch Changes
+
+- e142725: Fix hmr prototype chain
+
 ## 0.17.3
 
 ### Patch Changes

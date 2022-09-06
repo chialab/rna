@@ -38,12 +38,9 @@ customElements.define = function(name, ctr, options) {
         node.__actualProperties__ = actualProperties;
     });
 
-    let proxying = false;
     const proxyClass = proxies.get(name) || class extends ctr {
         constructor(...args) {
-            proxying = true;
             super(...args);
-            proxying = false;
         }
 
         connectedCallback() {

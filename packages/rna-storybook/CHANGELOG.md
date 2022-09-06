@@ -1,5 +1,11 @@
 # @chialab/rna-storybook
 
+## 0.17.3
+
+### Patch Changes
+
+- 000fc72: Add github flavored markdown plugin to storybook docs
+
 ## 0.17.2
 
 ### Patch Changes

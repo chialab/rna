@@ -229,10 +229,10 @@ export function command(program) {
                 const server = await serve(serveConfig);
 
                 serveConfig.logger?.log(`
-  ${colors.bold('rna dev server started')}
+${colors.bold('dev server started!')}
 
-  root:     ${colors.blue.bold(path.resolve(serveConfig.rootDir || root))}
-  local:    ${colors.blue.bold(`http://${server.config.hostname}:${server.config.port}/`)}
+root:     ${colors.hex('#ef7d00')(path.resolve(serveConfig.rootDir || root))}
+local:    ${colors.hex('#ef7d00')(`http://${server.config.hostname}:${server.config.port}/`)}
 `);
             }
         );

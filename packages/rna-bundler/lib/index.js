@@ -1,6 +1,6 @@
 import os from 'os';
 import path from 'path';
-import { createLogger, readableSize } from '@chialab/rna-logger';
+import { colors, createLogger, readableSize } from '@chialab/rna-logger';
 import { getEntryBuildConfig, mergeConfig, readConfigFile, locateConfigFile } from '@chialab/rna-config-loader';
 import { assignToResult, createResult, remapResult } from '@chialab/esbuild-rna';
 import { build } from './build.js';
@@ -224,7 +224,9 @@ export function command(program) {
                     if (Object.keys(metafile.outputs).length) {
                         const sizes = await bundleSize(metafile, showCompressed);
                         if (!rebuild) {
-                            logger.log('Generated bundle files:\n');
+                            logger.log(colors.bold(`
+Build completed!
+`));
                         }
                         logger.files(sizes, showCompressed ? ['size', 'gzip', 'brotli'] : ['size'], {
                             size: readableSize,

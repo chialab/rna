@@ -31,8 +31,8 @@ const loadCommand = async function(name, source) {
                     logger.error(colors.red(colors.bold('Command not found.')));
                     logger.error(`
 ${colors.yellow('Please install the corresponding module in order to use this command:')}
-${colors.white(`npm install -D ${colors.blue(source)}`)}
-${colors.white(`yarn add -D ${colors.blue(source)}`)}
+${colors.white(`npm install -D ${colors.hex('#ef7d00')(source)}`)}
+${colors.white(`yarn add -D ${colors.hex('#ef7d00')(source)}`)}
 `);
 
                     process.exitCode = 1;

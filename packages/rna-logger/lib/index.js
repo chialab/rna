@@ -85,11 +85,11 @@ export function createLogger(name = 'rna') {
                     return acc;
                 }, /** @type {*} */({}));
 
-            this.log(Object.keys(columns).map((name) => colors.white.bold(name[0].toUpperCase() + name.substr(1).padEnd(columns[name].length - 1, ' '))).join('\t'));
+            this.log(Object.keys(columns).map((name) => colors.white(name[0].toUpperCase() + name.substr(1).padEnd(columns[name].length - 1, ' '))).join('\t'));
 
             const fileNames = Object.keys(files);
             fileNames.forEach((fileName, index) => {
-                this.log(Object.keys(columns).map((name, colIndex) => (colIndex === 0 ? colors.blue : colors.gray)((columns[name].values[index] || '').padEnd(columns[name].length, ' '))).join('\t'));
+                this.log(Object.keys(columns).map((name, colIndex) => (colIndex === 0 ? colors.hex('#ef7d00') : colors.gray)((columns[name].values[index] || '').padEnd(columns[name].length, ' '))).join('\t'));
             });
 
             if (fileNames.length > 1) {

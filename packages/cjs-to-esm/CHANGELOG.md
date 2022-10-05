@@ -1,5 +1,11 @@
 # @chialab/cjs-to-esm
 
+## 0.17.2
+
+### Patch Changes
+
+- 83a0f22c: Correctly detect UMD export name
+
 ## 0.17.1
 
 ### Patch Changes

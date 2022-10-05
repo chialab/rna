@@ -1,5 +1,11 @@
 # @chialab/rna-logger
 
+## 0.17.1
+
+### Patch Changes
+
+- 66e7c089: Logger theme
+
 ## 0.17.0
 
 ### Minor Changes

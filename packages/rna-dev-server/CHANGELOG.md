@@ -1,5 +1,13 @@
 # @chialab/rna-dev-server
 
+## 0.17.6
+
+### Patch Changes
+
+- 66e7c089: Logger theme
+- Updated dependencies [66e7c089]
+  - @chialab/rna-logger@0.17.1
+
 ## 0.17.5
 
 ### Patch Changes

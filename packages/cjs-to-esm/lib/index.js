@@ -170,7 +170,7 @@ function isRequireCallExpression(processor) {
 
 /**
  * @param {string} code
- * @param {TransformOptions} [options]
+ * @param {TransformOptions|undefined} options
  */
 export async function transform(code, { sourcemap = true, source, sourcesContent = false, ignore = () => false, helperModule = false, ignoreTryCatch = true } = {}) {
     if (await maybeMixedModule(code)) {
@@ -261,13 +261,14 @@ export async function transform(code, { sourcemap = true, source, sourcesContent
         }
 
         helpers.prepend(`var __umdGlobal = ${GLOBAL_HELPER};
-var __umdKeys = Object.keys(__umdGlobal);
+var __umdScope = { __proto__: __umdGlobal };
 (function(window, global, globalThis, self, module, exports) {
 `);
         helpers.append(`
-}).call(__umdGlobal, __umdGlobal, __umdGlobal, __umdGlobal, __umdGlobal, undefined, undefined);
+}).call(__umdScope, __umdScope, __umdScope, __umdScope, __umdScope, undefined, undefined);
 
-var __newUmdKeys = Object.keys(__umdGlobal).slice(__umdKeys.length);
+var __newUmdKeys = Object.keys(__umdScope);
+Object.assign(__umdGlobal, __umdScope);
 var __umdMainKey = __newUmdKeys[0];
 if (__umdMainKey) {
     (function() {

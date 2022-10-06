@@ -1,3 +1,4 @@
+import path from 'path';
 import { isRelativeUrl } from '@chialab/node-resolve';
 import Jimp from './generator.js';
 import { generateIcon } from './generateIcon.js';
@@ -67,6 +68,7 @@ export async function collectWebManifest($, dom, options, helpers) {
         throw new Error(`Failed to resolve manifest path: ${manifestHref}`);
     }
 
+    const entryPoint = manifestFilePath.path;
     const manifestFile = await helpers.load(manifestFilePath.path, manifestFilePath);
     if (!manifestFile || !manifestFile.contents) {
         throw new Error(`Failed to load manifest file: ${manifestFilePath.path}`);
@@ -77,7 +79,12 @@ export async function collectWebManifest($, dom, options, helpers) {
     json.short_name = json.short_name || json.name || titleElement.text() || undefined;
     json.description = json.description || descriptionElement.attr('content') || undefined;
     json.start_url = json.start_url || baseElement.attr('href') || '/';
-    json.scope = json.scope || baseElement.attr('href') || '';
+
+    const scope = json.scope || baseElement.attr('href');
+    if (scope) {
+        json.scope = scope;
+    }
+
     json.display = json.display || 'standalone';
     json.orientation = json.orientation || 'any';
     json.theme_color = json.theme_color || themeElement.attr('content') || undefined;
@@ -108,12 +115,13 @@ export async function collectWebManifest($, dom, options, helpers) {
             break icon;
         }
 
+        const manifestOutputDir = path.dirname(helpers.resolveAssetFile(entryPoint));
         json.icons = await Promise.all(
             MANIFEST_ICONS.map(async ({ name, size }) => {
                 const contents = await generateIcon(image, size, 0, { r: 255, g: 255, b: 255, a: 1 });
                 const result = await helpers.emitFile(name, contents);
                 return {
-                    src: result.path,
+                    src: path.relative(manifestOutputDir, result.filePath),
                     sizes: `${size}x${size}`,
                     type: 'image/png',
                 };
@@ -121,7 +129,6 @@ export async function collectWebManifest($, dom, options, helpers) {
         );
     }
 
-    const entryPoint = manifestFilePath.path;
     const file = await helpers.emitFile(entryPoint, JSON.stringify(json, null, 2));
 
     $(element).attr('href', file.path);

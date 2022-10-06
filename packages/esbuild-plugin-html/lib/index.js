@@ -2,7 +2,7 @@ import path from 'path';
 import { copyFile, readFile, rm } from 'fs/promises';
 import * as cheerio from 'cheerio';
 import beautify from 'js-beautify';
-import { useRna } from '@chialab/esbuild-rna';
+import { useRna, Build } from '@chialab/esbuild-rna';
 
 /**
  * @typedef {import('esbuild').Metafile} Metafile
@@ -34,7 +34,8 @@ const loadHtml = /** @type {typeof cheerio.load} */ (cheerio.load || cheerio.def
 /**
  * @typedef {Object} Helpers
  * @property {(ext: string, suggestion?: string) => string} createEntry
- * @property {(path: string, contents?: string|Buffer) => Promise<import('@chialab/esbuild-rna').Chunk>} emitFile
+ * @property {(filePath: string, buffer?: Buffer) => string} resolveAssetFile
+ * @property {(path: string, contents?: string|Buffer) => Promise<import('@chialab/esbuild-rna').File>} emitFile
  * @property {(options: import('@chialab/esbuild-rna').EmitChunkOptions) => Promise<import('@chialab/esbuild-rna').Chunk>} emitChunk
  * @property {(options: import('@chialab/esbuild-rna').EmitBuildOptions) => Promise<import('@chialab/esbuild-rna').Result>} emitBuild
  * @property {(file: string) => Promise<import('esbuild').OnResolveResult>} resolve
@@ -214,8 +215,14 @@ export default function({
                     return `${suggestion ? `${suggestion}${i}` : i}.${ext}`;
                 };
 
+                /**
+                 * @type {Helpers}
+                 */
                 const helpers = {
                     createEntry,
+                    resolveAssetFile(source, buffer) {
+                        return build.resolveOutputFile(source, buffer || Buffer.from(''), Build.ASSET);
+                    },
                     emitFile: build.emitFile.bind(build),
                     emitChunk: build.emitChunk.bind(build),
                     emitBuild: build.emitBuild.bind(build),

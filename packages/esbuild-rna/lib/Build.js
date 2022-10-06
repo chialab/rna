@@ -110,11 +110,11 @@ import { createOutputFile, createResult, assignToResult } from './helpers.js';
  */
 
 /**
- * @typedef {Result & { id: string; path: string }} Chunk
+ * @typedef {Result & { id: string; path: string; filePath: string }} Chunk
  */
 
 /**
- * @typedef {Result & { id: string; path: string }} File
+ * @typedef {Result & { id: string; path: string; filePath: string }} File
  */
 
 /**
@@ -1008,7 +1008,7 @@ export class Build {
      * Programmatically emit file reference.
      * @param {string} source The path of the file.
      * @param {string|Buffer} [buffer] File contents.
-     * @returns {Promise<Chunk>} The output file reference.
+     * @returns {Promise<File>} The output file reference.
      */
     async emitFile(source, buffer) {
         const workingDir = this.getWorkingDir();
@@ -1070,6 +1070,7 @@ export class Build {
             ...result,
             id,
             path: path.relative(virtualOutDir, outputFile),
+            filePath: outputFile,
         };
         this.files.set(source, chunkResult);
 
@@ -1144,6 +1145,7 @@ export class Build {
             ...result,
             id,
             path: path.relative(virtualOutDir, resolvedOutputFile),
+            filePath: resolvedOutputFile,
         };
         this.chunks.set(options.path, chunkResult);
 

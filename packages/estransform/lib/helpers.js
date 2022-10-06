@@ -202,7 +202,7 @@ export function splitArgs(tokens) {
 
 /**
  * Extract argument tokens for a function declaration.
- * @param {import('@chialab/estransform').TokenProcessor} processor
+ * @param {import('./parser.js').TokenProcessor} processor
  */
 export function extractFunctionArguments(processor) {
     const args = [];
@@ -256,7 +256,7 @@ export function extractFunctionArguments(processor) {
 
 /**
  * Move forward in tokens list and return the current token.
- * @param {import('@chialab/estransform').TokenProcessor} processor
+ * @param {import('./parser.js').TokenProcessor} processor
  */
 export function getNextToken(processor) {
     processor.nextToken();
@@ -265,7 +265,7 @@ export function getNextToken(processor) {
 
 /**
  * Move forward until `)` closes the block.
- * @param {import('@chialab/estransform').TokenProcessor} processor
+ * @param {import('./parser.js').TokenProcessor} processor
  */
 export function nextBlock(processor) {
     let openParens = 0;

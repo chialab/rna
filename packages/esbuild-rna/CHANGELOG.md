@@ -1,5 +1,13 @@
 # @chialab/esbuild-rna
 
+## 0.17.3
+
+### Patch Changes
+
+- 19e83acc: Make manifest icons relative to webmanifest
+- Updated dependencies [88eb139d]
+  - @chialab/estransform@0.17.2
+
 ## 0.17.2
 
 ### Patch Changes

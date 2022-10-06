@@ -223,6 +223,33 @@ fs.readFile(path.resolve('test.js'));`).catch((err) => err);
                 const globalVariable = await detectUmdGlobalVariable(processor);
                 expect(globalVariable).to.be.equal('docx');
             });
+
+            it('mapbox', async () => {
+                const { processor } = await parse(`(function (global, factory) {
+                    typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
+                    typeof define === 'function' && define.amd ? define(factory) :
+                    (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.mapboxgl = factory());
+                })(this, (function () {}));`);
+
+                const globalVariable = await detectUmdGlobalVariable(processor);
+                expect(globalVariable).to.be.equal('mapboxgl');
+            });
+
+            it('pdfjs', async () => {
+                const { processor } = await parse(`(function webpackUniversalModuleDefinition(root, factory) {
+                    if(typeof exports === 'object' && typeof module === 'object')
+                        module.exports = factory();
+                    else if(typeof define === 'function' && define.amd)
+                        define("pdfjs-dist/build/pdf", [], factory);
+                    else if(typeof exports === 'object')
+                        exports["pdfjs-dist/build/pdf"] = factory();
+                    else
+                        root["pdfjs-dist/build/pdf"] = root.pdfjsLib = factory();
+                })(globalThis, () => {});`);
+
+                const globalVariable = await detectUmdGlobalVariable(processor);
+                expect(globalVariable).to.be.equal('pdfjsLib');
+            });
         });
     });
 });

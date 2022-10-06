@@ -132,20 +132,6 @@ function checkUmdDefineAssignment(processor) {
         return false;
     }
     token = getNextToken(processor);
-    if (token.type !== TokenType.bracketL) {
-        return false;
-    }
-    token = getNextToken(processor);
-    while (token && token.type !== TokenType.bracketR) {
-        token = getNextToken(processor);
-    }
-    if (!token) {
-        return false;
-    }
-    token = getNextToken(processor);
-    if (token.type !== TokenType.comma) {
-        return false;
-    }
     nextBlock(processor);
     return !!processor.currentToken();
 }
@@ -167,17 +153,10 @@ function checkCurrentTokenValue(processor, value) {
  * Check if the current if is a check for a UMD definition.
  * @param {import('@chialab/estransform').TokenProcessor} processor
  * @param {string[]} args
+ * @param {boolean} minified
  */
-function isUmdCheck(processor, args) {
+function isUmdCheck(processor, args, minified) {
     let token = processor.currentToken();
-    if (token.type !== TokenType._if) {
-        return false;
-    }
-    token = getNextToken(processor);
-    if (token.type !== TokenType.parenL) {
-        return false;
-    }
-    token = getNextToken(processor);
 
     // 1 global exports
     // 1.1 typeof exports === 'object'
@@ -185,13 +164,14 @@ function isUmdCheck(processor, args) {
     // 2.1 typeof define === 'function' && define.amd
     // 3 module.exports
     // 3.1 typeof exports === 'object' && typeof module === 'object'
-    // 3.2 typeof module === 'object'
-    // 3.3 typeof module === 'object' && typeof module.exports === 'object'
-    // 3.4 typeof module === 'object' && typeof exports === 'object'
-    // 3.5 typeof module === 'object' && module.exports
+    // 3.2 typeof exports === 'object' && typeof module !== 'undefined'
+    // 3.3 typeof module === 'object'
+    // 3.4 typeof module === 'object' && typeof module.exports === 'object'
+    // 3.5 typeof module === 'object' && typeof exports === 'object'
+    // 3.6 typeof module === 'object' && module.exports
 
     if (token.type === TokenType._typeof) {
-        // 1.1 | 2.1 | 3.1 | 3.2 | 3.3 | 3.4 | 3.5
+        // 1.1 | 2.1 | 3.1 | 3.2 | 3.3 | 3.4 | 3.5 | 3.6
 
         token = getNextToken(processor);
         if (token.type !== TokenType.name) {
@@ -200,7 +180,7 @@ function isUmdCheck(processor, args) {
 
         const identifier = processor.identifierNameForToken(token);
         if (identifier === 'exports') {
-            // 1.1 | 3.1
+            // 1.1 | 3.1 | 3.2
             token = getNextToken(processor);
             if (token.type !== TokenType.equality) {
                 return false;
@@ -211,7 +191,7 @@ function isUmdCheck(processor, args) {
             }
             token = getNextToken(processor);
             if (processor.matches5(TokenType.logicalAND, TokenType._typeof, TokenType.name, TokenType.equality, TokenType.string)) {
-                // 3.1
+                // 3.1 | 3.2
                 processor.nextToken();
                 token = getNextToken(processor);
                 if (processor.identifierNameForToken(token) === 'module') {
@@ -220,17 +200,25 @@ function isUmdCheck(processor, args) {
                         return false;
                     }
                     token = getNextToken(processor);
-                    if (!checkCurrentTokenValue(processor, 'object')) {
+                    if (!checkCurrentTokenValue(processor, 'object') && !checkCurrentTokenValue(processor, 'undefined')) {
                         return false;
                     }
                     token = getNextToken(processor);
-                    if (token.type !== TokenType.parenR) {
-                        return false;
-                    }
-                    token = getNextToken(processor);
-                    const hasBrace = token.type === TokenType.braceL;
-                    if (hasBrace) {
+                    let hasBrace = false;
+                    if (minified) {
+                        if (token.type !== TokenType.question) {
+                            return false;
+                        }
                         token = getNextToken(processor);
+                    } else {
+                        if (token.type !== TokenType.parenR) {
+                            return false;
+                        }
+                        token = getNextToken(processor);
+                        hasBrace = token.type === TokenType.braceL;
+                        if (hasBrace) {
+                            token = getNextToken(processor);
+                        }
                     }
                     if (!checkUmdModuleAssignment(processor, args)) {
                         return false;
@@ -300,13 +288,21 @@ function isUmdCheck(processor, args) {
                 return false;
             }
             token = getNextToken(processor);
-            if (token.type !== TokenType.parenR) {
-                return false;
-            }
-            token = getNextToken(processor);
-            const hasBrace = token.type === TokenType.braceL;
-            if (hasBrace) {
+            let hasBrace = false;
+            if (minified) {
+                if (token.type !== TokenType.question) {
+                    return false;
+                }
                 token = getNextToken(processor);
+            } else {
+                if (token.type !== TokenType.parenR) {
+                    return false;
+                }
+                token = getNextToken(processor);
+                hasBrace = token.type === TokenType.braceL;
+                if (hasBrace) {
+                    token = getNextToken(processor);
+                }
             }
             if (!checkUmdDefineAssignment(processor)) {
                 return false;
@@ -325,7 +321,7 @@ function isUmdCheck(processor, args) {
         }
 
         if (identifier === 'module') {
-            // 3.2 | 3.3 | 3.4 | 3.5
+            // 3.3 | 3.4 | 3.5 | 3.6
             token = getNextToken(processor);
             if (token.type !== TokenType.equality) {
                 return false;
@@ -336,10 +332,10 @@ function isUmdCheck(processor, args) {
             }
             token = getNextToken(processor);
             if (token.type === TokenType.logicalAND) {
-                // 3.3 | 3.4 | 3.5
+                // 3.4 | 3.5 | 3.6
                 token = getNextToken(processor);
                 if (processor.matches4(TokenType.name, TokenType.dot, TokenType.name, TokenType.parenR)) {
-                    // 3.5
+                    // 3.6
                     if (processor.identifierNameForToken(token) !== 'module') {
                         return false;
                     }
@@ -356,7 +352,7 @@ function isUmdCheck(processor, args) {
             }
 
             if (token.type === TokenType.parenR) {
-                // 3.2
+                // 3.3
                 token = getNextToken(processor);
                 const hasBrace = token.type === TokenType.braceL;
                 if (hasBrace) {
@@ -395,55 +391,62 @@ function isUmdCheck(processor, args) {
  */
 function extractUmdVariableName(processor, args) {
     // 1. root.name = factory();
-    // 1. factory((root.name = {}));
+    // 2. root['name'] = factory();
+    // 3. factory((root.name = {}));
     let token = processor.currentToken();
-    if (token.type !== TokenType.name) {
-        return null;
+    let variableName = null;
+    while (token && token.type !== TokenType.semi) {
+        if (processor.matches4(TokenType.name, TokenType.dot, TokenType.name, TokenType.eq) ||
+            processor.matches5(TokenType.name, TokenType.bracketL, TokenType.string, TokenType.bracketR, TokenType.eq)) {
+            // 1 | 2
+            const identifier = processor.identifierNameForToken(token);
+            if (identifier === args[0]) {
+                token = getNextToken(processor);
+                if (token.type === TokenType.dot) {
+                    token = getNextToken(processor);
+                    if (token.type !== TokenType.name) {
+                        return null;
+                    }
+                    return processor.identifierNameForToken(token);
+                }
+
+                if (token.type === TokenType.bracketL) {
+                    token = getNextToken(processor);
+                    if (token.type !== TokenType.string) {
+                        return null;
+                    }
+                    variableName = processor.stringValueForToken(token);
+                }
+            }
+        } else if (processor.matches2(TokenType.name, TokenType.parenL)) {
+            // 3
+            const identifier = processor.identifierNameForToken(token);
+            if (identifier === args[1]) {
+                processor.nextToken();
+                token = getNextToken(processor);
+                const hasParen = token.type === TokenType.parenL;
+                if (hasParen) {
+                    token = getNextToken(processor);
+                }
+                if (token.type !== TokenType.parenR) {
+                    variableName = extractUmdVariableName(processor, args);
+                    if (!variableName) {
+                        return null;
+                    }
+                    nextBlock(processor);
+                    token = processor.currentToken();
+                    if (hasParen && token.type !== TokenType.parenR) {
+                        return null;
+                    }
+                    return variableName;
+                }
+            }
+        }
+
+        token = getNextToken(processor);
     }
 
-    const identifier = processor.identifierNameForToken(token);
-    if (identifier === args[0]) {
-        // 1
-        token = getNextToken(processor);
-        if (token.type === TokenType.dot) {
-            token = getNextToken(processor);
-            if (token.type !== TokenType.name) {
-                return null;
-            }
-            return processor.identifierNameForToken(token);
-        }
-
-        if (token.type === TokenType.bracketL) {
-            token = getNextToken(processor);
-            if (token.type !== TokenType.string) {
-                return null;
-            }
-            return processor.stringValueForToken(token);
-        }
-    } else if (identifier === args[1]) {
-        // 1
-        token = getNextToken(processor);
-        if (token.type !== TokenType.parenL) {
-            return null;
-        }
-        token = getNextToken(processor);
-        const hasParen = token.type === TokenType.parenL;
-        if (hasParen) {
-            token = getNextToken(processor);
-        }
-        const variableName = extractUmdVariableName(processor, args);
-        if (!variableName) {
-            return null;
-        }
-        nextBlock(processor);
-        token = processor.currentToken();
-        if (hasParen && token.type !== TokenType.parenR) {
-            return null;
-        }
-        return variableName;
-    }
-
-    return null;
+    return variableName;
 }
 
 /**
@@ -488,15 +491,32 @@ export async function detectUmdGlobalVariable(processor) {
 
             token = getNextToken(processor);
 
-            while (token) {
-                if (!isUmdCheck(processor, args)) {
+            cycle: while (token) {
+                let minified = false;
+                switch (token.type) {
+                    case TokenType._if:
+                        token = getNextToken(processor);
+                        if (token.type !== TokenType.parenL) {
+                            break cycle;
+                        }
+                        token = getNextToken(processor);
+                        break;
+                    case TokenType._typeof:
+                        minified = true;
+                        break;
+                    default:
+                        break cycle;
+                }
+
+                if (!isUmdCheck(processor, args, minified)) {
                     break;
                 }
+
                 token = processor.currentToken();
-                if (token.type === TokenType._else) {
+                if (token.type === TokenType._else || token.type === TokenType.colon) {
                     token = getNextToken(processor);
 
-                    if (token.type === TokenType._if) {
+                    if (token.type === TokenType._if || token.type === TokenType._typeof) {
                         continue;
                     }
 

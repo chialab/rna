@@ -39,6 +39,10 @@ export async function walk(processor, callback) {
             return;
         }
 
+        if (processor.isAtEnd()) {
+            return;
+        }
+
         processor.nextToken();
     }
 }

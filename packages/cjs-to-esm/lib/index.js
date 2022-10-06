@@ -7,6 +7,8 @@ export const UMD_REGEXES = [
     /\btypeof\s+(?:module\.)?exports\s*===?\s*['|"]object['|"]/,
     /\btypeof\s+define\s*===?\s*['|"]function['|"]/,
 ];
+export const UMD_GLOBALS = ['globalThis', 'global', 'self', 'window'];
+export const UMD_GLOBALS_REGEXES = UMD_GLOBALS.map((varName) => new RegExp(`\\btypeof\\s+(${varName})\\s*!==?\\s*['|"]undefined['|"]`));
 export const ESM_KEYWORDS = /((?:^\s*|;\s*)(\bimport\s*(\{.*?\}\s*from|\s[\w$]+\s+from|\*\s*as\s+[^\s]+\s+from)?\s*['"])|((?:^\s*|;\s*)export(\s+(default|const|var|let|function|class)[^\w$]|\s*\{)))/m;
 export const EXPORTS_KEYWORDS = /\b(module\.exports\b|exports\b)/;
 export const CJS_KEYWORDS = /\b(module\.exports\b|exports\b|require[.(])/;
@@ -180,7 +182,7 @@ export async function transform(code, { sourcemap = true, source, sourcesContent
     const specs = new Map();
     const ns = new Map();
     const { helpers, processor } = await parse(code, source);
-    const globalVariable = await detectUmdGlobalVariable(processor);
+    const globalVariable = UMD_REGEXES.every((regex) => regex.test(code)) && await detectUmdGlobalVariable(processor);
 
     let insertHelper = false;
     if (!globalVariable) {

@@ -116,8 +116,7 @@ export function getBlock(processor, openingToken = TokenType.braceL, closingToke
         if (processor.isAtEnd() || token.type === TokenType.eof) {
             break;
         }
-        processor.nextToken();
-        token = processor.currentToken();
+        token = getNextToken(processor);
         if (token) {
             block.push(token);
             if (token.type === openingToken) {
@@ -143,8 +142,7 @@ export function getStatement(processor) {
         if (processor.isAtEnd() || token.type === TokenType.eof) {
             break;
         }
-        processor.nextToken();
-        token = processor.currentToken();
+        token = getNextToken(processor);
         if (token) {
             block.push(token);
             if (token.type === TokenType.braceL || token.type === TokenType.parenL) {
@@ -213,14 +211,16 @@ export function extractFunctionArguments(processor) {
 
     let token = processor.currentToken();
     let arg = [];
-    while (token.type !== TokenType.parenR || openParens || openBrackets || openBraces) {
+    while (token && token.type !== TokenType.parenR || openParens || openBrackets || openBraces) {
         arg.push({
             ...token,
             index: processor.currentIndex(),
         });
 
-        processor.nextToken();
-        token = processor.currentToken();
+        token = getNextToken(processor);
+        if (!token) {
+            break;
+        }
 
         if (token.type === TokenType.parenL) {
             openParens++;
@@ -244,8 +244,7 @@ export function extractFunctionArguments(processor) {
             args.push(arg);
             arg = [];
 
-            processor.nextToken();
-            token = processor.currentToken();
+            token = getNextToken(processor);
         }
     }
 
@@ -259,6 +258,9 @@ export function extractFunctionArguments(processor) {
  * @param {import('./parser.js').TokenProcessor} processor
  */
 export function getNextToken(processor) {
+    if (processor.isAtEnd()) {
+        return null;
+    }
     processor.nextToken();
     return processor.currentToken();
 }

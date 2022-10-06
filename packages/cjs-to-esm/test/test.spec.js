@@ -1,5 +1,6 @@
 import chai from 'chai';
-import { transform, wrapDynamicRequire } from '../lib/index.js';
+import { parse } from '@chialab/estransform';
+import { transform, wrapDynamicRequire, detectUmdGlobalVariable } from '../lib/index.js';
 
 const { expect } = chai;
 
@@ -67,5 +68,161 @@ fs.readFile(path.resolve('test.js'));`).catch((err) => err);
         const { code } = await wrapDynamicRequire('if (typeof require !== \'undefined\') { require(\'fs\'); require(\'path\'); }');
 
         expect(code).to.equal('if (typeof require !== \'undefined\') { (() => { try { return (() => {require(\'fs\'); require(\'path\');})(); } catch(err) {} })(); }');
+    });
+
+    describe('umd', () => {
+        it('should detect amdWeb', async () => {
+            // https://github.com/umdjs/umd/blob/master/templates/amdWeb.js
+
+            const { processor } = await parse(`(function (root, factory) {
+                if (typeof define === 'function' && define.amd) {
+                    // AMD. Register as an anonymous module.
+                    define(['b'], factory);
+                } else {
+                    // Browser globals
+                    root.amdWeb = factory(root.b);
+                }
+            }(typeof self !== 'undefined' ? self : this, function (b) {
+                // Use b in some fashion.
+
+                // Just return a value to define the module export.
+                // This example returns an object, but the module
+                // can return a function as the exported value.
+                return {};
+            }));`);
+
+            const globalVariable = await detectUmdGlobalVariable(processor);
+            expect(globalVariable).to.be.equal('amdWeb');
+        });
+
+        it('should detect amdWebGlobal', async () => {
+            // https://github.com/umdjs/umd/blob/master/templates/amdWebGlobal.js
+
+            const { processor } = await parse(`(function (root, factory) {
+                if (typeof define === 'function' && define.amd) {
+                    // AMD. Register as an anonymous module.
+                    define(['b'], function (b) {
+                        // Also create a global in case some scripts
+                        // that are loaded still are looking for
+                        // a global even when an AMD loader is in use.
+                        return (root.amdWebGlobal = factory(b));
+                    });
+                } else {
+                    // Browser globals
+                    root.amdWebGlobal = factory(root.b);
+                }
+            }(typeof self !== 'undefined' ? self : this, function (b) {
+                // Use b in some fashion.
+
+                // Just return a value to define the module export.
+                // This example returns an object, but the module
+                // can return a function as the exported value.
+                return {};
+            }));`);
+
+            const globalVariable = await detectUmdGlobalVariable(processor);
+            expect(globalVariable).to.be.equal('amdWebGlobal');
+        });
+
+        it('should detect returnExports', async () => {
+            // https://github.com/umdjs/umd/blob/master/templates/returnExports.js
+
+            const { processor } = await parse(`(function (root, factory) {
+                if (typeof define === 'function' && define.amd) {
+                    // AMD. Register as an anonymous module.
+                    define(['b'], factory);
+                } else if (typeof module === 'object' && module.exports) {
+                    // Node. Does not work with strict CommonJS, but
+                    // only CommonJS-like environments that support module.exports,
+                    // like Node.
+                    module.exports = factory(require('b'));
+                } else {
+                    // Browser globals (root is window)
+                    root.returnExports = factory(root.b);
+                }
+            }(typeof self !== 'undefined' ? self : this, function (b) {
+                // Use b in some fashion.
+
+                // Just return a value to define the module export.
+                // This example returns an object, but the module
+                // can return a function as the exported value.
+                return {};
+            }));`);
+
+            const globalVariable = await detectUmdGlobalVariable(processor);
+            expect(globalVariable).to.be.equal('returnExports');
+        });
+
+        it('should detect returnExports (simplified)', async () => {
+            // https://github.com/umdjs/umd/blob/master/templates/returnExports.js
+
+            const { processor } = await parse(`(function (root, factory) {
+                if (typeof define === 'function' && define.amd) {
+                    // AMD. Register as an anonymous module.
+                    define([], factory);
+                } else if (typeof module === 'object' && module.exports) {
+                    // Node. Does not work with strict CommonJS, but
+                    // only CommonJS-like environments that support module.exports,
+                    // like Node.
+                    module.exports = factory();
+                } else {
+                    // Browser globals (root is window)
+                    root.returnExports = factory();
+              }
+            }(typeof self !== 'undefined' ? self : this, function () {
+
+                // Just return a value to define the module export.
+                // This example returns an object, but the module
+                // can return a function as the exported value.
+                return {};
+            }));`);
+
+            const globalVariable = await detectUmdGlobalVariable(processor);
+            expect(globalVariable).to.be.equal('returnExports');
+        });
+
+        it('should detect commonjsStrict', async () => {
+            // https://github.com/umdjs/umd/blob/master/templates/commonjsStrict.js
+
+            const { processor } = await parse(`(function (root, factory) {
+                if (typeof define === 'function' && define.amd) {
+                    // AMD. Register as an anonymous module.
+                    define(['exports', 'b'], factory);
+                } else if (typeof exports === 'object' && typeof exports.nodeName !== 'string') {
+                    // CommonJS
+                    factory(exports, require('b'));
+                } else {
+                    // Browser globals
+                    factory((root.commonJsStrict = {}), root.b);
+                }
+            }(typeof self !== 'undefined' ? self : this, function (exports, b) {
+                // Use b in some fashion.
+
+                // attach properties to the exports object to define
+                // the exported module properties.
+                exports.action = function () {};
+            }));`);
+
+            const globalVariable = await detectUmdGlobalVariable(processor);
+            expect(globalVariable).to.be.equal('commonJsStrict');
+        });
+
+        describe('common libraries', () => {
+            it('docx', async () => {
+                const { processor } = await parse(`(function webpackUniversalModuleDefinition(root, factory) {
+                    if(typeof exports === 'object' && typeof module === 'object')
+                        module.exports = factory();
+                    else if(typeof define === 'function' && define.amd)
+                        define([], factory);
+                    else if(typeof exports === 'object')
+                        exports["docx"] = factory();
+                    else
+                        root["docx"] = factory();
+                })(typeof self !== 'undefined' ? self : this, function() {});`);
+
+                const globalVariable = await detectUmdGlobalVariable(processor);
+                expect(globalVariable).to.be.equal('docx');
+            });
+        });
     });
 });

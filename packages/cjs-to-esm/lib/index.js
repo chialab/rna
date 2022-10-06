@@ -1,12 +1,12 @@
 import { TokenType, parse, walk, getBlock, getStatement, parseCommonjs, parseEsm, createEmptySourcemapComment } from '@chialab/estransform';
+import { detectUmdGlobalVariable } from './umd.js';
 
+export { detectUmdGlobalVariable };
 export const REQUIRE_REGEX = /([^.\w$]|^)require\s*\((['"])(.*?)\2\)/g;
 export const UMD_REGEXES = [
     /\btypeof\s+(?:module\.)?exports\s*===?\s*['|"]object['|"]/,
     /\btypeof\s+define\s*===?\s*['|"]function['|"]/,
 ];
-export const UMD_GLOBALS = ['globalThis', 'global', 'self', 'window'];
-export const UMD_GLOBALS_REGEXES = UMD_GLOBALS.map((varName) => new RegExp(`\\btypeof\\s+(${varName})\\s*!==?\\s*['|"]undefined['|"]`));
 export const ESM_KEYWORDS = /((?:^\s*|;\s*)(\bimport\s*(\{.*?\}\s*from|\s[\w$]+\s+from|\*\s*as\s+[^\s]+\s+from)?\s*['"])|((?:^\s*|;\s*)export(\s+(default|const|var|let|function|class)[^\w$]|\s*\{)))/m;
 export const EXPORTS_KEYWORDS = /\b(module\.exports\b|exports\b)/;
 export const CJS_KEYWORDS = /\b(module\.exports\b|exports\b|require[.(])/;
@@ -179,11 +179,11 @@ export async function transform(code, { sourcemap = true, source, sourcesContent
 
     const specs = new Map();
     const ns = new Map();
-    const isUmd = UMD_REGEXES.every((regex) => regex.test(code));
     const { helpers, processor } = await parse(code, source);
+    const globalVariable = await detectUmdGlobalVariable(processor);
 
     let insertHelper = false;
-    if (!isUmd) {
+    if (!globalVariable) {
         /**
          * @type {*[]}
          */
@@ -251,7 +251,7 @@ export async function transform(code, { sourcemap = true, source, sourcesContent
     const isEsModule = exports.includes('__esModule');
     const hasDefault = exports.includes('default');
 
-    if (isUmd) {
+    if (globalVariable) {
         let endDefinition = code.indexOf('\'use strict\';');
         if (endDefinition === -1) {
             endDefinition = code.indexOf('"use strict";');
@@ -261,34 +261,13 @@ export async function transform(code, { sourcemap = true, source, sourcesContent
         }
 
         helpers.prepend(`var __umdGlobal = ${GLOBAL_HELPER};
-var __umdScope = { __proto__: __umdGlobal };
+var __umdKeys = Object.keys(__umdGlobal);
 (function(window, global, globalThis, self, module, exports) {
 `);
         helpers.append(`
-}).call(__umdScope, __umdScope, __umdScope, __umdScope, __umdScope, undefined, undefined);
+}).call(__umdGlobal, __umdGlobal, __umdGlobal, __umdGlobal, __umdGlobal, undefined, undefined);
 
-var __newUmdKeys = Object.keys(__umdScope);
-Object.assign(__umdGlobal, __umdScope);
-var __umdMainKey = __newUmdKeys[0];
-if (__umdMainKey) {
-    (function() {
-        var __umdModule = __umdGlobal[__umdMainKey];
-        Object.defineProperty(__umdGlobal, __umdMainKey, {
-            configurable: true,
-            get() {
-                return __umdModule;
-            },
-            set(val) {
-                __umdGlobal.__umdMainKey = __umdMainKey;
-                __umdModule = val;
-            }
-        });
-    })();
-}
-
-__umdMainKey = __umdMainKey || __umdGlobal.__umdMainKey;
-delete __umdGlobal.__umdMainKey;
-export default (__umdMainKey ? __umdGlobal[__umdMainKey] : undefined);`);
+export default __umdGlobal['${globalVariable}'];`);
 
         // replace the usage of `this` as global object because is not supported in esm
         let thisMatch = THIS_PARAM.exec(code);
@@ -325,7 +304,7 @@ if (${conditions.join(' && ')}) {
             helpers.append(`\nexport { ${named.map((name, index) => `__export${index} as ${name}`).join(', ')} }`);
         }
         if (isEsModule) {
-            if (!isUmd && (hasDefault || named.length === 0)) {
+            if (!globalVariable && (hasDefault || named.length === 0)) {
                 helpers.append('\nexport default (module.exports != null && typeof module.exports === \'object\' && \'default\' in module.exports ? module.exports.default : module.exports);');
             }
         } else {

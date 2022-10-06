@@ -1,4 +1,4 @@
-import { TokenType, walk, extractFunctionArguments, getNextToken, nextBlock } from '@chialab/estransform';
+import { TokenType, extractFunctionArguments, getNextToken, nextBlock } from '@chialab/estransform';
 
 /**
  * Check if the expression is assigning to `module.exports`.
@@ -453,87 +453,79 @@ function extractUmdVariableName(processor, args) {
  * Detect UMD global variable name.
  * @param {import('@chialab/estransform').TokenProcessor} processor
  */
-export async function detectUmdGlobalVariable(processor) {
-    /**
-     * @type {string|null}
-     */
-    let variableName = null;
-    let args;
+export function detectUmdGlobalVariable(processor) {
+    processor.reset();
 
-    await walk(processor, (token) => {
-        if (token.type === TokenType._function ||
-            (token.type === TokenType.name && processor.identifierNameForToken(token) === 'function')
-        ) {
+    let token = processor.currentToken();
+    if (token.type === TokenType.semi) {
+        token = getNextToken(processor);
+    }
+    if (token.type !== TokenType.parenL) {
+        return null;
+    }
+    token = getNextToken(processor);
+    if (token.type !== TokenType.name || processor.identifierNameForToken(token) !== 'function') {
+        return null;
+    }
+    token = getNextToken(processor);
+    if (token.type === TokenType.name) {
+        token = getNextToken(processor);
+    }
+    if (token.type !== TokenType.parenL) {
+        return null;
+    }
+    token = getNextToken(processor);
+    const args = extractFunctionArguments(processor)
+        .filter((arg) => arg.length === 1 && arg[0].type === TokenType.name)
+        .map((arg) => processor.identifierNameAtIndex(arg[0].index));
+    if (args.length !== 2) {
+        return null;
+    }
+    token = getNextToken(processor);
+    if (token.type !== TokenType.braceL) {
+        return null;
+    }
+    token = getNextToken(processor);
+    cycle: while (token) {
+        let minified = false;
+        switch (token.type) {
+            case TokenType._if:
+                token = getNextToken(processor);
+                if (token.type !== TokenType.parenL) {
+                    break cycle;
+                }
+                token = getNextToken(processor);
+                break;
+            case TokenType._typeof:
+                minified = true;
+                break;
+            default:
+                break cycle;
+        }
+
+        if (!isUmdCheck(processor, args, minified)) {
+            break;
+        }
+
+        token = processor.currentToken();
+        if (token.type === TokenType._else || token.type === TokenType.colon) {
             token = getNextToken(processor);
-            if (token.type === TokenType.name) {
+
+            if (token.type === TokenType._if || token.type === TokenType._typeof) {
+                continue;
+            }
+
+            if (token.type === TokenType.braceL) {
                 token = getNextToken(processor);
             }
 
-            if (token.type !== TokenType.parenL) {
-                return;
+            const variableName = extractUmdVariableName(processor, args);
+            if (variableName) {
+                return variableName;
             }
-
-            token = getNextToken(processor);
-
-            args = extractFunctionArguments(processor)
-                .filter((arg) => arg.length === 1 && arg[0].type === TokenType.name)
-                .map((arg) => processor.identifierNameAtIndex(arg[0].index));
-
-            if (args.length !== 2) {
-                return;
-            }
-
-            token = getNextToken(processor);
-
-            if (token.type !== TokenType.braceL) {
-                return;
-            }
-
-            token = getNextToken(processor);
-
-            cycle: while (token) {
-                let minified = false;
-                switch (token.type) {
-                    case TokenType._if:
-                        token = getNextToken(processor);
-                        if (token.type !== TokenType.parenL) {
-                            break cycle;
-                        }
-                        token = getNextToken(processor);
-                        break;
-                    case TokenType._typeof:
-                        minified = true;
-                        break;
-                    default:
-                        break cycle;
-                }
-
-                if (!isUmdCheck(processor, args, minified)) {
-                    break;
-                }
-
-                token = processor.currentToken();
-                if (token.type === TokenType._else || token.type === TokenType.colon) {
-                    token = getNextToken(processor);
-
-                    if (token.type === TokenType._if || token.type === TokenType._typeof) {
-                        continue;
-                    }
-
-                    if (token.type === TokenType.braceL) {
-                        token = getNextToken(processor);
-                    }
-
-                    variableName = extractUmdVariableName(processor, args);
-                    if (variableName) {
-                        return false;
-                    }
-
-                    break;
-                }
-            }
+            break;
         }
-    });
+    }
 
-    return variableName;
+    return null;
 }

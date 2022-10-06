@@ -182,7 +182,7 @@ export async function transform(code, { sourcemap = true, source, sourcesContent
     const specs = new Map();
     const ns = new Map();
     const { helpers, processor } = await parse(code, source);
-    const globalVariable = UMD_REGEXES.every((regex) => regex.test(code)) && await detectUmdGlobalVariable(processor);
+    const globalVariable = UMD_REGEXES.every((regex) => regex.test(code)) && detectUmdGlobalVariable(processor);
 
     let insertHelper = false;
     if (!globalVariable) {

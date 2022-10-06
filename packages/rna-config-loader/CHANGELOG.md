@@ -1,5 +1,11 @@
 # @chialab/rna-config-loader
 
+## 0.17.1
+
+### Patch Changes
+
+- 19e83acc: Make manifest icons relative to webmanifest
+
 ## 0.17.0
 
 ### Minor Changes

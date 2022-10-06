@@ -1,5 +1,13 @@
 # @chialab/cjs-to-esm
 
+## 0.17.3
+
+### Patch Changes
+
+- 88eb139d: Introduce a new algorithm to detect umd global variable
+- Updated dependencies [88eb139d]
+  - @chialab/estransform@0.17.2
+
 ## 0.17.2
 
 ### Patch Changes

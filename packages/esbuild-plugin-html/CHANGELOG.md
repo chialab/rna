@@ -1,5 +1,13 @@
 # @chialab/esbuild-plugin-html
 
+## 0.17.1
+
+### Patch Changes
+
+- 19e83acc: Make manifest icons relative to webmanifest
+- Updated dependencies [19e83acc]
+  - @chialab/esbuild-rna@0.17.3
+
 ## 0.17.0
 
 ### Minor Changes

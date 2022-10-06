@@ -1,5 +1,11 @@
 # @chialab/estransform
 
+## 0.17.2
+
+### Patch Changes
+
+- 88eb139d: Introduce a new algorithm to detect umd global variable
+
 ## 0.17.1
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @chialab/estransform
 
+## 0.17.3
+
+### Patch Changes
+
+- 9f11201e: Handle minified UMD modules
+
 ## 0.17.2
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @chialab/cjs-to-esm
 
+## 0.17.5
+
+### Patch Changes
+
+- 908c8462: Convert only top level UMD
+
 ## 0.17.4
 
 ### Patch Changes

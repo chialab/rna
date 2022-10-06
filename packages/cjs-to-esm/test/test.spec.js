@@ -91,7 +91,7 @@ fs.readFile(path.resolve('test.js'));`).catch((err) => err);
                 return {};
             }));`);
 
-            const globalVariable = await detectUmdGlobalVariable(processor);
+            const globalVariable = detectUmdGlobalVariable(processor);
             expect(globalVariable).to.be.equal('amdWeb');
         });
 
@@ -120,7 +120,7 @@ fs.readFile(path.resolve('test.js'));`).catch((err) => err);
                 return {};
             }));`);
 
-            const globalVariable = await detectUmdGlobalVariable(processor);
+            const globalVariable = detectUmdGlobalVariable(processor);
             expect(globalVariable).to.be.equal('amdWebGlobal');
         });
 
@@ -149,7 +149,7 @@ fs.readFile(path.resolve('test.js'));`).catch((err) => err);
                 return {};
             }));`);
 
-            const globalVariable = await detectUmdGlobalVariable(processor);
+            const globalVariable = detectUmdGlobalVariable(processor);
             expect(globalVariable).to.be.equal('returnExports');
         });
 
@@ -177,7 +177,7 @@ fs.readFile(path.resolve('test.js'));`).catch((err) => err);
                 return {};
             }));`);
 
-            const globalVariable = await detectUmdGlobalVariable(processor);
+            const globalVariable = detectUmdGlobalVariable(processor);
             expect(globalVariable).to.be.equal('returnExports');
         });
 
@@ -203,7 +203,7 @@ fs.readFile(path.resolve('test.js'));`).catch((err) => err);
                 exports.action = function () {};
             }));`);
 
-            const globalVariable = await detectUmdGlobalVariable(processor);
+            const globalVariable = detectUmdGlobalVariable(processor);
             expect(globalVariable).to.be.equal('commonJsStrict');
         });
 
@@ -220,7 +220,7 @@ fs.readFile(path.resolve('test.js'));`).catch((err) => err);
                         root["docx"] = factory();
                 })(typeof self !== 'undefined' ? self : this, function() {});`);
 
-                const globalVariable = await detectUmdGlobalVariable(processor);
+                const globalVariable = detectUmdGlobalVariable(processor);
                 expect(globalVariable).to.be.equal('docx');
             });
 
@@ -231,7 +231,7 @@ fs.readFile(path.resolve('test.js'));`).catch((err) => err);
                     (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.mapboxgl = factory());
                 })(this, (function () {}));`);
 
-                const globalVariable = await detectUmdGlobalVariable(processor);
+                const globalVariable = detectUmdGlobalVariable(processor);
                 expect(globalVariable).to.be.equal('mapboxgl');
             });
 
@@ -247,7 +247,7 @@ fs.readFile(path.resolve('test.js'));`).catch((err) => err);
                         root["pdfjs-dist/build/pdf"] = root.pdfjsLib = factory();
                 })(globalThis, () => {});`);
 
-                const globalVariable = await detectUmdGlobalVariable(processor);
+                const globalVariable = detectUmdGlobalVariable(processor);
                 expect(globalVariable).to.be.equal('pdfjsLib');
             });
         });

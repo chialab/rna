@@ -1,5 +1,13 @@
 # @chialab/cjs-to-esm
 
+## 0.17.4
+
+### Patch Changes
+
+- 9f11201e: Handle minified UMD modules
+- Updated dependencies [9f11201e]
+  - @chialab/estransform@0.17.3
+
 ## 0.17.3
 
 ### Patch Changes

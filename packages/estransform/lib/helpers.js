@@ -201,6 +201,87 @@ export function splitArgs(tokens) {
 }
 
 /**
+ * Extract argument tokens for a function declaration.
+ * @param {import('./parser.js').TokenProcessor} processor
+ */
+export function extractFunctionArguments(processor) {
+    const args = [];
+
+    let openParens = 0;
+    let openBrackets = 0;
+    let openBraces = 0;
+
+    let token = processor.currentToken();
+    let arg = [];
+    while (token.type !== TokenType.parenR || openParens || openBrackets || openBraces) {
+        arg.push({
+            ...token,
+            index: processor.currentIndex(),
+        });
+
+        processor.nextToken();
+        token = processor.currentToken();
+
+        if (token.type === TokenType.parenL) {
+            openParens++;
+        }
+        if (token.type === TokenType.parenR && openParens) {
+            openParens--;
+        }
+        if (token.type === TokenType.bracketL) {
+            openBrackets++;
+        }
+        if (token.type === TokenType.bracketR) {
+            openBrackets--;
+        }
+        if (token.type === TokenType.braceL) {
+            openBraces++;
+        }
+        if (token.type === TokenType.braceR) {
+            openBraces--;
+        }
+        if (token.type === TokenType.comma && !openParens && !openBrackets && !openBraces) {
+            args.push(arg);
+            arg = [];
+
+            processor.nextToken();
+            token = processor.currentToken();
+        }
+    }
+
+    args.push(arg);
+
+    return args;
+}
+
+/**
+ * Move forward in tokens list and return the current token.
+ * @param {import('./parser.js').TokenProcessor} processor
+ */
+export function getNextToken(processor) {
+    processor.nextToken();
+    return processor.currentToken();
+}
+
+/**
+ * Move forward until `)` closes the block.
+ * @param {import('./parser.js').TokenProcessor} processor
+ */
+export function nextBlock(processor) {
+    let openParens = 0;
+    let token = processor.currentToken();
+    while (token && (token.type !== TokenType.parenR || openParens)) {
+        if (token.type === TokenType.parenR) {
+            openParens--;
+        }
+        token = getNextToken(processor);
+        if (token.type === TokenType.parenL) {
+            openParens++;
+        }
+    }
+}
+
+/**
  * Extract comments for a code range delmited by node span.
  * @param {string} code The original code.
  * @param {number} start The start index.

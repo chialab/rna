@@ -1,5 +1,11 @@
 # @chialab/rna-storybook
 
+## 0.17.5
+
+### Patch Changes
+
+- a65eeb7: Fixed storybook root
+
 ## 0.17.4
 
 ### Patch Changes

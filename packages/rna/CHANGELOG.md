@@ -1,5 +1,11 @@
 # @chialab/rna
 
+## 0.17.6
+
+### Patch Changes
+
+- 2e242485: Rename storybook roots for upcoming v7
+
 ## 0.17.5
 
 ### Patch Changes

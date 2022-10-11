@@ -2,9 +2,9 @@ import path from 'path';
 import { realpath } from 'fs/promises';
 import { getRequestFilePath } from '@chialab/es-dev-server';
 import { getEntryConfig } from '@chialab/rna-config-loader';
-import { pkgUp, browserResolve, isJs, isJson, isCss, getSearchParam, appendSearchParam, removeSearchParam, getSearchParams, ALIAS_MODE, createAliasRegexexMap, createEmptyRegex } from '@chialab/node-resolve';
+import { browserResolve, isJs, isJson, isCss, getSearchParam, appendSearchParam, removeSearchParam, getSearchParams, ALIAS_MODE, createAliasRegexexMap, createEmptyRegex } from '@chialab/node-resolve';
 import { isHelperImport, resolveRelativeImport, isPlainScript } from '@chialab/wds-plugin-node-resolve';
-import { transform, transformLoaders, build } from '@chialab/rna-bundler';
+import { transform, transformLoaders } from '@chialab/rna-bundler';
 import { resolveUserAgent } from 'browserslist-useragent';
 
 /**
@@ -311,55 +311,6 @@ export function rnaPlugin(config) {
                     body: /** @type {string} */ (/** @type {unknown} */ (await virtualFs[filePath][target])),
                 };
             }
-
-            const accepts = context.request.headers['accept'] || '';
-            if (filePath && accepts.includes('text/css')) {
-                /**
-                 * @type {import('@chialab/rna-config-loader').EntrypointConfig}
-                 */
-                const entrypoint = {
-                    root: rootDir,
-                    input: filePath,
-                    output: filePath,
-                    bundle: true,
-                };
-
-                virtualFs[filePath] = virtualFs[filePath] || {};
-                virtualFs[filePath][target] = createConfig(entrypoint, {
-                    ...config,
-                    target,
-                })
-                    .then(async (transformConfig) => {
-                        const result = await build({
-                            ...transformConfig,
-                            entryNames: '[name]',
-                            assetNames: '[name]',
-                            chunkNames: '[name]',
-                            output: filePath,
-                            write: false,
-                            publicPath: '',
-                        });
-
-                        const outputFiles = /** @type {import('esbuild').OutputFile[]} */ (result.outputFiles);
-                        outputFiles.forEach(({ path, contents }) => {
-                            virtualFs[path] = virtualFs[path] || {};
-                            virtualFs[path][target] = Promise.resolve(
-                                Buffer.from(contents.buffer.slice(contents.byteOffset, contents.byteLength + contents.byteOffset))
-                            );
-                        });
-
-                        watchDependencies(result);
-
-                        return virtualFs[filePath][target];
-                    });
-
-                return {
-                    body: /** @type {string} */ (/** @type {unknown} */ (await virtualFs[filePath][target])),
-                    headers: {
-                        'content-type': 'text/css',
-                    },
-                };
-            }
         },
 
         async transform(context) {
@@ -401,14 +352,30 @@ export function rnaPlugin(config) {
                 input: `./${path.relative(rootDir, filePath)}`,
                 code: /** @type {string} */ (context.body),
                 ...contextConfig,
-                bundle: isPlainScript(context),
+                bundle: loader === 'css' || isPlainScript(context),
             };
 
             const transformConfig = await createConfig(entrypoint, {
                 ...config,
                 target,
+                entryNames: '[name]',
+                assetNames: '[name]',
+                chunkNames: '[name]',
+                write: false,
+                publicPath: '',
             });
             const result = await transform(transformConfig);
+            const outputFiles = /** @type {import('esbuild').OutputFile[]} */ (result.outputFiles);
+            outputFiles.forEach(({ path, contents }) => {
+                if (path === filePath) {
+                    return;
+                }
+                virtualFs[path] = virtualFs[path] || {};
+                virtualFs[path][target] = Promise.resolve(
+                    Buffer.from(contents.buffer.slice(contents.byteOffset, contents.byteLength + contents.byteOffset))
+                );
+            });
+
             watchDependencies(result);
 
             return result.code;
@@ -469,53 +436,6 @@ export function rnaPlugin(config) {
                 // ignore symlinked files
                 return;
             }
-
-            const target = getBrowserTarget(context);
-            if (virtualFs[resolved] && target in virtualFs[resolved]) {
-                return resolveRelativeImport(resolved, filePath, rootDir);
-            }
-
-            const modulePackageFile = await pkgUp({ cwd: resolved });
-            const moduleRootDir = modulePackageFile ? path.dirname(modulePackageFile) : rootDir;
-
-            /**
-             * @type {import('@chialab/rna-config-loader').EntrypointConfig}
-             */
-            const entrypoint = {
-                root: moduleRootDir,
-                input: `./${path.relative(moduleRootDir, resolved)}`,
-                bundle: false,
-            };
-
-            virtualFs[resolved] = virtualFs[resolved] || {};
-            virtualFs[resolved][target] = createConfig(entrypoint, {
-                ...config,
-                target,
-            })
-                .then((transformConfig) =>
-                    build({
-                        ...transformConfig,
-                        chunkNames: '[name]-[hash]',
-                        output: resolved,
-                        write: false,
-                        publicPath: '',
-                    })
-                ).then((result) => {
-                    if (!result.outputFiles) {
-                        throw new Error('Failed to bundle dependency');
-                    }
-
-                    result.outputFiles.forEach(({ path, contents }) => {
-                        virtualFs[path] = virtualFs[path] || {};
-                        virtualFs[path][target] = Promise.resolve(
-                            Buffer.from(contents.buffer.slice(contents.byteOffset, contents.byteLength + contents.byteOffset))
-                        );
-                    });
-
-                    watchDependencies(result);
-
-                    return virtualFs[resolved][target];
-                });
 
             return resolveRelativeImport(resolved, filePath, rootDir);
         },

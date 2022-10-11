@@ -74,8 +74,11 @@ export function isPlainScript(context) {
         return false;
     }
     const headers = context.headers;
+    if (headers['accept'] !== '*/*') {
+        return;
+    }
     if ('sec-fetch-mode' in headers) {
-        return headers['sec-fetch-mode'] === 'no-cors';
+        return headers['sec-fetch-mode'] === 'no-cors' && headers['sec-fetch-dest'] === 'script';
     }
     if (!context['origin']) {
         return true;
@@ -92,7 +95,7 @@ export function isPlainScript(context) {
  * @param {string} specifier
  * @param {string} importer
  * @param {string} serveDir
- * @param {{ code?: string, line?: number, column?: number }} [info]
+ * @param {{ code?: string, line?: number, column?: number }} info
  */
 export function resolveRelativeImport(specifier, importer, serveDir, { code, line, column } = {}) {
     const { path: importerPathname } = getSearchParams(importer);
@@ -134,7 +137,7 @@ export function resolveRelativeImport(specifier, importer, serveDir, { code, lin
  * @param {string} specifier
  * @param {string} importer
  * @param {string} serveDir
- * @param {{ code?: string, line?: number, column?: number }} [info]
+ * @param {{ code?: string, line?: number, column?: number }} info
  */
 export async function resolveImport(specifier, importer, serveDir, { code, line, column } = {}) {
     const resolved = await browserResolve(specifier, importer);

@@ -1,7 +1,7 @@
 {
   "name": "@chialab/wds-plugin-node-resolve",
   "type": "module",
-  "version": "0.17.1",
+  "version": "0.17.2",
   "description": "A plugin the Web Dev Server for node resolutions.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",

@@ -1,5 +1,11 @@
 # @chialab/wds-plugin-node-resolve
 
+## 0.17.2
+
+### Patch Changes
+
+- 566055b2: Always bundle served css files
+
 ## 0.17.1
 
 ### Patch Changes

@@ -2356,7 +2356,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@chialab/wds-plugin-node-resolve@^0.17.0, @chialab/wds-plugin-node-resolve@^0.17.1, @chialab/wds-plugin-node-resolve@workspace:packages/wds-plugin-node-resolve":
+"@chialab/wds-plugin-node-resolve@^0.17.0, @chialab/wds-plugin-node-resolve@^0.17.1, @chialab/wds-plugin-node-resolve@^0.17.2, @chialab/wds-plugin-node-resolve@workspace:packages/wds-plugin-node-resolve":
   version: 0.0.0-use.local
   resolution: "@chialab/wds-plugin-node-resolve@workspace:packages/wds-plugin-node-resolve"
   dependencies:
@@ -2388,7 +2388,7 @@ __metadata:
     "@chialab/node-resolve": ^0.17.0
     "@chialab/rna-bundler": ^0.17.1
     "@chialab/rna-config-loader": ^0.17.0
-    "@chialab/wds-plugin-node-resolve": ^0.17.0
+    "@chialab/wds-plugin-node-resolve": ^0.17.2
     "@types/browserslist-useragent": ^3.0.3
     browserslist-useragent: ^3.0.3
     typescript: ^4.3.0

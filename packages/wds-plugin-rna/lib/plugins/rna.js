@@ -2,9 +2,9 @@ import path from 'path';
 import { realpath } from 'fs/promises';
 import { getRequestFilePath } from '@chialab/es-dev-server';
 import { getEntryConfig } from '@chialab/rna-config-loader';
-import { pkgUp, browserResolve, isJs, isJson, isCss, getSearchParam, appendSearchParam, removeSearchParam, getSearchParams, ALIAS_MODE, createAliasRegexexMap, createEmptyRegex } from '@chialab/node-resolve';
+import { browserResolve, isJs, isJson, isCss, getSearchParam, appendSearchParam, removeSearchParam, getSearchParams, ALIAS_MODE, createAliasRegexexMap, createEmptyRegex } from '@chialab/node-resolve';
 import { isHelperImport, resolveRelativeImport, isPlainScript } from '@chialab/wds-plugin-node-resolve';
-import { transform, transformLoaders, build } from '@chialab/rna-bundler';
+import { transform, transformLoaders } from '@chialab/rna-bundler';
 import { resolveUserAgent } from 'browserslist-useragent';
 
 /**
@@ -367,6 +367,9 @@ export function rnaPlugin(config) {
             const result = await transform(transformConfig);
             const outputFiles = /** @type {import('esbuild').OutputFile[]} */ (result.outputFiles);
             outputFiles.forEach(({ path, contents }) => {
+                if (path === filePath) {
+                    return;
+                }
                 virtualFs[path] = virtualFs[path] || {};
                 virtualFs[path][target] = Promise.resolve(
                     Buffer.from(contents.buffer.slice(contents.byteOffset, contents.byteLength + contents.byteOffset))
@@ -433,53 +436,6 @@ export function rnaPlugin(config) {
                 // ignore symlinked files
                 return;
             }
-
-            const target = getBrowserTarget(context);
-            if (virtualFs[resolved] && target in virtualFs[resolved]) {
-                return resolveRelativeImport(resolved, filePath, rootDir);
-            }
-
-            const modulePackageFile = await pkgUp({ cwd: resolved });
-            const moduleRootDir = modulePackageFile ? path.dirname(modulePackageFile) : rootDir;
-
-            /**
-             * @type {import('@chialab/rna-config-loader').EntrypointConfig}
-             */
-            const entrypoint = {
-                root: moduleRootDir,
-                input: `./${path.relative(moduleRootDir, resolved)}`,
-                bundle: false,
-            };
-
-            virtualFs[resolved] = virtualFs[resolved] || {};
-            virtualFs[resolved][target] = createConfig(entrypoint, {
-                ...config,
-                target,
-            })
-                .then((transformConfig) =>
-                    build({
-                        ...transformConfig,
-                        chunkNames: '[name]-[hash]',
-                        output: resolved,
-                        write: false,
-                        publicPath: '',
-                    })
-                ).then((result) => {
-                    if (!result.outputFiles) {
-                        throw new Error('Failed to bundle dependency');
-                    }
-
-                    result.outputFiles.forEach(({ path, contents }) => {
-                        virtualFs[path] = virtualFs[path] || {};
-                        virtualFs[path][target] = Promise.resolve(
-                            Buffer.from(contents.buffer.slice(contents.byteOffset, contents.byteLength + contents.byteOffset))
-                        );
-                    });
-
-                    watchDependencies(result);
-
-                    return virtualFs[resolved][target];
-                });
 
             return resolveRelativeImport(resolved, filePath, rootDir);
         },

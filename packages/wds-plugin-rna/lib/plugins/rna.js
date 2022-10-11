@@ -311,55 +311,6 @@ export function rnaPlugin(config) {
                     body: /** @type {string} */ (/** @type {unknown} */ (await virtualFs[filePath][target])),
                 };
             }
-
-            const accepts = context.request.headers['accept'] || '';
-            if (filePath && accepts.includes('text/css')) {
-                /**
-                 * @type {import('@chialab/rna-config-loader').EntrypointConfig}
-                 */
-                const entrypoint = {
-                    root: rootDir,
-                    input: filePath,
-                    output: filePath,
-                    bundle: true,
-                };
-
-                virtualFs[filePath] = virtualFs[filePath] || {};
-                virtualFs[filePath][target] = createConfig(entrypoint, {
-                    ...config,
-                    target,
-                })
-                    .then(async (transformConfig) => {
-                        const result = await build({
-                            ...transformConfig,
-                            entryNames: '[name]',
-                            assetNames: '[name]',
-                            chunkNames: '[name]',
-                            output: filePath,
-                            write: false,
-                            publicPath: '',
-                        });
-
-                        const outputFiles = /** @type {import('esbuild').OutputFile[]} */ (result.outputFiles);
-                        outputFiles.forEach(({ path, contents }) => {
-                            virtualFs[path] = virtualFs[path] || {};
-                            virtualFs[path][target] = Promise.resolve(
-                                Buffer.from(contents.buffer.slice(contents.byteOffset, contents.byteLength + contents.byteOffset))
-                            );
-                        });
-
-                        watchDependencies(result);
-
-                        return virtualFs[filePath][target];
-                    });
-
-                return {
-                    body: /** @type {string} */ (/** @type {unknown} */ (await virtualFs[filePath][target])),
-                    headers: {
-                        'content-type': 'text/css',
-                    },
-                };
-            }
         },
 
         async transform(context) {
@@ -401,14 +352,27 @@ export function rnaPlugin(config) {
                 input: `./${path.relative(rootDir, filePath)}`,
                 code: /** @type {string} */ (context.body),
                 ...contextConfig,
-                bundle: isPlainScript(context),
+                bundle: loader === 'css' || isPlainScript(context),
             };
 
             const transformConfig = await createConfig(entrypoint, {
                 ...config,
                 target,
+                entryNames: '[name]',
+                assetNames: '[name]',
+                chunkNames: '[name]',
+                write: false,
+                publicPath: '',
             });
             const result = await transform(transformConfig);
+            const outputFiles = /** @type {import('esbuild').OutputFile[]} */ (result.outputFiles);
+            outputFiles.forEach(({ path, contents }) => {
+                virtualFs[path] = virtualFs[path] || {};
+                virtualFs[path][target] = Promise.resolve(
+                    Buffer.from(contents.buffer.slice(contents.byteOffset, contents.byteLength + contents.byteOffset))
+                );
+            });
+
             watchDependencies(result);
 
             return result.code;

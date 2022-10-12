@@ -78,6 +78,9 @@ export async function transform(config) {
                     emit: false,
                 })),
         ...plugins,
+        !hasPlugin(plugins, 'any-file') &&
+            import('@chialab/esbuild-plugin-any-file')
+                .then(({ default: plugin }) => plugin()),
     ].filter(Boolean)));
 
     const sourceFile = path.resolve(rootDir, Array.isArray(input) ? input[0] : input);

@@ -192,7 +192,7 @@ export function rnaPlugin(config) {
     let serverFileWatcher;
 
     /**
-     * @type {{ [path: string]: { [target: string]: Promise<Buffer> }}}
+     * @type {{ [path: string]: Promise<Buffer>|undefined }}
      */
     const virtualFs = {};
 
@@ -305,10 +305,9 @@ export function rnaPlugin(config) {
 
             const { rootDir } = serverConfig;
             const filePath = getRequestFilePath(context.url, rootDir);
-            const target = getBrowserTarget(context);
-            if (virtualFs[filePath] && target in virtualFs[filePath]) {
+            if (virtualFs[filePath]) {
                 return {
-                    body: /** @type {string} */ (/** @type {unknown} */ (await virtualFs[filePath][target])),
+                    body: /** @type {string} */ (/** @type {unknown} */ (await virtualFs[filePath])),
                 };
             }
         },
@@ -338,10 +337,6 @@ export function rnaPlugin(config) {
             const { rootDir } = serverConfig;
             const filePath = getRequestFilePath(context.url, rootDir);
             const target = getBrowserTarget(context);
-            if (virtualFs[filePath] && target in virtualFs[filePath]) {
-                return;
-            }
-
             const contextConfig = JSON.parse(getSearchParam(context.url, 'transform') || '{}');
 
             /**
@@ -370,15 +365,14 @@ export function rnaPlugin(config) {
                 if (path === filePath) {
                     return;
                 }
-                virtualFs[path] = virtualFs[path] || {};
-                virtualFs[path][target] = Promise.resolve(
+                virtualFs[path] = Promise.resolve(
                     Buffer.from(contents.buffer.slice(contents.byteOffset, contents.byteLength + contents.byteOffset))
                 );
             });
 
             watchDependencies(result);
 
-            return result.code;
+            return outputFiles[outputFiles.length - 1].text;
         },
 
         async transformImport({ source }) {

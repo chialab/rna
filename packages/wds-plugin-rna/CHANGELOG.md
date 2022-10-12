@@ -1,5 +1,13 @@
 # @chialab/wds-plugin-rna
 
+## 0.17.4
+
+### Patch Changes
+
+- 5719f7d2: Correctly serve temp bundled files
+- Updated dependencies [5719f7d2]
+  - @chialab/rna-bundler@0.17.6
+
 ## 0.17.3
 
 ### Patch Changes

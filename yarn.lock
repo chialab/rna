@@ -2127,7 +2127,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@chialab/rna-bundler@^0.17.1, @chialab/rna-bundler@workspace:packages/rna-bundler":
+"@chialab/rna-bundler@^0.17.6, @chialab/rna-bundler@workspace:packages/rna-bundler":
   version: 0.0.0-use.local
   resolution: "@chialab/rna-bundler@workspace:packages/rna-bundler"
   dependencies:
@@ -2386,7 +2386,7 @@ __metadata:
     "@chialab/esbuild-plugin-worker": ^0.17.0
     "@chialab/esbuild-rna": ^0.17.0
     "@chialab/node-resolve": ^0.17.0
-    "@chialab/rna-bundler": ^0.17.1
+    "@chialab/rna-bundler": ^0.17.6
     "@chialab/rna-config-loader": ^0.17.0
     "@chialab/wds-plugin-node-resolve": ^0.17.2
     "@types/browserslist-useragent": ^3.0.3

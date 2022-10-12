@@ -1,5 +1,11 @@
 # @chialab/rna-bundler
 
+## 0.17.6
+
+### Patch Changes
+
+- 5719f7d2: Correctly serve temp bundled files
+
 ## 0.17.5
 
 ### Patch Changes

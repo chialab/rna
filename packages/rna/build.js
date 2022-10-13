@@ -11,6 +11,7 @@ esbuild.build({
     platform: 'node',
     external: [
         '@chialab/rna-logger',
+        '@chialab/rna-bundler',
     ],
     banner: {
         js: `import { dirname as __pathDirname } from 'path';

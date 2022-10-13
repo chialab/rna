@@ -56,9 +56,9 @@ First, we need to install `rna` dependencies:
 
 ```sh
 # NPM
-$ npm i -D @chialab/rna @chialab/rna-bundler @chialab/rna-dev-server
+$ npm i -D @chialab/rna @chialab/rna-dev-server
 # YARN
-$ yarn add -D @chialab/rna @chialab/rna-bundler @chialab/rna-dev-server
+$ yarn add -D @chialab/rna @chialab/rna-dev-server
 ```
 
 Then, we are ready to update the `package.json` file to replace `react-scripts` witn `rna`.

@@ -127,6 +127,38 @@ export function getBrowserTarget(context) {
     }
 }
 
+/**
+ * @param {import('@chialab/rna-config-loader').EntrypointConfig} entrypoint
+ * @param {Partial<import('@chialab/rna-config-loader').EntrypointConfig>} config
+ */
+export async function createConfig(entrypoint, config) {
+    return getEntryConfig(entrypoint, {
+        sourcemap: 'inline',
+        platform: 'browser',
+        target: config.target,
+        jsx: config.jsx,
+        jsxImportSource: config.jsxImportSource,
+        jsxFactory: config.jsxFactory,
+        jsxFragment: config.jsxFragment,
+        alias: config.alias,
+        plugins: [
+            ...await Promise.all([
+                import('@chialab/esbuild-plugin-worker')
+                    .then(({ default: plugin }) => plugin({
+                        proxy: true,
+                        emit: false,
+                    })),
+                import('@chialab/esbuild-plugin-meta-url')
+                    .then(({ default: plugin }) => plugin({
+                        emit: false,
+                    })),
+            ]),
+            ...(config.plugins || []),
+        ],
+        logLevel: 'error',
+    });
+}
+
 const VALID_MODULE_NAME = /^(@[a-z0-9-~][a-z0-9-._~]*\/)?[a-z0-9-~][a-z0-9-._~]*$/;
 
 /**
@@ -335,9 +367,6 @@ export function rnaPlugin(config) {
                             .then(({ default: plugin }) => plugin({
                                 emit: false,
                             })),
-                        import('@chialab/esbuild-plugin-postcss')
-                            .then(({ default: plugin }) => plugin())
-                            .catch(() => ({ name: 'postcss', setup() { } })),
                     ]),
                     ...(config.plugins || []),
                 ],

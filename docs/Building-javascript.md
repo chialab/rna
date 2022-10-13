@@ -11,8 +11,8 @@ Using [esbuild](https://esbuild.github.io/) under the hood, RNA combines the fat
 In order to bundle a JS module using RNA you may have to install the bundler:
 
 ```sh
-$ npm i -D @chialab/rna @chialab/rna-bundler
-$ yarn add -D @chialab/rna @chialab/rna-bundler
+$ npm i -D @chialab/rna
+$ yarn add -D @chialab/rna
 ```
 
 and run:

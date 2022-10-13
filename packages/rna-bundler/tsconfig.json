@@ -26,6 +26,9 @@
       "path": "../esbuild-plugin-html"
     },
     {
+      "path": "../esbuild-plugin-lightningcss"
+    },
+    {
       "path": "../esbuild-plugin-meta-url"
     },
     {

@@ -98,6 +98,14 @@ export async function build(config) {
         !hasPlugin(plugins, 'meta-url') &&
             import('@chialab/esbuild-plugin-meta-url')
                 .then(({ default: plugin }) => plugin()),
+        !hasPlugin(plugins, 'lightningcss') && !hasPlugin(plugins, 'postcss') &&
+            import('@chialab/esbuild-plugin-lightningcss')
+                .then(({ default: plugin }) => plugin()),
+        !hasPlugin(plugins, 'html') &&
+            import('@chialab/esbuild-plugin-html')
+                .then(({ default: plugin }) => plugin({
+                    modulesTarget: target || 'es2020',
+                })),
         ...plugins,
         !hasPlugin(plugins, 'css-import') &&
             import('@chialab/esbuild-plugin-css-import')

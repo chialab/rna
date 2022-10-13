@@ -35,6 +35,7 @@
     "@chialab/esbuild-plugin-css-import": "^0.17.0",
     "@chialab/esbuild-plugin-env": "^0.17.0",
     "@chialab/esbuild-plugin-html": "^0.17.0",
+    "@chialab/esbuild-plugin-lightningcss": "^0.17.0",
     "@chialab/esbuild-plugin-meta-url": "^0.17.1",
     "@chialab/esbuild-plugin-metadata": "^0.18.0",
     "@chialab/esbuild-plugin-worker": "^0.17.2",
@@ -43,16 +44,7 @@
     "@chialab/rna-logger": "^0.17.1",
     "esbuild": "^0.18.0"
   },
-  "peerDependencies": {
-    "@chialab/esbuild-plugin-postcss": "^0.17.1"
-  },
-  "peerDependenciesMeta": {
-    "@chialab/esbuild-plugin-postcss": {
-      "optional": true
-    }
-  },
   "devDependencies": {
-    "@chialab/esbuild-plugin-postcss": "^0.17.1",
     "commander": "^7.2.0",
     "typescript": "^4.3.0"
   }

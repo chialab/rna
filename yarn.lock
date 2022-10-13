@@ -2059,7 +2059,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@chialab/rna-node-test-runner@^0.17.0, @chialab/rna-node-test-runner@workspace:packages/rna-node-test-runner":
+"@chialab/rna-node-test-runner@^0.17.0 || ^0.18.0, @chialab/rna-node-test-runner@workspace:packages/rna-node-test-runner":
   version: 0.0.0-use.local
   resolution: "@chialab/rna-node-test-runner@workspace:packages/rna-node-test-runner"
   dependencies:
@@ -2077,8 +2077,8 @@ __metadata:
   dependencies:
     "@changesets/cli": ^2.22.0
     "@chialab/eslint-config": ^3.0.0
-    "@chialab/rna": ^0.17.0
-    "@chialab/rna-node-test-runner": ^0.17.0
+    "@chialab/rna": ^0.17.0 || ^0.18.0
+    "@chialab/rna-node-test-runner": ^0.17.0 || ^0.18.0
     "@types/chai": ^4.2.22
     "@yarnpkg/core": ^4.0.0-rc.6
     chai: ^4.3.4
@@ -2106,7 +2106,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@chialab/rna@^0.17.0, @chialab/rna@workspace:packages/rna":
+"@chialab/rna@^0.17.0 || ^0.18.0, @chialab/rna@workspace:packages/rna":
   version: 0.0.0-use.local
   resolution: "@chialab/rna@workspace:packages/rna"
   dependencies:

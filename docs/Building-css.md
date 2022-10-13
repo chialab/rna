@@ -7,8 +7,8 @@ Unless you are using syntaxes like Sass and Less, CSS builds are less expansive 
 Even if [esbuild](https://esbuild.github.io/) has out of the box support for CSS files, in order to bundle a CSS module using RNA you may have to install the bundler package along with the postcss plugin for node modules resolution:
 
 ```sh
-$ npm i -D @chialab/rna @chialab/rna-bundler @chialab/esbuild-plugin-postcss
-$ yarn add -D @chialab/rna @chialab/rna-bundler @chialab/esbuild-plugin-postcss
+$ npm i -D @chialab/rna
+$ yarn add -D @chialab/rna
 ```
 
 and run:

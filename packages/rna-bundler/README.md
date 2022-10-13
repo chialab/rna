@@ -16,6 +16,8 @@
 
 ## Install
 
+The bundler is part of the `@chialab/rna` cli, but you can use it as a module.
+
 ```sh
 $ npm i @chialab/rna-bundler -D
 $ yarn add @chialab/rna-bundler -D
@@ -48,7 +50,7 @@ await build({
 ### Via cli
 
 ```sh
-$ npm i @chialab/rna @chialab/rna-bundler @chialab/esbuild-plugin-html @chialab/esbuild-plugin-postcss -D
+$ npm i @chialab/rna -D
 ```
 
 ```

@@ -39,7 +39,6 @@ We built RNA to be pluggable and to be interoperable with other build systems. A
 ```sh
 $ npm i -D \
     @chialab/rna \
-    @chialab/rna-bundler \
     @chialab/rna-dev-server \
     @chialab/rna-browser-test-runner
 ```

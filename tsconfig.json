@@ -52,6 +52,9 @@
       "path": "./packages/esbuild-plugin-html"
     },
     {
+      "path": "./packages/esbuild-plugin-lightningcss"
+    },
+    {
       "path": "./packages/esbuild-plugin-meta-url"
     },
     {

@@ -36,7 +36,6 @@
   "peerDependencies": {
     "@chialab/rna-apidoc": "^0.17.0",
     "@chialab/rna-browser-test-runner": "^0.17.1",
-    "@chialab/rna-bundler": "^0.17.5",
     "@chialab/rna-dev-server": "^0.17.6",
     "@chialab/rna-node-test-runner": "^0.17.0",
     "@chialab/rna-saucelabs-test-runner": "^0.17.1"
@@ -46,9 +45,6 @@
       "optional": true
     },
     "@chialab/rna-browser-test-runner": {
-      "optional": true
-    },
-    "@chialab/rna-bundler": {
       "optional": true
     },
     "@chialab/rna-dev-server": {
@@ -62,6 +58,7 @@
     }
   },
   "dependencies": {
+    "@chialab/rna-bundler": "^0.17.5",
     "@chialab/rna-logger": "^0.17.1"
   },
   "devDependencies": {

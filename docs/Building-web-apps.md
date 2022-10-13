@@ -7,8 +7,8 @@ Esbuild supports out of the box bundling for JavaScript and CSS. RNA introduces 
 In order to bundle a Single Page Application using RNA you may have to install the bundler:
 
 ```sh
-$ npm i -D @chialab/rna @chialab/rna-bundler @chialab/esbuild-plugin-html
-$ yarn add -D @chialab/rna @chialab/rna-bundler @chialab/esbuild-plugin-html
+$ npm i -D @chialab/rna
+$ yarn add -D @chialab/rna
 ```
 
 and run:

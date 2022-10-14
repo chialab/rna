@@ -1,5 +1,13 @@
 # @chialab/wds-plugin-rna
 
+## 0.17.5
+
+### Patch Changes
+
+- e5dc857f: Use full bundle for css in devserver
+- Updated dependencies [e5dc857f]
+  - @chialab/rna-config-loader@0.17.2
+
 ## 0.17.4
 
 ### Patch Changes

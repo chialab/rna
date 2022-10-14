@@ -105,6 +105,7 @@ export function getEntryConfig(entrypoint, config) {
     }
 
     return {
+        ...config,
         ...entrypoint,
         root,
         publicPath,

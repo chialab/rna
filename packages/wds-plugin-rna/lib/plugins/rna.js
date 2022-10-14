@@ -4,7 +4,7 @@ import { getRequestFilePath } from '@chialab/es-dev-server';
 import { getEntryConfig } from '@chialab/rna-config-loader';
 import { browserResolve, isJs, isJson, isCss, getSearchParam, appendSearchParam, removeSearchParam, getSearchParams, ALIAS_MODE, createAliasRegexexMap, createEmptyRegex } from '@chialab/node-resolve';
 import { isHelperImport, resolveRelativeImport, isPlainScript } from '@chialab/wds-plugin-node-resolve';
-import { transform, transformLoaders } from '@chialab/rna-bundler';
+import { build, transform, transformLoaders } from '@chialab/rna-bundler';
 import { resolveUserAgent } from 'browserslist-useragent';
 
 /**
@@ -127,41 +127,6 @@ export function getBrowserTarget(context) {
         default:
             return 'es2020';
     }
-}
-
-/**
- * @param {import('@chialab/rna-config-loader').EntrypointConfig} entrypoint
- * @param {Partial<import('@chialab/rna-config-loader').EntrypointConfig>} config
- */
-export async function createConfig(entrypoint, config) {
-    return getEntryConfig(entrypoint, {
-        sourcemap: 'inline',
-        platform: 'browser',
-        target: config.target,
-        jsx: config.jsx,
-        jsxImportSource: config.jsxImportSource,
-        jsxFactory: config.jsxFactory,
-        jsxFragment: config.jsxFragment,
-        alias: config.alias,
-        plugins: [
-            ...await Promise.all([
-                import('@chialab/esbuild-plugin-worker')
-                    .then(({ default: plugin }) => plugin({
-                        proxy: true,
-                        emit: false,
-                    })),
-                import('@chialab/esbuild-plugin-meta-url')
-                    .then(({ default: plugin }) => plugin({
-                        emit: false,
-                    })),
-                import('@chialab/esbuild-plugin-postcss')
-                    .then(({ default: plugin }) => plugin())
-                    .catch(() => ({ name: 'postcss', setup() { } })),
-            ]),
-            ...(config.plugins || []),
-        ],
-        logLevel: 'error',
-    });
 }
 
 const VALID_MODULE_NAME = /^(@[a-z0-9-~][a-z0-9-._~]*\/)?[a-z0-9-~][a-z0-9-._~]*$/;
@@ -338,6 +303,7 @@ export function rnaPlugin(config) {
             const filePath = getRequestFilePath(context.url, rootDir);
             const target = getBrowserTarget(context);
             const contextConfig = JSON.parse(getSearchParam(context.url, 'transform') || '{}');
+            const bundle = loader === 'css' || isPlainScript(context);
 
             /**
              * @type {import('@chialab/rna-config-loader').EntrypointConfig}
@@ -345,21 +311,41 @@ export function rnaPlugin(config) {
             const entrypoint = {
                 root: rootDir,
                 input: `./${path.relative(rootDir, filePath)}`,
+                output: filePath,
                 code: /** @type {string} */ (context.body),
                 ...contextConfig,
-                bundle: loader === 'css' || isPlainScript(context),
             };
 
-            const transformConfig = await createConfig(entrypoint, {
+            const transformConfig = getEntryConfig(entrypoint, {
                 ...config,
-                target,
+                write: false,
+                sourcemap: 'inline',
+                platform: 'browser',
                 entryNames: '[name]',
                 assetNames: '[name]',
                 chunkNames: '[name]',
-                write: false,
-                publicPath: '',
+                target,
+                plugins: [
+                    ...await Promise.all([
+                        import('@chialab/esbuild-plugin-worker')
+                            .then(({ default: plugin }) => plugin({
+                                proxy: true,
+                                emit: false,
+                            })),
+                        import('@chialab/esbuild-plugin-meta-url')
+                            .then(({ default: plugin }) => plugin({
+                                emit: false,
+                            })),
+                        import('@chialab/esbuild-plugin-postcss')
+                            .then(({ default: plugin }) => plugin())
+                            .catch(() => ({ name: 'postcss', setup() { } })),
+                    ]),
+                    ...(config.plugins || []),
+                ],
+                logLevel: 'error',
             });
-            const result = await transform(transformConfig);
+
+            const result = bundle ? await build(transformConfig) : await transform(transformConfig);
             const outputFiles = /** @type {import('esbuild').OutputFile[]} */ (result.outputFiles);
             outputFiles.forEach(({ path, contents }) => {
                 if (path === filePath) {

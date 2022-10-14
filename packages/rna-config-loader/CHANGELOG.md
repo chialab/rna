@@ -1,5 +1,11 @@
 # @chialab/rna-config-loader
 
+## 0.17.2
+
+### Patch Changes
+
+- e5dc857f: Use full bundle for css in devserver
+
 ## 0.17.1
 
 ### Patch Changes

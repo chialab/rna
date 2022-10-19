@@ -1,5 +1,11 @@
 # @chialab/rna-storybook
 
+## 0.17.6
+
+### Patch Changes
+
+- edaed1f6: Update storybook modules definitions.
+
 ## 0.17.5
 
 ### Patch Changes

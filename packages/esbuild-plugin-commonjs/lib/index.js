@@ -8,7 +8,7 @@ import { useRna } from '@chialab/esbuild-rna';
  */
 
 /**
- * @param {PluginOptions} [config]
+ * @param {PluginOptions} options
  * @returns An esbuild plugin.
  */
 export default function({ helperModule } = {}) {

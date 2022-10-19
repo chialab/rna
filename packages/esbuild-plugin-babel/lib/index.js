@@ -9,7 +9,7 @@ const resolveDir = dirname(new URL(import.meta.url).pathname);
  */
 
 /**
- * @param {PluginOptions} [options]
+ * @param {PluginOptions} options
  * @returns An esbuild plugin.
  */
 export default function({ presets = [], plugins = [] } = {}) {

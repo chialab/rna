@@ -2,7 +2,7 @@ import path from 'path';
 import { realpath } from 'fs/promises';
 import { getRequestFilePath } from '@chialab/es-dev-server';
 import { getEntryConfig } from '@chialab/rna-config-loader';
-import { browserResolve, isJs, isJson, isCss, getSearchParam, appendSearchParam, removeSearchParam, getSearchParams, ALIAS_MODE, createAliasRegexexMap, createEmptyRegex } from '@chialab/node-resolve';
+import { browserResolve, isJs, isJson, isCss, getSearchParam, appendSearchParam, getSearchParams, ALIAS_MODE, createAliasRegexexMap, createEmptyRegex } from '@chialab/node-resolve';
 import { isHelperImport, resolveRelativeImport, isPlainScript } from '@chialab/wds-plugin-node-resolve';
 import { build, transform, transformLoaders } from '@chialab/rna-bundler';
 import { resolveUserAgent } from 'browserslist-useragent';
@@ -57,7 +57,6 @@ export function appendFileParam(source) {
  * @param {string} source
  */
 export function convertCssToJsModule(source) {
-    source = removeSearchParam(source, 'loader');
     return `var link = document.createElement('link');
 link.rel = 'stylesheet';
 link.href = '${source}';
@@ -69,7 +68,6 @@ document.head.appendChild(link);
  * @param {string} source
  */
 export function convertFileToJsModule(source) {
-    source = removeSearchParam(source, 'loader');
     return `export default new URL('${source}', import.meta.url).href;`;
 }
 
@@ -252,16 +250,20 @@ export function rnaPlugin(config) {
                 const { rootDir } = serverConfig;
                 const { path: pathname, searchParams } = getSearchParams(context.url);
                 const filePath = resolveRelativeImport(getRequestFilePath(pathname, rootDir), context.url, rootDir);
+                const fullUri = new URL(`${filePath}?${searchParams.toString()}`, `http://${serverConfig.hostname}:${serverConfig.port}`);
+                fullUri.searchParams.delete('loader');
                 return {
-                    body: convertFileToJsModule(`${filePath}?${searchParams.toString()}`),
+                    body: convertFileToJsModule(fullUri.href),
                     headers: {
                         'content-type': 'text/javascript',
                     },
                 };
             }
             if (isCssModuleRequest(context.url)) {
+                const fullUri = new URL(context.url, `http://${serverConfig.hostname}:${serverConfig.port}`);
+                fullUri.searchParams.delete('loader');
                 return {
-                    body: convertCssToJsModule(context.url),
+                    body: convertCssToJsModule(fullUri.href),
                     headers: {
                         'content-type': 'text/javascript',
                     },

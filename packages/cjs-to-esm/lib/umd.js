@@ -10,27 +10,26 @@ function checkUmdModuleAssignment(processor, args) {
     if (token.type !== TokenType.name) {
         return false;
     }
-    if (processor.identifierNameForToken(token) !== 'module') {
-        return false;
-    }
-    token = getNextToken(processor);
-    if (token.type !== TokenType.dot) {
-        return false;
-    }
-    token = getNextToken(processor);
-    if (token.type !== TokenType.name) {
-        return false;
-    }
-    if (processor.identifierNameForToken(token) !== 'exports') {
-        return false;
-    }
-    token = getNextToken(processor);
-    if (token.type !== TokenType.eq) {
-        return false;
-    }
-    token = getNextToken(processor);
-    if (token.type !== TokenType.name) {
-        return false;
+    if (processor.identifierNameForToken(token) === 'module') {
+        token = getNextToken(processor);
+        if (token.type !== TokenType.dot) {
+            return false;
+        }
+        token = getNextToken(processor);
+        if (token.type !== TokenType.name) {
+            return false;
+        }
+        if (processor.identifierNameForToken(token) !== 'exports') {
+            return false;
+        }
+        token = getNextToken(processor);
+        if (token.type !== TokenType.eq) {
+            return false;
+        }
+        token = getNextToken(processor);
+        if (token.type !== TokenType.name) {
+            return false;
+        }
     }
     if (processor.identifierNameForToken(token) !== args[1]) {
         return false;

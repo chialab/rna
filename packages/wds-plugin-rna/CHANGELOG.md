@@ -1,5 +1,11 @@
 # @chialab/wds-plugin-rna
 
+## 0.17.6
+
+### Patch Changes
+
+- 433608a6: Fix css bundle
+
 ## 0.17.5
 
 ### Patch Changes

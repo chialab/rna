@@ -318,6 +318,7 @@ export function rnaPlugin(config) {
 
             const transformConfig = getEntryConfig(entrypoint, {
                 ...config,
+                bundle,
                 write: false,
                 sourcemap: 'inline',
                 platform: 'browser',

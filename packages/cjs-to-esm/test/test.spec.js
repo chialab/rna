@@ -250,6 +250,17 @@ fs.readFile(path.resolve('test.js'));`).catch((err) => err);
                 const globalVariable = detectUmdGlobalVariable(processor);
                 expect(globalVariable).to.be.equal('pdfjsLib');
             });
+
+            it('uri-js', async () => {
+                const { processor } = await parse(`(function (global, factory) {
+                    typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
+                    typeof define === 'function' && define.amd ? define(['exports'], factory) :
+                    (factory((global.URI = global.URI || {})));
+                }(this, (function (exports) { 'use strict'; })));`);
+
+                const globalVariable = detectUmdGlobalVariable(processor);
+                expect(globalVariable).to.be.equal('URI');
+            });
         });
     });
 });

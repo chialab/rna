@@ -1,5 +1,11 @@
 # @chialab/cjs-to-esm
 
+## 0.17.6
+
+### Patch Changes
+
+- 433608a6: Fix umd case with factory invokation
+
 ## 0.17.5
 
 ### Patch Changes

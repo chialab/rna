@@ -35,7 +35,7 @@ export function servePlugin(config) {
     let serverConfig;
 
     /**
-     * @type {Promise<import('./StoryIndexGenerator.js').StoryIndexGenerator>}
+     * @type {Promise<import('@storybook/core-server/dist/cjs/utils/StoryIndexGenerator.js').StoryIndexGenerator>}
      */
     let generatorPromise;
 

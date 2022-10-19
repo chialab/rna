@@ -2,8 +2,8 @@ import path from 'path';
 import { readFile } from 'fs/promises';
 import esbuild from 'esbuild';
 import { glob } from '@chialab/node-resolve';
-import { loadCsf } from '@storybook/csf-tools';
-import { StoryIndexGenerator } from './StoryIndexGenerator.js';
+import * as tools from './csf-tools.cjs';
+import { StoryIndexGenerator } from '@storybook/core-server/dist/cjs/utils/StoryIndexGenerator.js';
 import { transformMdxToCsf } from './transformMdxToCsf.js';
 
 /**
@@ -38,7 +38,8 @@ function normalizeStory(rootDir, entry) {
  */
 async function csfIndexer(fileName, opts) {
     const code = await readFile(fileName, 'utf-8');
-    return loadCsf(code, { ...opts, fileName }).parse();
+    const csfFile = tools.loadCsf(code, { ...opts, fileName });
+    return csfFile.parse();
 }
 
 /**
@@ -46,9 +47,9 @@ async function csfIndexer(fileName, opts) {
  * @param {import('@storybook/core-common').IndexerOptions} opts
  */
 async function mdxIndexer(fileName, opts) {
-    let code = await readFile(fileName, 'utf-8');
-    code = await transformMdxToCsf(code, esbuild);
-    return loadCsf(code, { ...opts, fileName }).parse();
+    const code = await transformMdxToCsf(await readFile(fileName, 'utf-8'), esbuild);
+    const csfFile = tools.loadCsf(code, { ...opts, fileName });
+    return csfFile.parse();
 }
 
 /**

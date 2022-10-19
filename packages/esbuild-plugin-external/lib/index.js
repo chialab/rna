@@ -10,7 +10,7 @@ import { pkgUp } from '@chialab/node-resolve';
 
 /**
  * Collect or exclude module dependencies to bundle.
- * @param {PluginOptions} [options]
+ * @param {PluginOptions} options
  * @returns An esbuild plugin.
  */
 export default function({ dependencies = true, peerDependencies = false, optionalDependencies = false } = {}) {

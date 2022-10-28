@@ -44,17 +44,17 @@ jobs:
       - name: Install project dependencies
         run: yarn install
 
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: packages
-          path: ./packages
-
       - name: Run typings script
         run: yarn types
 
       - name: Run build script
         run: yarn build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: packages
+          path: ./packages
 
   test:
     name: Test

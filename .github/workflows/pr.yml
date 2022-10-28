@@ -45,10 +45,10 @@ jobs:
         run: yarn install
 
       - name: Upload build artifacts
-        uses: actions/cache@v3
+        uses: actions/upload-artifact@v3
         with:
+          name: packages
           path: ./packages
-          key: build-packages-${{ github.sha }}
 
       - name: Run typings script
         run: yarn types
@@ -78,10 +78,9 @@ jobs:
         run: yarn install
 
       - name: Fetch build artifacts
-        uses: actions/cache@v3
+        uses: actions/download-artifact@v3
         with:
-          path: ./packages
-          key: build-packages-${{ github.sha }}
+          name: packages
 
       - name: Run tests
         run: yarn test

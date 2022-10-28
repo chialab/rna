@@ -90,7 +90,7 @@ export async function collectScreen($, element, screen, options, helpers) {
     const link = $('<link>');
     link.attr('rel', 'apple-touch-startup-image');
     link.attr('media', screen.query);
-    link.attr('href', file.path);
+    link.attr('href', file.path.replace(path.sep, '/'));
     link.insertBefore(element);
 
     return {

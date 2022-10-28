@@ -15,10 +15,10 @@ jobs:
     timeout-minutes: 5
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Setup Node
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: 16
           cache: yarn
@@ -35,10 +35,10 @@ jobs:
     needs: lint
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Setup Node
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: 16
           cache: yarn
@@ -47,7 +47,7 @@ jobs:
         run: yarn install
 
       - name: Upload build artifacts
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ./packages
           key: build-packages-${{ github.sha }}
@@ -68,10 +68,10 @@ jobs:
     needs: build
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Setup Node
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: 16
           cache: yarn
@@ -80,7 +80,7 @@ jobs:
         run: yarn install
 
       - name: Fetch build artifacts
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ./packages
           key: build-packages-${{ github.sha }}
@@ -89,7 +89,7 @@ jobs:
         run: yarn test
 
       - name: Upload coverage to codecov
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v3
         with:
           file: coverage/lcov.info
 
@@ -101,10 +101,10 @@ jobs:
       - test
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Setup Node
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: 16
           cache: yarn
@@ -113,14 +113,14 @@ jobs:
         run: yarn install
 
       - name: Fetch build artifacts
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ./packages
           key: build-packages-${{ github.sha }}
 
       - name: Create Release Pull Request or Publish to npm
         id: changesets
-        uses: changesets/action@v1
+        uses: changesets/action@v3
         with:
           version: yarn version
           publish: yarn changeset publish

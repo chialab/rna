@@ -1,5 +1,11 @@
 # @chialab/wds-plugin-rna
 
+## 0.17.7
+
+### Patch Changes
+
+- b14d5810: Fix css and json module urls
+
 ## 0.17.6
 
 ### Patch Changes

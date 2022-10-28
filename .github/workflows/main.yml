@@ -60,10 +60,7 @@ jobs:
 
   test:
     name: Test
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     timeout-minutes: 10
     needs: build
     steps:

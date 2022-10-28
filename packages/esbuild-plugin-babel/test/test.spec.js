@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'url';
 import esbuild from 'esbuild';
 import babelPlugin from '@chialab/esbuild-plugin-babel';
 import { expect } from 'chai';
@@ -5,10 +6,10 @@ import { expect } from 'chai';
 describe('esbuild-plugin-babel', () => {
     it('should transform code to es5', async () => {
         const { outputFiles: [result] } = await esbuild.build({
-            absWorkingDir: new URL('.', import.meta.url).pathname,
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
-                resolveDir: new URL('.', import.meta.url).pathname,
-                sourcefile: new URL(import.meta.url).pathname,
+                resolveDir: fileURLToPath(new URL('.', import.meta.url)),
+                sourcefile: fileURLToPath(import.meta.url),
                 contents: 'export const nil = () => {};',
             },
             target: 'es5',
@@ -31,9 +32,9 @@ export {
 
     it('should transform code using babel config', async () => {
         const { outputFiles: [result] } = await esbuild.build({
-            absWorkingDir: new URL('.', import.meta.url).pathname,
-            entryPoints: [new URL('fixture/input.js', import.meta.url).pathname],
-            sourceRoot: new URL('fixture', import.meta.url).pathname,
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
+            entryPoints: [fileURLToPath(new URL('fixture/input.js', import.meta.url))],
+            sourceRoot: fileURLToPath(new URL('fixture', import.meta.url)),
             format: 'esm',
             bundle: true,
             write: false,
@@ -53,10 +54,10 @@ export {
 
     it('should transform using babel runtime', async () => {
         const { outputFiles: [result] } = await esbuild.build({
-            absWorkingDir: new URL('.', import.meta.url).pathname,
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
-                resolveDir: new URL('.', import.meta.url).pathname,
-                sourcefile: new URL(import.meta.url).pathname,
+                resolveDir: fileURLToPath(new URL('.', import.meta.url)),
+                sourcefile: fileURLToPath(import.meta.url),
                 contents: 'export const nil = async () => {};',
             },
             target: 'es5',
@@ -94,10 +95,10 @@ export {
 
     it('should bundle babel runtime', async () => {
         const { outputFiles: [result] } = await esbuild.build({
-            absWorkingDir: new URL('.', import.meta.url).pathname,
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
-                resolveDir: new URL('.', import.meta.url).pathname,
-                sourcefile: new URL(import.meta.url).pathname,
+                resolveDir: fileURLToPath(new URL('.', import.meta.url)),
+                sourcefile: fileURLToPath(import.meta.url),
                 contents: 'export const map = { ...{} }',
             },
             target: 'es5',
@@ -155,10 +156,10 @@ export {
 
     it('should convert tagget templates like jsx', async () => {
         const { outputFiles: [result] } = await esbuild.build({
-            absWorkingDir: new URL('.', import.meta.url).pathname,
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
-                resolveDir: new URL('.', import.meta.url).pathname,
-                sourcefile: new URL(import.meta.url).pathname,
+                resolveDir: fileURLToPath(new URL('.', import.meta.url)),
+                sourcefile: fileURLToPath(import.meta.url),
                 contents: 'export const template = html`<div />`;',
             },
             target: 'es5',

@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'url';
 import esbuild from 'esbuild';
 import externalPlugin from '@chialab/esbuild-plugin-external';
 import { expect } from 'chai';
@@ -5,10 +6,10 @@ import { expect } from 'chai';
 describe('esbuild-plugin-external', () => {
     it('should externalize remote modules', async () => {
         const { outputFiles: [result] } = await esbuild.build({
-            absWorkingDir: new URL('.', import.meta.url).pathname,
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
-                resolveDir: new URL('.', import.meta.url).pathname,
-                sourcefile: new URL(import.meta.url).pathname,
+                resolveDir: fileURLToPath(new URL('.', import.meta.url)),
+                sourcefile: fileURLToPath(import.meta.url),
                 contents: `import { render } from 'https://unpkg.com/@chialab/dna';
                 export { render }`,
             },
@@ -30,9 +31,9 @@ export {
 
     it('should externalize dependencies', async () => {
         const { outputFiles: [result] } = await esbuild.build({
-            absWorkingDir: new URL('.', import.meta.url).pathname,
-            entryPoints: [new URL('fixture/input.js', import.meta.url).pathname],
-            sourceRoot: new URL('fixture', import.meta.url).pathname,
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
+            entryPoints: [fileURLToPath(new URL('fixture/input.js', import.meta.url))],
+            sourceRoot: fileURLToPath(new URL('fixture', import.meta.url)),
             format: 'esm',
             bundle: true,
             write: false,
@@ -62,9 +63,9 @@ export {
 
     it('should externalize all dependencies', async () => {
         const { outputFiles: [result] } = await esbuild.build({
-            absWorkingDir: new URL('.', import.meta.url).pathname,
-            entryPoints: [new URL('fixture/input.js', import.meta.url).pathname],
-            sourceRoot: new URL('fixture', import.meta.url).pathname,
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
+            entryPoints: [fileURLToPath(new URL('fixture/input.js', import.meta.url))],
+            sourceRoot: fileURLToPath(new URL('fixture', import.meta.url)),
             format: 'esm',
             bundle: true,
             write: false,
@@ -88,9 +89,9 @@ export {
 
     it('should externalize given deps', async () => {
         const { outputFiles: [result] } = await esbuild.build({
-            absWorkingDir: new URL('.', import.meta.url).pathname,
-            entryPoints: [new URL('fixture/input.js', import.meta.url).pathname],
-            sourceRoot: new URL('fixture', import.meta.url).pathname,
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
+            entryPoints: [fileURLToPath(new URL('fixture/input.js', import.meta.url))],
+            sourceRoot: fileURLToPath(new URL('fixture', import.meta.url)),
             format: 'esm',
             bundle: true,
             write: false,
@@ -114,9 +115,9 @@ export {
 
     it('should skip without bundle', async () => {
         const { outputFiles: [result] } = await esbuild.build({
-            absWorkingDir: new URL('.', import.meta.url).pathname,
-            entryPoints: [new URL('fixture/input.js', import.meta.url).pathname],
-            sourceRoot: new URL('fixture', import.meta.url).pathname,
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
+            entryPoints: [fileURLToPath(new URL('fixture/input.js', import.meta.url))],
+            sourceRoot: fileURLToPath(new URL('fixture', import.meta.url)),
             format: 'esm',
             bundle: false,
             write: false,

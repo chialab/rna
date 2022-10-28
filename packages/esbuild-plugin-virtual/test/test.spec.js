@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'url';
 import esbuild from 'esbuild';
 import virtualPlugin, { createVirtualPlugin } from '@chialab/esbuild-plugin-virtual';
 import { expect } from 'chai';
@@ -6,7 +7,7 @@ describe('esbuild-plugin-virtual', () => {
     it('should load virtual modules', async () => {
         const { outputFiles: [result] } = await esbuild.build({
             stdin: {
-                sourcefile: new URL(import.meta.url).pathname,
+                sourcefile: fileURLToPath(import.meta.url),
                 contents: `import { test } from 'virtualMod';
 export { test }`,
             },
@@ -37,7 +38,7 @@ export {
     it('should load virtual modules with a new plugin instance', async () => {
         const { outputFiles: [result] } = await esbuild.build({
             stdin: {
-                sourcefile: new URL(import.meta.url).pathname,
+                sourcefile: fileURLToPath(import.meta.url),
                 contents: `import { test } from 'virtualMod';
 export { test }`,
             },
@@ -68,7 +69,7 @@ export {
     it('should load css virtual modules', async () => {
         const { outputFiles: [result] } = await esbuild.build({
             stdin: {
-                sourcefile: new URL(import.meta.url).pathname,
+                sourcefile: fileURLToPath(import.meta.url),
                 contents: '@import \'virtualMod\';',
                 loader: 'css',
             },

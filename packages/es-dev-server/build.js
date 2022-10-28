@@ -15,9 +15,10 @@ esbuild.build({
     banner: {
         js: `import { dirname as __pathDirname } from 'path';
 import { createRequire as __moduleCreateRequire } from 'module';
+import { fileURLToPath as __fileURLToPath  } from 'url';
 
 const require = __moduleCreateRequire(import.meta.url);
-const __filename = new URL(import.meta.url).pathname;
+const __filename = __fileURLToPath(import.meta.url);
 const __dirname = __pathDirname(__filename);
 `,
     },

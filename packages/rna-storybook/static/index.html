@@ -9,12 +9,7 @@
     </head>
     <body>
         <div id="root"></div>
-        <script>
-            window['FEATURES'] = {
-                storyStoreV7: true,
-                previewMdx2: true,
-            };
-        </script><% for (var i = 0; i < js.length; i++) { %>
+        <% for (var i = 0; i < js.length; i++) { %>
         <script type="<%= js[i].type %>" src="<%= js[i].path %>"></script><% } %>
     </body>
 </html>

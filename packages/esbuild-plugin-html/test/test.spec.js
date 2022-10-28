@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'url';
 import esbuild from 'esbuild';
 import htmlPlugin from '@chialab/esbuild-plugin-html';
 import virtualPlugin from '@chialab/esbuild-plugin-virtual';
@@ -6,8 +7,8 @@ import { expect } from 'chai';
 describe('esbuild-plugin-html', () => {
     it('should bundle webapp with scripts', async () => {
         const { outputFiles } = await esbuild.build({
-            absWorkingDir: new URL('.', import.meta.url).pathname,
-            entryPoints: [new URL('fixture/index.iife.html', import.meta.url).pathname],
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
+            entryPoints: [fileURLToPath(new URL('fixture/index.iife.html', import.meta.url))],
             sourceRoot: '/',
             chunkNames: '[name]-[hash]',
             outdir: 'out',
@@ -76,8 +77,8 @@ body {
 
     it('should bundle webapp with scripts and sourcemaps', async () => {
         const { outputFiles } = await esbuild.build({
-            absWorkingDir: new URL('.', import.meta.url).pathname,
-            entryPoints: [new URL('fixture/index.iife.html', import.meta.url).pathname],
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
+            entryPoints: [fileURLToPath(new URL('fixture/index.iife.html', import.meta.url))],
             sourceRoot: '/',
             chunkNames: '[name]-[hash]',
             outdir: 'out',
@@ -149,8 +150,8 @@ body {
 
     it('should bundle webapp with modules', async () => {
         const { outputFiles } = await esbuild.build({
-            absWorkingDir: new URL('.', import.meta.url).pathname,
-            entryPoints: [new URL('fixture/index.esm.html', import.meta.url).pathname],
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
+            entryPoints: [fileURLToPath(new URL('fixture/index.esm.html', import.meta.url))],
             sourceRoot: '/',
             chunkNames: '[name]-[hash]',
             outdir: 'out',
@@ -242,8 +243,8 @@ body {
 
     it('should bundle webapp with modules and chunks', async () => {
         const { outputFiles } = await esbuild.build({
-            absWorkingDir: new URL('.', import.meta.url).pathname,
-            entryPoints: [new URL('fixture/index.chunks.html', import.meta.url).pathname],
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
+            entryPoints: [fileURLToPath(new URL('fixture/index.chunks.html', import.meta.url))],
             sourceRoot: '/',
             chunkNames: '[name]-[hash]',
             outdir: 'out',
@@ -344,8 +345,8 @@ body {
 
     it('should bundle webapp with modules and scripts', async () => {
         const { outputFiles } = await esbuild.build({
-            absWorkingDir: new URL('.', import.meta.url).pathname,
-            entryPoints: [new URL('fixture/index.mixed.html', import.meta.url).pathname],
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
+            entryPoints: [fileURLToPath(new URL('fixture/index.mixed.html', import.meta.url))],
             sourceRoot: '/',
             chunkNames: '[name]-[hash]',
             outdir: 'out',
@@ -439,8 +440,8 @@ body {
 
     it('should bundle webapp with styles', async () => {
         const { outputFiles } = await esbuild.build({
-            absWorkingDir: new URL('.', import.meta.url).pathname,
-            entryPoints: [new URL('fixture/index.css.html', import.meta.url).pathname],
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
+            entryPoints: [fileURLToPath(new URL('fixture/index.css.html', import.meta.url))],
             sourceRoot: '/',
             chunkNames: '[name]-[hash]',
             outdir: 'out',
@@ -496,9 +497,9 @@ body {
 
     it('should bundle webapp with virtual styles', async () => {
         const { outputFiles } = await esbuild.build({
-            absWorkingDir: new URL('.', import.meta.url).pathname,
-            entryPoints: [new URL('./index.html', import.meta.url).pathname],
-            sourceRoot: new URL('.', import.meta.url).pathname,
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
+            entryPoints: [fileURLToPath(new URL('./index.html', import.meta.url))],
+            sourceRoot: fileURLToPath(new URL('.', import.meta.url)),
             chunkNames: '[name]-[hash]',
             outdir: 'out',
             bundle: true,
@@ -506,7 +507,7 @@ body {
             plugins: [
                 virtualPlugin([
                     {
-                        path: new URL('./index.html', import.meta.url).pathname,
+                        path: fileURLToPath(new URL('./index.html', import.meta.url)),
                         contents: `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -570,8 +571,8 @@ html {
 
     it('should bundle webapp with png favicons', async () => {
         const { outputFiles } = await esbuild.build({
-            absWorkingDir: new URL('.', import.meta.url).pathname,
-            entryPoints: [new URL('fixture/index.icons.html', import.meta.url).pathname],
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
+            entryPoints: [fileURLToPath(new URL('fixture/index.icons.html', import.meta.url))],
             sourceRoot: '/',
             assetNames: 'icons/[name]',
             outdir: 'out',
@@ -619,8 +620,8 @@ html {
 
     it('should bundle webapp with svg favicon', async () => {
         const { outputFiles } = await esbuild.build({
-            absWorkingDir: new URL('.', import.meta.url).pathname,
-            entryPoints: [new URL('fixture/index.svgicons.html', import.meta.url).pathname],
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
+            entryPoints: [fileURLToPath(new URL('fixture/index.svgicons.html', import.meta.url))],
             sourceRoot: '/',
             assetNames: 'icons/[name]',
             outdir: 'out',
@@ -661,8 +662,8 @@ html {
         this.timeout(15000);
 
         const { outputFiles } = await esbuild.build({
-            absWorkingDir: new URL('.', import.meta.url).pathname,
-            entryPoints: [new URL('fixture/index.screens.html', import.meta.url).pathname],
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
+            entryPoints: [fileURLToPath(new URL('fixture/index.screens.html', import.meta.url))],
             sourceRoot: '/',
             assetNames: 'screens/[name]',
             outdir: 'out',
@@ -710,8 +711,8 @@ html {
 
     it('should bundle webapp with assets', async () => {
         const { outputFiles } = await esbuild.build({
-            absWorkingDir: new URL('.', import.meta.url).pathname,
-            entryPoints: [new URL('fixture/index.assets.html', import.meta.url).pathname],
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
+            entryPoints: [fileURLToPath(new URL('fixture/index.assets.html', import.meta.url))],
             sourceRoot: '/',
             assetNames: 'assets/[dir]/[name]',
             outdir: 'out',
@@ -756,8 +757,8 @@ html {
 
     it('should bundle webapp with a webmanifest', async () => {
         const { outputFiles } = await esbuild.build({
-            absWorkingDir: new URL('.', import.meta.url).pathname,
-            entryPoints: [new URL('fixture/index.manifest.html', import.meta.url).pathname],
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
+            entryPoints: [fileURLToPath(new URL('fixture/index.manifest.html', import.meta.url))],
             sourceRoot: '/',
             assetNames: 'assets/[name]',
             outdir: 'out',
@@ -868,10 +869,10 @@ html {
 
     it('should bundle webapp with [dir] and outbase', async () => {
         const { outputFiles } = await esbuild.build({
-            absWorkingDir: new URL('.', import.meta.url).pathname,
-            entryPoints: [new URL('fixture/index.iife.html', import.meta.url).pathname],
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
+            entryPoints: [fileURLToPath(new URL('fixture/index.iife.html', import.meta.url))],
             sourceRoot: '/',
-            outbase: new URL('./', import.meta.url).pathname,
+            outbase: fileURLToPath(new URL('./', import.meta.url)),
             entryNames: '[dir]/[name]',
             chunkNames: '[name]',
             outdir: 'out',
@@ -922,8 +923,8 @@ html {
 
     it('should bundle webapp with [dir] without outbase', async () => {
         const { outputFiles } = await esbuild.build({
-            absWorkingDir: new URL('.', import.meta.url).pathname,
-            entryPoints: [new URL('fixture/index.iife.html', import.meta.url).pathname],
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
+            entryPoints: [fileURLToPath(new URL('fixture/index.iife.html', import.meta.url))],
             sourceRoot: '/',
             entryNames: '[dir]/[name]',
             chunkNames: '[name]',

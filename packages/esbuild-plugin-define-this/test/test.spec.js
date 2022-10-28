@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'url';
 import esbuild from 'esbuild';
 import defineThisPlugin from '@chialab/esbuild-plugin-define-this';
 import { expect } from 'chai';
@@ -5,10 +6,10 @@ import { expect } from 'chai';
 describe('esbuild-plugin-define-this', () => {
     it('should resolve to window for browser platform', async () => {
         const { outputFiles: [result] } = await esbuild.build({
-            absWorkingDir: new URL('.', import.meta.url).pathname,
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
-                resolveDir: new URL('.', import.meta.url).pathname,
-                sourcefile: new URL(import.meta.url).pathname,
+                resolveDir: fileURLToPath(new URL('.', import.meta.url)),
+                sourcefile: fileURLToPath(import.meta.url),
                 contents: '(function(g) { return g; }(this));',
             },
             platform: 'browser',
@@ -30,10 +31,10 @@ describe('esbuild-plugin-define-this', () => {
 
     it('should resolve to globalThis for neutral platform', async () => {
         const { outputFiles: [result] } = await esbuild.build({
-            absWorkingDir: new URL('.', import.meta.url).pathname,
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
-                resolveDir: new URL('.', import.meta.url).pathname,
-                sourcefile: new URL(import.meta.url).pathname,
+                resolveDir: fileURLToPath(new URL('.', import.meta.url)),
+                sourcefile: fileURLToPath(import.meta.url),
                 contents: '(function(g) { return g; }(this));',
             },
             platform: 'neutral',
@@ -53,10 +54,10 @@ describe('esbuild-plugin-define-this', () => {
 
     it('should resolve to undefined for node platform', async () => {
         const { outputFiles: [result] } = await esbuild.build({
-            absWorkingDir: new URL('.', import.meta.url).pathname,
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
-                resolveDir: new URL('.', import.meta.url).pathname,
-                sourcefile: new URL(import.meta.url).pathname,
+                resolveDir: fileURLToPath(new URL('.', import.meta.url)),
+                sourcefile: fileURLToPath(import.meta.url),
                 contents: '(function(g) { return g; }(this));',
             },
             platform: 'node',

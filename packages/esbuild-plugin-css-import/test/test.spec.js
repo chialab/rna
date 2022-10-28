@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'url';
 import esbuild from 'esbuild';
 import cssImportPlugin from '@chialab/esbuild-plugin-css-import';
 import { expect } from 'chai';
@@ -5,9 +6,9 @@ import { expect } from 'chai';
 describe('esbuild-plugin-css-import', () => {
     it('should resolve css imports', async () => {
         const { outputFiles: [result] } = await esbuild.build({
-            absWorkingDir: new URL('.', import.meta.url).pathname,
-            entryPoints: [new URL('fixture/input.css', import.meta.url).pathname],
-            sourceRoot: new URL('fixture', import.meta.url).pathname,
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
+            entryPoints: [fileURLToPath(new URL('fixture/input.css', import.meta.url))],
+            sourceRoot: fileURLToPath(new URL('fixture', import.meta.url)),
             bundle: true,
             write: false,
             plugins: [
@@ -28,9 +29,9 @@ body {
 
     it('should ignore external modules', async () => {
         const { outputFiles: [result] } = await esbuild.build({
-            absWorkingDir: new URL('.', import.meta.url).pathname,
-            entryPoints: [new URL('fixture/input.css', import.meta.url).pathname],
-            sourceRoot: new URL('fixture', import.meta.url).pathname,
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
+            entryPoints: [fileURLToPath(new URL('fixture/input.css', import.meta.url))],
+            sourceRoot: fileURLToPath(new URL('fixture', import.meta.url)),
             bundle: true,
             write: false,
             external: [

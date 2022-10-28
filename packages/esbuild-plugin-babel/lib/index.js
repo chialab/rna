@@ -1,8 +1,9 @@
+import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import babel from '@babel/core';
 import { useRna } from '@chialab/esbuild-rna';
 
-const resolveDir = dirname(new URL(import.meta.url).pathname);
+const resolveDir = dirname(fileURLToPath(import.meta.url));
 
 /**
  * @typedef {{ presets?: import('@babel/core').PluginItem[], plugins?: import('@babel/core').PluginItem[] }} PluginOptions

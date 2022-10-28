@@ -30,10 +30,7 @@ jobs:
   build:
     name: Build
     needs: lint
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v3
@@ -51,7 +48,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ./packages
-          key: build-packages-${{ matrix.os }}-${{ github.sha }}
+          key: build-packages-${{ github.sha }}
 
       - name: Run typings script
         run: yarn types
@@ -84,7 +81,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ./packages
-          key: build-packages-${{ matrix.os }}-${{ github.sha }}
+          key: build-packages-${{ github.sha }}
 
       - name: Run tests
         run: yarn test

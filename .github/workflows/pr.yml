@@ -55,6 +55,7 @@ jobs:
         with:
           name: packages
           path: ./packages
+          retention-days: 1
 
   test:
     name: Test
@@ -74,13 +75,14 @@ jobs:
           node-version: 16
           cache: yarn
 
-      - name: Install project dependencies
-        run: yarn install
-
-      - name: Fetch build artifacts
+      - name: Download build artifacts
         uses: actions/download-artifact@v3
         with:
           name: packages
+          path: ./packages
+
+      - name: Install project dependencies
+        run: yarn install
 
       - name: Run tests
         run: yarn test

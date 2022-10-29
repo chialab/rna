@@ -121,7 +121,7 @@ jobs:
 
       - name: Create Release Pull Request or Publish to npm
         id: changesets
-        uses: changesets/action@v3
+        uses: changesets/action@v1
         with:
           version: yarn version
           publish: yarn changeset publish

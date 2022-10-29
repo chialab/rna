@@ -17,7 +17,7 @@ export async function collectAsset($, element, attribute, options, helpers) {
 
     const entryPoint = resolvedFile.path;
     const file = await helpers.emitFile(entryPoint);
-    element.attr(attribute, file.path.replace(path.sep, '/'));
+    element.attr(attribute, file.path.split(path.sep).join('/'));
 
     return {
         ...file,

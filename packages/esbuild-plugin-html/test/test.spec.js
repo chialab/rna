@@ -780,7 +780,7 @@ html {
 
         expect(outputFiles).to.have.lengthOf(17);
 
-        expect(index.path).endsWith('/out/index.manifest.html');
+        expect(index.path).endsWith(path.join(path.sep, 'out', 'index.manifest.html'));
         expect(index.text).to.be.equal(`<!DOCTYPE html>
 <html lang="en">
 
@@ -806,12 +806,12 @@ html {
 </html>`);
 
         expect(icons).to.have.lengthOf(9);
-        expect(icons[0].path).endsWith('/out/assets/android-chrome-36x36.png');
+        expect(icons[0].path).endsWith(path.join(path.sep, 'out', 'assets', 'android-chrome-36x36.png'));
         expect(icons[0].contents.byteLength).to.be.equal(1135);
-        expect(icons[8].path).endsWith('/out/assets/android-chrome-512x512.png');
+        expect(icons[8].path).endsWith(path.join(path.sep, 'out', 'assets', 'android-chrome-512x512.png'));
         expect(icons[8].contents.byteLength).to.be.equal(24012);
 
-        expect(manifest.path).endsWith('/out/assets/manifest.webmanifest');
+        expect(manifest.path).endsWith(path.join(path.sep, 'out', 'assets', 'manifest.webmanifest'));
         expect(manifest.text).to.be.equal(`{
   "name": "Document",
   "short_name": "Document",
@@ -893,7 +893,7 @@ html {
         const css = files.find((file) => file.path.endsWith('.css'));
 
         expect(outputFiles).to.have.lengthOf(3);
-        expect(index.path).endsWith('/out/fixture/index.iife.html');
+        expect(index.path).endsWith(path.join(path.sep, 'out', 'fixture', 'index.iife.html'));
         expect(index.text).to.be.equal(`<!DOCTYPE html>
 <html lang="en">
 
@@ -921,8 +921,8 @@ html {
 
 </html>`);
 
-        expect(js.path).endsWith('/out/index.js');
-        expect(css.path).endsWith('/out/index.css');
+        expect(js.path).endsWith(path.join(path.sep, 'out', 'index.js'));
+        expect(css.path).endsWith(path.join(path.sep, 'out', 'index.css'));
     });
 
     it('should bundle webapp with [dir] without outbase', async () => {
@@ -974,7 +974,7 @@ html {
 
 </html>`);
 
-        expect(js.path).endsWith('/out/index.js');
-        expect(css.path).endsWith('/out/index.css');
+        expect(js.path).endsWith(path.join(path.sep, 'out', 'index.js'));
+        expect(css.path).endsWith(path.join(path.sep, 'out', 'index.css'));
     });
 });

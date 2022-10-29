@@ -121,7 +121,7 @@ export async function collectWebManifest($, dom, options, helpers) {
                 const contents = await generateIcon(image, size, 0, { r: 255, g: 255, b: 255, a: 1 });
                 const result = await helpers.emitFile(name, contents);
                 return {
-                    src: path.relative(manifestOutputDir, result.filePath).replace(path.sep, '/'),
+                    src: path.relative(manifestOutputDir, result.filePath).split(path.sep).join('/'),
                     sizes: `${size}x${size}`,
                     type: 'image/png',
                 };
@@ -131,7 +131,7 @@ export async function collectWebManifest($, dom, options, helpers) {
 
     const file = await helpers.emitFile(entryPoint, JSON.stringify(json, null, 2));
 
-    $(element).attr('href', file.path.replace(path.sep, '/'));
+    $(element).attr('href', file.path.split(path.sep).join('/'));
 
     return [{
         ...file,

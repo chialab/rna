@@ -81,10 +81,10 @@ async function innerCollect($, dom, elements, target, format, type, attrs = {}, 
         const relativeOutName = path.relative(options.entryDir, fullOutName);
 
         if ($(element).attr('src')) {
-            $(element).attr('src', relativeOutName.replace(path.sep, '/'));
+            $(element).attr('src', relativeOutName.split(path.sep).join('/'));
             $(element).html('');
         } else {
-            $(element).html(`import './${relativeOutName.replace(path.sep, '/')}'`);
+            $(element).html(`import './${relativeOutName.split(path.sep).join('/')}'`);
         }
         $(element).removeAttr('type').attr('type', type);
         for (const attrName in attrs) {
@@ -109,7 +109,7 @@ function loadStyle(url) {
 ${styleFiles.map((outName) => {
             const fullOutFile = path.join(options.workingDir, outName);
             const relativeOutFile = path.relative(options.entryDir, fullOutFile);
-            return `loadStyle('${relativeOutFile.replace(path.sep, '/')}');`;
+            return `loadStyle('${relativeOutFile.split(path.sep).join('/')}');`;
         }).join('\n')}
 }());`);
         dom.find('head').append(script);

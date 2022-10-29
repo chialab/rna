@@ -1,8 +1,12 @@
+import path from 'path';
 import { fileURLToPath } from 'url';
 import esbuild from 'esbuild';
 import htmlPlugin from '@chialab/esbuild-plugin-html';
 import virtualPlugin from '@chialab/esbuild-plugin-virtual';
-import { expect } from 'chai';
+import chai, { expect } from 'chai';
+import chaiString from 'chai-string';
+
+chai.use(chaiString);
 
 describe('esbuild-plugin-html', () => {
     it('should bundle webapp with scripts', async () => {
@@ -24,7 +28,7 @@ describe('esbuild-plugin-html', () => {
 
         expect(outputFiles).to.have.lengthOf(3);
 
-        expect(index.path.endsWith('/out/index.iife.html')).to.be.true;
+        expect(index.path).endsWith(path.join(path.sep, 'out', 'index.iife.html'));
         expect(index.text).to.be.equal(`<!DOCTYPE html>
 <html lang="en">
 
@@ -52,7 +56,7 @@ describe('esbuild-plugin-html', () => {
 
 </html>`);
 
-        expect(js.path.endsWith('/out/index-JEYWDNLH.js')).to.be.true;
+        expect(js.path).endsWith(path.join(path.sep, 'out', 'index-JEYWDNLH.js'));
         expect(js.text).to.be.equal(`"use strict";
 (() => {
   // fixture/lib.js
@@ -65,7 +69,7 @@ describe('esbuild-plugin-html', () => {
 })();
 `);
 
-        expect(css.path.endsWith('/out/index-UMVLUHQU.css')).to.be.true;
+        expect(css.path).endsWith(path.join(path.sep, 'out', 'index-UMVLUHQU.css'));
         expect(css.text).to.be.equal(`/* fixture/index.css */
 html,
 body {
@@ -95,7 +99,7 @@ body {
 
         expect(outputFiles).to.have.lengthOf(5);
 
-        expect(index.path.endsWith('/out/index.iife.html')).to.be.true;
+        expect(index.path).endsWith(path.join(path.sep, 'out', 'index.iife.html'));
         expect(index.text).to.be.equal(`<!DOCTYPE html>
 <html lang="en">
 
@@ -123,7 +127,7 @@ body {
 
 </html>`);
 
-        expect(js.path.endsWith('/out/index-FIAOTJ3G.js')).to.be.true;
+        expect(js.path).endsWith(path.join(path.sep, 'out', 'index-FIAOTJ3G.js'));
         expect(js.text).to.be.equal(`"use strict";
 (() => {
   // fixture/lib.js
@@ -137,7 +141,7 @@ body {
 //# sourceMappingURL=index-FIAOTJ3G.js.map
 `);
 
-        expect(css.path.endsWith('/out/index-CECUKMCO.css')).to.be.true;
+        expect(css.path).endsWith(path.join(path.sep, 'out', 'index-CECUKMCO.css'));
         expect(css.text).to.be.equal(`/* fixture/index.css */
 html,
 body {
@@ -164,14 +168,14 @@ body {
         });
 
         const [index, ...files] = outputFiles;
-        const jsFile = files.find((file) => file.path.includes('/out/index') && file.path.endsWith('.js'));
-        const jsSource = files.find((file) => file.path.includes('/out/1-') && file.path.endsWith('.js'));
-        const jsChunk = files.find((file) => file.path.includes('/out/chunk-') && file.path.endsWith('.js'));
+        const jsFile = files.find((file) => file.path.includes(path.join(path.sep, 'out', 'index')) && file.path.endsWith('.js'));
+        const jsSource = files.find((file) => file.path.includes(path.join(path.sep, 'out', '1-')) && file.path.endsWith('.js'));
+        const jsChunk = files.find((file) => file.path.includes(path.join(path.sep, 'out', 'chunk-')) && file.path.endsWith('.js'));
         const css = files.find((file) => file.path.endsWith('.css'));
 
         expect(outputFiles).to.have.lengthOf(5);
 
-        expect(index.path.endsWith('/out/index.esm.html')).to.be.true;
+        expect(index.path).endsWith(path.join(path.sep, 'out', 'index.esm.html'));
         expect(index.text).to.be.equal(`<!DOCTYPE html>
 <html lang="en">
 
@@ -202,7 +206,7 @@ body {
 
 </html>`);
 
-        expect(jsFile.path.endsWith('index-7DQE4SCR.js')).to.be.true;
+        expect(path.basename(jsFile.path)).endsWith('index-7DQE4SCR.js');
         expect(jsFile.text).to.be.equal(`import {
   log
 } from "./chunk-VLQWHBZB.js";
@@ -213,7 +217,7 @@ window.addEventListener("load", () => {
 });
 `);
 
-        expect(jsSource.path.endsWith('/1-ZOQZ7JHL.js')).to.be.true;
+        expect(path.basename(jsSource.path)).endsWith('1-ZOQZ7JHL.js');
         expect(jsSource.text).to.be.equal(`import {
   log
 } from "./chunk-VLQWHBZB.js";
@@ -222,7 +226,7 @@ window.addEventListener("load", () => {
 log("test");
 `);
 
-        expect(jsChunk.path.endsWith('/chunk-VLQWHBZB.js')).to.be.true;
+        expect(path.basename(jsChunk.path)).endsWith('chunk-VLQWHBZB.js');
         expect(jsChunk.text).to.be.equal(`// fixture/lib.js
 var log = console.log.bind(console);
 
@@ -231,7 +235,7 @@ export {
 };
 `);
 
-        expect(css.path.endsWith('/index-UMVLUHQU.css')).to.be.true;
+        expect(path.basename(css.path)).endsWith('index-UMVLUHQU.css');
         expect(css.text).to.be.equal(`/* fixture/index.css */
 html,
 body {
@@ -258,15 +262,15 @@ body {
         });
 
         const [index, ...files] = outputFiles;
-        const jsFile = files.find((file) => file.path.includes('/out/index') && file.path.endsWith('.js'));
-        const jsSource = files.find((file) => file.path.includes('/out/1-') && file.path.endsWith('.js'));
-        const jsLib = files.find((file) => file.path.includes('/out/lib-') && file.path.endsWith('.js'));
-        const jsChunk = files.find((file) => file.path.includes('/out/chunk-') && file.path.endsWith('.js'));
+        const jsFile = files.find((file) => file.path.includes(path.join(path.sep, 'out', 'index')) && file.path.endsWith('.js'));
+        const jsSource = files.find((file) => file.path.includes(path.join(path.sep, 'out', '1-')) && file.path.endsWith('.js'));
+        const jsLib = files.find((file) => file.path.includes(path.join(path.sep, 'out', 'lib-')) && file.path.endsWith('.js'));
+        const jsChunk = files.find((file) => file.path.includes(path.join(path.sep, 'out', 'chunk-')) && file.path.endsWith('.js'));
         const css = files.find((file) => file.path.endsWith('.css'));
 
         expect(outputFiles).to.have.lengthOf(6);
 
-        expect(index.path.endsWith('/out/index.chunks.html')).to.be.true;
+        expect(index.path).endsWith(path.join(path.sep, 'out', 'index.chunks.html'));
         expect(index.text).to.be.equal(`<!DOCTYPE html>
 <html lang="en">
 
@@ -297,7 +301,7 @@ body {
 
 </html>`);
 
-        expect(jsFile.path.endsWith('/index-NISLXZJK.js')).to.be.true;
+        expect(path.basename(jsFile.path)).endsWith('index-NISLXZJK.js');
         expect(jsFile.text).to.be.equal(`import {
   log
 } from "./chunk-GNFD7QL2.js";
@@ -308,14 +312,14 @@ window.addEventListener("load", () => {
 });
 `);
 
-        expect(jsSource.path.endsWith('/1-GWHRC5DW.js')).to.be.true;
+        expect(path.basename(jsSource.path)).endsWith('1-GWHRC5DW.js');
         expect(jsSource.text).to.be.equal(`// fixture/1.js
 import("./lib-476DRX7L.js").then(({ log }) => {
   log("test");
 });
 `);
 
-        expect(jsLib.path.endsWith('/lib-476DRX7L.js')).to.be.true;
+        expect(path.basename(jsLib.path)).endsWith('lib-476DRX7L.js');
         expect(jsLib.text).to.be.equal(`import {
   log
 } from "./chunk-GNFD7QL2.js";
@@ -324,7 +328,7 @@ export {
 };
 `);
 
-        expect(jsChunk.path.endsWith('/chunk-GNFD7QL2.js')).to.be.true;
+        expect(path.basename(jsChunk.path)).endsWith('chunk-GNFD7QL2.js');
         expect(jsChunk.text).to.be.equal(`// fixture/lib.js
 var log = console.log.bind(console);
 
@@ -333,7 +337,7 @@ export {
 };
 `);
 
-        expect(css.path.endsWith('/index-UMVLUHQU.css')).to.be.true;
+        expect(path.basename(css.path)).endsWith('index-UMVLUHQU.css');
         expect(css.text).to.be.equal(`/* fixture/index.css */
 html,
 body {
@@ -365,7 +369,7 @@ body {
 
         expect(outputFiles).to.have.lengthOf(5);
 
-        expect(index.path.endsWith('/out/index.mixed.html')).to.be.true;
+        expect(index.path).endsWith(path.join(path.sep, 'out', 'index.mixed.html'));
         expect(index.text).to.be.equal(`<!DOCTYPE html>
 <html lang="en">
 
@@ -405,7 +409,7 @@ body {
 
 </html>`);
 
-        expect(iife.path.endsWith('/out/index-JEYWDNLH.js')).to.be.true;
+        expect(iife.path).endsWith(path.join(path.sep, 'out', 'index-JEYWDNLH.js'));
         expect(iife.text).to.be.equal(`"use strict";
 (() => {
   // fixture/lib.js
@@ -418,7 +422,7 @@ body {
 })();
 `);
 
-        expect(esm.path.endsWith('/out/index-6PRLBFYO.js')).to.be.true;
+        expect(esm.path).endsWith(path.join(path.sep, 'out', 'index-6PRLBFYO.js'));
         expect(esm.text).to.be.equal(`// fixture/lib.js
 var log = console.log.bind(console);
 
@@ -428,7 +432,7 @@ window.addEventListener("load", () => {
 });
 `);
 
-        expect(css.path.endsWith('/out/index-UMVLUHQU.css')).to.be.true;
+        expect(css.path).endsWith(path.join(path.sep, 'out', 'index-UMVLUHQU.css'));
         expect(css.text).to.be.equal(`/* fixture/index.css */
 html,
 body {
@@ -453,12 +457,12 @@ body {
         });
 
         const [index, ...cssFiles] = outputFiles;
-        const cssFile = cssFiles.find((output) => output.path.includes('/out/index'));
-        const cssSource = cssFiles.find((output) => output.path.includes('/out/1-'));
+        const cssFile = cssFiles.find((output) => output.path.includes(path.join(path.sep, 'out', 'index')));
+        const cssSource = cssFiles.find((output) => output.path.includes(path.join(path.sep, 'out', '1-')));
 
         expect(outputFiles).to.have.lengthOf(3);
 
-        expect(index.path.endsWith('/out/index.css.html')).to.be.true;
+        expect(index.path).endsWith(path.join(path.sep, 'out', 'index.css.html'));
         expect(index.text).to.be.equal(`<!DOCTYPE html>
 <html lang="en">
 
@@ -478,7 +482,7 @@ body {
 
 </html>`);
 
-        expect(cssFile.path.endsWith('/out/index-UMVLUHQU.css')).to.be.true;
+        expect(cssFile.path).endsWith(path.join(path.sep, 'out', 'index-UMVLUHQU.css'));
         expect(cssFile.text).to.be.equal(`/* fixture/index.css */
 html,
 body {
@@ -487,7 +491,7 @@ body {
 }
 `);
 
-        expect(cssSource.path.endsWith('/out/1-EKADEBHI.css')).to.be.true;
+        expect(cssSource.path).endsWith(path.join(path.sep, 'out', '1-EKADEBHI.css'));
         expect(cssSource.text).to.be.equal(`/* fixture/1.css */
 body {
   color: red;
@@ -542,7 +546,7 @@ body {
 
         expect(outputFiles).to.have.lengthOf(2);
 
-        expect(index.path.endsWith('/out/index.html')).to.be.true;
+        expect(index.path).endsWith(path.join(path.sep, 'out', 'index.html'));
         expect(index.text).to.be.equal(`<!DOCTYPE html>
 <html lang="en">
 
@@ -559,7 +563,7 @@ body {
 
 </html>`);
 
-        expect(css.path.endsWith('/out/index-JHCCFNW4.css')).to.be.true;
+        expect(css.path).endsWith(path.join(path.sep, 'out', 'index-JHCCFNW4.css'));
         expect(css.text).to.be.equal(`/* lib.css */
 html {
   padding: 0;
@@ -588,7 +592,7 @@ html {
 
         expect(outputFiles).to.have.lengthOf(7);
 
-        expect(index.path.endsWith('/out/index.icons.html')).to.be.true;
+        expect(index.path).endsWith(path.join(path.sep, 'out', 'index.icons.html'));
         expect(index.text).to.be.equal(`<!DOCTYPE html>
 <html lang="en">
 
@@ -611,10 +615,10 @@ html {
 
 </html>`);
 
-        expect(icons[0].path.endsWith('/out/icons/favicon-16x16.png')).to.be.true;
+        expect(icons[0].path).endsWith(path.join(path.sep, 'out', 'icons', 'favicon-16x16.png'));
         expect(icons[0].contents.byteLength).to.be.equal(459);
 
-        expect(icons[3].path.endsWith('/out/icons/favicon-196x196.png')).to.be.true;
+        expect(icons[3].path).endsWith(path.join(path.sep, 'out', 'icons', 'favicon-196x196.png'));
         expect(icons[3].contents.byteLength).to.be.equal(6366);
     });
 
@@ -637,7 +641,7 @@ html {
 
         expect(outputFiles).to.have.lengthOf(2);
 
-        expect(index.path.endsWith('/out/index.svgicons.html')).to.be.true;
+        expect(index.path).endsWith(path.join(path.sep, 'out', 'index.svgicons.html'));
         expect(index.text).to.be.equal(`<!DOCTYPE html>
 <html lang="en">
 
@@ -654,7 +658,7 @@ html {
 
 </html>`);
 
-        expect(icon.path.endsWith('/out/icons/icon.svg')).to.be.true;
+        expect(icon.path).endsWith(path.join(path.sep, 'out', 'icons', 'icon.svg'));
         expect(icon.contents.byteLength).to.be.equal(1475);
     });
 
@@ -679,7 +683,7 @@ html {
 
         expect(outputFiles).to.have.lengthOf(8);
 
-        expect(index.path.endsWith('/out/index.screens.html')).to.be.true;
+        expect(index.path).endsWith(path.join(path.sep, 'out', 'index.screens.html'));
         expect(index.text).to.be.equal(`<!DOCTYPE html>
 <html lang="en">
 
@@ -702,10 +706,10 @@ html {
 
 </html>`);
 
-        expect(screens[0].path.endsWith('/out/screens/apple-launch-iphonex.png')).to.be.true;
+        expect(screens[0].path).endsWith(path.join(path.sep, 'out', 'screens', 'apple-launch-iphonex.png'));
         expect(screens[0].contents.byteLength).to.be.equal(21254);
 
-        expect(screens[3].path.endsWith('/out/screens/apple-launch-iphone5.png')).to.be.true;
+        expect(screens[3].path).endsWith(path.join(path.sep, 'out', 'screens', 'apple-launch-iphone5.png'));
         expect(screens[3].contents.byteLength).to.be.equal(8536);
     });
 
@@ -728,7 +732,7 @@ html {
 
         expect(outputFiles).to.have.lengthOf(3);
 
-        expect(index.path.endsWith('/out/index.assets.html')).to.be.true;
+        expect(index.path).endsWith(path.join(path.sep, 'out', 'index.assets.html'));
         expect(index.text).to.be.equal(`<!DOCTYPE html>
 <html lang="en">
 
@@ -748,10 +752,10 @@ html {
 
         assets.sort((a1, a2) => a2.contents.byteLength - a1.contents.byteLength);
 
-        expect(assets[0].path.endsWith('/out/assets/img/icon.png')).to.be.true;
+        expect(assets[0].path).endsWith(path.join(path.sep, 'out', 'assets', 'img', 'icon.png'));
         expect(assets[0].contents.byteLength).to.be.equal(20754);
 
-        expect(assets[1].path.endsWith('/out/assets/icon.svg')).to.be.true;
+        expect(assets[1].path).endsWith(path.join(path.sep, 'out', 'assets', 'icon.svg'));
         expect(assets[1].contents.byteLength).to.be.equal(1475);
     });
 
@@ -776,7 +780,7 @@ html {
 
         expect(outputFiles).to.have.lengthOf(17);
 
-        expect(index.path.endsWith('/out/index.manifest.html')).to.be.true;
+        expect(index.path).endsWith('/out/index.manifest.html');
         expect(index.text).to.be.equal(`<!DOCTYPE html>
 <html lang="en">
 
@@ -802,12 +806,12 @@ html {
 </html>`);
 
         expect(icons).to.have.lengthOf(9);
-        expect(icons[0].path.endsWith('/out/assets/android-chrome-36x36.png')).to.be.true;
+        expect(icons[0].path).endsWith('/out/assets/android-chrome-36x36.png');
         expect(icons[0].contents.byteLength).to.be.equal(1135);
-        expect(icons[8].path.endsWith('/out/assets/android-chrome-512x512.png')).to.be.true;
+        expect(icons[8].path).endsWith('/out/assets/android-chrome-512x512.png');
         expect(icons[8].contents.byteLength).to.be.equal(24012);
 
-        expect(manifest.path.endsWith('/out/assets/manifest.webmanifest')).to.be.true;
+        expect(manifest.path).endsWith('/out/assets/manifest.webmanifest');
         expect(manifest.text).to.be.equal(`{
   "name": "Document",
   "short_name": "Document",
@@ -889,7 +893,7 @@ html {
         const css = files.find((file) => file.path.endsWith('.css'));
 
         expect(outputFiles).to.have.lengthOf(3);
-        expect(index.path.endsWith('/out/fixture/index.iife.html')).to.be.true;
+        expect(index.path).endsWith('/out/fixture/index.iife.html');
         expect(index.text).to.be.equal(`<!DOCTYPE html>
 <html lang="en">
 
@@ -917,8 +921,8 @@ html {
 
 </html>`);
 
-        expect(js.path.endsWith('/out/index.js')).to.be.true;
-        expect(css.path.endsWith('/out/index.css')).to.be.true;
+        expect(js.path).endsWith('/out/index.js');
+        expect(css.path).endsWith('/out/index.css');
     });
 
     it('should bundle webapp with [dir] without outbase', async () => {
@@ -942,7 +946,7 @@ html {
         const css = files.find((file) => file.path.endsWith('.css'));
 
         expect(outputFiles).to.have.lengthOf(3);
-        expect(index.path.endsWith('/out/index.iife.html')).to.be.true;
+        expect(index.path).endsWith(path.join(path.sep, 'out', 'index.iife.html'));
         expect(index.text).to.be.equal(`<!DOCTYPE html>
 <html lang="en">
 
@@ -970,7 +974,7 @@ html {
 
 </html>`);
 
-        expect(js.path.endsWith('/out/index.js')).to.be.true;
-        expect(css.path.endsWith('/out/index.css')).to.be.true;
+        expect(js.path).endsWith('/out/index.js');
+        expect(css.path).endsWith('/out/index.css');
     });
 });

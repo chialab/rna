@@ -46,23 +46,27 @@ jobs:
       - name: Install project dependencies
         run: yarn install
 
-      - name: Upload build artifacts
-        uses: actions/cache@v3
-        with:
-          path: ./packages
-          key: build-packages-${{ github.sha }}
-
       - name: Run typings script
         run: yarn types
 
       - name: Run build script
         run: yarn build
 
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: packages
+          path: ./packages
+          retention-days: 7
+
   test:
     name: Test
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
     needs: build
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v3
@@ -73,14 +77,14 @@ jobs:
           node-version: 16
           cache: yarn
 
+      - name: Download build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: packages
+          path: ./packages
+
       - name: Install project dependencies
         run: yarn install
-
-      - name: Fetch build artifacts
-        uses: actions/cache@v3
-        with:
-          path: ./packages
-          key: build-packages-${{ github.sha }}
 
       - name: Run tests
         run: yarn test
@@ -106,14 +110,14 @@ jobs:
           node-version: 16
           cache: yarn
 
+      - name: Download build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: packages
+          path: ./packages
+
       - name: Install project dependencies
         run: yarn install
-
-      - name: Fetch build artifacts
-        uses: actions/cache@v3
-        with:
-          path: ./packages
-          key: build-packages-${{ github.sha }}
 
       - name: Create Release Pull Request or Publish to npm
         id: changesets

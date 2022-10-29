@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'url';
 import esbuild from 'esbuild';
 import envPlugin from '@chialab/esbuild-plugin-env';
 import { expect } from 'chai';
@@ -6,10 +7,10 @@ describe('esbuild-plugin-env', () => {
     it('should inject env values', async () => {
         process.env.CUSTOM_VAR = 'test';
         const { outputFiles: [result] } = await esbuild.build({
-            absWorkingDir: new URL('.', import.meta.url).pathname,
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
-                resolveDir: new URL('.', import.meta.url).pathname,
-                sourcefile: new URL(import.meta.url).pathname,
+                resolveDir: fileURLToPath(new URL('.', import.meta.url)),
+                sourcefile: fileURLToPath(import.meta.url),
                 contents: `export const custom = process.env.CUSTOM_VAR;
 export default process.env.NODE_ENV;`,
             },
@@ -33,10 +34,10 @@ export {
 
     it('should handle missing values', async () => {
         const { outputFiles: [result] } = await esbuild.build({
-            absWorkingDir: new URL('.', import.meta.url).pathname,
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
-                resolveDir: new URL('.', import.meta.url).pathname,
-                sourcefile: new URL(import.meta.url).pathname,
+                resolveDir: fileURLToPath(new URL('.', import.meta.url)),
+                sourcefile: fileURLToPath(import.meta.url),
                 contents: `export const custom = process.env.MISSING_VAR;
 export default process.env.NODE_ENV;`,
             },
@@ -64,10 +65,10 @@ export {
     it('should handle invalid identifiers', async () => {
         process.env['INVALID-IDENTIFIER'] = true;
         const { outputFiles: [result] } = await esbuild.build({
-            absWorkingDir: new URL('.', import.meta.url).pathname,
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
-                resolveDir: new URL('.', import.meta.url).pathname,
-                sourcefile: new URL(import.meta.url).pathname,
+                resolveDir: fileURLToPath(new URL('.', import.meta.url)),
+                sourcefile: fileURLToPath(import.meta.url),
                 contents: 'export default process.env.NODE_ENV;',
             },
             format: 'esm',
@@ -88,10 +89,10 @@ export {
 
     it('should skip injection for node plaform', async () => {
         const { outputFiles: [result] } = await esbuild.build({
-            absWorkingDir: new URL('.', import.meta.url).pathname,
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
-                resolveDir: new URL('.', import.meta.url).pathname,
-                sourcefile: new URL(import.meta.url).pathname,
+                resolveDir: fileURLToPath(new URL('.', import.meta.url)),
+                sourcefile: fileURLToPath(import.meta.url),
                 contents: 'export default process.env.NODE_ENV;',
             },
             format: 'esm',

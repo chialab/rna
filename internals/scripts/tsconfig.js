@@ -1,9 +1,10 @@
 import { readFile, writeFile } from 'fs/promises';
 import { relative, resolve } from 'path';
+import { fileURLToPath } from 'url';
 import { Configuration, Project } from '@yarnpkg/core';
 import { modify, applyEdits } from 'jsonc-parser';
 
-const ROOT = resolve(new URL(import.meta.url).pathname, '../../../');
+const ROOT = resolve(fileURLToPath(import.meta.url), '../../../');
 const config = Configuration.create(ROOT, ROOT);
 
 Project.find(config, ROOT)

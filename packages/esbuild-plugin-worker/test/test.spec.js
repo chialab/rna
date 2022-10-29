@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'url';
 import path from 'path';
 import esbuild from 'esbuild';
 import workerPlugin from '@chialab/esbuild-plugin-worker';
@@ -6,10 +7,10 @@ import { expect } from 'chai';
 describe('esbuild-plugin-worker', () => {
     it('should load a classic worker with bundle', async () => {
         const { outputFiles: [result, worker] } = await esbuild.build({
-            absWorkingDir: new URL('.', import.meta.url).pathname,
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
-                resolveDir: new URL('.', import.meta.url).pathname,
-                sourcefile: new URL(import.meta.url).pathname,
+                resolveDir: fileURLToPath(new URL('.', import.meta.url)),
+                sourcefile: fileURLToPath(import.meta.url),
                 contents: 'export const worker = new Worker(\'./worker.js\');',
             },
             format: 'esm',
@@ -41,10 +42,10 @@ export {
 
     it('should load a classic worker without bundle', async () => {
         const { outputFiles: [result, worker] } = await esbuild.build({
-            absWorkingDir: new URL('.', import.meta.url).pathname,
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
-                resolveDir: new URL('.', import.meta.url).pathname,
-                sourcefile: new URL(import.meta.url).pathname,
+                resolveDir: fileURLToPath(new URL('.', import.meta.url)),
+                sourcefile: fileURLToPath(import.meta.url),
                 contents: 'export const worker = new Worker(\'./worker.js\');',
             },
             format: 'esm',
@@ -75,10 +76,10 @@ export {
 
     it('should load a module worker with bundle', async () => {
         const { outputFiles: [result, worker] } = await esbuild.build({
-            absWorkingDir: new URL('.', import.meta.url).pathname,
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
-                resolveDir: new URL('.', import.meta.url).pathname,
-                sourcefile: new URL(import.meta.url).pathname,
+                resolveDir: fileURLToPath(new URL('.', import.meta.url)),
+                sourcefile: fileURLToPath(import.meta.url),
                 contents: 'export const worker = new Worker(\'./worker.js\', { type: "module" });',
             },
             format: 'esm',
@@ -107,10 +108,10 @@ postMessage("message");
 
     it('should load a module worker without bundle', async () => {
         const { outputFiles } = await esbuild.build({
-            absWorkingDir: new URL('.', import.meta.url).pathname,
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
-                resolveDir: new URL('.', import.meta.url).pathname,
-                sourcefile: new URL(import.meta.url).pathname,
+                resolveDir: fileURLToPath(new URL('.', import.meta.url)),
+                sourcefile: fileURLToPath(import.meta.url),
                 contents: 'export const worker = new Worker(\'./worker.js\', { type: "module" });',
             },
             format: 'esm',
@@ -137,10 +138,10 @@ postMessage("message");
 
     it('should proxy a worker request', async () => {
         const { outputFiles: [result, worker] } = await esbuild.build({
-            absWorkingDir: new URL('.', import.meta.url).pathname,
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
-                resolveDir: new URL('.', import.meta.url).pathname,
-                sourcefile: new URL(import.meta.url).pathname,
+                resolveDir: fileURLToPath(new URL('.', import.meta.url)),
+                sourcefile: fileURLToPath(import.meta.url),
                 contents: 'export const worker = new Worker(\'./worker.js\');',
             },
             format: 'esm',
@@ -176,10 +177,10 @@ export {
 
     it('should proxy an unknown worker request', async () => {
         const { outputFiles: [result] } = await esbuild.build({
-            absWorkingDir: new URL('.', import.meta.url).pathname,
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
-                resolveDir: new URL('.', import.meta.url).pathname,
-                sourcefile: new URL(import.meta.url).pathname,
+                resolveDir: fileURLToPath(new URL('.', import.meta.url)),
+                sourcefile: fileURLToPath(import.meta.url),
                 contents: 'export const worker = new Worker(workerName);',
             },
             format: 'esm',
@@ -205,10 +206,10 @@ export {
 
     it('should skip unknown worker class', async () => {
         const { outputFiles: [result] } = await esbuild.build({
-            absWorkingDir: new URL('.', import.meta.url).pathname,
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
-                resolveDir: new URL('.', import.meta.url).pathname,
-                sourcefile: new URL(import.meta.url).pathname,
+                resolveDir: fileURLToPath(new URL('.', import.meta.url)),
+                sourcefile: fileURLToPath(import.meta.url),
                 contents: `export const worker = new Worker('./worker.js');
 export const fakeWorker = new ctx.Worker('./worker.js');`,
             },
@@ -233,10 +234,10 @@ export {
 
     it('should detect local Worker definitions', async () => {
         const { outputFiles: [result, worker] } = await esbuild.build({
-            absWorkingDir: new URL('.', import.meta.url).pathname,
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
-                resolveDir: new URL('.', import.meta.url).pathname,
-                sourcefile: new URL(import.meta.url).pathname,
+                resolveDir: fileURLToPath(new URL('.', import.meta.url)),
+                sourcefile: fileURLToPath(import.meta.url),
                 contents: `class Worker {};
 export const local = new Worker('./worker.js');
 export const worker = new window.Worker('./worker.js');`,

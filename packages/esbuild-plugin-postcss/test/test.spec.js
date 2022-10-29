@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'url';
 import esbuild from 'esbuild';
 import postcssPlugin from '@chialab/esbuild-plugin-postcss';
 import { expect } from 'chai';
@@ -5,9 +6,9 @@ import { expect } from 'chai';
 describe('esbuild-plugin-postcss', () => {
     it('should run postcss default transformations', async () => {
         const { outputFiles: [result] } = await esbuild.build({
-            absWorkingDir: new URL('.', import.meta.url).pathname,
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
-                sourcefile: new URL('input.css', import.meta.url).pathname,
+                sourcefile: fileURLToPath(new URL('input.css', import.meta.url)),
                 contents: `::placeholder {
   color: gray;
 }`,
@@ -43,9 +44,9 @@ describe('esbuild-plugin-postcss', () => {
 
     it('should convert sass', async () => {
         const { outputFiles: [result] } = await esbuild.build({
-            absWorkingDir: new URL('.', import.meta.url).pathname,
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
-                sourcefile: new URL('input.scss', import.meta.url).pathname,
+                sourcefile: fileURLToPath(new URL('input.scss', import.meta.url)),
                 contents: `.parent {
   .child {
     color: red;
@@ -74,9 +75,9 @@ describe('esbuild-plugin-postcss', () => {
 
     it('should include sass modules', async () => {
         const { outputFiles: [result] } = await esbuild.build({
-            absWorkingDir: new URL('.', import.meta.url).pathname,
-            entryPoints: [new URL('fixture/input.scss', import.meta.url).pathname],
-            sourceRoot: new URL('fixture', import.meta.url).pathname,
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
+            entryPoints: [fileURLToPath(new URL('fixture/input.scss', import.meta.url))],
+            sourceRoot: fileURLToPath(new URL('fixture', import.meta.url)),
             loader: {
                 '.scss': 'css',
             },
@@ -103,9 +104,9 @@ html {
 
     it('should load postcss config', async () => {
         const { outputFiles: [result] } = await esbuild.build({
-            absWorkingDir: new URL('.', import.meta.url).pathname,
-            entryPoints: [new URL('fixture/input.css', import.meta.url).pathname],
-            sourceRoot: new URL('fixture', import.meta.url).pathname,
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
+            entryPoints: [fileURLToPath(new URL('fixture/input.css', import.meta.url))],
+            sourceRoot: fileURLToPath(new URL('fixture', import.meta.url)),
             format: 'esm',
             target: 'esnext',
             bundle: true,

@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'url';
 import path from 'path';
 import esbuild from 'esbuild';
 import metaUrl from '@chialab/esbuild-plugin-meta-url';
@@ -7,10 +8,10 @@ import { expect } from 'chai';
 describe('esbuild-plugin-meta-url', () => {
     it('should load a file', async () => {
         const { outputFiles: [result, file] } = await esbuild.build({
-            absWorkingDir: new URL('.', import.meta.url).pathname,
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
-                resolveDir: new URL('.', import.meta.url).pathname,
-                sourcefile: new URL(import.meta.url).pathname,
+                resolveDir: fileURLToPath(new URL('.', import.meta.url)),
+                sourcefile: fileURLToPath(import.meta.url),
                 contents: 'export const file = new URL(\'./file.txt\', import.meta.url);',
             },
             format: 'esm',
@@ -37,10 +38,10 @@ export {
 
     it('should load a file that was part of another build', async () => {
         const { outputFiles: [result, file] } = await esbuild.build({
-            absWorkingDir: new URL('.', import.meta.url).pathname,
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
-                resolveDir: new URL('.', import.meta.url).pathname,
-                sourcefile: new URL(import.meta.url).pathname,
+                resolveDir: fileURLToPath(new URL('.', import.meta.url)),
+                sourcefile: fileURLToPath(import.meta.url),
                 contents: 'export * from \'./file1.js\';export * from \'./file2.js\';',
             },
             assetNames: '[name]-[hash]',
@@ -84,10 +85,10 @@ export {
 
     it('should search for non literal references', async () => {
         const { outputFiles: [result, file] } = await esbuild.build({
-            absWorkingDir: new URL('.', import.meta.url).pathname,
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
-                resolveDir: new URL('.', import.meta.url).pathname,
-                sourcefile: new URL(import.meta.url).pathname,
+                resolveDir: fileURLToPath(new URL('.', import.meta.url)),
+                sourcefile: fileURLToPath(import.meta.url),
                 contents: `const fileName = './file.txt';
 export const file = new URL(fileName, import.meta.url);`,
             },
@@ -113,10 +114,10 @@ export {
 
     it('should skip unknown references', async () => {
         const { outputFiles: [result] } = await esbuild.build({
-            absWorkingDir: new URL('.', import.meta.url).pathname,
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
-                resolveDir: new URL('.', import.meta.url).pathname,
-                sourcefile: new URL(import.meta.url).pathname,
+                resolveDir: fileURLToPath(new URL('.', import.meta.url)),
+                sourcefile: fileURLToPath(import.meta.url),
                 contents: 'export const file = new URL(globalThis.test, import.meta.url);',
             },
             format: 'esm',
@@ -138,10 +139,10 @@ export {
 
     it('should use browser base url for iife', async () => {
         const { outputFiles: [result, file] } = await esbuild.build({
-            absWorkingDir: new URL('.', import.meta.url).pathname,
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
-                resolveDir: new URL('.', import.meta.url).pathname,
-                sourcefile: new URL(import.meta.url).pathname,
+                resolveDir: fileURLToPath(new URL('.', import.meta.url)),
+                sourcefile: fileURLToPath(import.meta.url),
                 contents: 'export const file = new URL(\'./file.txt\', import.meta.url);',
             },
             platform: 'browser',
@@ -169,10 +170,10 @@ export {
 
     it('should use node legacy file path', async () => {
         const { outputFiles: [result, file] } = await esbuild.build({
-            absWorkingDir: new URL('.', import.meta.url).pathname,
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
-                resolveDir: new URL('.', import.meta.url).pathname,
-                sourcefile: new URL(import.meta.url).pathname,
+                resolveDir: fileURLToPath(new URL('.', import.meta.url)),
+                sourcefile: fileURLToPath(import.meta.url),
                 contents: 'export const file = new URL(\'./file.txt\', import.meta.url);',
             },
             platform: 'node',
@@ -224,10 +225,10 @@ var file = new URL("./file.txt?hash=4e1243bd", "file://" + __filename);
 
     it('should resolve a module with warnings', async () => {
         const { warnings, outputFiles: [result, file] } = await esbuild.build({
-            absWorkingDir: new URL('.', import.meta.url).pathname,
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
-                resolveDir: new URL('.', import.meta.url).pathname,
-                sourcefile: new URL(import.meta.url).pathname,
+                resolveDir: fileURLToPath(new URL('.', import.meta.url)),
+                sourcefile: fileURLToPath(import.meta.url),
                 contents: 'export const file = new URL(\'npm_module\', import.meta.url);',
             },
             format: 'esm',
@@ -277,10 +278,10 @@ export {
 
     it('should not resolve a module with warnings', async () => {
         const { warnings, outputFiles: [result] } = await esbuild.build({
-            absWorkingDir: new URL('.', import.meta.url).pathname,
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
-                resolveDir: new URL('.', import.meta.url).pathname,
-                sourcefile: new URL(import.meta.url).pathname,
+                resolveDir: fileURLToPath(new URL('.', import.meta.url)),
+                sourcefile: fileURLToPath(import.meta.url),
                 contents: 'export const file = new URL(\'./missing.txt\', import.meta.url);',
             },
             format: 'esm',

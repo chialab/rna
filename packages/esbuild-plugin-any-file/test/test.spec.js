@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'url';
 import esbuild from 'esbuild';
 import anyFilePlugin from '@chialab/esbuild-plugin-any-file';
 import { expect } from 'chai';
@@ -5,10 +6,10 @@ import { expect } from 'chai';
 describe('esbuild-plugin-any-file', () => {
     it('should load a file with unknown loader', async () => {
         const { outputFiles: [file, result] } = await esbuild.build({
-            absWorkingDir: new URL('.', import.meta.url).pathname,
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
-                resolveDir: new URL('.', import.meta.url).pathname,
-                sourcefile: new URL(import.meta.url).pathname,
+                resolveDir: fileURLToPath(new URL('.', import.meta.url)),
+                sourcefile: fileURLToPath(import.meta.url),
                 contents: `export * from './fs.js';
 import file from './unknown';
 export default file;`,
@@ -39,10 +40,10 @@ export default file;`,
         let err;
         try {
             await esbuild.build({
-                absWorkingDir: new URL('.', import.meta.url).pathname,
+                absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
                 stdin: {
-                    resolveDir: new URL('.', import.meta.url).pathname,
-                    sourcefile: new URL(import.meta.url).pathname,
+                    resolveDir: fileURLToPath(new URL('.', import.meta.url)),
+                    sourcefile: fileURLToPath(import.meta.url),
                     contents: `import file from './missing';
 export default file;`,
                 },
@@ -52,7 +53,7 @@ export default file;`,
                     {
                         name: 'resolve',
                         setup(build) {
-                            build.onResolve({ filter: /missing/ }, (args) => ({ path: new URL(args.path, import.meta.url).pathname }));
+                            build.onResolve({ filter: /missing/ }, (args) => ({ path: fileURLToPath(new URL(args.path, import.meta.url)) }));
                         },
                     },
                     anyFilePlugin({ shouldThrow: true }),

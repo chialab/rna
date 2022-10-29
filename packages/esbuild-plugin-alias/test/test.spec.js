@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'url';
 import esbuild from 'esbuild';
 import aliasPlugin, { createAliasPlugin } from '@chialab/esbuild-plugin-alias';
 import { expect } from 'chai';
@@ -5,9 +6,9 @@ import { expect } from 'chai';
 describe('esbuild-plugin-alias', () => {
     it('should use alias instead of given import', async () => {
         const { outputFiles: [result] } = await esbuild.build({
-            absWorkingDir: new URL('.', import.meta.url).pathname,
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
-                sourcefile: new URL(import.meta.url).pathname,
+                sourcefile: fileURLToPath(import.meta.url),
                 contents: `import path from 'path';
 import { readFile } from 'fs/promises';
 
@@ -40,9 +41,9 @@ export {
 
     it('should use empty module instead of given import', async () => {
         const { outputFiles: [result] } = await esbuild.build({
-            absWorkingDir: new URL('.', import.meta.url).pathname,
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
-                sourcefile: new URL(import.meta.url).pathname,
+                sourcefile: fileURLToPath(import.meta.url),
                 contents: `import path from 'path';
 import fs from 'fs/promises';
 
@@ -75,9 +76,9 @@ export {
 
     it('should use alias instead of given import with a new plugin instance', async () => {
         const { outputFiles: [result] } = await esbuild.build({
-            absWorkingDir: new URL('.', import.meta.url).pathname,
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
-                sourcefile: new URL(import.meta.url).pathname,
+                sourcefile: fileURLToPath(import.meta.url),
                 contents: `import path from 'path';
 import { readFile } from 'fs/promises';
 
@@ -113,9 +114,9 @@ export {
 
     it('should read browser alias with browser platform', async () => {
         const { outputFiles: [result] } = await esbuild.build({
-            absWorkingDir: new URL('.', import.meta.url).pathname,
-            entryPoints: [new URL('fixture/input.js', import.meta.url).pathname],
-            sourceRoot: new URL('fixture', import.meta.url).pathname,
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
+            entryPoints: [fileURLToPath(new URL('fixture/input.js', import.meta.url))],
+            sourceRoot: fileURLToPath(new URL('fixture', import.meta.url)),
             format: 'esm',
             platform: 'browser',
             target: 'esnext',
@@ -141,9 +142,9 @@ export {
 
     it('should not read browser alias with node platform', async () => {
         const { outputFiles: [result] } = await esbuild.build({
-            absWorkingDir: new URL('.', import.meta.url).pathname,
-            entryPoints: [new URL('fixture/input.js', import.meta.url).pathname],
-            sourceRoot: new URL('fixture', import.meta.url).pathname,
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
+            entryPoints: [fileURLToPath(new URL('fixture/input.js', import.meta.url))],
+            sourceRoot: fileURLToPath(new URL('fixture', import.meta.url)),
             format: 'esm',
             platform: 'node',
             target: 'esnext',

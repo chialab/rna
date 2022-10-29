@@ -2044,6 +2044,7 @@ __metadata:
     "@types/chai": ^4.2.22
     "@yarnpkg/core": ^4.0.0-rc.6
     chai: ^4.3.4
+    chai-string: ^1.5.0
     eslint: ^8.0.0
     jsonc-parser: ^3.0.0
     plop: ^2.7.4
@@ -5614,6 +5615,15 @@ __metadata:
   version: 2.0.1
   resolution: "ccount@npm:2.0.1"
   checksum: 48193dada54c9e260e0acf57fc16171a225305548f9ad20d5471e0f7a8c026aedd8747091dccb0d900cde7df4e4ddbd235df0d8de4a64c71b12f0d3303eeafd4
+  languageName: node
+  linkType: hard
+
+"chai-string@npm:^1.5.0":
+  version: 1.5.0
+  resolution: "chai-string@npm:1.5.0"
+  peerDependencies:
+    chai: ^4.1.2
+  checksum: d443bb416f6d4dd3395442f459af197aff93f2546dcb5bce6313badf505aa828615117f0eadc99e97ec518b7d2df387b538c81c647e6daf5c386d5bafa212e8f
   languageName: node
   linkType: hard
 

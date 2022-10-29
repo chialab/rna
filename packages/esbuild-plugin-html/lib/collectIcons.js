@@ -106,14 +106,14 @@ export async function collectIcon($, element, icon, rel, shortcut, options, help
     if (icon.size === 196 && shortcut) {
         const link = $('<link>');
         link.attr('rel', 'shortcut icon');
-        link.attr('href', file.path);
+        link.attr('href', file.path.split(path.sep).join('/'));
         link.insertBefore(element);
     }
 
     const link = $('<link>');
     link.attr('rel', rel);
     link.attr('sizes', `${icon.size}x${icon.size}`);
-    link.attr('href', file.path);
+    link.attr('href', file.path.split(path.sep).join('/'));
     link.insertBefore(element);
 
     return {

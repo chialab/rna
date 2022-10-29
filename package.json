@@ -27,6 +27,7 @@
     "@types/chai": "^4.2.22",
     "@yarnpkg/core": "^4.0.0-rc.6",
     "chai": "^4.3.4",
+    "chai-string": "^1.5.0",
     "eslint": "^8.0.0",
     "jsonc-parser": "^3.0.0",
     "plop": "^2.7.4",

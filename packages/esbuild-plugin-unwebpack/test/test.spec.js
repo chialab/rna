@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'url';
 import esbuild from 'esbuild';
 import unwebpackPlugin from '@chialab/esbuild-plugin-unwebpack';
 import { expect } from 'chai';
@@ -5,9 +6,9 @@ import { expect } from 'chai';
 describe('esbuild-plugin-unwebpack', () => {
     it('should replace hmr statements', async () => {
         const { outputFiles: [result] } = await esbuild.build({
-            absWorkingDir: new URL('.', import.meta.url).pathname,
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
-                sourcefile: new URL(import.meta.url).pathname,
+                sourcefile: fileURLToPath(import.meta.url),
                 contents: `export const test = {};
 if (module.hot) {
   module.hot.accept();
@@ -44,9 +45,9 @@ export {
 
     it('should resolve magic imports', async () => {
         const { outputFiles: [result] } = await esbuild.build({
-            absWorkingDir: new URL('.', import.meta.url).pathname,
-            entryPoints: [new URL('fixture/input.js', import.meta.url).pathname],
-            sourceRoot: new URL('fixture', import.meta.url).pathname,
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
+            entryPoints: [fileURLToPath(new URL('fixture/input.js', import.meta.url))],
+            sourceRoot: fileURLToPath(new URL('fixture', import.meta.url)),
             outdir: 'fixture/output',
             format: 'esm',
             target: 'esnext',

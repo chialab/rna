@@ -32,6 +32,18 @@ export function mochaReporter(MochaReporter = reporters.Spec) {
     const collectors = new Map();
 
     /**
+     * Reset collectors.
+     */
+    const reset = () => {
+        collectors.clear();
+        args.browserNames.forEach((browserName) => {
+            const collector = new Collector();
+            collectors.set(browserName, collector);
+            collector.collectStart();
+        });
+    };
+
+    /**
      * @type {import('@web/test-runner-core').Reporter}
      */
     const reporter = {
@@ -41,12 +53,11 @@ export function mochaReporter(MochaReporter = reporters.Spec) {
             logger = args.config.logger;
             options = /** @type {import('@chialab/es-test-runner').MochaOptions} */ (args.config.testFramework?.config || {});
 
-            collectors.clear();
-            args.browserNames.forEach((browserName) => {
-                const collector = new Collector();
-                collectors.set(browserName, collector);
-                collector.collectStart();
-            });
+            reset();
+        },
+
+        onTestRunStarted() {
+            reset();
         },
 
         getTestProgress({ testRun, focusedTestFile, testCoverage }) {

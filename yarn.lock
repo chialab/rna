@@ -1588,7 +1588,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@chialab/es-test-runner@^0.17.0, @chialab/es-test-runner@workspace:packages/es-test-runner":
+"@chialab/es-test-runner@^0.17.0, @chialab/es-test-runner@^0.17.1, @chialab/es-test-runner@workspace:packages/es-test-runner":
   version: 0.0.0-use.local
   resolution: "@chialab/es-test-runner@workspace:packages/es-test-runner"
   dependencies:
@@ -1652,7 +1652,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@chialab/esbuild-plugin-css-import@^0.17.0, @chialab/esbuild-plugin-css-import@workspace:packages/esbuild-plugin-css-import":
+"@chialab/esbuild-plugin-css-import@^0.17.0, @chialab/esbuild-plugin-css-import@^0.17.1, @chialab/esbuild-plugin-css-import@workspace:packages/esbuild-plugin-css-import":
   version: 0.0.0-use.local
   resolution: "@chialab/esbuild-plugin-css-import@workspace:packages/esbuild-plugin-css-import"
   dependencies:
@@ -1706,7 +1706,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@chialab/esbuild-plugin-meta-url@^0.17.0, @chialab/esbuild-plugin-meta-url@^0.17.1, @chialab/esbuild-plugin-meta-url@workspace:packages/esbuild-plugin-meta-url":
+"@chialab/esbuild-plugin-meta-url@^0.17.0, @chialab/esbuild-plugin-meta-url@^0.17.1, @chialab/esbuild-plugin-meta-url@^0.17.2, @chialab/esbuild-plugin-meta-url@workspace:packages/esbuild-plugin-meta-url":
   version: 0.0.0-use.local
   resolution: "@chialab/esbuild-plugin-meta-url@workspace:packages/esbuild-plugin-meta-url"
   dependencies:
@@ -1722,7 +1722,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@chialab/esbuild-plugin-postcss@workspace:packages/esbuild-plugin-postcss"
   dependencies:
-    "@chialab/esbuild-plugin-css-import": ^0.17.0
+    "@chialab/esbuild-plugin-css-import": ^0.17.1
     "@chialab/esbuild-rna": ^0.17.0
     "@chialab/postcss-dart-sass": ^0.17.0
     "@types/postcss-preset-env": ^7.7.0
@@ -1778,7 +1778,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@chialab/esbuild-plugin-worker@workspace:packages/esbuild-plugin-worker"
   dependencies:
-    "@chialab/esbuild-plugin-meta-url": ^0.17.1
+    "@chialab/esbuild-plugin-meta-url": ^0.17.2
     "@chialab/esbuild-rna": ^0.17.1
     "@chialab/estransform": ^0.17.1
     "@chialab/node-resolve": ^0.17.0
@@ -2227,7 +2227,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@chialab/wtr-mocha-reporter@workspace:packages/wtr-mocha-reporter"
   dependencies:
-    "@chialab/es-test-runner": ^0.17.0
+    "@chialab/es-test-runner": ^0.17.1
     "@web/test-runner-core": ^0.10.19
     chalk: ^4.1.2
     rimraf: ^3.0.2

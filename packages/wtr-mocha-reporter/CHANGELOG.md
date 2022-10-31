@@ -1,5 +1,13 @@
 # @chialab/wtr-mocha-reporter
 
+## 0.17.1
+
+### Patch Changes
+
+- c5495b79: Fixed collectors state on re-run.
+- Updated dependencies [ab709276]
+  - @chialab/es-test-runner@0.17.1
+
 ## 0.17.0
 
 ### Minor Changes

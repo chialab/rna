@@ -1,5 +1,13 @@
 # @chialab/esbuild-plugin-worker
 
+## 0.17.3
+
+### Patch Changes
+
+- ab709276: Replace Windows path separator with forward slash when used as url
+- Updated dependencies [ab709276]
+  - @chialab/esbuild-plugin-meta-url@0.17.2
+
 ## 0.17.2
 
 ### Patch Changes

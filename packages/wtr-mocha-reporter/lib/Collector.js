@@ -39,6 +39,7 @@ export class Collector {
     /**
      * Mocha runner like emitter.
      * @private
+     * @type {Runner}
      */
     runner = /** @type {Runner} */(/** @type {unknown} */ (new EventEmitter()));
 

@@ -1,5 +1,11 @@
 # @chialab/esbuild-plugin-alias
 
+## 0.17.2
+
+### Patch Changes
+
+- 53579927: Fix alias conflict with external.
+
 ## 0.17.1
 
 ### Patch Changes

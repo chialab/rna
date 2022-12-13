@@ -1,5 +1,11 @@
 # @chialab/rna-browser-test-runner
 
+## 0.17.2
+
+### Patch Changes
+
+- cb7b84a5: Remove test-runner-chrome dependency.
+
 ## 0.17.1
 
 ### Patch Changes

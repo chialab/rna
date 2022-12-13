@@ -45,6 +45,7 @@
     "@storybook/csf-tools": "^7.0.0-alpha.0",
     "@storybook/mdx2-csf": "^0.0.3",
     "@storybook/store": "^7.0.0-alpha.0",
+    "@storybook/types": "^7.0.0-alpha.0",
     "@storybook/ui": "^7.0.0-alpha.0",
     "@types/lodash": "^4.14.175",
     "fast-glob": "^3.2.11",

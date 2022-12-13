@@ -2081,6 +2081,7 @@ __metadata:
     "@storybook/csf-tools": ^7.0.0-alpha.0
     "@storybook/mdx2-csf": ^0.0.3
     "@storybook/store": ^7.0.0-alpha.0
+    "@storybook/types": ^7.0.0-alpha.0
     "@storybook/ui": ^7.0.0-alpha.0
     "@types/lodash": ^4.14.175
     esbuild: ^0.15.0
@@ -3067,7 +3068,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/types@npm:7.0.0-beta.4":
+"@storybook/types@npm:7.0.0-beta.4, @storybook/types@npm:^7.0.0-alpha.0":
   version: 7.0.0-beta.4
   resolution: "@storybook/types@npm:7.0.0-beta.4"
   dependencies:

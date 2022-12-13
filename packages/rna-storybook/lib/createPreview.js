@@ -3,7 +3,7 @@ import { PREVIEW_MODULE_SCRIPT } from './entrypoints.js';
 /**
  * @typedef {Object} PreviewOptions
  * @property {string} framework
- * @property {import('@storybook/store').V2CompatIndexEntry[]} specifiers
+ * @property {import('@storybook/types').IndexEntry[]} specifiers
  * @property {string[]} [previewEntries]
  */
 

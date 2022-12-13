@@ -21,7 +21,7 @@ import './fixMdxParser.js';
  * @property {string} [managerHead]
  * @property {string} [previewHead]
  * @property {string} [previewBody]
- * @property {import('@storybook/addons').StorySortParameterV7} [storySort]
+ * @property {import('@storybook/types').Addon_StorySortParameterV7} [storySort]
  */
 
 export * from './createManager.js';

@@ -64,7 +64,7 @@ import path from 'path';
  */
 
 /**
- * @typedef {BuildOptions & RnaConfig & RnaEntrypointConfig} EntrypointConfig
+ * @typedef {Omit<BuildOptions, 'alias'> & RnaConfig & RnaEntrypointConfig} EntrypointConfig
  */
 
 /**
@@ -74,7 +74,7 @@ import path from 'path';
  */
 
 /**
- * @typedef {BuildOptions & RnaConfig & RnaProjectConfig} ProjectConfig
+ * @typedef {Omit<BuildOptions, 'alias'> & RnaConfig & RnaProjectConfig} ProjectConfig
  */
 
 /**

@@ -34,7 +34,7 @@ function normalizeStory(rootDir, entry) {
 
 /**
  * @param {string} fileName
- * @param {import('@storybook/core-common').IndexerOptions} opts
+ * @param {import('@storybook/csf-tools').CsfOptions} opts
  */
 async function csfIndexer(fileName, opts) {
     const code = await readFile(fileName, 'utf-8');
@@ -44,7 +44,7 @@ async function csfIndexer(fileName, opts) {
 
 /**
  * @param {string} fileName
- * @param {import('@storybook/core-common').IndexerOptions} opts
+ * @param {import('@storybook/csf-tools').CsfOptions} opts
  */
 async function mdxIndexer(fileName, opts) {
     const code = await transformMdxToCsf(await readFile(fileName, 'utf-8'), esbuild);

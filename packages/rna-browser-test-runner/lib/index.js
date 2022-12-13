@@ -7,6 +7,7 @@ import { mochaReporter } from '@chialab/wtr-mocha-reporter';
 import { coverageReporter } from '@chialab/wtr-coverage-reporter';
 import { HELPERS_PATH } from '@chialab/wds-plugin-node-resolve';
 import { TestRunner, TestRunnerCli } from '@web/test-runner-core';
+import { PlaywrightLauncher } from '@web/test-runner-playwright';
 import { loadDevServerConfig, createDevServer } from '@chialab/rna-dev-server';
 import { FRAMEWORK_ALIASES } from './frameworks.js';
 
@@ -198,80 +199,29 @@ function getProductName(browserName) {
 }
 
 /**
- * Create a chromium launcher using puppeteer or playwright if available.
- * @returns A launcher.
- */
-async function createChromiumLauncher() {
-    try {
-        const { puppeteerLauncher } = await import('@web/test-runner-puppeteer');
-        return puppeteerLauncher({
-            launchOptions: {
-                args: ['--no-sandbox'],
-            },
-        });
-    } catch (err) {
-        //
-    }
-    try {
-        const { playwrightLauncher } = await import('@web/test-runner-playwright');
-        return playwrightLauncher({
-            product: 'chromium',
-        });
-    } catch (err) {
-        //
-    }
-
-    const { chromeLauncher } = await import('@web/test-runner-chrome');
-    return chromeLauncher({
-        launchOptions: {
-            args: ['--no-sandbox'],
-        },
-    });
-}
-
-/**
  * Create test launchers.
  * @param {string[]} requestedBrowsers
  */
 async function loadLaunchers(requestedBrowsers) {
     const browsers = normalizeBrowserNames(requestedBrowsers);
 
-    try {
-        const { PlaywrightLauncher } = await import('@web/test-runner-playwright');
+    /**
+     * @type {(args: { browser: import('playwright').Browser }) => Promise<import('playwright').BrowserContext>}
+     */
+    const createBrowserContext = ({ browser }) => browser.newContext();
+    /**
+     * @type {(args: { context: import('playwright').BrowserContext }) => Promise<import('playwright').Page>}
+     */
+    const createPage = ({ context }) => context.newPage();
 
-        /**
-         * @type {(args: { browser: import('playwright').Browser }) => Promise<import('playwright').BrowserContext>}
-         */
-        const createBrowserContext = ({ browser }) => browser.newContext();
-        /**
-         * @type {(args: { context: import('playwright').BrowserContext }) => Promise<import('playwright').Page>}
-         */
-        const createPage = ({ context }) => context.newPage();
+    const playwrightBrowsers = browsers.length ? browsers : (/** @type {BrowserName[]} */ (['chrome']));
 
-        const playwrightBrowsers = browsers.length ? browsers : (/** @type {BrowserName[]} */ (['chrome', 'msedge', 'firefox', 'webkit']));
+    return playwrightBrowsers.map((browserName) => {
+        const launcher = new PlaywrightLauncher(getProductName(browserName), { channel: browserName }, createBrowserContext, createPage);
+        launcher.name = browserName;
 
-        return playwrightBrowsers.map((browserName) => {
-            const launcher = new PlaywrightLauncher(getProductName(browserName), { channel: browserName }, createBrowserContext, createPage);
-            launcher.name = browserName;
-
-            return launcher;
-        });
-    } catch (err) {
-        //
-    }
-
-    if (browsers.length) {
-        return await Promise.all(browsers.map((browserName) => {
-            switch (browserName) {
-                case 'chromium':
-                    return createChromiumLauncher();
-                default:
-                    throw new Error(`Unknown launcher for browser: ${browserName}`);
-            }
-        }));
-    }
-
-    return [await createChromiumLauncher()];
+        return launcher;
+    });
 }
 
 /**

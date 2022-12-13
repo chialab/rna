@@ -98,7 +98,9 @@ export default function alias(modules = {}, browserField = true) {
             }
 
             external.forEach((ext) => {
-                delete aliasMap[ext];
+                if (aliasMap[ext]) {
+                    delete aliasMap[ext];
+                }
             });
 
             Object.keys(aliasMap).forEach((alias) => {

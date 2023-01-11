@@ -1766,7 +1766,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@chialab/esbuild-plugin-unwebpack@^0.17.1, @chialab/esbuild-plugin-unwebpack@workspace:packages/esbuild-plugin-unwebpack":
+"@chialab/esbuild-plugin-unwebpack@workspace:packages/esbuild-plugin-unwebpack":
   version: 0.0.0-use.local
   resolution: "@chialab/esbuild-plugin-unwebpack@workspace:packages/esbuild-plugin-unwebpack"
   dependencies:
@@ -1967,7 +1967,6 @@ __metadata:
     "@chialab/esbuild-plugin-html": ^0.17.0
     "@chialab/esbuild-plugin-meta-url": ^0.17.1
     "@chialab/esbuild-plugin-postcss": ^0.17.1
-    "@chialab/esbuild-plugin-unwebpack": ^0.17.1
     "@chialab/esbuild-plugin-worker": ^0.17.2
     "@chialab/esbuild-rna": ^0.17.1
     "@chialab/rna-config-loader": ^0.17.0

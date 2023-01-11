@@ -1,4 +1,4 @@
-import { styleResolve } from '@chialab/node-resolve';
+import { isUrl, styleResolve } from '@chialab/node-resolve';
 
 /**
  * Resolve CSS imports using the node resolution algorithm and the `style` field in package.json.
@@ -21,6 +21,10 @@ export default function() {
                 }
 
                 if (external.some((ext) => args.path === ext || args.path.startsWith(`${ext}/`))) {
+                    return;
+                }
+
+                if (isUrl(args.path)) {
                     return;
                 }
 

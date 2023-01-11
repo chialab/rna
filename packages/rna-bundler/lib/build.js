@@ -129,9 +129,6 @@ export async function build(config) {
         !hasPlugin(plugins, 'define-this') &&
             import('@chialab/esbuild-plugin-define-this')
                 .then(({ default: plugin }) => plugin()),
-        !hasPlugin(plugins, 'css-import') &&
-            import('@chialab/esbuild-plugin-css-import')
-                .then(({ default: plugin }) => plugin()),
         !hasPlugin(plugins, 'external') &&
             import('@chialab/esbuild-plugin-external')
                 .then(({ default: plugin }) => plugin({

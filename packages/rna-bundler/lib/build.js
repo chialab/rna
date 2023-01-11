@@ -111,9 +111,6 @@ export async function build(config) {
         !hasPlugin(plugins, 'env') &&
             import('@chialab/esbuild-plugin-env')
                 .then(({ default: plugin }) => plugin()),
-        !hasPlugin(plugins, 'unwebpack') &&
-            import('@chialab/esbuild-plugin-unwebpack')
-                .then(({ default: plugin }) => plugin()),
         !hasPlugin(plugins, 'commonjs') &&
             import('@chialab/esbuild-plugin-commonjs')
                 .then(({ default: plugin }) => plugin({

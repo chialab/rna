@@ -44,7 +44,7 @@
     "@chialab/esbuild-rna": "^0.17.1",
     "@chialab/rna-config-loader": "^0.17.0",
     "@chialab/rna-logger": "^0.17.1",
-    "esbuild": "^0.15.0"
+    "esbuild": "^0.16.16"
   },
   "peerDependencies": {
     "@chialab/esbuild-plugin-postcss": "^0.17.1"

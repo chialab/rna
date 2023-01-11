@@ -51,7 +51,7 @@
     "@chialab/postcss-dart-sass": "^0.17.0",
     "@types/postcss-preset-env": "^7.7.0",
     "cssnano": "^5.0.11",
-    "esbuild": "^0.15.0",
+    "esbuild": "^0.18.0",
     "postcss-scss": "^4.0.0",
     "typescript": "^4.3.0"
   }

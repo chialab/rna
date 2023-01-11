@@ -58,9 +58,6 @@ export async function transform(config) {
                     peerDependencies: false,
                     optionalDependencies: false,
                 })),
-        !hasPlugin(plugins, 'unwebpack') &&
-            import('@chialab/esbuild-plugin-unwebpack')
-                .then(({ default: plugin }) => plugin()),
         !hasPlugin(plugins, 'commonjs') &&
             import('@chialab/esbuild-plugin-commonjs')
                 .then(({ default: plugin }) => plugin()),

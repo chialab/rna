@@ -20,9 +20,6 @@
       "path": "../esbuild-plugin-commonjs"
     },
     {
-      "path": "../esbuild-plugin-css-import"
-    },
-    {
       "path": "../esbuild-plugin-define-this"
     },
     {
@@ -36,9 +33,6 @@
     },
     {
       "path": "../esbuild-plugin-meta-url"
-    },
-    {
-      "path": "../esbuild-plugin-unwebpack"
     },
     {
       "path": "../esbuild-plugin-worker"

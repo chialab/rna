@@ -113,8 +113,8 @@ export const resolve = createResolver();
  */
 export const styleResolve = createResolver({
     extensions: ['.css'],
-    exportsFields: [],
     mainFields: ['style'],
+    preferRelative: true,
 });
 
 /**

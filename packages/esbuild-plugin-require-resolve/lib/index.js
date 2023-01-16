@@ -54,6 +54,7 @@ export default function() {
                     const fileName = processor.stringValueForToken(stringToken);
                     promises.push((async () => {
                         const { path: resolvedFilePath } = await build.resolve(fileName, {
+                            kind: 'require-resolve',
                             importer: args.path,
                             resolveDir: path.dirname(args.path),
                         });

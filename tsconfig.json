@@ -46,9 +46,6 @@
       "path": "./packages/esbuild-plugin-env"
     },
     {
-      "path": "./packages/esbuild-plugin-external"
-    },
-    {
       "path": "./packages/esbuild-plugin-html"
     },
     {

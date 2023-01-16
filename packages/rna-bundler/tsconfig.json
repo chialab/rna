@@ -26,9 +26,6 @@
       "path": "../esbuild-plugin-env"
     },
     {
-      "path": "../esbuild-plugin-external"
-    },
-    {
       "path": "../esbuild-plugin-html"
     },
     {

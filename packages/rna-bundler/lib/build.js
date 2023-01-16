@@ -126,13 +126,6 @@ export async function build(config) {
         !hasPlugin(plugins, 'define-this') &&
             import('@chialab/esbuild-plugin-define-this')
                 .then(({ default: plugin }) => plugin()),
-        !hasPlugin(plugins, 'external') &&
-            import('@chialab/esbuild-plugin-external')
-                .then(({ default: plugin }) => plugin({
-                    dependencies: !bundle,
-                    peerDependencies: !bundle,
-                    optionalDependencies: !bundle,
-                })),
         !hasPlugin(plugins, 'alias') &&
             import('@chialab/esbuild-plugin-alias')
                 .then(({ default: plugin }) => plugin(alias)),
@@ -157,6 +150,7 @@ export async function build(config) {
         splitting,
         metafile: true,
         bundle: true,
+        packages: bundle ? undefined : 'external',
         treeShaking: minify ? true : undefined,
         define,
         external,

@@ -9,7 +9,6 @@
 "@chialab/esbuild-plugin-css-import": minor
 "@chialab/esbuild-plugin-define-this": minor
 "@chialab/esbuild-plugin-env": minor
-"@chialab/esbuild-plugin-external": minor
 "@chialab/esbuild-plugin-html": minor
 "@chialab/esbuild-plugin-meta-url": minor
 "@chialab/esbuild-plugin-postcss": minor

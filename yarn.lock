@@ -1677,15 +1677,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@chialab/esbuild-plugin-external@^0.17.1, @chialab/esbuild-plugin-external@workspace:packages/esbuild-plugin-external":
-  version: 0.0.0-use.local
-  resolution: "@chialab/esbuild-plugin-external@workspace:packages/esbuild-plugin-external"
-  dependencies:
-    "@chialab/node-resolve": ^0.17.0
-    typescript: ^4.3.0
-  languageName: unknown
-  linkType: soft
-
 "@chialab/esbuild-plugin-html@^0.17.0, @chialab/esbuild-plugin-html@workspace:packages/esbuild-plugin-html":
   version: 0.0.0-use.local
   resolution: "@chialab/esbuild-plugin-html@workspace:packages/esbuild-plugin-html"
@@ -1952,7 +1943,6 @@ __metadata:
     "@chialab/esbuild-plugin-commonjs": ^0.17.1
     "@chialab/esbuild-plugin-define-this": ^0.17.0
     "@chialab/esbuild-plugin-env": ^0.17.0
-    "@chialab/esbuild-plugin-external": ^0.17.1
     "@chialab/esbuild-plugin-html": ^0.17.0
     "@chialab/esbuild-plugin-meta-url": ^0.17.1
     "@chialab/esbuild-plugin-postcss": ^0.17.1

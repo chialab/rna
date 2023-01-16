@@ -32,7 +32,6 @@
 "@chialab/rna-logger": minor
 "@chialab/rna-node-test-runner": minor
 "@chialab/rna-saucelabs-test-runner": minor
-"@chialab/rna-storybook": minor
 "@chialab/wds-plugin-hmr": minor
 "@chialab/wds-plugin-hmr-dna": minor
 "@chialab/wds-plugin-legacy": minor

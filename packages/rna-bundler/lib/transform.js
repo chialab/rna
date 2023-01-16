@@ -51,13 +51,6 @@ export async function transform(config) {
         !hasPlugin(plugins, 'define-this') &&
             import('@chialab/esbuild-plugin-define-this')
                 .then(({ default: plugin }) => plugin()),
-        !hasPlugin(plugins, 'external') &&
-            import('@chialab/esbuild-plugin-external')
-                .then(({ default: plugin }) => plugin({
-                    dependencies: false,
-                    peerDependencies: false,
-                    optionalDependencies: false,
-                })),
         !hasPlugin(plugins, 'commonjs') &&
             import('@chialab/esbuild-plugin-commonjs')
                 .then(({ default: plugin }) => plugin()),

@@ -38,10 +38,6 @@ import path from 'path';
  */
 
 /**
- * @typedef {import('@chialab/node-resolve').AliasMap} AliasMap
- */
-
-/**
  * @typedef {'build'|'serve'} Mode
  */
 
@@ -52,7 +48,7 @@ import path from 'path';
  * @property {string} [manifestPath]
  * @property {string} [entrypointsPath]
  * @property {boolean} [clean]
- * @property {AliasMap} [alias]
+ * @property {boolean} [watch]
  */
 
 /**
@@ -64,7 +60,7 @@ import path from 'path';
  */
 
 /**
- * @typedef {Omit<BuildOptions, 'alias'> & RnaConfig & RnaEntrypointConfig} EntrypointConfig
+ * @typedef {BuildOptions & RnaConfig & RnaEntrypointConfig} EntrypointConfig
  */
 
 /**
@@ -74,7 +70,7 @@ import path from 'path';
  */
 
 /**
- * @typedef {Omit<BuildOptions, 'alias'> & RnaConfig & RnaProjectConfig} ProjectConfig
+ * @typedef {BuildOptions & RnaConfig & RnaProjectConfig} ProjectConfig
  */
 
 /**

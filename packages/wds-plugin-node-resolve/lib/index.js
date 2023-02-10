@@ -1,7 +1,7 @@
 import path from 'path';
 import { getRequestFilePath, PluginSyntaxError, PluginError } from '@web/dev-server-core';
 import { createEmptyModule } from '@chialab/estransform';
-import { ALIAS_MODE, browserResolve, createAliasRegexexMap, createEmptyRegex, getSearchParam, getSearchParams, isUrl } from '@chialab/node-resolve';
+import { browserResolve, getSearchParam, getSearchParams, isUrl } from '@chialab/node-resolve';
 
 /**
  * @typedef {import('@web/dev-server-core').Plugin} Plugin
@@ -150,7 +150,7 @@ export async function resolveImport(specifier, importer, serveDir, { code, line,
 
 /**
  * A plugin the Web Dev Server for node resolutions.
- * @param {{ alias?: import('@chialab/node-resolve').AliasMap }} [config]
+ * @param {{ alias?: Record<string, string> }} [config]
  */
 export default function(config = {}) {
     /**
@@ -158,9 +158,12 @@ export default function(config = {}) {
      */
     let serverConfig;
 
-    const aliasMap = config.alias || {};
-    const aliasRegexes = createAliasRegexexMap(aliasMap, ALIAS_MODE.FULL);
-    const emptyRegex = createEmptyRegex(aliasMap);
+    const aliasRegexes = new Map(
+        Object.entries(config.alias || {})
+            .map(([key, value]) =>
+                [new RegExp(`^${key.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&')}$`), { key, value }]
+            )
+    );
 
     /**
      * @type {Plugin}
@@ -188,21 +191,13 @@ export default function(config = {}) {
                 return;
             }
 
-            if (source.match(emptyRegex)) {
-                return EMPTY_KEY;
-            }
-
             const { rootDir } = serverConfig;
             const filePath = getRequestFilePath(context.url, rootDir);
 
             for (const [regex, res] of aliasRegexes.entries()) {
                 if (source.match(regex)) {
-                    const aliasValue = res.value;
-                    const aliased = typeof aliasValue === 'function' ?
-                        await aliasValue(source, filePath) :
-                        aliasValue;
-
-                    if (!aliased) {
+                    const aliased = res.value;
+                    if (!aliased || aliased === 'empty') {
                         return EMPTY_KEY;
                     }
 

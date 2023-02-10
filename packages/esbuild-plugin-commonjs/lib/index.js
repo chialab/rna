@@ -1,6 +1,5 @@
 import path from 'path';
 import { HELPER_MODULE, transform, maybeCommonjsModule, maybeMixedModule, wrapDynamicRequire, createRequireHelperModule } from '@chialab/cjs-to-esm';
-import { escapeRegexBody } from '@chialab/node-resolve';
 import { useRna } from '@chialab/esbuild-rna';
 
 /**
@@ -27,7 +26,7 @@ export default function({ helperModule } = {}) {
             const workingDir = build.getWorkingDir();
 
             if (helperModule) {
-                const HELPER_FILTER = new RegExp(escapeRegexBody(`./${HELPER_MODULE}`));
+                const HELPER_FILTER = new RegExp(`./${HELPER_MODULE}`);
                 build.onResolve({ filter: HELPER_FILTER }, (args) => ({
                     path: args.path,
                     namespace: 'commonjs-helper',

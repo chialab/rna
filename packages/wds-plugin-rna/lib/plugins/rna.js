@@ -2,7 +2,7 @@ import path from 'path';
 import { realpath } from 'fs/promises';
 import { getRequestFilePath } from '@chialab/es-dev-server';
 import { getEntryConfig } from '@chialab/rna-config-loader';
-import { browserResolve, isJs, isJson, isCss, getSearchParam, appendSearchParam, getSearchParams, ALIAS_MODE, createAliasRegexexMap, createEmptyRegex } from '@chialab/node-resolve';
+import { browserResolve, isJs, isJson, isCss, getSearchParam, appendSearchParam, getSearchParams } from '@chialab/node-resolve';
 import { isHelperImport, resolveRelativeImport, isPlainScript } from '@chialab/wds-plugin-node-resolve';
 import { build, transform, transformLoaders } from '@chialab/rna-bundler';
 import { resolveUserAgent } from 'browserslist-useragent';
@@ -140,10 +140,6 @@ function isBareModuleSource(name) {
  * @param {Partial<import('@chialab/rna-config-loader').EntrypointConfig>} config
  */
 export function rnaPlugin(config) {
-    const aliasMap = config.alias || {};
-    const aliasRegexes = createAliasRegexexMap(aliasMap, ALIAS_MODE.FULL);
-    const emptyRegex = createEmptyRegex(aliasMap);
-
     /**
      * @type {import('@web/dev-server-core').DevServerCoreConfig}
      */
@@ -379,31 +375,12 @@ export function rnaPlugin(config) {
         },
 
         async resolveImport({ source, context }) {
-            if (source.match(emptyRegex)) {
-                return;
-            }
-
             if (config.jsxImportSource && source === '__jsx__.js') {
                 source = config.jsxImportSource;
             }
 
             const { rootDir } = serverConfig;
             const filePath = getRequestFilePath(context.url, rootDir);
-
-            for (const [regex, res] of aliasRegexes.entries()) {
-                if (source.match(regex)) {
-                    const aliasValue = res.value;
-                    const aliased = typeof aliasValue === 'function' ?
-                        await aliasValue(source, filePath) :
-                        aliasValue;
-                    if (!aliased) {
-                        return;
-                    }
-
-                    source = aliased;
-                    break;
-                }
-            }
 
             if (!isBareModuleSource(source)) {
                 return;

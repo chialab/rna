@@ -14,7 +14,7 @@ import { rnaPlugin, entrypointsPlugin } from '@chialab/wds-plugin-rna';
  * @property {import('@chialab/rna-config-loader').EntrypointConfig[]} [entrypoints]
  * @property {string} [manifestPath]
  * @property {string} [entrypointsPath]
- * @property {import('@chialab/rna-config-loader').AliasMap} [alias]
+ * @property {Record<string, string>} [alias]
  * @property {import('esbuild').Plugin[]} [transformPlugins]
  * @property {string | string[]} [target]
  * @property {'transform'|'preserve'|'automatic'} [jsx]
@@ -107,7 +107,9 @@ export async function createDevServer(config) {
             jsxFragment: config.jsxFragment,
             plugins: config.transformPlugins,
         }),
-        entrypointsPlugin(config.entrypoints),
+        entrypointsPlugin({
+            entrypoints: config.entrypoints || [],
+        }),
         nodeResolvePlugin({
             alias: config.alias,
         }),

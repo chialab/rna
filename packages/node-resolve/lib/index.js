@@ -243,5 +243,3 @@ export function getSearchParam(source, param) {
     const { searchParams } = getSearchParams(source);
     return searchParams.get(param) || null;
 }
-
-export * from './alias.js';

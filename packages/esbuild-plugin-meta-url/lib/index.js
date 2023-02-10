@@ -1,8 +1,8 @@
 import path from 'path';
 import mime from 'mime-types';
-import { appendSearchParam, getSearchParam, isUrl } from '@chialab/node-resolve';
+import { appendSearchParam, getSearchParam, isUrl, removeSearchParam } from '@chialab/node-resolve';
 import { parse, walk, getIdentifierValue, getBlock, getLocation, TokenType } from '@chialab/estransform';
-import { Build, useRna } from '@chialab/esbuild-rna';
+import { useRna } from '@chialab/esbuild-rna';
 
 /**
  * @param {import('@chialab/estransform').TokenProcessor} processor Token processor.
@@ -165,7 +165,7 @@ export default function({ emit = true } = {}) {
 
                     promises.push(Promise.resolve().then(async () => {
                         const requestName = value.split('?')[0];
-                        const { path: resolvedPath, pluginData } = await build.resolveLocallyFirst(requestName, {
+                        const { path: resolvedPath } = await build.resolve(`./${requestName}`, {
                             kind: 'dynamic-import',
                             importer: args.path,
                             namespace: 'file',
@@ -174,25 +174,6 @@ export default function({ emit = true } = {}) {
                         });
 
                         if (resolvedPath) {
-                            if (pluginData !== Build.RESOLVED_AS_FILE) {
-                                const location = getLocation(code, startToken.start);
-                                warnings.push({
-                                    id: 'import-meta-module-resolution',
-                                    pluginName: 'meta-url',
-                                    text: `Resolving '${requestName}' as module is not a standard behavior and may be removed in a future relase of the plugin.`,
-                                    location: {
-                                        file: args.path,
-                                        namespace: args.namespace,
-                                        ...location,
-                                        length: endToken.end - startToken.start,
-                                        lineText: code.split('\n')[location.line - 1],
-                                        suggestion: 'Externalize module import using a JS proxy file.',
-                                    },
-                                    notes: [],
-                                    detail: '',
-                                });
-                            }
-
                             const entryLoader = build.getLoader(resolvedPath) || 'file';
                             const isChunk = entryLoader !== 'file' && entryLoader !== 'json';
                             const isIIFE = format === 'iife' && bundle;
@@ -200,8 +181,12 @@ export default function({ emit = true } = {}) {
                             let entryPoint;
                             if (emit && !isIIFE) {
                                 if (isChunk) {
-                                    const chunk = await build.emitChunk({ path: resolvedPath });
-                                    entryPoint = appendSearchParam(chunk.path, 'hash', chunk.id);
+                                    const transformOptions = JSON.parse(getSearchParam(value, 'transform') || '{}');
+                                    const chunk = await build.emitChunk({
+                                        ...transformOptions,
+                                        path: resolvedPath,
+                                    });
+                                    entryPoint = appendSearchParam(removeSearchParam(chunk.path, 'transform'), 'hash', chunk.id);
                                 } else {
                                     const file = await build.emitFile(resolvedPath);
                                     entryPoint = appendSearchParam(file.path, 'hash', file.id);

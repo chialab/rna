@@ -25,9 +25,6 @@
       "path": "./packages/es-test-runner"
     },
     {
-      "path": "./packages/esbuild-plugin-alias"
-    },
-    {
       "path": "./packages/esbuild-plugin-any-file"
     },
     {
@@ -50,6 +47,9 @@
     },
     {
       "path": "./packages/esbuild-plugin-meta-url"
+    },
+    {
+      "path": "./packages/esbuild-plugin-metadata"
     },
     {
       "path": "./packages/esbuild-plugin-postcss"

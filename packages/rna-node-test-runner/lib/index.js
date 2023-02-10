@@ -9,7 +9,7 @@ import { CoverageReport } from '@chialab/es-test-runner';
  * @typedef {Object} TestRunnerConfig
  * @property {string[]} [files] A list or a glob of files to test.
  * @property {boolean} [coverage] Should collect coverage data.
- * @property {import('@chialab/node-resolve').AliasMap} [alias]
+ * @property {Record<string, string>} [alias]
  */
 
 /**

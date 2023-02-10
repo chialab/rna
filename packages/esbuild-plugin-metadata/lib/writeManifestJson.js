@@ -14,7 +14,7 @@ export async function writeManifestJson(result, outputFile, publicPath = '/') {
     }
 
     const outputDir = path.extname(outputFile) ? path.dirname(outputFile) : outputFile;
-    outputFile = path.extname(outputFile) ? outputFile : path.join(outputDir, 'entrypoints.json');
+    outputFile = path.extname(outputFile) ? outputFile : path.join(outputDir, 'manifest.json');
 
     const { outputs } = metafile;
     const manifestJson = Object.entries(outputs)

@@ -2,7 +2,6 @@ import path from 'path';
 import crypto from 'crypto';
 import { mkdir, readFile, writeFile } from 'fs/promises';
 import { loadSourcemap, inlineSourcemap, mergeSourcemaps } from '@chialab/estransform';
-import { escapeRegexBody } from '@chialab/node-resolve';
 import { createOutputFile, createResult, assignToResult } from './helpers.js';
 
 /**
@@ -853,9 +852,9 @@ export class Build {
     addVirtualModule(entry) {
         const resolveDir = entry.resolveDir || this.getSourceRoot();
         const virtualFilePath = path.isAbsolute(entry.path) ? entry.path : path.join(resolveDir, entry.path);
-        const virtualFilter = new RegExp(escapeRegexBody(virtualFilePath));
+        const virtualFilter = new RegExp(virtualFilePath.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&'));
 
-        this.onResolve({ filter: new RegExp(`^${escapeRegexBody(entry.path)}$`) }, () => ({
+        this.onResolve({ filter: new RegExp(`^${entry.path.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&')}$`) }, () => ({
             path: virtualFilePath,
             namespace: 'file',
         }));

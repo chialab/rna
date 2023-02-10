@@ -4,16 +4,12 @@ import { colors, createLogger, readableSize } from '@chialab/rna-logger';
 import { getEntryBuildConfig, mergeConfig, readConfigFile, locateConfigFile } from '@chialab/rna-config-loader';
 import { assignToResult, createResult, remapResult } from '@chialab/esbuild-rna';
 import { build } from './build.js';
-import { writeManifestJson } from './writeManifestJson.js';
-import { writeEntrypointsJson, writeDevEntrypointsJson } from './writeEntrypointsJson.js';
 import { Queue } from './Queue.js';
-import { writeMetafile } from './writeMetafile.js';
 import { bundleSize } from './bundleSize.js';
 
 export * from './loaders.js';
 export { transform } from './transform.js';
 export { build } from './build.js';
-export { writeManifestJson, writeEntrypointsJson, writeDevEntrypointsJson };
 
 /**
  * @typedef {import('./transform').TransformResult} TransformResult
@@ -179,27 +175,28 @@ export function command(program) {
                 for (let i = 0; i < entrypoints.length; i++) {
                     const entrypoint = entrypoints[i];
                     queue.add(async () => {
-                        const buildConfig = getEntryBuildConfig(entrypoint, config);
-                        const buildDir = buildConfig.root || process.cwd();
-                        const result = await build({
-                            ...buildConfig,
-                            watch: buildConfig.watch && {
-                                async onRebuild(error, result) {
-                                    if (error) {
-                                        logger.error(error);
-                                    } else if (result) {
-                                        if (cwd !== buildDir) {
-                                            result = remapResult(/** @type {import('@chialab/esbuild-rna').Result} */(result), buildDir, cwd);
-                                        }
-                                        buildResults[i] = result;
-                                        await onBuildEnd(true);
-                                        if (result.rebuild) {
-                                            result.rebuild.dispose();
-                                        }
-                                    }
+                        const buildConfig = getEntryBuildConfig(entrypoint, {
+                            ...config,
+                            plugins: [
+                                ...(config.plugins || []),
+                                {
+                                    name: 'rna-logger',
+                                    setup(build) {
+                                        build.onEnd(async (result) => {
+                                            if (result) {
+                                                if (cwd !== buildDir) {
+                                                    result = remapResult(/** @type {import('@chialab/esbuild-rna').Result} */(result), buildDir, cwd);
+                                                }
+                                                buildResults[i] = result;
+                                                await onBuildEnd(true);
+                                            }
+                                        });
+                                    },
                                 },
-                            },
+                            ],
                         });
+                        const buildDir = buildConfig.root || process.cwd();
+                        const result = await build(buildConfig);
                         if (cwd !== buildDir) {
                             return remapResult(result, buildDir, cwd);
                         }
@@ -216,10 +213,6 @@ export function command(program) {
                 const onBuildEnd = async (rebuild = false) => {
                     buildResults.forEach((result) => assignToResult(buildResult, result));
                     const metafile = buildResult.metafile;
-
-                    if (typeof metafilePath === 'string') {
-                        await writeMetafile(metafile, path.resolve(cwd, metafilePath));
-                    }
 
                     if (Object.keys(metafile.outputs).length) {
                         const sizes = await bundleSize(metafile, showCompressed);

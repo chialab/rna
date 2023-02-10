@@ -1,11 +1,11 @@
 import path from 'path';
-import { styleResolve, isRelativeUrl, createAliasRegex, ALIAS_MODE } from '@chialab/node-resolve';
+import { styleResolve, isRelativeUrl } from '@chialab/node-resolve';
 
 /**
  * @typedef {Object} UrlRebasePluginOptions
  * @property {string} [root] The root dir of the build.
  * @property {boolean} [relative] Should use relative paths.
- * @property {import('@chialab/node-resolve').AliasMap} [alias] A list of alias.
+ * @property {Record<string, string>} [alias] A list of alias.
  * @property {string[]} [external] A list of references to ignore.
  * @property {(filePath: string, decl: import('postcss').AtRule) => string|void|Promise<string|void>} [transform] A transform function for the import.
  */
@@ -45,9 +45,6 @@ export default function urlRebase({ root = process.cwd(), relative, transform, a
                 const inputFile = decl.source?.input.file ?? root;
 
                 if (!resolvedImportPath.startsWith('.')) {
-                    /**
-                     * @type {import('@chialab/node-resolve').AliasMap}
-                     */
                     const aliases = {
                         ...alias,
                     };
@@ -58,13 +55,9 @@ export default function urlRebase({ root = process.cwd(), relative, transform, a
                         delete aliases[ext];
                     }
                     for (const key in aliases) {
-                        const aliasFilter = createAliasRegex(key, ALIAS_MODE.START);
+                        const aliasFilter = new RegExp(`(^|\\/)${key.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&')}(\\/|$)`);
                         if (resolvedImportPath.match(aliasFilter)) {
-                            const aliasValue = aliases[key];
-                            const aliased = typeof aliasValue === 'function' ?
-                                await aliasValue(resolvedImportPath, inputFile) :
-                                aliasValue;
-
+                            const aliased = aliases[key];
                             if (!aliased) {
                                 return;
                             }

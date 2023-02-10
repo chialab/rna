@@ -47,7 +47,8 @@ export default function(options = {}) {
             const build = useRna(plugin, pluginBuild);
             const { sourcemap = true, absWorkingDir, target } = build.getOptions();
             const config = await loadPostcssConfig(build.getSourceRoot());
-            build.setupPlugin([cssImport()], 'before');
+
+            await build.setupPlugin([cssImport()]);
 
             const cache = new Map();
             build.onStart(() => {

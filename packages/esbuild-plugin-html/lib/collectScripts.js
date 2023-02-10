@@ -1,6 +1,5 @@
 import path from 'path';
 import { isRelativeUrl } from '@chialab/node-resolve';
-import { Build } from '@chialab/esbuild-rna';
 
 /**
  * @param {import('cheerio').CheerioAPI} $ The cheerio selector.
@@ -40,7 +39,7 @@ async function innerCollect($, dom, elements, target, format, type, attrs = {}, 
                 return;
             }
 
-            builds.set(element, resolvedFile.pluginData === Build.RESOLVED_AS_FILE ? resolvedFile.path : src);
+            builds.set(element, resolvedFile.path);
             entrypoints.set(resolvedFile.path, element);
         } else {
             const entryPoint = path.join(options.sourceDir, helpers.createEntry('js'));

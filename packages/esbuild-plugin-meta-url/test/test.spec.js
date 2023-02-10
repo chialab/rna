@@ -222,60 +222,6 @@ var file = new URL("./file-4e1243bd.txt?hash=4e1243bd", "file://" + __filename);
         expect(path.dirname(result.path)).to.be.equal(path.dirname(file.path));
     });
 
-    it('should resolve a module with warnings', async () => {
-        const { warnings, outputFiles: [result, file] } = await esbuild.build({
-            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
-            stdin: {
-                resolveDir: fileURLToPath(new URL('.', import.meta.url)),
-                sourcefile: fileURLToPath(import.meta.url),
-                contents: 'export const file = new URL(\'npm_module\', import.meta.url);',
-            },
-            format: 'esm',
-            outdir: 'out',
-            loader: {
-                '.txt': 'file',
-            },
-            assetNames: '[name]',
-            bundle: true,
-            write: false,
-            plugins: [
-                virtual([{
-                    path: 'npm_module',
-                    contents: 'test\n',
-                    loader: 'js',
-                }]),
-                metaUrl(),
-            ],
-        });
-
-        expect(result.text).to.be.equal(`// test.spec.js
-var file = new URL("./npm_module?hash=4e1243bd", import.meta.url);
-export {
-  file
-};
-`);
-        expect(file.text).to.be.equal('test\n');
-        expect(path.dirname(result.path)).to.be.equal(path.dirname(file.path));
-        expect(warnings).to.be.deep.equal([
-            {
-                id: '',
-                pluginName: 'meta-url',
-                text: 'Resolving \'npm_module\' as module is not a standard behavior and may be removed in a future relase of the plugin.',
-                detail: '',
-                notes: [],
-                location: {
-                    column: 20,
-                    file: 'test.spec.js',
-                    length: 38,
-                    line: 1,
-                    lineText: 'export const file = new URL(\'npm_module\', import.meta.url);',
-                    namespace: 'file',
-                    suggestion: 'Externalize module import using a JS proxy file.',
-                },
-            },
-        ]);
-    });
-
     it('should not resolve a module with warnings', async () => {
         const { warnings, outputFiles: [result] } = await esbuild.build({
             absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),

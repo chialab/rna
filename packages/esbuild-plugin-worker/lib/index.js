@@ -1,31 +1,12 @@
 import path from 'path';
-import { walk, parse, TokenType, getIdentifierValue, getLocation, getBlock, splitArgs } from '@chialab/estransform';
-import { getSearchParam } from '@chialab/node-resolve';
+import { walk, parse, TokenType, getIdentifierValue, getBlock, splitArgs } from '@chialab/estransform';
+import { appendSearchParam } from '@chialab/node-resolve';
 import metaUrlPlugin from '@chialab/esbuild-plugin-meta-url';
 import { useRna } from '@chialab/esbuild-rna';
 
 /**
  * @typedef {{ constructors?: string[], proxy?: boolean, emit?: boolean }} PluginOptions
  */
-
-/**
- * Create a blob proxy worker code.
- * @param {string} argument The url reference.
- * @param {import('@chialab/esbuild-rna').BuildOptions} transformOptions The transform options for the url.
- * @param {boolean} [checkType] Should check argument type.
- */
-function createBlobProxy(argument, transformOptions, checkType = false) {
-    const createUrlFn = `(function(path) {
-    const url = new URL(path);
-    url.searchParams.set('transform', '${JSON.stringify(transformOptions)}');
-    return url.href;
-})`;
-    const blobContent = transformOptions.format === 'esm' ?
-        `'import "' + ${createUrlFn}(${argument}) + '";'` :
-        `'importScripts("' + ${createUrlFn}(${argument}) + '");'`;
-
-    return `${checkType ? `typeof ${argument} !== 'string' ? ${argument} : ` : ''}URL.createObjectURL(new Blob([${blobContent}], { type: 'text/javascript' }))`;
-}
 
 /**
  * Instantiate a plugin that collect and builds Web Workers.
@@ -51,19 +32,12 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
             const { format, bundle, sourcesContent, sourcemap } = build.getOptions();
             const workingDir = build.getWorkingDir();
 
-            await build.setupPlugin([metaUrlPlugin({ emit })], 'after');
-
             build.onTransform({ loaders: ['tsx', 'ts', 'jsx', 'js'] }, async (args) => {
                 const code = args.code;
 
                 if (!variants.find((ctr) => code.includes(`new ${ctr}`))) {
                     return;
                 }
-
-                /**
-                 * @type {Promise<void>[]}
-                 */
-                const promises = [];
 
                 /**
                  * @type {Set<string>}
@@ -118,8 +92,11 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
 
                     const startToken = firstArg[0];
                     const endToken = firstArg[firstArg.length - 1];
-                    let reference = startToken;
 
+                    /**
+                     * @type {*}
+                     */
+                    let reference;
                     if (startToken.type === TokenType._new
                         && firstArg[1].type === TokenType.name
                         && processor.identifierNameForToken(firstArg[1]) === 'URL'
@@ -144,6 +121,8 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                                 reference = urlArgs[0];
                             }
                         }
+                    } else if (startToken.type === TokenType.name) {
+                        reference = startToken;
                     }
 
                     const isStringLiteral = reference && reference.type === TokenType.string;
@@ -177,91 +156,40 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                         }
                     }
 
-                    promises.push(Promise.resolve().then(async () => {
-                        const value = isStringLiteral ?
-                            processor.stringValueForToken(reference) :
-                            isIdentifier ?
-                                getIdentifierValue(processor, reference) :
-                                null;
+                    const value = isStringLiteral ?
+                        processor.stringValueForToken(reference) :
+                        isIdentifier ?
+                            getIdentifierValue(processor, reference) :
+                            null;
 
-                        if (typeof value !== 'string') {
-                            if (proxy) {
-                                const arg = code.substring(firstArg[0].start, firstArg[firstArg.length - 1].end);
-                                helpers.overwrite(firstArg[0].start, firstArg[firstArg.length - 1].end, createBlobProxy(arg, transformOptions, true));
-                            }
-                            return;
+                    if (typeof value !== 'string') {
+                        if (proxy) {
+                            const arg = code.substring(startToken.start, endToken.end);
+                            const createUrlFn = `(function(path) {
+                                const url = new URL(path);
+                                url.searchParams.set('transform', '${JSON.stringify(transformOptions)}');
+                                return url.href;
+                            })`;
+                            const blobContent = transformOptions.format === 'esm' ?
+                                `'import "' + ${createUrlFn}(${arg}) + '";'` :
+                                `'importScripts("' + ${createUrlFn}(${arg}) + '");'`;
+
+                            helpers.overwrite(startToken.start, endToken.end, `typeof ${arg} !== 'string' ? ${arg} : URL.createObjectURL(new Blob([${blobContent}], { type: 'text/javascript' }))`);
                         }
+                        return;
+                    }
 
-                        const id = getSearchParam(value, 'hash');
-                        if (id && build.isEmittedPath(id)) {
-                            return;
-                        }
+                    const entrypoint = `new URL('${appendSearchParam(value, 'transform', JSON.stringify(transformOptions))}', import.meta.url)`;
+                    if (proxy) {
+                        const blobContent = transformOptions.format === 'esm' ?
+                            `'import "' + ${entrypoint} + '";'` :
+                            `'importScripts("' + ${entrypoint} + '");'`;
 
-                        const { path: resolvedPath, external } = await build.resolve(value, {
-                            kind: 'dynamic-import',
-                            importer: args.path,
-                            namespace: 'file',
-                            resolveDir: path.dirname(args.path),
-                            pluginData: null,
-                        });
-
-                        if (external) {
-                            return;
-                        }
-
-                        if (!resolvedPath) {
-                            const location = getLocation(code, startToken.start);
-                            warnings.push({
-                                id: 'worker-reference-not-found',
-                                pluginName: 'worker',
-                                text: `Unable to resolve '${value}' file.`,
-                                location: {
-                                    file: args.path,
-                                    namespace: args.namespace,
-                                    ...location,
-                                    length: endToken.end - startToken.start,
-                                    lineText: code.split('\n')[location.line - 1],
-                                    suggestion: '',
-                                },
-                                notes: [],
-                                detail: '',
-                            });
-                            return;
-                        }
-
-                        let emittedChunk;
-                        let entryPoint = resolvedPath;
-                        const searchParams = new URLSearchParams();
-                        if (emit) {
-                            emittedChunk = await build.emitChunk({
-                                ...transformOptions,
-                                path: resolvedPath,
-                                write: format !== 'iife' || !bundle,
-                            }, format !== 'iife' || !bundle);
-                            searchParams.set('hash', emittedChunk.id);
-                            entryPoint = emittedChunk.path;
-                        }
-
-                        if (emittedChunk && format === 'iife' && bundle) {
-                            const { outputFiles } = emittedChunk;
-                            if (outputFiles) {
-                                const base64 = Buffer.from(outputFiles[0].contents).toString('base64');
-                                helpers.overwrite(startToken.start, endToken.end, `new URL('data:text/javascript;base64,${base64}')`);
-                            }
-                        } else {
-                            const outputPath = build.resolveRelativePath(entryPoint);
-                            const searchParamsString = searchParams.toString();
-                            const arg = `new URL('${outputPath}${searchParamsString ? `?${searchParamsString}` : ''}', import.meta.url).href`;
-                            if (proxy) {
-                                helpers.overwrite(firstArg[0].start, firstArg[firstArg.length - 1].end, createBlobProxy(arg, transformOptions, false));
-                            } else {
-                                helpers.overwrite(firstArg[0].start, firstArg[firstArg.length - 1].end, arg);
-                            }
-                        }
-                    }));
+                        helpers.overwrite(startToken.start, endToken.end, `URL.createObjectURL(new Blob([${blobContent}], { type: 'text/javascript' }))`);
+                    } else {
+                        helpers.overwrite(startToken.start, endToken.end, entrypoint);
+                    }
                 });
-
-                await Promise.all(promises);
 
                 if (!helpers.isDirty()) {
                     return {
@@ -279,6 +207,8 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                     warnings,
                 };
             });
+
+            await build.setupPlugin([metaUrlPlugin({ emit })], 'after');
         },
     };
 

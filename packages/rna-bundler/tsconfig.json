@@ -11,9 +11,6 @@
   ],
   "references": [
     {
-      "path": "../esbuild-plugin-alias"
-    },
-    {
       "path": "../esbuild-plugin-any-file"
     },
     {
@@ -30,6 +27,9 @@
     },
     {
       "path": "../esbuild-plugin-meta-url"
+    },
+    {
+      "path": "../esbuild-plugin-metadata"
     },
     {
       "path": "../esbuild-plugin-worker"

@@ -2,7 +2,6 @@
 "@chialab/cjs-to-esm": minor
 "@chialab/es-dev-server": minor
 "@chialab/es-test-runner": minor
-"@chialab/esbuild-plugin-alias": minor
 "@chialab/esbuild-plugin-any-file": minor
 "@chialab/esbuild-plugin-babel": minor
 "@chialab/esbuild-plugin-commonjs": minor

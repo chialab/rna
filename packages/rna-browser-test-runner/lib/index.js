@@ -18,7 +18,7 @@ export { TestRunner };
  * @typedef {Object} TestRunnerCoreConfig
  * @property {import('@chialab/rna-logger').Logger} [logger]
  * @property {string[]|import('@web/test-runner-core').BrowserLauncher[]} [browsers]
- * @property {import('@chialab/node-resolve').AliasMap} [alias]
+ * @property {Record<string, string>} [alias]
  */
 
 /**

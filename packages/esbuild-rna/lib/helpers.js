@@ -35,6 +35,7 @@ export function createResult(outputFiles, metafile = createEmptyMetafile()) {
         dependencies: {},
         outputFiles,
         metafile,
+        mangleCache: {},
     };
 }
 
@@ -111,6 +112,7 @@ export function remapResult(result, from, to) {
                     return acc;
                 }, /** @type {import('esbuild').Metafile['outputs']} */ ({})),
         },
+        mangleCache: result.mangleCache,
     };
 }
 

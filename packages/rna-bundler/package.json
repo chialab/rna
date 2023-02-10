@@ -30,13 +30,13 @@
     "node": ">=13"
   },
   "dependencies": {
-    "@chialab/esbuild-plugin-alias": "^0.17.0",
     "@chialab/esbuild-plugin-any-file": "^0.17.0",
     "@chialab/esbuild-plugin-commonjs": "^0.17.1",
     "@chialab/esbuild-plugin-define-this": "^0.17.0",
     "@chialab/esbuild-plugin-env": "^0.17.0",
     "@chialab/esbuild-plugin-html": "^0.17.0",
     "@chialab/esbuild-plugin-meta-url": "^0.17.1",
+    "@chialab/esbuild-plugin-metadata": "^0.18.0",
     "@chialab/esbuild-plugin-worker": "^0.17.2",
     "@chialab/esbuild-rna": "^0.17.1",
     "@chialab/rna-config-loader": "^0.17.0",

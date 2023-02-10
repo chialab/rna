@@ -14,8 +14,8 @@ export const EXPORTS_KEYWORDS = /\b(module\.exports\b|exports\b)/;
 export const CJS_KEYWORDS = /\b(module\.exports\b|exports\b|require[.(])/;
 export const THIS_PARAM = /(}\s*\()this(,|\))/g;
 
-export const REQUIRE_FUNCTION = '$$cjs_default$$';
-export const HELPER_MODULE = '$$cjs_helper$$.js';
+export const REQUIRE_FUNCTION = '__cjs_default__';
+export const HELPER_MODULE = '__cjs_helper__.js';
 
 export const GLOBAL_HELPER = `((typeof window !== 'undefined' && window) ||
 (typeof self !== 'undefined' && self) ||

@@ -9,15 +9,5 @@
   "include": [
     "lib/**/*"
   ],
-  "references": [
-    {
-      "path": "../esbuild-rna"
-    },
-    {
-      "path": "../estransform"
-    },
-    {
-      "path": "../node-resolve"
-    }
-  ]
+  "references": []
 }

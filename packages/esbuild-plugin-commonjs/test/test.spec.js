@@ -109,8 +109,8 @@ export {
         expect(result.text).to.be.equal(`// test.spec.js
 import * as $cjs$fs from "fs";
 
-// commonjs-helper:./$$cjs_helper$$.js
-function $$cjs_default$$(requiredModule) {
+// commonjs-helper:./__cjs_helper__.js
+function __cjs_default__(requiredModule) {
   var Object2 = (typeof window !== "undefined" && window || typeof self !== "undefined" && self || typeof global !== "undefined" && global || typeof globalThis !== "undefined" && globalThis || {}).Object;
   var isEsModule = false;
   var specifiers = Object2.create(null);
@@ -187,7 +187,7 @@ var module = {
 };
 module.exports = {
   method() {
-    return $$cjs_default$$(typeof $cjs$fs !== "undefined" ? $cjs$fs : {});
+    return __cjs_default__(typeof $cjs$fs !== "undefined" ? $cjs$fs : {});
   }
 };
 var __export0;

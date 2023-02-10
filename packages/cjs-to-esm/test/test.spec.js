@@ -10,8 +10,8 @@ describe('cjs-to-esm', () => {
 fs.readFile('test.js');`, { helperModule: true });
 
         expect(code).to.equal(`import * as $cjs$fs_promises from "fs/promises";
-import $$cjs_default$$ from './$$cjs_helper$$.js';
-const fs = $$cjs_default$$(typeof $cjs$fs_promises !== 'undefined' ? $cjs$fs_promises : {});
+import __cjs_default__ from './__cjs_helper__.js';
+const fs = __cjs_default__(typeof $cjs$fs_promises !== 'undefined' ? $cjs$fs_promises : {});
 fs.readFile('test.js');`);
     });
 
@@ -40,8 +40,8 @@ try {
 } catch {}`, { helperModule: true, ignoreTryCatch: true });
 
         expect(code).to.equal(`import * as $cjs$path from "path";
-import $$cjs_default$$ from './$$cjs_helper$$.js';
-const path = $$cjs_default$$(typeof $cjs$path !== 'undefined' ? $cjs$path : {});
+import __cjs_default__ from './__cjs_helper__.js';
+const path = __cjs_default__(typeof $cjs$path !== 'undefined' ? $cjs$path : {});
 try {
     const fs = require('fs/promises');
     fs.readFile(path.resolve('test.js'));

@@ -1,37 +1,12 @@
 import path from 'path';
 import { rm } from 'fs/promises';
 import esbuild from 'esbuild';
-import { createLogger } from '@chialab/rna-logger';
 import { hasPlugin } from '@chialab/esbuild-rna';
 import { loaders } from './loaders.js';
-import { writeManifestJson } from './writeManifestJson.js';
-import { writeEntrypointsJson } from './writeEntrypointsJson.js';
 
 /**
  * @typedef {import('esbuild').Metafile} Metafile
  */
-
-/**
- * @param {import('@chialab/rna-config-loader').EntrypointConfig} config
- * @param {{ stdin?: import('esbuild').StdinOptions; entryPoints?: string[] }} entryOptions
- * @param {import('@chialab/esbuild-rna').Result} result
- */
-async function onBuildEnd(config, entryOptions, result) {
-    const {
-        root = process.cwd(),
-        format = 'esm',
-        publicPath,
-        manifestPath,
-        entrypointsPath,
-    } = config;
-
-    if (manifestPath && result) {
-        await writeManifestJson(result, manifestPath, publicPath);
-    }
-    if (entrypointsPath && entryOptions.entryPoints && result) {
-        await writeEntrypointsJson(entryOptions.entryPoints, result, root, entrypointsPath, publicPath, format);
-    }
-}
 
 /**
  * Build and bundle sources.
@@ -43,7 +18,6 @@ export async function build(config) {
         throw new Error('Missing `output` option');
     }
 
-    const logger = createLogger();
     const hasOutputFile = !!path.extname(config.output);
     const {
         input,
@@ -89,6 +63,8 @@ export async function build(config) {
         inject,
         banner,
         footer,
+        manifestPath,
+        entrypointsPath,
     } = config;
 
     const entryOptions = {};
@@ -126,15 +102,18 @@ export async function build(config) {
         !hasPlugin(plugins, 'define-this') &&
             import('@chialab/esbuild-plugin-define-this')
                 .then(({ default: plugin }) => plugin()),
-        !hasPlugin(plugins, 'alias') &&
-            import('@chialab/esbuild-plugin-alias')
-                .then(({ default: plugin }) => plugin(alias)),
         !hasPlugin(plugins, 'any-file') &&
             import('@chialab/esbuild-plugin-any-file')
                 .then(({ default: plugin }) => plugin()),
+        !hasPlugin(plugins, 'metadata') &&
+            import('@chialab/esbuild-plugin-metadata')
+                .then(({ default: plugin }) => plugin({
+                    manifestPath,
+                    entrypointsPath,
+                })),
     ].filter(Boolean)));
 
-    const result = /** @type {import('@chialab/esbuild-rna').Result} */ (await esbuild.build({
+    const context = await esbuild.context({
         ...entryOptions,
         outfile: hasOutputFile ? output : undefined,
         outdir: hasOutputFile ? undefined : output,
@@ -153,6 +132,7 @@ export async function build(config) {
         packages: bundle ? undefined : 'external',
         treeShaking: minify ? true : undefined,
         define,
+        alias,
         external,
         mainFields,
         jsx,
@@ -165,19 +145,6 @@ export async function build(config) {
         plugins: finalPlugins,
         logLevel,
         absWorkingDir: rootDir,
-        watch: watch && {
-            onRebuild(error, result) {
-                if (result) {
-                    onBuildEnd(config, entryOptions, /** @type {import('@chialab/esbuild-rna').Result} */ (result));
-                }
-                if (typeof watch === 'object' &&
-                    typeof watch.onRebuild === 'function') {
-                    return watch.onRebuild(error, result);
-                } else if (error) {
-                    logger.error(error);
-                }
-            },
-        },
         write,
         allowOverwrite: !write,
         resolveExtensions,
@@ -186,9 +153,12 @@ export async function build(config) {
         inject,
         banner,
         footer,
-    }));
+    });
 
-    await onBuildEnd(config, entryOptions, result);
+    const result = /** @type {import('@chialab/esbuild-rna').Result} */ (await context.rebuild());
+    if (watch) {
+        await context.watch();
+    }
 
     return {
         ...result,

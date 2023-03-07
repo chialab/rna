@@ -897,7 +897,7 @@ export class Build {
         return path.dirname(this.resolvePath(
             path.join(
                 this.getOutDir() || '',
-                this.computeName(this.getOption(key) || '[name]', filePath, '')
+                this.computeName(this.getOption(key) || '[dir]/[name]', filePath, '')
             )
         ));
     }
@@ -917,7 +917,7 @@ export class Build {
         return path.resolve(
             this.getWorkingDir(),
             this.getOutDir() || this.getSourceRoot(),
-            this.computeName(this.getOption(key) || '[name]', filePath, buffer)
+            this.computeName(this.getOption(key) || '[dir]/[name]', filePath, buffer)
         );
     }
 

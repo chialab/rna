@@ -1,5 +1,11 @@
 # @chialab/rna-config-loader
 
+## 0.17.3
+
+### Patch Changes
+
+- 98b58316: Fix default entryNames.
+
 ## 0.17.2
 
 ### Patch Changes

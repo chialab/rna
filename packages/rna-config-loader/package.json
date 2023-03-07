@@ -1,7 +1,7 @@
 {
   "name": "@chialab/rna-config-loader",
   "type": "module",
-  "version": "0.17.2",
+  "version": "0.17.3",
   "description": "Load and setup RNA configuration object.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",

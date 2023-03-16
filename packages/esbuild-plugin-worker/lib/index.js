@@ -48,7 +48,7 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
         name: 'worker',
         async setup(pluginBuild) {
             const build = useRna(plugin, pluginBuild);
-            const { sourcesContent, sourcemap } = build.getOptions();
+            const { format, bundle, sourcesContent, sourcemap } = build.getOptions();
             const workingDir = build.getWorkingDir();
 
             await build.setupPlugin([metaUrlPlugin({ emit })], 'after');
@@ -161,7 +161,7 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                         platform: 'neutral',
                     };
 
-                    if (secondArg && secondArg.length >= 4 && secondArg[0].type === TokenType.braceL) {
+                    if ((format !== 'iife' || !bundle) && secondArg && secondArg.length >= 4 && secondArg[0].type === TokenType.braceL) {
                         if (
                             (
                                 (secondArg[1].type === TokenType.string && processor.stringValueForToken(secondArg[1]) === 'type')
@@ -229,20 +229,30 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                             return;
                         }
 
+                        let emittedChunk;
                         let entryPoint = path.relative(path.dirname(args.path), resolvedPath);
                         if (emit) {
-                            const emittedChunk = await build.emitChunk({
+                            emittedChunk = await build.emitChunk({
                                 ...transformOptions,
                                 path: resolvedPath,
+                                write: format !== 'iife' || !bundle,
                             });
                             entryPoint = appendSearchParam(emittedChunk.path, 'hash', emittedChunk.id);
                         }
 
-                        const arg = `new URL('./${entryPoint}', import.meta.url).href`;
-                        if (proxy) {
-                            helpers.overwrite(firstArg[0].start, firstArg[firstArg.length - 1].end, createBlobProxy(arg, transformOptions, false));
+                        if (emittedChunk && format === 'iife' && bundle) {
+                            const { outputFiles } = emittedChunk;
+                            if (outputFiles) {
+                                const base64 = Buffer.from(outputFiles[0].contents).toString('base64');
+                                helpers.overwrite(startToken.start, endToken.end, `new URL('data:text/javascript;base64,${base64}')`);
+                            }
                         } else {
-                            helpers.overwrite(firstArg[0].start, firstArg[firstArg.length - 1].end, arg);
+                            const arg = `new URL('./${entryPoint}', import.meta.url).href`;
+                            if (proxy) {
+                                helpers.overwrite(firstArg[0].start, firstArg[firstArg.length - 1].end, createBlobProxy(arg, transformOptions, false));
+                            } else {
+                                helpers.overwrite(firstArg[0].start, firstArg[firstArg.length - 1].end, arg);
+                            }
                         }
                     }));
                 });

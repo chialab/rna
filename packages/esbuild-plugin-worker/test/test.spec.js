@@ -272,4 +272,29 @@ export {
 `);
         expect(path.dirname(result.path)).to.be.equal(path.dirname(worker.path));
     });
+
+    it('should inline worker with iife format', async () => {
+        const { outputFiles: [result] } = await esbuild.build({
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
+            stdin: {
+                resolveDir: fileURLToPath(new URL('.', import.meta.url)),
+                sourcefile: fileURLToPath(import.meta.url),
+                contents: 'export const worker = new Worker(\'./worker.js\');',
+            },
+            format: 'iife',
+            platform: 'browser',
+            outdir: 'out',
+            bundle: true,
+            write: false,
+            plugins: [
+                workerPlugin(),
+            ],
+        });
+
+        expect(result.text).to.be.equal(`(() => {
+  // test.spec.js
+  var worker = new Worker(new URL("data:text/javascript;base64,InVzZSBzdHJpY3QiOwooKCkgPT4gewogIC8vIGxpYi53b3JrZXIuanMKICB2YXIgcG9zdE1lc3NhZ2UgPSBnbG9iYWxUaGlzLnBvc3RNZXNzYWdlOwoKICAvLyB3b3JrZXIuanMKICBwb3N0TWVzc2FnZSgibWVzc2FnZSIpOwp9KSgpOwo="));
+})();
+`);
+    });
 });

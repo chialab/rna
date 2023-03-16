@@ -1,5 +1,13 @@
 # @chialab/esbuild-plugin-worker
 
+## 0.17.4
+
+### Patch Changes
+
+- 06a1adb2: Inline workers and assets for iife bundles.
+- Updated dependencies [06a1adb2]
+  - @chialab/esbuild-plugin-meta-url@0.17.3
+
 ## 0.17.3
 
 ### Patch Changes

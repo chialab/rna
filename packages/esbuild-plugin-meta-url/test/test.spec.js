@@ -143,7 +143,7 @@ export {
             stdin: {
                 resolveDir: fileURLToPath(new URL('.', import.meta.url)),
                 sourcefile: fileURLToPath(import.meta.url),
-                contents: 'export const file = new URL(\'./file.txt\', import.meta.url);',
+                contents: 'export var file = new URL(\'./file.txt\', import.meta.url);',
             },
             platform: 'browser',
             format: 'iife',
@@ -151,7 +151,6 @@ export {
             loader: {
                 '.txt': 'file',
             },
-            bundle: true,
             write: false,
             plugins: [
                 metaUrl(),
@@ -159,7 +158,6 @@ export {
         });
 
         expect(result.text).to.be.equal(`(() => {
-  // test.spec.js
   var __currentScriptUrl__ = document.currentScript && document.currentScript.src || document.baseURI;
   var file = new URL("./file.txt?hash=4e1243bd", __currentScriptUrl__);
 })();
@@ -325,5 +323,33 @@ export {
                 },
             },
         ]);
+    });
+
+    it('should inline assets with iife format', async () => {
+        const { outputFiles: [result] } = await esbuild.build({
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
+            stdin: {
+                resolveDir: fileURLToPath(new URL('.', import.meta.url)),
+                sourcefile: fileURLToPath(import.meta.url),
+                contents: 'export const file = new URL(\'./file.txt\', import.meta.url);',
+            },
+            format: 'iife',
+            platform: 'browser',
+            outdir: 'out',
+            loader: {
+                '.txt': 'file',
+            },
+            bundle: true,
+            write: false,
+            plugins: [
+                metaUrl(),
+            ],
+        });
+
+        expect(result.text).to.be.equal(`(() => {
+  // test.spec.js
+  var file = new URL("data:text/plain;base64,dGVzdAo=");
+})();
+`);
     });
 });

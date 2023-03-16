@@ -1,4 +1,5 @@
 import path from 'path';
+import mime from 'mime-types';
 import { appendSearchParam, getSearchParam, isUrl } from '@chialab/node-resolve';
 import { parse, walk, getIdentifierValue, getBlock, getLocation, TokenType } from '@chialab/estransform';
 import { Build, useRna } from '@chialab/esbuild-rna';
@@ -110,10 +111,10 @@ export default function({ emit = true } = {}) {
         name: 'meta-url',
         async setup(pluginBuild) {
             const build = useRna(plugin, pluginBuild);
-            const { platform, format, sourcesContent, sourcemap } = build.getOptions();
+            const { platform, bundle, format, sourcesContent, sourcemap } = build.getOptions();
             const workingDir = build.getWorkingDir();
 
-            const usePlainScript = platform === 'browser' && format !== 'esm';
+            const usePlainScript = platform === 'browser' && (format === 'iife' ? !bundle : format !== 'esm');
             const isNode = platform === 'node' && format !== 'esm';
             const baseUrl = (() => {
                 if (usePlainScript) {
@@ -207,7 +208,19 @@ export default function({ emit = true } = {}) {
                                 entryPoint = path.relative(path.dirname(args.path), resolvedPath);
                             }
 
-                            helpers.overwrite(startToken.start, endToken.end, `new URL('./${entryPoint}', ${baseUrl})`);
+                            if (format === 'iife' && bundle) {
+                                const { outputFiles } = await build.emitChunk({
+                                    path: `./${entryPoint}`,
+                                    write: false,
+                                });
+                                if (outputFiles) {
+                                    const mimeType = mime.lookup(outputFiles[0].path);
+                                    const base64 = Buffer.from(outputFiles[0].contents).toString('base64');
+                                    helpers.overwrite(startToken.start, endToken.end, `new URL('data:${mimeType};base64,${base64}')`);
+                                }
+                            } else {
+                                helpers.overwrite(startToken.start, endToken.end, `new URL('./${entryPoint}', ${baseUrl})`);
+                            }
 
                             return;
                         }

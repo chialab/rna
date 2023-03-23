@@ -1,5 +1,11 @@
 # @chialab/esbuild-plugin-meta-url
 
+## 0.17.4
+
+### Patch Changes
+
+- 4e24e76: Fix file assets in iife bundles.
+
 ## 0.17.3
 
 ### Patch Changes

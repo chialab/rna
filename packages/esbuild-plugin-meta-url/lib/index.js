@@ -1,4 +1,5 @@
 import path from 'path';
+import { readFile } from 'fs/promises';
 import mime from 'mime-types';
 import { appendSearchParam, getSearchParam, isUrl } from '@chialab/node-resolve';
 import { parse, walk, getIdentifierValue, getBlock, getLocation, TokenType } from '@chialab/estransform';
@@ -195,8 +196,10 @@ export default function({ emit = true } = {}) {
 
                             const entryLoader = build.getLoader(resolvedPath) || 'file';
                             const isChunk = entryLoader !== 'file' && entryLoader !== 'json';
+                            const isIIFE = format === 'iife' && bundle;
+
                             let entryPoint;
-                            if (emit) {
+                            if (emit && !isIIFE) {
                                 if (isChunk) {
                                     const chunk = await build.emitChunk({ path: resolvedPath });
                                     entryPoint = appendSearchParam(chunk.path, 'hash', chunk.id);
@@ -208,20 +211,38 @@ export default function({ emit = true } = {}) {
                                 entryPoint = path.relative(path.dirname(args.path), resolvedPath);
                             }
 
-                            if (format === 'iife' && bundle) {
-                                const { outputFiles } = await build.emitChunk({
-                                    path: `./${entryPoint}`,
-                                    write: false,
-                                });
-                                if (outputFiles) {
-                                    const mimeType = mime.lookup(outputFiles[0].path);
-                                    const base64 = Buffer.from(outputFiles[0].contents).toString('base64');
-                                    helpers.overwrite(startToken.start, endToken.end, `new URL('data:${mimeType};base64,${base64}')`);
+                            if (isIIFE) {
+                                let buffer, mimeType;
+                                if (isChunk) {
+                                    const { outputFiles } = await build.emitChunk({
+                                        path: `./${entryPoint}`,
+                                        write: false,
+                                    });
+                                    if (outputFiles) {
+                                        mimeType = mime.lookup(outputFiles[0].path);
+                                        buffer = Buffer.from(outputFiles[0].contents);
+                                    }
+                                } else {
+                                    const result = await build.load({
+                                        pluginData: null,
+                                        namespace: 'file',
+                                        suffix: '',
+                                        path: resolvedPath,
+                                    });
+
+                                    if (result && result.contents) {
+                                        mimeType = mime.lookup(resolvedPath);
+                                        buffer = Buffer.from(result.contents);
+                                    }
                                 }
-                            } else {
-                                helpers.overwrite(startToken.start, endToken.end, `new URL('./${entryPoint}', ${baseUrl})`);
+
+                                if (buffer) {
+                                    helpers.overwrite(startToken.start, endToken.end, `new URL('data:${mimeType};base64,${buffer.toString('base64')}')`);
+                                    return;
+                                }
                             }
 
+                            helpers.overwrite(startToken.start, endToken.end, `new URL('./${entryPoint}', ${baseUrl})`);
                             return;
                         }
 

@@ -1,5 +1,13 @@
 # @chialab/esbuild-plugin-meta-url
 
+## 0.17.5
+
+### Patch Changes
+
+- f99d092: Correctly handle write option for `emitChunk`.
+- Updated dependencies [f99d092]
+  - @chialab/esbuild-rna@0.17.6
+
 ## 0.17.4
 
 ### Patch Changes

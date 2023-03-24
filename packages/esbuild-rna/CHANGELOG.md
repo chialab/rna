@@ -1,5 +1,11 @@
 # @chialab/esbuild-rna
 
+## 0.17.6
+
+### Patch Changes
+
+- f99d092: Correctly handle write option for `emitChunk`.
+
 ## 0.17.5
 
 ### Patch Changes

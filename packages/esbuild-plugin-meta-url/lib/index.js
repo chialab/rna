@@ -1,5 +1,4 @@
 import path from 'path';
-import { readFile } from 'fs/promises';
 import mime from 'mime-types';
 import { appendSearchParam, getSearchParam, isUrl } from '@chialab/node-resolve';
 import { parse, walk, getIdentifierValue, getBlock, getLocation, TokenType } from '@chialab/estransform';

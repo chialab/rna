@@ -1102,7 +1102,7 @@ export class Build {
             external: options.external ?? this.getInitialOptions().external,
             jsxFactory: ('jsxFactory' in options) ? options.jsxFactory : buildOptions.jsxFactory,
             entryNames: buildOptions.chunkNames || buildOptions.entryNames,
-            write: buildOptions.write ?? true,
+            write: options.write ?? buildOptions.write ?? true,
             globalName: undefined,
             outfile: undefined,
             metafile: true,

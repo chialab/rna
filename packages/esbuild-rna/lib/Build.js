@@ -828,13 +828,13 @@ export class Build {
             .replace('[name]', () => path.basename(inputFile, path.extname(inputFile)))
             .replace('[ext]', () => path.extname(inputFile))
             .replace('[hash]', () => this.hash(buffer))
-            .split(path.sep)
-            .map((part) => {
+            .split('/')
+            .reduce((parts, part) => {
                 if (part === '[dir]') {
-                    return path.relative(outBase, path.dirname(filePath)) || '';
+                    return [...parts, ...(path.relative(outBase, path.dirname(filePath)) || '').split(path.sep)];
                 }
-                return part;
-            })
+                return [...parts, part];
+            }, /** @type {string[]} */ ([]))
             .map((part) => {
                 if (part === '..') {
                     return '_.._';

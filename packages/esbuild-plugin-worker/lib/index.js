@@ -202,7 +202,7 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                             importer: args.path,
                             namespace: 'file',
                             resolveDir: path.dirname(args.path),
-                            pluginData: undefined,
+                            pluginData: null,
                         });
 
                         if (external) {

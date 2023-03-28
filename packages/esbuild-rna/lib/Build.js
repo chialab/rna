@@ -839,6 +839,10 @@ export class Build {
             })
             .replace('[dir]', () => path.relative(outBase, path.dirname(filePath)))
             .replace('[hash]', () => this.hash(buffer))
+            .split(path.sep)
+            .map((part) => (part === '..' ? '_.._' : part))
+            .filter((part) => part !== '.')
+            .join(path.sep)
         }${path.extname(inputFile)}`;
     }
 
@@ -917,7 +921,7 @@ export class Build {
         return path.resolve(
             this.getWorkingDir(),
             this.getOutDir() || this.getSourceRoot(),
-            this.computeName(this.getOption(key) || '[dir]/[name]', filePath, buffer)
+            this.computeName(this.getOption(key) || (type === Build.ASSET ? '[name]-[hash]' : '[name]'), filePath, buffer)
         );
     }
 

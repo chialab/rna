@@ -827,20 +827,20 @@ export class Build {
         return `${pattern
             .replace('[name]', () => path.basename(inputFile, path.extname(inputFile)))
             .replace('[ext]', () => path.extname(inputFile))
-            .replace(/(\/)?\[dir\](\/)?/, (fullMatch, match1, match2) => {
-                const dir = path.relative(outBase, path.dirname(filePath));
-                if (dir) {
-                    return `${match1 || ''}${dir}${match2 || ''}`;
-                }
-                if (!match1 && match2) {
-                    return '';
-                }
-                return match1 || '';
-            })
-            .replace('[dir]', () => path.relative(outBase, path.dirname(filePath)))
             .replace('[hash]', () => this.hash(buffer))
             .split(path.sep)
-            .map((part) => (part === '..' ? '_.._' : part))
+            .map((part) => {
+                if (part === '[dir]') {
+                    return path.relative(outBase, path.dirname(filePath)) || '';
+                }
+                return part;
+            })
+            .map((part) => {
+                if (part === '..') {
+                    return '_.._';
+                }
+                return part;
+            })
             .filter((part) => part && part !== '.')
             .join('/')
         }${path.extname(inputFile)}`;

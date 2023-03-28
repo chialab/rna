@@ -839,7 +839,7 @@ export class Build {
             })
             .replace('[dir]', () => path.relative(outBase, path.dirname(filePath)))
             .replace('[hash]', () => this.hash(buffer))
-            .split('/')
+            .split(path.sep)
             .map((part) => (part === '..' ? '_.._' : part))
             .filter((part) => part && part !== '.')
             .join('/')

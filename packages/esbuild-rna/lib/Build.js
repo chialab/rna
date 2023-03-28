@@ -839,10 +839,10 @@ export class Build {
             })
             .replace('[dir]', () => path.relative(outBase, path.dirname(filePath)))
             .replace('[hash]', () => this.hash(buffer))
-            .split(path.sep)
+            .split('/')
             .map((part) => (part === '..' ? '_.._' : part))
-            .filter((part) => part !== '.')
-            .join(path.sep)
+            .filter((part) => part && part !== '.')
+            .join('/')
         }${path.extname(inputFile)}`;
     }
 

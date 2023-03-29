@@ -1,5 +1,11 @@
 # @chialab/esbuild-rna
 
+## 0.17.7
+
+### Patch Changes
+
+- d67113e5: Fix entry names config.
+
 ## 0.17.6
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @chialab/rna-config-loader
 
+## 0.17.4
+
+### Patch Changes
+
+- d67113e5: Fix entry names config.
+
 ## 0.17.3
 
 ### Patch Changes

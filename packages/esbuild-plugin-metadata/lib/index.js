@@ -43,7 +43,10 @@ export default function(options = {}) {
                     await writeManifestJson(result, manifestPath, publicPath);
                 }
                 if (entrypointsPath && entryPoints && result) {
-                    await writeEntrypointsJson(Array.isArray(entryPoints) ? entryPoints : Object.values(entryPoints), result, absWorkingDir, entrypointsPath, publicPath || '/', loader || {}, format);
+                    const files = (Array.isArray(entryPoints) ? entryPoints : Object.values(entryPoints))
+                        .map((entryPoint) => (typeof entryPoint === 'string' ? entryPoint : entryPoint.in));
+
+                    await writeEntrypointsJson(files, result, absWorkingDir, entrypointsPath, publicPath || '/', loader || {}, format);
                 }
             });
         },

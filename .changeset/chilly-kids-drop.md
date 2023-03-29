@@ -6,7 +6,6 @@
 "@chialab/esbuild-plugin-babel": minor
 "@chialab/esbuild-plugin-commonjs": minor
 "@chialab/esbuild-plugin-css-import": minor
-"@chialab/esbuild-plugin-define-this": minor
 "@chialab/esbuild-plugin-env": minor
 "@chialab/esbuild-plugin-html": minor
 "@chialab/esbuild-plugin-meta-url": minor

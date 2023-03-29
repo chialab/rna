@@ -99,9 +99,6 @@ export async function build(config) {
             import('@chialab/esbuild-plugin-meta-url')
                 .then(({ default: plugin }) => plugin()),
         ...plugins,
-        !hasPlugin(plugins, 'define-this') &&
-            import('@chialab/esbuild-plugin-define-this')
-                .then(({ default: plugin }) => plugin()),
         !hasPlugin(plugins, 'any-file') &&
             import('@chialab/esbuild-plugin-any-file')
                 .then(({ default: plugin }) => plugin()),

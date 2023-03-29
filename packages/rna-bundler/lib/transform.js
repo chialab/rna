@@ -48,9 +48,6 @@ export async function transform(config) {
         !hasPlugin(plugins, 'env') &&
             import('@chialab/esbuild-plugin-env')
                 .then(({ default: plugin }) => plugin()),
-        !hasPlugin(plugins, 'define-this') &&
-            import('@chialab/esbuild-plugin-define-this')
-                .then(({ default: plugin }) => plugin()),
         !hasPlugin(plugins, 'commonjs') &&
             import('@chialab/esbuild-plugin-commonjs')
                 .then(({ default: plugin }) => plugin()),

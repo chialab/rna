@@ -827,18 +827,22 @@ export class Build {
         return `${pattern
             .replace('[name]', () => path.basename(inputFile, path.extname(inputFile)))
             .replace('[ext]', () => path.extname(inputFile))
-            .replace(/(\/)?\[dir\](\/)?/, (fullMatch, match1, match2) => {
-                const dir = path.relative(outBase, path.dirname(filePath));
-                if (dir) {
-                    return `${match1 || ''}${dir}${match2 || ''}`;
-                }
-                if (!match1 && match2) {
-                    return '';
-                }
-                return match1 || '';
-            })
-            .replace('[dir]', () => path.relative(outBase, path.dirname(filePath)))
             .replace('[hash]', () => this.hash(buffer))
+            .split('/')
+            .reduce((parts, part) => {
+                if (part === '[dir]') {
+                    return [...parts, ...(path.relative(outBase, path.dirname(filePath)) || '').split(path.sep)];
+                }
+                return [...parts, part];
+            }, /** @type {string[]} */ ([]))
+            .map((part) => {
+                if (part === '..') {
+                    return '_.._';
+                }
+                return part;
+            })
+            .filter((part) => part && part !== '.')
+            .join('/')
         }${path.extname(inputFile)}`;
     }
 
@@ -917,7 +921,7 @@ export class Build {
         return path.resolve(
             this.getWorkingDir(),
             this.getOutDir() || this.getSourceRoot(),
-            this.computeName(this.getOption(key) || '[dir]/[name]', filePath, buffer)
+            this.computeName(this.getOption(key) || (type === Build.ASSET ? '[name]-[hash]' : '[name]'), filePath, buffer)
         );
     }
 

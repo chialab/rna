@@ -16,6 +16,7 @@ describe('esbuild-plugin-meta-url', () => {
             },
             format: 'esm',
             outdir: 'out',
+            assetNames: '[name]',
             loader: {
                 '.txt': 'file',
             },
@@ -102,7 +103,7 @@ export const file = new URL(fileName, import.meta.url);`,
         });
 
         expect(result.text).to.be.equal(`// test.spec.js
-var file = new URL("./file.txt?hash=4e1243bd", import.meta.url);
+var file = new URL("./file-4e1243bd.txt?hash=4e1243bd", import.meta.url);
 export {
   file
 };
@@ -159,7 +160,7 @@ export {
 
         expect(result.text).to.be.equal(`(() => {
   var __currentScriptUrl__ = document.currentScript && document.currentScript.src || document.baseURI;
-  var file = new URL("./file.txt?hash=4e1243bd", __currentScriptUrl__);
+  var file = new URL("./file-4e1243bd.txt?hash=4e1243bd", __currentScriptUrl__);
 })();
 `);
         expect(file.text).to.be.equal('test\n');
@@ -211,7 +212,7 @@ __export(test_spec_exports, {
   file: () => file
 });
 module.exports = __toCommonJS(test_spec_exports);
-var file = new URL("./file.txt?hash=4e1243bd", "file://" + __filename);
+var file = new URL("./file-4e1243bd.txt?hash=4e1243bd", "file://" + __filename);
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   file
@@ -234,6 +235,7 @@ var file = new URL("./file.txt?hash=4e1243bd", "file://" + __filename);
             loader: {
                 '.txt': 'file',
             },
+            assetNames: '[name]',
             bundle: true,
             write: false,
             plugins: [
@@ -351,5 +353,37 @@ export {
   var file = new URL("data:text/plain;base64,dGVzdAo=");
 })();
 `);
+    });
+
+    it('should load a file outside and src into the dist folder', async () => {
+        const { outputFiles: [result, file] } = await esbuild.build({
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
+            stdin: {
+                resolveDir: fileURLToPath(new URL('src/', import.meta.url)),
+                sourcefile: fileURLToPath(new URL('src/index.js', import.meta.url)),
+                contents: 'export const file = new URL(\'../file.txt\', import.meta.url);',
+            },
+            format: 'esm',
+            outdir: 'out',
+            outbase: fileURLToPath(new URL('src/', import.meta.url)),
+            assetNames: '[dir]/[name]-[hash]',
+            loader: {
+                '.txt': 'file',
+            },
+            bundle: true,
+            write: false,
+            plugins: [
+                metaUrl(),
+            ],
+        });
+
+        expect(result.text).to.be.equal(`// src/index.js
+var file = new URL("./_.._/file-4e1243bd.txt?hash=4e1243bd", import.meta.url);
+export {
+  file
+};
+`);
+        expect(file.text).to.be.equal('test\n');
+        expect(path.join(path.dirname(result.path), '_.._')).to.be.equal(path.dirname(file.path));
     });
 });

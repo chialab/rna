@@ -119,8 +119,8 @@ export function getEntryConfig(entrypoint, config) {
         splitting: entrypoint.splitting ?? config.splitting,
         globalName: entrypoint.globalName || entrypoint.name || (format === 'iife' ? camelize(Array.isArray(entrypoint.input) ? entrypoint.input[0] : entrypoint.input) : undefined),
         entryNames: entrypoint.entryNames || config.entryNames || '[dir]/[name]',
-        chunkNames: entrypoint.chunkNames || config.chunkNames || '[dir]/[name]',
-        assetNames: entrypoint.assetNames || config.assetNames || '[dir]/[name]',
+        chunkNames: entrypoint.chunkNames || config.chunkNames || '[name]-[hash]',
+        assetNames: entrypoint.assetNames || config.assetNames || '[name]-[hash]',
         define: {
             ...(entrypoint.define || {}),
             ...(config.define || {}),

@@ -17,9 +17,6 @@
       "path": "../esbuild-plugin-commonjs"
     },
     {
-      "path": "../esbuild-plugin-define-this"
-    },
-    {
       "path": "../esbuild-plugin-env"
     },
     {

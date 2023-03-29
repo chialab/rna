@@ -828,7 +828,7 @@ export class Build {
             .replace('[name]', () => path.basename(inputFile, path.extname(inputFile)))
             .replace('[ext]', () => path.extname(inputFile))
             .replace('[hash]', () => this.hash(buffer))
-            .split(path.sep)
+            .split('/')
             .reduce((parts, part) => {
                 if (part === '[dir]') {
                     return [...parts, ...(path.relative(outBase, path.dirname(filePath)) || '').split(path.sep)];
@@ -842,7 +842,7 @@ export class Build {
                 return part;
             })
             .filter((part) => part && part !== '.')
-            .join(path.sep)
+            .join('/')
         }${path.extname(inputFile)}`;
     }
 

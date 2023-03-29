@@ -37,9 +37,6 @@
       "path": "./packages/esbuild-plugin-css-import"
     },
     {
-      "path": "./packages/esbuild-plugin-define-this"
-    },
-    {
       "path": "./packages/esbuild-plugin-env"
     },
     {

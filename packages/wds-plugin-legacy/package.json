@@ -42,7 +42,7 @@
     "@types/babel__core": "^7.1.14",
     "@types/babel__preset-env": "^7.9.1",
     "@types/browserslist-useragent": "^3.0.3",
-    "@web/dev-server-core": "^0.3.8",
+    "@web/dev-server-core": "^0.4.0",
     "typescript": "^4.3.0"
   }
 }

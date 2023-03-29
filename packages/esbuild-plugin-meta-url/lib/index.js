@@ -241,7 +241,6 @@ export default function({ emit = true } = {}) {
                                 }
                             }
 
-                            console.log('>', entryPoint, path.sep, entryPoint.split(path.sep).join('/'));
                             helpers.overwrite(startToken.start, endToken.end, `new URL('./${entryPoint.split(path.sep).join('/')}', ${baseUrl})`);
                             return;
                         }

@@ -9,7 +9,6 @@ import { HELPERS_PATH } from '@chialab/wds-plugin-node-resolve';
 import { TestRunner, TestRunnerCli } from '@web/test-runner-core';
 import { PlaywrightLauncher } from '@web/test-runner-playwright';
 import { loadDevServerConfig, createDevServer } from '@chialab/rna-dev-server';
-import { FRAMEWORK_ALIASES } from './frameworks.js';
 
 const require = createRequire(import.meta.url);
 
@@ -47,13 +46,7 @@ export { TestRunner };
  * @param {TestRunnerConfig} config
  */
 export async function startTestRunner(config) {
-    const devServerConfig = await loadDevServerConfig({
-        ...config,
-        alias: {
-            ...FRAMEWORK_ALIASES,
-            ...(config.alias || {}),
-        },
-    });
+    const devServerConfig = await loadDevServerConfig(config);
     const devServer = await createDevServer(devServerConfig);
 
     const testFramework =

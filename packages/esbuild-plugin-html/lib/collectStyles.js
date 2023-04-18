@@ -71,11 +71,12 @@ export async function collectStyles($, dom, options, helpers) {
 
         const fullOutName = path.join(options.workingDir, outName);
         const relativeOutName = path.relative(options.entryDir, fullOutName);
+        const { relativePath, publicPath } = helpers.resolvePath(relativeOutName);
 
         if ($(element).is('link')) {
-            $(element).attr('href', relativeOutName.split(path.sep).join('/'));
+            $(element).attr('href', publicPath);
         } else {
-            $(element).html(`@import '${relativeOutName.split(path.sep).join('/')}'`);
+            $(element).html(`@import '${relativePath}'`);
         }
     });
 

@@ -102,18 +102,19 @@ async function generateAppleIcons(image, icons) {
 export async function collectIcon($, element, icon, rel, shortcut, options, helpers) {
     const entryPoint = path.join(options.sourceDir, icon.name);
     const file = await helpers.emitFile(entryPoint, icon.contents);
+    const { publicPath } = helpers.resolvePath(file.path);
 
     if (icon.size === 196 && shortcut) {
         const link = $('<link>');
         link.attr('rel', 'shortcut icon');
-        link.attr('href', file.path.split(path.sep).join('/'));
+        link.attr('href', publicPath);
         link.insertBefore(element);
     }
 
     const link = $('<link>');
     link.attr('rel', rel);
     link.attr('sizes', `${icon.size}x${icon.size}`);
-    link.attr('href', file.path.split(path.sep).join('/'));
+    link.attr('href', publicPath);
     link.insertBefore(element);
 
     return {

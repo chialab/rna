@@ -39,6 +39,7 @@ const loadHtml = /** @type {typeof cheerio.load} */ (cheerio.load || cheerio.def
  * @property {(options: import('@chialab/esbuild-rna').EmitChunkOptions) => Promise<import('@chialab/esbuild-rna').Chunk>} emitChunk
  * @property {(options: import('@chialab/esbuild-rna').EmitBuildOptions) => Promise<import('@chialab/esbuild-rna').Result>} emitBuild
  * @property {(file: string) => Promise<import('esbuild').OnResolveResult>} resolve
+ * @property {(pathname: string) => Record<'publicPath' | 'relativePath', string>} resolvePath
  * @property {(file: string, options: Partial<import('esbuild').OnLoadArgs>) => Promise<import('esbuild').OnLoadResult | undefined>} load
  */
 
@@ -62,7 +63,7 @@ export default function({
         name: 'html',
         setup(pluginBuild) {
             const build = useRna(plugin, pluginBuild);
-            const { write = true } = build.getOptions();
+            const { write = true, publicPath = "" } = build.getOptions();
             const outDir = build.getOutDir();
             if (!outDir) {
                 throw new Error('Cannot use the html plugin without an outdir.');
@@ -194,6 +195,18 @@ export default function({
                     path,
                 });
 
+                /**
+                 * @param {string} pathname
+                 */
+               const resolvePath = (pathname) => {
+                const relativePath = pathname.split(path.sep).join("/")
+
+                return {
+                    relativePath,
+                    publicPath: publicPath ? `${publicPath}/${relativePath}` : relativePath
+                }
+               }
+
                 const collectOptions = {
                     sourceDir: path.dirname(args.path),
                     workingDir,
@@ -227,6 +240,7 @@ export default function({
                     emitChunk: build.emitChunk.bind(build),
                     emitBuild: build.emitBuild.bind(build),
                     resolve: resolveFile,
+                    resolvePath: resolvePath,
                     load: loadFile,
                 };
 

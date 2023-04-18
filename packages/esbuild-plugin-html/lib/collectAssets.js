@@ -1,4 +1,3 @@
-import path from 'path';
 import { isRelativeUrl } from '@chialab/node-resolve';
 
 /**
@@ -17,7 +16,8 @@ export async function collectAsset($, element, attribute, options, helpers) {
 
     const entryPoint = resolvedFile.path;
     const file = await helpers.emitFile(entryPoint);
-    element.attr(attribute, file.path.split(path.sep).join('/'));
+    const { publicPath } = helpers.resolvePath(file.path);
+    element.attr(attribute, publicPath);
 
     return {
         ...file,

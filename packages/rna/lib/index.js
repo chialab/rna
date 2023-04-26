@@ -49,7 +49,6 @@ const commands = {
     'test:browser': '@chialab/rna-browser-test-runner',
     'test:node': '@chialab/rna-node-test-runner',
     'test:saucelabs': '@chialab/rna-saucelabs-test-runner',
-    'apidoc': '@chialab/rna-apidoc',
 };
 
 const command = /** @type {keyof typeof commands} */ (argv[2]);

@@ -85,9 +85,6 @@
       "path": "./packages/rna"
     },
     {
-      "path": "./packages/rna-apidoc"
-    },
-    {
       "path": "./packages/rna-browser-test-runner"
     },
     {

@@ -97,7 +97,6 @@ export function command(program) {
                     jsxImportSource,
                     jsxFactory,
                     jsxFragment,
-                    metafile: metafilePath,
                     showCompressed,
                     watch,
                 } = options;

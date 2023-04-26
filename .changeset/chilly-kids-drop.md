@@ -30,7 +30,6 @@
 "@chialab/rna-node-test-runner": minor
 "@chialab/rna-saucelabs-test-runner": minor
 "@chialab/wds-plugin-hmr": minor
-"@chialab/wds-plugin-hmr-dna": minor
 "@chialab/wds-plugin-legacy": minor
 "@chialab/wds-plugin-node-resolve": minor
 "@chialab/wds-plugin-polyfill": minor

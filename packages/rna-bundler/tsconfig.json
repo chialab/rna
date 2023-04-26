@@ -17,6 +17,9 @@
       "path": "../esbuild-plugin-commonjs"
     },
     {
+      "path": "../esbuild-plugin-css-import"
+    },
+    {
       "path": "../esbuild-plugin-env"
     },
     {

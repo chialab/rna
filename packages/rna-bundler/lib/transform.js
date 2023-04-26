@@ -62,6 +62,9 @@ export async function transform(config) {
                     emit: false,
                 })),
         ...plugins,
+        !hasPlugin(plugins, 'css-import') &&
+            import('@chialab/esbuild-plugin-css-import')
+                .then(({ default: plugin }) => plugin()),
         !hasPlugin(plugins, 'any-file') &&
             import('@chialab/esbuild-plugin-any-file')
                 .then(({ default: plugin }) => plugin()),

@@ -1887,17 +1887,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@chialab/rna-apidoc@workspace:packages/rna-apidoc":
-  version: 0.0.0-use.local
-  resolution: "@chialab/rna-apidoc@workspace:packages/rna-apidoc"
-  dependencies:
-    "@chialab/rna-logger": ^0.17.0
-    commander: ^7.2.0
-    typedoc: ^0.21.5
-    typescript: ^4.3.0
-  languageName: unknown
-  linkType: soft
-
 "@chialab/rna-browser-test-runner@^0.17.1, @chialab/rna-browser-test-runner@workspace:packages/rna-browser-test-runner":
   version: 0.0.0-use.local
   resolution: "@chialab/rna-browser-test-runner@workspace:packages/rna-browser-test-runner"
@@ -2051,15 +2040,12 @@ __metadata:
     rimraf: ^3.0.2
     typescript: ^4.3.0
   peerDependencies:
-    "@chialab/rna-apidoc": ^0.17.0
     "@chialab/rna-browser-test-runner": ^0.17.1
     "@chialab/rna-bundler": ^0.17.5
     "@chialab/rna-dev-server": ^0.17.6
     "@chialab/rna-node-test-runner": ^0.17.0
     "@chialab/rna-saucelabs-test-runner": ^0.17.1
   peerDependenciesMeta:
-    "@chialab/rna-apidoc":
-      optional: true
     "@chialab/rna-browser-test-runner":
       optional: true
     "@chialab/rna-bundler":
@@ -7905,7 +7891,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"glob@npm:^7.1.3, glob@npm:^7.1.4, glob@npm:^7.1.7, glob@npm:^7.2.0":
+"glob@npm:^7.1.3, glob@npm:^7.1.4, glob@npm:^7.2.0":
   version: 7.2.3
   resolution: "glob@npm:7.2.3"
   dependencies:
@@ -8095,7 +8081,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"handlebars@npm:^4.4.3, handlebars@npm:^4.7.7":
+"handlebars@npm:^4.4.3":
   version: 4.7.7
   resolution: "handlebars@npm:4.7.7"
   dependencies:
@@ -10011,13 +9997,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lunr@npm:^2.3.9":
-  version: 2.3.9
-  resolution: "lunr@npm:2.3.9"
-  checksum: 176719e24fcce7d3cf1baccce9dd5633cd8bdc1f41ebe6a180112e5ee99d80373fe2454f5d4624d437e5a8319698ca6837b9950566e15d2cae5f2a543a3db4b8
-  languageName: node
-  linkType: hard
-
 "magic-string@npm:^0.25.7":
   version: 0.25.9
   resolution: "magic-string@npm:0.25.9"
@@ -10105,15 +10084,6 @@ __metadata:
   dependencies:
     object-visit: ^1.0.0
   checksum: c27045a5021c344fc19b9132eb30313e441863b2951029f8f8b66f79d3d8c1e7e5091578075a996f74e417479506fe9ede28c44ca7bc351a61c9d8073daec36a
-  languageName: node
-  linkType: hard
-
-"marked@npm:^4.0.10":
-  version: 4.3.0
-  resolution: "marked@npm:4.3.0"
-  bin:
-    marked: bin/marked.js
-  checksum: 0db6817893952c3ec710eb9ceafb8468bf5ae38cb0f92b7b083baa13d70b19774674be04db5b817681fa7c5c6a088f61300815e4dd75a59696f4716ad69f6260
   languageName: node
   linkType: hard
 
@@ -10289,7 +10259,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"minimatch@npm:^3.0.0, minimatch@npm:^3.0.4, minimatch@npm:^3.0.5, minimatch@npm:^3.1.1, minimatch@npm:^3.1.2":
+"minimatch@npm:^3.0.4, minimatch@npm:^3.0.5, minimatch@npm:^3.1.1, minimatch@npm:^3.1.2":
   version: 3.1.2
   resolution: "minimatch@npm:3.1.2"
   dependencies:
@@ -12431,7 +12401,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"progress@npm:2.0.3, progress@npm:^2.0.3":
+"progress@npm:2.0.3":
   version: 2.0.3
   resolution: "progress@npm:2.0.3"
   checksum: f67403fe7b34912148d9252cb7481266a354bd99ce82c835f79070643bb3c6583d10dbcfda4d41e04bbc1d8437e9af0fb1e1f2135727878f5308682a579429b7
@@ -13306,17 +13276,6 @@ __metadata:
   version: 3.0.0
   resolution: "shebang-regex@npm:3.0.0"
   checksum: 1a2bcae50de99034fcd92ad4212d8e01eedf52c7ec7830eedcf886622804fe36884278f2be8be0ea5fde3fd1c23911643a4e0f726c8685b61871c8908af01222
-  languageName: node
-  linkType: hard
-
-"shiki@npm:^0.9.8":
-  version: 0.9.15
-  resolution: "shiki@npm:0.9.15"
-  dependencies:
-    jsonc-parser: ^3.0.0
-    vscode-oniguruma: ^1.6.1
-    vscode-textmate: 5.2.0
-  checksum: 58d1e3e106320252b67c63dc1269c4b834152e9c675a06a4565ec41db1c93aea2dd94e22640d7ec99334cb47cd41b914642d936577143b689ef2a0db7d938c13
   languageName: node
   linkType: hard
 
@@ -14422,33 +14381,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typedoc-default-themes@npm:^0.12.10":
-  version: 0.12.10
-  resolution: "typedoc-default-themes@npm:0.12.10"
-  checksum: 4c19a0fecdf24777bd153c6ae4a4f2b23c95521a83483cdbee89aaeef985d7e37f2665b37d55f809ef36d0eb4433a921209dc45a1055791d81464bffeea77dfd
-  languageName: node
-  linkType: hard
-
-"typedoc@npm:^0.21.5":
-  version: 0.21.10
-  resolution: "typedoc@npm:0.21.10"
-  dependencies:
-    glob: ^7.1.7
-    handlebars: ^4.7.7
-    lunr: ^2.3.9
-    marked: ^4.0.10
-    minimatch: ^3.0.0
-    progress: ^2.0.3
-    shiki: ^0.9.8
-    typedoc-default-themes: ^0.12.10
-  peerDependencies:
-    typescript: 4.0.x || 4.1.x || 4.2.x || 4.3.x || 4.4.x
-  bin:
-    typedoc: bin/typedoc
-  checksum: b4f957ad4b3db9e83ecf030629ec45661c2080ab6b91df0a9af6aeb889ade3c5d54b6169cf0db67a6dbc563c3f7cd972c5525aa605c628c51a59175195281f96
-  languageName: node
-  linkType: hard
-
 "typescript@npm:^4.3.0":
   version: 4.9.5
   resolution: "typescript@npm:4.9.5"
@@ -14793,20 +14725,6 @@ __metadata:
     core-util-is: 1.0.2
     extsprintf: ^1.2.0
   checksum: c431df0bedf2088b227a4e051e0ff4ca54df2c114096b0c01e1cbaadb021c30a04d7dd5b41ab277bcd51246ca135bf931d4c4c796ecae7a4fef6d744ecef36ea
-  languageName: node
-  linkType: hard
-
-"vscode-oniguruma@npm:^1.6.1":
-  version: 1.7.0
-  resolution: "vscode-oniguruma@npm:1.7.0"
-  checksum: 53519d91d90593e6fb080260892e87d447e9b200c4964d766772b5053f5699066539d92100f77f1302c91e8fc5d9c772fbe40fe4c90f3d411a96d5a9b1e63f42
-  languageName: node
-  linkType: hard
-
-"vscode-textmate@npm:5.2.0":
-  version: 5.2.0
-  resolution: "vscode-textmate@npm:5.2.0"
-  checksum: 5449b42d451080f6f3649b66948f4b5ee4643c4e88cfe3558a3b31c84c78060cfdd288c4958c1690eaa5cd65d09992fa6b7c3bef9d4aa72b3651054a04624d20
   languageName: node
   linkType: hard
 

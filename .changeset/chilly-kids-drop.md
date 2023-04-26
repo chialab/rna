@@ -21,7 +21,6 @@
 "@chialab/postcss-preset-chialab": minor
 "@chialab/postcss-url-rebase": minor
 "@chialab/rna": minor
-"@chialab/rna-apidoc": minor
 "@chialab/rna-browser-test-runner": minor
 "@chialab/rna-bundler": minor
 "@chialab/rna-config-loader": minor

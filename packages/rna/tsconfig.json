@@ -14,9 +14,6 @@
       "path": "../rna-logger"
     },
     {
-      "path": "../rna-apidoc"
-    },
-    {
       "path": "../rna-browser-test-runner"
     },
     {

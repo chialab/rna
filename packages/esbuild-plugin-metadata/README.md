@@ -18,8 +18,20 @@ $ yarn add @chialab/esbuild-plugin-metadata -D
 ## Usage
 
 ```js
-import '@chialab/esbuild-plugin-metadata';
+import esbuild from 'esbuild';
+import metadataPlugin from '@chialab/esbuild-plugin-metadata';
 
+await esbuild.build({
+    plugins: [
+        metadataPlugin({
+            entrypoints: {
+                metafilePath: 'build/metafile.json',
+                manifestPath: 'build/manifest.json',
+                entrypointsPath: 'build/entrypoints.json',
+            },
+        }),
+    ],
+});
 ```
 
 ---

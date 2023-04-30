@@ -1690,7 +1690,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@chialab/esbuild-plugin-css-import@^0.17.0, @chialab/esbuild-plugin-css-import@^0.17.1, @chialab/esbuild-plugin-css-import@workspace:packages/esbuild-plugin-css-import":
+"@chialab/esbuild-plugin-css-import@^0.17.0, @chialab/esbuild-plugin-css-import@workspace:packages/esbuild-plugin-css-import":
   version: 0.0.0-use.local
   resolution: "@chialab/esbuild-plugin-css-import@workspace:packages/esbuild-plugin-css-import"
   dependencies:
@@ -1765,7 +1765,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@chialab/esbuild-plugin-postcss@workspace:packages/esbuild-plugin-postcss"
   dependencies:
-    "@chialab/esbuild-plugin-css-import": ^0.17.1
     "@chialab/esbuild-rna": ^0.17.0
     "@chialab/postcss-dart-sass": ^0.17.0
     "@types/postcss-preset-env": ^7.7.0

@@ -26,6 +26,9 @@
       "path": "../esbuild-plugin-html"
     },
     {
+      "path": "../esbuild-plugin-lightningcss"
+    },
+    {
       "path": "../esbuild-plugin-meta-url"
     },
     {
@@ -42,9 +45,6 @@
     },
     {
       "path": "../rna-logger"
-    },
-    {
-      "path": "../esbuild-plugin-postcss"
     },
     {
       "path": "../esbuild-plugin-postcss"

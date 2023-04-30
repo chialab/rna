@@ -137,7 +137,7 @@ export function command(program) {
                 /**
                  * @type {import('@chialab/rna-config-loader').ProjectConfig}
                  */
-                const userConfig = mergeConfig({ format: 'esm' }, configFile ? await readConfigFile(configFile, inputConfig, 'build') : {}, inputConfig, input && input.length ? {
+                const config = mergeConfig({ format: 'esm' }, configFile ? await readConfigFile(configFile, inputConfig, 'build') : {}, inputConfig, input && input.length ? {
                     entrypoints: [{
                         input: input.map((entry) => path.resolve(entry)),
                         output: path.resolve(output),
@@ -145,23 +145,6 @@ export function command(program) {
                     }],
                     ...inputConfig,
                 } : {});
-
-                /**
-                 * @type {import('@chialab/rna-config-loader').ProjectConfig}
-                 */
-                const config = mergeConfig(userConfig, {
-                    plugins: [
-                        ...await Promise.all([
-                            import('@chialab/esbuild-plugin-html')
-                                .then(({ default: plugin }) => plugin({
-                                    modulesTarget: userConfig.target || 'es2020',
-                                })),
-                            import('@chialab/esbuild-plugin-postcss')
-                                .then(({ default: plugin }) => plugin())
-                                .catch(() => ({ name: 'postcss', setup() { } })),
-                        ]),
-                    ],
-                });
 
                 const { entrypoints } = config;
 

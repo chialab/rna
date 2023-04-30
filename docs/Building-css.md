@@ -4,11 +4,11 @@ Unless you are using syntaxes like Sass and Less, CSS builds are less expansive 
 
 ## Setup
 
-Even if [esbuild](https://esbuild.github.io/) has out of the box support for CSS files, in order to bundle a CSS module using RNA you may have to install the bundler package along with the postcss plugin for node modules resolution:
+Even if [esbuild](https://esbuild.github.io/) has out of the box support for CSS files, in order to bundle a CSS module using RNA you may have to install the bundler package along with the Lightning CSS plugin:
 
 ```sh
-$ npm i -D @chialab/rna @chialab/rna-bundler @chialab/esbuild-plugin-postcss
-$ yarn add -D @chialab/rna @chialab/rna-bundler @chialab/esbuild-plugin-postcss
+$ npm i -D @chialab/rna @chialab/rna-bundler
+$ yarn add -D @chialab/rna @chialab/rna-bundler
 ```
 
 and run:
@@ -38,30 +38,10 @@ You may also want to import CSS libraries like bootstap, materialize or normaliz
 @import url('jquery');              /* 🤕 */
 ```
 
-## PostCSS
+## Lightning CSS
 
-[PostCSS](https://postcss.org/) is postprocessor for style files. It parses CSS files and, using various plugins, can modify the AST and generate a brand new CSS file. It is widely used in the ecosystem thanks to its ability to convert modern syntax for legacy browsers, often using the autoprefixer plugin for beta features.
+[Lightning CSS](https://lightningcss.dev/) is postprocessor for style files. It parses CSS files and, using various plugins, can modify the AST and generate a brand new CSS file. It is widely used in the ecosystem thanks to its ability to convert modern syntax for legacy browsers, often using the autoprefixer plugin for beta features.
 
-RNA already uses it to convert dependencies imports to relative references in order to collect them via esbuild. You can configure your build using a [PostCSS configuration](https://github.com/postcss/postcss-load-config) in your project and installing the plugins you need. RNA will automatically load it when required.
-
-### Chialab PostCSS Preset
-
-We built a [custom PostCSS preset](https://www.npmjs.com/package/@chialab/postcss-preset-chialab) with common rules we use in every project.  
-You can install it using npm  or yarn:
-
-```sh
-$ npm i @chialab/postcss-preset-chialab -D
-```
-
-And creating or updating tghe postcss config file:
-
-```json
-{
-    "plugins": {
-        "@chialab/postcss-preset-chialab": {}
-    }
-}
-```
 
 ---
 

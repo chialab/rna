@@ -1,6 +1,5 @@
 import path from 'path';
 import { useRna } from '@chialab/esbuild-rna';
-import cssImport from '@chialab/esbuild-plugin-css-import';
 
 const DEFAULT_TARGETS = [
     'chrome 63',
@@ -30,7 +29,6 @@ export default function(options = {}) {
         async setup(pluginBuild) {
             const build = useRna(plugin, pluginBuild);
             const { absWorkingDir, target } = build.getOptions();
-            build.setupPlugin([cssImport()], 'before');
 
             const targets = (target ? (Array.isArray(target) ? target : [target]) : [])
                 .filter((target) => target !== 'esnext' && !target.match(/^es\d/))

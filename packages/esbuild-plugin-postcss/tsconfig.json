@@ -11,13 +11,7 @@
   ],
   "references": [
     {
-      "path": "../esbuild-plugin-css-import"
-    },
-    {
       "path": "../esbuild-rna"
-    },
-    {
-      "path": "../postcss-dart-sass"
     },
     {
       "path": "../postcss-dart-sass"

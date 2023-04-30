@@ -1,6 +1,5 @@
 import path from 'path';
 import { useRna } from '@chialab/esbuild-rna';
-import cssImport from '@chialab/esbuild-plugin-css-import';
 import postcssrc from 'postcss-load-config';
 
 /**
@@ -47,8 +46,6 @@ export default function(options = {}) {
             const build = useRna(plugin, pluginBuild);
             const { sourcemap = true, absWorkingDir, target } = build.getOptions();
             const config = await loadPostcssConfig(build.getSourceRoot());
-
-            await build.setupPlugin([cssImport()]);
 
             const cache = new Map();
             build.onStart(() => {

@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'url';
 import esbuild from 'esbuild';
 import lightningcssPlugin from '@chialab/esbuild-plugin-lightningcss';
 import { expect } from 'chai';
@@ -5,9 +6,10 @@ import { expect } from 'chai';
 describe('esbuild-plugin-lightningcss', () => {
     it('should run lightningcss default transformations', async () => {
         const { outputFiles: [result] } = await esbuild.build({
-            absWorkingDir: new URL('.', import.meta.url).pathname,
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
-                sourcefile: new URL('input.css', import.meta.url).pathname,
+                resolveDir: fileURLToPath(new URL('.', import.meta.url)),
+                sourcefile: fileURLToPath(new URL('input.css', import.meta.url)),
                 contents: `::placeholder {
   color: gray;
 }`,

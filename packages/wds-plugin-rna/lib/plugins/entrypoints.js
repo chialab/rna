@@ -7,7 +7,7 @@ import { generateEntrypointsJson } from '@chialab/esbuild-plugin-metadata';
  * @param {string[]} entrypoints The build entrypoints.
  * @param {string} outputFile The output file or dir.
  * @param {import('@web/dev-server-core').ServerStartParams} server The server instance.
- * @param {{ [ext: string]: import('esbuild').Loader }} loaders The build loaders.
+ * @param {Record<string, import('esbuild').Loader>} loaders The build loaders.
  * @param {import('esbuild').Format} format The output format.
  */
 export async function writeDevEntrypointsJson(entrypoints, outputFile, server, loaders, format) {
@@ -36,7 +36,7 @@ export async function writeDevEntrypointsJson(entrypoints, outputFile, server, l
 }
 
 /**
- * @typedef {{ entrypoints: import('@chialab/rna-config-loader').EntrypointConfig[]; loaders?: { [ext: string]: import('esbuild').Loader } }} EntrypointPluginOptions
+ * @typedef {{ entrypoints: import('@chialab/rna-config-loader').EntrypointConfig[]; loaders?: Record<string, import('esbuild').Loader> }} EntrypointPluginOptions
  */
 
 /**

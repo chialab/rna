@@ -1,12 +1,31 @@
 import path from 'path';
 import { walk, parse, TokenType, getIdentifierValue, getBlock, splitArgs } from '@chialab/estransform';
-import { appendSearchParam } from '@chialab/node-resolve';
+import { appendSearchParam, getSearchParam } from '@chialab/node-resolve';
 import metaUrlPlugin from '@chialab/esbuild-plugin-meta-url';
 import { useRna } from '@chialab/esbuild-rna';
 
 /**
  * @typedef {{ constructors?: string[], proxy?: boolean, emit?: boolean }} PluginOptions
  */
+
+/**
+ * Create a blob proxy worker code.
+ * @param {string} argument The url reference.
+ * @param {import('@chialab/esbuild-rna').BuildOptions} transformOptions The transform options for the url.
+ * @param {boolean} [checkType] Should check argument type.
+ */
+function createBlobProxy(argument, transformOptions, checkType = false) {
+    const createUrlFn = `(function(path) {
+    const url = new URL(path);
+    url.searchParams.set('transform', '${JSON.stringify(transformOptions)}');
+    return url.href;
+})`;
+    const blobContent = transformOptions.format === 'esm' ?
+        `'import "' + ${createUrlFn}(${argument}) + '";'` :
+        `'importScripts("' + ${createUrlFn}(${argument}) + '");'`;
+
+    return `${checkType ? `typeof ${argument} !== 'string' ? ${argument} : ` : ''}URL.createObjectURL(new Blob([${blobContent}], { type: 'text/javascript' }))`;
+}
 
 /**
  * Instantiate a plugin that collect and builds Web Workers.
@@ -40,6 +59,11 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                 }
 
                 /**
+                 * @type {Promise<void>[]}
+                 */
+                const promises = [];
+
+                /**
                  * @type {Set<string>}
                  */
                 const redefined = new Set();
@@ -56,11 +80,6 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                         }
                     }
                 });
-
-                /**
-                 * @type {import('esbuild').Message[]}
-                 */
-                const warnings = [];
 
                 await walk(processor, (token) => {
                     if (token.type !== TokenType._new) {
@@ -92,11 +111,7 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
 
                     const startToken = firstArg[0];
                     const endToken = firstArg[firstArg.length - 1];
-
-                    /**
-                     * @type {*}
-                     */
-                    let reference;
+                    let reference = startToken;
                     if (startToken.type === TokenType._new
                         && firstArg[1].type === TokenType.name
                         && processor.identifierNameForToken(firstArg[1]) === 'URL'
@@ -125,8 +140,12 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                         reference = startToken;
                     }
 
-                    const isStringLiteral = reference && reference.type === TokenType.string;
-                    const isIdentifier = reference && reference.type === TokenType.name;
+                    if (!reference) {
+                        return;
+                    }
+
+                    const isStringLiteral = reference.type === TokenType.string;
+                    const isIdentifier = reference.type === TokenType.name;
                     if (!isStringLiteral && !isIdentifier && !proxy) {
                         return;
                     }
@@ -164,48 +183,68 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
 
                     if (typeof value !== 'string') {
                         if (proxy) {
-                            const arg = code.substring(startToken.start, endToken.end);
-                            const createUrlFn = `(function(path) {
-                                const url = new URL(path);
-                                url.searchParams.set('transform', '${JSON.stringify(transformOptions)}');
-                                return url.href;
-                            })`;
-                            const blobContent = transformOptions.format === 'esm' ?
-                                `'import "' + ${createUrlFn}(${arg}) + '";'` :
-                                `'importScripts("' + ${createUrlFn}(${arg}) + '");'`;
-
-                            helpers.overwrite(startToken.start, endToken.end, `typeof ${arg} !== 'string' ? ${arg} : URL.createObjectURL(new Blob([${blobContent}], { type: 'text/javascript' }))`);
+                            const arg = code.substring(firstArg[0].start, firstArg[firstArg.length - 1].end);
+                            helpers.overwrite(firstArg[0].start, firstArg[firstArg.length - 1].end, createBlobProxy(arg, transformOptions, true));
                         }
                         return;
                     }
 
-                    const entrypoint = `new URL('${appendSearchParam(value, 'transform', JSON.stringify(transformOptions))}', import.meta.url)`;
-                    if (proxy) {
-                        const blobContent = transformOptions.format === 'esm' ?
-                            `'import "' + ${entrypoint} + '";'` :
-                            `'importScripts("' + ${entrypoint} + '");'`;
-
-                        helpers.overwrite(startToken.start, endToken.end, `URL.createObjectURL(new Blob([${blobContent}], { type: 'text/javascript' }))`);
-                    } else {
-                        helpers.overwrite(startToken.start, endToken.end, entrypoint);
+                    const id = getSearchParam(value, 'hash');
+                    if (id && build.isEmittedPath(id)) {
+                        return;
                     }
+
+                    promises.push(Promise.resolve().then(async () => {
+                        const { path: resolvedPath, external } = await build.resolve(value, {
+                            kind: 'dynamic-import',
+                            importer: args.path,
+                            namespace: 'file',
+                            resolveDir: path.dirname(args.path),
+                            pluginData: null,
+                        });
+
+                        if (!resolvedPath || external) {
+                            return;
+                        }
+
+                        let emittedChunk;
+                        let entryPoint = path.relative(path.dirname(args.path), resolvedPath);
+                        if (emit) {
+                            emittedChunk = await build.emitChunk({
+                                ...transformOptions,
+                                path: resolvedPath,
+                                write: format !== 'iife' || !bundle,
+                            });
+                            entryPoint = appendSearchParam(emittedChunk.path, 'hash', emittedChunk.id);
+                        }
+
+                        if (emittedChunk && format === 'iife' && bundle) {
+                            const { outputFiles } = emittedChunk;
+                            if (outputFiles) {
+                                const base64 = Buffer.from(outputFiles[0].contents).toString('base64');
+                                helpers.overwrite(startToken.start, endToken.end, `new URL('data:text/javascript;base64,${base64}')`);
+                            }
+                        } else {
+                            const arg = `new URL('./${entryPoint}', import.meta.url).href`;
+                            if (proxy) {
+                                helpers.overwrite(firstArg[0].start, firstArg[firstArg.length - 1].end, createBlobProxy(arg, transformOptions, false));
+                            } else {
+                                helpers.overwrite(firstArg[0].start, firstArg[firstArg.length - 1].end, arg);
+                            }
+                        }
+                    }));
                 });
 
+                await Promise.all(promises);
+
                 if (!helpers.isDirty()) {
-                    return {
-                        warnings,
-                    };
+                    return;
                 }
 
-                const transformResult = await helpers.generate({
+                return helpers.generate({
                     sourcemap: !!sourcemap,
                     sourcesContent,
                 });
-
-                return {
-                    ...transformResult,
-                    warnings,
-                };
             });
 
             await build.setupPlugin([metaUrlPlugin({ emit })], 'after');

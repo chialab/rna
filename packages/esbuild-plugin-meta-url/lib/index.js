@@ -1,6 +1,6 @@
 import path from 'path';
 import mime from 'mime-types';
-import { appendSearchParam, getSearchParam, isUrl, removeSearchParam } from '@chialab/node-resolve';
+import { appendSearchParam, getSearchParam, isUrl } from '@chialab/node-resolve';
 import { parse, walk, getIdentifierValue, getBlock, getLocation, TokenType } from '@chialab/estransform';
 import { useRna } from '@chialab/esbuild-rna';
 
@@ -181,12 +181,8 @@ export default function({ emit = true } = {}) {
                             let entryPoint;
                             if (emit && !isIIFE) {
                                 if (isChunk) {
-                                    const transformOptions = JSON.parse(getSearchParam(value, 'transform') || '{}');
-                                    const chunk = await build.emitChunk({
-                                        ...transformOptions,
-                                        path: resolvedPath,
-                                    });
-                                    entryPoint = appendSearchParam(removeSearchParam(chunk.path, 'transform'), 'hash', chunk.id);
+                                    const chunk = await build.emitChunk({ path: resolvedPath });
+                                    entryPoint = appendSearchParam(chunk.path, 'hash', chunk.id);
                                 } else {
                                     const file = await build.emitFile(resolvedPath);
                                     entryPoint = appendSearchParam(file.path, 'hash', file.id);

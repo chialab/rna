@@ -4,7 +4,7 @@ import { mkdir, writeFile } from 'fs/promises';
 /**
  * Map build entrypoints to entrypoints.json
  * @param {string[]} entrypoints The build entrypoints.
- * @param {{ [ext: string]: import('esbuild').Loader }} loaders The build loaders.
+ * @param {Record<string, import('esbuild').Loader>} loaders The build loaders.
  * @param {import('esbuild').Format} format The output format.
  * @param {(entrypoint: string) => string} resolve The resolution callback for the endpoint.
  */
@@ -43,7 +43,7 @@ export function generateEntrypointsJson(entrypoints, loaders, format = 'esm', re
  * @param {string} rootDir The root dir.
  * @param {string} outputFile The output file or dir.
  * @param {string} publicPath The public path.
- * @param {{ [ext: string]: import('esbuild').Loader }} loaders The build loaders.
+ * @param {Record<string, import('esbuild').Loader>} loaders The build loaders.
  * @param {import('esbuild').Format} format The output format.
  */
 export async function writeEntrypointsJson(entrypoints, result, rootDir, outputFile, publicPath, loaders, format) {

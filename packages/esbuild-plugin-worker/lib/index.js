@@ -1,5 +1,5 @@
 import path from 'path';
-import { walk, parse, TokenType, getIdentifierValue, getBlock, splitArgs } from '@chialab/estransform';
+import { walk, parse, TokenType, getIdentifierValue, getLocation, getBlock, splitArgs } from '@chialab/estransform';
 import { appendSearchParam, getSearchParam } from '@chialab/node-resolve';
 import metaUrlPlugin from '@chialab/esbuild-plugin-meta-url';
 import { useRna } from '@chialab/esbuild-rna';
@@ -67,7 +67,6 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                  * @type {Set<string>}
                  */
                 const redefined = new Set();
-
                 const { helpers, processor } = await parse(code, path.relative(workingDir, args.path));
                 await walk(processor, (token) => {
                     if (token.type === TokenType._class) {
@@ -80,6 +79,11 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                         }
                     }
                 });
+
+                /**
+                 * @type {import('esbuild').Message[]}
+                 */
+                const warnings = [];
 
                 await walk(processor, (token) => {
                     if (token.type !== TokenType._new) {
@@ -203,7 +207,27 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                             pluginData: null,
                         });
 
-                        if (!resolvedPath || external) {
+                        if (external) {
+                            return;
+                        }
+
+                        if (!resolvedPath) {
+                            const location = getLocation(code, startToken.start);
+                            warnings.push({
+                                id: 'worker-reference-not-found',
+                                pluginName: 'worker',
+                                text: `Unable to resolve '${value}' file.`,
+                                location: {
+                                    file: args.path,
+                                    namespace: args.namespace,
+                                    ...location,
+                                    length: endToken.end - startToken.start,
+                                    lineText: code.split('\n')[location.line - 1],
+                                    suggestion: '',
+                                },
+                                notes: [],
+                                detail: '',
+                            });
                             return;
                         }
 
@@ -238,13 +262,20 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                 await Promise.all(promises);
 
                 if (!helpers.isDirty()) {
-                    return;
+                    return {
+                        warnings,
+                    };
                 }
 
-                return helpers.generate({
+                const transformResult = await helpers.generate({
                     sourcemap: !!sourcemap,
                     sourcesContent,
                 });
+
+                return {
+                    ...transformResult,
+                    warnings,
+                };
             });
 
             await build.setupPlugin([metaUrlPlugin({ emit })], 'after');

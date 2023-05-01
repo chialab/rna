@@ -11,12 +11,16 @@ export default function() {
     const plugin = {
         name: 'css-import',
         setup(build) {
-            const { external = [] } = build.initialOptions;
+            const { external = [], packages } = build.initialOptions;
 
             build.onResolve({ filter: /./ }, async (args) => {
                 // Handle @import and @url css statements.
                 if (args.kind !== 'import-rule' &&
                     args.kind !== 'url-token') {
+                    return;
+                }
+
+                if (packages === 'external') {
                     return;
                 }
 

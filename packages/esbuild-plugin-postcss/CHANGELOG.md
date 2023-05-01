@@ -1,6 +1,6 @@
 # @chialab/esbuild-plugin-postcss
 
-## 1.0.0-alpha.0
+## 0.18.0-alpha.0
 
 ### Minor Changes
 

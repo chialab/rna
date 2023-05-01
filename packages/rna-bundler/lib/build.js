@@ -166,6 +166,8 @@ export async function build(config) {
     const result = /** @type {import('@chialab/esbuild-rna').Result} */ (await context.rebuild());
     if (watch) {
         await context.watch();
+    } else {
+        await context.dispose();
     }
 
     return {

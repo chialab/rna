@@ -2,7 +2,7 @@ import os from 'os';
 import path from 'path';
 import { colors, createLogger, readableSize } from '@chialab/rna-logger';
 import { getEntryBuildConfig, mergeConfig, readConfigFile, locateConfigFile } from '@chialab/rna-config-loader';
-import { assignToResult, createResult, remapResult } from '@chialab/esbuild-rna';
+import { assignToResult, createResult, remapResult, useRna } from '@chialab/esbuild-rna';
 import { build } from './build.js';
 import { Queue } from './Queue.js';
 import { bundleSize } from './bundleSize.js';
@@ -147,48 +147,15 @@ export function command(program) {
                 } : {});
 
                 const { entrypoints } = config;
-
                 if (!entrypoints) {
                     throw new Error('Missing entrypoints.');
                 }
 
-                const queue = new Queue();
-                const cwd = process.cwd();
-                for (let i = 0; i < entrypoints.length; i++) {
-                    const entrypoint = entrypoints[i];
-                    queue.add(async () => {
-                        const buildConfig = getEntryBuildConfig(entrypoint, {
-                            ...config,
-                            plugins: [
-                                ...(config.plugins || []),
-                                {
-                                    name: 'rna-logger',
-                                    setup(build) {
-                                        build.onEnd(async (result) => {
-                                            if (result) {
-                                                if (cwd !== buildDir) {
-                                                    result = remapResult(/** @type {import('@chialab/esbuild-rna').Result} */(result), buildDir, cwd);
-                                                }
-                                                buildResults[i] = result;
-                                                await onBuildEnd(true);
-                                            }
-                                        });
-                                    },
-                                },
-                            ],
-                        });
-                        const buildDir = buildConfig.root || process.cwd();
-                        const result = await build(buildConfig);
-                        if (cwd !== buildDir) {
-                            return remapResult(result, buildDir, cwd);
-                        }
-                        return result;
-                    });
-                }
-
+                /**
+                 * @type {import('esbuild').BuildResult[]}
+                 */
+                const buildResults = [];
                 const buildResult = createResult();
-                const buildResults = await queue.run(Math.max(1, os.cpus().length / 2));
-
                 /**
                  * @param {boolean} [rebuild]
                  */
@@ -212,6 +179,52 @@ Build completed!
                         logger.log('Empty bundle.');
                     }
                 };
+
+                const queue = new Queue();
+                const cwd = process.cwd();
+                for (let i = 0; i < entrypoints.length; i++) {
+                    const entrypoint = entrypoints[i];
+                    queue.add(async () => {
+                        /**
+                         * @type {import('esbuild').Plugin}
+                         */
+                        const plugin = {
+                            name: 'rna-logger',
+                            setup(pluginBuild) {
+                                const build = useRna(plugin, pluginBuild);
+
+                                if (!build.isChunk()) {
+                                    build.onEnd(async (result) => {
+                                        if (cwd !== buildDir) {
+                                            result = remapResult(/** @type {import('@chialab/esbuild-rna').Result} */(result), buildDir, cwd);
+                                        }
+                                        if (buildResults[i]) {
+                                            buildResults[i] = result;
+                                            await onBuildEnd(true);
+                                        } else {
+                                            buildResults[i] = result;
+                                        }
+                                    });
+                                }
+                            },
+                        };
+                        const buildConfig = getEntryBuildConfig(entrypoint, {
+                            ...config,
+                            plugins: [
+                                ...(config.plugins || []),
+                                plugin,
+                            ],
+                        });
+                        const buildDir = buildConfig.root || process.cwd();
+                        const result = await build(buildConfig);
+                        if (cwd !== buildDir) {
+                            return remapResult(result, buildDir, cwd);
+                        }
+                        return result;
+                    });
+                }
+
+                await queue.run(Math.max(1, os.cpus().length / 2));
 
                 onBuildEnd();
             }

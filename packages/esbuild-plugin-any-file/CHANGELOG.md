@@ -1,5 +1,16 @@
 # @chialab/esbuild-plugin-any-file
 
+## 0.18.0-alpha.0
+
+### Minor Changes
+
+- 6457004: Bump to v0.18.0
+
+### Patch Changes
+
+- Updated dependencies [6457004]
+  - @chialab/esbuild-rna@0.18.0-alpha.0
+
 ## 0.17.1
 
 ### Patch Changes

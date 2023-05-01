@@ -1,7 +1,7 @@
 {
   "name": "@chialab/wds-plugin-hmr",
   "type": "module",
-  "version": "0.17.1",
+  "version": "0.18.0-alpha.0",
   "description": "Enable ES modules and CSS hot module replacement for the web dev server.",
   "main": "dist/index.js",
   "typings": "./types/index.d.ts",
@@ -33,10 +33,10 @@
     "node": ">=13"
   },
   "dependencies": {
-    "@chialab/es-dev-server": "^0.17.0"
+    "@chialab/es-dev-server": "^0.18.0-alpha.0"
   },
   "devDependencies": {
-    "@chialab/esbuild-plugin-require-resolve": "^0.17.1",
+    "@chialab/esbuild-plugin-require-resolve": "^0.18.0-alpha.0",
     "@web/dev-server-hmr": "^0.1.8",
     "rimraf": "^3.0.2",
     "typescript": "^4.3.0"

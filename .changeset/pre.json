@@ -41,5 +41,11 @@
     "@chialab/wtr-coverage-reporter": "0.17.0",
     "@chialab/wtr-mocha-reporter": "0.17.1"
   },
-  "changesets": []
+  "changesets": [
+    "chilly-kids-drop",
+    "many-lions-wait",
+    "orange-dingos-repeat",
+    "seven-apples-occur",
+    "small-knives-deliver"
+  ]
 }

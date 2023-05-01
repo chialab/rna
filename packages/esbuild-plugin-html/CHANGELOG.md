@@ -1,5 +1,17 @@
 # @chialab/esbuild-plugin-html
 
+## 0.18.0-alpha.0
+
+### Minor Changes
+
+- 6457004: Bump to v0.18.0
+
+### Patch Changes
+
+- Updated dependencies [6457004]
+- Updated dependencies [dcf1f06]
+  - @chialab/esbuild-rna@0.18.0-alpha.0
+  - @chialab/node-resolve@0.18.0-alpha.0
 ## 0.17.3
 
 ### Patch Changes
@@ -9,7 +21,7 @@
 - Updated dependencies [40d88a19]
 - Updated dependencies [547a33c4]
   - @chialab/node-resolve@0.17.1
-  - @chialab/esbuild-rna@0.17.8
+  - @chialab/esbuild-rna@0.17.8 1bd8a07 (Version Package)
 
 ## 0.17.2
 

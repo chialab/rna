@@ -233,7 +233,7 @@ export {
     });
 
     it('should detect local Worker definitions', async () => {
-        const { outputFiles: [result, ...workers] } = await esbuild.build({
+        const { outputFiles: [result, worker] } = await esbuild.build({
             absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
                 resolveDir: fileURLToPath(new URL('.', import.meta.url)),
@@ -261,7 +261,6 @@ export {
   worker
 };
 `);
-        const worker = workers.find((output) => output.path.endsWith('worker-iife.js'));
         expect(worker.text).to.be.equal(`"use strict";
 (() => {
   // lib.worker.js

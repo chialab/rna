@@ -11,7 +11,7 @@
 - Updated dependencies [6457004]
 - Updated dependencies [dcf1f06]
   - @chialab/node-resolve@0.18.0-alpha.0
-  - @chialab/rna-browser-test-runner@1.0.0-alpha.0
+  - @chialab/rna-browser-test-runner@0.18.0-alpha.0
   - @chialab/rna-config-loader@0.18.0-alpha.0
   - @chialab/rna-logger@0.18.0-alpha.0
   - @chialab/wds-plugin-legacy@0.18.0-alpha.0

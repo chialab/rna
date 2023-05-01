@@ -1,6 +1,6 @@
 # @chialab/rna
 
-## 1.0.0-alpha.0
+## 0.18.0-alpha.0
 
 ### Minor Changes
 
@@ -12,9 +12,9 @@
 - Updated dependencies [9338ba1]
 - Updated dependencies [acf3afd]
 - Updated dependencies [d53a73a]
-  - @chialab/rna-browser-test-runner@1.0.0-alpha.0
+  - @chialab/rna-browser-test-runner@0.18.0-alpha.0
   - @chialab/rna-bundler@0.18.0-alpha.0
-  - @chialab/rna-dev-server@1.0.0-alpha.0
+  - @chialab/rna-dev-server@0.18.0-alpha.0
   - @chialab/rna-logger@0.18.0-alpha.0
   - @chialab/rna-node-test-runner@0.18.0-alpha.0
   - @chialab/rna-saucelabs-test-runner@0.18.0-alpha.0

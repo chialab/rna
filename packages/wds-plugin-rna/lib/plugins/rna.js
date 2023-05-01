@@ -188,7 +188,7 @@ export function rnaPlugin(config) {
     const virtualFs = {};
 
     /**
-     * @type {import('@chialab/esbuild-rna').DependenciesMap}
+     * @type {Record<string, string[]>}
      */
     const dependenciesMap = {};
 

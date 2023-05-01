@@ -44,7 +44,7 @@ export function createResult(outputFiles, metafile = createEmptyMetafile()) {
  * that collects all inputs and outputs references, errors and warnings.
  * This is useful when running multiple builds in separated process.
  * @param {import('./Build.js').Result} context
- * @param {import('./Build.js').Result} result
+ * @param {import('esbuild').BuildResult & { dependencies?: Record<string, string[]> }} result
  */
 export function assignToResult(context, result) {
     context.errors.push(...result.errors);
@@ -68,17 +68,19 @@ export function assignToResult(context, result) {
     };
 
     /**
-     * @type {import('./Build.js').DependenciesMap}
+     * @type {Record<string, string[]>}
      */
     const dependencies = context.dependencies = context.dependencies || {};
-    for (const out of Object.entries(result.dependencies)) {
-        const entryPoint = out[0];
-        const list = dependencies[entryPoint] = dependencies[entryPoint] || [];
-        out[1].forEach((dep) => {
-            if (!list.includes(dep)) {
-                list.push(dep);
-            }
-        });
+    if (typeof result.dependencies === 'object') {
+        for (const out of Object.entries(result.dependencies)) {
+            const entryPoint = out[0];
+            const list = dependencies[entryPoint] = dependencies[entryPoint] || [];
+            out[1].forEach((dep) => {
+                if (!list.includes(dep)) {
+                    list.push(dep);
+                }
+            });
+        }
     }
 }
 

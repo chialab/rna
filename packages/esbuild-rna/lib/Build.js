@@ -101,11 +101,7 @@ import { createOutputFile, createResult, assignToResult } from './helpers.js';
  */
 
 /**
- * @typedef {{ [key: string]: string[] }} DependenciesMap
- */
-
-/**
- * @typedef {BuildResult & { metafile: Metafile; dependencies: DependenciesMap }} Result
+ * @typedef {BuildResult & { metafile: Metafile; dependencies: Record<string, string[]> }} Result
  */
 
 /**
@@ -232,7 +228,7 @@ export class Build {
 
     /**
      * Build dependencies map.
-     * @type {DependenciesMap}
+     * @type {Record<string, string[]>}
      * @readonly
      * @private
      */
@@ -502,7 +498,7 @@ export class Build {
 
     /**
      * Get collected dependencies.
-     * @returns {DependenciesMap} The dependencies map.
+     * @returns {Record<string, string[]>} The dependencies map.
      */
     getDependencies() {
         return {
@@ -966,7 +962,7 @@ export class Build {
      * Add dependencies to the build.
      * @param {string} importer The importer path.
      * @param {string[]} dependencies A list of loaded dependencies.
-     * @returns {DependenciesMap} The updated dependencies map.
+     * @returns {Record<string, string[]>} The updated dependencies map.
      */
     collectDependencies(importer, dependencies) {
         const map = this.dependencies;

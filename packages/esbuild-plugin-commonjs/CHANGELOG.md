@@ -1,5 +1,17 @@
 # @chialab/esbuild-plugin-commonjs
 
+## 0.18.0-alpha.0
+
+### Minor Changes
+
+- 6457004: Bump to v0.18.0
+
+### Patch Changes
+
+- Updated dependencies [6457004]
+  - @chialab/cjs-to-esm@0.18.0-alpha.0
+  - @chialab/esbuild-rna@0.18.0-alpha.0
+
 ## 0.17.2
 
 ### Patch Changes

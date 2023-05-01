@@ -1,5 +1,22 @@
 # @chialab/rna-browser-test-runner
 
+## 1.0.0-alpha.0
+
+### Minor Changes
+
+- 6457004: Bump to v0.18.0
+
+### Patch Changes
+
+- Updated dependencies [6457004]
+  - @chialab/rna-config-loader@0.18.0-alpha.0
+  - @chialab/rna-dev-server@1.0.0-alpha.0
+  - @chialab/rna-logger@0.18.0-alpha.0
+  - @chialab/wds-plugin-legacy@0.18.0-alpha.0
+  - @chialab/wds-plugin-node-resolve@0.18.0-alpha.0
+  - @chialab/wtr-coverage-reporter@0.18.0-alpha.0
+  - @chialab/wtr-mocha-reporter@0.18.0-alpha.0
+
 ## 0.17.3
 
 ### Patch Changes

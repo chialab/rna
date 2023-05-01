@@ -1,5 +1,11 @@
 # @chialab/estransform
 
+## 0.18.0-alpha.0
+
+### Minor Changes
+
+- 6457004: Bump to v0.18.0
+
 ## 0.17.3
 
 ### Patch Changes

@@ -1,5 +1,30 @@
 # @chialab/rna-bundler
 
+## 0.18.0-alpha.0
+
+### Minor Changes
+
+- 6457004: Bump to v0.18.0
+- acf3afd: Replace PostCSS with Lightning CSS
+
+### Patch Changes
+
+- 9338ba1: Remove CSS import plugin from default plugins
+- d53a73a: Remove unwebpack plugin from default plugins
+- Updated dependencies [6457004]
+- Updated dependencies [acf3afd]
+  - @chialab/esbuild-plugin-any-file@0.18.0-alpha.0
+  - @chialab/esbuild-plugin-commonjs@0.18.0-alpha.0
+  - @chialab/esbuild-plugin-css-import@0.18.0-alpha.0
+  - @chialab/esbuild-plugin-env@0.18.0-alpha.0
+  - @chialab/esbuild-plugin-html@0.18.0-alpha.0
+  - @chialab/esbuild-plugin-meta-url@0.18.0-alpha.0
+  - @chialab/esbuild-plugin-worker@0.18.0-alpha.0
+  - @chialab/esbuild-rna@0.18.0-alpha.0
+  - @chialab/rna-config-loader@0.18.0-alpha.0
+  - @chialab/rna-logger@0.18.0-alpha.0
+  - @chialab/esbuild-plugin-lightningcss@0.18.0-alpha.0
+
 ## 0.17.6
 
 ### Patch Changes

@@ -249,7 +249,7 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                                 helpers.overwrite(startToken.start, endToken.end, `new URL('data:text/javascript;base64,${base64}')`);
                             }
                         } else {
-                            const arg = `new URL('./${entryPoint}', import.meta.url).href`;
+                            const arg = `new URL('./${entryPoint}', ${format === 'cjs' ? '__dirname' : 'import.meta.url'}).href`;
                             if (proxy) {
                                 helpers.overwrite(firstArg[0].start, firstArg[firstArg.length - 1].end, createBlobProxy(arg, transformOptions, false));
                             } else {

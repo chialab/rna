@@ -29,30 +29,50 @@ export default function(options = {}) {
         async setup(pluginBuild) {
             const build = useRna(plugin, pluginBuild);
             const { absWorkingDir, target } = build.getOptions();
+            /**
+             * @see https://github.com/parcel-bundler/lightningcss/issues/479
+             */
+            const shouldBundle = false;
 
             const targets = (target ? (Array.isArray(target) ? target : [target]) : [])
                 .filter((target) => target !== 'esnext' && !target.match(/^es\d/))
                 .map((target) => target.replace(/(\d+)/, ' $1'));
 
             build.onTransform({ loaders: ['css'], extensions: ['.css'] }, async (args) => {
-                const { transform, browserslistToTargets } = await import('lightningcss');
+                const { transform, bundleAsync, browserslistToTargets } = await import('lightningcss');
 
                 /**
                  * @type {import('lightningcss').TransformOptions<{}>}
                  */
                 const finalConfig = {
                     errorRecovery: true,
+                    drafts: {
+                        nesting: true,
+                        customMedia: true,
+                    },
                     targets: browserslistToTargets(targets.length ? targets : DEFAULT_TARGETS),
                     ...options,
                     filename: args.path,
                     code: Buffer.from(args.code),
                     sourceMap: true,
-                    // analyzeDependencies: {
-                    //     preserveImports: true,
-                    // },
                 };
 
-                const result = transform(finalConfig);
+                const result = await ((shouldBundle) ? bundleAsync({
+                    ...finalConfig,
+                    resolver: {
+                        async resolve(specifier, originatingFile) {
+                            const resolved = await build.resolve(specifier, {
+                                kind: 'import-rule',
+                                importer: originatingFile,
+                                namespace: 'file',
+                                resolveDir: path.dirname(originatingFile),
+                                pluginData: null,
+                            });
+
+                            return resolved.path;
+                        },
+                    },
+                }) : transform(finalConfig));
 
                 /**
                  * @type {import('source-map').RawSourceMap}

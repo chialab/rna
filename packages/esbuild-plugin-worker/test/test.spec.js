@@ -23,7 +23,7 @@ describe('esbuild-plugin-worker', () => {
         });
 
         expect(result.text).to.be.equal(`// test.spec.js
-var worker = new Worker(new URL("./worker-iife.js?hash=5f77c0c4", import.meta.url));
+var worker = new Worker(new URL("./worker-iife.js?hash=5f77c0c4", import.meta.url).href);
 export {
   worker
 };
@@ -57,7 +57,7 @@ export {
             ],
         });
 
-        expect(result.text).to.be.equal(`const worker = new Worker(new URL("./worker-iife.js?hash=5f77c0c4", import.meta.url));
+        expect(result.text).to.be.equal(`const worker = new Worker(new URL("./worker-iife.js?hash=5f77c0c4", import.meta.url).href);
 export {
   worker
 };
@@ -92,7 +92,7 @@ export {
         });
 
         expect(result.text).to.be.equal(`// test.spec.js
-var worker = new Worker(new URL("./worker.js?hash=a564928d", import.meta.url), { type: "module" });
+var worker = new Worker(new URL("./worker.js?hash=a564928d", import.meta.url).href, { type: "module" });
 export {
   worker
 };
@@ -125,7 +125,7 @@ postMessage("message");
 
         const [result, worker] = outputFiles;
 
-        expect(result.text).to.be.equal(`const worker = new Worker(new URL("./worker.js?hash=5a665960", import.meta.url), { type: "module" });
+        expect(result.text).to.be.equal(`const worker = new Worker(new URL("./worker.js?hash=5a665960", import.meta.url).href, { type: "module" });
 export {
   worker
 };
@@ -154,7 +154,11 @@ postMessage("message");
         });
 
         expect(result.text).to.be.equal(`// test.spec.js
-var worker = new Worker(URL.createObjectURL(new Blob(['importScripts("' + new URL("./worker-iife.js?hash=5f77c0c4", import.meta.url) + '");'], { type: "text/javascript" })));
+var worker = new Worker(URL.createObjectURL(new Blob(['importScripts("' + function(path) {
+  const url = new URL(path);
+  url.searchParams.set("transform", '{"format":"iife","bundle":true,"platform":"neutral"}');
+  return url.href;
+}(new URL("./worker-iife.js?hash=5f77c0c4", import.meta.url).href) + '");'], { type: "text/javascript" })));
 export {
   worker
 };
@@ -219,7 +223,7 @@ export const fakeWorker = new ctx.Worker(new URL('./worker.js', import.meta.url)
         });
 
         expect(result.text).to.be.equal(`// test.spec.js
-var worker = new Worker(new URL("./worker-iife.js?hash=5f77c0c4", import.meta.url));
+var worker = new Worker(new URL("./worker-iife.js?hash=5f77c0c4", import.meta.url).href);
 var fakeWorker = new ctx.Worker(new URL("./worker.js?hash=a564928d", import.meta.url));
 export {
   fakeWorker,
@@ -251,7 +255,7 @@ export const worker = new window.Worker(new URL('./worker.js', import.meta.url))
 var Worker = class {
 };
 var local = new Worker(new URL("./worker.js?hash=a564928d", import.meta.url));
-var worker = new window.Worker(new URL("./worker-iife.js?hash=5f77c0c4", import.meta.url));
+var worker = new window.Worker(new URL("./worker-iife.js?hash=5f77c0c4", import.meta.url).href);
 export {
   local,
   worker

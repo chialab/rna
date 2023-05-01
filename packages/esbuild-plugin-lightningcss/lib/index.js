@@ -12,7 +12,7 @@ const DEFAULT_TARGETS = [
 ];
 
 /**
- * @typedef {Partial<import('lightningcss').TransformOptions>} PluginOptions
+ * @typedef {Partial<import('lightningcss').TransformOptions<{}>>} PluginOptions
  */
 
 /**
@@ -38,7 +38,7 @@ export default function(options = {}) {
                 const { transform, browserslistToTargets } = await import('lightningcss');
 
                 /**
-                 * @type {import('lightningcss').TransformOptions}
+                 * @type {import('lightningcss').TransformOptions<{}>}
                  */
                 const finalConfig = {
                     errorRecovery: true,

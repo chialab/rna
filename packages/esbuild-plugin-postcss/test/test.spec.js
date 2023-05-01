@@ -1,7 +1,8 @@
 import { fileURLToPath } from 'url';
+import { expect } from 'chai';
 import esbuild from 'esbuild';
 import postcssPlugin from '@chialab/esbuild-plugin-postcss';
-import { expect } from 'chai';
+import cssImportPlugin from '@chialab/esbuild-plugin-css-import';
 
 describe('esbuild-plugin-postcss', () => {
     it('should run postcss default transformations', async () => {
@@ -86,6 +87,7 @@ describe('esbuild-plugin-postcss', () => {
             bundle: true,
             write: false,
             plugins: [
+                cssImportPlugin(),
                 postcssPlugin(),
             ],
         });

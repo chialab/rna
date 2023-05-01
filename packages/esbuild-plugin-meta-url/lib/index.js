@@ -182,11 +182,7 @@ export default function({ emit = true } = {}) {
                             let entryPoint = resolvedPath;
                             if (emit && !isIIFE) {
                                 if (isChunk) {
-                                    const transformOptions = JSON.parse(getSearchParam(value, 'transform') || '{}');
-                                    const chunk = await build.emitChunk({
-                                        ...transformOptions,
-                                        path: resolvedPath,
-                                    });
+                                    const chunk = await build.emitChunk({ path: resolvedPath });
                                     entryPoint = chunk.path;
                                 } else {
                                     const file = await build.emitFile(resolvedPath);

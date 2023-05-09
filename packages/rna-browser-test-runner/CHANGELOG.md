@@ -1,5 +1,11 @@
 # @chialab/rna-browser-test-runner
 
+## 0.17.4
+
+### Patch Changes
+
+- cfad67a5: Use chrome runner if installed.
+
 ## 0.17.3
 
 ### Patch Changes

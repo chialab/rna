@@ -1,5 +1,12 @@
 # @chialab/cjs-to-esm
 
+## 0.17.7
+
+### Patch Changes
+
+- c3871f6d: Fix UMD convertion.
+- a0c26bc0: Fix global helper in umd modules.
+
 ## 0.17.6
 
 ### Patch Changes

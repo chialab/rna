@@ -25,8 +25,9 @@
   },
   "dependencies": {
     "@chialab/es-dev-server": "^0.18.0-alpha.0",
+    "@chialab/esbuild-plugin-lightningcss": "^0.18.0-alpha.0",
     "@chialab/esbuild-plugin-meta-url": "^0.18.0-alpha.0",
-    "@chialab/esbuild-plugin-metadata": "^0.18.0",
+    "@chialab/esbuild-plugin-metadata": "^0.18.0-alpha.0",
     "@chialab/esbuild-plugin-worker": "^0.18.0-alpha.0",
     "@chialab/node-resolve": "^0.18.0-alpha.0",
     "@chialab/rna-bundler": "^0.18.0-alpha.0",

@@ -1928,6 +1928,7 @@ __metadata:
     "@chialab/wds-plugin-node-resolve": ^0.17.0
     "@chialab/wtr-coverage-reporter": ^0.17.0
     "@chialab/wtr-mocha-reporter": ^0.17.0
+    "@web/test-runner-chrome": ^0.13.0
     "@web/test-runner-core": ^0.10.18
     "@web/test-runner-mocha": ^0.7.3
     "@web/test-runner-playwright": ^0.8.8
@@ -1935,8 +1936,11 @@ __metadata:
     typescript: ^4.3.0
   peerDependencies:
     "@chialab/wds-plugin-legacy": ^0.17.0
+    "@web/test-runner-chrome": ^0.13.0
   peerDependenciesMeta:
     "@chialab/wds-plugin-legacy":
+      optional: true
+    "@web/test-runner-chrome":
       optional: true
   languageName: unknown
   linkType: soft
@@ -2788,6 +2792,29 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@puppeteer/browsers@npm:0.5.0":
+  version: 0.5.0
+  resolution: "@puppeteer/browsers@npm:0.5.0"
+  dependencies:
+    debug: 4.3.4
+    extract-zip: 2.0.1
+    https-proxy-agent: 5.0.1
+    progress: 2.0.3
+    proxy-from-env: 1.1.0
+    tar-fs: 2.1.1
+    unbzip2-stream: 1.4.3
+    yargs: 17.7.1
+  peerDependencies:
+    typescript: ">= 4.7.4"
+  peerDependenciesMeta:
+    typescript:
+      optional: true
+  bin:
+    browsers: lib/cjs/main-cli.js
+  checksum: d75fde03be4be106ca907834739251c2bb0b33a09fa23315c5dbe8b8b4cfed2f1b26af62e1dbe5fccc227e9bc87b51da0815461b982477eb01439bfdd6e7b01a
+  languageName: node
+  linkType: hard
+
 "@sindresorhus/is@npm:^0.7.0":
   version: 0.7.0
   resolution: "@sindresorhus/is@npm:0.7.0"
@@ -3267,6 +3294,13 @@ __metadata:
   version: 1.5.2
   resolution: "@types/convert-source-map@npm:1.5.2"
   checksum: 39ab9185ab45567a47cdaa2262fdc55aaf79a6658574eb514f2b90195505fa026b03c7f9147e61100ed21eb71adbb350997e24c9ddd9512408dcb9820d6c5e9a
+  languageName: node
+  linkType: hard
+
+"@types/convert-source-map@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "@types/convert-source-map@npm:2.0.0"
+  checksum: 012497f7495d67204950eeebe10e94b7ab3508bf8659214ad430b527514e0611260d3ac41c47b88212b9de55aa7a9ee18b2fad2d03eb16234b66101150f74017
   languageName: node
   linkType: hard
 
@@ -4015,6 +4049,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@web/browser-logs@npm:^0.3.1":
+  version: 0.3.1
+  resolution: "@web/browser-logs@npm:0.3.1"
+  dependencies:
+    errorstacks: ^2.2.0
+  checksum: 7eb4ace5d20cc516cb2f3ff62e1b1d8e9cd145d44fa8338ad27d9173a114ce73f736e4c5ae1c3b006fe0e694d21f39807ecaec7479b1284cde9cbf20044c2057
+  languageName: node
+  linkType: hard
+
 "@web/config-loader@npm:^0.1.3":
   version: 0.1.3
   resolution: "@web/config-loader@npm:0.1.3"
@@ -4050,6 +4093,32 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@web/dev-server-core@npm:^0.5.1":
+  version: 0.5.1
+  resolution: "@web/dev-server-core@npm:0.5.1"
+  dependencies:
+    "@types/koa": ^2.11.6
+    "@types/ws": ^7.4.0
+    "@web/parse5-utils": ^2.0.0
+    chokidar: ^3.4.3
+    clone: ^2.1.2
+    es-module-lexer: ^1.0.0
+    get-stream: ^6.0.0
+    is-stream: ^2.0.0
+    isbinaryfile: ^5.0.0
+    koa: ^2.13.0
+    koa-etag: ^4.0.0
+    koa-send: ^5.0.1
+    koa-static: ^5.0.0
+    lru-cache: ^8.0.4
+    mime-types: ^2.1.27
+    parse5: ^6.0.1
+    picomatch: ^2.2.2
+    ws: ^7.4.2
+  checksum: 95eab93dcad632733f3e16270a2723967f190b16fc31000cf221d4b68e9277a2f95bd31f12798ccbe3ce1642d5d6295f2518f732219a0bc4af6674a79ea686d5
+  languageName: node
+  linkType: hard
+
 "@web/dev-server-hmr@npm:^0.1.8":
   version: 0.1.10
   resolution: "@web/dev-server-hmr@npm:0.1.10"
@@ -4066,6 +4135,28 @@ __metadata:
     "@types/parse5": ^6.0.1
     parse5: ^6.0.1
   checksum: 379849c1b0a060d50037c7dc90d27231dc68f57b1034d87f89129c3cd87fa27d3a0f8e550e1ab3be00bb1c0d440a8fa95c153a481ed8c2c705fd46fbc8a8433d
+  languageName: node
+  linkType: hard
+
+"@web/parse5-utils@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "@web/parse5-utils@npm:2.0.0"
+  dependencies:
+    "@types/parse5": ^6.0.1
+    parse5: ^6.0.1
+  checksum: 3f8d67380aa335e8b4ad9bc447780cc5c068cb749feb2e5adc1dabe51445483c3ead598c75d58e619bed1944fe2c92b55fdbf19212939cc3aebca143d3a7fa70
+  languageName: node
+  linkType: hard
+
+"@web/test-runner-chrome@npm:^0.13.0":
+  version: 0.13.0
+  resolution: "@web/test-runner-chrome@npm:0.13.0"
+  dependencies:
+    "@web/test-runner-core": ^0.11.0
+    "@web/test-runner-coverage-v8": ^0.6.0
+    chrome-launcher: ^0.15.0
+    puppeteer-core: ^19.8.1
+  checksum: 5fefdefab49af05a5379773bdf08778790a7390aef0c1f2d50aacf97703ff693ee130e6f9b958a4eb6f8584de4725f5b543d0937e85de487e4102b5fd2bf3f3e
   languageName: node
   linkType: hard
 
@@ -4103,6 +4194,40 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@web/test-runner-core@npm:^0.11.0":
+  version: 0.11.1
+  resolution: "@web/test-runner-core@npm:0.11.1"
+  dependencies:
+    "@babel/code-frame": ^7.12.11
+    "@types/babel__code-frame": ^7.0.2
+    "@types/co-body": ^6.1.0
+    "@types/convert-source-map": ^2.0.0
+    "@types/debounce": ^1.2.0
+    "@types/istanbul-lib-coverage": ^2.0.3
+    "@types/istanbul-reports": ^3.0.0
+    "@web/browser-logs": ^0.3.1
+    "@web/dev-server-core": ^0.5.1
+    chokidar: ^3.4.3
+    cli-cursor: ^3.1.0
+    co-body: ^6.1.0
+    convert-source-map: ^2.0.0
+    debounce: ^1.2.0
+    dependency-graph: ^0.11.0
+    globby: ^11.0.1
+    ip: ^1.1.5
+    istanbul-lib-coverage: ^3.0.0
+    istanbul-lib-report: ^3.0.0
+    istanbul-reports: ^3.0.2
+    log-update: ^4.0.0
+    nanocolors: ^0.2.1
+    nanoid: ^3.1.25
+    open: ^8.0.2
+    picomatch: ^2.2.2
+    source-map: ^0.7.3
+  checksum: f3f46a69625f541d5b90b1743c1d26c241bea1c0182a0393a480dc7f388db1e5d9548f3dd1844fcd6755765ee1906b81e0bfcf6b120d6a125d5528a642212046
+  languageName: node
+  linkType: hard
+
 "@web/test-runner-coverage-v8@npm:^0.4.8":
   version: 0.4.9
   resolution: "@web/test-runner-coverage-v8@npm:0.4.9"
@@ -4112,6 +4237,19 @@ __metadata:
     picomatch: ^2.2.2
     v8-to-istanbul: ^8.0.0
   checksum: d103657893ca4faa6c2e214e8fb2ee2ce3dc6c58c5d270f5e7431496b3e4088dc3d0677406365dd34390c92f68865df9a80def3ba58f0185b0b676d4c36671c0
+  languageName: node
+  linkType: hard
+
+"@web/test-runner-coverage-v8@npm:^0.6.0":
+  version: 0.6.1
+  resolution: "@web/test-runner-coverage-v8@npm:0.6.1"
+  dependencies:
+    "@web/test-runner-core": ^0.11.0
+    istanbul-lib-coverage: ^3.0.0
+    lru-cache: ^8.0.4
+    picomatch: ^2.2.2
+    v8-to-istanbul: ^9.0.1
+  checksum: 98716b33d51ab3024f22d717424aa07b9423f25c9f37fccf1875019860ca7e2ec5daec23d1a453368c363c4d06f56f69d6c8111722b67375e5165904a044cc56
   languageName: node
   linkType: hard
 
@@ -5682,6 +5820,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"chromium-bidi@npm:0.4.7":
+  version: 0.4.7
+  resolution: "chromium-bidi@npm:0.4.7"
+  dependencies:
+    mitt: 3.0.0
+  peerDependencies:
+    devtools-protocol: "*"
+  checksum: eec7581e2eddd2c95014c6edc5aae0b036c79bbeadee05166436b16139b6932c902c5ce21d95ed919a592f58d3a47c5469dc5f3de2a300700b2748ab119ad65e
+  languageName: node
+  linkType: hard
+
 "ci-info@npm:^3.1.0, ci-info@npm:^3.2.0":
   version: 3.7.0
   resolution: "ci-info@npm:3.7.0"
@@ -6084,6 +6233,13 @@ __metadata:
   version: 1.9.0
   resolution: "convert-source-map@npm:1.9.0"
   checksum: dc55a1f28ddd0e9485ef13565f8f756b342f9a46c4ae18b843fe3c30c675d058d6a4823eff86d472f187b176f0adf51ea7b69ea38be34be4a63cbbf91b0593c8
+  languageName: node
+  linkType: hard
+
+"convert-source-map@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "convert-source-map@npm:2.0.0"
+  checksum: 63ae9933be5a2b8d4509daca5124e20c14d023c820258e484e32dc324d34c2754e71297c94a05784064ad27615037ef677e3f0c00469fb55f409d2bb21261035
   languageName: node
   linkType: hard
 
@@ -6871,6 +7027,13 @@ __metadata:
     detect: bin/detect-port.js
     detect-port: bin/detect-port.js
   checksum: b48da9340481742547263d5d985e65d078592557863402ecf538511735e83575867e94f91fe74405ea19b61351feb99efccae7e55de9a151d5654e3417cea05b
+  languageName: node
+  linkType: hard
+
+"devtools-protocol@npm:0.0.1107588":
+  version: 0.0.1107588
+  resolution: "devtools-protocol@npm:0.0.1107588"
+  checksum: 9064fd643f39ae0adabb8f425b746899ff24371d89a5047d38752653259e6afcb6bcb2d9759ff727eb5885cfc0f9ba8eb384850a2af00694135622e88080e3e5
   languageName: node
   linkType: hard
 
@@ -10564,6 +10727,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"isbinaryfile@npm:^5.0.0":
+  version: 5.0.0
+  resolution: "isbinaryfile@npm:5.0.0"
+  checksum: 25cc27388d51b8322c103f5894f9e72ec04e017734e57c4b70be2666501ec7e7f6cbb4a5fcfd15260a7cac979bd1ddb7f5231f5a3098c0695c4e7c049513dfaf
+  languageName: node
+  linkType: hard
+
 "isexe@npm:^2.0.0":
   version: 2.0.0
   resolution: "isexe@npm:2.0.0"
@@ -11444,6 +11614,13 @@ __metadata:
   version: 7.14.1
   resolution: "lru-cache@npm:7.14.1"
   checksum: d72c6713c6a6d86836a7a6523b3f1ac6764768cca47ec99341c3e76db06aacd4764620e5e2cda719a36848785a52a70e531822dc2b33fb071fa709683746c104
+  languageName: node
+  linkType: hard
+
+"lru-cache@npm:^8.0.4":
+  version: 8.0.5
+  resolution: "lru-cache@npm:8.0.5"
+  checksum: 87d72196d8f46e8299c4ab576ed2ec8a07e3cbef517dc9874399c0b2470bd9bf62aacec3b67f84ed6d74aaa1ef31636d048edf996f76248fd17db72bfb631609
   languageName: node
   linkType: hard
 
@@ -12538,6 +12715,13 @@ __metadata:
     minipass: ^3.0.0
     yallist: ^4.0.0
   checksum: f1fdeac0b07cf8f30fcf12f4b586795b97be856edea22b5e9072707be51fc95d41487faec3f265b42973a304fe3a64acd91a44a3826a963e37b37bafde0212c3
+  languageName: node
+  linkType: hard
+
+"mitt@npm:3.0.0":
+  version: 3.0.0
+  resolution: "mitt@npm:3.0.0"
+  checksum: f7be5049d27d18b1dbe9408452d66376fa60ae4a79fe9319869d1b90ae8cbaedadc7e9dab30b32d781411256d468be5538996bb7368941c09009ef6bbfa6bfc7
   languageName: node
   linkType: hard
 
@@ -14742,6 +14926,30 @@ __metadata:
     unbzip2-stream: 1.4.3
     ws: 8.5.0
   checksum: 652c4cfc9d228a8c5162227368a78a3a28ea6f287b4bfb359fa84cb83109e8203b4251103f8b0f7eca173a2a3f5d8cb8a7b664cc958a13d536ec91b5e729e731
+  languageName: node
+  linkType: hard
+
+"puppeteer-core@npm:^19.8.1":
+  version: 19.11.1
+  resolution: "puppeteer-core@npm:19.11.1"
+  dependencies:
+    "@puppeteer/browsers": 0.5.0
+    chromium-bidi: 0.4.7
+    cross-fetch: 3.1.5
+    debug: 4.3.4
+    devtools-protocol: 0.0.1107588
+    extract-zip: 2.0.1
+    https-proxy-agent: 5.0.1
+    proxy-from-env: 1.1.0
+    tar-fs: 2.1.1
+    unbzip2-stream: 1.4.3
+    ws: 8.13.0
+  peerDependencies:
+    typescript: ">= 4.7.4"
+  peerDependenciesMeta:
+    typescript:
+      optional: true
+  checksum: 06126e478b8b653e83b98b51cec35dceef8ab576abd1369afd45360c5bac3711443e58ebe3b852d40801a118e4cb7ddf5d3154518b5a9294ee93f7a42d9f22d4
   languageName: node
   linkType: hard
 
@@ -17287,6 +17495,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"v8-to-istanbul@npm:^9.0.1":
+  version: 9.1.0
+  resolution: "v8-to-istanbul@npm:9.1.0"
+  dependencies:
+    "@jridgewell/trace-mapping": ^0.3.12
+    "@types/istanbul-lib-coverage": ^2.0.1
+    convert-source-map: ^1.6.0
+  checksum: 2069d59ee46cf8d83b4adfd8a5c1a90834caffa9f675e4360f1157ffc8578ef0f763c8f32d128334424159bb6b01f3876acd39cd13297b2769405a9da241f8d1
+  languageName: node
+  linkType: hard
+
 "v8flags@npm:^2.0.10":
   version: 2.1.1
   resolution: "v8flags@npm:2.1.1"
@@ -17613,6 +17832,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"ws@npm:8.13.0":
+  version: 8.13.0
+  resolution: "ws@npm:8.13.0"
+  peerDependencies:
+    bufferutil: ^4.0.1
+    utf-8-validate: ">=5.0.2"
+  peerDependenciesMeta:
+    bufferutil:
+      optional: true
+    utf-8-validate:
+      optional: true
+  checksum: 53e991bbf928faf5dc6efac9b8eb9ab6497c69feeb94f963d648b7a3530a720b19ec2e0ec037344257e05a4f35bd9ad04d9de6f289615ffb133282031b18c61c
+  languageName: node
+  linkType: hard
+
 "ws@npm:8.5.0":
   version: 8.5.0
   resolution: "ws@npm:8.5.0"
@@ -17807,6 +18041,21 @@ __metadata:
     y18n: ^5.0.5
     yargs-parser: ^20.2.2
   checksum: b14afbb51e3251a204d81937c86a7e9d4bdbf9a2bcee38226c900d00f522969ab675703bee2a6f99f8e20103f608382936034e64d921b74df82b63c07c5e8f59
+  languageName: node
+  linkType: hard
+
+"yargs@npm:17.7.1":
+  version: 17.7.1
+  resolution: "yargs@npm:17.7.1"
+  dependencies:
+    cliui: ^8.0.1
+    escalade: ^3.1.1
+    get-caller-file: ^2.0.5
+    require-directory: ^2.1.1
+    string-width: ^4.2.3
+    y18n: ^5.0.5
+    yargs-parser: ^21.1.1
+  checksum: 3d8a43c336a4942bc68080768664aca85c7bd406f018bad362fd255c41c8f4e650277f42fd65d543fce99e084124ddafee7bbfc1a5c6a8fda4cec78609dcf8d4
   languageName: node
   linkType: hard
 

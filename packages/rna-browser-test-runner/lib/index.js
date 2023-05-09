@@ -207,14 +207,27 @@ async function loadLaunchers(requestedBrowsers) {
      */
     const createPage = ({ context }) => context.newPage();
 
-    const playwrightBrowsers = browsers.length ? browsers : (/** @type {BrowserName[]} */ (['chrome']));
+    const browserNames = browsers.length ? browsers : (/** @type {BrowserName[]} */ (['chrome']));
 
-    return playwrightBrowsers.map((browserName) => {
-        const launcher = new PlaywrightLauncher(getProductName(browserName), { channel: browserName }, createBrowserContext, createPage);
-        launcher.name = browserName;
+    return Promise.all(
+        browserNames.map(async (browserName) => {
+            if (browserName === 'chrome') {
+                const chromeRunner = await (import('@web/test-runner-chrome').catch(() => null));
+                if (chromeRunner) {
+                    return chromeRunner.chromeLauncher({
+                        launchOptions: {
+                            args: ['--no-sandbox'],
+                        },
+                    });
+                }
+            }
 
-        return launcher;
-    });
+            const launcher = new PlaywrightLauncher(getProductName(browserName), { channel: browserName }, createBrowserContext, createPage);
+            launcher.name = browserName;
+
+            return launcher;
+        })
+    );
 }
 
 /**
@@ -266,11 +279,6 @@ export function command(program) {
                 const config = mergeConfig({ root }, configFile ? await readConfigFile(configFile, { root }, 'serve') : {});
 
                 /**
-                 * @type {TestRunnerPlugin[]}
-                 */
-                const plugins = [];
-
-                /**
                  * @type {TestRunnerConfig}
                  */
                 const testRunnerConfig = {
@@ -282,9 +290,9 @@ export function command(program) {
                     manual: manual || open === true,
                     open,
                     alias: config.alias,
-                    plugins,
+                    plugins: [],
                     logger,
-                    browsers: await loadLaunchers(browsers),
+                    browsers: /** @type {BrowserLauncher[]} */ (await loadLaunchers(browsers)),
                 };
 
                 if (specs.length) {

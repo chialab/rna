@@ -1,6 +1,7 @@
+import { readFile } from 'fs/promises';
 import chai from 'chai';
-import { parse } from '@chialab/estransform';
-import { transform, wrapDynamicRequire, detectUmdGlobalVariable } from '../lib/index.js';
+import { transform, wrapDynamicRequire } from '../lib/index.js';
+import { fileURLToPath } from 'url';
 
 const { expect } = chai;
 
@@ -18,7 +19,11 @@ fs.readFile('test.js');`);
     it('should export non named references as default', async () => {
         const { code } = await transform('module.exports = function() {}', { helperModule: true });
 
-        expect(code).to.equal(`var global = globalThis;
+        expect(code).to.equal(`var global = ((typeof window !== 'undefined' && window) ||
+(typeof self !== 'undefined' && self) ||
+(typeof global !== 'undefined' && global) ||
+(typeof globalThis !== 'undefined' && globalThis) ||
+{});
 var exports = {};
 var module = {
     get exports() {
@@ -74,7 +79,7 @@ fs.readFile(path.resolve('test.js'));`).catch((err) => err);
         it('should detect amdWeb', async () => {
             // https://github.com/umdjs/umd/blob/master/templates/amdWeb.js
 
-            const { processor } = await parse(`(function (root, factory) {
+            const contents = `(function (root, factory) {
                 if (typeof define === 'function' && define.amd) {
                     // AMD. Register as an anonymous module.
                     define(['b'], factory);
@@ -89,16 +94,17 @@ fs.readFile(path.resolve('test.js'));`).catch((err) => err);
                 // This example returns an object, but the module
                 // can return a function as the exported value.
                 return {};
-            }));`);
+            }));`;
+            const { code } = await transform(contents);
+            const { default: value } = await import(`data:text/javascript;base64,${Buffer.from(code).toString('base64')}`);
 
-            const globalVariable = detectUmdGlobalVariable(processor);
-            expect(globalVariable).to.be.equal('amdWeb');
+            expect(value).to.be.a('object');
         });
 
         it('should detect amdWebGlobal', async () => {
             // https://github.com/umdjs/umd/blob/master/templates/amdWebGlobal.js
 
-            const { processor } = await parse(`(function (root, factory) {
+            const contents = `(function (root, factory) {
                 if (typeof define === 'function' && define.amd) {
                     // AMD. Register as an anonymous module.
                     define(['b'], function (b) {
@@ -118,16 +124,17 @@ fs.readFile(path.resolve('test.js'));`).catch((err) => err);
                 // This example returns an object, but the module
                 // can return a function as the exported value.
                 return {};
-            }));`);
+            }));`;
+            const { code } = await transform(contents);
+            const { default: value } = await import(`data:text/javascript;base64,${Buffer.from(code).toString('base64')}`);
 
-            const globalVariable = detectUmdGlobalVariable(processor);
-            expect(globalVariable).to.be.equal('amdWebGlobal');
+            expect(value).to.be.a('object');
         });
 
         it('should detect returnExports', async () => {
             // https://github.com/umdjs/umd/blob/master/templates/returnExports.js
 
-            const { processor } = await parse(`(function (root, factory) {
+            const contents = `(function (root, factory) {
                 if (typeof define === 'function' && define.amd) {
                     // AMD. Register as an anonymous module.
                     define(['b'], factory);
@@ -147,16 +154,17 @@ fs.readFile(path.resolve('test.js'));`).catch((err) => err);
                 // This example returns an object, but the module
                 // can return a function as the exported value.
                 return {};
-            }));`);
+            }));`;
+            const { code } = await transform(contents);
+            const { default: value } = await import(`data:text/javascript;base64,${Buffer.from(code).toString('base64')}`);
 
-            const globalVariable = detectUmdGlobalVariable(processor);
-            expect(globalVariable).to.be.equal('returnExports');
+            expect(value).to.be.a('object');
         });
 
         it('should detect returnExports (simplified)', async () => {
             // https://github.com/umdjs/umd/blob/master/templates/returnExports.js
 
-            const { processor } = await parse(`(function (root, factory) {
+            const contents = `(function (root, factory) {
                 if (typeof define === 'function' && define.amd) {
                     // AMD. Register as an anonymous module.
                     define([], factory);
@@ -175,16 +183,17 @@ fs.readFile(path.resolve('test.js'));`).catch((err) => err);
                 // This example returns an object, but the module
                 // can return a function as the exported value.
                 return {};
-            }));`);
+            }));`;
+            const { code } = await transform(contents);
+            const { default: value } = await import(`data:text/javascript;base64,${Buffer.from(code).toString('base64')}`);
 
-            const globalVariable = detectUmdGlobalVariable(processor);
-            expect(globalVariable).to.be.equal('returnExports');
+            expect(value).to.be.a('object');
         });
 
         it('should detect commonjsStrict', async () => {
             // https://github.com/umdjs/umd/blob/master/templates/commonjsStrict.js
 
-            const { processor } = await parse(`(function (root, factory) {
+            const contents = `(function (root, factory) {
                 if (typeof define === 'function' && define.amd) {
                     // AMD. Register as an anonymous module.
                     define(['exports', 'b'], factory);
@@ -201,65 +210,142 @@ fs.readFile(path.resolve('test.js'));`).catch((err) => err);
                 // attach properties to the exports object to define
                 // the exported module properties.
                 exports.action = function () {};
-            }));`);
+            }));`;
+            const { code } = await transform(contents);
+            const { default: value } = await import(`data:text/javascript;base64,${Buffer.from(code).toString('base64')}`);
 
-            const globalVariable = detectUmdGlobalVariable(processor);
-            expect(globalVariable).to.be.equal('commonJsStrict');
+            expect(value).to.be.a('object');
         });
 
         describe('common libraries', () => {
-            it('docx', async () => {
-                const { processor } = await parse(`(function webpackUniversalModuleDefinition(root, factory) {
-                    if(typeof exports === 'object' && typeof module === 'object')
-                        module.exports = factory();
-                    else if(typeof define === 'function' && define.amd)
-                        define([], factory);
-                    else if(typeof exports === 'object')
-                        exports["docx"] = factory();
-                    else
-                        root["docx"] = factory();
-                })(typeof self !== 'undefined' ? self : this, function() {});`);
+            let globals;
 
-                const globalVariable = detectUmdGlobalVariable(processor);
-                expect(globalVariable).to.be.equal('docx');
+            beforeEach(() => {
+                globals = {
+                    Promise: global.Promise,
+                };
+            });
+
+            afterEach(() => {
+                Object.assign(global, globals);
+            });
+
+            it('docx', async () => {
+                const fixture = fileURLToPath(new URL('fixtures/docx.js', import.meta.url));
+                const contents = await readFile(fixture, 'utf-8');
+                const { code } = await transform(`var process = undefined;${contents}`);
+                const { default: value } = await import(`data:text/javascript;base64,${Buffer.from(code).toString('base64')}`);
+
+                expect(global.docx).to.be.equal(value);
+                expect(value.Body).to.be.a('Function');
             });
 
             it('mapbox', async () => {
-                const { processor } = await parse(`(function (global, factory) {
-                    typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
-                    typeof define === 'function' && define.amd ? define(factory) :
-                    (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.mapboxgl = factory());
-                })(this, (function () {}));`);
+                const fixture = fileURLToPath(new URL('fixtures/mapbox.js', import.meta.url));
+                const contents = await readFile(fixture, 'utf-8');
+                const { code } = await transform(`var process = undefined;${contents}`);
+                const { default: value } = await import(`data:text/javascript;base64,${Buffer.from(code).toString('base64')}`);
 
-                const globalVariable = detectUmdGlobalVariable(processor);
-                expect(globalVariable).to.be.equal('mapboxgl');
+                expect(global.mapboxgl).to.be.equal(value);
+                expect(value.version).to.be.equal('2.14.1');
             });
 
             it('pdfjs', async () => {
-                const { processor } = await parse(`(function webpackUniversalModuleDefinition(root, factory) {
-                    if(typeof exports === 'object' && typeof module === 'object')
-                        module.exports = factory();
-                    else if(typeof define === 'function' && define.amd)
-                        define("pdfjs-dist/build/pdf", [], factory);
-                    else if(typeof exports === 'object')
-                        exports["pdfjs-dist/build/pdf"] = factory();
-                    else
-                        root["pdfjs-dist/build/pdf"] = root.pdfjsLib = factory();
-                })(globalThis, () => {});`);
+                const fixture = fileURLToPath(new URL('fixtures/pdfjs.js', import.meta.url));
+                const contents = await readFile(fixture, 'utf-8');
+                const { code } = await transform(`var process = undefined;${contents}`);
+                const { default: value } = await import(`data:text/javascript;base64,${Buffer.from(code).toString('base64')}`);
 
-                const globalVariable = detectUmdGlobalVariable(processor);
-                expect(globalVariable).to.be.equal('pdfjsLib');
+                expect(global.pdfjsLib).to.be.equal(value);
+                expect(value.version).to.be.equal('3.6.172');
             });
 
             it('uri-js', async () => {
-                const { processor } = await parse(`(function (global, factory) {
-                    typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
-                    typeof define === 'function' && define.amd ? define(['exports'], factory) :
-                    (factory((global.URI = global.URI || {})));
-                }(this, (function (exports) { 'use strict'; })));`);
+                const fixture = fileURLToPath(new URL('fixtures/uri.js', import.meta.url));
+                const contents = await readFile(fixture, 'utf-8');
+                const { code } = await transform(`var process = undefined;${contents}`);
+                const { default: value } = await import(`data:text/javascript;base64,${Buffer.from(code).toString('base64')}`);
 
-                const globalVariable = detectUmdGlobalVariable(processor);
-                expect(globalVariable).to.be.equal('URI');
+                expect(global.URI).to.be.equal(value);
+                expect(value.name).to.be.equal('URI');
+            });
+
+            it('lodash', async () => {
+                const fixture = fileURLToPath(new URL('fixtures/lodash.js', import.meta.url));
+                const contents = await readFile(fixture, 'utf-8');
+                const { code } = await transform(`var process = undefined;${contents}`);
+                const { default: value } = await import(`data:text/javascript;base64,${Buffer.from(code).toString('base64')}`);
+
+                expect(global._).to.be.equal(value);
+                expect(value.name).to.be.equal('lodash');
+            });
+
+            it('moment', async () => {
+                const fixture = fileURLToPath(new URL('fixtures/moment.js', import.meta.url));
+                const contents = await readFile(fixture, 'utf-8');
+                const { code } = await transform(`var process = undefined;${contents}`);
+                const { default: value } = await import(`data:text/javascript;base64,${Buffer.from(code).toString('base64')}`);
+
+                expect(global.moment).to.be.equal(value);
+                expect(value.now).to.be.a('Function');
+            });
+
+            it('bluebird', async () => {
+                const fixture = fileURLToPath(new URL('fixtures/bluebird.js', import.meta.url));
+                const contents = await readFile(fixture, 'utf-8');
+                const { code } = await transform(`var process = undefined;${contents}`);
+                const { default: value } = await import(`data:text/javascript;base64,${Buffer.from(code).toString('base64')}`);
+
+                expect(global.Promise).to.be.equal(value);
+            });
+
+            it('axios', async () => {
+                const fixture = fileURLToPath(new URL('fixtures/axios.js', import.meta.url));
+                const contents = await readFile(fixture, 'utf-8');
+                const { code } = await transform(`var process = undefined;${contents}`);
+                const { default: value } = await import(`data:text/javascript;base64,${Buffer.from(code).toString('base64')}`);
+
+                expect(global.axios).to.be.equal(value);
+            });
+
+            it('tslib', async () => {
+                const fixture = fileURLToPath(new URL('fixtures/tslib.js', import.meta.url));
+                const contents = await readFile(fixture, 'utf-8');
+                const { code } = await transform(`var process = undefined;${contents}`);
+                const { default: value } = await import(`data:text/javascript;base64,${Buffer.from(code).toString('base64')}`);
+
+                expect(global.__extends).to.be.equal(value.__extends);
+                expect(value.__extends).to.be.a('Function');
+            });
+
+            it('jquery', async () => {
+                try {
+                    const { JSDOM } = await import('jsdom');
+                    const { window } = new JSDOM('');
+                    global.window = window;
+                    global.document = window.document;
+
+                    const fixture = fileURLToPath(new URL('fixtures/jquery.js', import.meta.url));
+                    const contents = await readFile(fixture, 'utf-8');
+                    const { code } = await transform(`var process = undefined;${contents}`);
+                    const { default: value } = await import(`data:text/javascript;base64,${Buffer.from(code).toString('base64')}`);
+
+                    expect(window.$).to.be.equal(value);
+                    expect(value.name).to.be.equal('jQuery');
+                } finally {
+                    delete global.window;
+                    delete global.document;
+                }
+            });
+
+            it('chai', async () => {
+                const fixture = fileURLToPath(new URL('fixtures/chai.js', import.meta.url));
+                const contents = await readFile(fixture, 'utf-8');
+                const { code } = await transform(`var process = undefined;${contents}`);
+                const { default: value } = await import(`data:text/javascript;base64,${Buffer.from(code).toString('base64')}`);
+
+                expect(global.chai).to.be.equal(value);
+                expect(value.expect).to.be.a('Function');
             });
         });
     });

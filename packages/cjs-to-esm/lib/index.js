@@ -317,7 +317,7 @@ if (${conditions.join(' && ')}) {
             helpers.append(`\nexport * from '${reexport}';`);
         });
     } else if (EXPORTS_KEYWORDS.test(code)) {
-        helpers.prepend(`var global = globalThis;
+        helpers.prepend(`var global = ${GLOBAL_HELPER};
 var exports = {};
 var module = {
     get exports() {

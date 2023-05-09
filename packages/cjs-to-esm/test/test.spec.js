@@ -241,13 +241,23 @@ fs.readFile(path.resolve('test.js'));`).catch((err) => err);
             });
 
             it('mapbox', async () => {
-                const fixture = fileURLToPath(new URL('fixtures/mapbox.js', import.meta.url));
-                const contents = await readFile(fixture, 'utf-8');
-                const { code } = await transform(`var process = undefined;${contents}`);
-                const { default: value } = await import(`data:text/javascript;base64,${Buffer.from(code).toString('base64')}`);
+                try {
+                    const { JSDOM } = await import('jsdom');
+                    const { window } = new JSDOM('');
+                    global.window = window;
+                    global.document = window.document;
 
-                expect(global.mapboxgl).to.be.equal(value);
-                expect(value.version).to.be.equal('2.14.1');
+                    const fixture = fileURLToPath(new URL('fixtures/mapbox.js', import.meta.url));
+                    const contents = await readFile(fixture, 'utf-8');
+                    const { code } = await transform(`var process = undefined;${contents}`);
+                    const { default: value } = await import(`data:text/javascript;base64,${Buffer.from(code).toString('base64')}`);
+
+                    expect(window.mapboxgl).to.be.equal(value);
+                    expect(value.version).to.be.equal('2.14.1');
+                } finally {
+                    delete global.window;
+                    delete global.document;
+                }
             });
 
             it('pdfjs', async () => {

@@ -1,5 +1,11 @@
 # @chialab/cjs-to-esm
 
+## 0.17.8
+
+### Patch Changes
+
+- e640d893: Use proxy to collect UMD exports.
+
 ## 0.17.7
 
 ### Patch Changes

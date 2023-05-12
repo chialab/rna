@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url';
 
 const { expect } = chai;
 
-describe('cjs-to-esm', () => {
+describe.only('cjs-to-esm', () => {
     it('should transform require statements', async () => {
         const { code } = await transform(`const fs = require('fs/promises');
 fs.readFile('test.js');`, { helperModule: true });
@@ -316,6 +316,15 @@ fs.readFile(path.resolve('test.js'));`).catch((err) => err);
                 const { default: value } = await import(`data:text/javascript;base64,${Buffer.from(code).toString('base64')}`);
 
                 expect(global.axios).to.be.equal(value);
+            });
+
+            it('focusVisible', async () => {
+                const fixture = fileURLToPath(new URL('fixtures/focus-visible.js', import.meta.url));
+                const contents = await readFile(fixture, 'utf-8');
+                const { code } = await transform(`var process = undefined;${contents}`);
+                const { default: value } = await import(`data:text/javascript;base64,${Buffer.from(code).toString('base64')}`);
+
+                expect(value).to.be.undefined;
             });
 
             it('tslib', async () => {

@@ -262,7 +262,23 @@ export async function transform(code, { sourcemap = true, source, sourcesContent
         }
 
         helpers.prepend(`var __umdGlobal = ${GLOBAL_HELPER};
-var __umdRoot = Object.create(__umdGlobal);
+var __umdExports = [];
+var __umdRoot = new Proxy(__umdGlobal, {
+    get: function(target, name) {
+        var value = Reflect.get(target, name);
+        if (__umdExports.indexOf(name) !== -1) {
+            return value;
+        }
+        if (typeof value === 'function') {
+            return value.bind(__umdGlobal);
+        }
+        return value;
+    },
+    set: function(target, name, value) {
+        __umdExports.push(name);
+        return Reflect.set(target, name, value);
+    },
+});
 var __umdFunction = function(code) {
     return __umdGlobal.Function(code).bind(__umdRoot);
 };
@@ -271,11 +287,7 @@ var __umdFunction = function(code) {
         helpers.append(`
 }).call(__umdRoot, __umdRoot, __umdRoot, __umdRoot, __umdRoot, undefined, undefined, __umdFunction);
 
-Object.assign(__umdGlobal, __umdRoot);
-
-var keys = Object.keys(__umdRoot);
-
-export default (keys.length !== 1 && __umdRoot[keys[0]] !== __umdRoot[keys[1]] ? __umdRoot : __umdRoot[keys[0]]);`);
+export default (__umdExports.length !== 1 && __umdRoot[__umdExports[0]] !== __umdRoot[__umdExports[1]] ? __umdRoot : __umdRoot[__umdExports[0]]);`);
 
         // replace the usage of `this` as global object because is not supported in esm
         let thisMatch = THIS_PARAM.exec(code);

@@ -1,5 +1,11 @@
 # @chialab/cjs-to-esm
 
+## 0.17.9
+
+### Patch Changes
+
+- 7a284be6: Fix global proxied namespaces.
+
 ## 0.17.8
 
 ### Patch Changes

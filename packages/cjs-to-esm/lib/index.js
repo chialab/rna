@@ -270,7 +270,7 @@ var __umdRoot = new Proxy(__umdGlobal, {
             return value;
         }
         if (typeof value === 'function') {
-            return value.bind(__umdGlobal);
+            return Object.assign(value.bind(__umdGlobal), value);
         }
         return value;
     },

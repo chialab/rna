@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url';
 
 const { expect } = chai;
 
-describe.only('cjs-to-esm', () => {
+describe('cjs-to-esm', () => {
     it('should transform require statements', async () => {
         const { code } = await transform(`const fs = require('fs/promises');
 fs.readFile('test.js');`, { helperModule: true });

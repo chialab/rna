@@ -269,8 +269,8 @@ var __umdRoot = new Proxy(__umdGlobal, {
         if (__umdExports.indexOf(name) !== -1) {
             return value;
         }
-        if (typeof value === 'function') {
-            return Object.assign(value.bind(__umdGlobal), value);
+        if (typeof value === 'function' && !value.prototype) {
+            return value.bind(__umdGlobal);
         }
         return value;
     },

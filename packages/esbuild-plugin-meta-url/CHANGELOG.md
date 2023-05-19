@@ -1,5 +1,11 @@
 # @chialab/esbuild-plugin-meta-url
 
+## 0.17.6
+
+### Patch Changes
+
+- 8088d949: Correctly emit chunk in meta url plugin
+
 ## 0.17.5
 
 ### Patch Changes

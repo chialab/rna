@@ -214,7 +214,7 @@ export default function({ emit = true } = {}) {
                                 let buffer, mimeType;
                                 if (isChunk) {
                                     const { outputFiles } = await build.emitChunk({
-                                        path: `./${entryPoint}`,
+                                        path: `./${path.relative(workingDir, resolvedPath)}`,
                                         write: false,
                                     });
                                     if (outputFiles) {

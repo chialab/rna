@@ -279,9 +279,10 @@ var __umdRoot = new Proxy(__umdGlobal, {
         return Reflect.set(target, name, value);
     },
 });
-var __umdFunction = function(code) {
+var __umdFunction = function ProxyFunction(code) {
     return __umdGlobal.Function(code).bind(__umdRoot);
 };
+__umdFunction.prototype = Function.prototype;
 (function(window, global, globalThis, self, module, exports, Function) {
 `);
         helpers.append(`

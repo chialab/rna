@@ -1,5 +1,11 @@
 # @chialab/cjs-to-esm
 
+## 0.17.11
+
+### Patch Changes
+
+- 437c8bda: Fix proxied Function prototype in umd wrapper.
+
 ## 0.17.10
 
 ### Patch Changes

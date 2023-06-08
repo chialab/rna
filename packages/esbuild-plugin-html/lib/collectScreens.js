@@ -86,11 +86,12 @@ async function generateAppleLaunchScreens(image, launchScreens) {
 export async function collectScreen($, element, screen, options, helpers) {
     const entryPoint = path.join(options.sourceDir, screen.name);
     const file = await helpers.emitFile(entryPoint, screen.contents);
+    const outputPath = helpers.resolveRelativePath(file.path, null, '');
 
     const link = $('<link>');
     link.attr('rel', 'apple-touch-startup-image');
     link.attr('media', screen.query);
-    link.attr('href', file.path.split(path.sep).join('/'));
+    link.attr('href', outputPath);
     link.insertBefore(element);
 
     return {

@@ -70,12 +70,11 @@ export async function collectStyles($, dom, options, helpers) {
         }
 
         const fullOutName = path.join(options.workingDir, outName);
-        const relativeOutName = path.relative(options.entryDir, fullOutName);
-
+        const outputPath = helpers.resolveRelativePath(fullOutName, options.entryDir, '');
         if ($(element).is('link')) {
-            $(element).attr('href', relativeOutName.split(path.sep).join('/'));
+            $(element).attr('href', outputPath);
         } else {
-            $(element).html(`@import '${relativeOutName.split(path.sep).join('/')}'`);
+            $(element).html(`@import '${outputPath}'`);
         }
     });
 

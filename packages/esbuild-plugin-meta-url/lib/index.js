@@ -1,6 +1,6 @@
 import path from 'path';
 import mime from 'mime-types';
-import { appendSearchParam, getSearchParam, isUrl } from '@chialab/node-resolve';
+import { getSearchParam, isUrl } from '@chialab/node-resolve';
 import { parse, walk, getIdentifierValue, getBlock, getLocation, TokenType } from '@chialab/estransform';
 import { Build, useRna } from '@chialab/esbuild-rna';
 
@@ -196,18 +196,19 @@ export default function({ emit = true } = {}) {
                             const entryLoader = build.getLoader(resolvedPath) || 'file';
                             const isChunk = entryLoader !== 'file' && entryLoader !== 'json';
                             const isIIFE = format === 'iife' && bundle;
+                            const searchParams = new URLSearchParams();
 
-                            let entryPoint;
+                            let entryPoint = resolvedPath;
                             if (emit && !isIIFE) {
                                 if (isChunk) {
                                     const chunk = await build.emitChunk({ path: resolvedPath });
-                                    entryPoint = appendSearchParam(chunk.path, 'hash', chunk.id);
+                                    searchParams.set('hash', chunk.id);
+                                    entryPoint = chunk.path;
                                 } else {
                                     const file = await build.emitFile(resolvedPath);
-                                    entryPoint = appendSearchParam(file.path, 'hash', file.id);
+                                    searchParams.set('hash', file.id);
+                                    entryPoint = file.path;
                                 }
-                            } else {
-                                entryPoint = path.relative(path.dirname(args.path), resolvedPath);
                             }
 
                             if (isIIFE) {
@@ -241,7 +242,9 @@ export default function({ emit = true } = {}) {
                                 }
                             }
 
-                            helpers.overwrite(startToken.start, endToken.end, `new URL('./${entryPoint.split(path.sep).join('/')}', ${baseUrl})`);
+                            const outputPath = build.resolveRelativePath(entryPoint);
+                            const searchParamsString = searchParams.toString();
+                            helpers.overwrite(startToken.start, endToken.end, `new URL('${outputPath}${searchParamsString ? `?${searchParamsString}` : ''}', ${baseUrl})`);
                             return;
                         }
 

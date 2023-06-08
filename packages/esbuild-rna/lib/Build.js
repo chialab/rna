@@ -110,11 +110,11 @@ import { createOutputFile, createResult, assignToResult } from './helpers.js';
  */
 
 /**
- * @typedef {Result & { id: string; path: string; filePath: string }} Chunk
+ * @typedef {Result & { id: string; path: string }} Chunk
  */
 
 /**
- * @typedef {Result & { id: string; path: string; filePath: string }} File
+ * @typedef {Result & { id: string; path: string }} File
  */
 
 /**
@@ -926,6 +926,28 @@ export class Build {
     }
 
     /**
+     * Resolve relative file path.
+     * @param {string} filePath The path of the imported file.
+     * @param {string|null} [from] The path of the importing file.
+     * @param {string} [prefix] The prefix to add to the relative path.
+     * @returns {string} Relative file path.
+     */
+    resolveRelativePath(filePath, from, prefix = './') {
+        const { publicPath } = this.getOptions();
+        const virtualOutDir = this.getFullOutDir() || this.getWorkingDir();
+        if (publicPath) {
+            const relativePath = path.relative(virtualOutDir, filePath);
+            return path.join(publicPath, relativePath).split(path.sep).join('/');
+        }
+
+        const relativePath = path.relative(from || virtualOutDir, filePath);
+        if (relativePath[0] !== '.') {
+            return `${prefix}${relativePath.split(path.sep).join('/')}`;
+        }
+        return relativePath.split(path.sep).join('/');
+    }
+
+    /**
      * Get the output name in manifest of a file.
      * @param {string} filePath The output file path.
      * @returns {string} Relative output name.
@@ -1017,7 +1039,6 @@ export class Build {
      */
     async emitFile(source, buffer, collect = true) {
         const workingDir = this.getWorkingDir();
-        const virtualOutDir = this.getFullOutDir() || this.getWorkingDir();
 
         if (!buffer) {
             const result = await this.load({
@@ -1074,8 +1095,7 @@ export class Build {
         const chunkResult = {
             ...result,
             id,
-            path: path.relative(virtualOutDir, outputFile),
-            filePath: outputFile,
+            path: outputFile,
         };
         if (collect) {
             this.files.set(source, chunkResult);
@@ -1100,7 +1120,7 @@ export class Build {
             ...buildOptions,
             format,
             outdir: options.outdir ?
-                path.resolve(virtualOutDir, `./${options.outdir}`) :
+                path.resolve(virtualOutDir, options.outdir) :
                 this.getFullOutDir(),
             bundle: options.bundle ?? buildOptions.bundle,
             splitting: format === 'esm' ? (options.splitting ?? buildOptions.splitting) : false,
@@ -1152,8 +1172,7 @@ export class Build {
         const chunkResult = {
             ...result,
             id,
-            path: path.relative(virtualOutDir, resolvedOutputFile),
-            filePath: resolvedOutputFile,
+            path: resolvedOutputFile,
         };
         if (collect) {
             this.chunks.set(options.path, chunkResult);

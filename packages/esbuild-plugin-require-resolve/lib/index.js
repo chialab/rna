@@ -62,7 +62,8 @@ export default function() {
                         }
 
                         const emittedFile = await build.emitFile(resolvedFilePath);
-                        helpers.overwrite(stringToken.start, stringToken.end, `'./${emittedFile.path}'`);
+                        const outputFile = build.resolveRelativePath(emittedFile.path);
+                        helpers.overwrite(stringToken.start, stringToken.end, `'${outputFile}'`);
                     })());
                 });
 

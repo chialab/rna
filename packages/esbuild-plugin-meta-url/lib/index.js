@@ -216,7 +216,7 @@ export default function({ emit = true } = {}) {
                                     const { outputFiles } = await build.emitChunk({
                                         path: `./${path.relative(workingDir, resolvedPath)}`,
                                         write: false,
-                                    });
+                                    }, false);
                                     if (outputFiles) {
                                         mimeType = mime.lookup(outputFiles[0].path);
                                         buffer = Buffer.from(outputFiles[0].contents);

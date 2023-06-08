@@ -236,7 +236,7 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                                 ...transformOptions,
                                 path: resolvedPath,
                                 write: format !== 'iife' || !bundle,
-                            });
+                            }, format !== 'iife' || !bundle);
                             entryPoint = appendSearchParam(emittedChunk.path, 'hash', emittedChunk.id);
                         }
 

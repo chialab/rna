@@ -1012,9 +1012,10 @@ export class Build {
      * Programmatically emit file reference.
      * @param {string} source The path of the file.
      * @param {string|Buffer} [buffer] File contents.
+     * @param {boolean} [collect] If true, the file will be added to the build.
      * @returns {Promise<File>} The output file reference.
      */
-    async emitFile(source, buffer) {
+    async emitFile(source, buffer, collect = true) {
         const workingDir = this.getWorkingDir();
         const virtualOutDir = this.getFullOutDir() || this.getWorkingDir();
 
@@ -1076,7 +1077,9 @@ export class Build {
             path: path.relative(virtualOutDir, outputFile),
             filePath: outputFile,
         };
-        this.files.set(source, chunkResult);
+        if (collect) {
+            this.files.set(source, chunkResult);
+        }
 
         return chunkResult;
     }
@@ -1084,9 +1087,10 @@ export class Build {
     /**
      * Programmatically emit a chunk reference.
      * @param {EmitChunkOptions} options Esbuild transform options.
+     * @param {boolean} [collect] Collect the output chunk reference.
      * @returns {Promise<Chunk>} The output chunk reference.
      */
-    async emitChunk(options) {
+    async emitChunk(options, collect = true) {
         const buildOptions = this.getOptions();
         const format = options.format || this.getOption('format');
         const virtualOutDir = this.getFullOutDir() || this.getWorkingDir();
@@ -1151,7 +1155,9 @@ export class Build {
             path: path.relative(virtualOutDir, resolvedOutputFile),
             filePath: resolvedOutputFile,
         };
-        this.chunks.set(options.path, chunkResult);
+        if (collect) {
+            this.chunks.set(options.path, chunkResult);
+        }
 
         return chunkResult;
     }
@@ -1159,9 +1165,10 @@ export class Build {
     /**
      * Programmatically emit a sub build.
      * @param {EmitBuildOptions} options Esbuild build options.
+     * @param {boolean} [collect] Collect the output build reference.
      * @returns {Promise<Result>} The output build reference.
      */
-    async emitBuild(options) {
+    async emitBuild(options, collect = true) {
         const manager = this.manager;
         const buildOptions = this.getOptions();
         const format = options.format || this.getOption('format');
@@ -1211,7 +1218,9 @@ export class Build {
         });
 
         const result = await this.build(config);
-        this.builds.add(result);
+        if (collect) {
+            this.builds.add(result);
+        }
 
         return result;
     }

@@ -13,13 +13,9 @@ esbuild.build({
         'pnpapi',
     ],
     banner: {
-        js: `import { dirname as __pathDirname } from 'path';
-import { createRequire as __moduleCreateRequire } from 'module';
-import { fileURLToPath as __fileURLToPath  } from 'url';
+        js: `import { createRequire as __moduleCreateRequire } from 'module';
 
 const require = __moduleCreateRequire(import.meta.url);
-const __filename = __fileURLToPath(import.meta.url);
-const __dirname = __pathDirname(__filename);
 `,
     },
 });

@@ -1,6 +1,6 @@
 import path from 'path';
 import { walk, parse, TokenType, getIdentifierValue, getLocation, getBlock, splitArgs } from '@chialab/estransform';
-import { appendSearchParam, getSearchParam } from '@chialab/node-resolve';
+import { getSearchParam } from '@chialab/node-resolve';
 import metaUrlPlugin from '@chialab/esbuild-plugin-meta-url';
 import { useRna } from '@chialab/esbuild-rna';
 
@@ -67,6 +67,7 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                  * @type {Set<string>}
                  */
                 const redefined = new Set();
+
                 const { helpers, processor } = await parse(code, path.relative(workingDir, args.path));
                 await walk(processor, (token) => {
                     if (token.type === TokenType._class) {
@@ -115,44 +116,6 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
 
                     const startToken = firstArg[0];
                     const endToken = firstArg[firstArg.length - 1];
-                    let reference = startToken;
-                    if (startToken.type === TokenType._new
-                        && firstArg[1].type === TokenType.name
-                        && processor.identifierNameForToken(firstArg[1]) === 'URL'
-                    ) {
-                        const firstParen = firstArg.findIndex((token) => token.type === TokenType.parenL);
-                        const lastParen = -firstArg.slice(0).reverse().findIndex((token) => token.type === TokenType.parenR);
-                        const [urlArgs, metaArgs] = splitArgs(firstArg.slice(firstParen + 1, lastParen - 1));
-
-                        if (
-                            metaArgs
-                            && metaArgs.length === 5
-                            && metaArgs[0].type === TokenType.name
-                            && processor.identifierNameForToken(metaArgs[0]) === 'import'
-                            && metaArgs[1].type === TokenType.dot
-                            && metaArgs[2].type === TokenType.name
-                            && processor.identifierNameForToken(metaArgs[2]) === 'meta'
-                            && metaArgs[3].type === TokenType.dot
-                            && metaArgs[4].type === TokenType.name
-                            && processor.identifierNameForToken(metaArgs[4]) === 'url'
-                        ) {
-                            if (urlArgs.length === 1) {
-                                reference = urlArgs[0];
-                            }
-                        }
-                    } else if (startToken.type === TokenType.name) {
-                        reference = startToken;
-                    }
-
-                    if (!reference) {
-                        return;
-                    }
-
-                    const isStringLiteral = reference.type === TokenType.string;
-                    const isIdentifier = reference.type === TokenType.name;
-                    if (!isStringLiteral && !isIdentifier && !proxy) {
-                        return;
-                    }
 
                     /**
                      * @type {import('@chialab/esbuild-rna').BuildOptions}
@@ -179,26 +142,66 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                         }
                     }
 
-                    const value = isStringLiteral ?
-                        processor.stringValueForToken(reference) :
-                        isIdentifier ?
-                            getIdentifierValue(processor, reference) :
-                            null;
-
-                    if (typeof value !== 'string') {
-                        if (proxy) {
+                    if (startToken.type !== TokenType._new
+                        || firstArg[1].type !== TokenType.name
+                        || processor.identifierNameForToken(firstArg[1]) !== 'URL'
+                    ) {
+                        const isStringLiteral = startToken.type === TokenType.string;
+                        const isIdentifier = startToken.type === TokenType.name;
+                        if ((isStringLiteral || isIdentifier) && proxy) {
                             const arg = code.substring(firstArg[0].start, firstArg[firstArg.length - 1].end);
                             helpers.overwrite(firstArg[0].start, firstArg[firstArg.length - 1].end, createBlobProxy(arg, transformOptions, true));
                         }
                         return;
                     }
 
-                    const id = getSearchParam(value, 'hash');
-                    if (id && build.isEmittedPath(id)) {
+                    const firstParen = firstArg.findIndex((token) => token.type === TokenType.parenL);
+                    const lastParen = -firstArg.slice(0).reverse().findIndex((token) => token.type === TokenType.parenR);
+                    const [urlArgs, metaArgs] = splitArgs(firstArg.slice(firstParen + 1, lastParen - 1));
+                    const reference = urlArgs[0];
+
+                    if (
+                        !metaArgs
+                        || metaArgs.length !== 5
+                        || metaArgs[0].type !== TokenType.name
+                        || processor.identifierNameForToken(metaArgs[0]) !== 'import'
+                        || metaArgs[1].type !== TokenType.dot
+                        || metaArgs[2].type !== TokenType.name
+                        || processor.identifierNameForToken(metaArgs[2]) !== 'meta'
+                        || metaArgs[3].type !== TokenType.dot
+                        || metaArgs[4].type !== TokenType.name
+                        || processor.identifierNameForToken(metaArgs[4]) !== 'url'
+                        || !reference
+                    ) {
+                        return;
+                    }
+
+                    const isStringLiteral = reference.type === TokenType.string;
+                    const isIdentifier = reference.type === TokenType.name;
+                    if (!isStringLiteral && !isIdentifier && !proxy) {
                         return;
                     }
 
                     promises.push(Promise.resolve().then(async () => {
+                        const value = isStringLiteral ?
+                            processor.stringValueForToken(reference) :
+                            isIdentifier ?
+                                getIdentifierValue(processor, reference) :
+                                null;
+
+                        if (typeof value !== 'string') {
+                            if (proxy) {
+                                const arg = code.substring(firstArg[0].start, firstArg[firstArg.length - 1].end);
+                                helpers.overwrite(firstArg[0].start, firstArg[firstArg.length - 1].end, createBlobProxy(arg, transformOptions, true));
+                            }
+                            return;
+                        }
+
+                        const id = getSearchParam(value, 'hash');
+                        if (id && build.isEmittedPath(id)) {
+                            return;
+                        }
+
                         const { path: resolvedPath, external } = await build.resolve(value, {
                             kind: 'dynamic-import',
                             importer: args.path,
@@ -232,14 +235,16 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                         }
 
                         let emittedChunk;
-                        let entryPoint = path.relative(path.dirname(args.path), resolvedPath);
+                        let entryPoint = resolvedPath;
+                        const searchParams = new URLSearchParams();
                         if (emit) {
                             emittedChunk = await build.emitChunk({
                                 ...transformOptions,
                                 path: resolvedPath,
                                 write: format !== 'iife' || !bundle,
-                            });
-                            entryPoint = appendSearchParam(emittedChunk.path, 'hash', emittedChunk.id);
+                            }, format !== 'iife' || !bundle);
+                            searchParams.set('hash', emittedChunk.id);
+                            entryPoint = emittedChunk.path;
                         }
 
                         if (emittedChunk && format === 'iife' && bundle) {
@@ -249,7 +254,9 @@ export default function({ constructors = ['Worker', 'SharedWorker'], proxy = fal
                                 helpers.overwrite(startToken.start, endToken.end, `new URL('data:text/javascript;base64,${base64}')`);
                             }
                         } else {
-                            const arg = `new URL('./${entryPoint}', ${format === 'cjs' ? '__dirname' : 'import.meta.url'}).href`;
+                            const outputPath = build.resolveRelativePath(entryPoint);
+                            const searchParamsString = searchParams.toString();
+                            const arg = `new URL('${outputPath}${searchParamsString ? `?${searchParamsString}` : ''}', import.meta.url).href`;
                             if (proxy) {
                                 helpers.overwrite(firstArg[0].start, firstArg[firstArg.length - 1].end, createBlobProxy(arg, transformOptions, false));
                             } else {

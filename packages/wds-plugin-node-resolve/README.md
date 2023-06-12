@@ -11,8 +11,11 @@
 ## Install
 
 ```sh
-$ npm i @chialab/wds-plugin-node-resolve -D
-$ yarn add @chialab/wds-plugin-node-resolve -D
+npm i @chialab/wds-plugin-node-resolve -D
+```
+
+```sh
+yarn add @chialab/wds-plugin-node-resolve -D
 ```
 
 ## Usage

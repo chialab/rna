@@ -11,8 +11,11 @@
 ## Install
 
 ```sh
-$ npm i @chialab/rna-config-loader -D
-$ yarn add @chialab/rna-config-loader -D
+npm i @chialab/rna-config-loader -D
+```
+
+```sh
+yarn add @chialab/rna-config-loader -D
 ```
 
 ## Usage

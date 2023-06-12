@@ -11,8 +11,11 @@
 ## Install
 
 ```sh
-$ npm i @chialab/es-test-runner -D
-$ yarn add @chialab/es-test-runner -D
+npm i @chialab/es-test-runner -D
+```
+
+```sh
+yarn add @chialab/es-test-runner -D
 ```
 
 ---

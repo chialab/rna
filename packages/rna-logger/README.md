@@ -11,8 +11,11 @@
 ## Install
 
 ```sh
-$ npm i @chialab/rna-logger -D
-$ yarn add @chialab/rna-logger -D
+npm i @chialab/rna-logger -D
+```
+
+```sh
+yarn add @chialab/rna-logger -D
 ```
 
 ## Usage

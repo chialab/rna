@@ -11,8 +11,11 @@
 ## Install
 
 ```sh
-$ npm i @chialab/wds-plugin-legacy -D
-$ yarn add @chialab/wds-plugin-legacy -D
+npm i @chialab/wds-plugin-legacy -D
+```
+
+```sh
+yarn add @chialab/wds-plugin-legacy -D
 ```
 
 ## Usage

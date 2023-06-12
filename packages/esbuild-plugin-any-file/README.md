@@ -11,8 +11,11 @@
 ## Install
 
 ```sh
-$ npm i @chialab/esbuild-plugin-any-file -D
-$ yarn add @chialab/esbuild-plugin-any-file -D
+npm i @chialab/esbuild-plugin-any-file -D
+```
+
+```sh
+yarn add @chialab/esbuild-plugin-any-file -D
 ```
 
 ## Usage

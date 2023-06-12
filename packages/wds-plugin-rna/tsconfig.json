@@ -14,13 +14,13 @@
       "path": "../es-dev-server"
     },
     {
-      "path": "../esbuild-plugin-lightningcss"
-    },
-    {
       "path": "../esbuild-plugin-meta-url"
     },
     {
       "path": "../esbuild-plugin-metadata"
+    },
+    {
+      "path": "../esbuild-plugin-postcss"
     },
     {
       "path": "../esbuild-plugin-worker"

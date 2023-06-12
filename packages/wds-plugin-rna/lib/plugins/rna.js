@@ -367,8 +367,6 @@ export function rnaPlugin(config) {
                             .then(({ default: plugin }) => plugin({
                                 emit: false,
                             })),
-                        import('@chialab/esbuild-plugin-lightningcss')
-                            .then(({ default: plugin }) => plugin()),
                     ]),
                     ...(config.plugins || []),
                 ],

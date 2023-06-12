@@ -24,15 +24,21 @@ The [Web Dev Server](https://modern-web.dev/docs/dev-server/overview/) is a serv
 The RNA dev server can be installed with the following preset:
 
 ```sh
-$ npm i -D @chialab/rna @chialab/rna-dev-server
-$ yarn add -D @chialab/rna @chialab/rna-dev-server
+npm i -D @chialab/rna @chialab/rna-dev-server
+```
+
+```sh
+yarn add -D @chialab/rna @chialab/rna-dev-server
 ```
 
 Run the dev server:
 
 ```sh
-$ npx rna serve src
-$ yarn rna serve src
+npx rna serve src
+```
+
+```sh
+yarn rna serve src
 ```
 
 You can also specify a custom port using the `--port N` flag.
@@ -43,8 +49,11 @@ Sometimes you may need to test on legacy browsers. Since the Dev Server is based
 Installing the [legacy plugin](https://www.npmjs.com/package/@chialab/wds-plugin-legacy) will enable the convertion of ESM modules to [SystemJS](https://github.com/systemjs/systemjs) and it will inject required polyfills for `Promise` and `fetch`.
 
 ```sh
-$ npm i -D @chialab/wds-plugin-legacy
-$ yarn add -D @chialab/wds-plugin-legacy
+npm i -D @chialab/wds-plugin-legacy
+```
+
+```sh
+yarn add -D @chialab/wds-plugin-legacy
 ```
 
 ## Dev server as service
@@ -65,8 +74,11 @@ export default {
 ```
 
 ```sh
-$ npx rna serve --port 3000
-$ yarn rna serve --port 3000
+npx rna serve --port 3000
+```
+
+```sh
+yarn rna serve --port 3000
 ```
 
 will generate the **webroot/entrypoints.json** file with contents:

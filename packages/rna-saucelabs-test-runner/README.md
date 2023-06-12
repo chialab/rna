@@ -17,8 +17,11 @@
 ## Install
 
 ```sh
-$ npm i @chialab/rna-saucelabs-test-runner -D
-$ yarn add @chialab/rna-saucelabs-test-runner -D
+npm i @chialab/rna-saucelabs-test-runner -D
+```
+
+```sh
+yarn add @chialab/rna-saucelabs-test-runner -D
 ```
 
 ## Usage
@@ -45,10 +48,6 @@ await test({
 
 ### Via cli
 
-```sh
-$ npm i @chialab/rna @chialab/rna-saucelabs-test-runner -D
-```
-
 ```
 test:saucelabs [options] [specs...]
 
@@ -68,9 +67,15 @@ Options:
 **Samples**
 
 ```sh
-$ rna test:saucelabs
-$ rna test:saucelabs 'test/**/*.spec.js' --coverage
-$ rna test:saucelabs 'test/elements.spec.js' --browsers 'ie 11' 'chrome 60' 'ios 10.3'
+rna test:saucelabs
+```
+
+```sh
+rna test:saucelabs 'test/**/*.spec.js' --coverage
+```
+
+```sh
+rna test:saucelabs 'test/elements.spec.js' --browsers 'ie 11' 'chrome 60' 'ios 10.3'
 ```
 
 ---

@@ -17,8 +17,11 @@
 ## Install
 
 ```sh
-$ npm i @chialab/rna-node-test-runner -D
-$ yarn add @chialab/rna-node-test-runner -D
+npm i @chialab/rna-node-test-runner -D
+```
+
+```sh
+yarn add @chialab/rna-node-test-runner -D
 ```
 
 ## Usage
@@ -35,12 +38,8 @@ await test({
 
 ### Via cli
 
-```sh
-$ npm i @chialab/rna @chialab/rna-node-test-runner -D
 ```
-
-```
-test:node [options] [specs...]
+rna test:node [options] [specs...]
 
 Options:
   --coverage  collect code coverage

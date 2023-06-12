@@ -11,8 +11,11 @@
 ## Install
 
 ```sh
-$ npm i @chialab/esbuild-plugin-metadata -D
-$ yarn add @chialab/esbuild-plugin-metadata -D
+npm i @chialab/esbuild-plugin-metadata -D
+```
+
+```sh
+yarn add @chialab/esbuild-plugin-metadata -D
 ```
 
 ## Usage

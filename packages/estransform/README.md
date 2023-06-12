@@ -11,8 +11,11 @@
 ## Install
 
 ```sh
-$ npm i @chialab/estransform -D
-$ yarn add @chialab/estransform -D
+npm i @chialab/estransform -D
+```
+
+```sh
+yarn add @chialab/estransform -D
 ```
 
 ## Usage

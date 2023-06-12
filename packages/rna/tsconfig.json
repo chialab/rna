@@ -11,6 +11,9 @@
   ],
   "references": [
     {
+      "path": "../rna-bundler"
+    },
+    {
       "path": "../rna-logger"
     },
     {

@@ -11,8 +11,11 @@
 ## Install
 
 ```sh
-$ npm i @chialab/wtr-mocha-reporter -D
-$ yarn add @chialab/wtr-mocha-reporter -D
+npm i @chialab/wtr-mocha-reporter -D
+```
+
+```sh
+yarn add @chialab/wtr-mocha-reporter -D
 ```
 
 ## Usage

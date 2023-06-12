@@ -11,8 +11,11 @@
 ## Install
 
 ```sh
-$ npm i @chialab/esbuild-plugin-css-import -D
-$ yarn add @chialab/esbuild-plugin-css-import -D
+npm i @chialab/esbuild-plugin-css-import -D
+```
+
+```sh
+yarn add @chialab/esbuild-plugin-css-import -D
 ```
 
 ## Usage

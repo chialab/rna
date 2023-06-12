@@ -17,8 +17,11 @@
 ## Install
 
 ```sh
-$ npm i @chialab/rna-browser-test-runner -D
-$ yarn add @chialab/rna-browser-test-runner -D
+npm i @chialab/rna-browser-test-runner -D
+```
+
+```sh
+yarn add @chialab/rna-browser-test-runner -D
 ```
 
 ## Usage
@@ -40,10 +43,6 @@ await test({
 
 ### Via cli
 
-```sh
-$ npm i @chialab/rna @chialab/rna-browser-test-runner -D
-```
-
 ```
 test:browser [options] [specs...]
 
@@ -61,9 +60,15 @@ Options:
 **Samples**
 
 ```sh
-$ rna test:browser
-$ rna test:browser 'test/**/*.spec.js' --coverage
-$ rna test:browser 'test/elements.spec.js' --watch --open
+rna test:browser
+```
+
+```sh
+rna test:browser 'test/**/*.spec.js' --coverage
+```
+
+```sh
+rna test:browser 'test/elements.spec.js' --watch --open
 ```
 
 ---

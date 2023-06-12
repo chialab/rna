@@ -1,5 +1,5 @@
 import path from 'path';
-import sass from 'sass';
+import { render } from 'sass';
 import { SourceMapConsumer, SourceMapGenerator } from 'source-map';
 import sassResolver, { alternatives } from './sassResolver.js';
 
@@ -202,7 +202,7 @@ export default function(options = {}) {
             /**
              * @type {import('sass').LegacyResult}
              */
-            const sassResult = await new Promise((resolve, reject) => sass.render(computedOptions, (err, result) => {
+            const sassResult = await new Promise((resolve, reject) => render(computedOptions, (err, result) => {
                 if (err) {
                     reject(err);
                 } else if (result) {

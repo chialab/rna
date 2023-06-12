@@ -47,8 +47,8 @@ export function createResolver(options = {}) {
             path,
             {},
             /**
-             * @param {Error} err
-             * @param {string} data
+             * @param {Error|null} err
+             * @param {string|false} [data]
              */
             (err, data) => (err ? reject(err) : resolve(data)))
         );

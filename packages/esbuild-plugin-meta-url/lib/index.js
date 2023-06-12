@@ -183,6 +183,7 @@ export default function({ emit = true } = {}) {
                             if (emit && !isIIFE) {
                                 if (isChunk) {
                                     const chunk = await build.emitChunk({ path: resolvedPath });
+                                    searchParams.set('hash', chunk.id);
                                     entryPoint = chunk.path;
                                 } else {
                                     const file = await build.emitFile(resolvedPath);

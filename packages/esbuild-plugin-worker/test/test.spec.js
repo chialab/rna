@@ -28,6 +28,7 @@ export {
   worker
 };
 `);
+
         expect(worker.text).to.be.equal(`"use strict";
 (() => {
   // lib.worker.js
@@ -279,7 +280,7 @@ export {
             stdin: {
                 resolveDir: fileURLToPath(new URL('.', import.meta.url)),
                 sourcefile: fileURLToPath(import.meta.url),
-                contents: 'export const worker = new Worker(\'./worker.js\');',
+                contents: 'export const worker = new Worker(new URL(\'./worker.js\', import.meta.url));',
             },
             format: 'iife',
             platform: 'browser',

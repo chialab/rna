@@ -120,8 +120,9 @@ export async function collectWebManifest($, dom, options, helpers) {
             MANIFEST_ICONS.map(async ({ name, size }) => {
                 const contents = await generateIcon(image, size, 0, { r: 255, g: 255, b: 255, a: 1 });
                 const result = await helpers.emitFile(name, contents);
+                const outputPath = helpers.resolveRelativePath(result.path, manifestOutputDir, '');
                 return {
-                    src: path.relative(manifestOutputDir, result.filePath).split(path.sep).join('/'),
+                    src: outputPath,
                     sizes: `${size}x${size}`,
                     type: 'image/png',
                 };
@@ -130,8 +131,9 @@ export async function collectWebManifest($, dom, options, helpers) {
     }
 
     const file = await helpers.emitFile(entryPoint, JSON.stringify(json, null, 2));
+    const outputPath = helpers.resolveRelativePath(file.path, null, '');
 
-    $(element).attr('href', file.path.split(path.sep).join('/'));
+    $(element).attr('href', outputPath);
 
     return [{
         ...file,

@@ -11,8 +11,11 @@
 ## Install
 
 ```sh
-$ npm i @chialab/esbuild-rna -D
-$ yarn add @chialab/esbuild-rna -D
+npm i @chialab/esbuild-rna -D
+```
+
+```sh
+yarn add @chialab/esbuild-rna -D
 ```
 
 ## Usage

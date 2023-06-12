@@ -11,8 +11,11 @@
 ## Install
 
 ```sh
-$ npm i @chialab/esbuild-plugin-lightningcss -D
-$ yarn add @chialab/esbuild-plugin-lightningcss -D
+npm i @chialab/esbuild-plugin-lightningcss -D
+```
+
+```sh
+yarn add @chialab/esbuild-plugin-lightningcss -D
 ```
 
 ## Usage

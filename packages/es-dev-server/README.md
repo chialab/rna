@@ -11,8 +11,11 @@
 ## Install
 
 ```sh
-$ npm i @chialab/es-dev-server -D
-$ yarn add @chialab/es-dev-server -D
+npm i @chialab/es-dev-server -D
+```
+
+```sh
+yarn add @chialab/es-dev-server -D
 ```
 
 ---

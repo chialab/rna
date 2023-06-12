@@ -5,7 +5,6 @@
 ### Minor Changes
 
 - 6457004: Bump to v0.18.0
-- acf3afd: Replace PostCSS with Lightning CSS
 
 ### Patch Changes
 
@@ -23,7 +22,6 @@
   - @chialab/esbuild-rna@0.18.0-alpha.0
   - @chialab/rna-config-loader@0.18.0-alpha.0
   - @chialab/rna-logger@0.18.0-alpha.0
-  - @chialab/esbuild-plugin-lightningcss@0.18.0-alpha.0
 
 ## 0.17.6
 

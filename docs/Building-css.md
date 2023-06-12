@@ -7,15 +7,21 @@ Unless you are using syntaxes like Sass and Less, CSS builds are less expansive 
 Even if [esbuild](https://esbuild.github.io/) has out of the box support for CSS files, in order to bundle a CSS module using RNA you may have to install the bundler package along with the postcss plugin for node modules resolution:
 
 ```sh
-$ npm i -D @chialab/rna
-$ yarn add -D @chialab/rna
+npm i -D @chialab/rna
+```
+
+```sh
+yarn add -D @chialab/rna
 ```
 
 and run:
 
 ```sh
-$ npx rna build src/index.css --output public/index.css
-$ yarn rna build src/index.css --output public/index.css
+npx rna build src/index.css --output public/index.css
+```
+
+```sh
+yarn rna build src/index.css --output public/index.css
 ```
 
 A CSS bundle will be generated as well as its source map (unless you added the `--no-map` flag).
@@ -50,7 +56,7 @@ We built a [custom PostCSS preset](https://www.npmjs.com/package/@chialab/postcs
 You can install it using npm  or yarn:
 
 ```sh
-$ npm i @chialab/postcss-preset-chialab -D
+npm i @chialab/postcss-preset-chialab -D
 ```
 
 And creating or updating tghe postcss config file:
@@ -73,7 +79,7 @@ Although out of RNA scope, we strongly recommend to use a linter for CSS project
 First, you need to install the stylelint cli:
 
 ```sh
-$ npm i -D stylelint
+npm i -D stylelint
 ```
 
 Please follow official guide for [linter configuration](https://stylelint.io/user-guide/configure).
@@ -81,7 +87,7 @@ Please follow official guide for [linter configuration](https://stylelint.io/use
 We also provide our configuration preset:
 
 ```sh
-$ npm i -D @chialab/stylelint-config
+npm i -D @chialab/stylelint-config
 ```
 
 **.stylelintrc.json**

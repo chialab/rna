@@ -99,7 +99,7 @@ export async function build(config) {
             import('@chialab/esbuild-plugin-meta-url')
                 .then(({ default: plugin }) => plugin()),
         !hasPlugin(plugins, 'lightningcss') && !hasPlugin(plugins, 'postcss') &&
-            import('@chialab/esbuild-plugin-lightningcss')
+            import('@chialab/esbuild-plugin-postcss')
                 .then(({ default: plugin }) => plugin()),
         !hasPlugin(plugins, 'html') &&
             import('@chialab/esbuild-plugin-html')

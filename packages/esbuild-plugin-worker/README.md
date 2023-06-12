@@ -41,8 +41,11 @@ const workerClass = function() {
 ## Install
 
 ```sh
-$ npm i @chialab/esbuild-plugin-worker -D
-$ yarn add @chialab/esbuild-plugin-worker -D
+npm i @chialab/esbuild-plugin-worker -D
+```
+
+```sh
+yarn add @chialab/esbuild-plugin-worker -D
 ```
 
 ## Usage

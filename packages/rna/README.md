@@ -33,12 +33,14 @@ In order to make other commands work, you need to install each dependency.
 #### Common module
 
 ```sh
-$ npm i -D \
+npm i -D \
   @chialab/rna \
   @chialab/rna-dev-server \
   @chialab/rna-browser-test-runner
+```
 
-$ yarn add -D \
+```sh
+yarn add -D \
   @chialab/rna \
   @chialab/rna-dev-server \
   @chialab/rna-browser-test-runner
@@ -47,12 +49,14 @@ $ yarn add -D \
 #### Common webapp
 
 ```sh
-$ npm i -D \
+npm i -D \
   @chialab/rna \
   @chialab/rna-dev-server \
   @chialab/rna-browser-test-runner
+```
 
-$ yarn add -D \
+```sh
+yarn add -D \
   @chialab/rna \
   @chialab/rna-dev-server \
   @chialab/rna-browser-test-runner
@@ -61,17 +65,21 @@ $ yarn add -D \
 #### Build only
 
 ```sh
-$ npm i -D @chialab/rna
+npm i -D @chialab/rna
+```
 
-$ yarn add -D @chialab/rna
+```sh
+yarn add -D @chialab/rna
 ```
 
 #### Test node
 
 ```sh
-$ npm i -D @chialab/rna @chialab/rna-node-test-runner
+npm i -D @chialab/rna @chialab/rna-node-test-runner
+```
 
-$ yarn add -D @chialab/rna @chialab/rna-node-test-runner
+```sh
+yarn add -D @chialab/rna @chialab/rna-node-test-runner
 ```
 
 ---

@@ -11,8 +11,11 @@
 ## Install
 
 ```sh
-$ npm i @chialab/node-resolve -D
-$ yarn add @chialab/node-resolve -D
+npm i @chialab/node-resolve -D
+```
+
+```sh
+yarn add @chialab/node-resolve -D
 ```
 
 ## Usage

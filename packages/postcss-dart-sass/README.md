@@ -11,8 +11,11 @@
 ## Install
 
 ```sh
-$ npm i @chialab/postcss-dart-sass -D
-$ yarn add @chialab/postcss-dart-sass -D
+npm i @chialab/postcss-dart-sass -D
+```
+
+```sh
+yarn add @chialab/postcss-dart-sass -D
 ```
 
 ## Usage

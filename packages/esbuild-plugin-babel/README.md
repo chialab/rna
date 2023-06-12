@@ -11,8 +11,11 @@
 ## Install
 
 ```sh
-$ npm i @chialab/esbuild-plugin-babel -D
-$ yarn add @chialab/esbuild-plugin-babel -D
+npm i @chialab/esbuild-plugin-babel -D
+```
+
+```sh
+yarn add @chialab/esbuild-plugin-babel -D
 ```
 
 ## Usage

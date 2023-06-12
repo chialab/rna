@@ -11,8 +11,11 @@
 ## Install
 
 ```sh
-$ npm i @chialab/wds-plugin-polyfill -D
-$ yarn add @chialab/wds-plugin-polyfill -D
+npm i @chialab/wds-plugin-polyfill -D
+```
+
+```sh
+yarn add @chialab/wds-plugin-polyfill -D
 ```
 
 ## Usage

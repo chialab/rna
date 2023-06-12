@@ -1,5 +1,15 @@
 # @chialab/esbuild-rna
 
+## 0.17.8
+
+### Patch Changes
+
+- 40d88a19: Add support for `publicPath` options in plugins.
+- 547a33c4: Add option to not collect inlined files and chunks.
+- Updated dependencies [211ef4d0]
+  - @chialab/estransform@0.17.4
+  - @chialab/node-resolve@0.17.1
+
 ## 0.17.7
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @chialab/estransform
 
+## 0.17.4
+
+### Patch Changes
+
+- 211ef4d0: Remove unused `__filename` and `__dirname` from dist files.
+
 ## 0.17.3
 
 ### Patch Changes

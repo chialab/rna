@@ -1979,7 +1979,6 @@ __metadata:
     "@chialab/esbuild-plugin-html": ^0.18.0-alpha.0
     "@chialab/esbuild-plugin-meta-url": ^0.18.0-alpha.0
     "@chialab/esbuild-plugin-metadata": ^0.18.0
-    "@chialab/esbuild-plugin-postcss": ^0.18.0-alpha.0
     "@chialab/esbuild-plugin-worker": ^0.18.0-alpha.0
     "@chialab/esbuild-rna": ^0.18.0-alpha.0
     "@chialab/rna-config-loader": ^0.18.0-alpha.0

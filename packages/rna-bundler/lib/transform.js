@@ -62,13 +62,7 @@ export async function transform(config) {
                 .then(({ default: plugin }) => plugin({
                     emit: false,
                 })),
-        !hasPlugin(plugins, 'lightningcss') && !hasPlugin(plugins, 'postcss') &&
-            import('@chialab/esbuild-plugin-postcss')
-                .then(({ default: plugin }) => plugin()),
         ...plugins,
-        !hasPlugin(plugins, 'css-import') &&
-            import('@chialab/esbuild-plugin-css-import')
-                .then(({ default: plugin }) => plugin()),
         !hasPlugin(plugins, 'any-file') &&
             import('@chialab/esbuild-plugin-any-file')
                 .then(({ default: plugin }) => plugin()),

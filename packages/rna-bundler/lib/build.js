@@ -105,9 +105,6 @@ export async function build(config) {
                     modulesTarget: target || 'es2020',
                 })),
         ...plugins,
-        !hasPlugin(plugins, 'css-import') &&
-            import('@chialab/esbuild-plugin-css-import')
-                .then(({ default: plugin }) => plugin()),
         !hasPlugin(plugins, 'any-file') &&
             import('@chialab/esbuild-plugin-any-file')
                 .then(({ default: plugin }) => plugin()),

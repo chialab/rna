@@ -1689,7 +1689,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@chialab/esbuild-plugin-css-import@^0.18.0-alpha.0, @chialab/esbuild-plugin-css-import@workspace:packages/esbuild-plugin-css-import":
+"@chialab/esbuild-plugin-css-import@workspace:packages/esbuild-plugin-css-import":
   version: 0.0.0-use.local
   resolution: "@chialab/esbuild-plugin-css-import@workspace:packages/esbuild-plugin-css-import"
   dependencies:
@@ -1974,7 +1974,6 @@ __metadata:
   dependencies:
     "@chialab/esbuild-plugin-any-file": ^0.18.0-alpha.0
     "@chialab/esbuild-plugin-commonjs": ^0.18.0-alpha.0
-    "@chialab/esbuild-plugin-css-import": ^0.18.0-alpha.0
     "@chialab/esbuild-plugin-env": ^0.18.0-alpha.0
     "@chialab/esbuild-plugin-html": ^0.18.0-alpha.0
     "@chialab/esbuild-plugin-meta-url": ^0.18.0-alpha.0

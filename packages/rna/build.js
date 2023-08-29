@@ -10,8 +10,12 @@ esbuild.build({
     format: 'esm',
     platform: 'node',
     external: [
-        '@chialab/rna-logger',
+        '@chialab/rna-browser-test-runner',
         '@chialab/rna-bundler',
+        '@chialab/rna-dev-server',
+        '@chialab/rna-logger',
+        '@chialab/rna-node-test-runner',
+        '@chialab/rna-saucelabs-test-runner',
     ],
     banner: {
         js: `import { dirname as __pathDirname } from 'path';

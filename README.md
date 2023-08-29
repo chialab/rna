@@ -45,10 +45,11 @@ Since RNA aims to support both browser and Node modules, you can test your modul
 ### Quick usage
 
 ```sh
-npm i -D \
-    @chialab/rna \
-    @chialab/rna-dev-server \
-    @chialab/rna-browser-test-runner
+npm i -D @chialab/rna
+```
+
+```sh
+yarn add -D @chialab/rna
 ```
 
 **package.json**

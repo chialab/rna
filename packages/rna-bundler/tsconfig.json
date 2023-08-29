@@ -17,9 +17,6 @@
       "path": "../esbuild-plugin-commonjs"
     },
     {
-      "path": "../esbuild-plugin-css-import"
-    },
-    {
       "path": "../esbuild-plugin-env"
     },
     {
@@ -30,9 +27,6 @@
     },
     {
       "path": "../esbuild-plugin-metadata"
-    },
-    {
-      "path": "../esbuild-plugin-postcss"
     },
     {
       "path": "../esbuild-plugin-worker"

@@ -1,5 +1,6 @@
 import { access } from 'fs/promises';
 import path from 'path';
+import { pathToFileURL } from 'url';
 
 /**
  * @typedef {import('esbuild').BuildOptions} BuildOptions
@@ -234,7 +235,7 @@ async function computeConfigFile(inputConfig, initialConfig, mode) {
  */
 export async function readConfigFile(configFile, initialConfig, mode = 'build', cwd = process.cwd()) {
     configFile = path.isAbsolute(configFile) ? configFile : `./${configFile}`;
-    const { default: inputConfig } = await import(path.resolve(cwd, configFile));
+    const { default: inputConfig } = await import(pathToFileURL(path.resolve(cwd, configFile)).href);
 
     return computeConfigFile(inputConfig, initialConfig, mode);
 }

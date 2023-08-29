@@ -9,6 +9,11 @@
 ### Patch Changes
 
 - dcf1f06: Resolve styles using export fields
+## 0.17.1
+
+### Patch Changes
+
+- 211ef4d0: Remove unused `__filename` and `__dirname` from dist files.
 
 ## 0.17.0
 

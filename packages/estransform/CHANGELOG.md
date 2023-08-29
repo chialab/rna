@@ -5,6 +5,11 @@
 ### Minor Changes
 
 - 6457004: Bump to v0.18.0
+## 0.17.4
+
+### Patch Changes
+
+- 211ef4d0: Remove unused `__filename` and `__dirname` from dist files.
 
 ## 0.17.3
 

@@ -11,6 +11,16 @@
 - Updated dependencies [6457004]
   - @chialab/esbuild-rna@0.18.0-alpha.0
   - @chialab/estransform@0.18.0-alpha.0
+## 0.17.2
+
+### Patch Changes
+
+- 40d88a19: Add support for `publicPath` options in plugins.
+- Updated dependencies [211ef4d0]
+- Updated dependencies [40d88a19]
+- Updated dependencies [547a33c4]
+  - @chialab/estransform@0.17.4
+  - @chialab/esbuild-rna@0.17.8
 
 ## 0.17.1
 

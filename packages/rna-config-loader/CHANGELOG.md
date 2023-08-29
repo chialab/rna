@@ -1,5 +1,14 @@
 # @chialab/rna-config-loader
 
+## 0.18.0-alpha.1
+
+### Patch Changes
+
+- 5f0f3c9: Fix config file loader for Windows.
+- Update esbuild and other dependencies.
+- Updated dependencies
+  - @chialab/node-resolve@0.18.0-alpha.1
+
 ## 0.18.0-alpha.0
 
 ### Minor Changes

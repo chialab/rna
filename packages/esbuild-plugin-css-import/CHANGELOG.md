@@ -1,5 +1,13 @@
 # @chialab/esbuild-plugin-css-import
 
+## 0.18.0-alpha.1
+
+### Patch Changes
+
+- Update esbuild and other dependencies.
+- Updated dependencies
+  - @chialab/node-resolve@0.18.0-alpha.1
+
 ## 0.18.0-alpha.0
 
 ### Minor Changes

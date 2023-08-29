@@ -1,5 +1,16 @@
 # @chialab/esbuild-plugin-worker
 
+## 0.18.0-alpha.1
+
+### Patch Changes
+
+- Update esbuild and other dependencies.
+- Updated dependencies
+  - @chialab/esbuild-plugin-meta-url@0.18.0-alpha.1
+  - @chialab/node-resolve@0.18.0-alpha.1
+  - @chialab/esbuild-rna@0.18.0-alpha.1
+  - @chialab/estransform@0.18.0-alpha.1
+
 ## 0.18.0-alpha.0
 
 ### Minor Changes
@@ -14,6 +25,7 @@
   - @chialab/esbuild-rna@0.18.0-alpha.0
   - @chialab/estransform@0.18.0-alpha.0
   - @chialab/node-resolve@0.18.0-alpha.0
+
 ## 0.17.5
 
 ### Patch Changes

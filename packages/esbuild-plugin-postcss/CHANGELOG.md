@@ -1,5 +1,14 @@
 # @chialab/esbuild-plugin-postcss
 
+## 0.18.0-alpha.1
+
+### Patch Changes
+
+- Update esbuild and other dependencies.
+- Updated dependencies
+  - @chialab/postcss-dart-sass@0.18.0-alpha.1
+  - @chialab/esbuild-rna@0.18.0-alpha.1
+
 ## 0.18.0-alpha.0
 
 ### Minor Changes

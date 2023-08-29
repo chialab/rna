@@ -1,7 +1,7 @@
 {
   "name": "@chialab/esbuild-plugin-virtual",
   "type": "module",
-  "version": "0.18.0-alpha.0",
+  "version": "0.18.0-alpha.1",
   "description": "A virtual file system for ebuild modules.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",
@@ -24,7 +24,7 @@
     "node": ">=13"
   },
   "dependencies": {
-    "@chialab/esbuild-rna": "^0.18.0-alpha.0"
+    "@chialab/esbuild-rna": "^0.18.0-alpha.1"
   },
   "devDependencies": {
     "typescript": "^5.0.0"

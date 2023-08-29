@@ -1,5 +1,11 @@
 # @chialab/esbuild-plugin-env
 
+## 0.18.0-alpha.1
+
+### Patch Changes
+
+- Update esbuild and other dependencies.
+
 ## 0.18.0-alpha.0
 
 ### Minor Changes

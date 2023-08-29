@@ -1,8 +1,9 @@
 import path from 'path';
-import crypto from 'crypto';
+import { Buffer } from 'buffer';
+import process from 'process';
 import { mkdir, readFile, writeFile } from 'fs/promises';
 import { loadSourcemap, inlineSourcemap, mergeSourcemaps } from '@chialab/estransform';
-import { createOutputFile, createResult, assignToResult } from './helpers.js';
+import { createOutputFile, createResult, assignToResult, createFileHash } from './helpers.js';
 
 /**
  * @typedef {import('esbuild').Message} Message
@@ -766,9 +767,7 @@ export class Build {
      * @returns A buffer hash.
      */
     hash(buffer) {
-        const hash = crypto.createHash('sha1');
-        hash.update(Buffer.from(buffer));
-        return hash.digest('hex').substring(0, 8);
+        return createFileHash(buffer);
     }
 
     /**

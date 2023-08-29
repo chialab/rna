@@ -1,4 +1,5 @@
 import path from 'path';
+import process from 'process';
 import { writeFile } from 'fs/promises';
 import { writeManifestJson } from './writeManifestJson.js';
 import { generateEntrypointsJson, writeEntrypointsJson } from './writeEntrypointsJson.js';

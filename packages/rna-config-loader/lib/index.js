@@ -1,5 +1,6 @@
 import { access } from 'fs/promises';
 import path from 'path';
+import process from 'process';
 import { pathToFileURL } from 'url';
 
 /**

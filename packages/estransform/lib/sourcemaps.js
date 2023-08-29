@@ -1,5 +1,6 @@
 import { readFile } from 'fs/promises';
 import path from 'path';
+import { Buffer } from 'buffer';
 import sourceMapDefault from '@parcel/source-map';
 
 const { default: SourceMapNode } = sourceMapDefault;

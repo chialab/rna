@@ -1,4 +1,6 @@
 import path from 'path';
+import process from 'process';
+import { Buffer } from 'buffer';
 import { useRna } from '@chialab/esbuild-rna';
 
 const DEFAULT_TARGETS = [

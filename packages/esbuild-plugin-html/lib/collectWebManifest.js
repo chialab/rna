@@ -1,4 +1,5 @@
 import path from 'path';
+import { Buffer } from 'buffer';
 import { isRelativeUrl } from '@chialab/node-resolve';
 import Jimp from './generator.js';
 import { generateIcon } from './generateIcon.js';

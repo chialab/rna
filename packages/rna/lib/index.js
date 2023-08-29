@@ -1,12 +1,11 @@
 #!/usr/bin/env node
 
 import { readFile } from 'fs/promises';
-import commander from 'commander';
+import { program } from 'commander';
 import { createLogger, colors } from '@chialab/rna-logger';
+import process from 'process';
 
 const argv = process.argv;
-
-const { program } = commander;
 const packageJson = new URL('../package.json', import.meta.url);
 const json = JSON.parse(await readFile(packageJson, 'utf-8'));
 

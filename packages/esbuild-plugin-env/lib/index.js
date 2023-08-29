@@ -1,3 +1,5 @@
+import process from 'process';
+
 /**
  * @param {string} str
  */

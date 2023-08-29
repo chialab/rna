@@ -33,6 +33,6 @@
     "@chialab/estransform": "^0.18.0-alpha.0"
   },
   "devDependencies": {
-    "typescript": "^4.3.0"
+    "typescript": "^5.0.0"
   }
 }

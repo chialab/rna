@@ -1,4 +1,5 @@
 import path from 'path';
+import process from 'process';
 import { rm } from 'fs/promises';
 import esbuild from 'esbuild';
 import { hasPlugin } from '@chialab/esbuild-rna';
@@ -97,9 +98,6 @@ export async function build(config) {
                 .then(({ default: plugin }) => plugin()),
         !hasPlugin(plugins, 'meta-url') &&
             import('@chialab/esbuild-plugin-meta-url')
-                .then(({ default: plugin }) => plugin()),
-        !hasPlugin(plugins, 'lightningcss') && !hasPlugin(plugins, 'postcss') &&
-            import('@chialab/esbuild-plugin-postcss')
                 .then(({ default: plugin }) => plugin()),
         !hasPlugin(plugins, 'html') &&
             import('@chialab/esbuild-plugin-html')

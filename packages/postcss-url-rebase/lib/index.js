@@ -1,4 +1,5 @@
 import path from 'path';
+import process from 'process';
 import { styleResolve, isRelativeUrl } from '@chialab/node-resolve';
 
 /**

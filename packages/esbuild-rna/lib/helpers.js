@@ -1,4 +1,6 @@
 import path from 'path';
+import crypto from 'crypto';
+import { Buffer } from 'buffer';
 
 /**
  * Create an empty metafile object.
@@ -6,6 +8,17 @@ import path from 'path';
  */
 export function createEmptyMetafile() {
     return { inputs: {}, outputs: {} };
+}
+
+/**
+ * Create an hash for the given buffer.
+ * @param {Buffer|Uint8Array|string} buffer The buffer input.
+ * @returns A buffer hash.
+ */
+export function createFileHash(buffer) {
+    const hash = crypto.createHash('sha1');
+    hash.update(Buffer.from(buffer));
+    return hash.digest('hex').substring(0, 8);
 }
 
 /**
@@ -17,6 +30,7 @@ export function createOutputFile(path, contents) {
     return {
         path,
         contents,
+        hash: createFileHash(contents),
         get text() {
             return contents.toString();
         },

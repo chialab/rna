@@ -48,13 +48,13 @@
     "@chialab/wds-plugin-node-resolve": "^0.18.0-alpha.0",
     "@chialab/wtr-coverage-reporter": "^0.18.0-alpha.0",
     "@chialab/wtr-mocha-reporter": "^0.18.0-alpha.0",
-    "@web/test-runner-core": "^0.10.18",
-    "@web/test-runner-mocha": "^0.7.3",
-    "@web/test-runner-playwright": "^0.8.8"
+    "@web/test-runner-core": "^0.11.4",
+    "@web/test-runner-mocha": "^0.8.1",
+    "@web/test-runner-playwright": "^0.10.1"
   },
   "devDependencies": {
-    "@web/test-runner-chrome": "^0.13.0",
-    "commander": "^7.2.0",
-    "typescript": "^4.3.0"
+    "@web/test-runner-chrome": "^0.14.1",
+    "commander": "^11.0.0",
+    "typescript": "^5.0.0"
   }
 }

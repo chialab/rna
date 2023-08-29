@@ -1,3 +1,4 @@
+import process from 'process';
 import autoprefixer from 'autoprefixer';
 import nesting from 'postcss-nesting';
 import dir from 'postcss-dir-pseudo-class';

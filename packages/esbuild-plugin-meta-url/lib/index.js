@@ -1,4 +1,5 @@
 import path from 'path';
+import { Buffer } from 'buffer';
 import mime from 'mime-types';
 import { getSearchParam, isUrl } from '@chialab/node-resolve';
 import { parse, walk, getIdentifierValue, getBlock, getLocation, TokenType } from '@chialab/estransform';

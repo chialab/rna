@@ -1,5 +1,6 @@
 import os from 'os';
 import path from 'path';
+import process from 'process';
 import { Worker } from 'worker_threads';
 import { mkdtemp } from 'fs/promises';
 import { readConfigFile, mergeConfig, locateConfigFile } from '@chialab/rna-config-loader';

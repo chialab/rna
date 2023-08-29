@@ -30,24 +30,24 @@
   "dependencies": {
     "@chialab/postcss-url-rebase": "^0.18.0-alpha.0",
     "autoprefixer": "^10.2.4",
-    "postcss-color-hex-alpha": "^8.0.0",
-    "postcss-custom-properties": "^12.0.0",
-    "postcss-dir-pseudo-class": "^6.0.0",
-    "postcss-focus-visible": "^6.0.0",
-    "postcss-focus-within": "^5.0.0",
+    "postcss-color-hex-alpha": "^9.0.0",
+    "postcss-custom-properties": "^13.0.0",
+    "postcss-dir-pseudo-class": "^8.0.0",
+    "postcss-focus-visible": "^9.0.0",
+    "postcss-focus-within": "^8.0.0",
     "postcss-font-variant": "^5.0.0",
-    "postcss-import": "^14.0.2",
-    "postcss-initial": "^4.0.0",
-    "postcss-logical": "^5.0.0",
-    "postcss-nesting": "^10.0.0",
+    "postcss-import": "^15.1.0",
+    "postcss-initial": "^3.0.4",
+    "postcss-logical": "^7.0.0",
+    "postcss-nesting": "^12.0.0",
     "postcss-page-break": "^3.0.0",
-    "postcss-place": "^7.0.0",
-    "postcss-pseudo-class-any-link": "^7.0.0",
+    "postcss-place": "^9.0.0",
+    "postcss-pseudo-class-any-link": "^9.0.0",
     "postcss-replace-overflow-wrap": "^4.0.0",
     "postcss-url": "^10.0.0"
   },
   "devDependencies": {
     "postcss": "^8.2.5",
-    "typescript": "^4.3.0"
+    "typescript": "^5.0.0"
   }
 }

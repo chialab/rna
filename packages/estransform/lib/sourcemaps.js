@@ -1,6 +1,7 @@
 import { readFile } from 'fs/promises';
 import { createRequire } from 'module';
 import path from 'path';
+import { Buffer } from 'buffer';
 
 const require = createRequire(import.meta.url);
 const SourceMapNode = require('@parcel/source-map').default;

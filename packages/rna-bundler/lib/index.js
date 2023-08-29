@@ -1,5 +1,6 @@
 import os from 'os';
 import path from 'path';
+import process from 'process';
 import { colors, createLogger, readableSize } from '@chialab/rna-logger';
 import { getEntryBuildConfig, mergeConfig, readConfigFile, locateConfigFile } from '@chialab/rna-config-loader';
 import { assignToResult, createResult, remapResult, useRna } from '@chialab/esbuild-rna';

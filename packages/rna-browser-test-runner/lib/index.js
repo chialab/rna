@@ -1,4 +1,5 @@
 import path from 'path';
+import process from 'process';
 import { cpus } from 'os';
 import { createRequire } from 'module';
 import { readConfigFile, mergeConfig, locateConfigFile } from '@chialab/rna-config-loader';

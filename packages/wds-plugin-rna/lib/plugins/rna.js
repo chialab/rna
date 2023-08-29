@@ -1,4 +1,5 @@
 import path from 'path';
+import { Buffer } from 'buffer';
 import { realpath } from 'fs/promises';
 import { getRequestFilePath } from '@chialab/es-dev-server';
 import { getEntryConfig } from '@chialab/rna-config-loader';

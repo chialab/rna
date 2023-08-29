@@ -1,4 +1,5 @@
 import path from 'path';
+import { Buffer } from 'buffer';
 import { walk, parse, TokenType, getIdentifierValue, getLocation, getBlock, splitArgs } from '@chialab/estransform';
 import { getSearchParam } from '@chialab/node-resolve';
 import metaUrlPlugin from '@chialab/esbuild-plugin-meta-url';

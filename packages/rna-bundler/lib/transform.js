@@ -1,4 +1,5 @@
 import path from 'path';
+import process from 'process';
 import esbuild from 'esbuild';
 import { hasPlugin } from '@chialab/esbuild-rna';
 import { transformLoaders } from './loaders.js';

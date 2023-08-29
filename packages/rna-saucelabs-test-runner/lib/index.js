@@ -1,4 +1,5 @@
 import path from 'path';
+import process from 'process';
 import { readFile } from 'fs/promises';
 import { readConfigFile, mergeConfig, locateConfigFile } from '@chialab/rna-config-loader';
 import { createLogger } from '@chialab/rna-logger';

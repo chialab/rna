@@ -34,9 +34,9 @@
     "@chialab/es-test-runner": "^0.18.0-alpha.0"
   },
   "devDependencies": {
-    "@web/test-runner-core": "^0.10.19",
-    "chalk": "^4.1.2",
-    "rimraf": "^3.0.2",
-    "typescript": "^4.3.0"
+    "@web/test-runner-core": "^0.11.4",
+    "chalk": "^5.3.0",
+    "rimraf": "^5.0.1",
+    "typescript": "^5.0.0"
   }
 }

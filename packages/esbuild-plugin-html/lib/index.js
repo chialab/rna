@@ -1,4 +1,5 @@
 import path from 'path';
+import { Buffer } from 'buffer';
 import { copyFile, readFile, rm } from 'fs/promises';
 import * as cheerio from 'cheerio';
 import beautify from 'js-beautify';

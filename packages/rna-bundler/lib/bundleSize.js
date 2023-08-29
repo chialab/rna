@@ -1,4 +1,5 @@
 import { createReadStream } from 'fs';
+import process from 'process';
 import { createGzip, createBrotliCompress } from 'zlib';
 
 /**

@@ -48,9 +48,12 @@ class DevServer extends CoreDevServer {
         }
 
         server.on('upgrade', (req, socket, head) => {
-            this.webSockets.webSocketServer.handleUpgrade(req, socket, head, (ws) => {
-                this.webSockets.webSocketServer.emit('connection', ws, req);
-            });
+            const manager = this.webSockets;
+            if (manager) {
+                manager.webSocketServer.handleUpgrade(req, socket, head, (ws) => {
+                    manager.webSocketServer.emit('connection', ws, req);
+                });
+            }
         });
 
         this.boundServer = server;

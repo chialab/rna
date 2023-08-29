@@ -112,11 +112,11 @@ export function parse(inputCode, filePath) {
                 let map = null;
                 if (options.sourcemap) {
                     const inputSourcemap = await loadSourcemap(inputCode, filePath);
-                    const newSourcemap = magicCode.generateMap({
+                    const newSourcemap = /** @type {SourceMap} */ (magicCode.generateMap({
                         source: filePath,
                         includeContent: options.sourcesContent,
                         hires: true,
-                    });
+                    }));
 
                     map = inputSourcemap ? await mergeSourcemaps([inputSourcemap, newSourcemap]) : newSourcemap;
                 }

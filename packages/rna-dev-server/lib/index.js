@@ -1,5 +1,6 @@
 import { stat } from 'fs/promises';
 import path from 'path';
+import process from 'process';
 import { readConfigFile, mergeConfig, locateConfigFile } from '@chialab/rna-config-loader';
 import { createLogger, colors } from '@chialab/rna-logger';
 import { DevServer, getPort, portNumbers } from '@chialab/es-dev-server';

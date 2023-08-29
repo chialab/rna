@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import { Buffer } from 'buffer';
 import { createRequire } from 'module';
 import { inject } from '@chialab/wds-plugin-polyfill';
 import { createHelperUrl, isPlainScript } from '@chialab/wds-plugin-node-resolve';

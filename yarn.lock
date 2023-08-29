@@ -2077,18 +2077,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@chialab/rna-node-test-runner@npm:^0.17.0 || ^0.18.0":
-  version: 0.17.0
-  resolution: "@chialab/rna-node-test-runner@npm:0.17.0"
-  dependencies:
-    "@chialab/es-test-runner": ^0.17.0
-    "@chialab/node-resolve": ^0.17.0
-    "@chialab/rna-config-loader": ^0.17.0
-  checksum: 3a25e863a4df2e5a89a1d705d9e02ad2371b5bd1fa2caadd1b4061ff8b17f1b4af6bbfef7c955c734617d2c8c675141732d41e0908ad3df03d57dc99e67c602c
-  languageName: node
-  linkType: hard
-
-"@chialab/rna-node-test-runner@workspace:packages/rna-node-test-runner":
+"@chialab/rna-node-test-runner@^0.18.0-alpha.1, @chialab/rna-node-test-runner@workspace:packages/rna-node-test-runner":
   version: 0.0.0-use.local
   resolution: "@chialab/rna-node-test-runner@workspace:packages/rna-node-test-runner"
   dependencies:
@@ -2099,6 +2088,17 @@ __metadata:
     typescript: ^5.0.0
   languageName: unknown
   linkType: soft
+
+"@chialab/rna-node-test-runner@npm:^0.17.0 || ^0.18.0":
+  version: 0.17.0
+  resolution: "@chialab/rna-node-test-runner@npm:0.17.0"
+  dependencies:
+    "@chialab/es-test-runner": ^0.17.0
+    "@chialab/node-resolve": ^0.17.0
+    "@chialab/rna-config-loader": ^0.17.0
+  checksum: 3a25e863a4df2e5a89a1d705d9e02ad2371b5bd1fa2caadd1b4061ff8b17f1b4af6bbfef7c955c734617d2c8c675141732d41e0908ad3df03d57dc99e67c602c
+  languageName: node
+  linkType: hard
 
 "@chialab/rna-project@workspace:.":
   version: 0.0.0-use.local
@@ -2170,24 +2170,17 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@chialab/rna@workspace:packages/rna"
   dependencies:
+    "@chialab/rna-browser-test-runner": ^0.18.0-alpha.1
     "@chialab/rna-bundler": ^0.18.0-alpha.1
+    "@chialab/rna-dev-server": ^0.18.0-alpha.1
     "@chialab/rna-logger": ^0.18.0-alpha.1
+    "@chialab/rna-node-test-runner": ^0.18.0-alpha.1
     commander: ^11.0.0
     rimraf: ^5.0.1
     typescript: ^5.0.0
   peerDependencies:
-    "@chialab/rna-browser-test-runner": ^0.18.0-alpha.1
-    "@chialab/rna-bundler": ^0.18.0-alpha.1
-    "@chialab/rna-dev-server": ^0.18.0-alpha.1
-    "@chialab/rna-node-test-runner": ^0.18.0-alpha.1
     "@chialab/rna-saucelabs-test-runner": ^0.18.0-alpha.1
   peerDependenciesMeta:
-    "@chialab/rna-browser-test-runner":
-      optional: true
-    "@chialab/rna-dev-server":
-      optional: true
-    "@chialab/rna-node-test-runner":
-      optional: true
     "@chialab/rna-saucelabs-test-runner":
       optional: true
   bin:

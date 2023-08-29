@@ -27,7 +27,7 @@
     "LICENSE"
   ],
   "engines": {
-    "node": ">=13"
+    "node": ">=16"
   },
   "devDependencies": {
     "esbuild": "^0.19.0",

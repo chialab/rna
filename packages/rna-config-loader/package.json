@@ -21,7 +21,7 @@
     "LICENSE"
   ],
   "engines": {
-    "node": ">=13"
+    "node": ">=16"
   },
   "dependencies": {
     "@chialab/node-resolve": "^0.18.0-alpha.1"

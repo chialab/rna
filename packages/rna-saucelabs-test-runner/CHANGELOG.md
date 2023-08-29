@@ -1,5 +1,18 @@
 # @chialab/rna-saucelabs-test-runner
 
+## 0.18.0-alpha.1
+
+### Patch Changes
+
+- Update esbuild and other dependencies.
+- Updated dependencies [5f0f3c9]
+- Updated dependencies
+  - @chialab/rna-config-loader@0.18.0-alpha.1
+  - @chialab/rna-browser-test-runner@0.18.0-alpha.1
+  - @chialab/wds-plugin-legacy@0.18.0-alpha.1
+  - @chialab/node-resolve@0.18.0-alpha.1
+  - @chialab/rna-logger@0.18.0-alpha.1
+
 ## 0.18.0-alpha.0
 
 ### Minor Changes

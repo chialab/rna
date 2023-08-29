@@ -1,5 +1,14 @@
 # @chialab/esbuild-plugin-html
 
+## 0.18.0-alpha.1
+
+### Patch Changes
+
+- Update esbuild and other dependencies.
+- Updated dependencies
+  - @chialab/node-resolve@0.18.0-alpha.1
+  - @chialab/esbuild-rna@0.18.0-alpha.1
+
 ## 0.18.0-alpha.0
 
 ### Minor Changes
@@ -12,6 +21,7 @@
 - Updated dependencies [dcf1f06]
   - @chialab/esbuild-rna@0.18.0-alpha.0
   - @chialab/node-resolve@0.18.0-alpha.0
+
 ## 0.17.3
 
 ### Patch Changes

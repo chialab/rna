@@ -29,7 +29,7 @@
     "LICENSE"
   ],
   "engines": {
-    "node": ">=13"
+    "node": ">=16"
   },
   "dependencies": {
     "@parcel/source-map": "^2.0.0"

@@ -21,7 +21,7 @@
     "LICENSE"
   ],
   "engines": {
-    "node": ">=13"
+    "node": ">=16"
   },
   "dependencies": {
     "@chialab/esbuild-plugin-meta-url": "^0.18.0-alpha.1",

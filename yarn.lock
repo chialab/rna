@@ -1972,7 +1972,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@chialab/rna-browser-test-runner@workspace:packages/rna-browser-test-runner"
   dependencies:
+    "@chialab/rna-config-loader": ^0.18.0-alpha.1
     "@chialab/rna-dev-server": ^0.18.0-alpha.1
+    "@chialab/rna-logger": ^0.18.0-alpha.1
     "@chialab/wds-plugin-node-resolve": ^0.18.0-alpha.1
     "@chialab/wtr-coverage-reporter": ^0.18.0-alpha.1
     "@chialab/wtr-mocha-reporter": ^0.18.0-alpha.1
@@ -1980,6 +1982,7 @@ __metadata:
     "@web/test-runner-core": ^0.11.4
     "@web/test-runner-mocha": ^0.8.1
     "@web/test-runner-playwright": ^0.10.1
+    commander: ^11.0.0
     typescript: ^5.0.0
   peerDependencies:
     "@chialab/wds-plugin-legacy": ^0.18.0-alpha.1
@@ -2005,6 +2008,7 @@ __metadata:
     "@chialab/esbuild-rna": ^0.18.0-alpha.1
     "@chialab/rna-config-loader": ^0.18.0-alpha.1
     "@chialab/rna-logger": ^0.18.0-alpha.1
+    commander: ^11.0.0
     esbuild: ^0.19.0
     typescript: ^5.0.0
   languageName: unknown
@@ -2043,6 +2047,7 @@ __metadata:
     "@koa/cors": ^4.0.0
     "@types/koa-range": ^0.3.2
     "@types/koa__cors": ^3.0.2
+    commander: ^11.0.0
     koa-range: ^0.3.0
     rimraf: ^5.0.1
     typescript: ^5.0.0
@@ -2078,6 +2083,8 @@ __metadata:
   dependencies:
     "@chialab/es-test-runner": ^0.18.0-alpha.1
     "@chialab/node-resolve": ^0.18.0-alpha.1
+    "@chialab/rna-config-loader": ^0.18.0-alpha.1
+    commander: ^11.0.0
     typescript: ^5.0.0
   languageName: unknown
   linkType: soft
@@ -2113,14 +2120,17 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@chialab/rna-saucelabs-test-runner@^0.18.0-alpha.1, @chialab/rna-saucelabs-test-runner@workspace:packages/rna-saucelabs-test-runner":
+"@chialab/rna-saucelabs-test-runner@workspace:packages/rna-saucelabs-test-runner":
   version: 0.0.0-use.local
   resolution: "@chialab/rna-saucelabs-test-runner@workspace:packages/rna-saucelabs-test-runner"
   dependencies:
     "@chialab/node-resolve": ^0.18.0-alpha.1
     "@chialab/rna-browser-test-runner": ^0.18.0-alpha.1
+    "@chialab/rna-config-loader": ^0.18.0-alpha.1
+    "@chialab/rna-logger": ^0.18.0-alpha.1
     "@chialab/wds-plugin-legacy": ^0.18.0-alpha.1
     "@web/test-runner-saucelabs": ^0.10.0
+    commander: ^11.0.0
     typescript: ^5.0.0
   languageName: unknown
   linkType: soft
@@ -2165,10 +2175,14 @@ __metadata:
     "@chialab/rna-dev-server": ^0.18.0-alpha.1
     "@chialab/rna-logger": ^0.18.0-alpha.1
     "@chialab/rna-node-test-runner": ^0.18.0-alpha.1
-    "@chialab/rna-saucelabs-test-runner": ^0.18.0-alpha.1
     commander: ^11.0.0
     rimraf: ^5.0.1
     typescript: ^5.0.0
+  peerDependencies:
+    "@chialab/rna-saucelabs-test-runner": ^0.18.0-alpha.1
+  peerDependenciesMeta:
+    "@chialab/rna-saucelabs-test-runner":
+      optional: true
   bin:
     rna: ./dist/index.js
   languageName: unknown

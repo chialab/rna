@@ -24,11 +24,11 @@ The [Web Dev Server](https://modern-web.dev/docs/dev-server/overview/) is a serv
 The RNA dev server can be installed with the following preset:
 
 ```sh
-npm i -D @chialab/rna
+npm i -D @chialab/rna @chialab/rna-dev-server
 ```
 
 ```sh
-yarn add -D @chialab/rna
+yarn add -D @chialab/rna @chialab/rna-dev-server
 ```
 
 Run the dev server:

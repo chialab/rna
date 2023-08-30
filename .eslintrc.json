@@ -6,8 +6,5 @@
   "ignorePatterns": [
     "**/fixture/*",
     "**/fixtures/*"
-  ],
-  "rules": {
-    "mocha/no-exports": 0
-  }
+  ]
 }

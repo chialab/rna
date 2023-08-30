@@ -55,11 +55,11 @@ Optionally, you can also include a bundle for browsers that don't support ESM mo
 First, we need to install `rna` dependencies:
 
 ```sh
-npm i -D @chialab/rna
+npm i -D @chialab/rna @chialab/rna-dev-server
 ```
 
 ```sh
-yarn add -D @chialab/rna
+yarn add -D @chialab/rna @chialab/rna-dev-server
 ```
 
 Then, we are ready to update the `package.json` file to replace `react-scripts` witn `rna`.

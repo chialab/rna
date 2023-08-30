@@ -28,7 +28,7 @@
     "LICENSE"
   ],
   "engines": {
-    "node": ">=16"
+    "node": ">=13"
   },
   "dependencies": {
     "istanbul-reports": "^3.1.1"

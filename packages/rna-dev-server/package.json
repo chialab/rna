@@ -31,7 +31,7 @@
     "LICENSE"
   ],
   "engines": {
-    "node": ">=16"
+    "node": ">=13"
   },
   "peerDependencies": {
     "@chialab/wds-plugin-legacy": "^0.18.0-alpha.1"

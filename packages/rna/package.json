@@ -31,15 +31,32 @@
     "LICENSE"
   ],
   "engines": {
-    "node": ">=16"
+    "node": ">=13"
   },
-  "dependencies": {
+  "peerDependencies": {
     "@chialab/rna-browser-test-runner": "^0.18.0-alpha.1",
     "@chialab/rna-bundler": "^0.18.0-alpha.1",
     "@chialab/rna-dev-server": "^0.18.0-alpha.1",
-    "@chialab/rna-logger": "^0.18.0-alpha.1",
     "@chialab/rna-node-test-runner": "^0.18.0-alpha.1",
     "@chialab/rna-saucelabs-test-runner": "^0.18.0-alpha.1"
+  },
+  "peerDependenciesMeta": {
+    "@chialab/rna-browser-test-runner": {
+      "optional": true
+    },
+    "@chialab/rna-dev-server": {
+      "optional": true
+    },
+    "@chialab/rna-node-test-runner": {
+      "optional": true
+    },
+    "@chialab/rna-saucelabs-test-runner": {
+      "optional": true
+    }
+  },
+  "dependencies": {
+    "@chialab/rna-bundler": "^0.18.0-alpha.1",
+    "@chialab/rna-logger": "^0.18.0-alpha.1"
   },
   "devDependencies": {
     "commander": "^11.0.0",

@@ -4,6 +4,8 @@
     "project": false
   },
   "ignorePatterns": [
+    "**/dist/*",
+    "**/types/*",
     "**/fixture/*",
     "**/fixtures/*"
   ]

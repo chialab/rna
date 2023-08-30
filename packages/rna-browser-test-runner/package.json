@@ -44,7 +44,6 @@
   "dependencies": {
     "@chialab/rna-config-loader": "^0.18.0-alpha.1",
     "@chialab/rna-dev-server": "^0.18.0-alpha.1",
-    "@chialab/rna-logger": "^0.18.0-alpha.1",
     "@chialab/wds-plugin-node-resolve": "^0.18.0-alpha.1",
     "@chialab/wtr-coverage-reporter": "^0.18.0-alpha.1",
     "@chialab/wtr-mocha-reporter": "^0.18.0-alpha.1",
@@ -53,8 +52,8 @@
     "@web/test-runner-playwright": "^0.10.1"
   },
   "devDependencies": {
+    "@chialab/rna-logger": "^0.18.0-alpha.1",
     "@web/test-runner-chrome": "^0.14.1",
-    "commander": "^11.0.0",
     "typescript": "^5.0.0"
   }
 }

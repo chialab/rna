@@ -44,17 +44,16 @@
   "dependencies": {
     "@chialab/es-dev-server": "^0.18.0-alpha.1",
     "@chialab/rna-config-loader": "^0.18.0-alpha.1",
-    "@chialab/rna-logger": "^0.18.0-alpha.1",
     "@chialab/wds-plugin-hmr": "^0.18.0-alpha.1",
     "@chialab/wds-plugin-node-resolve": "^0.18.0-alpha.1",
     "@chialab/wds-plugin-rna": "^0.18.0-alpha.1"
   },
   "devDependencies": {
     "@chialab/esbuild-plugin-require-resolve": "^0.18.0-alpha.1",
+    "@chialab/rna-logger": "^0.18.0-alpha.1",
     "@koa/cors": "^4.0.0",
     "@types/koa-range": "^0.3.2",
     "@types/koa__cors": "^3.0.2",
-    "commander": "^11.0.0",
     "koa-range": "^0.3.0",
     "rimraf": "^5.0.1",
     "typescript": "^5.0.0"

@@ -1,5 +1,5 @@
 /**
- * @type {{[ext: string]: import('@chialab/rna-config-loader').Loader}}
+ * @type {Record<string, import('esbuild').Loader>}
  */
 export const loaders = {
     '.cjs': 'tsx',
@@ -18,7 +18,7 @@ export const loaders = {
 };
 
 /**
- * @type {{[ext: string]: import('@chialab/rna-config-loader').Loader}}
+ * @type {Record<string, import('esbuild').Loader>}
  */
 export const transformLoaders = {
     '.cjs': 'tsx',

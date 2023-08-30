@@ -32,13 +32,11 @@
   "dependencies": {
     "@chialab/node-resolve": "^0.18.0-alpha.1",
     "@chialab/rna-browser-test-runner": "^0.18.0-alpha.1",
-    "@chialab/rna-config-loader": "^0.18.0-alpha.1",
-    "@chialab/rna-logger": "^0.18.0-alpha.1",
     "@chialab/wds-plugin-legacy": "^0.18.0-alpha.1",
     "@web/test-runner-saucelabs": "^0.10.0"
   },
   "devDependencies": {
-    "commander": "^11.0.0",
+    "@chialab/rna-logger": "^0.18.0-alpha.1",
     "typescript": "^5.0.0"
   }
 }

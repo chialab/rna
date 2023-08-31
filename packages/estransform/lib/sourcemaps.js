@@ -1,8 +1,9 @@
 import { readFile } from 'fs/promises';
+import { createRequire } from 'module';
 import path from 'path';
-import sourceMapDefault from '@parcel/source-map';
 
-const { default: SourceMapNode } = sourceMapDefault;
+const require = createRequire(import.meta.url);
+const SourceMapNode = require('@parcel/source-map').default;
 
 const SOURCEMAP_REGEX = /(?:(\/\*+\s*?sourceMappingURL\s*=)([\s\S]*?)(\*\/))|(?:(\/\/#?\s*?sourceMappingURL\s*=)(.*?)([\r\n]|$))/;
 

@@ -1,5 +1,11 @@
 # @chialab/rna-config-loader
 
+## 0.17.5
+
+### Patch Changes
+
+- 5f0f3c99: Fix config file loader for Windows.
+
 ## 0.17.4
 
 ### Patch Changes

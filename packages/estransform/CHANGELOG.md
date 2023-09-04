@@ -1,5 +1,11 @@
 # @chialab/estransform
 
+## 0.17.5
+
+### Patch Changes
+
+- 98f022cd: Fix @parcel/source-map default import.
+
 ## 0.17.4
 
 ### Patch Changes

@@ -56,6 +56,7 @@ export default function() {
                         const { path: resolvedFilePath } = await build.resolve(fileName, {
                             importer: args.path,
                             resolveDir: path.dirname(args.path),
+                            kind: 'require-resolve'
                         });
                         if (!resolvedFilePath) {
                             return;

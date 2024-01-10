@@ -1,5 +1,27 @@
 # @chialab/rna-browser-test-runner
 
+## 1.0.0
+
+### Minor Changes
+
+- 9c0cad1: Bump to v0.18.0
+
+### Patch Changes
+
+- 1964b41: Set up required NodeJS version to 18.
+- b46792d: Refactored CLI commands.
+- 7aa2351: Update esbuild and other dependencies.
+- Updated dependencies [9c0cad1]
+- Updated dependencies [1964b41]
+- Updated dependencies [b46792d]
+- Updated dependencies [7aa2351]
+  - @chialab/rna-config-loader@0.18.0
+  - @chialab/rna-dev-server@1.0.0
+  - @chialab/wds-plugin-legacy@0.18.0
+  - @chialab/wds-plugin-node-resolve@0.18.0
+  - @chialab/wtr-coverage-reporter@0.18.0
+  - @chialab/wtr-mocha-reporter@0.18.0
+
 ## 0.18.0-alpha.1
 
 ### Patch Changes

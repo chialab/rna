@@ -1,5 +1,25 @@
 # @chialab/rna-saucelabs-test-runner
 
+## 0.18.0
+
+### Minor Changes
+
+- 9c0cad1: Bump to v0.18.0
+
+### Patch Changes
+
+- 1964b41: Set up required NodeJS version to 18.
+- b46792d: Refactored CLI commands.
+- 7aa2351: Update esbuild and other dependencies.
+- Updated dependencies [9c0cad1]
+- Updated dependencies [1964b41]
+- Updated dependencies [b46792d]
+- Updated dependencies [7aa2351]
+- Updated dependencies [28ea5be]
+  - @chialab/node-resolve@0.18.0
+  - @chialab/rna-browser-test-runner@1.0.0
+  - @chialab/wds-plugin-legacy@0.18.0
+
 ## 0.18.0-alpha.1
 
 ### Patch Changes

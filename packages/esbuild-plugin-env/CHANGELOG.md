@@ -1,5 +1,17 @@
 # @chialab/esbuild-plugin-env
 
+## 0.18.0
+
+### Minor Changes
+
+- 9c0cad1: Bump to v0.18.0
+
+### Patch Changes
+
+- 1964b41: Set up required NodeJS version to 18.
+- b46792d: Refactored CLI commands.
+- 7aa2351: Update esbuild and other dependencies.
+
 ## 0.18.0-alpha.1
 
 ### Patch Changes

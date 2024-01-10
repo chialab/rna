@@ -26,7 +26,7 @@
     "LICENSE"
   ],
   "engines": {
-    "node": ">=16"
+    "node": ">=18"
   },
   "dependencies": {
     "@chialab/esbuild-rna": "^0.18.0-alpha.1",

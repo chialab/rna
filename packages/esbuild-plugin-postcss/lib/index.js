@@ -142,6 +142,7 @@ export default function(options = {}) {
                                                         suffix: '',
                                                         namespace: 'file',
                                                         pluginData: null,
+                                                        with: {},
                                                     });
 
                                                     if (!loadResult) {

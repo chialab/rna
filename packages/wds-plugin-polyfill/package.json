@@ -26,13 +26,13 @@
     "LICENSE"
   ],
   "engines": {
-    "node": ">=16"
+    "node": ">=18"
   },
   "dependencies": {
     "polyfill-library": "^4.8.0"
   },
   "devDependencies": {
-    "@web/dev-server-core": "^0.5.2",
+    "@web/dev-server-core": "^0.7.0",
     "typescript": "^5.0.0"
   }
 }

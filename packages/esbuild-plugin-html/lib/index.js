@@ -194,6 +194,7 @@ export default function({
                     suffix: '',
                     ...options,
                     path,
+                    with: {},
                 });
 
                 const collectOptions = {

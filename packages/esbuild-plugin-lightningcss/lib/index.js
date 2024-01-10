@@ -49,7 +49,6 @@ export default function(options = {}) {
                 const finalConfig = {
                     errorRecovery: true,
                     drafts: {
-                        nesting: true,
                         customMedia: true,
                     },
                     targets: browserslistToTargets(targets.length ? targets : DEFAULT_TARGETS),

@@ -21,13 +21,13 @@
     "LICENSE"
   ],
   "engines": {
-    "node": ">=16"
+    "node": ">=18"
   },
   "dependencies": {
     "@chialab/es-test-runner": "^0.18.0-alpha.1"
   },
   "devDependencies": {
-    "@web/test-runner-core": "^0.11.4",
+    "@web/test-runner-core": "^0.13.0",
     "typescript": "^5.0.0"
   }
 }

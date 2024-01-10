@@ -1008,6 +1008,7 @@ export class Build {
                 namespace: 'file',
                 suffix: '',
                 path: source,
+                with: {},
             });
 
             if (result && result.contents) {

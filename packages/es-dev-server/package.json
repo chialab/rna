@@ -28,11 +28,11 @@
     "LICENSE"
   ],
   "engines": {
-    "node": ">=16"
+    "node": ">=18"
   },
   "devDependencies": {
     "@types/mocha": "^8.2.3",
-    "@web/dev-server-core": "^0.5.2",
+    "@web/dev-server-core": "^0.7.0",
     "get-port": "^7.0.0",
     "rimraf": "^5.0.1",
     "typescript": "^5.0.0"

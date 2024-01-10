@@ -21,12 +21,12 @@
     "LICENSE"
   ],
   "engines": {
-    "node": ">=16"
+    "node": ">=18"
   },
   "dependencies": {
     "@chialab/estransform": "^0.18.0-alpha.1",
     "@chialab/node-resolve": "^0.18.0-alpha.1",
-    "@web/dev-server-core": "^0.5.2"
+    "@web/dev-server-core": "^0.7.0"
   },
   "devDependencies": {
     "typescript": "^5.0.0"

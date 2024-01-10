@@ -210,6 +210,7 @@ export default function({ emit = true } = {}) {
                                         namespace: 'file',
                                         suffix: '',
                                         path: resolvedPath,
+                                        with: {},
                                     });
 
                                     if (result && result.contents) {

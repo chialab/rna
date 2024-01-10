@@ -112,7 +112,7 @@ export function parse(inputCode, filePath) {
                 let map = null;
                 if (options.sourcemap) {
                     const inputSourcemap = await loadSourcemap(inputCode, filePath);
-                    const newSourcemap = /** @type {SourceMap} */ (magicCode.generateMap({
+                    const newSourcemap = /** @type {import('./sourcemaps.js').SourceMap} */ (magicCode.generateMap({
                         source: filePath,
                         includeContent: options.sourcesContent,
                         hires: true,

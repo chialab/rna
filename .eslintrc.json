@@ -1,9 +1,11 @@
 {
-  "extends": "@chialab/eslint-config/typescript/node",
+  "extends": "@chialab/eslint-config",
   "parserOptions": {
     "project": false
   },
   "ignorePatterns": [
+    "**/dist/*",
+    "**/types/*",
     "**/fixture/*",
     "**/fixtures/*"
   ]

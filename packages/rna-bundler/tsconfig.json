@@ -11,25 +11,13 @@
   ],
   "references": [
     {
-      "path": "../esbuild-plugin-alias"
-    },
-    {
       "path": "../esbuild-plugin-any-file"
     },
     {
       "path": "../esbuild-plugin-commonjs"
     },
     {
-      "path": "../esbuild-plugin-css-import"
-    },
-    {
-      "path": "../esbuild-plugin-define-this"
-    },
-    {
       "path": "../esbuild-plugin-env"
-    },
-    {
-      "path": "../esbuild-plugin-external"
     },
     {
       "path": "../esbuild-plugin-html"
@@ -38,7 +26,7 @@
       "path": "../esbuild-plugin-meta-url"
     },
     {
-      "path": "../esbuild-plugin-unwebpack"
+      "path": "../esbuild-plugin-metadata"
     },
     {
       "path": "../esbuild-plugin-worker"
@@ -51,12 +39,6 @@
     },
     {
       "path": "../rna-logger"
-    },
-    {
-      "path": "../esbuild-plugin-postcss"
-    },
-    {
-      "path": "../esbuild-plugin-postcss"
     }
   ]
 }

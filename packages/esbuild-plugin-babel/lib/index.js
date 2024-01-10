@@ -31,6 +31,7 @@ export default function({ presets = [], plugins = [] } = {}) {
                 return build.resolve(args.path, {
                     importer: args.importer,
                     resolveDir,
+                    kind: 'import-statement',
                 });
             });
 

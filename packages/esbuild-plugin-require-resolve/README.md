@@ -17,8 +17,11 @@
 ## Install
 
 ```sh
-$ npm i @chialab/esbuild-plugin-require-resolve -D
-$ yarn add @chialab/esbuild-plugin-require-resolve -D
+npm i @chialab/esbuild-plugin-require-resolve -D
+```
+
+```sh
+yarn add @chialab/esbuild-plugin-require-resolve -D
 ```
 
 ## Usage

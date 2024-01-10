@@ -1,4 +1,5 @@
 import path from 'path';
+import { Buffer } from 'buffer';
 import { copyFile, readFile, rm } from 'fs/promises';
 import * as cheerio from 'cheerio';
 import beautify from 'js-beautify';
@@ -175,7 +176,7 @@ export default function({
                 /**
                  * @param {string} file
                  */
-                const resolveFile = (file) => build.resolveLocallyFirst(file, {
+                const resolveFile = (file) => build.resolve(`./${file}`, {
                     kind: 'dynamic-import',
                     importer: args.path,
                     resolveDir: path.dirname(args.path),
@@ -193,6 +194,7 @@ export default function({
                     suffix: '',
                     ...options,
                     path,
+                    with: {},
                 });
 
                 const collectOptions = {

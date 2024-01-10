@@ -4,13 +4,20 @@ esbuild.build({
     entryPoints: ['lib/index.js'],
     outdir: 'dist',
     bundle: true,
-    splitting: false,
+    splitting: true,
     minify: false,
     sourcemap: true,
     format: 'esm',
     platform: 'node',
     external: [
+        '@chialab/esbuild-rna',
+        '@chialab/rna-config-loader',
+        '@chialab/rna-browser-test-runner',
+        '@chialab/rna-bundler',
+        '@chialab/rna-dev-server',
         '@chialab/rna-logger',
+        '@chialab/rna-node-test-runner',
+        '@chialab/rna-saucelabs-test-runner',
     ],
     banner: {
         js: `import { dirname as __pathDirname } from 'path';

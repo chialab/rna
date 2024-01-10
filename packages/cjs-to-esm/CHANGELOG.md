@@ -1,5 +1,24 @@
 # @chialab/cjs-to-esm
 
+## 0.18.0-alpha.1
+
+### Patch Changes
+
+- Update esbuild and other dependencies.
+- Updated dependencies
+  - @chialab/estransform@0.18.0-alpha.1
+
+## 0.18.0-alpha.0
+
+### Minor Changes
+
+- 6457004: Bump to v0.18.0
+
+### Patch Changes
+
+- Updated dependencies [6457004]
+  - @chialab/estransform@0.18.0-alpha.0
+
 ## 0.17.11
 
 ### Patch Changes

@@ -11,7 +11,7 @@ describe('esbuild-plugin-worker', () => {
             stdin: {
                 resolveDir: fileURLToPath(new URL('.', import.meta.url)),
                 sourcefile: fileURLToPath(import.meta.url),
-                contents: 'export const worker = new Worker(\'./worker.js\');',
+                contents: 'export const worker = new Worker(new URL(\'./worker.js\', import.meta.url));',
             },
             format: 'esm',
             outdir: 'out',
@@ -23,11 +23,12 @@ describe('esbuild-plugin-worker', () => {
         });
 
         expect(result.text).to.be.equal(`// test.spec.js
-var worker = new Worker(new URL("./worker.js?hash=5f77c0c4", import.meta.url).href);
+var worker = new Worker(new URL("./worker-iife.js?hash=5f77c0c4", import.meta.url).href);
 export {
   worker
 };
 `);
+
         expect(worker.text).to.be.equal(`"use strict";
 (() => {
   // lib.worker.js
@@ -46,7 +47,7 @@ export {
             stdin: {
                 resolveDir: fileURLToPath(new URL('.', import.meta.url)),
                 sourcefile: fileURLToPath(import.meta.url),
-                contents: 'export const worker = new Worker(\'./worker.js\');',
+                contents: 'export const worker = new Worker(new URL(\'./worker.js\', import.meta.url));',
             },
             format: 'esm',
             outdir: 'out',
@@ -57,7 +58,7 @@ export {
             ],
         });
 
-        expect(result.text).to.be.equal(`const worker = new Worker(new URL("./worker.js?hash=5f77c0c4", import.meta.url).href);
+        expect(result.text).to.be.equal(`const worker = new Worker(new URL("./worker-iife.js?hash=5f77c0c4", import.meta.url).href);
 export {
   worker
 };
@@ -80,7 +81,7 @@ export {
             stdin: {
                 resolveDir: fileURLToPath(new URL('.', import.meta.url)),
                 sourcefile: fileURLToPath(import.meta.url),
-                contents: 'export const worker = new Worker(\'./worker.js\', { type: "module" });',
+                contents: 'export const worker = new Worker(new URL(\'./worker.js\', import.meta.url), { type: "module" });',
             },
             format: 'esm',
             outdir: 'out',
@@ -112,7 +113,7 @@ postMessage("message");
             stdin: {
                 resolveDir: fileURLToPath(new URL('.', import.meta.url)),
                 sourcefile: fileURLToPath(import.meta.url),
-                contents: 'export const worker = new Worker(\'./worker.js\', { type: "module" });',
+                contents: 'export const worker = new Worker(new URL(\'./worker.js\', import.meta.url), { type: "module" });',
             },
             format: 'esm',
             outdir: 'out',
@@ -142,7 +143,7 @@ postMessage("message");
             stdin: {
                 resolveDir: fileURLToPath(new URL('.', import.meta.url)),
                 sourcefile: fileURLToPath(import.meta.url),
-                contents: 'export const worker = new Worker(\'./worker.js\');',
+                contents: 'export const worker = new Worker(new URL(\'./worker.js\', import.meta.url));',
             },
             format: 'esm',
             outdir: 'out',
@@ -158,7 +159,7 @@ var worker = new Worker(URL.createObjectURL(new Blob(['importScripts("' + functi
   const url = new URL(path);
   url.searchParams.set("transform", '{"format":"iife","bundle":true,"platform":"neutral"}');
   return url.href;
-}(new URL("./worker.js?hash=5f77c0c4", import.meta.url).href) + '");'], { type: "text/javascript" })));
+}(new URL("./worker-iife.js?hash=5f77c0c4", import.meta.url).href) + '");'], { type: "text/javascript" })));
 export {
   worker
 };
@@ -210,8 +211,8 @@ export {
             stdin: {
                 resolveDir: fileURLToPath(new URL('.', import.meta.url)),
                 sourcefile: fileURLToPath(import.meta.url),
-                contents: `export const worker = new Worker('./worker.js');
-export const fakeWorker = new ctx.Worker('./worker.js');`,
+                contents: `export const worker = new Worker(new URL('./worker.js', import.meta.url));
+export const fakeWorker = new ctx.Worker(new URL('./worker.js', import.meta.url));`,
             },
             format: 'esm',
             outdir: 'out',
@@ -223,8 +224,8 @@ export const fakeWorker = new ctx.Worker('./worker.js');`,
         });
 
         expect(result.text).to.be.equal(`// test.spec.js
-var worker = new Worker(new URL("./worker.js?hash=5f77c0c4", import.meta.url).href);
-var fakeWorker = new ctx.Worker("./worker.js");
+var worker = new Worker(new URL("./worker-iife.js?hash=5f77c0c4", import.meta.url).href);
+var fakeWorker = new ctx.Worker(new URL("./worker.js?hash=a564928d", import.meta.url));
 export {
   fakeWorker,
   worker
@@ -239,8 +240,8 @@ export {
                 resolveDir: fileURLToPath(new URL('.', import.meta.url)),
                 sourcefile: fileURLToPath(import.meta.url),
                 contents: `class Worker {};
-export const local = new Worker('./worker.js');
-export const worker = new window.Worker('./worker.js');`,
+export const local = new Worker(new URL('./worker.js', import.meta.url));
+export const worker = new window.Worker(new URL('./worker.js', import.meta.url));`,
             },
             format: 'esm',
             outdir: 'out',
@@ -254,8 +255,8 @@ export const worker = new window.Worker('./worker.js');`,
         expect(result.text).to.be.equal(`// test.spec.js
 var Worker = class {
 };
-var local = new Worker("./worker.js");
-var worker = new window.Worker(new URL("./worker.js?hash=5f77c0c4", import.meta.url).href);
+var local = new Worker(new URL("./worker.js?hash=a564928d", import.meta.url));
+var worker = new window.Worker(new URL("./worker-iife.js?hash=5f77c0c4", import.meta.url).href);
 export {
   local,
   worker
@@ -279,7 +280,7 @@ export {
             stdin: {
                 resolveDir: fileURLToPath(new URL('.', import.meta.url)),
                 sourcefile: fileURLToPath(import.meta.url),
-                contents: 'export const worker = new Worker(\'./worker.js\');',
+                contents: 'export const worker = new Worker(new URL(\'./worker.js\', import.meta.url));',
             },
             format: 'iife',
             platform: 'browser',

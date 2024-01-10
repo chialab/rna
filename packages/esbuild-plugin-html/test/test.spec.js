@@ -51,12 +51,12 @@ describe('esbuild-plugin-html', () => {
 </head>
 
 <body>
-    <script src="index-JEYWDNLH.js" type="application/javascript"></script>
+    <script src="index-33TQGLB6.js" type="application/javascript"></script>
 </body>
 
 </html>`);
 
-        expect(js.path).endsWith(path.join(path.sep, 'out', 'index-JEYWDNLH.js'));
+        expect(js.path).endsWith(path.join(path.sep, 'out', 'index-33TQGLB6.js'));
         expect(js.text).to.be.equal(`"use strict";
 (() => {
   // fixture/lib.js
@@ -122,12 +122,12 @@ body {
 </head>
 
 <body>
-    <script src="/public/index-ERHGTF5L.js" type="application/javascript"></script>
+    <script src="/public/index-BBP6457K.js" type="application/javascript"></script>
 </body>
 
 </html>`);
 
-        expect(js.path).endsWith(path.join(path.sep, 'out', 'index-ERHGTF5L.js'));
+        expect(js.path).endsWith(path.join(path.sep, 'out', 'index-BBP6457K.js'));
         expect(js.text).to.be.equal(`"use strict";
 (() => {
   // fixture/lib.js
@@ -187,18 +187,18 @@ body {
                 l.href = url;
                 document.head.appendChild(l);
             }
-            loadStyle('index-CECUKMCO.css');
+            loadStyle('index-LET4DQVG.css');
         }());
     </script>
 </head>
 
 <body>
-    <script src="index-FIAOTJ3G.js" type="application/javascript"></script>
+    <script src="index-4YXF7HZB.js" type="application/javascript"></script>
 </body>
 
 </html>`);
 
-        expect(js.path).endsWith(path.join(path.sep, 'out', 'index-FIAOTJ3G.js'));
+        expect(js.path).endsWith(path.join(path.sep, 'out', 'index-4YXF7HZB.js'));
         expect(js.text).to.be.equal(`"use strict";
 (() => {
   // fixture/lib.js
@@ -209,17 +209,17 @@ body {
     log("test");
   });
 })();
-//# sourceMappingURL=index-FIAOTJ3G.js.map
+//# sourceMappingURL=index-4YXF7HZB.js.map
 `);
 
-        expect(css.path).endsWith(path.join(path.sep, 'out', 'index-CECUKMCO.css'));
+        expect(css.path).endsWith(path.join(path.sep, 'out', 'index-LET4DQVG.css'));
         expect(css.text).to.be.equal(`/* fixture/index.css */
 html,
 body {
   margin: 0;
   padding: 0;
 }
-/*# sourceMappingURL=index-CECUKMCO.css.map */
+/*# sourceMappingURL=index-LET4DQVG.css.map */
 `);
     });
 
@@ -269,7 +269,7 @@ body {
 </head>
 
 <body>
-    <script src="index-7DQE4SCR.js" type="module"></script>
+    <script src="index-QZA3NNDV.js" type="module"></script>
     <script type="module">
         import './1-ZOQZ7JHL.js'
     </script>
@@ -277,7 +277,7 @@ body {
 
 </html>`);
 
-        expect(path.basename(jsFile.path)).endsWith('index-7DQE4SCR.js');
+        expect(path.basename(jsFile.path)).endsWith('index-QZA3NNDV.js');
         expect(jsFile.text).to.be.equal(`import {
   log
 } from "./chunk-VLQWHBZB.js";
@@ -363,7 +363,7 @@ body {
 </head>
 
 <body>
-    <script src="/public/index-CT25TJCP.js" type="module"></script>
+    <script src="/public/index-2K4C7RE6.js" type="module"></script>
     <script type="module">
         import '/public/1-P72MDYYG.js'
     </script>
@@ -371,7 +371,7 @@ body {
 
 </html>`);
 
-        expect(path.basename(jsFile.path)).endsWith('index-CT25TJCP.js');
+        expect(path.basename(jsFile.path)).endsWith('index-2K4C7RE6.js');
         expect(jsFile.text).to.be.equal(`import {
   log
 } from "/public/chunk-NGMCFQ6Z.js";
@@ -461,12 +461,12 @@ body {
     <script type="module">
         import './1-GWHRC5DW.js'
     </script>
-    <script src="index-NISLXZJK.js" type="module"></script>
+    <script src="index-5DEJB2KF.js" type="module"></script>
 </body>
 
 </html>`);
 
-        expect(path.basename(jsFile.path)).endsWith('index-NISLXZJK.js');
+        expect(path.basename(jsFile.path)).endsWith('index-5DEJB2KF.js');
         expect(jsFile.text).to.be.equal(`import {
   log
 } from "./chunk-GNFD7QL2.js";
@@ -528,8 +528,8 @@ body {
         });
 
         const index = /** @type {import('esbuild').OutputFile} */ (outputFiles.find((file) => file.path.endsWith('.html')));
-        const iife = /** @type {import('esbuild').OutputFile} */ (outputFiles.find((file) => file.path.endsWith('index-JEYWDNLH.js')));
-        const esm = /** @type {import('esbuild').OutputFile} */ (outputFiles.find((file) => file.path.endsWith('index-6PRLBFYO.js')));
+        const iife = /** @type {import('esbuild').OutputFile} */ (outputFiles.find((file) => file.path.endsWith('index-33TQGLB6.js')));
+        const esm = /** @type {import('esbuild').OutputFile} */ (outputFiles.find((file) => file.path.endsWith('index-NG6KDBQ4.js')));
         const css = /** @type {import('esbuild').OutputFile} */ (outputFiles.find((file) => file.path.endsWith('index-UMVLUHQU.css')));
 
         expect(outputFiles).to.have.lengthOf(5);
@@ -568,13 +568,13 @@ body {
 </head>
 
 <body>
-    <script src="index-6PRLBFYO.js" type="module"></script>
-    <script src="index-JEYWDNLH.js" type="application/javascript" nomodule=""></script>
+    <script src="index-NG6KDBQ4.js" type="module"></script>
+    <script src="index-33TQGLB6.js" type="application/javascript" nomodule=""></script>
 </body>
 
 </html>`);
 
-        expect(iife.path).endsWith(path.join(path.sep, 'out', 'index-JEYWDNLH.js'));
+        expect(iife.path).endsWith(path.join(path.sep, 'out', 'index-33TQGLB6.js'));
         expect(iife.text).to.be.equal(`"use strict";
 (() => {
   // fixture/lib.js
@@ -587,7 +587,7 @@ body {
 })();
 `);
 
-        expect(esm.path).endsWith(path.join(path.sep, 'out', 'index-6PRLBFYO.js'));
+        expect(esm.path).endsWith(path.join(path.sep, 'out', 'index-NG6KDBQ4.js'));
         expect(esm.text).to.be.equal(`// fixture/lib.js
 var log = console.log.bind(console);
 

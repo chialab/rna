@@ -11,8 +11,11 @@
 ## Install
 
 ```sh
-$ npm i @chialab/wtr-coverage-reporter -D
-$ yarn add @chialab/wtr-coverage-reporter -D
+npm i @chialab/wtr-coverage-reporter -D
+```
+
+```sh
+yarn add @chialab/wtr-coverage-reporter -D
 ```
 
 ## Usage

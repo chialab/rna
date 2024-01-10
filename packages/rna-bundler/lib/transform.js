@@ -1,4 +1,5 @@
 import path from 'path';
+import process from 'process';
 import esbuild from 'esbuild';
 import { hasPlugin } from '@chialab/esbuild-rna';
 import { transformLoaders } from './loaders.js';
@@ -47,22 +48,6 @@ export async function transform(config) {
     const finalPlugins = /** @type {import('esbuild').Plugin[]} */ (await Promise.all([
         !hasPlugin(plugins, 'env') &&
             import('@chialab/esbuild-plugin-env')
-                .then(({ default: plugin }) => plugin()),
-        !hasPlugin(plugins, 'define-this') &&
-            import('@chialab/esbuild-plugin-define-this')
-                .then(({ default: plugin }) => plugin()),
-        !hasPlugin(plugins, 'external') &&
-            import('@chialab/esbuild-plugin-external')
-                .then(({ default: plugin }) => plugin({
-                    dependencies: false,
-                    peerDependencies: false,
-                    optionalDependencies: false,
-                })),
-        !hasPlugin(plugins, 'css-import') &&
-            import('@chialab/esbuild-plugin-css-import')
-                .then(({ default: plugin }) => plugin()),
-        !hasPlugin(plugins, 'unwebpack') &&
-            import('@chialab/esbuild-plugin-unwebpack')
                 .then(({ default: plugin }) => plugin()),
         !hasPlugin(plugins, 'commonjs') &&
             import('@chialab/esbuild-plugin-commonjs')

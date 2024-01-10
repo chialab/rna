@@ -1,8 +1,9 @@
 import path from 'path';
+import { Buffer } from 'buffer';
 import { realpath } from 'fs/promises';
 import { getRequestFilePath } from '@chialab/es-dev-server';
 import { getEntryConfig } from '@chialab/rna-config-loader';
-import { browserResolve, isJs, isJson, isCss, getSearchParam, appendSearchParam, getSearchParams, ALIAS_MODE, createAliasRegexexMap, createEmptyRegex } from '@chialab/node-resolve';
+import { browserResolve, isJs, isJson, isCss, getSearchParam, appendSearchParam, getSearchParams } from '@chialab/node-resolve';
 import { isHelperImport, resolveRelativeImport, isPlainScript } from '@chialab/wds-plugin-node-resolve';
 import { build, transform, transformLoaders } from '@chialab/rna-bundler';
 import { resolveUserAgent } from 'browserslist-useragent';
@@ -127,6 +128,38 @@ export function getBrowserTarget(context) {
     }
 }
 
+/**
+ * @param {import('@chialab/rna-config-loader').EntrypointConfig} entrypoint
+ * @param {Partial<import('@chialab/rna-config-loader').EntrypointConfig>} config
+ */
+export async function createConfig(entrypoint, config) {
+    return getEntryConfig(entrypoint, {
+        sourcemap: 'inline',
+        platform: 'browser',
+        target: config.target,
+        jsx: config.jsx,
+        jsxImportSource: config.jsxImportSource,
+        jsxFactory: config.jsxFactory,
+        jsxFragment: config.jsxFragment,
+        alias: config.alias,
+        plugins: [
+            ...await Promise.all([
+                import('@chialab/esbuild-plugin-worker')
+                    .then(({ default: plugin }) => plugin({
+                        proxy: true,
+                        emit: false,
+                    })),
+                import('@chialab/esbuild-plugin-meta-url')
+                    .then(({ default: plugin }) => plugin({
+                        emit: false,
+                    })),
+            ]),
+            ...(config.plugins || []),
+        ],
+        logLevel: 'error',
+    });
+}
+
 const VALID_MODULE_NAME = /^(@[a-z0-9-~][a-z0-9-._~]*\/)?[a-z0-9-~][a-z0-9-._~]*$/;
 
 /**
@@ -140,10 +173,6 @@ function isBareModuleSource(name) {
  * @param {Partial<import('@chialab/rna-config-loader').EntrypointConfig>} config
  */
 export function rnaPlugin(config) {
-    const aliasMap = config.alias || {};
-    const aliasRegexes = createAliasRegexexMap(aliasMap, ALIAS_MODE.FULL);
-    const emptyRegex = createEmptyRegex(aliasMap);
-
     /**
      * @type {import('@web/dev-server-core').DevServerCoreConfig}
      */
@@ -160,7 +189,7 @@ export function rnaPlugin(config) {
     const virtualFs = {};
 
     /**
-     * @type {import('@chialab/esbuild-rna').DependenciesMap}
+     * @type {Record<string, string[]>}
      */
     const dependenciesMap = {};
 
@@ -339,9 +368,6 @@ export function rnaPlugin(config) {
                             .then(({ default: plugin }) => plugin({
                                 emit: false,
                             })),
-                        import('@chialab/esbuild-plugin-postcss')
-                            .then(({ default: plugin }) => plugin())
-                            .catch(() => ({ name: 'postcss', setup() { } })),
                     ]),
                     ...(config.plugins || []),
                 ],
@@ -379,31 +405,12 @@ export function rnaPlugin(config) {
         },
 
         async resolveImport({ source, context }) {
-            if (source.match(emptyRegex)) {
-                return;
-            }
-
             if (config.jsxImportSource && source === '__jsx__.js') {
                 source = config.jsxImportSource;
             }
 
             const { rootDir } = serverConfig;
             const filePath = getRequestFilePath(context.url, rootDir);
-
-            for (const [regex, res] of aliasRegexes.entries()) {
-                if (source.match(regex)) {
-                    const aliasValue = res.value;
-                    const aliased = typeof aliasValue === 'function' ?
-                        await aliasValue(source, filePath) :
-                        aliasValue;
-                    if (!aliased) {
-                        return;
-                    }
-
-                    source = aliased;
-                    break;
-                }
-            }
 
             if (!isBareModuleSource(source)) {
                 return;

@@ -25,9 +25,6 @@
       "path": "./packages/es-test-runner"
     },
     {
-      "path": "./packages/esbuild-plugin-alias"
-    },
-    {
       "path": "./packages/esbuild-plugin-any-file"
     },
     {
@@ -40,19 +37,19 @@
       "path": "./packages/esbuild-plugin-css-import"
     },
     {
-      "path": "./packages/esbuild-plugin-define-this"
-    },
-    {
       "path": "./packages/esbuild-plugin-env"
-    },
-    {
-      "path": "./packages/esbuild-plugin-external"
     },
     {
       "path": "./packages/esbuild-plugin-html"
     },
     {
+      "path": "./packages/esbuild-plugin-lightningcss"
+    },
+    {
       "path": "./packages/esbuild-plugin-meta-url"
+    },
+    {
+      "path": "./packages/esbuild-plugin-metadata"
     },
     {
       "path": "./packages/esbuild-plugin-postcss"
@@ -91,9 +88,6 @@
       "path": "./packages/rna"
     },
     {
-      "path": "./packages/rna-apidoc"
-    },
-    {
       "path": "./packages/rna-browser-test-runner"
     },
     {
@@ -115,13 +109,7 @@
       "path": "./packages/rna-saucelabs-test-runner"
     },
     {
-      "path": "./packages/rna-storybook"
-    },
-    {
       "path": "./packages/wds-plugin-hmr"
-    },
-    {
-      "path": "./packages/wds-plugin-hmr-dna"
     },
     {
       "path": "./packages/wds-plugin-legacy"

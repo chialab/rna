@@ -1,5 +1,21 @@
 # @chialab/node-resolve
 
+## 0.18.0-alpha.1
+
+### Patch Changes
+
+- Update esbuild and other dependencies.
+
+## 0.18.0-alpha.0
+
+### Minor Changes
+
+- 6457004: Bump to v0.18.0
+
+### Patch Changes
+
+- dcf1f06: Resolve styles using export fields
+
 ## 0.17.1
 
 ### Patch Changes

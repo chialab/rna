@@ -11,15 +11,21 @@ Using [esbuild](https://esbuild.github.io/) under the hood, RNA combines the fat
 In order to bundle a JS module using RNA you may have to install the bundler:
 
 ```sh
-$ npm i -D @chialab/rna @chialab/rna-bundler
-$ yarn add -D @chialab/rna @chialab/rna-bundler
+npm i -D @chialab/rna
+```
+
+```sh
+yarn add -D @chialab/rna
 ```
 
 and run:
 
 ```sh
-$ npx rna build src/index.js --output public/index.js
-$ yarn rna build src/index.js --output public/index.js
+npx rna build src/index.js --output public/index.js
+```
+
+```sh
+yarn rna build src/index.js --output public/index.js
 ```
 
 This will generate a ESM bundle at the `--output` destination. Using `--format` and `--platform` flags we can generate multiple bundles that targets both browser and Node environments.
@@ -30,8 +36,11 @@ The Web is the primary target of the RNA toolchain. Everything is optimized for 
 So, the explicit command is equivalent to the previous run snippet:
 
 ```sh
-$ npx rna build src/index.js --output public/index.js --format esm --platform browser
-$ yarn rna build src/index.js --output public/index.js --format esm --platform browser
+npx rna build src/index.js --output public/index.js --format esm --platform browser
+```
+
+```sh
+yarn rna build src/index.js --output public/index.js --format esm --platform browser
 ```
 
 When targeting the browser platform, RNA will respect your `browser` configuration in the `package.json` in order to optimize the build for the requested environment.  
@@ -66,8 +75,11 @@ const document = typeof window !== undefined ? window.document : undefined;
 Node is also a first class output. Specifying the `cjs` format, RNA will automatically target the `node` platform, converting every `import` statements to `require` invokations.
 
 ```sh
-$ npx rna build src/index.js --output public/index.js --format cjs --platform node
-$ yarn rna build src/index.js --output public/index.js --format cjs --platform node
+npx rna build src/index.js --output public/index.js --format cjs --platform node
+```
+
+```sh
+yarn rna build src/index.js --output public/index.js --format cjs --platform node
 ```
 
 **input**
@@ -89,8 +101,11 @@ const document = typeof window !== undefined ? window.document : new jsdom.JSOM(
 Since even the LTS version of node supports ES modules, you may want to target node with the `esm` format:
 
 ```sh
-$ npx rna build src/index.js --output public/index.js --format esm --platform node
-$ yarn rna build src/index.js --output public/index.js --format esm --platform node
+npx rna build src/index.js --output public/index.js --format esm --platform node
+```
+
+```sh
+yarn rna build src/index.js --output public/index.js --format esm --platform node
 ```
 
 ## Modules resolution
@@ -178,15 +193,21 @@ TypeScript syntax is supported out of the box from esbuild, also respecting your
 However, please not that esbuild will only transpile your source without checking your code. For typechecking, you still need the vanilla `tsc` cli:
 
 ```sh
-$ npm i -D typescript
-$ yarn add -D typescript
+npm i -D typescript
+```
+
+```sh
+yarn add -D typescript
 ```
 
 You can run tsc with the `--noEmit` flag in order to execute typecheck only:
 
 ```sh
-$ npx tsc --noEmit
-$ yarn tsc --noEmit
+npx tsc --noEmit
+```
+
+```sh
+yarn tsc --noEmit
 ```
 
 <div class="note">
@@ -264,7 +285,7 @@ Although JSX is not part of EcmaScript standards, it is largerly used by many pr
 Esbuild supports JSX transpilation, so RNA does it too. A plugin for auto importing the JSX pragma from a module is also available with the bundler.
 
 ```sh
-$ npx rna build src/index.js --output public/index.js --jsx automatic --jsxImportSource '@chialab/dna'
+npx rna build src/index.js --output public/index.js --jsx automatic --jsxImportSource '@chialab/dna'
 ```
 
 **Input**
@@ -296,8 +317,11 @@ Even if modern JavaScript is supported by the majority of browsers, sometimes we
 RNA provides a [Babel](https://babeljs.io/) plugin for this scopes. Once installed, it is automatically loaded by the RNA cli.
 
 ```sh
-$ npm i -D @chialab/esbuild-plugin-babel
-$ yarn add -D @chialab/esbuild-plugin-babel
+npm i -D @chialab/esbuild-plugin-babel
+```
+
+```sh
+yarn add -D @chialab/esbuild-plugin-babel
 ```
 
 This will install Babel core packages, its [env preset](https://babeljs.io/docs/en/babel-preset-env) and an adapter for esbuild. You can configure the output using a [browserslist query](https://babeljs.io/docs/en/babel-preset-env#browserslist-integration) or specifying a Babel's [config file](https://babeljs.io/docs/en/config-files) in the root of your project.
@@ -314,7 +338,7 @@ Eslint is the most common linter for JavaScript. It is pluggable with parsers an
 First, you need to install the eslint cli:
 
 ```sh
-$ npm i -D eslint
+npm i -D eslint
 ```
 
 Please follow official guide for [linter configuration](https://eslint.org/docs/user-guide/configuring/).
@@ -322,7 +346,7 @@ Please follow official guide for [linter configuration](https://eslint.org/docs/
 We also provide our configuration preset:
 
 ```sh
-$ npm i -D @chialab/eslint-config
+npm i -D @chialab/eslint-config
 ```
 
 **.eslintrc.json for JavaScript projects**

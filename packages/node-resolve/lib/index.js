@@ -47,8 +47,8 @@ export function createResolver(options = {}) {
             path,
             {},
             /**
-             * @param {Error} err
-             * @param {string} data
+             * @param {Error|null} err
+             * @param {string|false} [data]
              */
             (err, data) => (err ? reject(err) : resolve(data)))
         );
@@ -113,8 +113,8 @@ export const resolve = createResolver();
  */
 export const styleResolve = createResolver({
     extensions: ['.css'],
-    exportsFields: [],
     mainFields: ['style'],
+    preferRelative: true,
 });
 
 /**
@@ -243,5 +243,3 @@ export function getSearchParam(source, param) {
     const { searchParams } = getSearchParams(source);
     return searchParams.get(param) || null;
 }
-
-export * from './alias.js';

@@ -1,5 +1,43 @@
 # @chialab/wds-plugin-rna
 
+## 0.18.0-alpha.1
+
+### Patch Changes
+
+- Update esbuild and other dependencies.
+- Updated dependencies [5f0f3c9]
+- Updated dependencies
+  - @chialab/rna-config-loader@0.18.0-alpha.1
+  - @chialab/esbuild-plugin-meta-url@0.18.0-alpha.1
+  - @chialab/esbuild-plugin-metadata@0.18.1-alpha.0
+  - @chialab/wds-plugin-node-resolve@0.18.0-alpha.1
+  - @chialab/esbuild-plugin-postcss@0.18.0-alpha.1
+  - @chialab/esbuild-plugin-worker@0.18.0-alpha.1
+  - @chialab/es-dev-server@0.18.0-alpha.1
+  - @chialab/node-resolve@0.18.0-alpha.1
+  - @chialab/rna-bundler@0.18.0-alpha.1
+
+## 0.18.0-alpha.0
+
+### Minor Changes
+
+- 6457004: Bump to v0.18.0
+
+### Patch Changes
+
+- Updated dependencies [6457004]
+- Updated dependencies [9338ba1]
+- Updated dependencies [acf3afd]
+- Updated dependencies [d53a73a]
+- Updated dependencies [dcf1f06]
+  - @chialab/es-dev-server@0.18.0-alpha.0
+  - @chialab/esbuild-plugin-meta-url@0.18.0-alpha.0
+  - @chialab/esbuild-plugin-worker@0.18.0-alpha.0
+  - @chialab/node-resolve@0.18.0-alpha.0
+  - @chialab/rna-bundler@0.18.0-alpha.0
+  - @chialab/rna-config-loader@0.18.0-alpha.0
+  - @chialab/wds-plugin-node-resolve@0.18.0-alpha.0
+
 ## 0.17.7
 
 ### Patch Changes

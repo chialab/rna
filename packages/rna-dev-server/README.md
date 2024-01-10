@@ -17,8 +17,11 @@
 ## Install
 
 ```sh
-$ npm i @chialab/rna-dev-server -D
-$ yarn add @chialab/rna-dev-server -D
+npm i @chialab/rna-dev-server -D
+```
+
+```sh
+yarn add @chialab/rna-dev-server -D
 ```
 
 ## Usage
@@ -40,10 +43,6 @@ await serve({
 
 ### Via cli
 
-```sh
-$ npm i @chialab/rna @chialab/rna-dev-server -D
-```
-
 ```
 rna serve [options] [root]
 
@@ -56,8 +55,11 @@ Options:
 **Samples**
 
 ```sh
-$ rna serve
-$ rna serve public --port 3000
+rna serve
+```
+
+```sh
+rna serve public --port 3000
 ```
 
 ### As middleware

@@ -1,9 +1,0 @@
-{
-  "name": "test",
-  "private": true,
-  "version": "0.0.0",
-  "browser": {
-    "fs/promises": "./fs.js",
-    "path": false
-  }
-}

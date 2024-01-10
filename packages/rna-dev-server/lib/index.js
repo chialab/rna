@@ -1,7 +1,7 @@
 import { stat } from 'fs/promises';
 import path from 'path';
+import process from 'process';
 import { readConfigFile, mergeConfig, locateConfigFile } from '@chialab/rna-config-loader';
-import { createLogger, colors } from '@chialab/rna-logger';
 import { DevServer, getPort, portNumbers } from '@chialab/es-dev-server';
 import cors from '@koa/cors';
 import range from 'koa-range';
@@ -10,11 +10,10 @@ import { rnaPlugin, entrypointsPlugin } from '@chialab/wds-plugin-rna';
 
 /**
  * @typedef {Object} DevServerCoreConfig
- * @property {import('@chialab/rna-logger').Logger} [logger]
  * @property {import('@chialab/rna-config-loader').EntrypointConfig[]} [entrypoints]
  * @property {string} [manifestPath]
  * @property {string} [entrypointsPath]
- * @property {import('@chialab/rna-config-loader').AliasMap} [alias]
+ * @property {Record<string, string>} [alias]
  * @property {import('esbuild').Plugin[]} [transformPlugins]
  * @property {string | string[]} [target]
  * @property {'transform'|'preserve'|'automatic'} [jsx]
@@ -37,7 +36,6 @@ export async function loadDevServerConfig(initialConfig = {}, configFile = undef
     configFile = configFile || await locateConfigFile();
 
     const rootDir = initialConfig.rootDir || process.cwd();
-    const logger = createLogger();
 
     /**
      * @type {import('@chialab/rna-config-loader').ProjectConfig}
@@ -65,7 +63,6 @@ export async function loadDevServerConfig(initialConfig = {}, configFile = undef
     }
 
     return {
-        logger,
         transformPlugins,
         ...initialConfig,
         plugins: finalPlugins,
@@ -84,9 +81,10 @@ export async function loadDevServerConfig(initialConfig = {}, configFile = undef
 /**
  * Create a dev server.
  * @param {DevServerConfig} config
+ * @param {import('@chialab/rna-logger').Logger} logger
  * @returns {Promise<import('@chialab/es-dev-server').DevServer>} The dev server instance.
  */
-export async function createDevServer(config) {
+export async function createDevServer(config, logger) {
     const root = config.rootDir ? path.resolve(config.rootDir) : process.cwd();
     const appIndex = path.join(root, 'index.html');
     let index = false;
@@ -107,7 +105,9 @@ export async function createDevServer(config) {
             jsxFragment: config.jsxFragment,
             plugins: config.transformPlugins,
         }),
-        entrypointsPlugin(config.entrypoints),
+        entrypointsPlugin({
+            entrypoints: config.entrypoints || [],
+        }),
         nodeResolvePlugin({
             alias: config.alias,
         }),
@@ -137,7 +137,7 @@ export async function createDevServer(config) {
             ...(config.middleware || []),
         ],
         plugins,
-    }, config.logger || createLogger());
+    }, logger);
 
     return server;
 }
@@ -145,95 +145,17 @@ export async function createDevServer(config) {
 /**
  * Start the dev server.
  * @param {DevServerConfig} config
+ * @param {import('@chialab/rna-logger').Logger} logger
  * @returns {Promise<import('@chialab/es-dev-server').DevServer>} The dev server instance.
  */
-export async function serve(config) {
+export async function serve(config, logger) {
     const root = config.rootDir || process.cwd();
     const server = await createDevServer({
         ...config,
         rootDir: root,
-    });
+    }, logger);
 
     await server.start();
 
-    process.on('uncaughtException', error => {
-        config.logger?.error(error);
-    });
-
-    process.on('SIGINT', async () => {
-        await server.stop();
-        process.exit(0);
-    });
-
     return server;
-}
-
-/**
- * @typedef {Object} ServeCommandOptions
- * @property {number} [port]
- * @property {string} [config]
- * @property {boolean|string} [manifest]
- * @property {boolean|string} [entrypoints]
- * @property {string} [target]
- * @property {'transform'|'preserve'|'automatic'} [jsx]
- * @property {string} [jsxImportSource]
- * @property {string} [jsxFactory]
- * @property {string} [jsxFragment]
- */
-
-/**
- * @param {import('commander').Command} program
- */
-export function command(program) {
-    program
-        .command('serve [root]')
-        .description('Start a web dev server (https://modern-web.dev/docs/dev-server/overview/) that transforms ESM imports for node resolution on demand. It also uses esbuild (https://esbuild.github.io/) to compile non standard JavaScript syntax.')
-        .option('-P, --port <number>', 'server port number', parseInt)
-        .option('-C, --config <path>', 'the rna config file')
-        .option('--manifest <path>', 'generate manifest file')
-        .option('--entrypoints <path>', 'generate entrypoints file')
-        .option('--target <query>', 'output targets (es5, es2015, es2020)')
-        .option('--jsx <mode>', 'jsx transform mode')
-        .option('--jsxFactory <identifier>', 'jsx pragma')
-        .option('--jsxFragment <identifier>', 'jsx fragment')
-        .option('--jsxImportSource <name>', 'jsx module name')
-        .action(
-            /**
-             * @param {string} root
-             * @param {ServeCommandOptions} options
-             */
-            async (root = process.cwd(), options) => {
-                const {
-                    port,
-                    target,
-                    jsx,
-                    jsxImportSource,
-                    jsxFactory,
-                    jsxFragment,
-                } = options;
-
-                const manifestPath = options.manifest ? (typeof options.manifest === 'string' ? options.manifest : path.join(root, 'manifest.json')) : undefined;
-                const entrypointsPath = options.entrypoints ? (typeof options.entrypoints === 'string' ? options.entrypoints : path.join(root, 'entrypoints.json')) : undefined;
-                const serveConfig = await loadDevServerConfig({
-                    rootDir: root,
-                    port,
-                    manifestPath,
-                    entrypointsPath,
-                    target,
-                    jsx,
-                    jsxImportSource,
-                    jsxFactory,
-                    jsxFragment,
-                }, options.config);
-
-                const server = await serve(serveConfig);
-
-                serveConfig.logger?.log(`
-${colors.bold('dev server started!')}
-
-root:     ${colors.hex('#ef7d00')(path.resolve(serveConfig.rootDir || root))}
-local:    ${colors.hex('#ef7d00')(`http://${server.config.hostname}:${server.config.port}/`)}
-`);
-            }
-        );
 }

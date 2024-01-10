@@ -11,8 +11,11 @@
 ## Install
 
 ```sh
-$ npm i @chialab/wds-plugin-rna -D
-$ yarn add @chialab/wds-plugin-rna -D
+npm i @chialab/wds-plugin-rna -D
+```
+
+```sh
+yarn add @chialab/wds-plugin-rna -D
 ```
 
 ## Usage

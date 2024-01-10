@@ -1,7 +1,7 @@
 {
   "name": "@chialab/wds-plugin-legacy",
   "type": "module",
-  "version": "0.17.0",
+  "version": "0.18.0-alpha.1",
   "description": "Transform esm modules served by the web dev server into SystemJS modules for legacy browser compatibility.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",
@@ -26,23 +26,23 @@
     "LICENSE"
   ],
   "engines": {
-    "node": ">=13"
+    "node": ">=18"
   },
   "dependencies": {
     "@babel/core": "^7.14.2",
     "@babel/preset-env": "^7.14.2",
-    "@chialab/wds-plugin-node-resolve": "^0.17.0",
-    "@chialab/wds-plugin-polyfill": "^0.17.0",
-    "browserslist-useragent": "^3.0.3",
+    "@chialab/wds-plugin-node-resolve": "^0.18.0-alpha.1",
+    "@chialab/wds-plugin-polyfill": "^0.18.0-alpha.1",
+    "browserslist-useragent": "^4.0.0",
     "cheerio": "^1.0.0-rc.9",
-    "regenerator-runtime": "^0.13.7",
+    "regenerator-runtime": "^0.14.0",
     "systemjs": "^6.9.0"
   },
   "devDependencies": {
     "@types/babel__core": "^7.1.14",
     "@types/babel__preset-env": "^7.9.1",
     "@types/browserslist-useragent": "^3.0.3",
-    "@web/dev-server-core": "^0.3.8",
-    "typescript": "^4.3.0"
+    "@web/dev-server-core": "^0.7.0",
+    "typescript": "^5.0.0"
   }
 }

@@ -9,8 +9,11 @@
 ## Install
 
 ```sh
-$ npm i @chialab/postcss-url-rebase -D
-$ yarn add @chialab/postcss-url-rebase -D
+npm i @chialab/postcss-url-rebase -D
+```
+
+```sh
+yarn add @chialab/postcss-url-rebase -D
 ```
 
 ## Usage

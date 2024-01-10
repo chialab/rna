@@ -11,10 +11,10 @@
   ],
   "references": [
     {
-      "path": "../rna-logger"
+      "path": "../rna-bundler"
     },
     {
-      "path": "../rna-apidoc"
+      "path": "../rna-logger"
     },
     {
       "path": "../rna-browser-test-runner"

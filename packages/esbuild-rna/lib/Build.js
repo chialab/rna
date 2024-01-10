@@ -1,9 +1,9 @@
 import path from 'path';
-import crypto from 'crypto';
+import { Buffer } from 'buffer';
+import process from 'process';
 import { mkdir, readFile, writeFile } from 'fs/promises';
 import { loadSourcemap, inlineSourcemap, mergeSourcemaps } from '@chialab/estransform';
-import { escapeRegexBody } from '@chialab/node-resolve';
-import { createOutputFile, createResult, assignToResult } from './helpers.js';
+import { createOutputFile, createResult, assignToResult, createFileHash } from './helpers.js';
 
 /**
  * @typedef {import('esbuild').Message} Message
@@ -102,11 +102,7 @@ import { createOutputFile, createResult, assignToResult } from './helpers.js';
  */
 
 /**
- * @typedef {{ [key: string]: string[] }} DependenciesMap
- */
-
-/**
- * @typedef {BuildResult & { metafile: Metafile; dependencies: DependenciesMap }} Result
+ * @typedef {BuildResult & { metafile: Metafile; dependencies: Record<string, string[]> }} Result
  */
 
 /**
@@ -159,8 +155,6 @@ import { createOutputFile, createResult, assignToResult } from './helpers.js';
  * Esbuild build handler.
  */
 export class Build {
-    static RESOLVED_AS_FILE = 1;
-    static RESOLVED_AS_MODULE = 2;
     static ENTRY = 1;
     static CHUNK = 2;
     static ASSET = 3;
@@ -235,7 +229,7 @@ export class Build {
 
     /**
      * Build dependencies map.
-     * @type {DependenciesMap}
+     * @type {Record<string, string[]>}
      * @readonly
      * @private
      */
@@ -264,7 +258,11 @@ export class Build {
 
             if (Array.isArray(entryPoints)) {
                 entryPoints.forEach((entryPoint) => {
-                    entryPoint = this.resolvePath(entryPoint);
+                    if (typeof entryPoint === 'string') {
+                        entryPoint = this.resolvePath(entryPoint);
+                    } else {
+                        entryPoint = this.resolvePath(entryPoint.in);
+                    }
                     this.collectDependencies(entryPoint, [entryPoint]);
                 });
             } else {
@@ -387,6 +385,7 @@ export class Build {
         const separator = /\/+|\\+/;
 
         return (Array.isArray(entryPoints) ? entryPoints : Object.values(entryPoints))
+            .map((entry) => (typeof entry === 'string' ? entry : entry.in))
             .map((entry) => (path.isAbsolute(entry) ? entry : this.resolvePath(entry)))
             .map((entry) => path.dirname(entry))
             .map((entry) => entry.split(separator))
@@ -500,7 +499,7 @@ export class Build {
 
     /**
      * Get collected dependencies.
-     * @returns {DependenciesMap} The dependencies map.
+     * @returns {Record<string, string[]>} The dependencies map.
      */
     getDependencies() {
         return {
@@ -607,45 +606,6 @@ export class Build {
      */
     resolve(path, options) {
         return this.pluginBuild.resolve(path, options);
-    }
-
-    /**
-     * Resolve a module trying to load it as local file first.
-     * EcmaScript specs requires every import specifier to use relative paths.
-     * Many bundlers, like esbuild, supports also module resolution when the specifier is not a relative path.
-     * Esbuild resolve method looks for a file module if the path starts with `./` or `../`,
-     * fallbacking to module resolution if not.
-     * But urls are allowed to to specify path name without relative paths (eg new URL('file.png', import.meta.url)).
-     * Since RNA aims to support those kind of file reference,
-     * using the `resolveLocallyFirst` method it is possible to load loca file module if they exists,
-     * fallbacking to esbuild default module resolution if not.
-     * @param {string} path
-     * @param {ResolveOptions} [options]
-     * @returns Resolved path.
-     */
-    async resolveLocallyFirst(path, options) {
-        const isLocalSpecifier = path.startsWith('./') || path.startsWith('../');
-        if (!isLocalSpecifier) {
-            // force local file resolution first
-            const result = await this.resolve(`./${path}`, options);
-
-            if (result.path) {
-                return {
-                    ...result,
-                    pluginData: Build.RESOLVED_AS_FILE,
-                };
-            }
-        }
-
-        const result = await this.resolve(path, options);
-        if (result.path) {
-            return {
-                ...result,
-                pluginData: isLocalSpecifier ? Build.RESOLVED_AS_FILE : Build.RESOLVED_AS_MODULE,
-            };
-        }
-
-        return result;
     }
 
     /**
@@ -807,9 +767,7 @@ export class Build {
      * @returns A buffer hash.
      */
     hash(buffer) {
-        const hash = crypto.createHash('sha1');
-        hash.update(Buffer.from(buffer));
-        return hash.digest('hex').substring(0, 8);
+        return createFileHash(buffer);
     }
 
     /**
@@ -853,12 +811,24 @@ export class Build {
     addVirtualModule(entry) {
         const resolveDir = entry.resolveDir || this.getSourceRoot();
         const virtualFilePath = path.isAbsolute(entry.path) ? entry.path : path.join(resolveDir, entry.path);
-        const virtualFilter = new RegExp(escapeRegexBody(virtualFilePath));
+        const virtualFilter = new RegExp(virtualFilePath.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&'));
 
-        this.onResolve({ filter: new RegExp(`^${escapeRegexBody(entry.path)}$`) }, () => ({
-            path: virtualFilePath,
-            namespace: 'file',
-        }));
+        this.onResolve({ filter: /./ }, (args) => {
+            const isRelative = args.path.startsWith('./') || args.path.startsWith('../');
+            if (!isRelative && args.path === entry.path) {
+                return {
+                    path: virtualFilePath,
+                    namespace: 'file',
+                };
+            }
+            const requestPath = path.resolve(path.dirname(args.importer), args.path);
+            if (requestPath === virtualFilePath) {
+                return {
+                    path: virtualFilePath,
+                    namespace: 'file',
+                };
+            }
+        });
 
         this.onLoad({ filter: virtualFilter }, (args) => ({
             ...args,
@@ -960,20 +930,15 @@ export class Build {
      * Insert dependency plugins in the build plugins list.
      * @param {Plugin[]} plugins A list of required plugins .
      * @param {'before'|'after'} [mode] Where insert the missing plugin.
-     * @returns {Promise<string[]>} The list of plugin names that had been added to the build.
+     * @returns {Promise<void>}
      */
     async setupPlugin(plugins, mode = 'before') {
         if (this.isChunk()) {
-            return [];
+            return;
         }
 
         const initialOptions = this.getOptions();
         const installedPlugins = initialOptions.plugins = this.getPlugins();
-
-        /**
-         * @type {string[]}
-         */
-        const pluginsToInstall = [];
 
         let last = this.plugin;
         for (let i = 0; i < plugins.length; i++) {
@@ -982,7 +947,6 @@ export class Build {
                 continue;
             }
 
-            pluginsToInstall.push(dependency.name);
             const io = installedPlugins.indexOf(last);
             installedPlugins.splice(mode === 'before' ? io : (io + 1), 0, dependency);
             if (mode === 'after') {
@@ -991,15 +955,13 @@ export class Build {
 
             await dependency.setup(this.pluginBuild);
         }
-
-        return pluginsToInstall;
     }
 
     /**
      * Add dependencies to the build.
      * @param {string} importer The importer path.
      * @param {string[]} dependencies A list of loaded dependencies.
-     * @returns {DependenciesMap} The updated dependencies map.
+     * @returns {Record<string, string[]>} The updated dependencies map.
      */
     collectDependencies(importer, dependencies) {
         const map = this.dependencies;
@@ -1046,6 +1008,7 @@ export class Build {
                 namespace: 'file',
                 suffix: '',
                 path: source,
+                with: {},
             });
 
             if (result && result.contents) {
@@ -1112,8 +1075,13 @@ export class Build {
      */
     async emitChunk(options, collect = true) {
         const buildOptions = this.getOptions();
-        const format = options.format || this.getOption('format');
+        const buildFormat = this.getOption('format');
+        const format = options.format || buildFormat;
         const virtualOutDir = this.getFullOutDir() || this.getWorkingDir();
+        let entryNames = buildOptions.chunkNames || buildOptions.entryNames || '[name]';
+        if (format !== buildFormat && !entryNames.includes('[hash]')) {
+            entryNames = entryNames.replace('[name]', `[name]-${format}`);
+        }
 
         /** @type {BuildOptions} */
         const config = {
@@ -1129,7 +1097,7 @@ export class Build {
             plugins: options.plugins ?? buildOptions.plugins,
             external: options.external ?? this.getInitialOptions().external,
             jsxFactory: ('jsxFactory' in options) ? options.jsxFactory : buildOptions.jsxFactory,
-            entryNames: buildOptions.chunkNames || buildOptions.entryNames,
+            entryNames,
             write: buildOptions.write !== false ? (options.write ?? true) : false,
             globalName: undefined,
             outfile: undefined,
@@ -1175,7 +1143,7 @@ export class Build {
             path: resolvedOutputFile,
         };
         if (collect) {
-            this.chunks.set(options.path, chunkResult);
+            this.chunks.set(id, chunkResult);
         }
 
         return chunkResult;

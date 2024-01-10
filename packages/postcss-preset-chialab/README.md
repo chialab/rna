@@ -21,8 +21,11 @@
 ## Install
 
 ```sh
-$ npm i @chialab/postcss-preset-chialab -D
-$ yarn add @chialab/postcss-preset-chialab -D
+npm i @chialab/postcss-preset-chialab -D
+```
+
+```sh
+yarn add @chialab/postcss-preset-chialab -D
 ```
 
 ## Usage

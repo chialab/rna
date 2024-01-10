@@ -11,9 +11,6 @@
   ],
   "references": [
     {
-      "path": "../esbuild-plugin-css-import"
-    },
-    {
       "path": "../esbuild-rna"
     },
     {

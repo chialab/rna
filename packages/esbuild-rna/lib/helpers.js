@@ -1,4 +1,6 @@
 import path from 'path';
+import crypto from 'crypto';
+import { Buffer } from 'buffer';
 
 /**
  * Create an empty metafile object.
@@ -6,6 +8,17 @@ import path from 'path';
  */
 export function createEmptyMetafile() {
     return { inputs: {}, outputs: {} };
+}
+
+/**
+ * Create an hash for the given buffer.
+ * @param {Buffer|Uint8Array|string} buffer The buffer input.
+ * @returns A buffer hash.
+ */
+export function createFileHash(buffer) {
+    const hash = crypto.createHash('sha1');
+    hash.update(Buffer.from(buffer));
+    return hash.digest('hex').substring(0, 8);
 }
 
 /**
@@ -17,6 +30,7 @@ export function createOutputFile(path, contents) {
     return {
         path,
         contents,
+        hash: createFileHash(contents),
         get text() {
             return contents.toString();
         },
@@ -35,6 +49,7 @@ export function createResult(outputFiles, metafile = createEmptyMetafile()) {
         dependencies: {},
         outputFiles,
         metafile,
+        mangleCache: {},
     };
 }
 
@@ -43,7 +58,7 @@ export function createResult(outputFiles, metafile = createEmptyMetafile()) {
  * that collects all inputs and outputs references, errors and warnings.
  * This is useful when running multiple builds in separated process.
  * @param {import('./Build.js').Result} context
- * @param {import('./Build.js').Result} result
+ * @param {import('esbuild').BuildResult & { dependencies?: Record<string, string[]> }} result
  */
 export function assignToResult(context, result) {
     context.errors.push(...result.errors);
@@ -67,17 +82,19 @@ export function assignToResult(context, result) {
     };
 
     /**
-     * @type {import('./Build.js').DependenciesMap}
+     * @type {Record<string, string[]>}
      */
     const dependencies = context.dependencies = context.dependencies || {};
-    for (const out of Object.entries(result.dependencies)) {
-        const entryPoint = out[0];
-        const list = dependencies[entryPoint] = dependencies[entryPoint] || [];
-        out[1].forEach((dep) => {
-            if (!list.includes(dep)) {
-                list.push(dep);
-            }
-        });
+    if (typeof result.dependencies === 'object') {
+        for (const out of Object.entries(result.dependencies)) {
+            const entryPoint = out[0];
+            const list = dependencies[entryPoint] = dependencies[entryPoint] || [];
+            out[1].forEach((dep) => {
+                if (!list.includes(dep)) {
+                    list.push(dep);
+                }
+            });
+        }
     }
 }
 
@@ -111,6 +128,7 @@ export function remapResult(result, from, to) {
                     return acc;
                 }, /** @type {import('esbuild').Metafile['outputs']} */ ({})),
         },
+        mangleCache: result.mangleCache,
     };
 }
 

@@ -11,8 +11,11 @@
 ## Install
 
 ```sh
-$ npm i @chialab/esbuild-plugin-postcss -D
-$ yarn add @chialab/esbuild-plugin-postcss -D
+npm i @chialab/esbuild-plugin-postcss -D
+```
+
+```sh
+yarn add @chialab/esbuild-plugin-postcss -D
 ```
 
 ## Usage
@@ -35,8 +38,11 @@ This plugin looks for a postcss configuration in the project and fallbacks to ou
 The plugin automatically tries to load the `@chialab/postcss-plugin-dart-sass` when it processes `.scss` files. Please make sure to have installed the optional dependency in order to correctly transpiler Sass files:
 
 ```sh
-$ npm i @chialab/postcss-plugin-dart-sass -D
-$ yarn add @chialab/postcss-plugin-dart-sass -D
+npm i @chialab/postcss-plugin-dart-sass -D
+```
+
+```sh
+yarn add @chialab/postcss-plugin-dart-sass -D
 ```
 
 ---

@@ -1,7 +1,7 @@
 {
   "name": "@chialab/esbuild-rna",
   "type": "module",
-  "version": "0.17.8",
+  "version": "0.18.0-alpha.1",
   "description": "A framework for esbuild plugins with transform and emit capabilities.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",
@@ -21,14 +21,14 @@
     "LICENSE"
   ],
   "engines": {
-    "node": ">=13"
+    "node": ">=18"
   },
   "dependencies": {
-    "@chialab/estransform": "^0.17.4",
-    "@chialab/node-resolve": "^0.17.1"
+    "@chialab/estransform": "^0.18.0-alpha.1",
+    "@chialab/node-resolve": "^0.18.0-alpha.1"
   },
   "devDependencies": {
-    "esbuild": "^0.15.0",
-    "typescript": "^4.3.0"
+    "esbuild": "^0.19.0",
+    "typescript": "^5.0.0"
   }
 }

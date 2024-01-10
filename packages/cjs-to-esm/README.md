@@ -11,8 +11,11 @@
 ## Install
 
 ```sh
-$ npm i @chialab/cjs-to-esm -D
-$ yarn add @chialab/cjs-to-esm -D
+npm i @chialab/cjs-to-esm -D
+```
+
+```sh
+yarn add @chialab/cjs-to-esm -D
 ```
 
 ## Usage

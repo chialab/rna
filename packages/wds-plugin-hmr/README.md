@@ -11,8 +11,11 @@
 ## Install
 
 ```sh
-$ npm i @chialab/wds-plugin-hmr -D
-$ yarn add @chialab/wds-plugin-hmr -D
+npm i @chialab/wds-plugin-hmr -D
+```
+
+```sh
+yarn add @chialab/wds-plugin-hmr -D
 ```
 
 ## Usage

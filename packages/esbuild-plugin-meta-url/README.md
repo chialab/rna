@@ -25,8 +25,11 @@ const img = new URL('./logo.png', import.meta.url).href;
 ## Install
 
 ```sh
-$ npm i @chialab/esbuild-plugin-meta-url -D
-$ yarn add @chialab/esbuild-plugin-meta-url -D
+npm i @chialab/esbuild-plugin-meta-url -D
+```
+
+```sh
+yarn add @chialab/esbuild-plugin-meta-url -D
 ```
 
 ## Usage

@@ -1,15 +1,15 @@
 import os from 'os';
 import path from 'path';
+import process from 'process';
 import { Worker } from 'worker_threads';
 import { mkdtemp } from 'fs/promises';
-import { readConfigFile, mergeConfig, locateConfigFile } from '@chialab/rna-config-loader';
 import { CoverageReport } from '@chialab/es-test-runner';
 
 /**
  * @typedef {Object} TestRunnerConfig
  * @property {string[]} [files] A list or a glob of files to test.
  * @property {boolean} [coverage] Should collect coverage data.
- * @property {import('@chialab/node-resolve').AliasMap} [alias]
+ * @property {Record<string, string>} [alias]
  */
 
 /**
@@ -71,48 +71,4 @@ export async function test(config) {
     if (failures) {
         throw new Error('Some tests failed');
     }
-}
-
-/**
- * @typedef {Object} TestNodeCommandOptions
- * @property {boolean} [coverage]
- * @property {string} [config]
- */
-
-/**
- * @param {import('commander').Command} program
- */
-export function command(program) {
-    program
-        .command('test:node [specs...]')
-        .description('Start a node test runner based on mocha.')
-        .option('--coverage', 'collect code coverage')
-        .option('-C, --config <path>', 'the rna config file')
-        .action(
-            /**
-             * @param {string[]} specs
-             * @param {TestNodeCommandOptions} options
-             */
-            async (specs, { coverage, config: configFile }) => {
-                const root = process.cwd();
-                configFile = configFile || await locateConfigFile();
-
-                /**
-                 * @type {import('@chialab/rna-config-loader').ProjectConfig}
-                 */
-                const config = mergeConfig({ root }, configFile ? await readConfigFile(configFile, { root }, 'serve') : {});
-
-                /**
-                 * @type {TestRunnerConfig}
-                 */
-                const testRunnerConfig = {
-                    alias: config.alias,
-                    coverage,
-                };
-                if (specs.length) {
-                    testRunnerConfig.files = specs;
-                }
-                await test(testRunnerConfig);
-            }
-        );
 }

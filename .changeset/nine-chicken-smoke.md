@@ -39,4 +39,4 @@
 "@chialab/rna": patch
 ---
 
-Set up required NodeJS version to 16.
+Set up required NodeJS version to 18.

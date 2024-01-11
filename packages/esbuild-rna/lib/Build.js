@@ -691,7 +691,7 @@ export class Build {
                 continue;
             }
 
-            if (!/** @type {RegExp} */ (filter).test(filePath)) {
+            if (!(/** @type {RegExp} */ (filter).test(filePath))) {
                 continue;
             }
 

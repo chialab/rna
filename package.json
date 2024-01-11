@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "version": "0.18.0",
-  "description": "A build framework, a bundler, a server and a test runner for modern modules and applications.",
+  "description": "Build tools for modern web modules and applications.",
   "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
   "license": "MIT",
   "scripts": {

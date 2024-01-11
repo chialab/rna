@@ -1,7 +1,7 @@
 import path from 'path';
-import { getRequestFilePath, PluginSyntaxError, PluginError } from '@web/dev-server-core';
 import { createEmptyModule } from '@chialab/estransform';
 import { browserResolve, getSearchParam, getSearchParams, isUrl } from '@chialab/node-resolve';
+import { getRequestFilePath, PluginError, PluginSyntaxError } from '@web/dev-server-core';
 
 /**
  * @typedef {import('@web/dev-server-core').Plugin} Plugin
@@ -44,9 +44,7 @@ export function createHelperUrl(name) {
  * @param {string} url
  */
 export function isHelperImport(url) {
-    return url.includes('__web-dev-server__') ||
-        url.includes('__web-test-runner__') ||
-        url.includes(HELPERS_PATH);
+    return url.includes('__web-dev-server__') || url.includes('__web-test-runner__') || url.includes(HELPERS_PATH);
 }
 
 /**
@@ -116,12 +114,9 @@ export function resolveRelativeImport(specifier, importer, serveDir, { code, lin
     const dirUpStrings = relativePath.substring(0, lastDirUpIndex).split(path.sep);
     if (dirUpStrings.length === 0 || dirUpStrings.some((str) => !['..', ''].includes(str))) {
         // we expect the relative part to consist of only ../ or ..\\
-        const errorMessage = 'This path could not be converted to a browser path. Please file an issue with a reproduction.';
-        if (
-            typeof code === 'string' &&
-            typeof column === 'number' &&
-            typeof line === 'number'
-        ) {
+        const errorMessage =
+            'This path could not be converted to a browser path. Please file an issue with a reproduction.';
+        if (typeof code === 'string' && typeof column === 'number' && typeof line === 'number') {
             throw new PluginSyntaxError(errorMessage, importer, code, column, line);
         } else {
             throw new PluginError(errorMessage);
@@ -152,17 +147,17 @@ export async function resolveImport(specifier, importer, serveDir, { code, line,
  * A plugin the Web Dev Server for node resolutions.
  * @param {{ alias?: Record<string, string> }} [config]
  */
-export default function(config = {}) {
+export default function (config = {}) {
     /**
      * @type {import('@web/dev-server-core').DevServerCoreConfig}
      */
     let serverConfig;
 
     const aliasRegexes = new Map(
-        Object.entries(config.alias || {})
-            .map(([key, value]) =>
-                [new RegExp(`^${key.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&')}$`), { key, value }]
-            )
+        Object.entries(config.alias || {}).map(([key, value]) => [
+            new RegExp(`^${key.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&')}$`),
+            { key, value },
+        ])
     );
 
     /**

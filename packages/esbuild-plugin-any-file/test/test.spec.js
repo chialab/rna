@@ -1,11 +1,13 @@
 import { fileURLToPath } from 'url';
-import esbuild from 'esbuild';
 import anyFilePlugin from '@chialab/esbuild-plugin-any-file';
 import { expect } from 'chai';
+import esbuild from 'esbuild';
 
 describe('esbuild-plugin-any-file', () => {
     it('should load a file with unknown loader', async () => {
-        const { outputFiles: [file, result] } = await esbuild.build({
+        const {
+            outputFiles: [file, result],
+        } = await esbuild.build({
             absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
                 resolveDir: fileURLToPath(new URL('.', import.meta.url)),
@@ -16,9 +18,7 @@ export default file;`,
             },
             bundle: true,
             write: false,
-            plugins: [
-                anyFilePlugin(),
-            ],
+            plugins: [anyFilePlugin()],
         });
 
         expect(file.text.trim()).to.equal('unknown content');
@@ -53,7 +53,9 @@ export default file;`,
                     {
                         name: 'resolve',
                         setup(build) {
-                            build.onResolve({ filter: /missing/ }, (args) => ({ path: fileURLToPath(new URL(args.path, import.meta.url)) }));
+                            build.onResolve({ filter: /missing/ }, (args) => ({
+                                path: fileURLToPath(new URL(args.path, import.meta.url)),
+                            }));
                         },
                     },
                     anyFilePlugin({ shouldThrow: true }),
@@ -63,7 +65,6 @@ export default file;`,
         } catch (e) {
             err = e;
         }
-
 
         expect(err).to.instanceOf(Error);
     });

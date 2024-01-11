@@ -2,16 +2,18 @@
  * @param {import('@chialab/rna-browser-test-runner').BrowserLauncher} launcher
  */
 export function fixLauncher(launcher) {
-    const createDriverManager = (/** @type {*} */ (launcher)).createDriverManager;
+    const createDriverManager = /** @type {*} */ (launcher).createDriverManager;
     /**
      * @this {*}
      */
-    const create = async function() {
+    const create = async function () {
         const result = await createDriverManager.call(this);
         const capabilities = this.driver.capabilities;
-        if ((capabilities.platform || '').toLowerCase() === 'mac' &&
+        if (
+            (capabilities.platform || '').toLowerCase() === 'mac' &&
             capabilities.browserName.toLowerCase() === 'safari' &&
-            (capabilities.version.startsWith('9.') || capabilities.version.startsWith('10.'))) {
+            (capabilities.version.startsWith('9.') || capabilities.version.startsWith('10.'))
+        ) {
             const driver = this.driver;
             const navigateTo = driver.navigateTo;
             /**
@@ -19,7 +21,7 @@ export function fixLauncher(launcher) {
              * @param {string} url
              * @param {*} args
              */
-            const navigate = async function(url, ...args) {
+            const navigate = async function (url, ...args) {
                 if (url === 'data:,') {
                     return Promise.resolve();
                 }
@@ -33,6 +35,6 @@ export function fixLauncher(launcher) {
         }
         return result;
     };
-    (/** @type {*} */ (launcher)).createDriverManager = create;
+    /** @type {*} */ (launcher).createDriverManager = create;
     return launcher;
 }

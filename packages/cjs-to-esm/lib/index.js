@@ -1,4 +1,13 @@
-import { TokenType, parse, walk, getBlock, getStatement, parseCommonjs, parseEsm, createEmptySourcemapComment } from '@chialab/estransform';
+import {
+    createEmptySourcemapComment,
+    getBlock,
+    getStatement,
+    parse,
+    parseCommonjs,
+    parseEsm,
+    TokenType,
+    walk,
+} from '@chialab/estransform';
 
 export const REQUIRE_REGEX = /([^.\w$]|^)require\s*\((['"])(.*?)\2\)/g;
 export const UMD_REGEXES = [
@@ -8,7 +17,8 @@ export const UMD_REGEXES = [
     /['|"]function['|"]\s*===?\s*typeof\s+define/,
 ];
 export const UMD_GLOBALS = ['globalThis', 'global', 'self', 'window'];
-export const ESM_KEYWORDS = /((?:^\s*|;\s*)(\bimport\s*(\{.*?\}\s*from|\s[\w$]+\s+from|\*\s*as\s+[^\s]+\s+from)?\s*['"])|((?:^\s*|;\s*)export(\s+(default|const|var|let|function|class)[^\w$]|\s*\{)))/m;
+export const ESM_KEYWORDS =
+    /((?:^\s*|;\s*)(\bimport\s*(\{.*?\}\s*from|\s[\w$]+\s+from|\*\s*as\s+[^\s]+\s+from)?\s*['"])|((?:^\s*|;\s*)export(\s+(default|const|var|let|function|class)[^\w$]|\s*\{)))/m;
 export const EXPORTS_KEYWORDS = /\b(module\.exports\b|exports\b)/;
 export const CJS_KEYWORDS = /\b(module\.exports\b|exports\b|require[.(])/;
 export const THIS_PARAM = /(}\s*\()this(,|\))/g;
@@ -138,8 +148,8 @@ export async function maybeMixedModule(code) {
 
     try {
         const [imports, exports] = await parseEsm(code);
-        return (imports.length !== 0 || exports.length !== 0);
-    } catch(err) {
+        return imports.length !== 0 || exports.length !== 0;
+    } catch (err) {
         //
     }
 
@@ -151,8 +161,10 @@ export async function maybeMixedModule(code) {
  * @param {import('@chialab/estransform').TokenProcessor} processor
  */
 function isRequireCallExpression(processor) {
-    return processor.matches4(TokenType.name, TokenType.parenL, TokenType.string, TokenType.parenR)
-        && processor.identifierNameAtIndex(processor.currentIndex()) === 'require';
+    return (
+        processor.matches4(TokenType.name, TokenType.parenL, TokenType.string, TokenType.parenR) &&
+        processor.identifierNameAtIndex(processor.currentIndex()) === 'require'
+    );
 }
 
 /**
@@ -173,7 +185,17 @@ function isRequireCallExpression(processor) {
  * @param {string} code
  * @param {TransformOptions|undefined} options
  */
-export async function transform(code, { sourcemap = true, source, sourcesContent = false, ignore = () => false, helperModule = false, ignoreTryCatch = true } = {}) {
+export async function transform(
+    code,
+    {
+        sourcemap = true,
+        source,
+        sourcesContent = false,
+        ignore = () => false,
+        helperModule = false,
+        ignoreTryCatch = true,
+    } = {}
+) {
     if (await maybeMixedModule(code)) {
         throw new Error('Cannot convert mixed modules');
     }
@@ -210,8 +232,7 @@ export async function transform(code, { sourcemap = true, source, sourcesContent
         }
 
         await walk(processor, (token, index) => {
-            if (!isRequireCallExpression(processor) ||
-                ignoredExpressions.includes(index)) {
+            if (!isRequireCallExpression(processor) || ignoredExpressions.includes(index)) {
                 return;
             }
 
@@ -241,7 +262,11 @@ export async function transform(code, { sourcemap = true, source, sourcesContent
                 helpers.overwrite(token.start, token.end, REQUIRE_FUNCTION);
                 processor.nextToken();
                 processor.nextToken();
-                helpers.overwrite(specifierToken.start, specifierToken.end, `typeof ${spec.id} !== 'undefined' ? ${spec.id} : {}`);
+                helpers.overwrite(
+                    specifierToken.start,
+                    specifierToken.end,
+                    `typeof ${spec.id} !== 'undefined' ? ${spec.id} : {}`
+                );
                 processor.nextToken();
             })();
         });
@@ -253,7 +278,7 @@ export async function transform(code, { sourcemap = true, source, sourcesContent
     const hasDefault = exports.includes('default');
 
     if (isUmd) {
-        let endDefinition = code.indexOf('\'use strict\';');
+        let endDefinition = code.indexOf("'use strict';");
         if (endDefinition === -1) {
             endDefinition = code.indexOf('"use strict";');
         }
@@ -293,7 +318,11 @@ export default (__umdExports.length !== 1 && __umdRoot[__umdExports[0]] !== __um
         // replace the usage of `this` as global object because is not supported in esm
         let thisMatch = THIS_PARAM.exec(code);
         while (thisMatch) {
-            helpers.overwrite(thisMatch.index, thisMatch.index + thisMatch[0].length, `${thisMatch[1]}this || __umdGlobal${thisMatch[2]}`);
+            helpers.overwrite(
+                thisMatch.index,
+                thisMatch.index + thisMatch[0].length,
+                `${thisMatch[1]}this || __umdGlobal${thisMatch[2]}`
+            );
             thisMatch = THIS_PARAM.exec(code);
         }
     } else if (exports.length > 0 || reexports.length > 0) {
@@ -326,7 +355,9 @@ if (${conditions.join(' && ')}) {
         }
         if (isEsModule) {
             if (!isUmd && (hasDefault || named.length === 0)) {
-                helpers.append('\nexport default (module.exports != null && typeof module.exports === \'object\' && \'default\' in module.exports ? module.exports.default : module.exports);');
+                helpers.append(
+                    "\nexport default (module.exports != null && typeof module.exports === 'object' && 'default' in module.exports ? module.exports.default : module.exports);"
+                );
             }
         } else {
             helpers.append('\nexport default module.exports;');
@@ -380,7 +411,9 @@ var module = {
 export async function wrapDynamicRequire(code, { sourcemap = true, source, sourcesContent = false } = {}) {
     const { helpers, processor } = await parse(code, source);
     await walk(processor, (token, index) => {
-        if (!processor.matches5(TokenType._if, TokenType.parenL, TokenType._typeof, TokenType.name, TokenType.equality)) {
+        if (
+            !processor.matches5(TokenType._if, TokenType.parenL, TokenType._typeof, TokenType.name, TokenType.equality)
+        ) {
             return;
         }
 

@@ -22,7 +22,6 @@ yarn add @chialab/wtr-coverage-reporter -D
 
 ```js
 import '@chialab/wtr-coverage-reporter';
-
 ```
 
 ---

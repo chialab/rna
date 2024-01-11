@@ -1,5 +1,5 @@
-import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import { fileURLToPath } from 'url';
 import babel from '@babel/core';
 import { useRna } from '@chialab/esbuild-rna';
 
@@ -13,7 +13,7 @@ const resolveDir = dirname(fileURLToPath(import.meta.url));
  * @param {PluginOptions} options
  * @returns An esbuild plugin.
  */
-export default function({ presets = [], plugins = [] } = {}) {
+export default function ({ presets = [], plugins = [] } = {}) {
     /**
      * @type {import('esbuild').Plugin}
      */
@@ -36,9 +36,11 @@ export default function({ presets = [], plugins = [] } = {}) {
             });
 
             build.onTransform({ loaders: ['tsx', 'ts', 'jsx', 'js'] }, async (args) => {
-                if (args.path.includes('/@babel/runtime/') ||
+                if (
+                    args.path.includes('/@babel/runtime/') ||
                     args.path.includes('/core-js/') ||
-                    args.path.includes('regenerator-runtime')) {
+                    args.path.includes('regenerator-runtime')
+                ) {
                     return;
                 }
 
@@ -56,51 +58,56 @@ export default function({ presets = [], plugins = [] } = {}) {
                     plugins: buildPlugins,
                 };
 
-                const [
-                    { default: jsx },
-                    { default: runtimePlugin },
-                ] = await Promise.all([
+                const [{ default: jsx }, { default: runtimePlugin }] = await Promise.all([
                     import('@babel/plugin-syntax-jsx'),
                     import('@babel/plugin-transform-runtime'),
                 ]);
 
-                buildPlugins.unshift(
-                    jsx,
-                    [runtimePlugin, {
+                buildPlugins.unshift(jsx, [
+                    runtimePlugin,
+                    {
                         corejs: false,
                         helpers: true,
                         regenerator: true,
                         useESModules: true,
-                    }]
-                );
+                    },
+                ]);
 
                 if (target === 'es5') {
                     const { default: envPreset } = await import('@babel/preset-env');
-                    buildPresets.unshift([envPreset, {
-                        targets: {
-                            ie: '11',
-                            chrome: '30',
+                    buildPresets.unshift([
+                        envPreset,
+                        {
+                            targets: {
+                                ie: '11',
+                                chrome: '30',
+                            },
+                            corejs: {
+                                version: 3,
+                                proposals: true,
+                            },
+                            bugfixes: true,
+                            shippedProposals: true,
+                            useBuiltIns: 'entry',
+                            modules: false,
                         },
-                        corejs: {
-                            version: 3,
-                            proposals: true,
-                        },
-                        bugfixes: true,
-                        shippedProposals: true,
-                        useBuiltIns: 'entry',
-                        modules: false,
-                    }]);
+                    ]);
                 }
 
                 if (jsxFactory) {
                     const { default: htmPlugin } = await import('babel-plugin-htm');
-                    buildPlugins.push([htmPlugin, {
-                        tag: 'html',
-                        pragma: jsxFactory,
-                    }]);
+                    buildPlugins.push([
+                        htmPlugin,
+                        {
+                            tag: 'html',
+                            pragma: jsxFactory,
+                        },
+                    ]);
                 }
 
-                const result = /** @type {import('@babel/core').BabelFileResult} */ (await babel.transformAsync(args.code, config));
+                const result = /** @type {import('@babel/core').BabelFileResult} */ (
+                    await babel.transformAsync(args.code, config)
+                );
                 const map = /** @type {import('@chialab/estransform').SourceMap} */ (result.map);
 
                 return {

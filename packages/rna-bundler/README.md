@@ -92,7 +92,7 @@ $ rna build src/index.css --output public/index.css --minify --bundle
 
 ### Known limitations and workarounds
 
-Esbuild does not merge import statements from the same external source when bundling (see [#3](https://github.com/chialab/rna/issues/3)). Consumed esbuild bundles in webpack can be affected by a wrong optimization.  
+Esbuild does not merge import statements from the same external source when bundling (see [#3](https://github.com/chialab/rna/issues/3)). Consumed esbuild bundles in webpack can be affected by a wrong optimization.
 
 **Workaround**  
 Update webpack configuration with following rule:

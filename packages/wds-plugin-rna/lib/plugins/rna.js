@@ -1,11 +1,19 @@
-import path from 'path';
 import { Buffer } from 'buffer';
 import { realpath } from 'fs/promises';
+import path from 'path';
 import { getRequestFilePath } from '@chialab/es-dev-server';
-import { getEntryConfig } from '@chialab/rna-config-loader';
-import { browserResolve, isJs, isJson, isCss, getSearchParam, appendSearchParam, getSearchParams } from '@chialab/node-resolve';
-import { isHelperImport, resolveRelativeImport, isPlainScript } from '@chialab/wds-plugin-node-resolve';
+import {
+    appendSearchParam,
+    browserResolve,
+    getSearchParam,
+    getSearchParams,
+    isCss,
+    isJs,
+    isJson,
+} from '@chialab/node-resolve';
 import { build, transform, transformLoaders } from '@chialab/rna-bundler';
+import { getEntryConfig } from '@chialab/rna-config-loader';
+import { isHelperImport, isPlainScript, resolveRelativeImport } from '@chialab/wds-plugin-node-resolve';
 import { resolveUserAgent } from 'browserslist-useragent';
 
 /**
@@ -143,17 +151,19 @@ export async function createConfig(entrypoint, config) {
         jsxFragment: config.jsxFragment,
         alias: config.alias,
         plugins: [
-            ...await Promise.all([
-                import('@chialab/esbuild-plugin-worker')
-                    .then(({ default: plugin }) => plugin({
+            ...(await Promise.all([
+                import('@chialab/esbuild-plugin-worker').then(({ default: plugin }) =>
+                    plugin({
                         proxy: true,
                         emit: false,
-                    })),
-                import('@chialab/esbuild-plugin-meta-url')
-                    .then(({ default: plugin }) => plugin({
+                    })
+                ),
+                import('@chialab/esbuild-plugin-meta-url').then(({ default: plugin }) =>
+                    plugin({
                         emit: false,
-                    })),
-            ]),
+                    })
+                ),
+            ])),
             ...(config.plugins || []),
         ],
         logLevel: 'error',
@@ -200,16 +210,14 @@ export function rnaPlugin(config) {
         const watchedDependencies = Object.values(dependenciesMap).flat();
         for (const key in dependencies) {
             if (key in dependenciesMap) {
-                dependenciesMap[key]
-                    .forEach((file) => {
-                        if (watchedDependencies.filter((f) => f === file).length === 1) {
-                            serverFileWatcher.unwatch(file);
-                        }
-                    });
+                dependenciesMap[key].forEach((file) => {
+                    if (watchedDependencies.filter((f) => f === file).length === 1) {
+                        serverFileWatcher.unwatch(file);
+                    }
+                });
             }
 
-            dependencies[key]
-                .forEach((file) => serverFileWatcher.add(file));
+            dependencies[key].forEach((file) => serverFileWatcher.add(file));
         }
 
         Object.assign(dependenciesMap, dependencies);
@@ -263,10 +271,12 @@ export function rnaPlugin(config) {
         },
 
         resolveMimeType(context) {
-            if (isJs(context.path) ||
+            if (
+                isJs(context.path) ||
                 isJson(context.path) ||
                 isCssModuleRequest(context.url) ||
-                isFileRequest(context.url)) {
+                isFileRequest(context.url)
+            ) {
                 return 'js';
             }
             if (isCss(context.path)) {
@@ -279,7 +289,10 @@ export function rnaPlugin(config) {
                 const { rootDir } = serverConfig;
                 const { path: pathname, searchParams } = getSearchParams(context.url);
                 const filePath = resolveRelativeImport(getRequestFilePath(pathname, rootDir), context.url, rootDir);
-                const fullUri = new URL(`${filePath}?${searchParams.toString()}`, `http://${serverConfig.hostname}:${serverConfig.port}`);
+                const fullUri = new URL(
+                    `${filePath}?${searchParams.toString()}`,
+                    `http://${serverConfig.hostname}:${serverConfig.port}`
+                );
                 fullUri.searchParams.delete('loader');
                 return {
                     body: convertFileToJsModule(fullUri.href),
@@ -313,9 +326,7 @@ export function rnaPlugin(config) {
                 return;
             }
 
-            if (isCssModuleRequest(context.url) ||
-                isFileRequest(context.url)
-            ) {
+            if (isCssModuleRequest(context.url) || isFileRequest(context.url)) {
                 // do not transpile to js module
                 return;
             }
@@ -358,17 +369,19 @@ export function rnaPlugin(config) {
                 chunkNames: '[name]',
                 target,
                 plugins: [
-                    ...await Promise.all([
-                        import('@chialab/esbuild-plugin-worker')
-                            .then(({ default: plugin }) => plugin({
+                    ...(await Promise.all([
+                        import('@chialab/esbuild-plugin-worker').then(({ default: plugin }) =>
+                            plugin({
                                 proxy: true,
                                 emit: false,
-                            })),
-                        import('@chialab/esbuild-plugin-meta-url')
-                            .then(({ default: plugin }) => plugin({
+                            })
+                        ),
+                        import('@chialab/esbuild-plugin-meta-url').then(({ default: plugin }) =>
+                            plugin({
                                 emit: false,
-                            })),
-                    ]),
+                            })
+                        ),
+                    ])),
                     ...(config.plugins || []),
                 ],
                 logLevel: 'error',

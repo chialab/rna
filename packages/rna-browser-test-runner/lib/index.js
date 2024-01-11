@@ -1,13 +1,13 @@
+import { createRequire } from 'module';
+import { cpus } from 'os';
 import path from 'path';
 import process from 'process';
-import { cpus } from 'os';
-import { createRequire } from 'module';
-import { mochaReporter } from '@chialab/wtr-mocha-reporter';
-import { coverageReporter } from '@chialab/wtr-coverage-reporter';
+import { createDevServer, loadDevServerConfig } from '@chialab/rna-dev-server';
 import { HELPERS_PATH } from '@chialab/wds-plugin-node-resolve';
+import { coverageReporter } from '@chialab/wtr-coverage-reporter';
+import { mochaReporter } from '@chialab/wtr-mocha-reporter';
 import { TestRunner, TestRunnerCli } from '@web/test-runner-core';
 import { PlaywrightLauncher } from '@web/test-runner-playwright';
-import { loadDevServerConfig, createDevServer } from '@chialab/rna-dev-server';
 
 const require = createRequire(import.meta.url);
 
@@ -72,10 +72,7 @@ export async function startTestRunner(config, logger) {
         testsFinishTimeout: 2 * 60 * 1000,
         concurrency: 1,
         concurrentBrowsers: Math.max(1, cpus().length / 2),
-        files: [
-            'test/**/*.test.js',
-            'test/**/*.spec.js',
-        ],
+        files: ['test/**/*.test.js', 'test/**/*.spec.js'],
         coverageConfig: {
             exclude: [
                 '**/node_modules/**/*',
@@ -88,23 +85,14 @@ export async function startTestRunner(config, logger) {
             reportDir: 'coverage',
             reporters: ['lcov'],
         },
-        reporters: [
-            mochaReporter(),
-            coverageReporter(),
-        ],
+        reporters: [mochaReporter(), coverageReporter()],
         testFramework,
         open: false,
         browserLogs: true,
-        ...(/** @type {*} */ (config)),
+        .../** @type {*} */ (config),
         port: config.port || 8080,
-        middleware: [
-            ...(devServer.config.middleware || []),
-            ...(config.middleware || []),
-        ],
-        plugins: [
-            ...(devServer.config.plugins || []),
-            ...(config.plugins || []),
-        ],
+        middleware: [...(devServer.config.middleware || []), ...(config.middleware || [])],
+        plugins: [...(devServer.config.plugins || []), ...(config.plugins || [])],
     };
 
     const runner = new TestRunner(runnerConfig);
@@ -190,12 +178,12 @@ export async function loadLaunchers(requestedBrowsers) {
      */
     const createPage = ({ context }) => context.newPage();
 
-    const browserNames = browsers.length ? browsers : (/** @type {BrowserName[]} */ (['chrome']));
+    const browserNames = browsers.length ? browsers : /** @type {BrowserName[]} */ (['chrome']);
 
     return Promise.all(
         browserNames.map(async (browserName) => {
             if (browserName === 'chrome') {
-                const chromeRunner = await (import('@web/test-runner-chrome').catch(() => null));
+                const chromeRunner = await import('@web/test-runner-chrome').catch(() => null);
                 if (chromeRunner) {
                     return chromeRunner.chromeLauncher({
                         launchOptions: {
@@ -205,7 +193,12 @@ export async function loadLaunchers(requestedBrowsers) {
                 }
             }
 
-            const launcher = new PlaywrightLauncher(getProductName(browserName), { channel: browserName }, createBrowserContext, createPage);
+            const launcher = new PlaywrightLauncher(
+                getProductName(browserName),
+                { channel: browserName },
+                createBrowserContext,
+                createPage
+            );
             launcher.name = browserName;
 
             return launcher;

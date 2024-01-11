@@ -1,7 +1,7 @@
 import path from 'path';
 import nodeResolve from 'enhanced-resolve';
-import isCore from 'is-core-module';
 import glob from 'fast-glob';
+import isCore from 'is-core-module';
 import { pkgUp } from 'pkg-up';
 
 export { glob, pkgUp };
@@ -38,19 +38,21 @@ export function createResolver(options = {}) {
     /**
      * @type {Resolver}
      */
-    const resolve = async function(specifier, importer) {
+    const resolve = async function (specifier, importer) {
         const { path, searchParams } = getSearchParams(specifier);
         importer = getBasePath(importer);
-        const resolved = await new Promise((resolve, reject) => resolver(
-            {},
-            importer,
-            path,
-            {},
-            /**
-             * @param {Error|null} err
-             * @param {string|false} [data]
-             */
-            (err, data) => (err ? reject(err) : resolve(data)))
+        const resolved = await new Promise((resolve, reject) =>
+            resolver(
+                {},
+                importer,
+                path,
+                {},
+                /**
+                 * @param {Error|null} err
+                 * @param {string|false} [data]
+                 */
+                (err, data) => (err ? reject(err) : resolve(data))
+            )
         );
 
         if (!resolved) {
@@ -165,7 +167,7 @@ export function getBasePath(filePath) {
  */
 export function isUrl(url) {
     try {
-        return !!(new URL(url));
+        return !!new URL(url);
     } catch (err) {
         //
     }

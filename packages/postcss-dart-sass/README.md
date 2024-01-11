@@ -22,7 +22,6 @@ yarn add @chialab/postcss-dart-sass -D
 
 ```js
 import '@chialab/postcss-dart-sass';
-
 ```
 
 ---

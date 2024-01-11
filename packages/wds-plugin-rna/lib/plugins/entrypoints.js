@@ -1,5 +1,5 @@
+import { mkdir, rm, writeFile } from 'fs/promises';
 import path from 'path';
-import { rm, mkdir, writeFile } from 'fs/promises';
 import { generateEntrypointsJson } from '@chialab/esbuild-plugin-metadata';
 
 /**
@@ -14,25 +14,34 @@ export async function writeDevEntrypointsJson(entrypoints, outputFile, server, l
     const { config } = server;
     const base = `http${config.http2 ? 's' : ''}://${config.hostname ?? 'localhost'}:${config.port}`;
     const outputDir = path.extname(outputFile) ? path.dirname(outputFile) : outputFile;
-    const webSocketImport = server.webSockets && server.webSockets.webSocketImport && new URL(server.webSockets.webSocketImport, base).href;
+    const webSocketImport =
+        server.webSockets && server.webSockets.webSocketImport && new URL(server.webSockets.webSocketImport, base).href;
     outputFile = path.extname(outputFile) ? outputFile : path.join(outputDir, 'entrypoints.json');
 
-    const entrypointsJson = generateEntrypointsJson(entrypoints, loaders, format, (entrypoint) =>
-        new URL(path.relative(config.rootDir, entrypoint), base).href
+    const entrypointsJson = generateEntrypointsJson(
+        entrypoints,
+        loaders,
+        format,
+        (entrypoint) => new URL(path.relative(config.rootDir, entrypoint), base).href
     );
 
     await rm(outputDir, { recursive: true, force: true });
     await mkdir(outputDir, { recursive: true });
-    await writeFile(outputFile, JSON.stringify({
-        entrypoints: entrypointsJson,
-        server: {
-            origin: base,
-            port: config.port,
-            inject: [
-                webSocketImport,
-            ],
-        },
-    }, null, 2));
+    await writeFile(
+        outputFile,
+        JSON.stringify(
+            {
+                entrypoints: entrypointsJson,
+                server: {
+                    origin: base,
+                    port: config.port,
+                    inject: [webSocketImport],
+                },
+            },
+            null,
+            2
+        )
+    );
 }
 
 /**

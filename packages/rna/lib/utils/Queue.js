@@ -42,7 +42,7 @@ export class Queue {
      * @param {number} count The maximum number of running tasks.
      */
     runNext(count) {
-        return (this.running.length < count) && this.todo.length;
+        return this.running.length < count && this.todo.length;
     }
 
     /**

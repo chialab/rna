@@ -1,5 +1,5 @@
 import process from 'process';
-import { readConfigFile, mergeConfig, locateConfigFile } from '@chialab/rna-config-loader';
+import { locateConfigFile, mergeConfig, readConfigFile } from '@chialab/rna-config-loader';
 import { test } from '@chialab/rna-node-test-runner';
 
 /**
@@ -11,7 +11,7 @@ import { test } from '@chialab/rna-node-test-runner';
 /**
  * @param {import('commander').Command} program
  */
-export default function(program) {
+export default function (program) {
     program
         .command('test:node [specs...]')
         .description('Start a node test runner based on mocha.')
@@ -24,12 +24,15 @@ export default function(program) {
              */
             async (specs, { coverage, config: configFile }) => {
                 const root = process.cwd();
-                configFile = configFile || await locateConfigFile();
+                configFile = configFile || (await locateConfigFile());
 
                 /**
                  * @type {import('@chialab/rna-config-loader').ProjectConfig}
                  */
-                const config = mergeConfig({ root }, configFile ? await readConfigFile(configFile, { root }, 'serve') : {});
+                const config = mergeConfig(
+                    { root },
+                    configFile ? await readConfigFile(configFile, { root }, 'serve') : {}
+                );
 
                 /**
                  * @type {import('@chialab/rna-node-test-runner').TestRunnerConfig}

@@ -21,13 +21,11 @@ yarn add @chialab/wds-plugin-node-resolve -D
 ## Usage
 
 ```js
-import { startDevServer } from '@web/dev-server';
 import nodeResolvePlugin from '@chialab/wds-plugin-node-resolve';
+import { startDevServer } from '@web/dev-server';
 
 await startDevServer({
-    plugins: [
-        nodeResolvePlugin(),
-    ],
+    plugins: [nodeResolvePlugin()],
 });
 ```
 

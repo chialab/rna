@@ -1,10 +1,10 @@
 import path from 'path';
 import { fileURLToPath } from 'url';
-import esbuild from 'esbuild';
 import htmlPlugin from '@chialab/esbuild-plugin-html';
 import virtualPlugin from '@chialab/esbuild-plugin-virtual';
 import chai, { expect } from 'chai';
 import chaiString from 'chai-string';
+import esbuild from 'esbuild';
 
 chai.use(chaiString);
 
@@ -19,9 +19,7 @@ describe('esbuild-plugin-html', () => {
             format: 'esm',
             bundle: true,
             write: false,
-            plugins: [
-                htmlPlugin(),
-            ],
+            plugins: [htmlPlugin()],
         });
 
         const [index, js, css] = outputFiles;
@@ -90,9 +88,7 @@ body {
             format: 'esm',
             bundle: true,
             write: false,
-            plugins: [
-                htmlPlugin(),
-            ],
+            plugins: [htmlPlugin()],
         });
 
         const [index, js, css] = outputFiles;
@@ -161,12 +157,10 @@ body {
             bundle: true,
             sourcemap: true,
             write: false,
-            plugins: [
-                htmlPlugin(),
-            ],
+            plugins: [htmlPlugin()],
         });
 
-        const [index,, js,, css] = outputFiles;
+        const [index, , js, , css] = outputFiles;
 
         expect(outputFiles).to.have.lengthOf(5);
 
@@ -233,15 +227,19 @@ body {
             format: 'esm',
             bundle: true,
             write: false,
-            plugins: [
-                htmlPlugin(),
-            ],
+            plugins: [htmlPlugin()],
         });
 
         const [index, ...files] = outputFiles;
-        const jsFile = files.find((file) => file.path.includes(path.join(path.sep, 'out', 'index')) && file.path.endsWith('.js'));
-        const jsSource = files.find((file) => file.path.includes(path.join(path.sep, 'out', '1-')) && file.path.endsWith('.js'));
-        const jsChunk = files.find((file) => file.path.includes(path.join(path.sep, 'out', 'chunk-')) && file.path.endsWith('.js'));
+        const jsFile = files.find(
+            (file) => file.path.includes(path.join(path.sep, 'out', 'index')) && file.path.endsWith('.js')
+        );
+        const jsSource = files.find(
+            (file) => file.path.includes(path.join(path.sep, 'out', '1-')) && file.path.endsWith('.js')
+        );
+        const jsChunk = files.find(
+            (file) => file.path.includes(path.join(path.sep, 'out', 'chunk-')) && file.path.endsWith('.js')
+        );
         const css = files.find((file) => file.path.endsWith('.css'));
 
         expect(outputFiles).to.have.lengthOf(5);
@@ -327,15 +325,19 @@ body {
             format: 'esm',
             bundle: true,
             write: false,
-            plugins: [
-                htmlPlugin(),
-            ],
+            plugins: [htmlPlugin()],
         });
 
         const [index, ...files] = outputFiles;
-        const jsFile = files.find((file) => file.path.includes(path.join(path.sep, 'out', 'index')) && file.path.endsWith('.js'));
-        const jsSource = files.find((file) => file.path.includes(path.join(path.sep, 'out', '1-')) && file.path.endsWith('.js'));
-        const jsChunk = files.find((file) => file.path.includes(path.join(path.sep, 'out', 'chunk-')) && file.path.endsWith('.js'));
+        const jsFile = files.find(
+            (file) => file.path.includes(path.join(path.sep, 'out', 'index')) && file.path.endsWith('.js')
+        );
+        const jsSource = files.find(
+            (file) => file.path.includes(path.join(path.sep, 'out', '1-')) && file.path.endsWith('.js')
+        );
+        const jsChunk = files.find(
+            (file) => file.path.includes(path.join(path.sep, 'out', 'chunk-')) && file.path.endsWith('.js')
+        );
         const css = files.find((file) => file.path.endsWith('.css'));
 
         expect(outputFiles).to.have.lengthOf(5);
@@ -421,16 +423,22 @@ body {
             bundle: true,
             splitting: true,
             write: false,
-            plugins: [
-                htmlPlugin(),
-            ],
+            plugins: [htmlPlugin()],
         });
 
         const [index, ...files] = outputFiles;
-        const jsFile = files.find((file) => file.path.includes(path.join(path.sep, 'out', 'index')) && file.path.endsWith('.js'));
-        const jsSource = files.find((file) => file.path.includes(path.join(path.sep, 'out', '1-')) && file.path.endsWith('.js'));
-        const jsLib = files.find((file) => file.path.includes(path.join(path.sep, 'out', 'lib-')) && file.path.endsWith('.js'));
-        const jsChunk = files.find((file) => file.path.includes(path.join(path.sep, 'out', 'chunk-')) && file.path.endsWith('.js'));
+        const jsFile = files.find(
+            (file) => file.path.includes(path.join(path.sep, 'out', 'index')) && file.path.endsWith('.js')
+        );
+        const jsSource = files.find(
+            (file) => file.path.includes(path.join(path.sep, 'out', '1-')) && file.path.endsWith('.js')
+        );
+        const jsLib = files.find(
+            (file) => file.path.includes(path.join(path.sep, 'out', 'lib-')) && file.path.endsWith('.js')
+        );
+        const jsChunk = files.find(
+            (file) => file.path.includes(path.join(path.sep, 'out', 'chunk-')) && file.path.endsWith('.js')
+        );
         const css = files.find((file) => file.path.endsWith('.css'));
 
         expect(outputFiles).to.have.lengthOf(6);
@@ -522,15 +530,21 @@ body {
             format: 'esm',
             bundle: true,
             write: false,
-            plugins: [
-                htmlPlugin(),
-            ],
+            plugins: [htmlPlugin()],
         });
 
-        const index = /** @type {import('esbuild').OutputFile} */ (outputFiles.find((file) => file.path.endsWith('.html')));
-        const iife = /** @type {import('esbuild').OutputFile} */ (outputFiles.find((file) => file.path.endsWith('index-33TQGLB6.js')));
-        const esm = /** @type {import('esbuild').OutputFile} */ (outputFiles.find((file) => file.path.endsWith('index-NG6KDBQ4.js')));
-        const css = /** @type {import('esbuild').OutputFile} */ (outputFiles.find((file) => file.path.endsWith('index-UMVLUHQU.css')));
+        const index = /** @type {import('esbuild').OutputFile} */ (
+            outputFiles.find((file) => file.path.endsWith('.html'))
+        );
+        const iife = /** @type {import('esbuild').OutputFile} */ (
+            outputFiles.find((file) => file.path.endsWith('index-33TQGLB6.js'))
+        );
+        const esm = /** @type {import('esbuild').OutputFile} */ (
+            outputFiles.find((file) => file.path.endsWith('index-NG6KDBQ4.js'))
+        );
+        const css = /** @type {import('esbuild').OutputFile} */ (
+            outputFiles.find((file) => file.path.endsWith('index-UMVLUHQU.css'))
+        );
 
         expect(outputFiles).to.have.lengthOf(5);
 
@@ -616,9 +630,7 @@ body {
             outdir: 'out',
             bundle: true,
             write: false,
-            plugins: [
-                htmlPlugin(),
-            ],
+            plugins: [htmlPlugin()],
         });
 
         const [index, ...cssFiles] = outputFiles;
@@ -674,9 +686,7 @@ body {
             outdir: 'out',
             bundle: true,
             write: false,
-            plugins: [
-                htmlPlugin(),
-            ],
+            plugins: [htmlPlugin()],
         });
 
         const [index, ...cssFiles] = outputFiles;
@@ -752,7 +762,7 @@ body {
                     },
                     {
                         path: 'index.css',
-                        contents: '@import \'lib.css\';',
+                        contents: "@import 'lib.css';",
                         loader: 'css',
                     },
                     {
@@ -806,9 +816,7 @@ html {
             format: 'esm',
             bundle: true,
             write: false,
-            plugins: [
-                htmlPlugin(),
-            ],
+            plugins: [htmlPlugin()],
         });
 
         const [index, ...icons] = outputFiles;
@@ -856,9 +864,7 @@ html {
             format: 'esm',
             bundle: true,
             write: false,
-            plugins: [
-                htmlPlugin(),
-            ],
+            plugins: [htmlPlugin()],
         });
 
         const [index, ...icons] = outputFiles;
@@ -905,9 +911,7 @@ html {
             format: 'esm',
             bundle: true,
             write: false,
-            plugins: [
-                htmlPlugin(),
-            ],
+            plugins: [htmlPlugin()],
         });
 
         const [index, icon] = outputFiles;
@@ -935,7 +939,7 @@ html {
         expect(icon.contents.byteLength).to.be.equal(1475);
     });
 
-    it('should bundle webapp with ios splashscreens', async function() {
+    it('should bundle webapp with ios splashscreens', async function () {
         this.timeout(15000);
 
         const { outputFiles } = await esbuild.build({
@@ -947,9 +951,7 @@ html {
             format: 'esm',
             bundle: true,
             write: false,
-            plugins: [
-                htmlPlugin(),
-            ],
+            plugins: [htmlPlugin()],
         });
 
         const [index, ...screens] = outputFiles;
@@ -996,9 +998,7 @@ html {
             format: 'esm',
             bundle: true,
             write: false,
-            plugins: [
-                htmlPlugin(),
-            ],
+            plugins: [htmlPlugin()],
         });
 
         const [index, ...assets] = outputFiles;
@@ -1043,9 +1043,7 @@ html {
             format: 'esm',
             bundle: true,
             write: false,
-            plugins: [
-                htmlPlugin(),
-            ],
+            plugins: [htmlPlugin()],
         });
 
         const [index, ...assets] = outputFiles;
@@ -1089,9 +1087,7 @@ html {
             format: 'esm',
             bundle: true,
             write: false,
-            plugins: [
-                htmlPlugin(),
-            ],
+            plugins: [htmlPlugin()],
         });
 
         const [index, ...assets] = outputFiles;
@@ -1203,9 +1199,7 @@ html {
             format: 'esm',
             bundle: true,
             write: false,
-            plugins: [
-                htmlPlugin(),
-            ],
+            plugins: [htmlPlugin()],
         });
 
         const [index, ...files] = outputFiles;
@@ -1256,9 +1250,7 @@ html {
             format: 'esm',
             bundle: true,
             write: false,
-            plugins: [
-                htmlPlugin(),
-            ],
+            plugins: [htmlPlugin()],
         });
 
         const [index, ...files] = outputFiles;
@@ -1310,9 +1302,7 @@ html {
             format: 'esm',
             bundle: true,
             write: false,
-            plugins: [
-                htmlPlugin(),
-            ],
+            plugins: [htmlPlugin()],
         });
 
         const [index, ...files] = outputFiles;

@@ -1,5 +1,5 @@
-import esbuild from 'esbuild';
 import requireResolvePlugin from '@chialab/esbuild-plugin-require-resolve';
+import esbuild from 'esbuild';
 
 esbuild.build({
     entryPoints: ['lib/index.js'],
@@ -30,7 +30,5 @@ const __filename = __fileURLToPath(import.meta.url);
 const __dirname = __pathDirname(__filename);
 `,
     },
-    plugins: [
-        requireResolvePlugin(),
-    ],
+    plugins: [requireResolvePlugin()],
 });

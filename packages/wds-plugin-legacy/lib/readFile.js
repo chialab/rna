@@ -4,7 +4,7 @@ import { readFile as fsReadFile } from 'fs/promises';
  * Memoize fs `readFile` results.
  * @returns A function with the same `readFile` signature.
  */
-const memoReadFile = function() {
+const memoReadFile = function () {
     /**
      * @type {{ [key: string]: Promise<string> }}
      */

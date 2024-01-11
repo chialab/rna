@@ -21,13 +21,11 @@ yarn add @chialab/esbuild-plugin-commonjs -D
 ## Usage
 
 ```js
-import esbuild from 'esbuild';
 import commonjsPlugin from '@chialab/esbuild-plugin-commonjs';
+import esbuild from 'esbuild';
 
 await esbuild.build({
-    plugins: [
-        commonjsPlugin(),
-    ],
+    plugins: [commonjsPlugin()],
 });
 ```
 

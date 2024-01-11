@@ -23,19 +23,18 @@ yarn add @chialab/esbuild-plugin-css-import -D
 This plugin enables the node resolution algorithm for CSS files. That means that `@import` and `@url()` statements can refer to both relative files and NPM packages. CSS modules must have the `style` field in their pakcage.json in order to correctly pickup the CSS entrypoint.
 
 ```js
-import esbuild from 'esbuild';
 import cssImportPlugin from '@chialab/esbuild-plugin-css-import';
+import esbuild from 'esbuild';
 
 await esbuild.build({
-    plugins: [
-        cssImportPlugin(),
-    ],
+    plugins: [cssImportPlugin()],
 });
 ```
 
 ### Example
 
 **node_modules/css-framework/package.json**
+
 ```json
 {
     "name": "css-framework",
@@ -51,7 +50,7 @@ await esbuild.build({
 }
 ```
 
-**src/main.css** 
+**src/main.css**
 
 ```css
 @import 'css-framework';

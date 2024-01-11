@@ -21,13 +21,11 @@ yarn add @chialab/esbuild-plugin-lightningcss -D
 ## Usage
 
 ```js
-import esbuild from 'esbuild';
 import lightningcssPlugin from '@chialab/esbuild-plugin-lightningcss';
+import esbuild from 'esbuild';
 
 await esbuild.build({
-    plugins: [
-        lightningcssPlugin(),
-    ],
+    plugins: [lightningcssPlugin()],
 });
 ```
 

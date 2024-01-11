@@ -21,13 +21,11 @@ yarn add @chialab/esbuild-plugin-unwebpack -D
 ## Usage
 
 ```js
-import esbuild from 'esbuild';
 import unwebpackPlugin from '@chialab/esbuild-plugin-unwebpack';
+import esbuild from 'esbuild';
 
 await esbuild.build({
-    plugins: [
-        unwebpackPlugin(),
-    ],
+    plugins: [unwebpackPlugin()],
 });
 ```
 

@@ -21,13 +21,11 @@ yarn add @chialab/esbuild-plugin-postcss -D
 ## Usage
 
 ```js
-import esbuild from 'esbuild';
 import postcssPlugin from '@chialab/esbuild-plugin-postcss';
+import esbuild from 'esbuild';
 
 await esbuild.build({
-    plugins: [
-        postcssPlugin(),
-    ],
+    plugins: [postcssPlugin()],
 });
 ```
 

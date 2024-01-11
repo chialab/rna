@@ -47,17 +47,13 @@ export function getIdentifierValue(processor, id) {
             continue;
         }
 
-        if (token.type !== TokenType._var
-            && token.type !== TokenType._const
-            && token.type !== TokenType._let
-        ) {
+        if (token.type !== TokenType._var && token.type !== TokenType._const && token.type !== TokenType._let) {
             token = tokens[index++];
             continue;
         }
 
         token = tokens[index++];
-        if (token.type !== TokenType.name
-            || processor.identifierNameForToken(token) !== name) {
+        if (token.type !== TokenType.name || processor.identifierNameForToken(token) !== name) {
             continue;
         }
 
@@ -211,7 +207,7 @@ export function extractFunctionArguments(processor) {
 
     let token = processor.currentToken();
     let arg = [];
-    while (token && token.type !== TokenType.parenR || openParens || openBrackets || openBraces) {
+    while ((token && token.type !== TokenType.parenR) || openParens || openBrackets || openBraces) {
         arg.push({
             ...token,
             index: processor.currentIndex(),

@@ -1,7 +1,7 @@
 import path from 'path';
 import process from 'process';
-import esbuild from 'esbuild';
 import { hasPlugin } from '@chialab/esbuild-rna';
+import esbuild from 'esbuild';
 import { transformLoaders } from './loaders.js';
 
 /**
@@ -45,66 +45,71 @@ export async function transform(config) {
         throw new Error('Missing required `code` option');
     }
 
-    const finalPlugins = /** @type {import('esbuild').Plugin[]} */ (await Promise.all([
-        !hasPlugin(plugins, 'env') &&
-            import('@chialab/esbuild-plugin-env')
-                .then(({ default: plugin }) => plugin()),
-        !hasPlugin(plugins, 'commonjs') &&
-            import('@chialab/esbuild-plugin-commonjs')
-                .then(({ default: plugin }) => plugin()),
-        !hasPlugin(plugins, 'worker') &&
-            import('@chialab/esbuild-plugin-worker')
-                .then(({ default: plugin }) => plugin({
-                    emit: false,
-                })),
-        !hasPlugin(plugins, 'meta-url') &&
-            import('@chialab/esbuild-plugin-meta-url')
-                .then(({ default: plugin }) => plugin({
-                    emit: false,
-                })),
-        ...plugins,
-        !hasPlugin(plugins, 'any-file') &&
-            import('@chialab/esbuild-plugin-any-file')
-                .then(({ default: plugin }) => plugin()),
-    ].filter(Boolean)));
+    const finalPlugins = /** @type {import('esbuild').Plugin[]} */ (
+        await Promise.all(
+            [
+                !hasPlugin(plugins, 'env') &&
+                    import('@chialab/esbuild-plugin-env').then(({ default: plugin }) => plugin()),
+                !hasPlugin(plugins, 'commonjs') &&
+                    import('@chialab/esbuild-plugin-commonjs').then(({ default: plugin }) => plugin()),
+                !hasPlugin(plugins, 'worker') &&
+                    import('@chialab/esbuild-plugin-worker').then(({ default: plugin }) =>
+                        plugin({
+                            emit: false,
+                        })
+                    ),
+                !hasPlugin(plugins, 'meta-url') &&
+                    import('@chialab/esbuild-plugin-meta-url').then(({ default: plugin }) =>
+                        plugin({
+                            emit: false,
+                        })
+                    ),
+                ...plugins,
+                !hasPlugin(plugins, 'any-file') &&
+                    import('@chialab/esbuild-plugin-any-file').then(({ default: plugin }) => plugin()),
+            ].filter(Boolean)
+        )
+    );
 
     const sourceFile = path.resolve(rootDir, Array.isArray(input) ? input[0] : input);
     const absWorkingDir = path.dirname(sourceFile);
-    const result = /** @type {import('@chialab/esbuild-rna').Result} */ (await esbuild.build({
-        stdin: {
-            contents: code,
-            resolveDir: rootDir,
-            sourcefile: sourceFile,
-        },
-        absWorkingDir,
-        outdir: absWorkingDir,
-        allowOverwrite: true,
-        write: false,
-        bundle,
-        globalName,
-        target,
-        platform,
-        sourcemap,
-        minify,
-        format,
-        define,
-        jsx,
-        jsxImportSource,
-        jsxFactory,
-        jsxFragment,
-        loader,
-        metafile: true,
-        preserveSymlinks: true,
-        sourcesContent: true,
-        plugins: finalPlugins,
-        logLevel,
-        resolveExtensions,
-        conditions,
-        publicPath,
-        inject,
-        banner,
-        footer,
-    }));
+    const result = /** @type {import('@chialab/esbuild-rna').Result} */ (
+        await esbuild.build({
+            stdin: {
+                contents: code,
+                resolveDir: rootDir,
+                sourcefile: sourceFile,
+            },
+            absWorkingDir,
+            outdir: absWorkingDir,
+            allowOverwrite: true,
+            write: false,
+            bundle,
+            globalName,
+            target,
+            platform,
+            sourcemap,
+            minify,
+            format,
+            define,
+            jsx,
+            jsxImportSource,
+            jsxFactory,
+            jsxFragment,
+            loader,
+            metafile: true,
+            preserveSymlinks: true,
+            sourcesContent: true,
+            plugins: finalPlugins,
+            logLevel,
+            resolveExtensions,
+            conditions,
+            publicPath,
+            inject,
+            banner,
+            footer,
+        })
+    );
 
     const outputFiles = /** @type {import('esbuild').OutputFile[]} */ (result.outputFiles);
 

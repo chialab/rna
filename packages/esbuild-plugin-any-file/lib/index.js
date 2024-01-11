@@ -1,5 +1,5 @@
-import path from 'path';
 import { access, readFile } from 'fs/promises';
+import path from 'path';
 import { useRna } from '@chialab/esbuild-rna';
 
 /**
@@ -7,7 +7,7 @@ import { useRna } from '@chialab/esbuild-rna';
  * @param {{ fsCheck?: boolean, shouldThrow?: boolean|((args: import('esbuild').OnLoadArgs) => boolean) }} options
  * @returns An esbuild plugin.
  */
-export default function({ fsCheck = true, shouldThrow = false } = {}) {
+export default function ({ fsCheck = true, shouldThrow = false } = {}) {
     /**
      * @type {import('esbuild').Plugin}
      */

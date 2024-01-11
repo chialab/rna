@@ -1,0 +1,18 @@
+.yarn
+.vscode
+.changeset
+coverage
+*.hbs
+packages/*/dist/*
+packages/*/types/*
+packages/*/test/fixture/*
+packages/*/test/fixtures/*
+docs/.vitepress/dist
+docs/.vitepress/cache
+CHANGELOG.md
+LICENSE.md
+
+# Ignore files for PNPM, NPM and YARN
+pnpm-lock.yaml
+package-lock.json
+yarn.lock

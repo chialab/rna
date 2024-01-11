@@ -1,12 +1,14 @@
 import { fileURLToPath } from 'url';
-import esbuild from 'esbuild';
 import envPlugin from '@chialab/esbuild-plugin-env';
 import { expect } from 'chai';
+import esbuild from 'esbuild';
 
 describe('esbuild-plugin-env', () => {
     it('should inject env values', async () => {
         process.env.CUSTOM_VAR = 'test';
-        const { outputFiles: [result] } = await esbuild.build({
+        const {
+            outputFiles: [result],
+        } = await esbuild.build({
             absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
                 resolveDir: fileURLToPath(new URL('.', import.meta.url)),
@@ -17,9 +19,7 @@ export default process.env.NODE_ENV;`,
             format: 'esm',
             bundle: true,
             write: false,
-            plugins: [
-                envPlugin(),
-            ],
+            plugins: [envPlugin()],
         });
 
         expect(result.text).to.be.equal(`// test.spec.js
@@ -33,7 +33,9 @@ export {
     });
 
     it('should handle missing values', async () => {
-        const { outputFiles: [result] } = await esbuild.build({
+        const {
+            outputFiles: [result],
+        } = await esbuild.build({
             absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
                 resolveDir: fileURLToPath(new URL('.', import.meta.url)),
@@ -44,9 +46,7 @@ export default process.env.NODE_ENV;`,
             format: 'esm',
             bundle: true,
             write: false,
-            plugins: [
-                envPlugin(),
-            ],
+            plugins: [envPlugin()],
         });
 
         expect(result.text).to.be.equal(`// <define:process.env>
@@ -64,7 +64,9 @@ export {
 
     it('should handle invalid identifiers', async () => {
         process.env['INVALID-IDENTIFIER'] = true;
-        const { outputFiles: [result] } = await esbuild.build({
+        const {
+            outputFiles: [result],
+        } = await esbuild.build({
             absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
                 resolveDir: fileURLToPath(new URL('.', import.meta.url)),
@@ -74,9 +76,7 @@ export {
             format: 'esm',
             bundle: true,
             write: false,
-            plugins: [
-                envPlugin(),
-            ],
+            plugins: [envPlugin()],
         });
 
         expect(result.text).to.be.equal(`// test.spec.js
@@ -88,7 +88,9 @@ export {
     });
 
     it('should skip injection for node plaform', async () => {
-        const { outputFiles: [result] } = await esbuild.build({
+        const {
+            outputFiles: [result],
+        } = await esbuild.build({
             absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
                 resolveDir: fileURLToPath(new URL('.', import.meta.url)),
@@ -99,9 +101,7 @@ export {
             platform: 'node',
             bundle: true,
             write: false,
-            plugins: [
-                envPlugin(),
-            ],
+            plugins: [envPlugin()],
         });
 
         expect(result.text).to.be.equal(`// test.spec.js

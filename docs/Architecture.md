@@ -1,6 +1,6 @@
 # Architecture
 
-**RNA**'s mission is to provide a toolchain for common frontend (and JavaScript in general) tasks with a strong *conventions over configuration* and largely opinionated policy.
+**RNA**'s mission is to provide a toolchain for common frontend (and JavaScript in general) tasks with a strong _conventions over configuration_ and largely opinionated policy.
 
 ## ESM first
 

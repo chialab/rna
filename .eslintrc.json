@@ -4,9 +4,15 @@
     "project": false
   },
   "ignorePatterns": [
+    ".yarn",
+    ".vscode",
+    ".changeset",
+    "**/coverage/*",
     "**/dist/*",
     "**/types/*",
     "**/fixture/*",
-    "**/fixtures/*"
+    "**/fixtures/*",
+    "docs/.vitepress/dist",
+    "docs/.vitepress/cache"
   ]
 }

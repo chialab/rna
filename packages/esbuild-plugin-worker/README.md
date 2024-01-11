@@ -29,7 +29,7 @@ and then resolved by the [`@chialab/esbuild-plugin-meta-url`](../esbuild-plugin-
 Please note that RNA does not generate a `Worker` class to instantiate like webpack does, but it will just correctly update the import reference. If you need a `Worker` class, you have to wrap it yourself:
 
 ```javascript
-const workerClass = function() {
+const workerClass = function () {
     return new Worker('./path/to/worker.js');
 };
 ```
@@ -51,15 +51,12 @@ yarn add @chialab/esbuild-plugin-worker -D
 ## Usage
 
 ```js
-import esbuild from 'esbuild';
-import workerPlugin from '@chialab/esbuild-plugin-worker';
 import metaUrlPlugin from '@chialab/esbuild-plugin-meta-url';
+import workerPlugin from '@chialab/esbuild-plugin-worker';
+import esbuild from 'esbuild';
 
 await esbuild.build({
-    plugins: [
-        workerPlugin(),
-        metaUrlPlugin(),
-    ],
+    plugins: [workerPlugin(), metaUrlPlugin()],
 });
 ```
 

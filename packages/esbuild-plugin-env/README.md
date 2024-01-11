@@ -21,13 +21,11 @@ yarn add @chialab/esbuild-plugin-env -D
 ## Usage
 
 ```js
-import esbuild from 'esbuild';
 import envPlugin from '@chialab/esbuild-plugin-env';
+import esbuild from 'esbuild';
 
 await esbuild.build({
-    plugins: [
-        envPlugin(),
-    ],
+    plugins: [envPlugin()],
 });
 ```
 

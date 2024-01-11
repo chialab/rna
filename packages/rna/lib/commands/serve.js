@@ -1,7 +1,7 @@
 import path from 'path';
 import process from 'process';
-import { createLogger, colors } from '@chialab/rna-logger';
 import { loadDevServerConfig, serve } from '@chialab/rna-dev-server';
+import { colors, createLogger } from '@chialab/rna-logger';
 
 /**
  * @typedef {Object} ServeCommandOptions
@@ -19,10 +19,12 @@ import { loadDevServerConfig, serve } from '@chialab/rna-dev-server';
 /**
  * @param {import('commander').Command} program
  */
-export default function(program) {
+export default function (program) {
     program
         .command('serve [root]')
-        .description('Start a web dev server (https://modern-web.dev/docs/dev-server/overview/) that transforms ESM imports for node resolution on demand. It also uses esbuild (https://esbuild.github.io/) to compile non standard JavaScript syntax.')
+        .description(
+            'Start a web dev server (https://modern-web.dev/docs/dev-server/overview/) that transforms ESM imports for node resolution on demand. It also uses esbuild (https://esbuild.github.io/) to compile non standard JavaScript syntax.'
+        )
         .option('-P, --port <number>', 'server port number', parseInt)
         .option('-C, --config <path>', 'the rna config file')
         .option('--manifest <path>', 'generate manifest file')
@@ -38,33 +40,37 @@ export default function(program) {
              * @param {ServeCommandOptions} options
              */
             async (root = process.cwd(), options) => {
-                const {
-                    port,
-                    target,
-                    jsx,
-                    jsxImportSource,
-                    jsxFactory,
-                    jsxFragment,
-                } = options;
+                const { port, target, jsx, jsxImportSource, jsxFactory, jsxFragment } = options;
 
-                const manifestPath = options.manifest ? (typeof options.manifest === 'string' ? options.manifest : path.join(root, 'manifest.json')) : undefined;
-                const entrypointsPath = options.entrypoints ? (typeof options.entrypoints === 'string' ? options.entrypoints : path.join(root, 'entrypoints.json')) : undefined;
-                const serveConfig = await loadDevServerConfig({
-                    rootDir: root,
-                    port,
-                    manifestPath,
-                    entrypointsPath,
-                    target,
-                    jsx,
-                    jsxImportSource,
-                    jsxFactory,
-                    jsxFragment,
-                }, options.config);
+                const manifestPath = options.manifest
+                    ? typeof options.manifest === 'string'
+                        ? options.manifest
+                        : path.join(root, 'manifest.json')
+                    : undefined;
+                const entrypointsPath = options.entrypoints
+                    ? typeof options.entrypoints === 'string'
+                        ? options.entrypoints
+                        : path.join(root, 'entrypoints.json')
+                    : undefined;
+                const serveConfig = await loadDevServerConfig(
+                    {
+                        rootDir: root,
+                        port,
+                        manifestPath,
+                        entrypointsPath,
+                        target,
+                        jsx,
+                        jsxImportSource,
+                        jsxFactory,
+                        jsxFragment,
+                    },
+                    options.config
+                );
 
                 const logger = createLogger();
                 const server = await serve(serveConfig, logger);
 
-                process.on('uncaughtException', error => {
+                process.on('uncaughtException', (error) => {
                     logger.error(error);
                 });
 

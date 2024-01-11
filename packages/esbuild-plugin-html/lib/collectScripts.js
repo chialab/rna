@@ -14,8 +14,7 @@ import { isRelativeUrl } from '@chialab/node-resolve';
  * @returns {Promise<import('@chialab/esbuild-rna').OnTransformResult[]>} Plain build.
  */
 async function innerCollect($, dom, elements, target, format, type, attrs = {}, options, helpers) {
-    elements = elements
-        .filter((element) => !$(element).attr('src') || isRelativeUrl($(element).attr('src')));
+    elements = elements.filter((element) => !$(element).attr('src') || isRelativeUrl($(element).attr('src')));
 
     if (!elements.length) {
         return [];
@@ -31,25 +30,27 @@ async function innerCollect($, dom, elements, target, format, type, attrs = {}, 
      */
     const entrypoints = new Map();
 
-    await Promise.all(elements.map(async (element) => {
-        const src = $(element).attr('src');
-        if (src) {
-            const resolvedFile = await helpers.resolve(src);
-            if (!resolvedFile.path) {
-                return;
-            }
+    await Promise.all(
+        elements.map(async (element) => {
+            const src = $(element).attr('src');
+            if (src) {
+                const resolvedFile = await helpers.resolve(src);
+                if (!resolvedFile.path) {
+                    return;
+                }
 
-            builds.set(element, resolvedFile.path);
-            entrypoints.set(resolvedFile.path, element);
-        } else {
-            const entryPoint = path.join(options.sourceDir, helpers.createEntry('js'));
-            builds.set(element, {
-                path: entryPoint,
-                contents: $(element).html() || '',
-            });
-            entrypoints.set(entryPoint, element);
-        }
-    }));
+                builds.set(element, resolvedFile.path);
+                entrypoints.set(resolvedFile.path, element);
+            } else {
+                const entryPoint = path.join(options.sourceDir, helpers.createEntry('js'));
+                builds.set(element, {
+                    path: entryPoint,
+                    contents: $(element).html() || '',
+                });
+                entrypoints.set(entryPoint, element);
+            }
+        })
+    );
 
     const result = await helpers.emitBuild({
         entryPoints: [...builds.values()],
@@ -106,11 +107,13 @@ function loadStyle(url) {
     document.head.appendChild(l);
 }
 
-${styleFiles.map((outName) => {
-            const fullOutFile = path.join(options.workingDir, outName);
-            const outputPath = helpers.resolveRelativePath(fullOutFile, options.entryDir, '');
-            return `loadStyle('${outputPath}');`;
-        }).join('\n')}
+${styleFiles
+    .map((outName) => {
+        const fullOutFile = path.join(options.workingDir, outName);
+        const outputPath = helpers.resolveRelativePath(fullOutFile, options.entryDir, '');
+        return `loadStyle('${outputPath}');`;
+    })
+    .join('\n')}
 }());`);
         dom.find('head').append(script);
     }
@@ -124,46 +127,48 @@ ${styleFiles.map((outName) => {
  */
 export async function collectScripts($, dom, options, helpers) {
     const moduleElements = dom.find('script[src][type="module"], script[type="module"]:not([src])').get();
-    const nomoduleElements = dom.find('script[src]:not([type])[nomodule], script[src][type="text/javascript"][nomodule], script[src][type="application/javascript"][nomodule]').get();
-    const scriptElements = dom.find('script[src]:not([type]):not([nomodule]), script[src][type="text/javascript"]:not([nomodule]), script[src][type="application/javascript"]:not([nomodule])').get();
+    const nomoduleElements = dom
+        .find(
+            'script[src]:not([type])[nomodule], script[src][type="text/javascript"][nomodule], script[src][type="application/javascript"][nomodule]'
+        )
+        .get();
+    const scriptElements = dom
+        .find(
+            'script[src]:not([type]):not([nomodule]), script[src][type="text/javascript"]:not([nomodule]), script[src][type="application/javascript"]:not([nomodule])'
+        )
+        .get();
 
     const results = [
+        await innerCollect($, dom, moduleElements, options.target[1], 'esm', 'module', {}, options, helpers),
+    ];
+
+    results.push(
         await innerCollect(
             $,
             dom,
-            moduleElements,
-            options.target[1],
-            'esm',
-            'module',
+            nomoduleElements,
+            options.target[0],
+            'iife',
+            'application/javascript',
+            { nomodule: '' },
+            options,
+            helpers
+        )
+    );
+
+    results.push(
+        await innerCollect(
+            $,
+            dom,
+            scriptElements,
+            options.target[0],
+            'iife',
+            'application/javascript',
             {},
             options,
             helpers
-        ),
-    ];
-
-    results.push(await innerCollect(
-        $,
-        dom,
-        nomoduleElements,
-        options.target[0],
-        'iife',
-        'application/javascript',
-        { nomodule: '' },
-        options,
-        helpers
-    ));
-
-    results.push(await innerCollect(
-        $,
-        dom,
-        scriptElements,
-        options.target[0],
-        'iife',
-        'application/javascript',
-        {},
-        options,
-        helpers
-    ));
+        )
+    );
 
     return results.flat();
 }

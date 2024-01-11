@@ -1,9 +1,9 @@
-import path from 'path';
 import { Buffer } from 'buffer';
+import path from 'path';
 import { isRelativeUrl } from '@chialab/node-resolve';
-import Jimp from './generator.js';
-import { generateIcon } from './generateIcon.js';
 import { collectAsset } from './collectAssets.js';
+import { generateIcon } from './generateIcon.js';
+import Jimp from './generator.js';
 
 /**
  * @typedef {Object} Icon
@@ -50,16 +50,9 @@ const APPLE_ICONS = [
     },
 ];
 
-const ICON_SELECTORS = [
-    'link[rel="icon"]',
-    'link[rel^="icon "]',
-    'link[rel$=" icon"]',
-    'link[rel *= " icon "]',
-];
+const ICON_SELECTORS = ['link[rel="icon"]', 'link[rel^="icon "]', 'link[rel$=" icon"]', 'link[rel *= " icon "]'];
 
-const APPLE_ICON_SELECTORS = [
-    'link[rel="apple-touch-icon"]',
-];
+const APPLE_ICON_SELECTORS = ['link[rel="apple-touch-icon"]'];
 
 /**
  * @param {import('./generator').Image} image The base icon buffer.
@@ -160,7 +153,9 @@ async function collectAppleIcons($, dom, options, helpers) {
     try {
         const image = await Jimp.read(imageBuffer);
         const icons = await generateAppleIcons(image, APPLE_ICONS);
-        const results = await Promise.all(icons.map((icon) => collectIcon($, iconElement, icon, 'apple-touch-icon', false, options, helpers)));
+        const results = await Promise.all(
+            icons.map((icon) => collectIcon($, iconElement, icon, 'apple-touch-icon', false, options, helpers))
+        );
         if (remove) {
             iconElement.remove();
         }
@@ -208,8 +203,10 @@ export async function collectIcons($, dom, options, helpers) {
     try {
         const image = await Jimp.read(imageBuffer);
         const icons = await generateFavicons(image, FAVICONS);
-        const results = await Promise.all(icons.map((icon) => collectIcon($, iconElement, icon, 'icon', true, options, helpers)));
-        results.push(...await collectAppleIcons($, dom, options, helpers));
+        const results = await Promise.all(
+            icons.map((icon) => collectIcon($, iconElement, icon, 'icon', true, options, helpers))
+        );
+        results.push(...(await collectAppleIcons($, dom, options, helpers)));
         iconElement.remove();
 
         return results;

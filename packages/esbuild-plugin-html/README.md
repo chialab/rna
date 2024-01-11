@@ -27,17 +27,15 @@ The plugin tries to respect esbuild configuration closely as possible. Since it 
 #### Build mode
 
 ```js
-import esbuild from 'esbuild';
 import htmlPlugin from '@chialab/esbuild-plugin-html';
+import esbuild from 'esbuild';
 
 await esbuild.build({
     entryPoints: ['src/index.html'],
     outdir: 'public',
     assetNames: 'assets/[name]-[hash]',
     chunkNames: '[ext]/[name]-[hash]',
-    plugins: [
-        htmlPlugin(),
-    ],
+    plugins: [htmlPlugin()],
 });
 ```
 
@@ -56,20 +54,21 @@ public
 #### Serve mode
 
 ```js
-import esbuild from 'esbuild';
 import htmlPlugin from '@chialab/esbuild-plugin-html';
+import esbuild from 'esbuild';
 
-await esbuild.serve({
-    servedir: 'public',
-}, {
-    entryPoints: ['src/index.html'],
-    outdir: 'public',
-    assetNames: 'assets/[name]',
-    chunkNames: '[ext]/[name]',
-    plugins: [
-        htmlPlugin(),
-    ],
-});
+await esbuild.serve(
+    {
+        servedir: 'public',
+    },
+    {
+        entryPoints: ['src/index.html'],
+        outdir: 'public',
+        assetNames: 'assets/[name]',
+        chunkNames: '[ext]/[name]',
+        plugins: [htmlPlugin()],
+    }
+);
 ```
 
 ### Options
@@ -97,15 +96,23 @@ It handles both inline and file scripts. When the `type="module"` attribute is f
 **Sample**
 
 ```html
-<script src="src/index.js" type="module"></script>
-<script src="src/index.js" nomodule></script>
+<script
+    src="src/index.js"
+    type="module"></script>
+<script
+    src="src/index.js"
+    nomodule></script>
 ```
 
 This will result in producing two bundles:
 
 ```html
-<script src="index-[hash].js" type="module"></script>
-<script src="index-[hash].js" nomodule></script>
+<script
+    src="index-[hash].js"
+    type="module"></script>
+<script
+    src="index-[hash].js"
+    nomodule></script>
 ```
 
 ### Styles
@@ -115,7 +122,9 @@ It supports both `<link rel="stylesheet">` and `<style>` nodes for styling.
 **Sample**
 
 ```html
-<link rel="stylesheet" href="app.css" />
+<link
+    rel="stylesheet"
+    href="app.css" />
 <style>
     .inline {
         color: red;
@@ -126,8 +135,12 @@ It supports both `<link rel="stylesheet">` and `<style>` nodes for styling.
 This will result in producing two css bundles:
 
 ```html
-<link rel="stylesheet" href="css/app-[hash].css" />
-<style>@import url('css/inline-[hash].css');</style>
+<link
+    rel="stylesheet"
+    href="css/app-[hash].css" />
+<style>
+    @import url('css/inline-[hash].css');
+</style>
 ```
 
 ### Assets
@@ -153,26 +166,70 @@ Manually generate favicons can be a pain. This plugin detects a `<link rel="icon
 **Sample**
 
 ```html
-<link rel="shortcut icon" href="icon.png" type="image/png">
+<link
+    rel="shortcut icon"
+    href="icon.png"
+    type="image/png" />
 ```
 
 This will result in:
 
 ```html
-<link rel="icon" sizes="16x16" href="icons/favicon-16x16.png">
-<link rel="icon" sizes="32x32" href="icons/favicon-32x32.png">
-<link rel="icon" sizes="48x48" href="icons/favicon-48x48.png">
-<link rel="shortcut icon" href="icons/favicon-196x196.png">
-<link rel="icon" sizes="196x196" href="icons/favicon-196x196.png">
-<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
-<link rel="apple-touch-icon" sizes="167x167" href="icons/apple-touch-icon-ipad.png">
-<link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3)" href="icons/apple-launch-iphonex.png">
-<link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)" href="icons/apple-launch-iphone8.png">
-<link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3)" href="icons/apple-launch-iphone8-plus.png">
-<link rel="apple-touch-startup-image" media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)" href="icons/apple-launch-iphone5.png">
-<link rel="apple-touch-startup-image" media="(device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2)" href="icons/apple-launch-ipadair.png">
-<link rel="apple-touch-startup-image" media="(device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2)" href="icons/apple-launch-ipadpro10.png">
-<link rel="apple-touch-startup-image" media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2)" href="icons/apple-launch-ipadpro12.png">
+<link
+    rel="icon"
+    sizes="16x16"
+    href="icons/favicon-16x16.png" />
+<link
+    rel="icon"
+    sizes="32x32"
+    href="icons/favicon-32x32.png" />
+<link
+    rel="icon"
+    sizes="48x48"
+    href="icons/favicon-48x48.png" />
+<link
+    rel="shortcut icon"
+    href="icons/favicon-196x196.png" />
+<link
+    rel="icon"
+    sizes="196x196"
+    href="icons/favicon-196x196.png" />
+<link
+    rel="apple-touch-icon"
+    sizes="180x180"
+    href="icons/apple-touch-icon.png" />
+<link
+    rel="apple-touch-icon"
+    sizes="167x167"
+    href="icons/apple-touch-icon-ipad.png" />
+<link
+    rel="apple-touch-startup-image"
+    media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3)"
+    href="icons/apple-launch-iphonex.png" />
+<link
+    rel="apple-touch-startup-image"
+    media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)"
+    href="icons/apple-launch-iphone8.png" />
+<link
+    rel="apple-touch-startup-image"
+    media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3)"
+    href="icons/apple-launch-iphone8-plus.png" />
+<link
+    rel="apple-touch-startup-image"
+    media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)"
+    href="icons/apple-launch-iphone5.png" />
+<link
+    rel="apple-touch-startup-image"
+    media="(device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2)"
+    href="icons/apple-launch-ipadair.png" />
+<link
+    rel="apple-touch-startup-image"
+    media="(device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2)"
+    href="icons/apple-launch-ipadpro10.png" />
+<link
+    rel="apple-touch-startup-image"
+    media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2)"
+    href="icons/apple-launch-ipadpro12.png" />
 ```
 
 It also update `<link rel="manifest">` content if found.

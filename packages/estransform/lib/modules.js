@@ -7,11 +7,8 @@ let initializeCjs;
  * @param {string} code
  */
 export async function parseCommonjs(code) {
-    initializeCjs = initializeCjs || import('cjs-module-lexer')
-        .then(({ init, parse }) =>
-            init()
-                .then(() => ({ init, parse }))
-        );
+    initializeCjs =
+        initializeCjs || import('cjs-module-lexer').then(({ init, parse }) => init().then(() => ({ init, parse })));
     const { parse } = await initializeCjs;
     return parse(code);
 }
@@ -25,10 +22,8 @@ let initializeEsm;
  * @param {string} code
  */
 export async function parseEsm(code) {
-    initializeEsm = initializeEsm || import('es-module-lexer')
-        .then(({ init, parse }) =>
-            init.then(() => ({ init, parse }))
-        );
+    initializeEsm =
+        initializeEsm || import('es-module-lexer').then(({ init, parse }) => init.then(() => ({ init, parse })));
     const { parse } = await initializeEsm;
     return parse(code);
 }

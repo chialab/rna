@@ -20,11 +20,10 @@ if (parentPort) {
          * @type {string[]}
          */
         const specs = workerData.files;
-        const files = (await Promise.all(specs.map((source) => glob(source))))
-            .reduce((acc, files) => [
-                ...acc,
-                ...files.map((file) => path.resolve(file)),
-            ], /** @type {string[]} */[]);
+        const files = (await Promise.all(specs.map((source) => glob(source)))).reduce(
+            (acc, files) => [...acc, ...files.map((file) => path.resolve(file))],
+            /** @type {string[]} */ []
+        );
 
         files.forEach((file) => runner.addFile(file));
         await runner.loadFilesAsync();

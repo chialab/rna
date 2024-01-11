@@ -1,9 +1,9 @@
-import path from 'path';
 import { Buffer } from 'buffer';
-import process from 'process';
 import { mkdir, readFile, writeFile } from 'fs/promises';
-import { loadSourcemap, inlineSourcemap, mergeSourcemaps } from '@chialab/estransform';
-import { createOutputFile, createResult, assignToResult, createFileHash } from './helpers.js';
+import path from 'path';
+import process from 'process';
+import { inlineSourcemap, loadSourcemap, mergeSourcemaps } from '@chialab/estransform';
+import { assignToResult, createFileHash, createOutputFile, createResult } from './helpers.js';
 
 /**
  * @typedef {import('esbuild').Message} Message
@@ -243,7 +243,7 @@ export class Build {
     constructor(build, manager) {
         this.initialOptions = {
             ...build.initialOptions,
-            define: {...(build.initialOptions.define || {})},
+            define: { ...(build.initialOptions.define || {}) },
             external: [...(build.initialOptions.external || [])],
         };
         build.initialOptions.metafile = true;
@@ -288,8 +288,9 @@ export class Build {
                     }
 
                     const entryPoint = this.resolveSourcePath(output.entryPoint.split('?')[0]);
-                    const dependencies = Object.keys(output.inputs)
-                        .map((input) => this.resolveSourcePath(input.split('?')[0]));
+                    const dependencies = Object.keys(output.inputs).map((input) =>
+                        this.resolveSourcePath(input.split('?')[0])
+                    );
 
                     this.collectDependencies(entryPoint, dependencies);
                 }
@@ -384,21 +385,23 @@ export class Build {
 
         const separator = /\/+|\\+/;
 
-        return (Array.isArray(entryPoints) ? entryPoints : Object.values(entryPoints))
-            .map((entry) => (typeof entry === 'string' ? entry : entry.in))
-            .map((entry) => (path.isAbsolute(entry) ? entry : this.resolvePath(entry)))
-            .map((entry) => path.dirname(entry))
-            .map((entry) => entry.split(separator))
-            .reduce((result, chunk) => {
-                const len = Math.min(chunk.length, result.length);
-                for (let i = 0; i < len; i++) {
-                    if (chunk[i] !== result[i]) {
-                        return result.splice(0, i);
+        return (
+            (Array.isArray(entryPoints) ? entryPoints : Object.values(entryPoints))
+                .map((entry) => (typeof entry === 'string' ? entry : entry.in))
+                .map((entry) => (path.isAbsolute(entry) ? entry : this.resolvePath(entry)))
+                .map((entry) => path.dirname(entry))
+                .map((entry) => entry.split(separator))
+                .reduce((result, chunk) => {
+                    const len = Math.min(chunk.length, result.length);
+                    for (let i = 0; i < len; i++) {
+                        if (chunk[i] !== result[i]) {
+                            return result.splice(0, i);
+                        }
                     }
-                }
-                return result.splice(0, len);
-            })
-            .join(path.sep) || path.sep;
+                    return result.splice(0, len);
+                })
+                .join(path.sep) || path.sep
+        );
     }
 
     /**
@@ -584,7 +587,7 @@ export class Build {
         if (options.extensions) {
             bodies.push(`(${options.extensions.join('|')})$`);
         }
-        const filter = options.filter = new RegExp(`(${bodies.join(')|(')})`);
+        const filter = (options.filter = new RegExp(`(${bodies.join(')|(')})`));
         this.pluginBuild.onLoad({ filter }, (args) => this.transform(args));
         this.onTransformRules.push({ options, callback });
     }
@@ -688,7 +691,7 @@ export class Build {
                 continue;
             }
 
-            if (!(/** @type {RegExp} */ (filter)).test(filePath)) {
+            if (!/** @type {RegExp} */ (filter).test(filePath)) {
                 continue;
             }
 
@@ -800,8 +803,7 @@ export class Build {
                 return part;
             })
             .filter((part) => part && part !== '.')
-            .join('/')
-        }${path.extname(inputFile)}`;
+            .join('/')}${path.extname(inputFile)}`;
     }
 
     /**
@@ -864,16 +866,13 @@ export class Build {
      * @returns {string} Resolved file path.
      */
     resolveOutputDir(filePath, type = Build.ENTRY) {
-        const key = type === Build.ENTRY ? 'entryNames' :
-            type === Build.CHUNK ? 'chunkNames' :
-                'assetNames';
+        const key = type === Build.ENTRY ? 'entryNames' : type === Build.CHUNK ? 'chunkNames' : 'assetNames';
 
-        return path.dirname(this.resolvePath(
-            path.join(
-                this.getOutDir() || '',
-                this.computeName(this.getOption(key) || '[dir]/[name]', filePath, '')
+        return path.dirname(
+            this.resolvePath(
+                path.join(this.getOutDir() || '', this.computeName(this.getOption(key) || '[dir]/[name]', filePath, ''))
             )
-        ));
+        );
     }
 
     /**
@@ -884,14 +883,16 @@ export class Build {
      * @returns {string} Resolved file path.
      */
     resolveOutputFile(filePath, buffer, type = Build.ENTRY) {
-        const key = type === Build.ENTRY ? 'entryNames' :
-            type === Build.CHUNK ? 'chunkNames' :
-                'assetNames';
+        const key = type === Build.ENTRY ? 'entryNames' : type === Build.CHUNK ? 'chunkNames' : 'assetNames';
 
         return path.resolve(
             this.getWorkingDir(),
             this.getOutDir() || this.getSourceRoot(),
-            this.computeName(this.getOption(key) || (type === Build.ASSET ? '[name]-[hash]' : '[name]'), filePath, buffer)
+            this.computeName(
+                this.getOption(key) || (type === Build.ASSET ? '[name]-[hash]' : '[name]'),
+                filePath,
+                buffer
+            )
         );
     }
 
@@ -938,7 +939,7 @@ export class Build {
         }
 
         const initialOptions = this.getOptions();
-        const installedPlugins = initialOptions.plugins = this.getPlugins();
+        const installedPlugins = (initialOptions.plugins = this.getPlugins());
 
         let last = this.plugin;
         for (let i = 0; i < plugins.length; i++) {
@@ -948,7 +949,7 @@ export class Build {
             }
 
             const io = installedPlugins.indexOf(last);
-            installedPlugins.splice(mode === 'before' ? io : (io + 1), 0, dependency);
+            installedPlugins.splice(mode === 'before' ? io : io + 1, 0, dependency);
             if (mode === 'after') {
                 last = dependency;
             }
@@ -965,10 +966,7 @@ export class Build {
      */
     collectDependencies(importer, dependencies) {
         const map = this.dependencies;
-        map[importer] = [...new Set([
-            ...(map[importer] || []),
-            ...dependencies,
-        ])];
+        map[importer] = [...new Set([...(map[importer] || []), ...dependencies])];
 
         return map;
     }
@@ -1028,9 +1026,7 @@ export class Build {
             await writeFile(outputFile, buffer);
         }
 
-        const outputFiles = !write ?
-            [createOutputFile(outputFile, Buffer.from(buffer))] :
-            undefined;
+        const outputFiles = !write ? [createOutputFile(outputFile, Buffer.from(buffer))] : undefined;
 
         const result = createResult(outputFiles, {
             inputs: {
@@ -1087,18 +1083,16 @@ export class Build {
         const config = {
             ...buildOptions,
             format,
-            outdir: options.outdir ?
-                path.resolve(virtualOutDir, options.outdir) :
-                this.getFullOutDir(),
+            outdir: options.outdir ? path.resolve(virtualOutDir, options.outdir) : this.getFullOutDir(),
             bundle: options.bundle ?? buildOptions.bundle,
-            splitting: format === 'esm' ? (options.splitting ?? buildOptions.splitting) : false,
+            splitting: format === 'esm' ? options.splitting ?? buildOptions.splitting : false,
             platform: options.platform ?? buildOptions.platform,
             target: options.target ?? buildOptions.target,
             plugins: options.plugins ?? buildOptions.plugins,
             external: options.external ?? this.getInitialOptions().external,
-            jsxFactory: ('jsxFactory' in options) ? options.jsxFactory : buildOptions.jsxFactory,
+            jsxFactory: 'jsxFactory' in options ? options.jsxFactory : buildOptions.jsxFactory,
             entryNames,
-            write: buildOptions.write !== false ? (options.write ?? true) : false,
+            write: buildOptions.write !== false ? options.write ?? true : false,
             globalName: undefined,
             outfile: undefined,
             metafile: true,
@@ -1174,12 +1168,12 @@ export class Build {
             format,
             outdir: options.outdir ? this.resolvePath(options.outdir) : this.getFullOutDir(),
             bundle: options.bundle ?? buildOptions.bundle,
-            splitting: format === 'esm' ? (options.splitting ?? buildOptions.splitting ?? true) : false,
+            splitting: format === 'esm' ? options.splitting ?? buildOptions.splitting ?? true : false,
             platform: options.platform ?? buildOptions.platform,
             target: options.target ?? buildOptions.target,
             plugins: options.plugins ?? buildOptions.plugins,
             external: options.external ?? this.getInitialOptions().external,
-            jsxFactory: ('jsxFactory' in options) ? options.jsxFactory : buildOptions.jsxFactory,
+            jsxFactory: 'jsxFactory' in options ? options.jsxFactory : buildOptions.jsxFactory,
             entryNames: buildOptions.chunkNames || buildOptions.entryNames,
             write: buildOptions.write ?? true,
             globalName: undefined,

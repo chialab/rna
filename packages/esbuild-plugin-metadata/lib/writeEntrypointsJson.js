@@ -1,5 +1,5 @@
-import path from 'path';
 import { mkdir, writeFile } from 'fs/promises';
+import path from 'path';
 
 /**
  * Map build entrypoints to entrypoints.json
@@ -13,11 +13,11 @@ export function generateEntrypointsJson(entrypoints, loaders, format = 'esm', re
         const extname = path.extname(entrypoint);
         const basename = path.basename(entrypoint, extname);
         const loader = loaders[extname] || 'tsx';
-        const map = json[basename] = json[basename] || {
+        const map = (json[basename] = json[basename] || {
             format,
             js: [],
             css: [],
-        };
+        });
 
         const outputFile = resolve(entrypoint);
 
@@ -33,7 +33,7 @@ export function generateEntrypointsJson(entrypoints, loaders, format = 'esm', re
         }
 
         return json;
-    }, /** @type {{[file: string]: { js: string[], css: string[] }}} */({}));
+    }, /** @type {{[file: string]: { js: string[], css: string[] }}} */ ({}));
 }
 
 /**
@@ -53,16 +53,15 @@ export async function writeEntrypointsJson(entrypoints, result, rootDir, outputF
     }
 
     const { outputs } = metafile;
-    const outputsByEntrypoint = Object.keys(outputs)
-        .reduce((map, outputName) => {
-            const output = outputs[outputName];
-            if (!output.entryPoint) {
-                return map;
-            }
-            map[path.resolve(rootDir, output.entryPoint)] = path.resolve(rootDir, outputName);
-
+    const outputsByEntrypoint = Object.keys(outputs).reduce((map, outputName) => {
+        const output = outputs[outputName];
+        if (!output.entryPoint) {
             return map;
-        }, /** @type {{ [key: string]: string }} */({}));
+        }
+        map[path.resolve(rootDir, output.entryPoint)] = path.resolve(rootDir, outputName);
+
+        return map;
+    }, /** @type {{ [key: string]: string }} */ ({}));
 
     const outputDir = path.extname(outputFile) ? path.dirname(outputFile) : outputFile;
     outputFile = path.extname(outputFile) ? outputFile : path.join(outputDir, 'entrypoints.json');

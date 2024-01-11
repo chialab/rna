@@ -10,7 +10,7 @@
     "clear": "rimraf --glob 'packages/*/{types,*.tsbuildinfo}' 'packages/*/dist'",
     "build": "yarn workspaces foreach --topological-dev --verbose run build",
     "types": "rimraf --glob 'packages/*/{types,*.tsbuildinfo}' && tsc -b",
-    "lint": "eslint 'packages/*/lib/**/*.js'",
+    "lint": "prettier --check . && eslint 'packages/*/lib/**/*.js'",
     "test": "rna test:node packages/*/test/**/*.spec.js --coverage",
     "new": "plop --plopfile internals/generators/plopfile.cjs module",
     "version": "changeset version && YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn install"
@@ -22,6 +22,7 @@
   "devDependencies": {
     "@changesets/cli": "^2.22.0",
     "@chialab/eslint-config": "^4.0.0",
+    "@chialab/prettier-config": "^1.2.2",
     "@chialab/rna": "*",
     "@chialab/rna-node-test-runner": "*",
     "@types/chai": "^4.2.22",
@@ -31,8 +32,10 @@
     "eslint": "^8.0.0",
     "jsonc-parser": "^3.0.0",
     "plop": "^3.1.2",
+    "prettier": "^3.1.1",
     "rimraf": "^5.0.1",
-    "typescript": "^5.0.0"
+    "typescript": "^5.0.0",
+    "vitepress": "^1.0.0-rc.36"
   },
   "workspaces": [
     "packages/*"

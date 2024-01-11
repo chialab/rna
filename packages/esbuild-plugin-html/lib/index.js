@@ -1,9 +1,9 @@
-import path from 'path';
 import { Buffer } from 'buffer';
 import { copyFile, readFile, rm } from 'fs/promises';
+import path from 'path';
+import { Build, useRna } from '@chialab/esbuild-rna';
 import * as cheerio from 'cheerio';
 import beautify from 'js-beautify';
-import { useRna, Build } from '@chialab/esbuild-rna';
 
 /**
  * @typedef {import('esbuild').Metafile} Metafile
@@ -53,10 +53,7 @@ const loadHtml = /** @type {typeof cheerio.load} */ (cheerio.load || cheerio.def
  * @param {PluginOptions} options
  * @returns An esbuild plugin.
  */
-export default function({
-    scriptsTarget = 'es2015',
-    modulesTarget = 'es2020',
-} = {}) {
+export default function ({ scriptsTarget = 'es2015', modulesTarget = 'es2020' } = {}) {
     /**
      * @type {import('esbuild').Plugin}
      */
@@ -110,7 +107,9 @@ export default function({
                             if (write) {
                                 await rm(actualOutputFile);
                             } else if (result.outputFiles) {
-                                result.outputFiles = result.outputFiles.filter((file) => file.path !== actualOutputFile);
+                                result.outputFiles = result.outputFiles.filter(
+                                    (file) => file.path !== actualOutputFile
+                                );
                             }
 
                             if (outputs[`${outputFile}.map`]) {
@@ -120,17 +119,22 @@ export default function({
                                 if (write) {
                                     await rm(actualOutputMapFile);
                                 } else if (result.outputFiles) {
-                                    result.outputFiles = result.outputFiles.filter((file) => file.path !== actualOutputMapFile);
+                                    result.outputFiles = result.outputFiles.filter(
+                                        (file) => file.path !== actualOutputMapFile
+                                    );
                                 }
                             }
                         } else {
                             // real html output
-                            const resultOutputFile = result.outputFiles && result.outputFiles.find((file) => file.path === actualOutputFile);
+                            const resultOutputFile =
+                                result.outputFiles && result.outputFiles.find((file) => file.path === actualOutputFile);
                             if (!resultOutputFile && !write) {
                                 return;
                             }
 
-                            const buffer = resultOutputFile ? Buffer.from(resultOutputFile.contents) : await readFile(actualOutputFile);
+                            const buffer = resultOutputFile
+                                ? Buffer.from(resultOutputFile.contents)
+                                : await readFile(actualOutputFile);
                             const finalOutputFile = build.resolveOutputFile(mainInput, buffer);
 
                             delete outputs[outputFile];
@@ -176,26 +180,28 @@ export default function({
                 /**
                  * @param {string} file
                  */
-                const resolveFile = (file) => build.resolve(`./${file}`, {
-                    kind: 'dynamic-import',
-                    importer: args.path,
-                    resolveDir: path.dirname(args.path),
-                    pluginData: null,
-                    namespace: 'file',
-                });
+                const resolveFile = (file) =>
+                    build.resolve(`./${file}`, {
+                        kind: 'dynamic-import',
+                        importer: args.path,
+                        resolveDir: path.dirname(args.path),
+                        pluginData: null,
+                        namespace: 'file',
+                    });
 
                 /**
                  * @param {string} path
                  * @param {Partial<import('esbuild').OnLoadArgs>} [options]
                  */
-                const loadFile = (path, options = {}) => build.load({
-                    pluginData: null,
-                    namespace: 'file',
-                    suffix: '',
-                    ...options,
-                    path,
-                    with: {},
-                });
+                const loadFile = (path, options = {}) =>
+                    build.load({
+                        pluginData: null,
+                        namespace: 'file',
+                        suffix: '',
+                        ...options,
+                        path,
+                        with: {},
+                    });
 
                 const collectOptions = {
                     sourceDir: path.dirname(args.path),
@@ -235,11 +241,11 @@ export default function({
                 };
 
                 const results = await collectWebManifest($, root, collectOptions, helpers);
-                results.push(...await collectScreens($, root, collectOptions, helpers));
-                results.push(...await collectIcons($, root, collectOptions, helpers));
-                results.push(...await collectAssets($, root, collectOptions, helpers));
-                results.push(...await collectStyles($, root, collectOptions, helpers));
-                results.push(...await collectScripts($, root, collectOptions, helpers));
+                results.push(...(await collectScreens($, root, collectOptions, helpers)));
+                results.push(...(await collectIcons($, root, collectOptions, helpers)));
+                results.push(...(await collectAssets($, root, collectOptions, helpers)));
+                results.push(...(await collectStyles($, root, collectOptions, helpers)));
+                results.push(...(await collectScripts($, root, collectOptions, helpers)));
 
                 return {
                     code: beautify.html($.html().replace(/\n\s*$/gm, '')),

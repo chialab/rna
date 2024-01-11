@@ -23,13 +23,13 @@ yarn add @chialab/estransform -D
 ```js
 import { transform } from '@chialab/estransform';
 
-const { code, map } = await transform('require("tslib"); module.exports = function() {}', { sourceContents: true }, (magicCode, contents) => {
-    magicCode.overwrite(
-        0,
-        contents.length,
-        'Hello!'
-    );
-});
+const { code, map } = await transform(
+    'require("tslib"); module.exports = function() {}',
+    { sourceContents: true },
+    (magicCode, contents) => {
+        magicCode.overwrite(0, contents.length, 'Hello!');
+    }
+);
 ```
 
 ---

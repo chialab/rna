@@ -36,14 +36,17 @@ import { test } from '@chialab/rna-saucelabs-test-runner';
 /**
  * @see https://modern-web.dev/docs/test-runner/cli-and-configuration/
  */
-await test({
-    // files: ['...'],
-}, {
-    // saucelabs username
-    user: '...',
-    // saucelabs access key
-    key: '...',
-});
+await test(
+    {
+        // files: ['...'],
+    },
+    {
+        // saucelabs username
+        user: '...',
+        // saucelabs access key
+        key: '...',
+    }
+);
 ```
 
 ### Via cli

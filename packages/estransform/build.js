@@ -9,7 +9,5 @@ esbuild.build({
     sourcemap: true,
     format: 'esm',
     platform: 'node',
-    external: [
-        '@parcel/source-map',
-    ],
+    external: ['@parcel/source-map'],
 });

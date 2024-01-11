@@ -9,9 +9,7 @@ esbuild.build({
     sourcemap: true,
     format: 'esm',
     platform: 'node',
-    external: [
-        'pnpapi',
-    ],
+    external: ['pnpapi'],
     banner: {
         js: `import { createRequire as __moduleCreateRequire } from 'module';
 

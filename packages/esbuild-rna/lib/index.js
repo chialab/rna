@@ -39,8 +39,8 @@ export function useRna(pluginInstance, pluginBuild) {
 }
 
 /**
-* @returns {import('esbuild').Plugin}
-*/
+ * @returns {import('esbuild').Plugin}
+ */
 export function rnaPlugin() {
     /**
      * @type {import('esbuild').Plugin}

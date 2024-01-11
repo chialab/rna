@@ -1,7 +1,7 @@
 declare module '@babel/plugin-syntax-jsx' {
     export interface Options {}
     export type PluginList = ReadonlyArray<PluginListItem>;
-    export type PluginListItem = (string | RegExp);
+    export type PluginListItem = string | RegExp;
 }
 
 declare module 'babel-plugin-htm' {
@@ -11,5 +11,5 @@ declare module 'babel-plugin-htm' {
     }
 
     export type PluginList = ReadonlyArray<PluginListItem>;
-    export type PluginListItem = (string | RegExp);
+    export type PluginListItem = string | RegExp;
 }

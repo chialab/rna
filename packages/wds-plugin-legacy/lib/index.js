@@ -1,8 +1,8 @@
-import crypto from 'crypto';
 import { Buffer } from 'buffer';
+import crypto from 'crypto';
 import { createRequire } from 'module';
-import { inject } from '@chialab/wds-plugin-polyfill';
 import { createHelperUrl, isPlainScript } from '@chialab/wds-plugin-node-resolve';
+import { inject } from '@chialab/wds-plugin-polyfill';
 import * as cheerio from 'cheerio';
 import { checkEsmSupport } from './checkEsmSupport.js';
 import { readFile } from './readFile.js';
@@ -13,7 +13,7 @@ const require = createRequire(import.meta.url);
 /**
  * Cheerio esm support is unstable for some Node versions.
  */
-const load = /** typeof cheerio.load */ (cheerio.load || cheerio.default?.load);
+const load = /** typeof cheerio.load */ cheerio.load || cheerio.default?.load;
 
 /**
  * Create an hash for the given buffer.
@@ -85,8 +85,7 @@ System.constructor.prototype.createScript = function (url) {
             if (checkEsmSupport(context) || isPlainScript(context)) {
                 return;
             }
-            if (context.path === systemHelper ||
-                context.path === regeneratorHelper) {
+            if (context.path === systemHelper || context.path === regeneratorHelper) {
                 return;
             }
             if (context.response.is('js')) {
@@ -125,7 +124,9 @@ System.constructor.prototype.createScript = function (url) {
                 }
 
                 const head = root.find('head') || root.find('body');
-                head.prepend('<script>(function() { var p = Promise.resolve(); window.import = function(source) { return p = p.then(function() { return System.import(source) }); }}());</script>');
+                head.prepend(
+                    '<script>(function() { var p = Promise.resolve(); window.import = function(source) { return p = p.then(function() { return System.import(source) }); }}());</script>'
+                );
                 head.prepend(`<script src="${systemHelper}"></script>`);
                 head.prepend(`<script src="${regeneratorHelper}"></script>`);
 

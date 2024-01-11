@@ -1,8 +1,8 @@
+import { rm } from 'fs/promises';
 import path from 'path';
 import process from 'process';
-import { rm } from 'fs/promises';
-import esbuild from 'esbuild';
 import { hasPlugin } from '@chialab/esbuild-rna';
+import esbuild from 'esbuild';
 import { loaders } from './loaders.js';
 
 /**
@@ -77,37 +77,40 @@ export async function build(config) {
         await rm(path.resolve(rootDir, outputDir), { recursive: true, force: true });
     }
 
-    const finalPlugins = /** @type {import('esbuild').Plugin[]} */ (await Promise.all([
-        !hasPlugin(plugins, 'env') &&
-            import('@chialab/esbuild-plugin-env')
-                .then(({ default: plugin }) => plugin()),
-        !hasPlugin(plugins, 'commonjs') &&
-            import('@chialab/esbuild-plugin-commonjs')
-                .then(({ default: plugin }) => plugin({
-                    helperModule: true,
-                })),
-        !hasPlugin(plugins, 'worker') &&
-            import('@chialab/esbuild-plugin-worker')
-                .then(({ default: plugin }) => plugin()),
-        !hasPlugin(plugins, 'meta-url') &&
-            import('@chialab/esbuild-plugin-meta-url')
-                .then(({ default: plugin }) => plugin()),
-        !hasPlugin(plugins, 'html') &&
-            import('@chialab/esbuild-plugin-html')
-                .then(({ default: plugin }) => plugin({
-                    modulesTarget: target || 'es2020',
-                })),
-        ...plugins,
-        !hasPlugin(plugins, 'any-file') &&
-            import('@chialab/esbuild-plugin-any-file')
-                .then(({ default: plugin }) => plugin()),
-        !hasPlugin(plugins, 'metadata') &&
-            import('@chialab/esbuild-plugin-metadata')
-                .then(({ default: plugin }) => plugin({
-                    manifestPath,
-                    entrypointsPath,
-                })),
-    ].filter(Boolean)));
+    const finalPlugins = /** @type {import('esbuild').Plugin[]} */ (
+        await Promise.all(
+            [
+                !hasPlugin(plugins, 'env') &&
+                    import('@chialab/esbuild-plugin-env').then(({ default: plugin }) => plugin()),
+                !hasPlugin(plugins, 'commonjs') &&
+                    import('@chialab/esbuild-plugin-commonjs').then(({ default: plugin }) =>
+                        plugin({
+                            helperModule: true,
+                        })
+                    ),
+                !hasPlugin(plugins, 'worker') &&
+                    import('@chialab/esbuild-plugin-worker').then(({ default: plugin }) => plugin()),
+                !hasPlugin(plugins, 'meta-url') &&
+                    import('@chialab/esbuild-plugin-meta-url').then(({ default: plugin }) => plugin()),
+                !hasPlugin(plugins, 'html') &&
+                    import('@chialab/esbuild-plugin-html').then(({ default: plugin }) =>
+                        plugin({
+                            modulesTarget: target || 'es2020',
+                        })
+                    ),
+                ...plugins,
+                !hasPlugin(plugins, 'any-file') &&
+                    import('@chialab/esbuild-plugin-any-file').then(({ default: plugin }) => plugin()),
+                !hasPlugin(plugins, 'metadata') &&
+                    import('@chialab/esbuild-plugin-metadata').then(({ default: plugin }) =>
+                        plugin({
+                            manifestPath,
+                            entrypointsPath,
+                        })
+                    ),
+            ].filter(Boolean)
+        )
+    );
 
     const context = await esbuild.context({
         ...entryOptions,

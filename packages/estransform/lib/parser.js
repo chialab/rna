@@ -1,7 +1,7 @@
 import MagicString from 'magic-string';
-import { parse as sucraseParse } from 'sucrase/dist/parser/index.js';
-import NameManagerModule from 'sucrase/dist/NameManager.js';
 import { HelperManager } from 'sucrase/dist/HelperManager.js';
+import NameManagerModule from 'sucrase/dist/NameManager.js';
+import { parse as sucraseParse } from 'sucrase/dist/parser/index.js';
 import TokenProcessorModule from 'sucrase/dist/TokenProcessor.js';
 import { inlineSourcemap, loadSourcemap, mergeSourcemaps, removeInlineSourcemap } from './sourcemaps.js';
 
@@ -9,11 +9,15 @@ import { inlineSourcemap, loadSourcemap, mergeSourcemaps, removeInlineSourcemap 
  * @param {*} mod
  */
 function interopImport(mod) {
-    return (typeof mod.default !== 'undefined' ? mod.default : mod);
+    return typeof mod.default !== 'undefined' ? mod.default : mod;
 }
 
-export const NameManager = /** @type {typeof import('sucrase/dist/NameManager.js').default} */ (interopImport(NameManagerModule));
-export const TokenProcessor = /** @type {typeof import('sucrase/dist/TokenProcessor.js').default} */ (interopImport(TokenProcessorModule));
+export const NameManager = /** @type {typeof import('sucrase/dist/NameManager.js').default} */ (
+    interopImport(NameManagerModule)
+);
+export const TokenProcessor = /** @type {typeof import('sucrase/dist/TokenProcessor.js').default} */ (
+    interopImport(TokenProcessorModule)
+);
 
 /**
  * Walk through tokens and wait async visitors.
@@ -112,11 +116,13 @@ export function parse(inputCode, filePath) {
                 let map = null;
                 if (options.sourcemap) {
                     const inputSourcemap = await loadSourcemap(inputCode, filePath);
-                    const newSourcemap = /** @type {import('./sourcemaps.js').SourceMap} */ (magicCode.generateMap({
-                        source: filePath,
-                        includeContent: options.sourcesContent,
-                        hires: true,
-                    }));
+                    const newSourcemap = /** @type {import('./sourcemaps.js').SourceMap} */ (
+                        magicCode.generateMap({
+                            source: filePath,
+                            includeContent: options.sourcesContent,
+                            hires: true,
+                        })
+                    );
 
                     map = inputSourcemap ? await mergeSourcemaps([inputSourcemap, newSourcemap]) : newSourcemap;
                 }

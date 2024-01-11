@@ -37,7 +37,9 @@ export async function collectAssets($, dom, options, helpers) {
             .filter((element) => isRelativeUrl($(element).attr('src')))
             .map((element) => collectAsset($, $(element), 'src', options, helpers)),
         ...dom
-            .find('link[href]:not([rel="stylesheet"]):not([rel="manifest"]):not([rel*="icon"]):not([rel*="apple-touch-startup-image"]), a[download][href], iframe[href]')
+            .find(
+                'link[href]:not([rel="stylesheet"]):not([rel="manifest"]):not([rel*="icon"]):not([rel*="apple-touch-startup-image"]), a[download][href], iframe[href]'
+            )
             .get()
             .filter((element) => isRelativeUrl($(element).attr('href')))
             .map((element) => collectAsset($, $(element), 'href', options, helpers)),

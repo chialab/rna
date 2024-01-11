@@ -1,14 +1,17 @@
 import { readFile } from 'fs/promises';
+import { fileURLToPath } from 'url';
 import chai from 'chai';
 import { transform, wrapDynamicRequire } from '../lib/index.js';
-import { fileURLToPath } from 'url';
 
 const { expect } = chai;
 
 describe('cjs-to-esm', () => {
     it('should transform require statements', async () => {
-        const { code } = await transform(`const fs = require('fs/promises');
-fs.readFile('test.js');`, { helperModule: true });
+        const { code } = await transform(
+            `const fs = require('fs/promises');
+fs.readFile('test.js');`,
+            { helperModule: true }
+        );
 
         expect(code).to.equal(`import * as $cjs$fs_promises from "fs/promises";
 import __cjs_default__ from './__cjs_helper__.js';
@@ -38,11 +41,14 @@ export default module.exports;`);
     });
 
     it('should ignore require statements in try catch statements', async () => {
-        const { code } = await transform(`const path = require('path');
+        const { code } = await transform(
+            `const path = require('path');
 try {
     const fs = require('fs/promises');
     fs.readFile(path.resolve('test.js'));
-} catch {}`, { helperModule: true, ignoreTryCatch: true });
+} catch {}`,
+            { helperModule: true, ignoreTryCatch: true }
+        );
 
         expect(code).to.equal(`import * as $cjs$path from "path";
 import __cjs_default__ from './__cjs_helper__.js';
@@ -64,15 +70,23 @@ fs.readFile(path.resolve('test.js'));`).catch((err) => err);
     });
 
     it('should wrap dynamic require', async () => {
-        const { code } = await wrapDynamicRequire('if (typeof require !== \'undefined\') require(\'fs\'); require(\'path\');');
+        const { code } = await wrapDynamicRequire(
+            "if (typeof require !== 'undefined') require('fs'); require('path');"
+        );
 
-        expect(code).to.equal('if (typeof require !== \'undefined\') (() => { try { return (() => {require(\'fs\');})(); } catch(err) {} })(); require(\'path\');');
+        expect(code).to.equal(
+            "if (typeof require !== 'undefined') (() => { try { return (() => {require('fs');})(); } catch(err) {} })(); require('path');"
+        );
     });
 
     it('should wrap dynamic require blocks', async () => {
-        const { code } = await wrapDynamicRequire('if (typeof require !== \'undefined\') { require(\'fs\'); require(\'path\'); }');
+        const { code } = await wrapDynamicRequire(
+            "if (typeof require !== 'undefined') { require('fs'); require('path'); }"
+        );
 
-        expect(code).to.equal('if (typeof require !== \'undefined\') { (() => { try { return (() => {require(\'fs\'); require(\'path\');})(); } catch(err) {} })(); }');
+        expect(code).to.equal(
+            "if (typeof require !== 'undefined') { (() => { try { return (() => {require('fs'); require('path');})(); } catch(err) {} })(); }"
+        );
     });
 
     describe('umd', () => {
@@ -96,7 +110,9 @@ fs.readFile(path.resolve('test.js'));`).catch((err) => err);
                 return {};
             }));`;
             const { code } = await transform(contents);
-            const { default: value } = await import(`data:text/javascript;base64,${Buffer.from(code).toString('base64')}`);
+            const { default: value } = await import(
+                `data:text/javascript;base64,${Buffer.from(code).toString('base64')}`
+            );
 
             expect(value).to.be.a('object');
         });
@@ -126,7 +142,9 @@ fs.readFile(path.resolve('test.js'));`).catch((err) => err);
                 return {};
             }));`;
             const { code } = await transform(contents);
-            const { default: value } = await import(`data:text/javascript;base64,${Buffer.from(code).toString('base64')}`);
+            const { default: value } = await import(
+                `data:text/javascript;base64,${Buffer.from(code).toString('base64')}`
+            );
 
             expect(value).to.be.a('object');
         });
@@ -156,7 +174,9 @@ fs.readFile(path.resolve('test.js'));`).catch((err) => err);
                 return {};
             }));`;
             const { code } = await transform(contents);
-            const { default: value } = await import(`data:text/javascript;base64,${Buffer.from(code).toString('base64')}`);
+            const { default: value } = await import(
+                `data:text/javascript;base64,${Buffer.from(code).toString('base64')}`
+            );
 
             expect(value).to.be.a('object');
         });
@@ -185,7 +205,9 @@ fs.readFile(path.resolve('test.js'));`).catch((err) => err);
                 return {};
             }));`;
             const { code } = await transform(contents);
-            const { default: value } = await import(`data:text/javascript;base64,${Buffer.from(code).toString('base64')}`);
+            const { default: value } = await import(
+                `data:text/javascript;base64,${Buffer.from(code).toString('base64')}`
+            );
 
             expect(value).to.be.a('object');
         });
@@ -212,7 +234,9 @@ fs.readFile(path.resolve('test.js'));`).catch((err) => err);
                 exports.action = function () {};
             }));`;
             const { code } = await transform(contents);
-            const { default: value } = await import(`data:text/javascript;base64,${Buffer.from(code).toString('base64')}`);
+            const { default: value } = await import(
+                `data:text/javascript;base64,${Buffer.from(code).toString('base64')}`
+            );
 
             expect(value).to.be.a('object');
         });
@@ -234,7 +258,9 @@ fs.readFile(path.resolve('test.js'));`).catch((err) => err);
                 const fixture = fileURLToPath(new URL('fixtures/docx.js', import.meta.url));
                 const contents = await readFile(fixture, 'utf-8');
                 const { code } = await transform(`var process = undefined;${contents}`);
-                const { default: value } = await import(`data:text/javascript;base64,${Buffer.from(code).toString('base64')}`);
+                const { default: value } = await import(
+                    `data:text/javascript;base64,${Buffer.from(code).toString('base64')}`
+                );
 
                 expect(global.docx).to.be.equal(value);
                 expect(value.Body).to.be.a('Function');
@@ -250,7 +276,9 @@ fs.readFile(path.resolve('test.js'));`).catch((err) => err);
                     const fixture = fileURLToPath(new URL('fixtures/mapbox.js', import.meta.url));
                     const contents = await readFile(fixture, 'utf-8');
                     const { code } = await transform(`var process = undefined;${contents}`);
-                    const { default: value } = await import(`data:text/javascript;base64,${Buffer.from(code).toString('base64')}`);
+                    const { default: value } = await import(
+                        `data:text/javascript;base64,${Buffer.from(code).toString('base64')}`
+                    );
 
                     expect(window.mapboxgl).to.be.equal(value);
                     expect(value.version).to.be.equal('2.14.1');
@@ -264,7 +292,9 @@ fs.readFile(path.resolve('test.js'));`).catch((err) => err);
                 const fixture = fileURLToPath(new URL('fixtures/pdfjs.js', import.meta.url));
                 const contents = await readFile(fixture, 'utf-8');
                 const { code } = await transform(`var process = undefined;${contents}`);
-                const { default: value } = await import(`data:text/javascript;base64,${Buffer.from(code).toString('base64')}`);
+                const { default: value } = await import(
+                    `data:text/javascript;base64,${Buffer.from(code).toString('base64')}`
+                );
 
                 expect(global.pdfjsLib).to.be.equal(value);
                 expect(value.version).to.be.equal('3.6.172');
@@ -274,7 +304,9 @@ fs.readFile(path.resolve('test.js'));`).catch((err) => err);
                 const fixture = fileURLToPath(new URL('fixtures/uri.js', import.meta.url));
                 const contents = await readFile(fixture, 'utf-8');
                 const { code } = await transform(`var process = undefined;${contents}`);
-                const { default: value } = await import(`data:text/javascript;base64,${Buffer.from(code).toString('base64')}`);
+                const { default: value } = await import(
+                    `data:text/javascript;base64,${Buffer.from(code).toString('base64')}`
+                );
 
                 expect(global.URI).to.be.equal(value);
                 expect(value.name).to.be.equal('URI');
@@ -284,7 +316,9 @@ fs.readFile(path.resolve('test.js'));`).catch((err) => err);
                 const fixture = fileURLToPath(new URL('fixtures/lodash.js', import.meta.url));
                 const contents = await readFile(fixture, 'utf-8');
                 const { code } = await transform(`var process = undefined;${contents}`);
-                const { default: value } = await import(`data:text/javascript;base64,${Buffer.from(code).toString('base64')}`);
+                const { default: value } = await import(
+                    `data:text/javascript;base64,${Buffer.from(code).toString('base64')}`
+                );
 
                 expect(global._).to.be.equal(value);
                 expect(value.name).to.be.equal('lodash');
@@ -294,7 +328,9 @@ fs.readFile(path.resolve('test.js'));`).catch((err) => err);
                 const fixture = fileURLToPath(new URL('fixtures/moment.js', import.meta.url));
                 const contents = await readFile(fixture, 'utf-8');
                 const { code } = await transform(`var process = undefined;${contents}`);
-                const { default: value } = await import(`data:text/javascript;base64,${Buffer.from(code).toString('base64')}`);
+                const { default: value } = await import(
+                    `data:text/javascript;base64,${Buffer.from(code).toString('base64')}`
+                );
 
                 expect(global.moment).to.be.equal(value);
                 expect(value.now).to.be.a('Function');
@@ -304,7 +340,9 @@ fs.readFile(path.resolve('test.js'));`).catch((err) => err);
                 const fixture = fileURLToPath(new URL('fixtures/bluebird.js', import.meta.url));
                 const contents = await readFile(fixture, 'utf-8');
                 const { code } = await transform(`var process = undefined;${contents}`);
-                const { default: value } = await import(`data:text/javascript;base64,${Buffer.from(code).toString('base64')}`);
+                const { default: value } = await import(
+                    `data:text/javascript;base64,${Buffer.from(code).toString('base64')}`
+                );
 
                 expect(global.Promise).to.be.equal(value);
             });
@@ -313,7 +351,9 @@ fs.readFile(path.resolve('test.js'));`).catch((err) => err);
                 const fixture = fileURLToPath(new URL('fixtures/axios.js', import.meta.url));
                 const contents = await readFile(fixture, 'utf-8');
                 const { code } = await transform(`var process = undefined;${contents}`);
-                const { default: value } = await import(`data:text/javascript;base64,${Buffer.from(code).toString('base64')}`);
+                const { default: value } = await import(
+                    `data:text/javascript;base64,${Buffer.from(code).toString('base64')}`
+                );
 
                 expect(global.axios).to.be.equal(value);
             });
@@ -322,7 +362,9 @@ fs.readFile(path.resolve('test.js'));`).catch((err) => err);
                 const fixture = fileURLToPath(new URL('fixtures/focus-visible.js', import.meta.url));
                 const contents = await readFile(fixture, 'utf-8');
                 const { code } = await transform(`var process = undefined;${contents}`);
-                const { default: value } = await import(`data:text/javascript;base64,${Buffer.from(code).toString('base64')}`);
+                const { default: value } = await import(
+                    `data:text/javascript;base64,${Buffer.from(code).toString('base64')}`
+                );
 
                 expect(value).to.be.undefined;
             });
@@ -331,7 +373,9 @@ fs.readFile(path.resolve('test.js'));`).catch((err) => err);
                 const fixture = fileURLToPath(new URL('fixtures/tslib.js', import.meta.url));
                 const contents = await readFile(fixture, 'utf-8');
                 const { code } = await transform(`var process = undefined;${contents}`);
-                const { default: value } = await import(`data:text/javascript;base64,${Buffer.from(code).toString('base64')}`);
+                const { default: value } = await import(
+                    `data:text/javascript;base64,${Buffer.from(code).toString('base64')}`
+                );
 
                 expect(global.__extends).to.be.equal(value.__extends);
                 expect(value.__extends).to.be.a('Function');
@@ -347,7 +391,9 @@ fs.readFile(path.resolve('test.js'));`).catch((err) => err);
                     const fixture = fileURLToPath(new URL('fixtures/jquery.js', import.meta.url));
                     const contents = await readFile(fixture, 'utf-8');
                     const { code } = await transform(`var process = undefined;${contents}`);
-                    const { default: value } = await import(`data:text/javascript;base64,${Buffer.from(code).toString('base64')}`);
+                    const { default: value } = await import(
+                        `data:text/javascript;base64,${Buffer.from(code).toString('base64')}`
+                    );
 
                     expect(window.$).to.be.equal(value);
                     expect(value.name).to.be.equal('jQuery');
@@ -361,7 +407,9 @@ fs.readFile(path.resolve('test.js'));`).catch((err) => err);
                 const fixture = fileURLToPath(new URL('fixtures/chai.js', import.meta.url));
                 const contents = await readFile(fixture, 'utf-8');
                 const { code } = await transform(`var process = undefined;${contents}`);
-                const { default: value } = await import(`data:text/javascript;base64,${Buffer.from(code).toString('base64')}`);
+                const { default: value } = await import(
+                    `data:text/javascript;base64,${Buffer.from(code).toString('base64')}`
+                );
 
                 expect(global.chai).to.be.equal(value);
                 expect(value.expect).to.be.a('Function');

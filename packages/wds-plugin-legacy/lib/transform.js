@@ -16,13 +16,16 @@ export async function babelTransform(content, url) {
      */
     const plugins = [];
     if (!url.includes('core-js')) {
-        presets.push([env, {
-            targets: ['ie 10'],
-            bugfixes: true,
-            ignoreBrowserslistConfig: true,
-            shippedProposals: true,
-            modules: 'systemjs',
-        }]);
+        presets.push([
+            env,
+            {
+                targets: ['ie 10'],
+                bugfixes: true,
+                ignoreBrowserslistConfig: true,
+                shippedProposals: true,
+                modules: 'systemjs',
+            },
+        ]);
     } else {
         plugins.push(system);
     }
@@ -38,10 +41,12 @@ export async function babelTransform(content, url) {
     if (!result) {
         return content;
     }
-    return /** @type {string} */ (result.code)
-        // Yes, I know it is an horrible hack,
-        // but global SystemJS "use strict" mode breaks some modules like axe.
-        .replace('"use strict";', '');
+    return (
+        /** @type {string} */ (result.code)
+            // Yes, I know it is an horrible hack,
+            // but global SystemJS "use strict" mode breaks some modules like axe.
+            .replace('"use strict";', '')
+    );
 }
 
 /**

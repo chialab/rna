@@ -1,12 +1,12 @@
+import { createReadStream } from 'fs';
 import os from 'os';
 import path from 'path';
 import process from 'process';
-import { createReadStream } from 'fs';
-import { createGzip, createBrotliCompress } from 'zlib';
-import { colors, createLogger, readableSize } from '@chialab/rna-logger';
-import { getEntryBuildConfig, mergeConfig, readConfigFile, locateConfigFile } from '@chialab/rna-config-loader';
+import { createBrotliCompress, createGzip } from 'zlib';
 import { assignToResult, createResult, remapResult, useRna } from '@chialab/esbuild-rna';
 import { build } from '@chialab/rna-bundler';
+import { getEntryBuildConfig, locateConfigFile, mergeConfig, readConfigFile } from '@chialab/rna-config-loader';
+import { colors, createLogger, readableSize } from '@chialab/rna-logger';
 import { Queue } from '../utils/Queue.js';
 
 /**
@@ -34,13 +34,12 @@ function compressFileSize(path, compressMethod) {
         const stream = createReadStream(path);
         stream.on('error', handleError);
         compressMethod.on('error', handleError);
-        compressMethod.on('data', (buf) => size += buf.length);
-        stream.pipe(compressMethod)
-            .on('end', () => {
-                resolve(size);
-                compressMethod.destroy();
-                stream.destroy();
-            });
+        compressMethod.on('data', (buf) => (size += buf.length));
+        stream.pipe(compressMethod).on('end', () => {
+            resolve(size);
+            compressMethod.destroy();
+            stream.destroy();
+        });
     });
 }
 
@@ -51,14 +50,13 @@ function compressFileSize(path, compressMethod) {
  * @param {boolean} compressed Show size compressed with these algorithms. Supports gzip and brotli.
  */
 async function bundleSize(metafile, compressed = false) {
-    const fileSizes = Object.entries(metafile.outputs)
-        .reduce((map, [path, output]) => {
-            if (!path.endsWith('.map')) {
-                map[path] = { size: output.bytes };
-            }
+    const fileSizes = Object.entries(metafile.outputs).reduce((map, [path, output]) => {
+        if (!path.endsWith('.map')) {
+            map[path] = { size: output.bytes };
+        }
 
-            return map;
-        }, /** @type {{ [path: string]: { size: number, brotli?: number, gzip?: number } } }} */ ({}));
+        return map;
+    }, /** @type {{ [path: string]: { size: number, brotli?: number, gzip?: number } } }} */ ({}));
 
     if (compressed) {
         await Promise.all(
@@ -110,10 +108,12 @@ async function bundleSize(metafile, compressed = false) {
 /**
  * @param {import('commander').Command} program
  */
-export default function(program) {
+export default function (program) {
     program
         .command('build [entry...]', { isDefault: true })
-        .description('Compile JS and CSS modules using esbuild (https://esbuild.github.io/). It can output multiple module formats and it can be used to build a single module or to bundle all dependencies of an application.')
+        .description(
+            'Compile JS and CSS modules using esbuild (https://esbuild.github.io/). It can output multiple module formats and it can be used to build a single module or to bundle all dependencies of an application.'
+        )
         .option('-C, --config <path>', 'the rna config file')
         .option('-O, --output <path>', 'output directory or file')
         .option('--format <type>', 'bundle format')
@@ -166,8 +166,16 @@ export default function(program) {
                 } = options;
 
                 const logger = createLogger();
-                const manifestPath = options.manifest ? (typeof options.manifest === 'string' ? options.manifest : path.join(output, 'manifest.json')) : undefined;
-                const entrypointsPath = options.entrypoints ? (typeof options.entrypoints === 'string' ? options.entrypoints : path.join(output, 'entrypoints.json')) : undefined;
+                const manifestPath = options.manifest
+                    ? typeof options.manifest === 'string'
+                        ? options.manifest
+                        : path.join(output, 'manifest.json')
+                    : undefined;
+                const entrypointsPath = options.entrypoints
+                    ? typeof options.entrypoints === 'string'
+                        ? options.entrypoints
+                        : path.join(output, 'entrypoints.json')
+                    : undefined;
                 const external = options.external ? options.external.split(',') : [];
                 const sourcemap = options.map === true ? undefined : options.map;
 
@@ -196,19 +204,28 @@ export default function(program) {
                     watch,
                 };
 
-                const configFile = options.config || await locateConfigFile();
+                const configFile = options.config || (await locateConfigFile());
 
                 /**
                  * @type {import('@chialab/rna-config-loader').ProjectConfig}
                  */
-                const config = mergeConfig({ format: 'esm' }, configFile ? await readConfigFile(configFile, inputConfig, 'build') : {}, inputConfig, input && input.length ? {
-                    entrypoints: [{
-                        input: input.map((entry) => path.resolve(entry)),
-                        output: path.resolve(output),
-                        globalName: name,
-                    }],
-                    ...inputConfig,
-                } : {});
+                const config = mergeConfig(
+                    { format: 'esm' },
+                    configFile ? await readConfigFile(configFile, inputConfig, 'build') : {},
+                    inputConfig,
+                    input && input.length
+                        ? {
+                              entrypoints: [
+                                  {
+                                      input: input.map((entry) => path.resolve(entry)),
+                                      output: path.resolve(output),
+                                      globalName: name,
+                                  },
+                              ],
+                              ...inputConfig,
+                          }
+                        : {}
+                );
 
                 const { entrypoints } = config;
                 if (!entrypoints) {
@@ -230,9 +247,11 @@ export default function(program) {
                     if (Object.keys(metafile.outputs).length) {
                         const sizes = await bundleSize(metafile, showCompressed);
                         if (!rebuild) {
-                            logger.log(colors.bold(`
+                            logger.log(
+                                colors.bold(`
 Build completed!
-`));
+`)
+                            );
                         }
                         logger.files(sizes, showCompressed ? ['size', 'gzip', 'brotli'] : ['size'], {
                             size: readableSize,
@@ -260,7 +279,11 @@ Build completed!
                                 if (!build.isChunk()) {
                                     build.onEnd(async (result) => {
                                         if (cwd !== buildDir) {
-                                            result = remapResult(/** @type {import('@chialab/esbuild-rna').Result} */(result), buildDir, cwd);
+                                            result = remapResult(
+                                                /** @type {import('@chialab/esbuild-rna').Result} */ (result),
+                                                buildDir,
+                                                cwd
+                                            );
                                         }
                                         if (buildResults[i]) {
                                             buildResults[i] = result;
@@ -274,10 +297,7 @@ Build completed!
                         };
                         const buildConfig = getEntryBuildConfig(entrypoint, {
                             ...config,
-                            plugins: [
-                                ...(config.plugins || []),
-                                plugin,
-                            ],
+                            plugins: [...(config.plugins || []), plugin],
                         });
                         const buildDir = buildConfig.root || process.cwd();
                         const result = await build(buildConfig);

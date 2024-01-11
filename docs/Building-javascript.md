@@ -110,7 +110,7 @@ yarn rna build src/index.js --output public/index.js --format esm --platform nod
 
 ## Modules resolution
 
-Esbuild supports both the old fashioned `main` fields as well the `exports` field using a Node-like resolution algorithm.  
+Esbuild supports both the old fashioned `main` fields as well the `exports` field using a Node-like resolution algorithm.
 
 ### Using exports field
 
@@ -128,9 +128,10 @@ When a module defines conditions as follow in the package.json:
 ```
 
 Esbuild will
-* resolve to `exports.browser` if `--platform browser`
-* resolve to `exports.require` if `--format cjs`
-* resolve to `exports.default` otherwise
+
+-   resolve to `exports.browser` if `--platform browser`
+-   resolve to `exports.require` if `--format cjs`
+-   resolve to `exports.default` otherwise
 
 ### Using main fields
 
@@ -145,10 +146,11 @@ When a module defines entrypoints as follow in the package.json:
 ```
 
 Esbuild will
-* resolve to `browser` if `--platform browser`
-* resolve to `main` if `--format cjs`
-* resolve to `module` if defined
-* resolve to `main` otherwise
+
+-   resolve to `browser` if `--platform browser`
+-   resolve to `main` if `--format cjs`
+-   resolve to `module` if defined
+-   resolve to `main` otherwise
 
 Read more about the [esbuild resolution algorithm](https://esbuild.github.io/api/#conditions) and [node specifications](https://nodejs.org/api/packages.html).
 
@@ -181,9 +183,10 @@ export function Profile() {
 ```
 
 The build step of this app will generate 3 chunks:
-* **vendors.js** that includes the `view` dependency
-* **entrypoint.js** that imports **vendors.js** and includes `router` dependency and **app.js** source 
-* **chunk.js** that imports **vendors.js** and includes **Profile.js** source 
+
+-   **vendors.js** that includes the `view` dependency
+-   **entrypoint.js** that imports **vendors.js** and includes `router` dependency and **app.js** source
+-   **chunk.js** that imports **vendors.js** and includes **Profile.js** source
 
 ## TypeScript
 
@@ -239,7 +242,7 @@ if (process.env.NODE_ENV !== 'production') {
 const response = await fetch('/data.json');
 ```
 
-The console statement will be removed because of dead code elimination. 
+The console statement will be removed because of dead code elimination.
 
 ## Assets
 
@@ -272,7 +275,7 @@ const worker = new Worker('./path/to/worker.js');
 Please note that RNA does not generate a `Worker` class to instantiate like webpack does, but it will just correctly update the import reference. If you need a `Worker` class, you have to wrap it yourself:
 
 ```javascript
-const workerClass = function() {
+const workerClass = function () {
     return new Worker('./path/to/worker.js');
 };
 ```
@@ -299,7 +302,7 @@ render(<div>Hello world!</div>, document.body);
 **Output**
 
 ```javascript
-import { render, h } from '@chialab/dna';
+import { h, render } from '@chialab/dna';
 
 render(h('div', null, 'Hello world!'), document.body);
 ```
@@ -353,9 +356,7 @@ npm i -D @chialab/eslint-config
 
 ```json
 {
-    "extends": [
-        "@chialab/eslint-config/javascript"
-    ]
+    "extends": ["@chialab/eslint-config/javascript"]
 }
 ```
 
@@ -363,14 +364,13 @@ npm i -D @chialab/eslint-config
 
 ```json
 {
-    "extends": [
-        "@chialab/eslint-config/typescript"
-    ]
+    "extends": ["@chialab/eslint-config/typescript"]
 }
 ```
 
 Also, do not forget to install the linter extension for your IDE:
-* [VSCode](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint)
+
+-   [VSCode](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint)
 
 ### Tagged templates
 
@@ -386,9 +386,9 @@ Tagged Templates are similar to JSX: they have typings support, colorized syntax
 Furthermore, the [htm](https://github.com/developit/htm) module can be used to bring Tagged Templates support to those libraries that export the JSX pragma only:
 
 ```js
+import htm from 'htm';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import htm from 'htm';
 
 const html = htm.bind(React.createElement);
 ReactDOM.render(html`<a href="/">Hello!</a>`, document.body);
@@ -407,10 +407,7 @@ Since version 4, TypeScript improved JSDoc support and its compiler can now chec
         "allowJs": true,
         "checkJs": true
     },
-    "include": [
-        "src/**/*.ts",
-        "src/**/*.js"
-    ]
+    "include": ["src/**/*.ts", "src/**/*.js"]
 }
 ```
 

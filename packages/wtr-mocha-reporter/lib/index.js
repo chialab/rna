@@ -1,10 +1,10 @@
-import chalk from 'chalk';
 import { reporters } from '@chialab/es-test-runner';
+import chalk from 'chalk';
+import { Collector } from './Collector.js';
+import { getTestProgressReport } from './getTestProgress.js';
 import { reportBrowserLogs } from './reportBrowserLogs.js';
 import { reportRequest404s } from './reportRequest404s.js';
-import { getTestProgressReport } from './getTestProgress.js';
 import { reportTestFileErrors } from './reportTestFileErrors.js';
-import { Collector } from './Collector.js';
 
 /**
  * Bind the WTR reporter to a Mocha reporter.
@@ -51,7 +51,9 @@ export function mochaReporter(MochaReporter = reporters.Spec) {
             args = _args;
 
             logger = args.config.logger;
-            options = /** @type {import('@chialab/es-test-runner').MochaOptions} */ (args.config.testFramework?.config || {});
+            options = /** @type {import('@chialab/es-test-runner').MochaOptions} */ (
+                args.config.testFramework?.config || {}
+            );
 
             reset();
         },

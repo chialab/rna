@@ -22,7 +22,6 @@ yarn add @chialab/esbuild-rna -D
 
 ```js
 import '@chialab/esbuild-rna';
-
 ```
 
 ---

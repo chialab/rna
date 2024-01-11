@@ -6,9 +6,7 @@
     "baseUrl": ".",
     "rootDir": "./lib"
   },
-  "include": [
-    "lib/**/*"
-  ],
+  "include": ["lib/**/*"],
   "references": [
     {
       "path": "../es-test-runner"

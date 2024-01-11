@@ -1,1 +1,1 @@
-export const readFile = () => { };
+export const readFile = () => {};

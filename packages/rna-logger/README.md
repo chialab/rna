@@ -22,7 +22,6 @@ yarn add @chialab/rna-logger -D
 
 ```js
 import '@chialab/rna-logger';
-
 ```
 
 ---

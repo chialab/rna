@@ -1,11 +1,13 @@
 import { fileURLToPath } from 'url';
-import esbuild from 'esbuild';
 import unwebpackPlugin from '@chialab/esbuild-plugin-unwebpack';
 import { expect } from 'chai';
+import esbuild from 'esbuild';
 
 describe('esbuild-plugin-unwebpack', () => {
     it('should replace hmr statements', async () => {
-        const { outputFiles: [result] } = await esbuild.build({
+        const {
+            outputFiles: [result],
+        } = await esbuild.build({
             absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
                 sourcefile: fileURLToPath(import.meta.url),
@@ -30,9 +32,7 @@ if (import.meta.webpackHot) {
             target: 'esnext',
             bundle: true,
             write: false,
-            plugins: [
-                unwebpackPlugin(),
-            ],
+            plugins: [unwebpackPlugin()],
         });
 
         expect(result.text).to.be.equal(`// test.spec.js
@@ -44,7 +44,9 @@ export {
     });
 
     it('should resolve magic imports', async () => {
-        const { outputFiles: [result] } = await esbuild.build({
+        const {
+            outputFiles: [result],
+        } = await esbuild.build({
             absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             entryPoints: [fileURLToPath(new URL('fixture/input.js', import.meta.url))],
             sourceRoot: fileURLToPath(new URL('fixture', import.meta.url)),
@@ -54,9 +56,7 @@ export {
             bundle: true,
             splitting: true,
             write: false,
-            plugins: [
-                unwebpackPlugin(),
-            ],
+            plugins: [unwebpackPlugin()],
         });
 
         expect(result.text).to.be.equal(`// fixture/input.js

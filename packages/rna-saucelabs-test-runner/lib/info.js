@@ -6,15 +6,12 @@ import process from 'process';
 export function testName(name) {
     let message = `Tests for ${name}`;
 
-    const branchName = process.env.TRAVIS_BRANCH ||
-        process.env.CI_COMMIT_BRANCH ||
-        process.env.GITHUB_REF;
+    const branchName = process.env.TRAVIS_BRANCH || process.env.CI_COMMIT_BRANCH || process.env.GITHUB_REF;
     if (branchName) {
         message = `${message} | ${branchName.trim()}`;
     }
 
-    const commit = process.env.TRAVIS_COMMIT_MESSAGE
-        || process.env.CI_COMMIT_TITLE;
+    const commit = process.env.TRAVIS_COMMIT_MESSAGE || process.env.CI_COMMIT_TITLE;
     if (commit) {
         message = `${message}, ${commit.trim()}`;
     }

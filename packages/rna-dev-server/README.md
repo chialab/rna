@@ -66,8 +66,8 @@ rna serve public --port 3000
 
 ```js
 import { createServer } from 'http';
+import { createDevServer, loadDevServerConfig } from '@chialab/rna-dev-server';
 import express from 'express';
-import { loadDevServerConfig, createDevServer } from '@chialab/rna-dev-server';
 
 const app = express();
 const server = createServer(app);
@@ -83,7 +83,7 @@ app.use(devServer.callback());
 
 ### Integrations
 
-* [RNA CakePHP](https://github.com/chialab/rna-cakephp): a view helper to inject scripts and css with livereload.
+-   [RNA CakePHP](https://github.com/chialab/rna-cakephp): a view helper to inject scripts and css with livereload.
 
 ---
 

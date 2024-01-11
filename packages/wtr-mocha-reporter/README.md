@@ -24,9 +24,7 @@ yarn add @chialab/wtr-mocha-reporter -D
 import { mochaReporter } from '@chialab/wtr-mocha-reporter';
 
 export default {
-    reporters: [
-        mochaReporter(),
-    ],
+    reporters: [mochaReporter()],
 };
 ```
 

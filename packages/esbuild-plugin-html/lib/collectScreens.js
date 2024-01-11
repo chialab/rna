@@ -1,9 +1,9 @@
-import path from 'path';
 import { Buffer } from 'buffer';
+import path from 'path';
 import { isRelativeUrl } from '@chialab/node-resolve';
-import Jimp from './generator.js';
-import { generateLaunch } from './generateLaunch.js';
 import { collectAsset } from './collectAssets.js';
+import { generateLaunch } from './generateLaunch.js';
+import Jimp from './generator.js';
 
 /**
  * @typedef {Object} Screen
@@ -127,7 +127,9 @@ export async function collectScreens($, dom, options, helpers) {
     try {
         const image = await Jimp.read(imageBuffer);
         const appleLaunchScreens = await generateAppleLaunchScreens(image, APPLE_LAUNCH_SCREENS);
-        const results = await Promise.all(appleLaunchScreens.map((icon) => collectScreen($, splashElement, icon, options, helpers)));
+        const results = await Promise.all(
+            appleLaunchScreens.map((icon) => collectScreen($, splashElement, icon, options, helpers))
+        );
         splashElement.remove();
 
         return results;

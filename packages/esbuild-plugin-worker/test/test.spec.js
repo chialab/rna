@@ -1,25 +1,25 @@
-import { fileURLToPath } from 'url';
 import path from 'path';
-import esbuild from 'esbuild';
+import { fileURLToPath } from 'url';
 import workerPlugin from '@chialab/esbuild-plugin-worker';
 import { expect } from 'chai';
+import esbuild from 'esbuild';
 
 describe('esbuild-plugin-worker', () => {
     it('should load a classic worker with bundle', async () => {
-        const { outputFiles: [result, worker] } = await esbuild.build({
+        const {
+            outputFiles: [result, worker],
+        } = await esbuild.build({
             absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
                 resolveDir: fileURLToPath(new URL('.', import.meta.url)),
                 sourcefile: fileURLToPath(import.meta.url),
-                contents: 'export const worker = new Worker(new URL(\'./worker.js\', import.meta.url));',
+                contents: "export const worker = new Worker(new URL('./worker.js', import.meta.url));",
             },
             format: 'esm',
             outdir: 'out',
             bundle: true,
             write: false,
-            plugins: [
-                workerPlugin(),
-            ],
+            plugins: [workerPlugin()],
         });
 
         expect(result.text).to.be.equal(`// test.spec.js
@@ -42,23 +42,24 @@ export {
     });
 
     it('should load a classic worker without bundle', async () => {
-        const { outputFiles: [result, worker] } = await esbuild.build({
+        const {
+            outputFiles: [result, worker],
+        } = await esbuild.build({
             absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
                 resolveDir: fileURLToPath(new URL('.', import.meta.url)),
                 sourcefile: fileURLToPath(import.meta.url),
-                contents: 'export const worker = new Worker(new URL(\'./worker.js\', import.meta.url));',
+                contents: "export const worker = new Worker(new URL('./worker.js', import.meta.url));",
             },
             format: 'esm',
             outdir: 'out',
             bundle: false,
             write: false,
-            plugins: [
-                workerPlugin(),
-            ],
+            plugins: [workerPlugin()],
         });
 
-        expect(result.text).to.be.equal(`const worker = new Worker(new URL("./worker-iife.js?hash=5f77c0c4", import.meta.url).href);
+        expect(result.text).to.be
+            .equal(`const worker = new Worker(new URL("./worker-iife.js?hash=5f77c0c4", import.meta.url).href);
 export {
   worker
 };
@@ -76,20 +77,21 @@ export {
     });
 
     it('should load a module worker with bundle', async () => {
-        const { outputFiles: [result, worker] } = await esbuild.build({
+        const {
+            outputFiles: [result, worker],
+        } = await esbuild.build({
             absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
                 resolveDir: fileURLToPath(new URL('.', import.meta.url)),
                 sourcefile: fileURLToPath(import.meta.url),
-                contents: 'export const worker = new Worker(new URL(\'./worker.js\', import.meta.url), { type: "module" });',
+                contents:
+                    'export const worker = new Worker(new URL(\'./worker.js\', import.meta.url), { type: "module" });',
             },
             format: 'esm',
             outdir: 'out',
             bundle: true,
             write: false,
-            plugins: [
-                workerPlugin(),
-            ],
+            plugins: [workerPlugin()],
         });
 
         expect(result.text).to.be.equal(`// test.spec.js
@@ -113,20 +115,20 @@ postMessage("message");
             stdin: {
                 resolveDir: fileURLToPath(new URL('.', import.meta.url)),
                 sourcefile: fileURLToPath(import.meta.url),
-                contents: 'export const worker = new Worker(new URL(\'./worker.js\', import.meta.url), { type: "module" });',
+                contents:
+                    'export const worker = new Worker(new URL(\'./worker.js\', import.meta.url), { type: "module" });',
             },
             format: 'esm',
             outdir: 'out',
             bundle: false,
             write: false,
-            plugins: [
-                workerPlugin(),
-            ],
+            plugins: [workerPlugin()],
         });
 
         const [result, worker] = outputFiles;
 
-        expect(result.text).to.be.equal(`const worker = new Worker(new URL("./worker.js?hash=5a665960", import.meta.url).href, { type: "module" });
+        expect(result.text).to.be
+            .equal(`const worker = new Worker(new URL("./worker.js?hash=5a665960", import.meta.url).href, { type: "module" });
 export {
   worker
 };
@@ -138,20 +140,20 @@ postMessage("message");
     });
 
     it('should proxy a worker request', async () => {
-        const { outputFiles: [result, worker] } = await esbuild.build({
+        const {
+            outputFiles: [result, worker],
+        } = await esbuild.build({
             absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
                 resolveDir: fileURLToPath(new URL('.', import.meta.url)),
                 sourcefile: fileURLToPath(import.meta.url),
-                contents: 'export const worker = new Worker(new URL(\'./worker.js\', import.meta.url));',
+                contents: "export const worker = new Worker(new URL('./worker.js', import.meta.url));",
             },
             format: 'esm',
             outdir: 'out',
             bundle: true,
             write: false,
-            plugins: [
-                workerPlugin({ proxy: true }),
-            ],
+            plugins: [workerPlugin({ proxy: true })],
         });
 
         expect(result.text).to.be.equal(`// test.spec.js
@@ -177,7 +179,9 @@ export {
     });
 
     it('should proxy an unknown worker request', async () => {
-        const { outputFiles: [result] } = await esbuild.build({
+        const {
+            outputFiles: [result],
+        } = await esbuild.build({
             absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
                 resolveDir: fileURLToPath(new URL('.', import.meta.url)),
@@ -188,9 +192,7 @@ export {
             outdir: 'out',
             bundle: true,
             write: false,
-            plugins: [
-                workerPlugin({ proxy: true }),
-            ],
+            plugins: [workerPlugin({ proxy: true })],
         });
 
         expect(result.text).to.be.equal(`// test.spec.js
@@ -206,7 +208,9 @@ export {
     });
 
     it('should skip unknown worker class', async () => {
-        const { outputFiles: [result] } = await esbuild.build({
+        const {
+            outputFiles: [result],
+        } = await esbuild.build({
             absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
                 resolveDir: fileURLToPath(new URL('.', import.meta.url)),
@@ -218,9 +222,7 @@ export const fakeWorker = new ctx.Worker(new URL('./worker.js', import.meta.url)
             outdir: 'out',
             bundle: true,
             write: false,
-            plugins: [
-                workerPlugin(),
-            ],
+            plugins: [workerPlugin()],
         });
 
         expect(result.text).to.be.equal(`// test.spec.js
@@ -234,7 +236,9 @@ export {
     });
 
     it('should detect local Worker definitions', async () => {
-        const { outputFiles: [result, worker] } = await esbuild.build({
+        const {
+            outputFiles: [result, worker],
+        } = await esbuild.build({
             absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
                 resolveDir: fileURLToPath(new URL('.', import.meta.url)),
@@ -247,9 +251,7 @@ export const worker = new window.Worker(new URL('./worker.js', import.meta.url))
             outdir: 'out',
             bundle: true,
             write: false,
-            plugins: [
-                workerPlugin(),
-            ],
+            plugins: [workerPlugin()],
         });
 
         expect(result.text).to.be.equal(`// test.spec.js
@@ -275,21 +277,21 @@ export {
     });
 
     it('should inline worker with iife format', async () => {
-        const { outputFiles: [result] } = await esbuild.build({
+        const {
+            outputFiles: [result],
+        } = await esbuild.build({
             absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
                 resolveDir: fileURLToPath(new URL('.', import.meta.url)),
                 sourcefile: fileURLToPath(import.meta.url),
-                contents: 'export const worker = new Worker(new URL(\'./worker.js\', import.meta.url));',
+                contents: "export const worker = new Worker(new URL('./worker.js', import.meta.url));",
             },
             format: 'iife',
             platform: 'browser',
             outdir: 'out',
             bundle: true,
             write: false,
-            plugins: [
-                workerPlugin(),
-            ],
+            plugins: [workerPlugin()],
         });
 
         expect(result.text).to.be.equal(`(() => {

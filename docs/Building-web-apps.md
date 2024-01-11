@@ -1,6 +1,6 @@
 # Building web apps
 
-Esbuild supports out of the box bundling for JavaScript and CSS. RNA introduces a plugin for HTML entrypoints in order to bundle Single Page Applications collecting scripts, styles, assets, icons and manifest. JavaScript and CSS sources are bundled the same way as they are used as entrypoints. 
+Esbuild supports out of the box bundling for JavaScript and CSS. RNA introduces a plugin for HTML entrypoints in order to bundle Single Page Applications collecting scripts, styles, assets, icons and manifest. JavaScript and CSS sources are bundled the same way as they are used as entrypoints.
 
 ## Setup
 
@@ -42,14 +42,20 @@ There are two kinds of script: plain and module.
 or external:
 
 ```html
-<script type="module" src="js/index.js"></script>
+<script
+    type="module"
+    src="js/index.js"></script>
 ```
 
 External files are regularly bundled, while inline scripts are loaded and builded as virtual modules. At the end, the will both result in externally loaded `esm` modules and `es2017` target:
 
 ```html
-<script type="module" src="js/inline-XXXXXX.js"></script>
-<script type="module" src="js/index-XXXXXX.js"></script>
+<script
+    type="module"
+    src="js/inline-XXXXXX.js"></script>
+<script
+    type="module"
+    src="js/index-XXXXXX.js"></script>
 ```
 
 **Plain scripts** can also be inlined:
@@ -75,7 +81,9 @@ Styles can be imported as file using a `<link rel="stylesheet">` or inlined usin
 For example:
 
 ```html
-<link rel="stylesheet" href="style/style.css">
+<link
+    rel="stylesheet"
+    href="style/style.css" />
 
 <style>
     @import url('normalize.css');
@@ -89,10 +97,15 @@ For example:
 will output
 
 ```html
-<link rel="stylesheet" href="style/style-XXXXX.css">
+<link
+    rel="stylesheet"
+    href="style/style-XXXXX.css" />
 
 <style>
-    body { margin: 0; padding: 0 };
+    body {
+        margin: 0;
+        padding: 0;
+    }
 
     /* other stuff */
 
@@ -105,40 +118,85 @@ will output
 
 ## Icons
 
-Browsers have various support for favicons and *added-to-home* websites. If a `rel="icon"` is defined in the HTML file, RNA will generate common icon files as well as their references:
+Browsers have various support for favicons and _added-to-home_ websites. If a `rel="icon"` is defined in the HTML file, RNA will generate common icon files as well as their references:
 
 ```html
-<link rel="icon" href="icon.png">
+<link
+    rel="icon"
+    href="icon.png" />
 ```
 
 becomes
 
 ```html
-<link rel="icon" sizes="16x16" href="icons/favicon-16x16.png">
-<link rel="icon" sizes="32x32" href="icons/favicon-32x32.png">
-<link rel="icon" sizes="48x48" href="icons/favicon-48x48.png">
-<link rel="shortcut icon" href="icons/favicon-196x196.png">
-<link rel="icon" sizes="196x196" href="icons/favicon-196x196.png">
-<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
-<link rel="apple-touch-icon" sizes="167x167" href="icons/apple-touch-icon-ipad.png">
+<link
+    rel="icon"
+    sizes="16x16"
+    href="icons/favicon-16x16.png" />
+<link
+    rel="icon"
+    sizes="32x32"
+    href="icons/favicon-32x32.png" />
+<link
+    rel="icon"
+    sizes="48x48"
+    href="icons/favicon-48x48.png" />
+<link
+    rel="shortcut icon"
+    href="icons/favicon-196x196.png" />
+<link
+    rel="icon"
+    sizes="196x196"
+    href="icons/favicon-196x196.png" />
+<link
+    rel="apple-touch-icon"
+    sizes="180x180"
+    href="icons/apple-touch-icon.png" />
+<link
+    rel="apple-touch-icon"
+    sizes="167x167"
+    href="icons/apple-touch-icon-ipad.png" />
 ```
 
 You can also instruct RNA to generate iOS launch screens using the icon by adding the `apple-touch-startup-image` to the rel list:
 
 ```html
-<link rel="icon apple-touch-startup-image" href="icon.png">
+<link
+    rel="icon apple-touch-startup-image"
+    href="icon.png" />
 ```
 
 adds
 
 ```html
-<link rel="apple-touch-startup-image" media="..." href="icons/apple-launch-iphonex.png">
-<link rel="apple-touch-startup-image" media="..." href="icons/apple-launch-iphone8.png">
-<link rel="apple-touch-startup-image" media="..." href="icons/apple-launch-iphone8-plus.png">
-<link rel="apple-touch-startup-image" media="..." href="icons/apple-launch-iphone5.png">
-<link rel="apple-touch-startup-image" media="..." href="icons/apple-launch-ipadair.png">
-<link rel="apple-touch-startup-image" media="..." href="icons/apple-launch-ipadpro10.png">
-<link rel="apple-touch-startup-image" media="..." href="icons/apple-launch-ipadpro12.png">
+<link
+    rel="apple-touch-startup-image"
+    media="..."
+    href="icons/apple-launch-iphonex.png" />
+<link
+    rel="apple-touch-startup-image"
+    media="..."
+    href="icons/apple-launch-iphone8.png" />
+<link
+    rel="apple-touch-startup-image"
+    media="..."
+    href="icons/apple-launch-iphone8-plus.png" />
+<link
+    rel="apple-touch-startup-image"
+    media="..."
+    href="icons/apple-launch-iphone5.png" />
+<link
+    rel="apple-touch-startup-image"
+    media="..."
+    href="icons/apple-launch-ipadair.png" />
+<link
+    rel="apple-touch-startup-image"
+    media="..."
+    href="icons/apple-launch-ipadpro10.png" />
+<link
+    rel="apple-touch-startup-image"
+    media="..."
+    href="icons/apple-launch-ipadpro12.png" />
 ```
 
 ## Web manifest
@@ -148,7 +206,9 @@ RNA can update a [Web manifest](https://developer.mozilla.org/en-US/docs/Web/Man
 If the referenced manifest does not exists, RNA will start from a blank JSON file. Otherwise, it will update only missing fields.
 
 ```html
-<link rel="manifest" href="app.webmanifest">
+<link
+    rel="manifest"
+    href="app.webmanifest" />
 ```
 
 **app.webmanifest**
@@ -167,4 +227,3 @@ If the referenced manifest does not exists, RNA will start from a blank JSON fil
     icons,            // <link rel="icon" href="">
 }
 ```
-

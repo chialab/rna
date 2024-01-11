@@ -1,11 +1,13 @@
 import { fileURLToPath } from 'url';
-import esbuild from 'esbuild';
 import babelPlugin from '@chialab/esbuild-plugin-babel';
 import { expect } from 'chai';
+import esbuild from 'esbuild';
 
 describe('esbuild-plugin-babel', () => {
     it('should transform code to es5', async () => {
-        const { outputFiles: [result] } = await esbuild.build({
+        const {
+            outputFiles: [result],
+        } = await esbuild.build({
             absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
                 resolveDir: fileURLToPath(new URL('.', import.meta.url)),
@@ -16,9 +18,7 @@ describe('esbuild-plugin-babel', () => {
             format: 'esm',
             bundle: true,
             write: false,
-            plugins: [
-                babelPlugin(),
-            ],
+            plugins: [babelPlugin()],
         });
 
         expect(result.text).to.be.equal(`// test.spec.js
@@ -31,16 +31,16 @@ export {
     });
 
     it('should transform code using babel config', async () => {
-        const { outputFiles: [result] } = await esbuild.build({
+        const {
+            outputFiles: [result],
+        } = await esbuild.build({
             absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             entryPoints: [fileURLToPath(new URL('fixture/input.js', import.meta.url))],
             sourceRoot: fileURLToPath(new URL('fixture', import.meta.url)),
             format: 'esm',
             bundle: true,
             write: false,
-            plugins: [
-                babelPlugin(),
-            ],
+            plugins: [babelPlugin()],
         });
 
         expect(result.text).to.be.equal(`// fixture/input.js
@@ -53,7 +53,9 @@ export {
     });
 
     it('should transform using babel runtime', async () => {
-        const { outputFiles: [result] } = await esbuild.build({
+        const {
+            outputFiles: [result],
+        } = await esbuild.build({
             absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
                 resolveDir: fileURLToPath(new URL('.', import.meta.url)),
@@ -64,9 +66,7 @@ export {
             format: 'esm',
             bundle: false,
             write: false,
-            plugins: [
-                babelPlugin(),
-            ],
+            plugins: [babelPlugin()],
         });
 
         expect(result.text).to.be.equal(`import _asyncToGenerator from "@babel/runtime/helpers/esm/asyncToGenerator";
@@ -93,7 +93,9 @@ export {
     });
 
     it('should bundle babel runtime', async () => {
-        const { outputFiles: [result] } = await esbuild.build({
+        const {
+            outputFiles: [result],
+        } = await esbuild.build({
             absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
                 resolveDir: fileURLToPath(new URL('.', import.meta.url)),
@@ -104,9 +106,7 @@ export {
             format: 'esm',
             bundle: true,
             write: false,
-            plugins: [
-                babelPlugin(),
-            ],
+            plugins: [babelPlugin()],
         });
 
         expect(result.text).to.be.equal(`// ../../../node_modules/@babel/runtime/helpers/esm/typeof.js
@@ -185,7 +185,9 @@ export {
     });
 
     it('should convert tagget templates like jsx', async () => {
-        const { outputFiles: [result] } = await esbuild.build({
+        const {
+            outputFiles: [result],
+        } = await esbuild.build({
             absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
                 resolveDir: fileURLToPath(new URL('.', import.meta.url)),
@@ -197,9 +199,7 @@ export {
             bundle: true,
             write: false,
             jsxFactory: 'h',
-            plugins: [
-                babelPlugin(),
-            ],
+            plugins: [babelPlugin()],
         });
 
         expect(result.text).to.be.equal(`// test.spec.js

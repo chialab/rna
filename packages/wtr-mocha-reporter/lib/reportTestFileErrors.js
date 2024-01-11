@@ -25,7 +25,7 @@ export function reportTestFileErrors(logger, browserNames, sessionsForTestFile) 
 
     for (const session of sessionsForTestFile) {
         for (const error of session.errors) {
-            let report = reports.find(r => isSameError(r.error, error));
+            let report = reports.find((r) => isSameError(r.error, error));
             if (!report) {
                 report = {
                     testFile: session.testFile,

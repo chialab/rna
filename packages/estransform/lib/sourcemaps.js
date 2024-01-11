@@ -1,12 +1,13 @@
+import { Buffer } from 'buffer';
 import { readFile } from 'fs/promises';
 import { createRequire } from 'module';
 import path from 'path';
-import { Buffer } from 'buffer';
 
 const require = createRequire(import.meta.url);
 const SourceMapNode = require('@parcel/source-map').default;
 
-const SOURCEMAP_REGEX = /(?:(\/\*+\s*?sourceMappingURL\s*=)([\s\S]*?)(\*\/))|(?:(\/\/#?\s*?sourceMappingURL\s*=)(.*?)([\r\n]|$))/;
+const SOURCEMAP_REGEX =
+    /(?:(\/\*+\s*?sourceMappingURL\s*=)([\s\S]*?)(\*\/))|(?:(\/\/#?\s*?sourceMappingURL\s*=)(.*?)([\r\n]|$))/;
 
 /**
  * @typedef {Object} SourceMap
@@ -114,5 +115,8 @@ export function inlineSourcemap(code, sourceMap) {
         return `${code}\n//# sourceMappingURL=${url}\n`;
     }
 
-    return code.replace(SOURCEMAP_REGEX, (full, arg1, arg2, arg3, arg4, arg5, arg6) => `${arg1 || arg4}${url}${arg3 || arg6}`);
+    return code.replace(
+        SOURCEMAP_REGEX,
+        (full, arg1, arg2, arg3, arg4, arg5, arg6) => `${arg1 || arg4}${url}${arg3 || arg6}`
+    );
 }

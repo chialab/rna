@@ -1,17 +1,9 @@
+import { Buffer } from 'buffer';
 import path from 'path';
 import process from 'process';
-import { Buffer } from 'buffer';
 import { useRna } from '@chialab/esbuild-rna';
 
-const DEFAULT_TARGETS = [
-    'chrome 63',
-    'and_chr 63',
-    'firefox 67',
-    'edge 79',
-    'opera 50',
-    'safari 11.1',
-    'ios_saf 11.3',
-];
+const DEFAULT_TARGETS = ['chrome 63', 'and_chr 63', 'firefox 67', 'edge 79', 'opera 50', 'safari 11.1', 'ios_saf 11.3'];
 
 /**
  * @typedef {Partial<import('lightningcss').TransformOptions<{}>>} PluginOptions
@@ -22,7 +14,7 @@ const DEFAULT_TARGETS = [
  * @param {PluginOptions} options
  * @returns An esbuild plugin.
  */
-export default function(options = {}) {
+export default function (options = {}) {
     /**
      * @type {import('esbuild').Plugin}
      */
@@ -58,22 +50,24 @@ export default function(options = {}) {
                     sourceMap: true,
                 };
 
-                const result = await ((shouldBundle) ? bundleAsync({
-                    ...finalConfig,
-                    resolver: {
-                        async resolve(specifier, originatingFile) {
-                            const resolved = await build.resolve(specifier, {
-                                kind: 'import-rule',
-                                importer: originatingFile,
-                                namespace: 'file',
-                                resolveDir: path.dirname(originatingFile),
-                                pluginData: null,
-                            });
+                const result = await (shouldBundle
+                    ? bundleAsync({
+                          ...finalConfig,
+                          resolver: {
+                              async resolve(specifier, originatingFile) {
+                                  const resolved = await build.resolve(specifier, {
+                                      kind: 'import-rule',
+                                      importer: originatingFile,
+                                      namespace: 'file',
+                                      resolveDir: path.dirname(originatingFile),
+                                      pluginData: null,
+                                  });
 
-                            return resolved.path;
-                        },
-                    },
-                }) : transform(finalConfig));
+                                  return resolved.path;
+                              },
+                          },
+                      })
+                    : transform(finalConfig));
 
                 /**
                  * @type {import('source-map').RawSourceMap}
@@ -82,10 +76,14 @@ export default function(options = {}) {
                 if (sourceMap) {
                     const cwd = absWorkingDir || process.cwd();
                     const argsDir = path.dirname(args.path);
-                    sourceMap.sources = sourceMap.sources.map((source) => path.relative(argsDir, path.resolve(cwd, source)));
+                    sourceMap.sources = sourceMap.sources.map((source) =>
+                        path.relative(argsDir, path.resolve(cwd, source))
+                    );
                     sourceMap.file = '';
                 }
-                const sourceMapUrl = sourceMap && `data:application/json;base64,${Buffer.from(JSON.stringify(sourceMap)).toString('base64')}`;
+                const sourceMapUrl =
+                    sourceMap &&
+                    `data:application/json;base64,${Buffer.from(JSON.stringify(sourceMap)).toString('base64')}`;
                 const dependencies = (result.dependencies || [])
                     .filter(({ type }) => type === 'import')
                     .map(({ url }) => url);

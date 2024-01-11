@@ -9,11 +9,7 @@ esbuild.build({
     sourcemap: true,
     format: 'esm',
     platform: 'node',
-    external: [
-        'istanbul-reports',
-        'fsevents',
-        'yargs/yargs',
-    ],
+    external: ['istanbul-reports', 'fsevents', 'yargs/yargs'],
     banner: {
         js: `import { dirname as __pathDirname } from 'path';
 import { createRequire as __moduleCreateRequire } from 'module';

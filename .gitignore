@@ -14,3 +14,5 @@
 .nyc_output
 coverage
 tsconfig.tsbuildinfo
+docs/.vitepress/dist
+docs/.vitepress/cache

@@ -4,20 +4,20 @@ The [Web Dev Server](https://modern-web.dev/docs/dev-server/overview/) is a serv
 
 ## Features
 
-**From WDS**: 
+**From WDS**:
 
-* Cold start
-* Transform TypeScript, JSX and proposal via esbuild
-* Node modules resolution
-* Auto reload on change
-* Hot Module Replacement ([esm-hmr proposal](https://github.com/snowpackjs/esm-hmr))
-* SPA routing
+-   Cold start
+-   Transform TypeScript, JSX and proposal via esbuild
+-   Node modules resolution
+-   Auto reload on change
+-   Hot Module Replacement ([esm-hmr proposal](https://github.com/snowpackjs/esm-hmr))
+-   SPA routing
 
 **From RNA**:
 
-* CSS live reload
-* CSS `@import` modules resolution
-* cjs to esm converter on the fly
+-   CSS live reload
+-   CSS `@import` modules resolution
+-   cjs to esm converter on the fly
 
 ## Setup
 
@@ -64,13 +64,10 @@ For example, the following configuration:
 
 ```ts
 export default {
-    entrypoints: [
-        { input: 'webroot/index.js' },
-        { input: 'webroot/index.css' },
-    ],
+    entrypoints: [{ input: 'webroot/index.js' }, { input: 'webroot/index.css' }],
     format: 'esm',
     entrypointsPath: 'webroot/entrypoints.json',
-}
+};
 ```
 
 ```sh
@@ -87,13 +84,8 @@ will generate the **webroot/entrypoints.json** file with contents:
 {
     "index": {
         "format": "esm",
-        "js": [
-            "http://localhost:3000/__web-dev-server__web-socket.js",
-            "http://localhost:3000/index.js"
-        ],
-        "css": [
-            "http://localhost:3000/index.css"
-        ]
+        "js": ["http://localhost:3000/__web-dev-server__web-socket.js", "http://localhost:3000/index.js"],
+        "css": ["http://localhost:3000/index.css"]
     }
 }
 ```
@@ -112,4 +104,4 @@ Then, you can read this file and load resources in your PHP application:
 
 Here is a list of RNA-based helpers for common frameworks:
 
-* [RNA CakePHP](https://github.com/chialab/rna-cakephp)
+-   [RNA CakePHP](https://github.com/chialab/rna-cakephp)

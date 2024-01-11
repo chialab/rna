@@ -22,7 +22,6 @@ yarn add @chialab/rna-config-loader -D
 
 ```js
 import '@chialab/rna-config-loader';
-
 ```
 
 ---

@@ -1,13 +1,12 @@
 import path from 'path';
-import { TokenType, parse, walk } from '@chialab/estransform';
 import { useRna } from '@chialab/esbuild-rna';
+import { parse, TokenType, walk } from '@chialab/estransform';
 
 /**
  * A file loader plugin for esbuild for `require.resolve` statements.
  * @returns An esbuild plugin.
  */
-export default function() {
-
+export default function () {
     /**
      * @type {import('esbuild').Plugin}
      */
@@ -30,7 +29,15 @@ export default function() {
 
                 const { helpers, processor } = await parse(args.code, path.relative(workingDir, args.path));
                 await walk(processor, () => {
-                    if (!processor.matches5(TokenType.name, TokenType.dot, TokenType.name, TokenType.parenL, TokenType.string)) {
+                    if (
+                        !processor.matches5(
+                            TokenType.name,
+                            TokenType.dot,
+                            TokenType.name,
+                            TokenType.parenL,
+                            TokenType.string
+                        )
+                    ) {
                         return;
                     }
 
@@ -52,20 +59,22 @@ export default function() {
 
                     const stringToken = processor.currentToken();
                     const fileName = processor.stringValueForToken(stringToken);
-                    promises.push((async () => {
-                        const { path: resolvedFilePath } = await build.resolve(fileName, {
-                            kind: 'require-resolve',
-                            importer: args.path,
-                            resolveDir: path.dirname(args.path),
-                        });
-                        if (!resolvedFilePath) {
-                            return;
-                        }
+                    promises.push(
+                        (async () => {
+                            const { path: resolvedFilePath } = await build.resolve(fileName, {
+                                kind: 'require-resolve',
+                                importer: args.path,
+                                resolveDir: path.dirname(args.path),
+                            });
+                            if (!resolvedFilePath) {
+                                return;
+                            }
 
-                        const emittedFile = await build.emitFile(resolvedFilePath);
-                        const outputFile = build.resolveRelativePath(emittedFile.path);
-                        helpers.overwrite(stringToken.start, stringToken.end, `'${outputFile}'`);
-                    })());
+                            const emittedFile = await build.emitFile(resolvedFilePath);
+                            const outputFile = build.resolveRelativePath(emittedFile.path);
+                            helpers.overwrite(stringToken.start, stringToken.end, `'${outputFile}'`);
+                        })()
+                    );
                 });
 
                 await Promise.all(promises);

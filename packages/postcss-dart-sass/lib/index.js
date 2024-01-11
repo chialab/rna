@@ -17,58 +17,59 @@ async function mergeSourceMaps(...maps) {
     const generator = new SourceMapGenerator();
 
     // existing sourcemaps
-    const consumersPromise = Promise.all(maps.map(
-        map => new SourceMapConsumer(map)
-    ));
+    const consumersPromise = Promise.all(maps.map((map) => new SourceMapConsumer(map)));
 
     return consumersPromise
-        .then((consumers) => consumers.forEach((consumer) => {
-            consumer.eachMapping(
-                /**
-                 * @param {*} mapping
-                 */
-                (mapping) => {
-                    const originalPosition = originalPositionFor(mapping, consumers);
+        .then((consumers) =>
+            consumers.forEach((consumer) => {
+                consumer.eachMapping(
+                    /**
+                     * @param {*} mapping
+                     */
+                    (mapping) => {
+                        const originalPosition = originalPositionFor(mapping, consumers);
 
-                    if (originalPosition.line != null &&
-                        originalPosition.column != null &&
-                        originalPosition.source) {
-                        generator.addMapping({
-                            generated: {
-                                line: mapping.generatedLine,
-                                column: mapping.generatedColumn,
-                            },
-                            original: {
-                                line: Math.abs(originalPosition.line),
-                                column: Math.abs(originalPosition.column),
-                            },
-                            source: originalPosition.source,
-                            name: originalPosition.name || undefined,
-                        });
+                        if (
+                            originalPosition.line != null &&
+                            originalPosition.column != null &&
+                            originalPosition.source
+                        ) {
+                            generator.addMapping({
+                                generated: {
+                                    line: mapping.generatedLine,
+                                    column: mapping.generatedColumn,
+                                },
+                                original: {
+                                    line: Math.abs(originalPosition.line),
+                                    column: Math.abs(originalPosition.column),
+                                },
+                                source: originalPosition.source,
+                                name: originalPosition.name || undefined,
+                            });
+                        }
                     }
-                }
-            );
+                );
 
-            // copy each original source to the new sourcemap
-            consumer.sources.forEach(
-                /**
-                 * @param {*} source
-                 */
-                (source) => {
-                    (/** @type {*} */ (generator))._sources.add(source);
+                // copy each original source to the new sourcemap
+                consumer.sources.forEach(
+                    /**
+                     * @param {*} source
+                     */
+                    (source) => {
+                        /** @type {*} */ (generator)._sources.add(source);
 
-                    const content = consumer.sourceContentFor(source);
+                        const content = consumer.sourceContentFor(source);
 
-                    if (content !== null) {
-                        generator.setSourceContent(source, content);
+                        if (content !== null) {
+                            generator.setSourceContent(source, content);
+                        }
                     }
-                }
-            );
-        })).then(() => {
+                );
+            })
+        )
+        .then(() => {
             const mergedMap = generator.toJSON();
-            mergedMap.sources = mergedMap.sources.map(
-                (source) => source.replace(sassMatch, '')
-            );
+            mergedMap.sources = mergedMap.sources.map((source) => source.replace(sassMatch, ''));
 
             return mergedMap;
         });
@@ -90,18 +91,21 @@ function originalPositionFor(mapping, consumers) {
     };
 
     // special sass sources are mapped in reverse
-    consumers.slice(0).reverse().forEach((consumer) => {
-        const possiblePosition = consumer.originalPositionFor({
-            line: /** @type {number} */ (originalPosition.line),
-            column: /** @type {number} */ (originalPosition.column),
-        });
+    consumers
+        .slice(0)
+        .reverse()
+        .forEach((consumer) => {
+            const possiblePosition = consumer.originalPositionFor({
+                line: /** @type {number} */ (originalPosition.line),
+                column: /** @type {number} */ (originalPosition.column),
+            });
 
-        if (possiblePosition.source) {
-            if (sassMatch.test(possiblePosition.source)) {
-                originalPosition = possiblePosition;
+            if (possiblePosition.source) {
+                if (sassMatch.test(possiblePosition.source)) {
+                    originalPosition = possiblePosition;
+                }
             }
-        }
-    });
+        });
 
     consumers.forEach((consumer) => {
         const possiblePosition = consumer.originalPositionFor({
@@ -153,7 +157,7 @@ function getDeclFile(decl, filePath) {
  * A postcss plugin sass transpilation.
  * @param {PluginOptions} options
  */
-export default function(options = {}) {
+export default function (options = {}) {
     /**
      * @type {import('postcss').Plugin}
      */
@@ -185,7 +189,11 @@ export default function(options = {}) {
             const computedOptions = {
                 includePaths: [rootDir],
                 importer: [
-                    ...(Array.isArray(options.importer) ? options.importer : options.importer ? [options.importer] : []),
+                    ...(Array.isArray(options.importer)
+                        ? options.importer
+                        : options.importer
+                          ? [options.importer]
+                          : []),
                     sassResolver(rootDir),
                 ],
                 outputStyle: 'expanded',
@@ -203,24 +211,29 @@ export default function(options = {}) {
             /**
              * @type {import('sass').LegacyResult}
              */
-            const sassResult = await new Promise((resolve, reject) => render(computedOptions, (err, result) => {
-                if (err) {
-                    reject(err);
-                } else if (result) {
-                    resolve(result);
-                }
-            }));
+            const sassResult = await new Promise((resolve, reject) =>
+                render(computedOptions, (err, result) => {
+                    if (err) {
+                        reject(err);
+                    } else if (result) {
+                        resolve(result);
+                    }
+                })
+            );
             const sassCssOutput = sassResult.css.toString();
-            const sassSourcemap = JSON.parse((/** @type {Buffer} */ (sassResult.map)).toString());
-            const parsed = await parse(sassCssOutput.replace(/\/\*#[^*]+?\*\//g, (match) => ''.padStart(match.length, ' ')), {
-                ...result.opts,
-                map: {
-                    prev: await mergeSourceMaps(sassSourcemap),
-                    annotation: false,
-                    inline: false,
-                    sourcesContent: true,
-                },
-            });
+            const sassSourcemap = JSON.parse(/** @type {Buffer} */ (sassResult.map).toString());
+            const parsed = await parse(
+                sassCssOutput.replace(/\/\*#[^*]+?\*\//g, (match) => ''.padStart(match.length, ' ')),
+                {
+                    ...result.opts,
+                    map: {
+                        prev: await mergeSourceMaps(sassSourcemap),
+                        annotation: false,
+                        inline: false,
+                        sourcesContent: true,
+                    },
+                }
+            );
 
             if (outFile) {
                 /**
@@ -258,7 +271,10 @@ export default function(options = {}) {
                                 return;
                             }
 
-                            const resolvedImportPath = path.relative(path.dirname(outFile), path.resolve(path.dirname(originalFile), requestedImportPath));
+                            const resolvedImportPath = path.relative(
+                                path.dirname(outFile),
+                                path.resolve(path.dirname(originalFile), requestedImportPath)
+                            );
                             decl.value = decl.value.replace(match[0], `url('${resolvedImportPath}')`);
                         })
                     );

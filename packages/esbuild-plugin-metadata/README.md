@@ -21,8 +21,8 @@ yarn add @chialab/esbuild-plugin-metadata -D
 ## Usage
 
 ```js
-import esbuild from 'esbuild';
 import metadataPlugin from '@chialab/esbuild-plugin-metadata';
+import esbuild from 'esbuild';
 
 await esbuild.build({
     plugins: [

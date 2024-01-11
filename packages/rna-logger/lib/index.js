@@ -1,5 +1,5 @@
-import debug from 'debug';
 import chalk from 'chalk';
+import debug from 'debug';
 
 export const colors = chalk;
 
@@ -54,49 +54,77 @@ export function createLogger(name = 'rna') {
              */
             const format = (key, value) => (formatters[key] ? formatters[key](value) : `${value}`);
 
-            const columns = Object.keys(files)
-                .reduce((acc, key) => {
-                    const fileColumn = acc.filename = acc.filename || {
+            const columns = Object.keys(files).reduce((acc, key) => {
+                const fileColumn = (acc.filename = acc.filename || {
+                    values: [],
+                    length: 0,
+                });
+                fileColumn.values.push(key);
+                fileColumn.length = Math.max(fileColumn.length || 0, key.length);
+
+                const file = files[key];
+                properties.forEach((propKey) => {
+                    const realValue = file[propKey];
+                    const propValue = format(propKey, realValue);
+                    const propColumn = (acc[propKey] = acc[propKey] || {
                         values: [],
                         length: 0,
-                    };
-                    fileColumn.values.push(key);
-                    fileColumn.length = Math.max(fileColumn.length || 0, key.length);
-
-                    const file = files[key];
-                    properties.forEach((propKey) => {
-                        const realValue = file[propKey];
-                        const propValue = format(propKey, realValue);
-                        const propColumn = acc[propKey] = acc[propKey] || {
-                            values: [],
-                            length: 0,
-                            total: 0,
-                        };
-
-                        if (typeof realValue === 'number') {
-                            propColumn.total += realValue;
-                            propColumn.length = Math.max(propColumn.length || 0, format(propKey, propColumn.total).length);
-                        }
-
-                        propColumn.values.push(propValue);
-                        propColumn.length = Math.max(propColumn.length || 0, propValue.length);
+                        total: 0,
                     });
 
-                    return acc;
-                }, /** @type {*} */({}));
+                    if (typeof realValue === 'number') {
+                        propColumn.total += realValue;
+                        propColumn.length = Math.max(propColumn.length || 0, format(propKey, propColumn.total).length);
+                    }
 
-            this.log(Object.keys(columns).map((name) => colors.white(name[0].toUpperCase() + name.substr(1).padEnd(columns[name].length - 1, ' '))).join('\t'));
+                    propColumn.values.push(propValue);
+                    propColumn.length = Math.max(propColumn.length || 0, propValue.length);
+                });
+
+                return acc;
+            }, /** @type {*} */ ({}));
+
+            this.log(
+                Object.keys(columns)
+                    .map((name) =>
+                        colors.white(name[0].toUpperCase() + name.substr(1).padEnd(columns[name].length - 1, ' '))
+                    )
+                    .join('\t')
+            );
 
             const fileNames = Object.keys(files);
             fileNames.forEach((fileName, index) => {
-                this.log(Object.keys(columns).map((name, colIndex) => (colIndex === 0 ? colors.hex('#ef7d00') : colors.gray)((columns[name].values[index] || '').padEnd(columns[name].length, ' '))).join('\t'));
+                this.log(
+                    Object.keys(columns)
+                        .map((name, colIndex) =>
+                            (colIndex === 0 ? colors.hex('#ef7d00') : colors.gray)(
+                                (columns[name].values[index] || '').padEnd(columns[name].length, ' ')
+                            )
+                        )
+                        .join('\t')
+                );
             });
 
             if (fileNames.length > 1) {
                 const hasTotal = Object.keys(columns).some((name) => columns[name].total);
                 if (hasTotal) {
-                    this.log(Object.keys(columns).map((name) => ''.padEnd(columns[name].length, columns[name].total ? '—' : ' ')).join('\t'));
-                    this.log(Object.keys(columns).map((name) => colors.yellow.bold((columns[name].total ? format(name, columns[name].total) : '').padEnd(columns[name].length, ' '))).join('\t'));
+                    this.log(
+                        Object.keys(columns)
+                            .map((name) => ''.padEnd(columns[name].length, columns[name].total ? '—' : ' '))
+                            .join('\t')
+                    );
+                    this.log(
+                        Object.keys(columns)
+                            .map((name) =>
+                                colors.yellow.bold(
+                                    (columns[name].total ? format(name, columns[name].total) : '').padEnd(
+                                        columns[name].length,
+                                        ' '
+                                    )
+                                )
+                            )
+                            .join('\t')
+                    );
                 }
             }
             this.log();

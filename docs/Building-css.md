@@ -38,10 +38,10 @@ The `@import` statements will recursively collect and transpile CSS files.
 You may also want to import CSS libraries like bootstap, materialize or normalize. RNA can bundle CSS modules installed as dependencies in the node_modules, both referring to single files or using the `style` field in the package.json.
 
 ```css
-@import url('./path/to.css');       /* 🙂 */
-@import url('path/to/vendor.css');  /* 😁 */
-@import url('@css/my-css-lib');     /* 🤩 */
-@import url('jquery');              /* 🤕 */
+@import url('./path/to.css'); /* 🙂 */
+@import url('path/to/vendor.css'); /* 😁 */
+@import url('@css/my-css-lib'); /* 🤩 */
+@import url('jquery'); /* 🤕 */
 ```
 
 ## PostCSS
@@ -53,7 +53,7 @@ RNA already uses it to convert dependencies imports to relative references in or
 ### Chialab PostCSS Preset
 
 We built a [custom PostCSS preset](https://www.npmjs.com/package/@chialab/postcss-preset-chialab) with common rules we use in every project.  
-You can install it using npm  or yarn:
+You can install it using npm or yarn:
 
 ```sh
 npm i @chialab/postcss-preset-chialab -D
@@ -99,4 +99,5 @@ npm i -D @chialab/stylelint-config
 ```
 
 Also, do not forget to install the linter extension for your IDE:
-* [VSCode](https://marketplace.visualstudio.com/items?itemName=stylelint.vscode-stylelint)
+
+-   [VSCode](https://marketplace.visualstudio.com/items?itemName=stylelint.vscode-stylelint)

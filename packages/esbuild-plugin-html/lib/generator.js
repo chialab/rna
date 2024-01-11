@@ -1,16 +1,11 @@
 import configure from '@jimp/custom';
 import jpeg from '@jimp/jpeg';
-import png from '@jimp/png';
 import resize from '@jimp/plugin-resize';
+import png from '@jimp/png';
 
 const Jimp = configure({
-    types: [
-        jpeg,
-        png,
-    ],
-    plugins: [
-        resize,
-    ],
+    types: [jpeg, png],
+    plugins: [resize],
 });
 
 /**

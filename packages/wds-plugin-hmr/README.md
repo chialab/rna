@@ -21,13 +21,11 @@ yarn add @chialab/wds-plugin-hmr -D
 ## Usage
 
 ```js
-import { startDevServer } from '@web/dev-server';
 import { hmrPlugin } from '@chialab/wds-plugin-hmr';
+import { startDevServer } from '@web/dev-server';
 
 await startDevServer({
-    plugins: [
-        hmrPlugin(),
-    ],
+    plugins: [hmrPlugin()],
 });
 ```
 

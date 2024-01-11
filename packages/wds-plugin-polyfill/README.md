@@ -21,8 +21,8 @@ yarn add @chialab/wds-plugin-polyfill -D
 ## Usage
 
 ```js
-import { startDevServer } from '@web/dev-server';
 import { polyfillPlugin } from '@chialab/wds-plugin-polyfill';
+import { startDevServer } from '@web/dev-server';
 
 await startDevServer({
     plugins: [

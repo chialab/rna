@@ -32,13 +32,11 @@ export function defineEnvVariables() {
     return definitions;
 }
 
-
 /**
  * Pass environment variables to esbuild.
  * @returns An esbuild plugin.
  */
-export default function() {
-
+export default function () {
     /**
      * @type {import('esbuild').Plugin}
      */

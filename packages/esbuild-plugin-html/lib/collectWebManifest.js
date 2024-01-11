@@ -1,8 +1,8 @@
-import path from 'path';
 import { Buffer } from 'buffer';
+import path from 'path';
 import { isRelativeUrl } from '@chialab/node-resolve';
-import Jimp from './generator.js';
 import { generateIcon } from './generateIcon.js';
+import Jimp from './generator.js';
 
 const MANIFEST_ICONS = [
     {
@@ -59,7 +59,7 @@ export async function collectWebManifest($, dom, options, helpers) {
         return [];
     }
 
-    const manifestHref = /** @type {string} */($(element).attr('href'));
+    const manifestHref = /** @type {string} */ ($(element).attr('href'));
     if (!isRelativeUrl(manifestHref)) {
         return [];
     }
@@ -136,8 +136,10 @@ export async function collectWebManifest($, dom, options, helpers) {
 
     $(element).attr('href', outputPath);
 
-    return [{
-        ...file,
-        watchFiles: [entryPoint],
-    }];
+    return [
+        {
+            ...file,
+            watchFiles: [entryPoint],
+        },
+    ];
 }

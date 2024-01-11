@@ -21,13 +21,11 @@ yarn add @chialab/esbuild-plugin-any-file -D
 ## Usage
 
 ```js
-import esbuild from 'esbuild';
 import filePlugin from '@chialab/esbuild-plugin-any-file';
+import esbuild from 'esbuild';
 
 await esbuild.build({
-    plugins: [
-        filePlugin(),
-    ],
+    plugins: [filePlugin()],
 });
 ```
 

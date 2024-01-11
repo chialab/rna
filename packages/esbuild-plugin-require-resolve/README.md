@@ -27,13 +27,11 @@ yarn add @chialab/esbuild-plugin-require-resolve -D
 ## Usage
 
 ```js
-import esbuild from 'esbuild';
 import requireResolvePlugin from '@chialab/esbuild-plugin-require-resolve';
+import esbuild from 'esbuild';
 
 await esbuild.build({
-    plugins: [
-        requireResolvePlugin(),
-    ],
+    plugins: [requireResolvePlugin()],
 });
 ```
 

@@ -9,20 +9,23 @@ import { request } from 'https';
 function fetch(url, options, data) {
     return new Promise((resolve, reject) => {
         const parsed = new URL(url);
-        const req = request({
-            ...options,
-            auth: parsed.username ? `${parsed.username}:${parsed.password}` : null,
-            hostname: parsed.hostname,
-            path: parsed.pathname,
-        }, (res) => {
-            let rawData = '';
-            res.on('data', (chunk) => {
-                rawData += chunk;
-            });
-            res.on('end', () => {
-                resolve(rawData);
-            });
-        });
+        const req = request(
+            {
+                ...options,
+                auth: parsed.username ? `${parsed.username}:${parsed.password}` : null,
+                hostname: parsed.hostname,
+                path: parsed.pathname,
+            },
+            (res) => {
+                let rawData = '';
+                res.on('data', (chunk) => {
+                    rawData += chunk;
+                });
+                res.on('end', () => {
+                    resolve(rawData);
+                });
+            }
+        );
 
         req.on('error', (error) => {
             reject(error);
@@ -54,8 +57,8 @@ export function sauceReporter({ user, key }) {
             updates = [];
             args.browsers.forEach((browser) => {
                 const stop = browser.stop;
-                browser.stop = async function() {
-                    const driver = (/** @type {*} */ (this)).driver;
+                browser.stop = async function () {
+                    const driver = /** @type {*} */ (this).driver;
                     const sessions = args.sessions.forBrowser(this);
 
                     let passed = true;
@@ -64,14 +67,18 @@ export function sauceReporter({ user, key }) {
                             passed = false;
                         }
                     }
-                    await fetch(`https://${user}:${key}@saucelabs.com/rest/v1/${user}/jobs/${driver.sessionId}`, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
+                    await fetch(
+                        `https://${user}:${key}@saucelabs.com/rest/v1/${user}/jobs/${driver.sessionId}`,
+                        {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
                         },
-                    }, JSON.stringify({
-                        passed,
-                    }));
+                        JSON.stringify({
+                            passed,
+                        })
+                    );
 
                     if (stop) {
                         return stop.call(this);

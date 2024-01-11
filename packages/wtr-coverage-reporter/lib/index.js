@@ -33,7 +33,7 @@ export function coverageReporter(report = 'text-summary') {
                 coverageMap: testCoverage.coverageMap,
             });
             const writeFile = context.writer.writeFile;
-            context.writer.writeFile = function(file) {
+            context.writer.writeFile = function (file) {
                 const content = writeFile.call(this, file);
                 content.println = logger.log.bind(logger);
 

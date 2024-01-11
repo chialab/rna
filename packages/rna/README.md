@@ -18,17 +18,17 @@
 
 The `@chialab/rna` contains only the core of the RNA cli and the bundler.
 
-| Command | Description | Module |
-| ------- | ----------- | ------ |
+| Command | Description                                          | Module                                                                     |
+| ------- | ---------------------------------------------------- | -------------------------------------------------------------------------- |
 | `build` | A JavaScript, CSS and HTML bundler based on esbuild. | [@chialab/rna-bundler](https://www.npmjs.com/package/@chialab/rna-bundler) |
 
 In order to make other commands work, you need to install each dependency.
 
-| Command | Description | Module |
-| ------- | ----------- | ------ |
-| `serve` | A webapp server based on Web Dev Server. | [@chialab/rna-dev-server](https://www.npmjs.com/package/@chialab/rna-dev-server) |
+| Command        | Description                                          | Module                                                                                             |
+| -------------- | ---------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `serve`        | A webapp server based on Web Dev Server.             | [@chialab/rna-dev-server](https://www.npmjs.com/package/@chialab/rna-dev-server)                   |
 | `test:browser` | A test runner for browsers based on Web Test Runner. | [@chialab/rna-browser-test-runner](https://www.npmjs.com/package/@chialab/rna-browser-test-runner) |
-| `test:node` | A test runner for node based on mocha. | [@chialab/rna-node-test-runner](https://www.npmjs.com/package/@chialab/rna-node-test-runner) |
+| `test:node`    | A test runner for node based on mocha.               | [@chialab/rna-node-test-runner](https://www.npmjs.com/package/@chialab/rna-node-test-runner)       |
 
 #### Common module
 

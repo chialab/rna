@@ -1,12 +1,12 @@
+import { readFile } from 'fs/promises';
 import path from 'path';
 import process from 'process';
-import { readFile } from 'fs/promises';
 import { pkgUp } from '@chialab/node-resolve';
-import { createSauceLabsLauncher } from '@web/test-runner-saucelabs';
 import { test as coreTest } from '@chialab/rna-browser-test-runner';
 import { mochaReporter } from '@chialab/wtr-mocha-reporter';
+import { createSauceLabsLauncher } from '@web/test-runner-saucelabs';
 import { fixLauncher } from './fixLauncher.js';
-import { testName, testJob } from './info.js';
+import { testJob, testName } from './info.js';
 import { sauceReporter } from './reporter.js';
 
 /**
@@ -34,39 +34,28 @@ export async function test(config, sauceOptions, logger) {
      */
     const browsers = [];
     if (!config.browsers || config.browsers.length == 0) {
-        browsers.push(
-            ...(JSON.parse(await readFile(new URL('./browsers/modern.json', import.meta.url), 'utf-8')))
-        );
+        browsers.push(...JSON.parse(await readFile(new URL('./browsers/modern.json', import.meta.url), 'utf-8')));
     }
     if (Array.isArray(config.browsers)) {
-        let list = [...(/** @type {string[]} */ (config.browsers))];
+        let list = [.../** @type {string[]} */ (config.browsers)];
         if (list.includes('modern')) {
-            browsers.push(
-                ...(JSON.parse(await readFile(new URL('./browsers/modern.json', import.meta.url), 'utf-8')))
-            );
+            browsers.push(...JSON.parse(await readFile(new URL('./browsers/modern.json', import.meta.url), 'utf-8')));
             list = list.filter((entry) => entry !== 'modern');
         }
         if (list.includes('legacy')) {
-            browsers.push(
-                ...(JSON.parse(await readFile(new URL('./browsers/legacy.json', import.meta.url), 'utf-8')))
-            );
+            browsers.push(...JSON.parse(await readFile(new URL('./browsers/legacy.json', import.meta.url), 'utf-8')));
             list = list.filter((entry) => entry !== 'legacy');
         }
 
         browsers.push(...list);
     }
 
-    config.browsers = [
-        ...browsers.map((browser) => fixLauncher(sauceLabsLauncher(getSauceCapabilities(browser)))),
-    ];
+    config.browsers = [...browsers.map((browser) => fixLauncher(sauceLabsLauncher(getSauceCapabilities(browser))))];
     config.browserLogs = false;
     config.concurrency = 1;
     config.testsStartTimeout = Math.max(3 * 60 * 1000, config.testsStartTimeout || 0);
     config.testsFinishTimeout = Math.max(3 * 60 * 1000, config.testsFinishTimeout || 0);
-    config.reporters = [
-        mochaReporter(),
-        sauceReporter(sauceOptions),
-    ];
+    config.reporters = [mochaReporter(), sauceReporter(sauceOptions)];
 
     return coreTest(config, logger);
 }

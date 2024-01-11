@@ -1,5 +1,12 @@
 import path from 'path';
-import { HELPER_MODULE, transform, maybeCommonjsModule, maybeMixedModule, wrapDynamicRequire, createRequireHelperModule } from '@chialab/cjs-to-esm';
+import {
+    createRequireHelperModule,
+    HELPER_MODULE,
+    maybeCommonjsModule,
+    maybeMixedModule,
+    transform,
+    wrapDynamicRequire,
+} from '@chialab/cjs-to-esm';
 import { useRna } from '@chialab/esbuild-rna';
 
 /**
@@ -10,7 +17,7 @@ import { useRna } from '@chialab/esbuild-rna';
  * @param {PluginOptions} options
  * @returns An esbuild plugin.
  */
-export default function({ helperModule } = {}) {
+export default function ({ helperModule } = {}) {
     /**
      * @type {import('esbuild').Plugin}
      */

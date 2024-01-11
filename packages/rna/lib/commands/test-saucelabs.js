@@ -1,5 +1,5 @@
 import process from 'process';
-import { readConfigFile, mergeConfig, locateConfigFile } from '@chialab/rna-config-loader';
+import { locateConfigFile, mergeConfig, readConfigFile } from '@chialab/rna-config-loader';
 import { createLogger } from '@chialab/rna-logger';
 import { test } from '@chialab/rna-saucelabs-test-runner';
 
@@ -20,10 +20,12 @@ import { test } from '@chialab/rna-saucelabs-test-runner';
 /**
  * @param {import('commander').Command} program
  */
-export default function(program) {
+export default function (program) {
     program
         .command('test:saucelabs [specs...]')
-        .description('Start a Saucelabs browser test runner (https://modern-web.dev/docs/test-runner/overview/) based on the web dev server. It uses mocha (https://mochajs.org/) but you still need to import an assertion library (recommended https://open-wc.org/docs/testing/testing-package/).')
+        .description(
+            'Start a Saucelabs browser test runner (https://modern-web.dev/docs/test-runner/overview/) based on the web dev server. It uses mocha (https://mochajs.org/) but you still need to import an assertion library (recommended https://open-wc.org/docs/testing/testing-package/).'
+        )
         .option('-P, --port <number>', 'dev server port', parseInt)
         .option('--browsers [browsers...]', 'saucelabs browsers list')
         .option('--watch', 'watch test files')
@@ -39,30 +41,40 @@ export default function(program) {
              * @param {string[]} specs
              * @param {TestSaucelabsCommandOptions} options
              */
-            async (specs, {
-                port,
-                watch,
-                concurrency,
-                coverage,
-                manual,
-                open,
-                browsers,
-                config: configFile,
-                user = process.env.SAUCE_USERNAME,
-                key = process.env.SAUCE_ACCESS_KEY,
-            }) => {
+            async (
+                specs,
+                {
+                    port,
+                    watch,
+                    concurrency,
+                    coverage,
+                    manual,
+                    open,
+                    browsers,
+                    config: configFile,
+                    user = process.env.SAUCE_USERNAME,
+                    key = process.env.SAUCE_ACCESS_KEY,
+                }
+            ) => {
                 if (!user) {
-                    throw new Error('Missing saucelabs username. Did you forget to set the `SAUCE_USERNAME` environment variable?');
+                    throw new Error(
+                        'Missing saucelabs username. Did you forget to set the `SAUCE_USERNAME` environment variable?'
+                    );
                 }
                 if (!key) {
-                    throw new Error('Missing saucelabs access key. Did you forget to set the `SAUCE_ACCESS_KEY` environment variable?');
+                    throw new Error(
+                        'Missing saucelabs access key. Did you forget to set the `SAUCE_ACCESS_KEY` environment variable?'
+                    );
                 }
 
                 const root = process.cwd();
-                configFile = configFile || await locateConfigFile();
+                configFile = configFile || (await locateConfigFile());
 
                 const logger = createLogger();
-                const config = mergeConfig({ root }, configFile ? await readConfigFile(configFile, { root }, 'serve') : {});
+                const config = mergeConfig(
+                    { root },
+                    configFile ? await readConfigFile(configFile, { root }, 'serve') : {}
+                );
 
                 /**
                  * @type {import('@chialab/rna-browser-test-runner').TestRunnerConfig}

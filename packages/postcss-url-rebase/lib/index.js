@@ -1,6 +1,6 @@
 import path from 'path';
 import process from 'process';
-import { styleResolve, isRelativeUrl } from '@chialab/node-resolve';
+import { isRelativeUrl, styleResolve } from '@chialab/node-resolve';
 
 /**
  * @typedef {Object} UrlRebasePluginOptions
@@ -34,10 +34,7 @@ export default function urlRebase({ root = process.cwd(), relative, transform, a
                 /**
                  * @type {string|null}
                  */
-                let resolvedImportPath = source
-                    .replace(/^['"]/, '')
-                    .replace(/['"]$/, '')
-                    .replace(/^~/, '');
+                let resolvedImportPath = source.replace(/^['"]/, '').replace(/['"]$/, '').replace(/^~/, '');
 
                 if (!isRelativeUrl(resolvedImportPath)) {
                     return;
@@ -79,7 +76,7 @@ export default function urlRebase({ root = process.cwd(), relative, transform, a
                 }
 
                 if (transform) {
-                    resolvedImportPath = await transform(resolvedImportPath, decl) || resolvedImportPath;
+                    resolvedImportPath = (await transform(resolvedImportPath, decl)) || resolvedImportPath;
                 } else if (relative && decl.source?.input.file && path.isAbsolute(resolvedImportPath)) {
                     resolvedImportPath = `./${path.relative(decl.source.input.file, resolvedImportPath)}`;
                 }

@@ -1,12 +1,12 @@
 import { stat } from 'fs/promises';
 import path from 'path';
 import process from 'process';
-import { readConfigFile, mergeConfig, locateConfigFile } from '@chialab/rna-config-loader';
 import { DevServer, getPort, portNumbers } from '@chialab/es-dev-server';
+import { locateConfigFile, mergeConfig, readConfigFile } from '@chialab/rna-config-loader';
+import nodeResolvePlugin from '@chialab/wds-plugin-node-resolve';
+import { entrypointsPlugin, rnaPlugin } from '@chialab/wds-plugin-rna';
 import cors from '@koa/cors';
 import range from 'koa-range';
-import nodeResolvePlugin from '@chialab/wds-plugin-node-resolve';
-import { rnaPlugin, entrypointsPlugin } from '@chialab/wds-plugin-rna';
 
 /**
  * @typedef {Object} DevServerCoreConfig
@@ -33,7 +33,7 @@ import { rnaPlugin, entrypointsPlugin } from '@chialab/wds-plugin-rna';
  * @returns {Promise<DevServerConfig>}
  */
 export async function loadDevServerConfig(initialConfig = {}, configFile = undefined) {
-    configFile = configFile || await locateConfigFile();
+    configFile = configFile || (await locateConfigFile());
 
     const rootDir = initialConfig.rootDir || process.cwd();
 
@@ -54,9 +54,11 @@ export async function loadDevServerConfig(initialConfig = {}, configFile = undef
     try {
         if (!finalPlugins.some((p) => p.name === 'legacy')) {
             const { legacyPlugin } = await import('@chialab/wds-plugin-legacy');
-            finalPlugins.push(legacyPlugin({
-                minify: true,
-            }));
+            finalPlugins.push(
+                legacyPlugin({
+                    minify: true,
+                })
+            );
         }
     } catch (err) {
         //
@@ -119,25 +121,23 @@ export async function createDevServer(config, logger) {
         plugins.push(hmrPlugin(), hmrCssPlugin());
     }
 
-    const server = new DevServer({
-        appIndex: index ? appIndex : undefined,
-        ...config,
-        injectWebSocket: true,
-        hostname: config.hostname || 'localhost',
-        port: config.port || await getPort({
-            port: [
-                ...portNumbers(8080, 8090),
-                ...portNumbers(3000, 3100),
-            ],
-        }),
-        rootDir: root,
-        middleware: [
-            cors({ origin: '*' }),
-            range,
-            ...(config.middleware || []),
-        ],
-        plugins,
-    }, logger);
+    const server = new DevServer(
+        {
+            appIndex: index ? appIndex : undefined,
+            ...config,
+            injectWebSocket: true,
+            hostname: config.hostname || 'localhost',
+            port:
+                config.port ||
+                (await getPort({
+                    port: [...portNumbers(8080, 8090), ...portNumbers(3000, 3100)],
+                })),
+            rootDir: root,
+            middleware: [cors({ origin: '*' }), range, ...(config.middleware || [])],
+            plugins,
+        },
+        logger
+    );
 
     return server;
 }
@@ -150,10 +150,13 @@ export async function createDevServer(config, logger) {
  */
 export async function serve(config, logger) {
     const root = config.rootDir || process.cwd();
-    const server = await createDevServer({
-        ...config,
-        rootDir: root,
-    }, logger);
+    const server = await createDevServer(
+        {
+            ...config,
+            rootDir: root,
+        },
+        logger
+    );
 
     await server.start();
 

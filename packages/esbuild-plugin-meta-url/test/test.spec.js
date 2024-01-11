@@ -1,18 +1,20 @@
-import { fileURLToPath } from 'url';
 import path from 'path';
-import esbuild from 'esbuild';
+import { fileURLToPath } from 'url';
 import metaUrl from '@chialab/esbuild-plugin-meta-url';
 import virtual from '@chialab/esbuild-plugin-virtual';
 import { expect } from 'chai';
+import esbuild from 'esbuild';
 
 describe('esbuild-plugin-meta-url', () => {
     it('should load a file', async () => {
-        const { outputFiles: [result, file] } = await esbuild.build({
+        const {
+            outputFiles: [result, file],
+        } = await esbuild.build({
             absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
                 resolveDir: fileURLToPath(new URL('.', import.meta.url)),
                 sourcefile: fileURLToPath(import.meta.url),
-                contents: 'export const file = new URL(\'./file.txt\', import.meta.url);',
+                contents: "export const file = new URL('./file.txt', import.meta.url);",
             },
             format: 'esm',
             outdir: 'out',
@@ -22,9 +24,7 @@ describe('esbuild-plugin-meta-url', () => {
             },
             bundle: true,
             write: false,
-            plugins: [
-                metaUrl(),
-            ],
+            plugins: [metaUrl()],
         });
 
         expect(result.text).to.be.equal(`// test.spec.js
@@ -38,12 +38,14 @@ export {
     });
 
     it('should load a file that was part of another build', async () => {
-        const { outputFiles: [result, file] } = await esbuild.build({
+        const {
+            outputFiles: [result, file],
+        } = await esbuild.build({
             absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
                 resolveDir: fileURLToPath(new URL('.', import.meta.url)),
                 sourcefile: fileURLToPath(import.meta.url),
-                contents: 'export * from \'./file1.js\';export * from \'./file2.js\';',
+                contents: "export * from './file1.js';export * from './file2.js';",
             },
             assetNames: '[name]-[hash]',
             format: 'esm',
@@ -57,12 +59,12 @@ export {
                 virtual([
                     {
                         path: './file1.js',
-                        contents: 'export const file = new URL(\'./file.txt\', import.meta.url);',
+                        contents: "export const file = new URL('./file.txt', import.meta.url);",
                         loader: 'js',
                     },
                     {
                         path: './file2.js',
-                        contents: 'export const file2 = new URL(\'./file.txt\', import.meta.url);',
+                        contents: "export const file2 = new URL('./file.txt', import.meta.url);",
                         loader: 'js',
                     },
                 ]),
@@ -85,7 +87,9 @@ export {
     });
 
     it('should search for non literal references', async () => {
-        const { outputFiles: [result, file] } = await esbuild.build({
+        const {
+            outputFiles: [result, file],
+        } = await esbuild.build({
             absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
                 resolveDir: fileURLToPath(new URL('.', import.meta.url)),
@@ -97,9 +101,7 @@ export const file = new URL(fileName, import.meta.url);`,
             outdir: 'out',
             bundle: true,
             write: false,
-            plugins: [
-                metaUrl(),
-            ],
+            plugins: [metaUrl()],
         });
 
         expect(result.text).to.be.equal(`// test.spec.js
@@ -114,7 +116,9 @@ export {
     });
 
     it('should skip unknown references', async () => {
-        const { outputFiles: [result] } = await esbuild.build({
+        const {
+            outputFiles: [result],
+        } = await esbuild.build({
             absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
                 resolveDir: fileURLToPath(new URL('.', import.meta.url)),
@@ -125,9 +129,7 @@ export {
             outdir: 'out',
             bundle: true,
             write: false,
-            plugins: [
-                metaUrl(),
-            ],
+            plugins: [metaUrl()],
         });
 
         expect(result.text).to.be.equal(`// test.spec.js
@@ -139,12 +141,14 @@ export {
     });
 
     it('should use browser base url for iife', async () => {
-        const { outputFiles: [result, file] } = await esbuild.build({
+        const {
+            outputFiles: [result, file],
+        } = await esbuild.build({
             absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
                 resolveDir: fileURLToPath(new URL('.', import.meta.url)),
                 sourcefile: fileURLToPath(import.meta.url),
-                contents: 'export var file = new URL(\'./file.txt\', import.meta.url);',
+                contents: "export var file = new URL('./file.txt', import.meta.url);",
             },
             platform: 'browser',
             format: 'iife',
@@ -153,9 +157,7 @@ export {
                 '.txt': 'file',
             },
             write: false,
-            plugins: [
-                metaUrl(),
-            ],
+            plugins: [metaUrl()],
         });
 
         expect(result.text).to.be.equal(`(() => {
@@ -168,12 +170,14 @@ export {
     });
 
     it('should use node legacy file path', async () => {
-        const { outputFiles: [result, file] } = await esbuild.build({
+        const {
+            outputFiles: [result, file],
+        } = await esbuild.build({
             absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
                 resolveDir: fileURLToPath(new URL('.', import.meta.url)),
                 sourcefile: fileURLToPath(import.meta.url),
-                contents: 'export const file = new URL(\'./file.txt\', import.meta.url);',
+                contents: "export const file = new URL('./file.txt', import.meta.url);",
             },
             platform: 'node',
             format: 'cjs',
@@ -183,9 +187,7 @@ export {
             },
             bundle: true,
             write: false,
-            plugins: [
-                metaUrl(),
-            ],
+            plugins: [metaUrl()],
         });
 
         expect(result.text).to.be.equal(`var __defProp = Object.defineProperty;
@@ -223,12 +225,15 @@ var file = new URL("./file-4e1243bd.txt?hash=4e1243bd", "file://" + __filename);
     });
 
     it('should not resolve a module with warnings', async () => {
-        const { warnings, outputFiles: [result] } = await esbuild.build({
+        const {
+            warnings,
+            outputFiles: [result],
+        } = await esbuild.build({
             absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
                 resolveDir: fileURLToPath(new URL('.', import.meta.url)),
                 sourcefile: fileURLToPath(import.meta.url),
-                contents: 'export const file = new URL(\'./missing.txt\', import.meta.url);',
+                contents: "export const file = new URL('./missing.txt', import.meta.url);",
             },
             format: 'esm',
             outdir: 'out',
@@ -238,11 +243,13 @@ var file = new URL("./file-4e1243bd.txt?hash=4e1243bd", "file://" + __filename);
             bundle: true,
             write: false,
             plugins: [
-                virtual([{
-                    path: 'npm_module',
-                    contents: 'test\n',
-                    loader: 'js',
-                }]),
+                virtual([
+                    {
+                        path: 'npm_module',
+                        contents: 'test\n',
+                        loader: 'js',
+                    },
+                ]),
                 metaUrl(),
             ],
         });
@@ -257,7 +264,7 @@ export {
             {
                 id: '',
                 pluginName: 'meta-url',
-                text: 'Unable to resolve \'./missing.txt\' file.',
+                text: "Unable to resolve './missing.txt' file.",
                 detail: '',
                 notes: [],
                 location: {
@@ -265,7 +272,7 @@ export {
                     file: 'test.spec.js',
                     length: 41,
                     line: 1,
-                    lineText: 'export const file = new URL(\'./missing.txt\', import.meta.url);',
+                    lineText: "export const file = new URL('./missing.txt', import.meta.url);",
                     namespace: 'file',
                     suggestion: '',
                 },
@@ -274,12 +281,14 @@ export {
     });
 
     it('should inline assets with iife format', async () => {
-        const { outputFiles: [result] } = await esbuild.build({
+        const {
+            outputFiles: [result],
+        } = await esbuild.build({
             absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
                 resolveDir: fileURLToPath(new URL('.', import.meta.url)),
                 sourcefile: fileURLToPath(import.meta.url),
-                contents: 'export const file = new URL(\'./file.txt\', import.meta.url);',
+                contents: "export const file = new URL('./file.txt', import.meta.url);",
             },
             format: 'iife',
             platform: 'browser',
@@ -289,9 +298,7 @@ export {
             },
             bundle: true,
             write: false,
-            plugins: [
-                metaUrl(),
-            ],
+            plugins: [metaUrl()],
         });
 
         expect(result.text).to.be.equal(`(() => {
@@ -302,12 +309,14 @@ export {
     });
 
     it('should load a file outside and src into the dist folder', async () => {
-        const { outputFiles: [result, file] } = await esbuild.build({
+        const {
+            outputFiles: [result, file],
+        } = await esbuild.build({
             absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
                 resolveDir: fileURLToPath(new URL('src/', import.meta.url)),
                 sourcefile: fileURLToPath(new URL('src/index.js', import.meta.url)),
-                contents: 'export const file = new URL(\'../file.txt\', import.meta.url);',
+                contents: "export const file = new URL('../file.txt', import.meta.url);",
             },
             format: 'esm',
             outdir: 'out',
@@ -318,9 +327,7 @@ export {
             },
             bundle: true,
             write: false,
-            plugins: [
-                metaUrl(),
-            ],
+            plugins: [metaUrl()],
         });
 
         expect(result.text).to.be.equal(`// src/index.js

@@ -21,13 +21,11 @@ yarn add @chialab/wds-plugin-legacy -D
 ## Usage
 
 ```js
-import { startDevServer } from '@web/dev-server';
 import { legacyPlugin } from '@chialab/wds-plugin-legacy';
+import { startDevServer } from '@web/dev-server';
 
 await startDevServer({
-    plugins: [
-        legacyPlugin(),
-    ],
+    plugins: [legacyPlugin()],
 });
 ```
 

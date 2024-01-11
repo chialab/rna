@@ -1,11 +1,13 @@
 import { fileURLToPath } from 'url';
-import esbuild from 'esbuild';
 import commonjsPlugin from '@chialab/esbuild-plugin-commonjs';
 import { expect } from 'chai';
+import esbuild from 'esbuild';
 
 describe('esbuild-plugin-commonjs', () => {
     it('should skip if target is not esm', async () => {
-        const { outputFiles: [result] } = await esbuild.build({
+        const {
+            outputFiles: [result],
+        } = await esbuild.build({
             absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
                 resolveDir: fileURLToPath(new URL('.', import.meta.url)),
@@ -20,9 +22,7 @@ describe('esbuild-plugin-commonjs', () => {
             bundle: true,
             write: false,
             sourcemap: false,
-            plugins: [
-                commonjsPlugin(),
-            ],
+            plugins: [commonjsPlugin()],
         });
 
         expect(result.text).to.be.equal(`// test.spec.js
@@ -35,7 +35,9 @@ module.exports = {
     });
 
     it('should export legacy module with default specifier', async () => {
-        const { outputFiles: [result] } = await esbuild.build({
+        const {
+            outputFiles: [result],
+        } = await esbuild.build({
             absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
                 resolveDir: fileURLToPath(new URL('.', import.meta.url)),
@@ -50,9 +52,7 @@ module.exports = {
             bundle: true,
             write: false,
             sourcemap: false,
-            plugins: [
-                commonjsPlugin(),
-            ],
+            plugins: [commonjsPlugin()],
         });
 
         expect(result.text).to.be.equal(`// test.spec.js
@@ -83,7 +83,9 @@ export {
     });
 
     it('should bundle using the commonjs helper', async () => {
-        const { outputFiles: [result] } = await esbuild.build({
+        const {
+            outputFiles: [result],
+        } = await esbuild.build({
             absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
                 resolveDir: fileURLToPath(new URL('.', import.meta.url)),
@@ -203,7 +205,9 @@ export {
     });
 
     it('should rename require in mixed modules', async () => {
-        const { outputFiles: [result] } = await esbuild.build({
+        const {
+            outputFiles: [result],
+        } = await esbuild.build({
             absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             stdin: {
                 resolveDir: fileURLToPath(new URL('.', import.meta.url)),
@@ -221,12 +225,11 @@ export {
             bundle: true,
             write: false,
             sourcemap: false,
-            plugins: [
-                commonjsPlugin(),
-            ],
+            plugins: [commonjsPlugin()],
         });
 
-        expect(result.text).to.be.equal(`var __require = /* @__PURE__ */ ((x) => typeof require !== "undefined" ? require : typeof Proxy !== "undefined" ? new Proxy(x, {
+        expect(result.text).to.be
+            .equal(`var __require = /* @__PURE__ */ ((x) => typeof require !== "undefined" ? require : typeof Proxy !== "undefined" ? new Proxy(x, {
   get: (a, b) => (typeof require !== "undefined" ? require : a)[b]
 }) : x)(function(x) {
   if (typeof require !== "undefined")

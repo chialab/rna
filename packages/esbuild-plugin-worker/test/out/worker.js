@@ -1,8 +1,8 @@
-"use strict";
+'use strict';
 (() => {
-  // lib.worker.js
-  var postMessage = globalThis.postMessage;
+    // lib.worker.js
+    var postMessage = globalThis.postMessage;
 
-  // worker.js
-  postMessage("message");
+    // worker.js
+    postMessage('message');
 })();

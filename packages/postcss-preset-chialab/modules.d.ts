@@ -64,6 +64,6 @@ declare module 'postcss-import' {
 }
 
 declare module 'postcss-url' {
-    type Options = { url: 'copy', assetsPath: string, useHash?: boolean };
+    type Options = { url: 'copy'; assetsPath: string; useHash?: boolean };
     export default (options: Options) => import('postcss').Plugin;
 }

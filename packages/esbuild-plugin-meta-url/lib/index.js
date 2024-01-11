@@ -1,9 +1,9 @@
-import path from 'path';
 import { Buffer } from 'buffer';
-import mime from 'mime-types';
-import { getSearchParam, isUrl } from '@chialab/node-resolve';
-import { parse, walk, getIdentifierValue, getBlock, getLocation, TokenType } from '@chialab/estransform';
+import path from 'path';
 import { useRna } from '@chialab/esbuild-rna';
+import { getBlock, getIdentifierValue, getLocation, parse, TokenType, walk } from '@chialab/estransform';
+import { getSearchParam, isUrl } from '@chialab/node-resolve';
+import mime from 'mime-types';
 
 /**
  * @param {import('@chialab/estransform').TokenProcessor} processor Token processor.
@@ -42,8 +42,7 @@ export function getMetaUrl(processor) {
 
         if (args.length === 0) {
             // as first argument we accept a string or a member expression
-            if (currentToken.type !== TokenType.string
-                && currentToken.type !== TokenType.name) {
+            if (currentToken.type !== TokenType.string && currentToken.type !== TokenType.name) {
                 return;
             }
         }
@@ -53,22 +52,28 @@ export function getMetaUrl(processor) {
                 return;
             }
             // the second argument must be `import.meta.url`
-            if (currentArg.length === 0
-                && (currentToken.type !== TokenType.name || processor.identifierNameForToken(currentToken) !== 'import')) {
+            if (
+                currentArg.length === 0 &&
+                (currentToken.type !== TokenType.name || processor.identifierNameForToken(currentToken) !== 'import')
+            ) {
                 return;
             }
             if (currentArg.length === 1 && currentToken.type !== TokenType.dot) {
                 return;
             }
-            if (currentArg.length === 2
-                && (currentToken.type !== TokenType.name || processor.identifierNameForToken(currentToken) !== 'meta')) {
+            if (
+                currentArg.length === 2 &&
+                (currentToken.type !== TokenType.name || processor.identifierNameForToken(currentToken) !== 'meta')
+            ) {
                 return;
             }
             if (currentArg.length === 3 && currentToken.type !== TokenType.dot) {
                 return;
             }
-            if (currentArg.length === 4
-                && (currentToken.type !== TokenType.name || processor.identifierNameForToken(currentToken) !== 'url')) {
+            if (
+                currentArg.length === 4 &&
+                (currentToken.type !== TokenType.name || processor.identifierNameForToken(currentToken) !== 'url')
+            ) {
                 return;
             }
         }
@@ -104,7 +109,7 @@ export function getMetaUrl(processor) {
  * @param {PluginOptions} options
  * @returns An esbuild plugin.
  */
-export default function({ emit = true } = {}) {
+export default function ({ emit = true } = {}) {
     /**
      * @type {import('esbuild').Plugin}
      */
@@ -123,7 +128,7 @@ export default function({ emit = true } = {}) {
                 }
 
                 if (isNode) {
-                    return '\'file://\' + __filename';
+                    return "'file://' + __filename";
                 }
 
                 return 'import.meta.url';
@@ -132,8 +137,7 @@ export default function({ emit = true } = {}) {
             build.onTransform({ loaders: ['tsx', 'ts', 'jsx', 'js'] }, async (args) => {
                 const code = args.code;
 
-                if (!code.includes('import.meta.url') ||
-                    !code.includes('URL(')) {
+                if (!code.includes('import.meta.url') || !code.includes('URL(')) {
                     return;
                 }
 
@@ -164,90 +168,105 @@ export default function({ emit = true } = {}) {
                     const startToken = tokens[0];
                     const endToken = tokens[tokens.length - 1];
 
-                    promises.push(Promise.resolve().then(async () => {
-                        const requestName = value.split('?')[0];
-                        const { path: resolvedPath } = await build.resolve(`./${requestName}`, {
-                            kind: 'dynamic-import',
-                            importer: args.path,
-                            namespace: 'file',
-                            resolveDir: path.dirname(args.path),
-                            pluginData: null,
-                        });
+                    promises.push(
+                        Promise.resolve().then(async () => {
+                            const requestName = value.split('?')[0];
+                            const { path: resolvedPath } = await build.resolve(`./${requestName}`, {
+                                kind: 'dynamic-import',
+                                importer: args.path,
+                                namespace: 'file',
+                                resolveDir: path.dirname(args.path),
+                                pluginData: null,
+                            });
 
-                        if (resolvedPath) {
-                            const entryLoader = build.getLoader(resolvedPath) || 'file';
-                            const isChunk = entryLoader !== 'file' && entryLoader !== 'json';
-                            const isIIFE = format === 'iife' && bundle;
-                            const searchParams = new URLSearchParams();
+                            if (resolvedPath) {
+                                const entryLoader = build.getLoader(resolvedPath) || 'file';
+                                const isChunk = entryLoader !== 'file' && entryLoader !== 'json';
+                                const isIIFE = format === 'iife' && bundle;
+                                const searchParams = new URLSearchParams();
 
-                            let entryPoint = resolvedPath;
-                            if (emit && !isIIFE) {
-                                if (isChunk) {
-                                    const chunk = await build.emitChunk({ path: resolvedPath });
-                                    searchParams.set('hash', chunk.id);
-                                    entryPoint = chunk.path;
-                                } else {
-                                    const file = await build.emitFile(resolvedPath);
-                                    searchParams.set('hash', file.id);
-                                    entryPoint = file.path;
-                                }
-                            }
-
-                            if (isIIFE) {
-                                let buffer, mimeType;
-                                if (isChunk) {
-                                    const { outputFiles } = await build.emitChunk({
-                                        path: `./${path.relative(workingDir, resolvedPath)}`,
-                                        write: false,
-                                    }, false);
-                                    if (outputFiles) {
-                                        mimeType = mime.lookup(outputFiles[0].path);
-                                        buffer = Buffer.from(outputFiles[0].contents);
-                                    }
-                                } else {
-                                    const result = await build.load({
-                                        pluginData: null,
-                                        namespace: 'file',
-                                        suffix: '',
-                                        path: resolvedPath,
-                                        with: {},
-                                    });
-
-                                    if (result && result.contents) {
-                                        mimeType = mime.lookup(resolvedPath);
-                                        buffer = Buffer.from(result.contents);
+                                let entryPoint = resolvedPath;
+                                if (emit && !isIIFE) {
+                                    if (isChunk) {
+                                        const chunk = await build.emitChunk({ path: resolvedPath });
+                                        searchParams.set('hash', chunk.id);
+                                        entryPoint = chunk.path;
+                                    } else {
+                                        const file = await build.emitFile(resolvedPath);
+                                        searchParams.set('hash', file.id);
+                                        entryPoint = file.path;
                                     }
                                 }
 
-                                if (buffer) {
-                                    helpers.overwrite(startToken.start, endToken.end, `new URL('data:${mimeType};base64,${buffer.toString('base64')}')`);
-                                    return;
+                                if (isIIFE) {
+                                    let buffer, mimeType;
+                                    if (isChunk) {
+                                        const { outputFiles } = await build.emitChunk(
+                                            {
+                                                path: `./${path.relative(workingDir, resolvedPath)}`,
+                                                write: false,
+                                            },
+                                            false
+                                        );
+                                        if (outputFiles) {
+                                            mimeType = mime.lookup(outputFiles[0].path);
+                                            buffer = Buffer.from(outputFiles[0].contents);
+                                        }
+                                    } else {
+                                        const result = await build.load({
+                                            pluginData: null,
+                                            namespace: 'file',
+                                            suffix: '',
+                                            path: resolvedPath,
+                                            with: {},
+                                        });
+
+                                        if (result && result.contents) {
+                                            mimeType = mime.lookup(resolvedPath);
+                                            buffer = Buffer.from(result.contents);
+                                        }
+                                    }
+
+                                    if (buffer) {
+                                        helpers.overwrite(
+                                            startToken.start,
+                                            endToken.end,
+                                            `new URL('data:${mimeType};base64,${buffer.toString('base64')}')`
+                                        );
+                                        return;
+                                    }
                                 }
+
+                                const outputPath = build.resolveRelativePath(entryPoint);
+                                const searchParamsString = searchParams.toString();
+                                helpers.overwrite(
+                                    startToken.start,
+                                    endToken.end,
+                                    `new URL('${outputPath}${
+                                        searchParamsString ? `?${searchParamsString}` : ''
+                                    }', ${baseUrl})`
+                                );
+                                return;
                             }
 
-                            const outputPath = build.resolveRelativePath(entryPoint);
-                            const searchParamsString = searchParams.toString();
-                            helpers.overwrite(startToken.start, endToken.end, `new URL('${outputPath}${searchParamsString ? `?${searchParamsString}` : ''}', ${baseUrl})`);
-                            return;
-                        }
-
-                        const location = getLocation(code, startToken.start);
-                        warnings.push({
-                            id: 'import-meta-reference-not-found',
-                            pluginName: 'meta-url',
-                            text: `Unable to resolve '${requestName}' file.`,
-                            location: {
-                                file: args.path,
-                                namespace: args.namespace,
-                                ...location,
-                                length: endToken.end - startToken.start,
-                                lineText: code.split('\n')[location.line - 1],
-                                suggestion: '',
-                            },
-                            notes: [],
-                            detail: '',
-                        });
-                    }));
+                            const location = getLocation(code, startToken.start);
+                            warnings.push({
+                                id: 'import-meta-reference-not-found',
+                                pluginName: 'meta-url',
+                                text: `Unable to resolve '${requestName}' file.`,
+                                location: {
+                                    file: args.path,
+                                    namespace: args.namespace,
+                                    ...location,
+                                    length: endToken.end - startToken.start,
+                                    lineText: code.split('\n')[location.line - 1],
+                                    suggestion: '',
+                                },
+                                notes: [],
+                                detail: '',
+                            });
+                        })
+                    );
                 });
 
                 await Promise.all(promises);
@@ -259,7 +278,9 @@ export default function({ emit = true } = {}) {
                 }
 
                 if (usePlainScript) {
-                    helpers.prepend('var __currentScriptUrl__ = document.currentScript && document.currentScript.src || document.baseURI;\n');
+                    helpers.prepend(
+                        'var __currentScriptUrl__ = document.currentScript && document.currentScript.src || document.baseURI;\n'
+                    );
                 }
 
                 const transformResult = await helpers.generate({

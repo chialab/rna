@@ -21,13 +21,11 @@ yarn add @chialab/wds-plugin-rna -D
 ## Usage
 
 ```js
-import { startDevServer } from '@web/dev-server';
 import rnaPlugin from '@chialab/wds-plugin-rna';
+import { startDevServer } from '@web/dev-server';
 
 await startDevServer({
-    plugins: [
-        rnaPlugin(),
-    ],
+    plugins: [rnaPlugin()],
 });
 ```
 

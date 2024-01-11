@@ -84,9 +84,20 @@ function renderProgressBar(finished, active, total) {
  * @param {number} failedTests
  * @returns The progress report string.
  */
-function getProgressReport(name, minWidth, finishedFiles, activeFiles, testFiles, passedTests, skippedTests, failedTests) {
+function getProgressReport(
+    name,
+    minWidth,
+    finishedFiles,
+    activeFiles,
+    testFiles,
+    passedTests,
+    skippedTests,
+    failedTests
+) {
     const failedText = `${failedTests} failed`;
-    const testResults =`${chalk.green(`${passedTests} passed`)}, ${failedTests !== 0 ? chalk.red(failedText) : failedText}${(skippedTests !== 0 ? `, ${chalk.gray(`${skippedTests} skipped`)}` : '')}`;
+    const testResults = `${chalk.green(`${passedTests} passed`)}, ${
+        failedTests !== 0 ? chalk.red(failedText) : failedText
+    }${skippedTests !== 0 ? `, ${chalk.gray(`${skippedTests} skipped`)}` : ''}`;
     const progressBar = `${renderProgressBar(
         finishedFiles,
         activeFiles,
@@ -144,15 +155,7 @@ function getPassedFailedSkippedCount(testResults) {
  * @returns A list of logs.
  */
 export function getTestProgressReport(config, args) {
-    const {
-        browsers,
-        browserNames,
-        testRun,
-        sessions,
-        focusedTestFile,
-        coverage,
-        testCoverage,
-    } = args;
+    const { browsers, browserNames, testRun, sessions, focusedTestFile, coverage, testCoverage } = args;
 
     const entries = [];
     const unfinishedSessions = Array.from(
@@ -171,9 +174,9 @@ export function getTestProgressReport(config, args) {
     for (const browser of browsers) {
         // when started or not initiliazing we render a progress bar
         const allSessionsForBrowser = Array.from(sessions.forBrowser(browser));
-        const sessionsForBrowser = focusedTestFile ?
-            allSessionsForBrowser.filter(s => s.testFile === focusedTestFile) :
-            allSessionsForBrowser;
+        const sessionsForBrowser = focusedTestFile
+            ? allSessionsForBrowser.filter((s) => s.testFile === focusedTestFile)
+            : allSessionsForBrowser;
         const totalTestFiles = sessionsForBrowser.length;
         let finishedFilesForBrowser = 0;
         let activeFilesForBrowser = 0;
@@ -187,10 +190,7 @@ export function getTestProgressReport(config, args) {
             }
 
             if (session.status === SESSION_STATUS.FINISHED) {
-                const {
-                    testFile,
-                    testResults,
-                } = session;
+                const { testFile, testResults } = session;
                 finishedFiles.add(testFile);
                 finishedFilesForBrowser += 1;
                 if (testResults) {

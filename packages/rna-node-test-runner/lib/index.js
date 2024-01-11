@@ -1,8 +1,8 @@
+import { mkdtemp } from 'fs/promises';
 import os from 'os';
 import path from 'path';
 import process from 'process';
 import { Worker } from 'worker_threads';
-import { mkdtemp } from 'fs/promises';
 import { CoverageReport } from '@chialab/es-test-runner';
 
 /**
@@ -22,10 +22,7 @@ export async function test(config) {
 
     const worker = new Worker(new URL('./worker.js', import.meta.url), {
         workerData: {
-            files: config.files || [
-                'test/**/*.test.js',
-                'test/**/*.spec.js',
-            ],
+            files: config.files || ['test/**/*.test.js', 'test/**/*.spec.js'],
         },
     });
 

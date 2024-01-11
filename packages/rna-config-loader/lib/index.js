@@ -83,7 +83,9 @@ import { pathToFileURL } from 'url';
  */
 export function camelize(file) {
     const filename = path.basename(file, path.extname(file));
-    return filename.replace(/(^[a-z0-9]|[-_]([a-z0-9]))/g, (g) => (g[1] || g[0]).toUpperCase()).replace(/[^a-zA-Z0-9]/g, '');
+    return filename
+        .replace(/(^[a-z0-9]|[-_]([a-z0-9]))/g, (g) => (g[1] || g[0]).toUpperCase())
+        .replace(/[^a-zA-Z0-9]/g, '');
 }
 
 /**
@@ -115,7 +117,12 @@ export function getEntryConfig(entrypoint, config) {
         minify: entrypoint.minify ?? config.minify ?? false,
         clean: entrypoint.clean ?? config.clean ?? false,
         splitting: entrypoint.splitting ?? config.splitting,
-        globalName: entrypoint.globalName || entrypoint.name || (format === 'iife' ? camelize(Array.isArray(entrypoint.input) ? entrypoint.input[0] : entrypoint.input) : undefined),
+        globalName:
+            entrypoint.globalName ||
+            entrypoint.name ||
+            (format === 'iife'
+                ? camelize(Array.isArray(entrypoint.input) ? entrypoint.input[0] : entrypoint.input)
+                : undefined),
         entryNames: entrypoint.entryNames || config.entryNames || '[dir]/[name]',
         chunkNames: entrypoint.chunkNames || config.chunkNames || '[name]-[hash]',
         assetNames: entrypoint.assetNames || config.assetNames || '[name]-[hash]',
@@ -123,10 +130,7 @@ export function getEntryConfig(entrypoint, config) {
             ...(entrypoint.define || {}),
             ...(config.define || {}),
         },
-        external: [
-            ...(entrypoint.external || []),
-            ...(config.external || []),
-        ],
+        external: [...(entrypoint.external || []), ...(config.external || [])],
         alias: {
             ...(entrypoint.alias || {}),
             ...(config.alias || {}),
@@ -135,10 +139,7 @@ export function getEntryConfig(entrypoint, config) {
         jsxFactory: entrypoint.jsxFactory || config.jsxFactory,
         jsxFragment: entrypoint.jsxFragment || config.jsxFragment,
         jsxImportSource: entrypoint.jsxImportSource || config.jsxImportSource,
-        plugins: [
-            ...(entrypoint.plugins || []),
-            ...(config.plugins || []),
-        ],
+        plugins: [...(entrypoint.plugins || []), ...(config.plugins || [])],
         logLevel: config.logLevel || 'warning',
         watch: config.watch,
         entrypointsPath: entrypoint.entrypointsPath || config.entrypointsPath,
@@ -158,10 +159,18 @@ export function getEntryBuildConfig(entrypoint, config) {
 
     const format = entrypoint.format || config.format;
 
-    return /** @type {EntrypointConfig} */ (getEntryConfig({
-        ...entrypoint,
-        globalName: entrypoint.globalName || entrypoint.name || (format === 'iife' ? camelize(entrypoint.output) : undefined),
-    }, config));
+    return /** @type {EntrypointConfig} */ (
+        getEntryConfig(
+            {
+                ...entrypoint,
+                globalName:
+                    entrypoint.globalName ||
+                    entrypoint.name ||
+                    (format === 'iife' ? camelize(entrypoint.output) : undefined),
+            },
+            config
+        )
+    );
 }
 
 /**
@@ -169,43 +178,29 @@ export function getEntryBuildConfig(entrypoint, config) {
  * @returns {ProjectConfig}
  */
 export function mergeConfig(...entries) {
-    return entries
-        .reduce((config, entry) => {
-            const keys = /** @type {(keyof ProjectConfig)[]} */ (Object.keys(entry));
+    return entries.reduce((config, entry) => {
+        const keys = /** @type {(keyof ProjectConfig)[]} */ (Object.keys(entry));
 
-            /**
-             * @type {ProjectConfig}
-             */
-            const clone = keys
-                .reduce((config, key) => {
-                    if (entry[key] != null) {
-                        config[key] = entry[key];
-                    }
+        /**
+         * @type {ProjectConfig}
+         */
+        const clone = keys.reduce((config, key) => {
+            if (entry[key] != null) {
+                config[key] = entry[key];
+            }
 
-                    return config;
-                }, /** @type {*} */ ({}));
+            return config;
+        }, /** @type {*} */ ({}));
 
-            return {
-                ...config,
-                ...clone,
-                entrypoints: [
-                    ...(config.entrypoints || []),
-                    ...(clone.entrypoints || []),
-                ],
-                external: [
-                    ...(config.external || []),
-                    ...(clone.external || []),
-                ],
-                plugins: [
-                    ...(config.plugins || []),
-                    ...(clone.plugins || []),
-                ],
-                servePlugins: [
-                    ...(config.servePlugins || []),
-                    ...(clone.servePlugins || []),
-                ],
-            };
-        }, {});
+        return {
+            ...config,
+            ...clone,
+            entrypoints: [...(config.entrypoints || []), ...(clone.entrypoints || [])],
+            external: [...(config.external || []), ...(clone.external || [])],
+            plugins: [...(config.plugins || []), ...(clone.plugins || [])],
+            servePlugins: [...(config.servePlugins || []), ...(clone.servePlugins || [])],
+        };
+    }, {});
 }
 
 /**

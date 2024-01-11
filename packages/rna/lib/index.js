@@ -1,16 +1,14 @@
 #!/usr/bin/env node
-
 import { readFile } from 'fs/promises';
-import { program } from 'commander';
-import { createLogger, colors } from '@chialab/rna-logger';
 import process from 'process';
+import { colors, createLogger } from '@chialab/rna-logger';
+import { program } from 'commander';
 
 const argv = process.argv;
 const packageJson = new URL('../package.json', import.meta.url);
 const json = JSON.parse(await readFile(packageJson, 'utf-8'));
 
-program
-    .version(json.version);
+program.version(json.version);
 
 /**
  * @typedef {(program: import('commander').Command) => void} CommandLoader
@@ -21,12 +19,12 @@ program
  * @param {string} sourceModule
  * @param {() => Promise<CommandLoader>} importer
  */
-const loadCommand = async function(name, sourceModule, importer) {
+const loadCommand = async function (name, sourceModule, importer) {
     try {
         const command = await importer();
         command(program);
     } catch (err) {
-        if ((/** @type {NodeJS.ErrnoException} */(err)).code === 'ERR_MODULE_NOT_FOUND') {
+        if (/** @type {NodeJS.ErrnoException} */ (err).code === 'ERR_MODULE_NOT_FOUND') {
             const logger = createLogger();
             return program
                 .command(name)
@@ -53,9 +51,15 @@ ${colors.white(`yarn add -D ${colors.hex('#ef7d00')(sourceModule)}`)}
 const commands = {
     'build': ['@chialab/rna-bundler', () => import('./commands/build.js').then((mod) => mod.default)],
     'serve': ['@chialab/rna-dev-server', () => import('./commands/serve.js').then((mod) => mod.default)],
-    'test:browser': ['@chialab/rna-browser-test-runner', () => import('./commands/test-browser.js').then((mod) => mod.default)],
+    'test:browser': [
+        '@chialab/rna-browser-test-runner',
+        () => import('./commands/test-browser.js').then((mod) => mod.default),
+    ],
     'test:node': ['@chialab/rna-node-test-runner', () => import('./commands/test-node.js').then((mod) => mod.default)],
-    'test:saucelabs': ['@chialab/rna-saucelabs-test-runner', () => import('./commands/test-saucelabs.js').then((mod) => mod.default)],
+    'test:saucelabs': [
+        '@chialab/rna-saucelabs-test-runner',
+        () => import('./commands/test-saucelabs.js').then((mod) => mod.default),
+    ],
 };
 
 const command = /** @type {keyof typeof commands} */ (argv[2]);
@@ -64,5 +68,4 @@ if (commands[command]) {
     await loadCommand(command, sourceModule, importer);
 }
 
-program
-    .parse(argv);
+program.parse(argv);

@@ -1,20 +1,20 @@
 import process from 'process';
+import urlRebase from '@chialab/postcss-url-rebase';
 import autoprefixer from 'autoprefixer';
-import nesting from 'postcss-nesting';
-import dir from 'postcss-dir-pseudo-class';
-import initial from 'postcss-initial';
 import colorHex from 'postcss-color-hex-alpha';
-import anyLink from 'postcss-pseudo-class-any-link';
-import fontVariant from 'postcss-font-variant';
-import logical from 'postcss-logical';
-import pageBreak from 'postcss-page-break';
-import place from 'postcss-place';
-import replaceOverflow from 'postcss-replace-overflow-wrap';
 import customProperties from 'postcss-custom-properties';
+import dir from 'postcss-dir-pseudo-class';
 import focusVisible from 'postcss-focus-visible';
 import focusWithin from 'postcss-focus-within';
-import urlRebase from '@chialab/postcss-url-rebase';
+import fontVariant from 'postcss-font-variant';
 import atImport from 'postcss-import';
+import initial from 'postcss-initial';
+import logical from 'postcss-logical';
+import nesting from 'postcss-nesting';
+import pageBreak from 'postcss-page-break';
+import place from 'postcss-place';
+import anyLink from 'postcss-pseudo-class-any-link';
+import replaceOverflow from 'postcss-replace-overflow-wrap';
 import url from 'postcss-url';
 
 /**
@@ -34,15 +34,17 @@ export default function preset({ bundle = false, root = process.cwd(), assetsPat
     return {
         postcssPlugin: 'preset-chialab',
         prepare(result) {
-            const bundlePlugins = bundle ? [
-                urlRebase({ root }),
-                atImport({ root }),
-                url({
-                    url: 'copy',
-                    assetsPath,
-                    useHash,
-                }),
-            ] : [];
+            const bundlePlugins = bundle
+                ? [
+                      urlRebase({ root }),
+                      atImport({ root }),
+                      url({
+                          url: 'copy',
+                          assetsPath,
+                          useHash,
+                      }),
+                  ]
+                : [];
 
             const plugins = [
                 ...bundlePlugins,

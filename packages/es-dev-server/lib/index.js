@@ -1,5 +1,5 @@
-import getPort, { portNumbers } from 'get-port';
 import { DevServer as CoreDevServer, getRequestFilePath } from '@web/dev-server-core';
+import getPort, { portNumbers } from 'get-port';
 
 /**
  * @typedef {import('@web/dev-server-core').Plugin & { enforce?: 'pre'|'post' }} Plugin
@@ -70,10 +70,7 @@ class DevServer extends CoreDevServer {
         }
 
         const plugins = this.config.plugins || [];
-        await Promise.all([
-            this.fileWatcher.close(),
-            plugins.map((plugin) => plugin.serverStop?.()),
-        ]);
+        await Promise.all([this.fileWatcher.close(), plugins.map((plugin) => plugin.serverStop?.())]);
     }
 
     /**
@@ -84,9 +81,4 @@ class DevServer extends CoreDevServer {
     }
 }
 
-export {
-    DevServer,
-    getPort,
-    portNumbers,
-    getRequestFilePath
-};
+export { DevServer, getPort, portNumbers, getRequestFilePath };

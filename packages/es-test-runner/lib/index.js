@@ -1,7 +1,7 @@
-import createTestRunner, { Runner, reporters, Suite, Test } from 'mocha';
 import { Report as CoverageReport } from 'c8';
 import coverageReport from 'istanbul-lib-report';
 import { create as createCoverageReporter } from 'istanbul-reports';
+import createTestRunner, { reporters, Runner, Suite, Test } from 'mocha';
 
 /**
  * @typedef {import('mocha').MochaOptions} MochaOptions

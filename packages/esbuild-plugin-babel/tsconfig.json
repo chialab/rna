@@ -6,10 +6,7 @@
     "baseUrl": ".",
     "rootDir": "./lib"
   },
-  "include": [
-    "lib/**/*",
-    "modules.d.ts"
-  ],
+  "include": ["lib/**/*", "modules.d.ts"],
   "references": [
     {
       "path": "../esbuild-rna"

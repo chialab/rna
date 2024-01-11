@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events';
-import { Suite, Test, Runner, reporters } from '@chialab/es-test-runner';
+import { reporters, Runner, Suite, Test } from '@chialab/es-test-runner';
 
 /**
  * @typedef {Error & { actual?: string, expected?: string }} TestError
@@ -41,7 +41,7 @@ export class Collector {
      * @private
      * @type {Runner}
      */
-    runner = /** @type {Runner} */(/** @type {unknown} */ (new EventEmitter()));
+    runner = /** @type {Runner} */ (/** @type {unknown} */ (new EventEmitter()));
 
     constructor() {
         Object.assign(this.runner, {
@@ -162,7 +162,7 @@ export class Collector {
             }
         }
 
-        const test = new Test(testResult.name, async () => { });
+        const test = new Test(testResult.name, async () => {});
         suite.addTest(test);
         this.collectTest(suite, test);
         this.collectTestWithStatus(test, testResult);
@@ -219,7 +219,7 @@ export class Collector {
      * @param {import('@web/test-runner-core').Logger} logger
      */
     printReport(reporter, logger) {
-        (/** @type {any} */ (reporters.Base)).consoleLog = logger.log.bind(logger);
+        /** @type {any} */ (reporters.Base).consoleLog = logger.log.bind(logger);
         this.events.forEach((event) => {
             this.runner.emit.apply(this.runner, event);
         });

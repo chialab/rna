@@ -53,7 +53,7 @@ function invalidateResource(dependencyTree, filePath) {
 
     return resource.dependants.reduce(
         (acc, dependant) => [...acc, ...invalidateResource(dependencyTree, dependant)],
-        /** @type {CSSResource[]} */([])
+        /** @type {CSSResource[]} */ ([])
     );
 }
 
@@ -110,7 +110,7 @@ export function hmrCssPlugin() {
             let lock = false;
 
             const send = webSockets.send;
-            webSockets.send = function(message) {
+            webSockets.send = function (message) {
                 const messageData = JSON.parse(message);
                 if (messageData.type === 'hmr:reload' && lock) {
                     return;
@@ -139,8 +139,9 @@ export function hmrCssPlugin() {
                 }
 
                 try {
-                    const entrypoints = invalidateResource(dependencyTree, filePath)
-                        .map((entryPoint) => entryPoint.url);
+                    const entrypoints = invalidateResource(dependencyTree, filePath).map(
+                        (entryPoint) => entryPoint.url
+                    );
                     const content = createCssLiveReload();
                     webSockets.sendImport(`data:text/javascript,${content}`, [entrypoints]);
                 } catch (err) {
@@ -160,7 +161,11 @@ export function hmrCssPlugin() {
             }
 
             const filePath = getRequestFilePath(context.url, rootDir);
-            const fileEntry = ensureResource(dependencyTree, filePath, new URL(context.url, `${context.request.protocol}://${context.request.headers.host}`).href);
+            const fileEntry = ensureResource(
+                dependencyTree,
+                filePath,
+                new URL(context.url, `${context.request.protocol}://${context.request.headers.host}`).href
+            );
 
             const referer = context.request.headers.referer;
             if (!referer) {

@@ -1,7 +1,7 @@
 {
   "name": "@chialab/rna-browser-test-runner",
   "type": "module",
-  "version": "0.18.0-alpha.1",
+  "version": "0.18.0",
   "description": "A test runner for browsers based on Web Test Runner.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",
@@ -31,7 +31,7 @@
     "node": ">=18"
   },
   "peerDependencies": {
-    "@chialab/wds-plugin-legacy": "^0.18.0-alpha.1"
+    "@chialab/wds-plugin-legacy": "^0.18.0"
   },
   "peerDependenciesMeta": {
     "@chialab/wds-plugin-legacy": {
@@ -42,17 +42,17 @@
     }
   },
   "dependencies": {
-    "@chialab/rna-config-loader": "^0.18.0-alpha.1",
-    "@chialab/rna-dev-server": "^0.18.0-alpha.1",
-    "@chialab/wds-plugin-node-resolve": "^0.18.0-alpha.1",
-    "@chialab/wtr-coverage-reporter": "^0.18.0-alpha.1",
-    "@chialab/wtr-mocha-reporter": "^0.18.0-alpha.1",
+    "@chialab/rna-config-loader": "^0.18.0",
+    "@chialab/rna-dev-server": "^0.18.0",
+    "@chialab/wds-plugin-node-resolve": "^0.18.0",
+    "@chialab/wtr-coverage-reporter": "^0.18.0",
+    "@chialab/wtr-mocha-reporter": "^0.18.0",
     "@web/test-runner-core": "^0.13.0",
     "@web/test-runner-mocha": "^0.9.0",
     "@web/test-runner-playwright": "^0.11.0"
   },
   "devDependencies": {
-    "@chialab/rna-logger": "^0.18.0-alpha.1",
+    "@chialab/rna-logger": "^0.18.0",
     "@web/test-runner-chrome": "^0.15.0",
     "typescript": "^5.0.0"
   }

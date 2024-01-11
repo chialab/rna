@@ -22,8 +22,8 @@
   "devDependencies": {
     "@changesets/cli": "^2.22.0",
     "@chialab/eslint-config": "^4.0.0",
-    "@chialab/rna": "^0.17.0 || ^0.18.0",
-    "@chialab/rna-node-test-runner": "^0.17.0 || ^0.18.0",
+    "@chialab/rna": "*",
+    "@chialab/rna-node-test-runner": "*",
     "@types/chai": "^4.2.22",
     "@yarnpkg/core": "^4.0.0-rc.6",
     "chai": "^4.3.4",

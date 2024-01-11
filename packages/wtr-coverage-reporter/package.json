@@ -1,7 +1,7 @@
 {
   "name": "@chialab/wtr-coverage-reporter",
   "type": "module",
-  "version": "0.18.0-alpha.1",
+  "version": "0.18.0",
   "description": "A coverage reporter for the Web Test Runner.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",
@@ -24,7 +24,7 @@
     "node": ">=18"
   },
   "dependencies": {
-    "@chialab/es-test-runner": "^0.18.0-alpha.1"
+    "@chialab/es-test-runner": "^0.18.0"
   },
   "devDependencies": {
     "@web/test-runner-core": "^0.13.0",

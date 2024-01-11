@@ -6,28 +6,9 @@
     <a href="https://www.npmjs.com/package/@chialab/esbuild-plugin-commonjs"><img alt="NPM" src="https://img.shields.io/npm/v/@chialab/esbuild-plugin-commonjs.svg?style=flat-square"></a>
 </p>
 
----
+## Documentation
 
-## Install
-
-```sh
-npm i @chialab/esbuild-plugin-commonjs -D
-```
-
-```sh
-yarn add @chialab/esbuild-plugin-commonjs -D
-```
-
-## Usage
-
-```js
-import commonjsPlugin from '@chialab/esbuild-plugin-commonjs';
-import esbuild from 'esbuild';
-
-await esbuild.build({
-    plugins: [commonjsPlugin()],
-});
-```
+Read the documentation at [chialab.github.io/rna](https://chialab.github.io/rna/guide/esbuild-plugin-commonjs).
 
 ---
 

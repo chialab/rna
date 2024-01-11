@@ -6,27 +6,43 @@ Esbuild supports out of the box bundling for JavaScript and CSS. RNA introduces 
 
 In order to bundle a Single Page Application using RNA you may have to install the bundler:
 
-```sh
+::: code-group
+
+```sh[npm]
 npm i -D @chialab/rna
 ```
 
-```sh
+```sh[yarn]
 yarn add -D @chialab/rna
 ```
 
+```sh[pnpm]
+pnpm add -D @chialab/rna
+```
+
+:::
+
 and run:
 
-```sh
+::: code-group
+
+```sh[npm]
 npx rna build src/index.html --output public
 ```
 
-```sh
+```sh[yarn]
 yarn rna build src/index.html --output public
 ```
 
+```sh[pnpm]
+pnpx rna build src/index.html --output public
+```
+
+:::
+
 ## Collecting scripts
 
-Scripts are bundled following the conventions describe in the [Building JavaScript](./Building-javascript) page.  
+Scripts are bundled following the conventions describe in the [Building JavaScript](./building-javascript) page.  
 There are two kinds of script: plain and module.
 
 **Module scripts** can use ESM import/export statements and they are referenced in the HTML file using a script with `type="module"`. Source can be inline:
@@ -76,7 +92,7 @@ Plain scripts will output using `iife` format and `es5` target if the `@chialab/
 
 ## Collecting styles
 
-Styles can be imported as file using a `<link rel="stylesheet">` or inlined using the `style` tag. Both will resolve `@import` statements and collect `url()` files, following the conventions describe in the [Building CSS](./Building-css) page.
+Styles can be imported as file using a `<link rel="stylesheet">` or inlined using the `style` tag. Both will resolve `@import` statements and collect `url()` files, following the conventions describe in the [Building CSS](./building-css) page.
 
 For example:
 
@@ -211,9 +227,9 @@ If the referenced manifest does not exists, RNA will start from a blank JSON fil
     href="app.webmanifest" />
 ```
 
-**app.webmanifest**
+::: code-group
 
-```js
+```js[app.webmanifest]
 {
     name,             // <title></title>
     description,      // <meta name="description" content="">
@@ -227,3 +243,5 @@ If the referenced manifest does not exists, RNA will start from a blank JSON fil
     icons,            // <link rel="icon" href="">
 }
 ```
+
+:::

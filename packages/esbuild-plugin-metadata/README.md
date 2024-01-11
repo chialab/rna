@@ -1,41 +1,14 @@
 <p align="center">
-    <strong>esbuild-plugin-metadata</strong> • Write entrypoints.json for esbuild builds.
+    <strong>esbuild-plugin-metadata</strong> • Write entrypoints.json manifest for esbuild builds.
 </p>
 
 <p align="center">
     <a href="https://www.npmjs.com/package/@chialab/esbuild-plugin-metadata"><img alt="NPM" src="https://img.shields.io/npm/v/@chialab/esbuild-plugin-metadata.svg?style=flat-square"></a>
 </p>
 
----
+## Documentation
 
-## Install
-
-```sh
-npm i @chialab/esbuild-plugin-metadata -D
-```
-
-```sh
-yarn add @chialab/esbuild-plugin-metadata -D
-```
-
-## Usage
-
-```js
-import metadataPlugin from '@chialab/esbuild-plugin-metadata';
-import esbuild from 'esbuild';
-
-await esbuild.build({
-    plugins: [
-        metadataPlugin({
-            entrypoints: {
-                metafilePath: 'build/metafile.json',
-                manifestPath: 'build/manifest.json',
-                entrypointsPath: 'build/entrypoints.json',
-            },
-        }),
-    ],
-});
-```
+Read the documentation at [chialab.github.io/rna](https://chialab.github.io/rna/guide/esbuild-plugin-metadata).
 
 ---
 

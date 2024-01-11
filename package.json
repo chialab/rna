@@ -13,6 +13,9 @@
     "lint": "prettier --check . && eslint 'packages/*/lib/**/*.js'",
     "test": "rna test:node packages/*/test/**/*.spec.js --coverage",
     "new": "plop --plopfile internals/generators/plopfile.cjs module",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs",
     "version": "changeset version && YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn install"
   },
   "repository": {

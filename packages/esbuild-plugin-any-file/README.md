@@ -6,30 +6,9 @@
     <a href="https://www.npmjs.com/package/@chialab/esbuild-plugin-any-file"><img alt="NPM" src="https://img.shields.io/npm/v/@chialab/esbuild-plugin-any-file.svg?style=flat-square"></a>
 </p>
 
----
+## Documentation
 
-## Install
-
-```sh
-npm i @chialab/esbuild-plugin-any-file -D
-```
-
-```sh
-yarn add @chialab/esbuild-plugin-any-file -D
-```
-
-## Usage
-
-```js
-import filePlugin from '@chialab/esbuild-plugin-any-file';
-import esbuild from 'esbuild';
-
-await esbuild.build({
-    plugins: [filePlugin()],
-});
-```
-
----
+Read the documentation at [chialab.github.io/rna](https://chialab.github.io/rna/guide/esbuild-plugin-any-file).
 
 ## License
 

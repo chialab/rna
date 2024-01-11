@@ -6,23 +6,9 @@
     <a href="https://www.npmjs.com/package/@chialab/postcss-dart-sass"><img alt="NPM" src="https://img.shields.io/npm/v/@chialab/postcss-dart-sass.svg?style=flat-square"></a>
 </p>
 
----
+## Documentation
 
-## Install
-
-```sh
-npm i @chialab/postcss-dart-sass -D
-```
-
-```sh
-yarn add @chialab/postcss-dart-sass -D
-```
-
-## Usage
-
-```js
-import '@chialab/postcss-dart-sass';
-```
+Read the documentation at [chialab.github.io/rna](https://chialab.github.io/rna/guide/postcss-dart-sass).
 
 ---
 

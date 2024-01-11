@@ -6,28 +6,9 @@
     <a href="https://www.npmjs.com/package/@chialab/esbuild-plugin-env"><img alt="NPM" src="https://img.shields.io/npm/v/@chialab/esbuild-plugin-env.svg?style=flat-square"></a>
 </p>
 
----
+## Documentation
 
-## Install
-
-```sh
-npm i @chialab/esbuild-plugin-env -D
-```
-
-```sh
-yarn add @chialab/esbuild-plugin-env -D
-```
-
-## Usage
-
-```js
-import envPlugin from '@chialab/esbuild-plugin-env';
-import esbuild from 'esbuild';
-
-await esbuild.build({
-    plugins: [envPlugin()],
-});
-```
+Read the documentation at [chialab.github.io/rna](https://chialab.github.io/rna/guide/esbuild-plugin-env).
 
 ---
 

@@ -23,23 +23,39 @@ The [Web Dev Server](https://modern-web.dev/docs/dev-server/overview/) is a serv
 
 The RNA dev server can be installed with the following preset:
 
-```sh
+::: code-group
+
+```sh[npm]
 npm i -D @chialab/rna @chialab/rna-dev-server
 ```
 
-```sh
+```sh[yarn]
 yarn add -D @chialab/rna @chialab/rna-dev-server
 ```
 
+```sh[pnpm]
+pnpm add -D @chialab/rna @chialab/rna-dev-server
+```
+
+:::
+
 Run the dev server:
 
-```sh
+::: code-group
+
+```sh[npm]
 npx rna serve src
 ```
 
-```sh
+```sh[yarn]
 yarn rna serve src
 ```
+
+```sh[pnpm]
+pnpx rna serve src
+```
+
+:::
 
 You can also specify a custom port using the `--port N` flag.
 
@@ -48,13 +64,21 @@ You can also specify a custom port using the `--port N` flag.
 Sometimes you may need to test on legacy browsers. Since the Dev Server is based on ESM support, in order to work in Internet Explorer or Safari 9 it needs to transpile and convert the module system.  
 Installing the [legacy plugin](https://www.npmjs.com/package/@chialab/wds-plugin-legacy) will enable the convertion of ESM modules to [SystemJS](https://github.com/systemjs/systemjs) and it will inject required polyfills for `Promise` and `fetch`.
 
-```sh
+::: code-group
+
+```sh[npm]
 npm i -D @chialab/wds-plugin-legacy
 ```
 
-```sh
+```sh[yarn]
 yarn add -D @chialab/wds-plugin-legacy
 ```
+
+```sh[pnpm]
+pnpm add -D @chialab/wds-plugin-legacy
+```
+
+:::
 
 ## Dev server as service
 
@@ -62,7 +86,9 @@ The Dev Server can be used as a service for other stacks. The `serve` command lo
 
 For example, the following configuration:
 
-```ts
+::: code-group
+
+```ts[rna.config.js]
 export default {
     entrypoints: [{ input: 'webroot/index.js' }, { input: 'webroot/index.css' }],
     format: 'esm',
@@ -70,17 +96,17 @@ export default {
 };
 ```
 
-```sh
-npx rna serve --port 3000
-```
+:::
 
 ```sh
-yarn rna serve --port 3000
+rna serve --port 3000
 ```
 
 will generate the **webroot/entrypoints.json** file with contents:
 
-```json
+::: code-group
+
+```json[webroot/entrypoints.json]
 {
     "index": {
         "format": "esm",
@@ -89,6 +115,8 @@ will generate the **webroot/entrypoints.json** file with contents:
     }
 }
 ```
+
+:::
 
 Then, you can read this file and load resources in your PHP application:
 

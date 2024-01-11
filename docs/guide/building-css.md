@@ -6,23 +6,39 @@ Unless you are using syntaxes like Sass and Less, CSS builds are less expansive 
 
 Even if [esbuild](https://esbuild.github.io/) has out of the box support for CSS files, in order to bundle a CSS module using RNA you may have to install the bundler package along with the postcss plugin for node modules resolution:
 
-```sh
+::: code-group
+
+```sh[npm]
 npm i -D @chialab/rna
 ```
 
-```sh
+```sh[yarn]
 yarn add -D @chialab/rna
 ```
 
+```sh[pnpm]
+pnpm add -D @chialab/rna
+```
+
+:::
+
 and run:
 
-```sh
+::: code-group
+
+```sh[npm]
 npx rna build src/index.css --output public/index.css
 ```
 
-```sh
+```sh[yarn]
 yarn rna build src/index.css --output public/index.css
 ```
+
+```sh[pnpm]
+pnpx rna build src/index.css --output public/index.css
+```
+
+:::
 
 A CSS bundle will be generated as well as its source map (unless you added the `--no-map` flag).
 
@@ -55,13 +71,27 @@ RNA already uses it to convert dependencies imports to relative references in or
 We built a [custom PostCSS preset](https://www.npmjs.com/package/@chialab/postcss-preset-chialab) with common rules we use in every project.  
 You can install it using npm or yarn:
 
-```sh
-npm i @chialab/postcss-preset-chialab -D
+::: code-group
+
+```sh[npm]
+npm i -D @chialab/postcss-preset-chialab
 ```
+
+```sh[yarn]
+yarn add -D @chialab/postcss-preset-chialab
+```
+
+```sh[pnpm]
+pnpm add -D @chialab/postcss-preset-chialab
+```
+
+:::
 
 And creating or updating tghe postcss config file:
 
-```json
+::: code-group
+
+```json[postcss.config.json]
 {
     "plugins": {
         "@chialab/postcss-preset-chialab": {}
@@ -69,7 +99,7 @@ And creating or updating tghe postcss config file:
 }
 ```
 
----
+:::
 
 ## Recommendations
 
@@ -78,25 +108,51 @@ And creating or updating tghe postcss config file:
 Although out of RNA scope, we strongly recommend to use a linter for CSS projects. Our preferred one is [Stylelint](https://stylelint.io/) that is built upon the PostCSS parser.  
 First, you need to install the stylelint cli:
 
-```sh
+::: code-group
+
+```sh[npm]
 npm i -D stylelint
 ```
+
+```sh[yarn]
+yarn add -D stylelint
+```
+
+```sh[pnpm]
+pnpm add -D stylelint
+```
+
+:::
 
 Please follow official guide for [linter configuration](https://stylelint.io/user-guide/configure).
 
 We also provide our configuration preset:
 
-```sh
+::: code-group
+
+```sh[npm]
 npm i -D @chialab/stylelint-config
 ```
 
-**.stylelintrc.json**
+```sh[yarn]
+yarn add -D @chialab/stylelint-config
+```
 
-```json
+```sh[pnpm]
+pnpm add -D @chialab/stylelint-config
+```
+
+:::
+
+::: code-group
+
+```json[.stylelintrc.json]
 {
     "extends": "@chialab/stylelint-config"
 }
 ```
+
+:::
 
 Also, do not forget to install the linter extension for your IDE:
 

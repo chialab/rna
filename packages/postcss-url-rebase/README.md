@@ -6,26 +6,9 @@
     <a href="https://www.npmjs.com/package/@chialab/postcss-url-rebase"><img alt="NPM" src="https://img.shields.io/npm/v/@chialab/postcss-url-rebase.svg?style=flat-square"></a>
 </p>
 
-## Install
+## Documentation
 
-```sh
-npm i @chialab/postcss-url-rebase -D
-```
-
-```sh
-yarn add @chialab/postcss-url-rebase -D
-```
-
-## Usage
-
-```js
-import postcss from 'postcss';
-import urlRebase from '@chialab/postcss-url-rebase';
-
-postcss([
-    urlRebase(),
-]).process(...);
-```
+Read the documentation at [chialab.github.io/rna](https://chialab.github.io/rna/guide/postcss-url-rebase).
 
 ---
 

@@ -7,11 +7,23 @@ In this tutorial we will migrate [Create React App](https://facebook.github.io/c
 The RNA dev server works serving a source directory that contains one (or more) HTML entrypoints. CRA static files are stored under the `public` folder, so we need to move them to the `src` directory:
 
 ```sh
-$ mv public/index.html    src/index.html
-$ mv public/favicon.ico   src/favicon.ico
-$ mv public/logo192.png   src/logo192.png
-$ mv public/logo512.png   src/logo512.png
-$ mv public/manifest.json src/manifest.json
+mv public/index.html src/index.html
+```
+
+```sh
+mv public/favicon.ico src/favicon.ico
+```
+
+```sh
+mv public/logo192.png src/logo192.png
+```
+
+```sh
+mv public/logo512.png src/logo512.png
+```
+
+```sh
+mv public/manifest.json src/manifest.json
 ```
 
 ### Replace `%PUBLIC_URL%` with local references
@@ -54,13 +66,21 @@ Optionally, you can also include a bundle for browsers that don't support ESM mo
 
 First, we need to install `rna` dependencies:
 
-```sh
+::: code-group
+
+```sh[npm]
 npm i -D @chialab/rna @chialab/rna-dev-server
 ```
 
-```sh
+```sh[yarn]
 yarn add -D @chialab/rna @chialab/rna-dev-server
 ```
+
+```sh[pnpm]
+pnpm add -D @chialab/rna @chialab/rna-dev-server
+```
+
+:::
 
 Then, we are ready to update the `package.json` file to replace `react-scripts` witn `rna`.
 

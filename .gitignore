@@ -13,6 +13,7 @@
 /packages/*/demo
 .nyc_output
 coverage
+public
 tsconfig.tsbuildinfo
 docs/.vitepress/dist
 docs/.vitepress/cache

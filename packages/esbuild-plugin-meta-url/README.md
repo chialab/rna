@@ -6,42 +6,9 @@
     <a href="https://www.npmjs.com/package/@chialab/esbuild-plugin-meta-url"><img alt="NPM" src="https://img.shields.io/npm/v/@chialab/esbuild-plugin-meta-url.svg?style=flat-square"></a>
 </p>
 
----
+## Documentation
 
-## How it works
-
-**Esbuild Plugin Meta Url** looks for `new URL('path/to/file.png', import.meta.url)` in JavaScript and TypeScript files and instructs esbuild to copy referenced files. This is a standard version of the file loader.
-
-```js
-// DONT ❌
-import img from './logo.png';
-
-// DO ✅
-const img = new URL('./logo.png', import.meta.url).href;
-```
-
----
-
-## Install
-
-```sh
-npm i @chialab/esbuild-plugin-meta-url -D
-```
-
-```sh
-yarn add @chialab/esbuild-plugin-meta-url -D
-```
-
-## Usage
-
-```js
-import metaUrlPlugin from '@chialab/esbuild-plugin-meta-url';
-import esbuild from 'esbuild';
-
-await esbuild.build({
-    plugins: [metaUrlPlugin()],
-});
-```
+Read the documentation at [chialab.github.io/rna](https://chialab.github.io/rna/guide/esbuild-plugin-meta-url).
 
 ---
 

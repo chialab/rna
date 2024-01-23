@@ -1,5 +1,11 @@
 # @chialab/rna-bundler
 
+## 0.18.1
+
+### Patch Changes
+
+- a626250: Pass `tsconfig` and `tsconfigRaw` config.
+
 ## 0.18.0
 
 ### Minor Changes

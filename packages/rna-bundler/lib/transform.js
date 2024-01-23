@@ -39,6 +39,8 @@ export async function transform(config) {
         inject,
         banner,
         footer,
+        tsconfig,
+        tsconfigRaw,
     } = config;
 
     if (code == null) {
@@ -108,6 +110,8 @@ export async function transform(config) {
             inject,
             banner,
             footer,
+            tsconfig,
+            tsconfigRaw,
         })
     );
 

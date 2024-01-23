@@ -59,6 +59,8 @@ export async function build(config) {
         footer,
         manifestPath,
         entrypointsPath,
+        tsconfig,
+        tsconfigRaw,
     } = config;
 
     const entryOptions = {};
@@ -152,6 +154,8 @@ export async function build(config) {
         inject,
         banner,
         footer,
+        tsconfig,
+        tsconfigRaw,
     });
 
     const result = /** @type {import('@chialab/esbuild-rna').Result} */ (await context.rebuild());

@@ -1,5 +1,13 @@
 # @chialab/esbuild-plugin-meta-url
 
+## 0.18.1
+
+### Patch Changes
+
+- 031a40c: Resolve relative paths using URL constructor and ignore directories.
+- Updated dependencies [dd8e33f]
+  - @chialab/esbuild-rna@0.18.1
+
 ## 0.18.0
 
 ### Minor Changes

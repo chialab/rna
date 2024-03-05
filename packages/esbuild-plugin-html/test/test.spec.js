@@ -1346,7 +1346,7 @@ html {
         expect(css.path).endsWith(path.join(path.sep, 'out', 'index.css'));
     });
 
-    it('should minify html', async () => {
+    test('should minify html', async () => {
         const { outputFiles } = await esbuild.build({
             absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             entryPoints: [fileURLToPath(new URL('fixture/index.iife.html', import.meta.url))],
@@ -1363,8 +1363,8 @@ html {
         });
 
         const [index] = outputFiles;
-        expect(index.text).to.be
-            .equal(`<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Document</title><script type="application/javascript">(function() {
+        expect(index.text)
+            .toBe(`<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Document</title><script type="application/javascript">(function() {
 function loadStyle(url) {
     var l = document.createElement('link');
     l.rel = 'stylesheet';
@@ -1375,7 +1375,7 @@ loadStyle('/public/index.css');
 }());</script></head><body> <script src="/public/index.js" type="application/javascript"></script> </body></html>`);
     });
 
-    it('should minify html with minify option', async () => {
+    test('should minify html with minify option', async () => {
         const { outputFiles } = await esbuild.build({
             absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             entryPoints: [fileURLToPath(new URL('fixture/index.iife.html', import.meta.url))],
@@ -1398,8 +1398,8 @@ loadStyle('/public/index.css');
         });
 
         const [index] = outputFiles;
-        expect(index.text).to.be
-            .equal(`<!DOCTYPE html><html lang=en><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width, initial-scale=1.0"><title>Document</title><script type=application/javascript>(function() {
+        expect(index.text)
+            .toBe(`<!DOCTYPE html><html lang=en><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width, initial-scale=1.0"><title>Document</title><script type=application/javascript>(function() {
 function loadStyle(url) {
     var l = document.createElement('link');
     l.rel = 'stylesheet';

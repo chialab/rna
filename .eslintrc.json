@@ -12,6 +12,7 @@
     "**/types/*",
     "**/fixture/*",
     "**/fixtures/*",
+    "**/test/out/*",
     "public",
     "docs/.vitepress/dist",
     "docs/.vitepress/cache"

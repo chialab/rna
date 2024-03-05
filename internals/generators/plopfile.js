@@ -1,7 +1,7 @@
 /**
  * @param {import('plop').NodePlopAPI} plop
  */
-module.exports = function (plop) {
+export default (plop) => {
     plop.setGenerator('module', {
         description: 'RNA ecosystem module.',
         prompts: [

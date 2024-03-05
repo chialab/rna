@@ -11,7 +11,7 @@
     "build": "yarn workspaces foreach --topological-dev --verbose run build",
     "types": "rimraf --glob 'packages/*/{types,*.tsbuildinfo}' && tsc -b",
     "lint": "prettier --check . && eslint 'packages/*/lib/**/*.js'",
-    "test": "rna test:node packages/*/test/**/*.spec.js --coverage",
+    "test": "vitest --coverage",
     "new": "plop --plopfile internals/generators/plopfile.cjs module",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
@@ -28,9 +28,8 @@
     "@chialab/prettier-config": "^1.2.2",
     "@chialab/rna": "*",
     "@chialab/rna-node-test-runner": "*",
-    "@types/chai": "^4.2.22",
+    "@vitest/coverage-v8": "^1.3.1",
     "@yarnpkg/core": "^4.0.0-rc.6",
-    "chai": "^4.3.4",
     "chai-string": "^1.5.0",
     "eslint": "^8.0.0",
     "jsonc-parser": "^3.0.0",
@@ -38,7 +37,8 @@
     "prettier": "^3.1.1",
     "rimraf": "^5.0.1",
     "typescript": "^5.0.0",
-    "vitepress": "^1.0.0-rc.36"
+    "vitepress": "^1.0.0-rc.36",
+    "vitest": "^1.3.1"
   },
   "workspaces": [
     "packages/*"

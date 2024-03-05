@@ -1,10 +1,10 @@
 import { fileURLToPath } from 'url';
-import cssImportPlugin from '@chialab/esbuild-plugin-css-import';
-import { expect } from 'chai';
 import esbuild from 'esbuild';
+import { describe, expect, test } from 'vitest';
+import cssImportPlugin from '../lib/index.js';
 
 describe('esbuild-plugin-css-import', () => {
-    it('should resolve css imports', async () => {
+    test('should resolve css imports', async () => {
         const {
             outputFiles: [result],
         } = await esbuild.build({
@@ -16,7 +16,7 @@ describe('esbuild-plugin-css-import', () => {
             plugins: [cssImportPlugin()],
         });
 
-        expect(result.text).to.be.equal(`/* fixture/node_modules/test-lib/lib.css */
+        expect(result.text).toBe(`/* fixture/node_modules/test-lib/lib.css */
 html,
 body {
   margin: 0;
@@ -27,7 +27,7 @@ body {
 `);
     });
 
-    it('should ignore external modules', async () => {
+    test('should ignore external modules', async () => {
         const {
             outputFiles: [result],
         } = await esbuild.build({
@@ -40,7 +40,7 @@ body {
             plugins: [cssImportPlugin()],
         });
 
-        expect(result.text).to.be.equal(`@import "test-lib";
+        expect(result.text).toBe(`@import "test-lib";
 
 /* fixture/input.css */
 `);

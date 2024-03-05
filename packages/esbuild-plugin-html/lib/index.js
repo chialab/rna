@@ -63,6 +63,7 @@ export default function ({ scriptsTarget = 'es2015', modulesTarget = 'es2020' } 
             const build = useRna(plugin, pluginBuild);
             const { write = true } = build.getOptions();
             const outDir = build.getOutDir();
+            const cwd = build.getWorkingDir();
             if (!outDir) {
                 throw new Error('Cannot use the html plugin without an outdir.');
             }
@@ -251,11 +252,19 @@ export default function ({ scriptsTarget = 'es2015', modulesTarget = 'es2020' } 
                     code: beautify.html($.html().replace(/\n\s*$/gm, '')),
                     loader: 'file',
                     watchFiles: results.reduce((acc, result) => {
-                        if (!result || !result.watchFiles) {
+                        if (!result) {
                             return acc;
                         }
-
-                        return [...acc, ...result.watchFiles];
+                        if (result.watchFiles) {
+                            return [...acc, ...result.watchFiles];
+                        }
+                        if (result.metafile) {
+                            return [
+                                ...acc,
+                                ...Object.keys(result.metafile.inputs).map((key) => path.resolve(cwd, key)),
+                            ];
+                        }
+                        return acc;
                     }, /** @type {string[]} */ ([])),
                 };
             });

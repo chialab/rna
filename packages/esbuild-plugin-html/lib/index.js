@@ -21,6 +21,7 @@ const loadHtml = /** @type {typeof cheerio.load} */ (cheerio.load || cheerio.def
  * @property {string} [entryNames]
  * @property {string} [chunkNames]
  * @property {string} [assetNames]
+ * @property {import('htmlnano').HtmlnanoOptions} [minifyOptions]
  */
 
 /**
@@ -53,7 +54,7 @@ const loadHtml = /** @type {typeof cheerio.load} */ (cheerio.load || cheerio.def
  * @param {PluginOptions} options
  * @returns An esbuild plugin.
  */
-export default function ({ scriptsTarget = 'es2015', modulesTarget = 'es2020' } = {}) {
+export default function ({ scriptsTarget = 'es2015', modulesTarget = 'es2020', minifyOptions = {} } = {}) {
     /**
      * @type {import('esbuild').Plugin}
      */
@@ -61,7 +62,7 @@ export default function ({ scriptsTarget = 'es2015', modulesTarget = 'es2020' } 
         name: 'html',
         setup(pluginBuild) {
             const build = useRna(plugin, pluginBuild);
-            const { write = true } = build.getOptions();
+            const { write = true, minify = false } = build.getOptions();
             const outDir = build.getOutDir();
             if (!outDir) {
                 throw new Error('Cannot use the html plugin without an outdir.');
@@ -75,6 +76,11 @@ export default function ({ scriptsTarget = 'es2015', modulesTarget = 'es2020' } 
              */
             const entryPoints = [];
             const workingDir = build.getWorkingDir();
+
+            /**
+             * @type {import('esbuild').Message[]}
+             */
+            const warnings = [];
 
             build.onStart(() => {
                 entryPoints.splice(0, entryPoints.length);
@@ -247,8 +253,28 @@ export default function ({ scriptsTarget = 'es2015', modulesTarget = 'es2020' } 
                 results.push(...(await collectStyles($, root, collectOptions, helpers)));
                 results.push(...(await collectScripts($, root, collectOptions, helpers)));
 
+                let resultHtml = $.html().replace(/\n\s*$/gm, '');
+                if (minify) {
+                    await import('htmlnano')
+                        .then(async ({ default: htmlnano }) => {
+                            resultHtml = (await htmlnano.process(resultHtml, minifyOptions)).html;
+                        })
+                        .catch(() => {
+                            warnings.push({
+                                id: 'missing-htmlnano',
+                                pluginName: 'html',
+                                text: `Unable to load "htmlnano" module for HTML minification.`,
+                                location: null,
+                                notes: [],
+                                detail: '',
+                            });
+                        });
+                } else {
+                    resultHtml = beautify.html(resultHtml);
+                }
+
                 return {
-                    code: beautify.html($.html().replace(/\n\s*$/gm, '')),
+                    code: resultHtml,
                     loader: 'file',
                     watchFiles: results.reduce((acc, result) => {
                         if (!result || !result.watchFiles) {
@@ -257,6 +283,7 @@ export default function ({ scriptsTarget = 'es2015', modulesTarget = 'es2020' } 
 
                         return [...acc, ...result.watchFiles];
                     }, /** @type {string[]} */ ([])),
+                    warnings,
                 };
             });
         },

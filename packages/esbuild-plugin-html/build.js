@@ -9,7 +9,7 @@ esbuild.build({
     sourcemap: true,
     format: 'esm',
     platform: 'node',
-    external: ['@chialab/esbuild-rna', '@chialab/node-resolve'],
+    external: ['@chialab/esbuild-rna', '@chialab/node-resolve', 'htmlnano'],
     banner: {
         js: `import { dirname as __pathDirname } from 'path';
 import { createRequire as __moduleCreateRequire } from 'module';

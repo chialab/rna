@@ -233,3 +233,40 @@ This will result in:
 ```
 
 It also update `<link rel="manifest">` content if found.
+
+## Minify
+
+The plugin will honor the `minify` option from esbuild if the `htmlnano` module is installed.
+
+::: code-group
+
+```sh[npm]
+npm i -D @chialab/esbuild-plugin-html htmlnano
+```
+
+```sh[yarn]
+yarn add -D @chialab/esbuild-plugin-html htmlnano
+```
+
+```sh[pnpm]
+pnpm add -D @chialab/esbuild-plugin-html htmlnano
+```
+
+:::
+
+Configuration can be passed with the `minifyOptions` property. Please refer to the [htmlnano documentation](https://htmlnano.netlify.app/modules) for more information.
+
+```js
+import htmlPlugin from '@chialab/esbuild-plugin-html';
+import esbuild from 'esbuild';
+
+await esbuild.build({
+    plugins: [
+        htmlPlugin({
+            minifyOptions: {
+                collapseWhitespace: true,
+            },
+        }),
+    ],
+});
+```

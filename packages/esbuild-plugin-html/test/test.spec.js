@@ -1341,4 +1341,68 @@ html {
         expect(js.path).endsWith(path.join(path.sep, 'out', 'index.js'));
         expect(css.path).endsWith(path.join(path.sep, 'out', 'index.css'));
     });
+
+    it('should minify html', async () => {
+        const { outputFiles } = await esbuild.build({
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
+            entryPoints: [fileURLToPath(new URL('fixture/index.iife.html', import.meta.url))],
+            sourceRoot: '/',
+            publicPath: '/public',
+            entryNames: '[dir]/[name]',
+            chunkNames: '[name]',
+            outdir: 'out',
+            format: 'esm',
+            bundle: true,
+            minify: true,
+            write: false,
+            plugins: [htmlPlugin()],
+        });
+
+        const [index] = outputFiles;
+        expect(index.text).to.be
+            .equal(`<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Document</title><script type="application/javascript">(function() {
+function loadStyle(url) {
+    var l = document.createElement('link');
+    l.rel = 'stylesheet';
+    l.href = url;
+    document.head.appendChild(l);
+}
+loadStyle('/public/index.css');
+}());</script></head><body> <script src="/public/index.js" type="application/javascript"></script> </body></html>`);
+    });
+
+    it('should minify html with minify option', async () => {
+        const { outputFiles } = await esbuild.build({
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
+            entryPoints: [fileURLToPath(new URL('fixture/index.iife.html', import.meta.url))],
+            sourceRoot: '/',
+            publicPath: '/public',
+            entryNames: '[dir]/[name]',
+            chunkNames: '[name]',
+            outdir: 'out',
+            format: 'esm',
+            bundle: true,
+            minify: true,
+            write: false,
+            plugins: [
+                htmlPlugin({
+                    minifyOptions: {
+                        removeAttributeQuotes: true,
+                    },
+                }),
+            ],
+        });
+
+        const [index] = outputFiles;
+        expect(index.text).to.be
+            .equal(`<!DOCTYPE html><html lang=en><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width, initial-scale=1.0"><title>Document</title><script type=application/javascript>(function() {
+function loadStyle(url) {
+    var l = document.createElement('link');
+    l.rel = 'stylesheet';
+    l.href = url;
+    document.head.appendChild(l);
+}
+loadStyle('/public/index.css');
+}());</script></head><body> <script src=/public/index.js type=application/javascript></script> </body></html>`);
+    });
 });

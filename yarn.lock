@@ -1901,6 +1901,11 @@ __metadata:
     js-beautify: ^1.14.0
     rimraf: ^5.0.1
     typescript: ^5.0.0
+  peerDependencies:
+    htmlnano: ^2.0.0
+  peerDependenciesMeta:
+    htmlnano:
+      optional: true
   languageName: unknown
   linkType: soft
 

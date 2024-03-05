@@ -139,6 +139,7 @@ import { assignToResult, createFileHash, createOutputFile, createResult } from '
  * @property {Message[]} [errors]
  * @property {Message[]} [warnings]
  * @property {string[]} [watchFiles]
+ * @property {Metafile} [metafile]
  */
 
 /**
@@ -685,6 +686,12 @@ export class Build {
          * @type {Message[]}
          */
         const errors = [];
+
+        /**
+         * @type {string[]}
+         */
+        const watchFiles = [];
+
         for (const { options, callback } of this.onTransformRules) {
             const { namespace: optionsNamespace = 'file', filter } = options;
             if (namespace !== optionsNamespace) {
@@ -710,6 +717,13 @@ export class Build {
                     }
                     if (result.errors) {
                         errors.push(...result.errors);
+                    }
+                    if (result.watchFiles) {
+                        result.watchFiles.forEach((file) => {
+                            if (!watchFiles.includes(file)) {
+                                watchFiles.push();
+                            }
+                        });
                     }
                     if (result.map) {
                         maps.push(result.map);
@@ -743,6 +757,7 @@ export class Build {
                 resolveDir,
                 warnings,
                 errors,
+                watchFiles,
             };
         }
 
@@ -761,6 +776,7 @@ export class Build {
             resolveDir,
             warnings,
             errors,
+            watchFiles,
         };
     }
 

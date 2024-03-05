@@ -721,7 +721,7 @@ export class Build {
                     if (result.watchFiles) {
                         result.watchFiles.forEach((file) => {
                             if (!watchFiles.includes(file)) {
-                                watchFiles.push();
+                                watchFiles.push(file);
                             }
                         });
                     }

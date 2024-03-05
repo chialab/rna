@@ -1,10 +1,10 @@
 import { fileURLToPath } from 'url';
 import virtualPlugin, { createVirtualPlugin } from '@chialab/esbuild-plugin-virtual';
-import { expect } from 'chai';
 import esbuild from 'esbuild';
+import { describe, expect, test } from 'vitest';
 
 describe('esbuild-plugin-virtual', () => {
-    it('should load virtual modules', async () => {
+    test('should load virtual modules', async () => {
         const {
             outputFiles: [result],
         } = await esbuild.build({
@@ -28,7 +28,7 @@ export { test }`,
             ],
         });
 
-        expect(result.text).to.equal(`// virtualMod
+        expect(result.text).toEqual(`// virtualMod
 var test = () => {
 };
 export {
@@ -37,7 +37,7 @@ export {
 `);
     });
 
-    it('should load virtual modules with a new plugin instance', async () => {
+    test('should load virtual modules with a new plugin instance', async () => {
         const {
             outputFiles: [result],
         } = await esbuild.build({
@@ -61,7 +61,7 @@ export { test }`,
             ],
         });
 
-        expect(result.text).to.equal(`// virtualMod
+        expect(result.text).toEqual(`// virtualMod
 var test = () => {
 };
 export {
@@ -70,7 +70,7 @@ export {
 `);
     });
 
-    it('should load css virtual modules', async () => {
+    test('should load css virtual modules', async () => {
         const {
             outputFiles: [result],
         } = await esbuild.build({
@@ -94,7 +94,7 @@ export {
             ],
         });
 
-        expect(result.text).to.equal(`/* virtualMod */
+        expect(result.text).toEqual(`/* virtualMod */
 body {
   color: red;
 }

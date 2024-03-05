@@ -1,10 +1,10 @@
 import { fileURLToPath } from 'url';
 import babelPlugin from '@chialab/esbuild-plugin-babel';
-import { expect } from 'chai';
 import esbuild from 'esbuild';
+import { describe, expect, test } from 'vitest';
 
 describe('esbuild-plugin-babel', () => {
-    it('should transform code to es5', async () => {
+    test('should transform code to es5', async () => {
         const {
             outputFiles: [result],
         } = await esbuild.build({
@@ -21,7 +21,7 @@ describe('esbuild-plugin-babel', () => {
             plugins: [babelPlugin()],
         });
 
-        expect(result.text).to.be.equal(`// test.spec.js
+        expect(result.text).toBe(`// test.spec.js
 var nil = function nil2() {
 };
 export {
@@ -30,7 +30,7 @@ export {
 `);
     });
 
-    it('should transform code using babel config', async () => {
+    test('should transform code using babel config', async () => {
         const {
             outputFiles: [result],
         } = await esbuild.build({
@@ -43,7 +43,7 @@ export {
             plugins: [babelPlugin()],
         });
 
-        expect(result.text).to.be.equal(`// fixture/input.js
+        expect(result.text).toBe(`// fixture/input.js
 var nil = function nil2() {
 };
 export {
@@ -52,7 +52,7 @@ export {
 `);
     });
 
-    it('should transform using babel runtime', async () => {
+    test('should transform using babel runtime', async () => {
         const {
             outputFiles: [result],
         } = await esbuild.build({
@@ -69,7 +69,7 @@ export {
             plugins: [babelPlugin()],
         });
 
-        expect(result.text).to.be.equal(`import _asyncToGenerator from "@babel/runtime/helpers/esm/asyncToGenerator";
+        expect(result.text).toBe(`import _asyncToGenerator from "@babel/runtime/helpers/esm/asyncToGenerator";
 import _regeneratorRuntime from "@babel/runtime/regenerator";
 var nil = /* @__PURE__ */ function() {
   var _ref = _asyncToGenerator(/* @__PURE__ */ _regeneratorRuntime.mark(function _callee() {
@@ -92,7 +92,7 @@ export {
 `);
     });
 
-    it('should bundle babel runtime', async () => {
+    test('should bundle babel runtime', async () => {
         const {
             outputFiles: [result],
         } = await esbuild.build({
@@ -109,7 +109,7 @@ export {
             plugins: [babelPlugin()],
         });
 
-        expect(result.text).to.be.equal(`// ../../../node_modules/@babel/runtime/helpers/esm/typeof.js
+        expect(result.text).toBe(`// ../../../node_modules/@babel/runtime/helpers/esm/typeof.js
 function _typeof(o) {
   "@babel/helpers - typeof";
   return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(o2) {
@@ -184,7 +184,7 @@ export {
 `);
     });
 
-    it('should convert tagget templates like jsx', async () => {
+    test('should convert tagget templates like jsx', async () => {
         const {
             outputFiles: [result],
         } = await esbuild.build({
@@ -202,7 +202,7 @@ export {
             plugins: [babelPlugin()],
         });
 
-        expect(result.text).to.be.equal(`// test.spec.js
+        expect(result.text).toBe(`// test.spec.js
 var template = h("div", null);
 export {
   template

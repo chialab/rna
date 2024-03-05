@@ -31,12 +31,6 @@
     },
     {
       "path": "../esbuild-rna"
-    },
-    {
-      "path": "../rna-config-loader"
-    },
-    {
-      "path": "../rna-logger"
     }
   ]
 }

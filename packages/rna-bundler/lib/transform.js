@@ -2,7 +2,7 @@ import path from 'path';
 import process from 'process';
 import { hasPlugin } from '@chialab/esbuild-rna';
 import esbuild from 'esbuild';
-import { transformLoaders } from './loaders.js';
+import { transformLoaders } from './config.js';
 
 /**
  * @typedef {import('@chialab/esbuild-rna').Result & { code: string; map?: string }} TransformResult
@@ -10,7 +10,7 @@ import { transformLoaders } from './loaders.js';
 
 /**
  * Build and bundle sources.
- * @param {import('@chialab/rna-config-loader').EntrypointConfig} config
+ * @param {import('./config.js').EntrypointConfig} config
  * @returns {Promise<TransformResult>} The esbuild bundle result.
  */
 export async function transform(config) {

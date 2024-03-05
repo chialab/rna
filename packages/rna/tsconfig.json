@@ -12,22 +12,7 @@
       "path": "../rna-bundler"
     },
     {
-      "path": "../rna-logger"
-    },
-    {
-      "path": "../rna-browser-test-runner"
-    },
-    {
       "path": "../rna-bundler"
-    },
-    {
-      "path": "../rna-dev-server"
-    },
-    {
-      "path": "../rna-node-test-runner"
-    },
-    {
-      "path": "../rna-saucelabs-test-runner"
     }
   ]
 }

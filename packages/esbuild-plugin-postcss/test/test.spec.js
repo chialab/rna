@@ -1,11 +1,11 @@
 import { fileURLToPath } from 'url';
 import cssImportPlugin from '@chialab/esbuild-plugin-css-import';
 import postcssPlugin from '@chialab/esbuild-plugin-postcss';
-import { expect } from 'chai';
 import esbuild from 'esbuild';
+import { describe, expect, test } from 'vitest';
 
 describe('esbuild-plugin-postcss', () => {
-    it('should run postcss default transformations', async () => {
+    test('should run postcss default transformations', async () => {
         const {
             outputFiles: [result],
         } = await esbuild.build({
@@ -24,7 +24,7 @@ describe('esbuild-plugin-postcss', () => {
             plugins: [postcssPlugin()],
         });
 
-        expect(result.text).to.be.equal(`/* input.css */
+        expect(result.text).toBe(`/* input.css */
 ::-webkit-input-placeholder {
   color: gray;
 }
@@ -43,7 +43,7 @@ describe('esbuild-plugin-postcss', () => {
 `);
     });
 
-    it('should convert sass', async () => {
+    test('should convert sass', async () => {
         const {
             outputFiles: [result],
         } = await esbuild.build({
@@ -67,14 +67,14 @@ describe('esbuild-plugin-postcss', () => {
             plugins: [postcssPlugin()],
         });
 
-        expect(result.text).to.be.equal(`/* input.scss */
+        expect(result.text).toBe(`/* input.scss */
 .parent .child {
   color: red;
 }
 `);
     });
 
-    it('should include sass modules', async () => {
+    test('should include sass modules', async () => {
         const {
             outputFiles: [result],
         } = await esbuild.build({
@@ -91,7 +91,7 @@ describe('esbuild-plugin-postcss', () => {
             plugins: [cssImportPlugin(), postcssPlugin()],
         });
 
-        expect(result.text).to.be.equal(`/* fixture/input.scss */
+        expect(result.text).toBe(`/* fixture/input.scss */
 body,
 html {
   margin: 0;
@@ -103,7 +103,7 @@ html {
 `);
     });
 
-    it('should load postcss config', async () => {
+    test('should load postcss config', async () => {
         const {
             outputFiles: [result],
         } = await esbuild.build({
@@ -118,6 +118,6 @@ html {
             plugins: [postcssPlugin()],
         });
 
-        expect(result.text).to.be.equal('body{margin:0}');
+        expect(result.text).toBe('body{margin:0}');
     });
 });

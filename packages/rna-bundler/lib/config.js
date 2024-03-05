@@ -1,4 +1,26 @@
 /**
+ * @typedef {Object} RnaConfig
+ * @property {string} [root]
+ * @property {string} [publicPath]
+ * @property {string} [manifestPath]
+ * @property {string} [entrypointsPath]
+ * @property {boolean} [clean]
+ * @property {boolean} [watch]
+ */
+
+/**
+ * @typedef {Object} RnaEntrypointConfig
+ * @property {string|string[]} input
+ * @property {string} [output]
+ * @property {string} [name]
+ * @property {string} [code]
+ */
+
+/**
+ * @typedef {import('esbuild').BuildOptions & RnaConfig & RnaEntrypointConfig} EntrypointConfig
+ */
+
+/**
  * @type {Record<string, import('esbuild').Loader>}
  */
 export const loaders = {

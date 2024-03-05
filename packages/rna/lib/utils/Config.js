@@ -4,75 +4,12 @@ import process from 'process';
 import { pathToFileURL } from 'url';
 
 /**
- * @typedef {import('esbuild').BuildOptions} BuildOptions
- */
-
-/**
- * @typedef {import('esbuild').Format} Format
- */
-
-/**
- * @typedef {import('esbuild').Loader} Loader
- */
-
-/**
- * @typedef {import('esbuild').Platform} Platform
- */
-
-/**
- * @typedef {import('esbuild').Plugin} Plugin
- */
-
-/**
- * @typedef {import('esbuild').LogLevel} LogLevel
- */
-
-/**
- * @typedef {import('@chialab/es-dev-server').Plugin} ServePlugin
- */
-
-/**
- * @typedef {boolean|'external'|'inline'|'both'} SourcemapType
- */
-
-/**
- * @typedef {{ [key: string]: string }} DefineMap
- */
-
-/**
- * @typedef {'build'|'serve'} Mode
- */
-
-/**
- * @typedef {Object} RnaConfig
- * @property {string} [root]
- * @property {string} [publicPath]
- * @property {string} [manifestPath]
- * @property {string} [entrypointsPath]
- * @property {boolean} [clean]
- * @property {boolean} [watch]
- */
-
-/**
- * @typedef {Object} RnaEntrypointConfig
- * @property {string|string[]} input
- * @property {string} [output]
- * @property {string} [name]
- * @property {string} [code]
- */
-
-/**
- * @typedef {BuildOptions & RnaConfig & RnaEntrypointConfig} EntrypointConfig
- */
-
-/**
  * @typedef {Object} RnaProjectConfig
- * @property {EntrypointConfig[]} [entrypoints]
- * @property {ServePlugin[]} [servePlugins]
+ * @property {import('@chialab/rna-bundler').EntrypointConfig[]} [entrypoints]
  */
 
 /**
- * @typedef {BuildOptions & RnaConfig & RnaProjectConfig} ProjectConfig
+ * @typedef {import('esbuild').BuildOptions & import('@chialab/rna-bundler').RnaConfig & RnaProjectConfig} ProjectConfig
  */
 
 /**
@@ -89,7 +26,7 @@ export function camelize(file) {
 }
 
 /**
- * @param {EntrypointConfig} entrypoint
+ * @param {import('@chialab/rna-bundler').EntrypointConfig} entrypoint
  * @param {ProjectConfig} config
  * @returns {ProjectConfig & { input: string|string[] }}
  */
@@ -148,9 +85,9 @@ export function getEntryConfig(entrypoint, config) {
 }
 
 /**
- * @param {EntrypointConfig} entrypoint
+ * @param {import('@chialab/rna-bundler').EntrypointConfig} entrypoint
  * @param {ProjectConfig} config
- * @returns {EntrypointConfig}
+ * @returns {import('@chialab/rna-bundler').EntrypointConfig}
  */
 export function getEntryBuildConfig(entrypoint, config) {
     if (!entrypoint.output) {
@@ -159,7 +96,7 @@ export function getEntryBuildConfig(entrypoint, config) {
 
     const format = entrypoint.format || config.format;
 
-    return /** @type {EntrypointConfig} */ (
+    return /** @type {import('@chialab/rna-bundler').EntrypointConfig} */ (
         getEntryConfig(
             {
                 ...entrypoint,
@@ -198,25 +135,23 @@ export function mergeConfig(...entries) {
             entrypoints: [...(config.entrypoints || []), ...(clone.entrypoints || [])],
             external: [...(config.external || []), ...(clone.external || [])],
             plugins: [...(config.plugins || []), ...(clone.plugins || [])],
-            servePlugins: [...(config.servePlugins || []), ...(clone.servePlugins || [])],
         };
     }, {});
 }
 
 /**
  *
- * @param {ProjectConfig|Promise<ProjectConfig>|((input: ProjectConfig, mode: Mode) => ProjectConfig|Promise<ProjectConfig>)} inputConfig
+ * @param {ProjectConfig|Promise<ProjectConfig>|((input: ProjectConfig) => ProjectConfig|Promise<ProjectConfig>)} inputConfig
  * @param {ProjectConfig} initialConfig
- * @param {Mode} mode
  * @returns {Promise<ProjectConfig>}
  */
-async function computeConfigFile(inputConfig, initialConfig, mode) {
+async function computeConfigFile(inputConfig, initialConfig) {
     if (typeof inputConfig === 'function') {
-        return computeConfigFile(inputConfig(initialConfig, mode), initialConfig, mode);
+        return computeConfigFile(inputConfig(initialConfig), initialConfig);
     }
 
     if (inputConfig instanceof Promise) {
-        return computeConfigFile(await inputConfig, initialConfig, mode);
+        return computeConfigFile(await inputConfig, initialConfig);
     }
 
     return inputConfig || {};
@@ -225,15 +160,14 @@ async function computeConfigFile(inputConfig, initialConfig, mode) {
 /**
  * @param {string} configFile
  * @param {ProjectConfig} initialConfig
- * @param {Mode} [mode]
  * @param {string} [cwd]
  * @returns {Promise<ProjectConfig>}
  */
-export async function readConfigFile(configFile, initialConfig, mode = 'build', cwd = process.cwd()) {
+export async function readConfigFile(configFile, initialConfig, cwd = process.cwd()) {
     configFile = path.isAbsolute(configFile) ? configFile : `./${configFile}`;
     const { default: inputConfig } = await import(pathToFileURL(path.resolve(cwd, configFile)).href);
 
-    return computeConfigFile(inputConfig, initialConfig, mode);
+    return computeConfigFile(inputConfig, initialConfig);
 }
 
 /**

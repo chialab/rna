@@ -3,7 +3,7 @@ import path from 'path';
 import process from 'process';
 import { hasPlugin } from '@chialab/esbuild-rna';
 import esbuild from 'esbuild';
-import { loaders } from './loaders.js';
+import { loaders } from './config.js';
 
 /**
  * @typedef {import('esbuild').Metafile} Metafile
@@ -11,7 +11,7 @@ import { loaders } from './loaders.js';
 
 /**
  * Build and bundle sources.
- * @param {import('@chialab/rna-config-loader').EntrypointConfig} config
+ * @param {import('./config.js').EntrypointConfig} config
  * @returns {Promise<import('@chialab/esbuild-rna').Result>} The esbuild bundle result.
  */
 export async function build(config) {

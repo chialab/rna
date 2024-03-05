@@ -5,8 +5,8 @@ import process from 'process';
 import { createBrotliCompress, createGzip } from 'zlib';
 import { assignToResult, createResult, remapResult, useRna } from '@chialab/esbuild-rna';
 import { build } from '@chialab/rna-bundler';
-import { getEntryBuildConfig, locateConfigFile, mergeConfig, readConfigFile } from '@chialab/rna-config-loader';
-import { colors, createLogger, readableSize } from '@chialab/rna-logger';
+import { getEntryBuildConfig, locateConfigFile, mergeConfig, readConfigFile } from '../utils/Config.js';
+import { colors, createLogger, readableSize } from '../utils/Logger.js';
 import { Queue } from '../utils/Queue.js';
 
 /**
@@ -81,9 +81,9 @@ async function bundleSize(metafile, compressed = false) {
  * @typedef {Object} BuildCommandOptions
  * @property {string} output
  * @property {string} [config]
- * @property {import('@chialab/rna-config-loader').Format} [format]
+ * @property {import('esbuild').Format} [format]
  * @property {string} [target]
- * @property {import('@chialab/rna-config-loader').Platform} [platform]
+ * @property {import('esbuild').Platform} [platform]
  * @property {boolean} [bundle]
  * @property {boolean} [minify]
  * @property {string} [name]
@@ -180,7 +180,7 @@ export default function (program) {
                 const sourcemap = options.map === true ? undefined : options.map;
 
                 /**
-                 * @type {import('@chialab/rna-config-loader').ProjectConfig}
+                 * @type {import('../utils/Config.js').ProjectConfig}
                  */
                 const inputConfig = {
                     format,
@@ -205,10 +205,6 @@ export default function (program) {
                 };
 
                 const configFile = options.config || (await locateConfigFile());
-
-                /**
-                 * @type {import('@chialab/rna-config-loader').ProjectConfig}
-                 */
                 const config = mergeConfig(
                     { format: 'esm' },
                     configFile ? await readConfigFile(configFile, inputConfig, 'build') : {},

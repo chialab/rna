@@ -1,5 +1,14 @@
 # @chialab/esbuild-plugin-html
 
+## 0.18.1
+
+### Patch Changes
+
+- a5fc6e1: Support HTML minification with `htmlnano`.
+- 9695bee: Collect HTML `watchedFiles` from metafile.
+- Updated dependencies [dd8e33f]
+  - @chialab/esbuild-rna@0.18.1
+
 ## 0.18.0
 
 ### Minor Changes

@@ -1,5 +1,11 @@
 # @chialab/esbuild-rna
 
+## 0.18.1
+
+### Patch Changes
+
+- dd8e33f: Collect `watchedFiles` from transform hooks.
+
 ## 0.18.0
 
 ### Minor Changes

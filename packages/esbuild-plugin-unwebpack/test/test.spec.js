@@ -1,10 +1,10 @@
 import { fileURLToPath } from 'url';
-import unwebpackPlugin from '@chialab/esbuild-plugin-unwebpack';
-import { expect } from 'chai';
 import esbuild from 'esbuild';
+import { describe, expect, test } from 'vitest';
+import unwebpackPlugin from '../lib/index.js';
 
 describe('esbuild-plugin-unwebpack', () => {
-    it('should replace hmr statements', async () => {
+    test('should replace hmr statements', async () => {
         const {
             outputFiles: [result],
         } = await esbuild.build({
@@ -35,7 +35,7 @@ if (import.meta.webpackHot) {
             plugins: [unwebpackPlugin()],
         });
 
-        expect(result.text).to.be.equal(`// test.spec.js
+        expect(result.text).toBe(`// test.spec.js
 var test = {};
 export {
   test
@@ -43,7 +43,7 @@ export {
 `);
     });
 
-    it('should resolve magic imports', async () => {
+    test('should resolve magic imports', async () => {
         const {
             outputFiles: [result],
         } = await esbuild.build({
@@ -59,7 +59,7 @@ export {
             plugins: [unwebpackPlugin()],
         });
 
-        expect(result.text).to.be.equal(`// fixture/input.js
+        expect(result.text).toBe(`// fixture/input.js
 var language = "it";
 ({ "./locale/en": () => import("./en-TJVWBTWR.js"), "./locale/it": () => import("./it-RI2VUW2M.js") })[language]();
 `);

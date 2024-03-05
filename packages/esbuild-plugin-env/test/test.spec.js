@@ -1,10 +1,11 @@
+import process from 'process';
 import { fileURLToPath } from 'url';
-import envPlugin from '@chialab/esbuild-plugin-env';
-import { expect } from 'chai';
 import esbuild from 'esbuild';
+import { describe, expect, test } from 'vitest';
+import envPlugin from '../lib/index.js';
 
 describe('esbuild-plugin-env', () => {
-    it('should inject env values', async () => {
+    test('should inject env values', async () => {
         process.env.CUSTOM_VAR = 'test';
         const {
             outputFiles: [result],
@@ -22,9 +23,9 @@ export default process.env.NODE_ENV;`,
             plugins: [envPlugin()],
         });
 
-        expect(result.text).to.be.equal(`// test.spec.js
+        expect(result.text).toBe(`// test.spec.js
 var custom = "test";
-var test_spec_default = "development";
+var test_spec_default = "test";
 export {
   custom,
   test_spec_default as default
@@ -32,7 +33,7 @@ export {
 `);
     });
 
-    it('should handle missing values', async () => {
+    test('should handle missing values', async () => {
         const {
             outputFiles: [result],
         } = await esbuild.build({
@@ -49,12 +50,12 @@ export default process.env.NODE_ENV;`,
             plugins: [envPlugin()],
         });
 
-        expect(result.text).to.be.equal(`// <define:process.env>
+        expect(result.text).toBe(`// <define:process.env>
 var define_process_env_default = {};
 
 // test.spec.js
 var custom = define_process_env_default.MISSING_VAR;
-var test_spec_default = "development";
+var test_spec_default = "test";
 export {
   custom,
   test_spec_default as default
@@ -62,7 +63,7 @@ export {
 `);
     });
 
-    it('should handle invalid identifiers', async () => {
+    test('should handle invalid identifiers', async () => {
         process.env['INVALID-IDENTIFIER'] = true;
         const {
             outputFiles: [result],
@@ -79,15 +80,15 @@ export {
             plugins: [envPlugin()],
         });
 
-        expect(result.text).to.be.equal(`// test.spec.js
-var test_spec_default = "development";
+        expect(result.text).toBe(`// test.spec.js
+var test_spec_default = "test";
 export {
   test_spec_default as default
 };
 `);
     });
 
-    it('should skip injection for node plaform', async () => {
+    test('should skip injection for node plaform', async () => {
         const {
             outputFiles: [result],
         } = await esbuild.build({
@@ -104,7 +105,7 @@ export {
             plugins: [envPlugin()],
         });
 
-        expect(result.text).to.be.equal(`// test.spec.js
+        expect(result.text).toBe(`// test.spec.js
 var test_spec_default = process.env.NODE_ENV;
 export {
   test_spec_default as default

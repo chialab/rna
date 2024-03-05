@@ -1,10 +1,10 @@
 import { fileURLToPath } from 'url';
-import lightningcssPlugin from '@chialab/esbuild-plugin-lightningcss';
-import { expect } from 'chai';
 import esbuild from 'esbuild';
+import { describe, expect, test } from 'vitest';
+import lightningcssPlugin from '../lib/index.js';
 
 describe('esbuild-plugin-lightningcss', () => {
-    it('should run lightningcss default transformations', async () => {
+    test('should run lightningcss default transformations', async () => {
         const {
             outputFiles: [result],
         } = await esbuild.build({
@@ -24,7 +24,7 @@ describe('esbuild-plugin-lightningcss', () => {
             plugins: [lightningcssPlugin()],
         });
 
-        expect(result.text).to.be.equal(`/* input.css */
+        expect(result.text).toBe(`/* input.css */
 ::-webkit-input-placeholder {
   color: gray;
 }

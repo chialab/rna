@@ -1,15 +1,15 @@
 import path from 'path';
 import { fileURLToPath } from 'url';
-import htmlPlugin from '@chialab/esbuild-plugin-html';
 import virtualPlugin from '@chialab/esbuild-plugin-virtual';
-import chai, { expect } from 'chai';
 import chaiString from 'chai-string';
 import esbuild from 'esbuild';
+import { chai, describe, expect, test } from 'vitest';
+import htmlPlugin from '../lib/index.js';
 
 chai.use(chaiString);
 
 describe('esbuild-plugin-html', () => {
-    it('should bundle webapp with scripts', async () => {
+    test('should bundle webapp with scripts', async () => {
         const { outputFiles } = await esbuild.build({
             absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             entryPoints: [fileURLToPath(new URL('fixture/index.iife.html', import.meta.url))],
@@ -24,10 +24,10 @@ describe('esbuild-plugin-html', () => {
 
         const [index, js, css] = outputFiles;
 
-        expect(outputFiles).to.have.lengthOf(3);
+        expect(outputFiles).toHaveLength(3);
 
         expect(index.path).endsWith(path.join(path.sep, 'out', 'index.iife.html'));
-        expect(index.text).to.be.equal(`<!DOCTYPE html>
+        expect(index.text).toBe(`<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -55,7 +55,7 @@ describe('esbuild-plugin-html', () => {
 </html>`);
 
         expect(js.path).endsWith(path.join(path.sep, 'out', 'index-33TQGLB6.js'));
-        expect(js.text).to.be.equal(`"use strict";
+        expect(js.text).toBe(`"use strict";
 (() => {
   // fixture/lib.js
   var log = console.log.bind(console);
@@ -68,7 +68,7 @@ describe('esbuild-plugin-html', () => {
 `);
 
         expect(css.path).endsWith(path.join(path.sep, 'out', 'index-UMVLUHQU.css'));
-        expect(css.text).to.be.equal(`/* fixture/index.css */
+        expect(css.text).toBe(`/* fixture/index.css */
 html,
 body {
   margin: 0;
@@ -77,7 +77,7 @@ body {
 `);
     });
 
-    it('should bundle webapp with scripts using public path', async () => {
+    test('should bundle webapp with scripts using public path', async () => {
         const { outputFiles } = await esbuild.build({
             absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             entryPoints: [fileURLToPath(new URL('fixture/index.iife.html', import.meta.url))],
@@ -93,10 +93,10 @@ body {
 
         const [index, js, css] = outputFiles;
 
-        expect(outputFiles).to.have.lengthOf(3);
+        expect(outputFiles).toHaveLength(3);
 
         expect(index.path).endsWith(path.join(path.sep, 'out', 'index.iife.html'));
-        expect(index.text).to.be.equal(`<!DOCTYPE html>
+        expect(index.text).toBe(`<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -124,7 +124,7 @@ body {
 </html>`);
 
         expect(js.path).endsWith(path.join(path.sep, 'out', 'index-BBP6457K.js'));
-        expect(js.text).to.be.equal(`"use strict";
+        expect(js.text).toBe(`"use strict";
 (() => {
   // fixture/lib.js
   var log = console.log.bind(console);
@@ -137,7 +137,7 @@ body {
 `);
 
         expect(css.path).endsWith(path.join(path.sep, 'out', 'index-P4RCWXU5.css'));
-        expect(css.text).to.be.equal(`/* fixture/index.css */
+        expect(css.text).toBe(`/* fixture/index.css */
 html,
 body {
   margin: 0;
@@ -146,7 +146,7 @@ body {
 `);
     });
 
-    it('should bundle webapp with scripts and sourcemaps', async () => {
+    test('should bundle webapp with scripts and sourcemaps', async () => {
         const { outputFiles } = await esbuild.build({
             absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             entryPoints: [fileURLToPath(new URL('fixture/index.iife.html', import.meta.url))],
@@ -162,10 +162,10 @@ body {
 
         const [index, , js, , css] = outputFiles;
 
-        expect(outputFiles).to.have.lengthOf(5);
+        expect(outputFiles).toHaveLength(5);
 
         expect(index.path).endsWith(path.join(path.sep, 'out', 'index.iife.html'));
-        expect(index.text).to.be.equal(`<!DOCTYPE html>
+        expect(index.text).toBe(`<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -193,7 +193,7 @@ body {
 </html>`);
 
         expect(js.path).endsWith(path.join(path.sep, 'out', 'index-4YXF7HZB.js'));
-        expect(js.text).to.be.equal(`"use strict";
+        expect(js.text).toBe(`"use strict";
 (() => {
   // fixture/lib.js
   var log = console.log.bind(console);
@@ -207,7 +207,7 @@ body {
 `);
 
         expect(css.path).endsWith(path.join(path.sep, 'out', 'index-LET4DQVG.css'));
-        expect(css.text).to.be.equal(`/* fixture/index.css */
+        expect(css.text).toBe(`/* fixture/index.css */
 html,
 body {
   margin: 0;
@@ -217,7 +217,7 @@ body {
 `);
     });
 
-    it('should bundle webapp with modules', async () => {
+    test('should bundle webapp with modules', async () => {
         const { outputFiles } = await esbuild.build({
             absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             entryPoints: [fileURLToPath(new URL('fixture/index.esm.html', import.meta.url))],
@@ -242,10 +242,10 @@ body {
         );
         const css = files.find((file) => file.path.endsWith('.css'));
 
-        expect(outputFiles).to.have.lengthOf(5);
+        expect(outputFiles).toHaveLength(5);
 
         expect(index.path).endsWith(path.join(path.sep, 'out', 'index.esm.html'));
-        expect(index.text).to.be.equal(`<!DOCTYPE html>
+        expect(index.text).toBe(`<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -276,7 +276,7 @@ body {
 </html>`);
 
         expect(path.basename(jsFile.path)).endsWith('index-QZA3NNDV.js');
-        expect(jsFile.text).to.be.equal(`import {
+        expect(jsFile.text).toBe(`import {
   log
 } from "./chunk-VLQWHBZB.js";
 
@@ -287,7 +287,7 @@ window.addEventListener("load", () => {
 `);
 
         expect(path.basename(jsSource.path)).endsWith('1-ZOQZ7JHL.js');
-        expect(jsSource.text).to.be.equal(`import {
+        expect(jsSource.text).toBe(`import {
   log
 } from "./chunk-VLQWHBZB.js";
 
@@ -296,7 +296,7 @@ log("test");
 `);
 
         expect(path.basename(jsChunk.path)).endsWith('chunk-VLQWHBZB.js');
-        expect(jsChunk.text).to.be.equal(`// fixture/lib.js
+        expect(jsChunk.text).toBe(`// fixture/lib.js
 var log = console.log.bind(console);
 
 export {
@@ -305,7 +305,7 @@ export {
 `);
 
         expect(path.basename(css.path)).endsWith('index-UMVLUHQU.css');
-        expect(css.text).to.be.equal(`/* fixture/index.css */
+        expect(css.text).toBe(`/* fixture/index.css */
 html,
 body {
   margin: 0;
@@ -314,7 +314,7 @@ body {
 `);
     });
 
-    it('should bundle webapp with modules using public path', async () => {
+    test('should bundle webapp with modules using public path', async () => {
         const { outputFiles } = await esbuild.build({
             absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             entryPoints: [fileURLToPath(new URL('fixture/index.esm.html', import.meta.url))],
@@ -340,10 +340,10 @@ body {
         );
         const css = files.find((file) => file.path.endsWith('.css'));
 
-        expect(outputFiles).to.have.lengthOf(5);
+        expect(outputFiles).toHaveLength(5);
 
         expect(index.path).endsWith(path.join(path.sep, 'out', 'index.esm.html'));
-        expect(index.text).to.be.equal(`<!DOCTYPE html>
+        expect(index.text).toBe(`<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -374,7 +374,7 @@ body {
 </html>`);
 
         expect(path.basename(jsFile.path)).endsWith('index-2K4C7RE6.js');
-        expect(jsFile.text).to.be.equal(`import {
+        expect(jsFile.text).toBe(`import {
   log
 } from "/public/chunk-NGMCFQ6Z.js";
 
@@ -385,7 +385,7 @@ window.addEventListener("load", () => {
 `);
 
         expect(path.basename(jsSource.path)).endsWith('1-P72MDYYG.js');
-        expect(jsSource.text).to.be.equal(`import {
+        expect(jsSource.text).toBe(`import {
   log
 } from "/public/chunk-NGMCFQ6Z.js";
 
@@ -394,7 +394,7 @@ log("test");
 `);
 
         expect(path.basename(jsChunk.path)).endsWith('chunk-NGMCFQ6Z.js');
-        expect(jsChunk.text).to.be.equal(`// fixture/lib.js
+        expect(jsChunk.text).toBe(`// fixture/lib.js
 var log = console.log.bind(console);
 
 export {
@@ -403,7 +403,7 @@ export {
 `);
 
         expect(path.basename(css.path)).endsWith('index-P4RCWXU5.css');
-        expect(css.text).to.be.equal(`/* fixture/index.css */
+        expect(css.text).toBe(`/* fixture/index.css */
 html,
 body {
   margin: 0;
@@ -412,7 +412,7 @@ body {
 `);
     });
 
-    it('should bundle webapp with modules and chunks', async () => {
+    test('should bundle webapp with modules and chunks', async () => {
         const { outputFiles } = await esbuild.build({
             absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             entryPoints: [fileURLToPath(new URL('fixture/index.chunks.html', import.meta.url))],
@@ -441,10 +441,10 @@ body {
         );
         const css = files.find((file) => file.path.endsWith('.css'));
 
-        expect(outputFiles).to.have.lengthOf(6);
+        expect(outputFiles).toHaveLength(6);
 
         expect(index.path).endsWith(path.join(path.sep, 'out', 'index.chunks.html'));
-        expect(index.text).to.be.equal(`<!DOCTYPE html>
+        expect(index.text).toBe(`<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -475,7 +475,7 @@ body {
 </html>`);
 
         expect(path.basename(jsFile.path)).endsWith('index-5DEJB2KF.js');
-        expect(jsFile.text).to.be.equal(`import {
+        expect(jsFile.text).toBe(`import {
   log
 } from "./chunk-GNFD7QL2.js";
 
@@ -486,14 +486,14 @@ window.addEventListener("load", () => {
 `);
 
         expect(path.basename(jsSource.path)).endsWith('1-GWHRC5DW.js');
-        expect(jsSource.text).to.be.equal(`// fixture/1.js
+        expect(jsSource.text).toBe(`// fixture/1.js
 import("./lib-476DRX7L.js").then(({ log }) => {
   log("test");
 });
 `);
 
         expect(path.basename(jsLib.path)).endsWith('lib-476DRX7L.js');
-        expect(jsLib.text).to.be.equal(`import {
+        expect(jsLib.text).toBe(`import {
   log
 } from "./chunk-GNFD7QL2.js";
 export {
@@ -502,7 +502,7 @@ export {
 `);
 
         expect(path.basename(jsChunk.path)).endsWith('chunk-GNFD7QL2.js');
-        expect(jsChunk.text).to.be.equal(`// fixture/lib.js
+        expect(jsChunk.text).toBe(`// fixture/lib.js
 var log = console.log.bind(console);
 
 export {
@@ -511,7 +511,7 @@ export {
 `);
 
         expect(path.basename(css.path)).endsWith('index-UMVLUHQU.css');
-        expect(css.text).to.be.equal(`/* fixture/index.css */
+        expect(css.text).toBe(`/* fixture/index.css */
 html,
 body {
   margin: 0;
@@ -520,7 +520,7 @@ body {
 `);
     });
 
-    it('should bundle webapp with modules and scripts', async () => {
+    test('should bundle webapp with modules and scripts', async () => {
         const { outputFiles } = await esbuild.build({
             absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             entryPoints: [fileURLToPath(new URL('fixture/index.mixed.html', import.meta.url))],
@@ -546,10 +546,10 @@ body {
             outputFiles.find((file) => file.path.endsWith('index-UMVLUHQU.css'))
         );
 
-        expect(outputFiles).to.have.lengthOf(5);
+        expect(outputFiles).toHaveLength(5);
 
         expect(index.path).endsWith(path.join(path.sep, 'out', 'index.mixed.html'));
-        expect(index.text).to.be.equal(`<!DOCTYPE html>
+        expect(index.text).toBe(`<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -589,7 +589,7 @@ body {
 </html>`);
 
         expect(iife.path).endsWith(path.join(path.sep, 'out', 'index-33TQGLB6.js'));
-        expect(iife.text).to.be.equal(`"use strict";
+        expect(iife.text).toBe(`"use strict";
 (() => {
   // fixture/lib.js
   var log = console.log.bind(console);
@@ -602,7 +602,7 @@ body {
 `);
 
         expect(esm.path).endsWith(path.join(path.sep, 'out', 'index-NG6KDBQ4.js'));
-        expect(esm.text).to.be.equal(`// fixture/lib.js
+        expect(esm.text).toBe(`// fixture/lib.js
 var log = console.log.bind(console);
 
 // fixture/index.js
@@ -612,7 +612,7 @@ window.addEventListener("load", () => {
 `);
 
         expect(css.path).endsWith(path.join(path.sep, 'out', 'index-UMVLUHQU.css'));
-        expect(css.text).to.be.equal(`/* fixture/index.css */
+        expect(css.text).toBe(`/* fixture/index.css */
 html,
 body {
   margin: 0;
@@ -621,7 +621,7 @@ body {
 `);
     });
 
-    it('should bundle webapp with styles', async () => {
+    test('should bundle webapp with styles', async () => {
         const { outputFiles } = await esbuild.build({
             absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             entryPoints: [fileURLToPath(new URL('fixture/index.css.html', import.meta.url))],
@@ -637,10 +637,10 @@ body {
         const cssFile = cssFiles.find((output) => output.path.includes(path.join(path.sep, 'out', 'index')));
         const cssSource = cssFiles.find((output) => output.path.includes(path.join(path.sep, 'out', '1-')));
 
-        expect(outputFiles).to.have.lengthOf(3);
+        expect(outputFiles).toHaveLength(3);
 
         expect(index.path).endsWith(path.join(path.sep, 'out', 'index.css.html'));
-        expect(index.text).to.be.equal(`<!DOCTYPE html>
+        expect(index.text).toBe(`<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -660,7 +660,7 @@ body {
 </html>`);
 
         expect(cssFile.path).endsWith(path.join(path.sep, 'out', 'index-UMVLUHQU.css'));
-        expect(cssFile.text).to.be.equal(`/* fixture/index.css */
+        expect(cssFile.text).toBe(`/* fixture/index.css */
 html,
 body {
   margin: 0;
@@ -669,14 +669,14 @@ body {
 `);
 
         expect(cssSource.path).endsWith(path.join(path.sep, 'out', '1-EKADEBHI.css'));
-        expect(cssSource.text).to.be.equal(`/* fixture/1.css */
+        expect(cssSource.text).toBe(`/* fixture/1.css */
 body {
   color: red;
 }
 `);
     });
 
-    it('should bundle webapp with styles using public path', async () => {
+    test('should bundle webapp with styles using public path', async () => {
         const { outputFiles } = await esbuild.build({
             absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             entryPoints: [fileURLToPath(new URL('fixture/index.css.html', import.meta.url))],
@@ -693,10 +693,10 @@ body {
         const cssFile = cssFiles.find((output) => output.path.includes(path.join(path.sep, 'out', 'index')));
         const cssSource = cssFiles.find((output) => output.path.includes(path.join(path.sep, 'out', '1-')));
 
-        expect(outputFiles).to.have.lengthOf(3);
+        expect(outputFiles).toHaveLength(3);
 
         expect(index.path).endsWith(path.join(path.sep, 'out', 'index.css.html'));
-        expect(index.text).to.be.equal(`<!DOCTYPE html>
+        expect(index.text).toBe(`<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -716,7 +716,7 @@ body {
 </html>`);
 
         expect(cssFile.path).endsWith(path.join(path.sep, 'out', 'index-P4RCWXU5.css'));
-        expect(cssFile.text).to.be.equal(`/* fixture/index.css */
+        expect(cssFile.text).toBe(`/* fixture/index.css */
 html,
 body {
   margin: 0;
@@ -725,14 +725,14 @@ body {
 `);
 
         expect(cssSource.path).endsWith(path.join(path.sep, 'out', '1-VXBR4AUQ.css'));
-        expect(cssSource.text).to.be.equal(`/* fixture/1.css */
+        expect(cssSource.text).toBe(`/* fixture/1.css */
 body {
   color: red;
 }
 `);
     });
 
-    it('should bundle webapp with virtual styles', async () => {
+    test('should bundle webapp with virtual styles', async () => {
         const { outputFiles } = await esbuild.build({
             absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             entryPoints: [fileURLToPath(new URL('./index.html', import.meta.url))],
@@ -777,10 +777,10 @@ body {
 
         const [index, css] = outputFiles;
 
-        expect(outputFiles).to.have.lengthOf(2);
+        expect(outputFiles).toHaveLength(2);
 
         expect(index.path).endsWith(path.join(path.sep, 'out', 'index.html'));
-        expect(index.text).to.be.equal(`<!DOCTYPE html>
+        expect(index.text).toBe(`<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -797,7 +797,7 @@ body {
 </html>`);
 
         expect(css.path).endsWith(path.join(path.sep, 'out', 'index-JHCCFNW4.css'));
-        expect(css.text).to.be.equal(`/* lib.css */
+        expect(css.text).toBe(`/* lib.css */
 html {
   padding: 0;
 }
@@ -806,7 +806,7 @@ html {
 `);
     });
 
-    it('should bundle webapp with png favicons', async () => {
+    test('should bundle webapp with png favicons', async () => {
         const { outputFiles } = await esbuild.build({
             absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             entryPoints: [fileURLToPath(new URL('fixture/index.icons.html', import.meta.url))],
@@ -821,10 +821,10 @@ html {
 
         const [index, ...icons] = outputFiles;
 
-        expect(outputFiles).to.have.lengthOf(7);
+        expect(outputFiles).toHaveLength(7);
 
         expect(index.path).endsWith(path.join(path.sep, 'out', 'index.icons.html'));
-        expect(index.text).to.be.equal(`<!DOCTYPE html>
+        expect(index.text).toBe(`<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -847,13 +847,13 @@ html {
 </html>`);
 
         expect(icons[0].path).endsWith(path.join(path.sep, 'out', 'icons', 'favicon-16x16.png'));
-        expect(icons[0].contents.byteLength).to.be.equal(459);
+        expect(icons[0].contents.byteLength).toBe(459);
 
         expect(icons[3].path).endsWith(path.join(path.sep, 'out', 'icons', 'favicon-196x196.png'));
-        expect(icons[3].contents.byteLength).to.be.equal(6366);
+        expect(icons[3].contents.byteLength).toBe(6366);
     });
 
-    it('should bundle webapp with png favicons using public path', async () => {
+    test('should bundle webapp with png favicons using public path', async () => {
         const { outputFiles } = await esbuild.build({
             absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             entryPoints: [fileURLToPath(new URL('fixture/index.icons.html', import.meta.url))],
@@ -869,10 +869,10 @@ html {
 
         const [index, ...icons] = outputFiles;
 
-        expect(outputFiles).to.have.lengthOf(7);
+        expect(outputFiles).toHaveLength(7);
 
         expect(index.path).endsWith(path.join(path.sep, 'out', 'index.icons.html'));
-        expect(index.text).to.be.equal(`<!DOCTYPE html>
+        expect(index.text).toBe(`<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -895,13 +895,13 @@ html {
 </html>`);
 
         expect(icons[0].path).endsWith(path.join(path.sep, 'out', 'icons', 'favicon-16x16.png'));
-        expect(icons[0].contents.byteLength).to.be.equal(459);
+        expect(icons[0].contents.byteLength).toBe(459);
 
         expect(icons[3].path).endsWith(path.join(path.sep, 'out', 'icons', 'favicon-196x196.png'));
-        expect(icons[3].contents.byteLength).to.be.equal(6366);
+        expect(icons[3].contents.byteLength).toBe(6366);
     });
 
-    it('should bundle webapp with svg favicon', async () => {
+    test('should bundle webapp with svg favicon', async () => {
         const { outputFiles } = await esbuild.build({
             absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             entryPoints: [fileURLToPath(new URL('fixture/index.svgicons.html', import.meta.url))],
@@ -916,10 +916,10 @@ html {
 
         const [index, icon] = outputFiles;
 
-        expect(outputFiles).to.have.lengthOf(2);
+        expect(outputFiles).toHaveLength(2);
 
         expect(index.path).endsWith(path.join(path.sep, 'out', 'index.svgicons.html'));
-        expect(index.text).to.be.equal(`<!DOCTYPE html>
+        expect(index.text).toBe(`<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -936,30 +936,30 @@ html {
 </html>`);
 
         expect(icon.path).endsWith(path.join(path.sep, 'out', 'icons', 'icon.svg'));
-        expect(icon.contents.byteLength).to.be.equal(1475);
+        expect(icon.contents.byteLength).toBe(1475);
     });
 
-    it('should bundle webapp with ios splashscreens', async function () {
-        this.timeout(15000);
+    test(
+        'should bundle webapp with ios splashscreens',
+        async () => {
+            const { outputFiles } = await esbuild.build({
+                absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
+                entryPoints: [fileURLToPath(new URL('fixture/index.screens.html', import.meta.url))],
+                sourceRoot: '/',
+                assetNames: 'screens/[name]',
+                outdir: 'out',
+                format: 'esm',
+                bundle: true,
+                write: false,
+                plugins: [htmlPlugin()],
+            });
 
-        const { outputFiles } = await esbuild.build({
-            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
-            entryPoints: [fileURLToPath(new URL('fixture/index.screens.html', import.meta.url))],
-            sourceRoot: '/',
-            assetNames: 'screens/[name]',
-            outdir: 'out',
-            format: 'esm',
-            bundle: true,
-            write: false,
-            plugins: [htmlPlugin()],
-        });
+            const [index, ...screens] = outputFiles;
 
-        const [index, ...screens] = outputFiles;
+            expect(outputFiles).toHaveLength(8);
 
-        expect(outputFiles).to.have.lengthOf(8);
-
-        expect(index.path).endsWith(path.join(path.sep, 'out', 'index.screens.html'));
-        expect(index.text).to.be.equal(`<!DOCTYPE html>
+            expect(index.path).endsWith(path.join(path.sep, 'out', 'index.screens.html'));
+            expect(index.text).toBe(`<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -981,14 +981,18 @@ html {
 
 </html>`);
 
-        expect(screens[0].path).endsWith(path.join(path.sep, 'out', 'screens', 'apple-launch-iphonex.png'));
-        expect(screens[0].contents.byteLength).to.be.equal(21254);
+            expect(screens[0].path).endsWith(path.join(path.sep, 'out', 'screens', 'apple-launch-iphonex.png'));
+            expect(screens[0].contents.byteLength).toBe(21254);
 
-        expect(screens[3].path).endsWith(path.join(path.sep, 'out', 'screens', 'apple-launch-iphone5.png'));
-        expect(screens[3].contents.byteLength).to.be.equal(8536);
-    });
+            expect(screens[3].path).endsWith(path.join(path.sep, 'out', 'screens', 'apple-launch-iphone5.png'));
+            expect(screens[3].contents.byteLength).toBe(8536);
+        },
+        {
+            timeout: 20_000,
+        }
+    );
 
-    it('should bundle webapp with assets', async () => {
+    test('should bundle webapp with assets', async () => {
         const { outputFiles } = await esbuild.build({
             absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             entryPoints: [fileURLToPath(new URL('fixture/index.assets.html', import.meta.url))],
@@ -1003,10 +1007,10 @@ html {
 
         const [index, ...assets] = outputFiles;
 
-        expect(outputFiles).to.have.lengthOf(3);
+        expect(outputFiles).toHaveLength(3);
 
         expect(index.path).endsWith(path.join(path.sep, 'out', 'index.assets.html'));
-        expect(index.text).to.be.equal(`<!DOCTYPE html>
+        expect(index.text).toBe(`<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -1026,13 +1030,13 @@ html {
         assets.sort((a1, a2) => a2.contents.byteLength - a1.contents.byteLength);
 
         expect(assets[0].path).endsWith(path.join(path.sep, 'out', 'assets', 'img', 'icon.png'));
-        expect(assets[0].contents.byteLength).to.be.equal(20754);
+        expect(assets[0].contents.byteLength).toBe(20754);
 
         expect(assets[1].path).endsWith(path.join(path.sep, 'out', 'assets', 'icon.svg'));
-        expect(assets[1].contents.byteLength).to.be.equal(1475);
+        expect(assets[1].contents.byteLength).toBe(1475);
     });
 
-    it('should bundle webapp with assets using public path', async () => {
+    test('should bundle webapp with assets using public path', async () => {
         const { outputFiles } = await esbuild.build({
             absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             entryPoints: [fileURLToPath(new URL('fixture/index.assets.html', import.meta.url))],
@@ -1048,10 +1052,10 @@ html {
 
         const [index, ...assets] = outputFiles;
 
-        expect(outputFiles).to.have.lengthOf(3);
+        expect(outputFiles).toHaveLength(3);
 
         expect(index.path).endsWith(path.join(path.sep, 'out', 'index.assets.html'));
-        expect(index.text).to.be.equal(`<!DOCTYPE html>
+        expect(index.text).toBe(`<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -1071,13 +1075,13 @@ html {
         assets.sort((a1, a2) => a2.contents.byteLength - a1.contents.byteLength);
 
         expect(assets[0].path).endsWith(path.join(path.sep, 'out', 'assets', 'img', 'icon.png'));
-        expect(assets[0].contents.byteLength).to.be.equal(20754);
+        expect(assets[0].contents.byteLength).toBe(20754);
 
         expect(assets[1].path).endsWith(path.join(path.sep, 'out', 'assets', 'icon.svg'));
-        expect(assets[1].contents.byteLength).to.be.equal(1475);
+        expect(assets[1].contents.byteLength).toBe(1475);
     });
 
-    it('should bundle webapp with a webmanifest', async () => {
+    test('should bundle webapp with a webmanifest', async () => {
         const { outputFiles } = await esbuild.build({
             absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             entryPoints: [fileURLToPath(new URL('fixture/index.manifest.html', import.meta.url))],
@@ -1094,10 +1098,10 @@ html {
         const icons = assets.slice(0, 9);
         const manifest = assets[9];
 
-        expect(outputFiles).to.have.lengthOf(17);
+        expect(outputFiles).toHaveLength(17);
 
         expect(index.path).endsWith(path.join(path.sep, 'out', 'index.manifest.html'));
-        expect(index.text).to.be.equal(`<!DOCTYPE html>
+        expect(index.text).toBe(`<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -1121,14 +1125,14 @@ html {
 
 </html>`);
 
-        expect(icons).to.have.lengthOf(9);
+        expect(icons).toHaveLength(9);
         expect(icons[0].path).endsWith(path.join(path.sep, 'out', 'assets', 'android-chrome-36x36.png'));
-        expect(icons[0].contents.byteLength).to.be.equal(1135);
+        expect(icons[0].contents.byteLength).toBe(1135);
         expect(icons[8].path).endsWith(path.join(path.sep, 'out', 'assets', 'android-chrome-512x512.png'));
-        expect(icons[8].contents.byteLength).to.be.equal(24012);
+        expect(icons[8].contents.byteLength).toBe(24012);
 
         expect(manifest.path).endsWith(path.join(path.sep, 'out', 'assets', 'manifest.webmanifest'));
-        expect(manifest.text).to.be.equal(`{
+        expect(manifest.text).toBe(`{
   "name": "Document",
   "short_name": "Document",
   "description": "Test",
@@ -1187,7 +1191,7 @@ html {
 }`);
     });
 
-    it('should bundle webapp with [dir] and outbase', async () => {
+    test('should bundle webapp with [dir] and outbase', async () => {
         const { outputFiles } = await esbuild.build({
             absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             entryPoints: [fileURLToPath(new URL('fixture/index.iife.html', import.meta.url))],
@@ -1206,9 +1210,9 @@ html {
         const js = files.find((file) => file.path.endsWith('.js'));
         const css = files.find((file) => file.path.endsWith('.css'));
 
-        expect(outputFiles).to.have.lengthOf(3);
+        expect(outputFiles).toHaveLength(3);
         expect(index.path).endsWith(path.join(path.sep, 'out', 'fixture', 'index.iife.html'));
-        expect(index.text).to.be.equal(`<!DOCTYPE html>
+        expect(index.text).toBe(`<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -1239,7 +1243,7 @@ html {
         expect(css.path).endsWith(path.join(path.sep, 'out', 'index.css'));
     });
 
-    it('should bundle webapp with [dir] without outbase', async () => {
+    test('should bundle webapp with [dir] without outbase', async () => {
         const { outputFiles } = await esbuild.build({
             absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             entryPoints: [fileURLToPath(new URL('fixture/index.iife.html', import.meta.url))],
@@ -1257,9 +1261,9 @@ html {
         const js = files.find((file) => file.path.endsWith('.js'));
         const css = files.find((file) => file.path.endsWith('.css'));
 
-        expect(outputFiles).to.have.lengthOf(3);
+        expect(outputFiles).toHaveLength(3);
         expect(index.path).endsWith(path.join(path.sep, 'out', 'index.iife.html'));
-        expect(index.text).to.be.equal(`<!DOCTYPE html>
+        expect(index.text).toBe(`<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -1290,7 +1294,7 @@ html {
         expect(css.path).endsWith(path.join(path.sep, 'out', 'index.css'));
     });
 
-    it('should bundle webapp with [dir] without outbase using public path', async () => {
+    test('should bundle webapp with [dir] without outbase using public path', async () => {
         const { outputFiles } = await esbuild.build({
             absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             entryPoints: [fileURLToPath(new URL('fixture/index.iife.html', import.meta.url))],
@@ -1309,9 +1313,9 @@ html {
         const js = files.find((file) => file.path.endsWith('.js'));
         const css = files.find((file) => file.path.endsWith('.css'));
 
-        expect(outputFiles).to.have.lengthOf(3);
+        expect(outputFiles).toHaveLength(3);
         expect(index.path).endsWith(path.join(path.sep, 'out', 'index.iife.html'));
-        expect(index.text).to.be.equal(`<!DOCTYPE html>
+        expect(index.text).toBe(`<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -1342,7 +1346,7 @@ html {
         expect(css.path).endsWith(path.join(path.sep, 'out', 'index.css'));
     });
 
-    it('should minify html', async () => {
+    test('should minify html', async () => {
         const { outputFiles } = await esbuild.build({
             absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             entryPoints: [fileURLToPath(new URL('fixture/index.iife.html', import.meta.url))],
@@ -1359,8 +1363,8 @@ html {
         });
 
         const [index] = outputFiles;
-        expect(index.text).to.be
-            .equal(`<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Document</title><script type="application/javascript">(function() {
+        expect(index.text)
+            .toBe(`<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Document</title><script type="application/javascript">(function() {
 function loadStyle(url) {
     var l = document.createElement('link');
     l.rel = 'stylesheet';
@@ -1371,7 +1375,7 @@ loadStyle('/public/index.css');
 }());</script></head><body> <script src="/public/index.js" type="application/javascript"></script> </body></html>`);
     });
 
-    it('should minify html with minify option', async () => {
+    test('should minify html with minify option', async () => {
         const { outputFiles } = await esbuild.build({
             absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             entryPoints: [fileURLToPath(new URL('fixture/index.iife.html', import.meta.url))],
@@ -1394,8 +1398,8 @@ loadStyle('/public/index.css');
         });
 
         const [index] = outputFiles;
-        expect(index.text).to.be
-            .equal(`<!DOCTYPE html><html lang=en><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width, initial-scale=1.0"><title>Document</title><script type=application/javascript>(function() {
+        expect(index.text)
+            .toBe(`<!DOCTYPE html><html lang=en><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width, initial-scale=1.0"><title>Document</title><script type=application/javascript>(function() {
 function loadStyle(url) {
     var l = document.createElement('link');
     l.rel = 'stylesheet';

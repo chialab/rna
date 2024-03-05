@@ -1,10 +1,10 @@
 import { fileURLToPath } from 'url';
-import commonjsPlugin from '@chialab/esbuild-plugin-commonjs';
-import { expect } from 'chai';
 import esbuild from 'esbuild';
+import { describe, expect, test } from 'vitest';
+import commonjsPlugin from '../lib/index.js';
 
 describe('esbuild-plugin-commonjs', () => {
-    it('should skip if target is not esm', async () => {
+    test('should skip if target is not esm', async () => {
         const {
             outputFiles: [result],
         } = await esbuild.build({
@@ -25,7 +25,7 @@ describe('esbuild-plugin-commonjs', () => {
             plugins: [commonjsPlugin()],
         });
 
-        expect(result.text).to.be.equal(`// test.spec.js
+        expect(result.text).toBe(`// test.spec.js
 module.exports = {
   method() {
     return true;
@@ -34,7 +34,7 @@ module.exports = {
 `);
     });
 
-    it('should export legacy module with default specifier', async () => {
+    test('should export legacy module with default specifier', async () => {
         const {
             outputFiles: [result],
         } = await esbuild.build({
@@ -55,7 +55,7 @@ module.exports = {
             plugins: [commonjsPlugin()],
         });
 
-        expect(result.text).to.be.equal(`// test.spec.js
+        expect(result.text).toBe(`// test.spec.js
 var exports = {};
 var module = {
   get exports() {
@@ -82,7 +82,7 @@ export {
 `);
     });
 
-    it('should bundle using the commonjs helper', async () => {
+    test('should bundle using the commonjs helper', async () => {
         const {
             outputFiles: [result],
         } = await esbuild.build({
@@ -108,7 +108,7 @@ export {
             ],
         });
 
-        expect(result.text).to.be.equal(`// test.spec.js
+        expect(result.text).toBe(`// test.spec.js
 import * as $cjs$fs from "fs";
 
 // commonjs-helper:./__cjs_helper__.js
@@ -204,7 +204,7 @@ export {
 `);
     });
 
-    it('should rename require in mixed modules', async () => {
+    test('should rename require in mixed modules', async () => {
         const {
             outputFiles: [result],
         } = await esbuild.build({
@@ -228,8 +228,8 @@ export {
             plugins: [commonjsPlugin()],
         });
 
-        expect(result.text).to.be
-            .equal(`var __require = /* @__PURE__ */ ((x) => typeof require !== "undefined" ? require : typeof Proxy !== "undefined" ? new Proxy(x, {
+        expect(result.text)
+            .toBe(`var __require = /* @__PURE__ */ ((x) => typeof require !== "undefined" ? require : typeof Proxy !== "undefined" ? new Proxy(x, {
   get: (a, b) => (typeof require !== "undefined" ? require : a)[b]
 }) : x)(function(x) {
   if (typeof require !== "undefined")

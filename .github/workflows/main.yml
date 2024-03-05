@@ -15,12 +15,11 @@ jobs:
     timeout-minutes: 5
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: 16
           cache: yarn
 
       - name: Install project dependencies
@@ -35,12 +34,11 @@ jobs:
     needs: lint
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: 16
           cache: yarn
 
       - name: Install project dependencies
@@ -53,7 +51,7 @@ jobs:
         run: yarn build
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: packages
           path: ./packages
@@ -69,16 +67,15 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: 16
           cache: yarn
 
       - name: Download build artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: packages
           path: ./packages
@@ -91,8 +88,9 @@ jobs:
 
       - name: Upload coverage to codecov
         uses: codecov/codecov-action@v3
+        if: always()
         with:
-          file: coverage/lcov.info
+          file: coverage/clover.xml
 
   release:
     name: Release
@@ -102,16 +100,15 @@ jobs:
       - test
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: 16
           cache: yarn
 
       - name: Download build artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: packages
           path: ./packages

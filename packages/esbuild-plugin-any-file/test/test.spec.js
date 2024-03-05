@@ -1,10 +1,10 @@
 import { fileURLToPath } from 'url';
-import anyFilePlugin from '@chialab/esbuild-plugin-any-file';
-import { expect } from 'chai';
 import esbuild from 'esbuild';
+import { describe, expect, test } from 'vitest';
+import anyFilePlugin from '../lib/index.js';
 
 describe('esbuild-plugin-any-file', () => {
-    it('should load a file with unknown loader', async () => {
+    test('should load a file with unknown loader', async () => {
         const {
             outputFiles: [file, result],
         } = await esbuild.build({
@@ -21,8 +21,8 @@ export default file;`,
             plugins: [anyFilePlugin()],
         });
 
-        expect(file.text.trim()).to.equal('unknown content');
-        expect(result.text).to.be.equal(`(() => {
+        expect(file.text.trim()).toBe('unknown content');
+        expect(result.text).toBe(`(() => {
   // fs.js
   var readFile = () => {
   };
@@ -36,7 +36,7 @@ export default file;`,
 `);
     });
 
-    it('should throw if file does not exits', async () => {
+    test('should throw if file does not exits', async () => {
         let err;
         try {
             await esbuild.build({
@@ -66,6 +66,6 @@ export default file;`,
             err = e;
         }
 
-        expect(err).to.instanceOf(Error);
+        expect(err).toBeInstanceOf(Error);
     });
 });

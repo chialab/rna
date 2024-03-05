@@ -1,12 +1,12 @@
 import path from 'path';
 import { fileURLToPath } from 'url';
-import metaUrl from '@chialab/esbuild-plugin-meta-url';
 import virtual from '@chialab/esbuild-plugin-virtual';
-import { expect } from 'chai';
 import esbuild from 'esbuild';
+import { describe, expect, test } from 'vitest';
+import metaUrl from '../lib/index.js';
 
 describe('esbuild-plugin-meta-url', () => {
-    it('should load a file', async () => {
+    test('should load a file', async () => {
         const {
             outputFiles: [result, file],
         } = await esbuild.build({
@@ -27,17 +27,17 @@ describe('esbuild-plugin-meta-url', () => {
             plugins: [metaUrl()],
         });
 
-        expect(result.text).to.be.equal(`// test.spec.js
+        expect(result.text).toBe(`// test.spec.js
 var file = new URL("./file.txt?hash=4e1243bd", import.meta.url);
 export {
   file
 };
 `);
-        expect(file.text).to.be.equal('test\n');
-        expect(path.dirname(result.path)).to.be.equal(path.dirname(file.path));
+        expect(file.text).toBe('test\n');
+        expect(path.dirname(result.path)).toBe(path.dirname(file.path));
     });
 
-    it('should load a file that was part of another build', async () => {
+    test('should load a file that was part of another build', async () => {
         const {
             outputFiles: [result, file],
         } = await esbuild.build({
@@ -72,7 +72,7 @@ export {
             ],
         });
 
-        expect(result.text).to.be.equal(`// file1.js
+        expect(result.text).toBe(`// file1.js
 var file = new URL("./file-4e1243bd.txt?hash=4e1243bd", import.meta.url);
 
 // file2.js
@@ -82,11 +82,11 @@ export {
   file2
 };
 `);
-        expect(file.text).to.be.equal('test\n');
-        expect(path.dirname(result.path)).to.be.equal(path.dirname(file.path));
+        expect(file.text).toBe('test\n');
+        expect(path.dirname(result.path)).toBe(path.dirname(file.path));
     });
 
-    it('should search for non literal references', async () => {
+    test('should search for non literal references', async () => {
         const {
             outputFiles: [result, file],
         } = await esbuild.build({
@@ -104,18 +104,18 @@ export const file = new URL(fileName, import.meta.url);`,
             plugins: [metaUrl()],
         });
 
-        expect(result.text).to.be.equal(`// test.spec.js
+        expect(result.text).toBe(`// test.spec.js
 var file = new URL("./file-4e1243bd.txt?hash=4e1243bd", import.meta.url);
 export {
   file
 };
 `);
 
-        expect(file.text).to.be.equal('test\n');
-        expect(path.dirname(result.path)).to.be.equal(path.dirname(file.path));
+        expect(file.text).toBe('test\n');
+        expect(path.dirname(result.path)).toBe(path.dirname(file.path));
     });
 
-    it('should skip unknown references', async () => {
+    test('should skip unknown references', async () => {
         const {
             outputFiles: [result],
         } = await esbuild.build({
@@ -132,7 +132,7 @@ export {
             plugins: [metaUrl()],
         });
 
-        expect(result.text).to.be.equal(`// test.spec.js
+        expect(result.text).toBe(`// test.spec.js
 var file = new URL(globalThis.test, import.meta.url);
 export {
   file
@@ -140,7 +140,7 @@ export {
 `);
     });
 
-    it('should use browser base url for iife', async () => {
+    test('should use browser base url for iife', async () => {
         const {
             outputFiles: [result, file],
         } = await esbuild.build({
@@ -160,16 +160,16 @@ export {
             plugins: [metaUrl()],
         });
 
-        expect(result.text).to.be.equal(`(() => {
+        expect(result.text).toBe(`(() => {
   var __currentScriptUrl__ = document.currentScript && document.currentScript.src || document.baseURI;
   var file = new URL("./file-4e1243bd.txt?hash=4e1243bd", __currentScriptUrl__);
 })();
 `);
-        expect(file.text).to.be.equal('test\n');
-        expect(path.dirname(result.path)).to.be.equal(path.dirname(file.path));
+        expect(file.text).toBe('test\n');
+        expect(path.dirname(result.path)).toBe(path.dirname(file.path));
     });
 
-    it('should use node legacy file path', async () => {
+    test('should use node legacy file path', async () => {
         const {
             outputFiles: [result, file],
         } = await esbuild.build({
@@ -190,7 +190,7 @@ export {
             plugins: [metaUrl()],
         });
 
-        expect(result.text).to.be.equal(`var __defProp = Object.defineProperty;
+        expect(result.text).toBe(`var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
@@ -220,11 +220,11 @@ var file = new URL("./file-4e1243bd.txt?hash=4e1243bd", "file://" + __filename);
   file
 });
 `);
-        expect(file.text).to.be.equal('test\n');
-        expect(path.dirname(result.path)).to.be.equal(path.dirname(file.path));
+        expect(file.text).toBe('test\n');
+        expect(path.dirname(result.path)).toBe(path.dirname(file.path));
     });
 
-    it('should not resolve a module with warnings', async () => {
+    test('should not resolve a module with warnings', async () => {
         const {
             warnings,
             outputFiles: [result],
@@ -254,13 +254,13 @@ var file = new URL("./file-4e1243bd.txt?hash=4e1243bd", "file://" + __filename);
             ],
         });
 
-        expect(result.text).to.be.equal(`// test.spec.js
+        expect(result.text).toBe(`// test.spec.js
 var file = new URL("./missing.txt", import.meta.url);
 export {
   file
 };
 `);
-        expect(warnings).to.be.deep.equal([
+        expect(warnings).toEqual([
             {
                 id: '',
                 pluginName: 'meta-url',
@@ -280,7 +280,7 @@ export {
         ]);
     });
 
-    it('should inline assets with iife format', async () => {
+    test('should inline assets with iife format', async () => {
         const {
             outputFiles: [result],
         } = await esbuild.build({
@@ -301,14 +301,14 @@ export {
             plugins: [metaUrl()],
         });
 
-        expect(result.text).to.be.equal(`(() => {
+        expect(result.text).toBe(`(() => {
   // test.spec.js
   var file = new URL("data:text/plain;base64,dGVzdAo=");
 })();
 `);
     });
 
-    it('should load a file outside and src into the dist folder', async () => {
+    test('should load a file outside and src into the dist folder', async () => {
         const {
             outputFiles: [result, file],
         } = await esbuild.build({
@@ -330,13 +330,13 @@ export {
             plugins: [metaUrl()],
         });
 
-        expect(result.text).to.be.equal(`// src/index.js
+        expect(result.text).toBe(`// src/index.js
 var file = new URL("./_.._/file-4e1243bd.txt?hash=4e1243bd", import.meta.url);
 export {
   file
 };
 `);
-        expect(file.text).to.be.equal('test\n');
-        expect(path.join(path.dirname(result.path), '_.._')).to.be.equal(path.dirname(file.path));
+        expect(file.text).toBe('test\n');
+        expect(path.join(path.dirname(result.path), '_.._')).toBe(path.dirname(file.path));
     });
 });

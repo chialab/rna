@@ -1,5 +1,11 @@
 # @chialab/esbuild-rna
 
+## 0.18.2
+
+### Patch Changes
+
+- 4aa7fb8: Additional fix for #160
+
 ## 0.18.1
 
 ### Patch Changes

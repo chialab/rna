@@ -1,5 +1,7 @@
 import { Buffer } from 'buffer';
+import { lstat } from 'fs/promises';
 import path from 'path';
+import { fileURLToPath, pathToFileURL } from 'url';
 import { useRna } from '@chialab/esbuild-rna';
 import { getBlock, getIdentifierValue, getLocation, parse, TokenType, walk } from '@chialab/estransform';
 import { getSearchParam, isUrl } from '@chialab/node-resolve';
@@ -171,13 +173,29 @@ export default function ({ emit = true } = {}) {
                     promises.push(
                         Promise.resolve().then(async () => {
                             const requestName = value.split('?')[0];
-                            const { path: resolvedPath } = await build.resolve(`./${requestName}`, {
-                                kind: 'dynamic-import',
-                                importer: args.path,
-                                namespace: 'file',
-                                resolveDir: path.dirname(args.path),
-                                pluginData: null,
-                            });
+                            let resolvedPath;
+                            if (requestName.startsWith('./') || requestName.startsWith('../')) {
+                                try {
+                                    const resolved = fileURLToPath(new URL(requestName, pathToFileURL(args.path)));
+                                    const stat = await lstat(resolved);
+                                    if (stat.isDirectory()) {
+                                        // ignore directories
+                                        return;
+                                    }
+                                    resolvedPath = resolved;
+                                } catch {
+                                    // unable to access file
+                                }
+                            } else {
+                                const resolved = await build.resolve(`./${requestName}`, {
+                                    kind: 'dynamic-import',
+                                    importer: args.path,
+                                    namespace: 'file',
+                                    resolveDir: path.dirname(args.path),
+                                    pluginData: null,
+                                });
+                                resolvedPath = resolved.path;
+                            }
 
                             if (resolvedPath) {
                                 const entryLoader = build.getLoader(resolvedPath) || 'file';

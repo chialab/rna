@@ -109,6 +109,9 @@
       "path": "./packages/rna-saucelabs-test-runner"
     },
     {
+      "path": "./packages/vitest-axe"
+    },
+    {
       "path": "./packages/wds-plugin-hmr"
     },
     {

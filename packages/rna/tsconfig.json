@@ -12,6 +12,9 @@
       "path": "../rna-bundler"
     },
     {
+      "path": "../rna-config-loader"
+    },
+    {
       "path": "../rna-logger"
     },
     {

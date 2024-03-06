@@ -15,9 +15,6 @@
       "path": "../rna-config-loader"
     },
     {
-      "path": "../rna-logger"
-    },
-    {
       "path": "../wds-plugin-hmr"
     },
     {
@@ -31,6 +28,9 @@
     },
     {
       "path": "../esbuild-plugin-require-resolve"
+    },
+    {
+      "path": "../rna-logger"
     }
   ]
 }

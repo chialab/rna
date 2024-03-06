@@ -15,13 +15,10 @@
       "path": "../rna-browser-test-runner"
     },
     {
-      "path": "../rna-config-loader"
+      "path": "../wds-plugin-legacy"
     },
     {
       "path": "../rna-logger"
-    },
-    {
-      "path": "../wds-plugin-legacy"
     }
   ]
 }

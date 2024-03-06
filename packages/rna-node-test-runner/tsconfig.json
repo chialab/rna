@@ -13,9 +13,6 @@
     },
     {
       "path": "../node-resolve"
-    },
-    {
-      "path": "../rna-config-loader"
     }
   ]
 }

@@ -1,0 +1,35 @@
+{
+  "name": "@chialab/vitest-provider-browserstack",
+  "type": "module",
+  "version": "0.18.0",
+  "description": "A BrowserStack provider for vitest browser runner.",
+  "main": "lib/index.js",
+  "typings": "./types/index.d.ts",
+  "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chialab/rna",
+    "directory": "packages/vitest-provider-browserstack"
+  },
+  "keywords": [],
+  "files": [
+    "lib",
+    "types",
+    "package.json",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "browserstack-local": "^1.5.5",
+    "ip": "^1.1.8",
+    "webdriverio": "^8.17.0"
+  },
+  "devDependencies": {
+    "@types/ip": "^1.1.3",
+    "typescript": "^5.0.0"
+  }
+}

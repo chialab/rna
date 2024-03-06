@@ -77,6 +77,68 @@ body {
 `);
     });
 
+    test('should bundle webapp with scripts injecting links', async () => {
+        const { outputFiles } = await esbuild.build({
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
+            entryPoints: [fileURLToPath(new URL('fixture/index.iife.html', import.meta.url))],
+            sourceRoot: '/',
+            chunkNames: '[name]-[hash]',
+            outdir: 'out',
+            format: 'esm',
+            bundle: true,
+            write: false,
+            plugins: [
+                htmlPlugin({
+                    injectStylesAs: 'link',
+                }),
+            ],
+        });
+
+        const [index, js, css] = outputFiles;
+
+        expect(outputFiles).toHaveLength(3);
+
+        expect(index.path).endsWith(path.join(path.sep, 'out', 'index.iife.html'));
+        expect(index.text).toBe(`<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="index-UMVLUHQU.css">
+</head>
+
+<body>
+    <script src="index-33TQGLB6.js" type="application/javascript"></script>
+</body>
+
+</html>`);
+
+        expect(js.path).endsWith(path.join(path.sep, 'out', 'index-33TQGLB6.js'));
+        expect(js.text).toBe(`"use strict";
+(() => {
+  // fixture/lib.js
+  var log = console.log.bind(console);
+
+  // fixture/index.js
+  window.addEventListener("load", () => {
+    log("test");
+  });
+})();
+`);
+
+        expect(css.path).endsWith(path.join(path.sep, 'out', 'index-UMVLUHQU.css'));
+        expect(css.text).toBe(`/* fixture/index.css */
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+`);
+    });
+
     test('should bundle webapp with scripts using public path', async () => {
         const { outputFiles } = await esbuild.build({
             absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),

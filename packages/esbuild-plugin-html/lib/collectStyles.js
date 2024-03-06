@@ -3,7 +3,7 @@ import { isRelativeUrl } from '@chialab/node-resolve';
 
 /**
  * Collect and bundle each <link> reference.
- * @type {import('./index').Collector}
+ * @type {import('./index').Collector<{}>}
  */
 export async function collectStyles($, dom, options, helpers) {
     const elements = dom

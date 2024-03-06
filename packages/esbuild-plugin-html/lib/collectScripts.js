@@ -9,7 +9,7 @@ import { isRelativeUrl } from '@chialab/node-resolve';
  * @param {import('esbuild').Format} format Build format.
  * @param {string} type Script type.
  * @param {{ [key: string]: string }} attrs Script attrs.
- * @param {import('./index.js').BuildOptions} options Build options.
+ * @param {import('./index.js').CollectOptions<{ injectStylesAs: 'script' | 'link' }>} options Build options.
  * @param {import('./index.js').Helpers} helpers Helpers.
  * @returns {Promise<import('@chialab/esbuild-rna').OnTransformResult[]>} Plain build.
  */
@@ -94,12 +94,13 @@ async function innerCollect($, dom, elements, target, format, type, attrs = {}, 
     });
 
     if (styleFiles.length) {
-        const script = $('<script>');
-        for (const attrName in attrs) {
-            $(script).attr(attrName, attrs[attrName]);
-        }
-        $(script).attr('type', type);
-        $(script).html(`(function() {
+        if (options.injectStylesAs === 'script') {
+            const script = $('<script>');
+            for (const attrName in attrs) {
+                $(script).attr(attrName, attrs[attrName]);
+            }
+            $(script).attr('type', type);
+            $(script).html(`(function() {
 function loadStyle(url) {
     var l = document.createElement('link');
     l.rel = 'stylesheet';
@@ -115,7 +116,17 @@ ${styleFiles
     })
     .join('\n')}
 }());`);
-        dom.find('head').append(script);
+            dom.find('head').append(script);
+        } else {
+            styleFiles.forEach((outName) => {
+                const fullOutFile = path.join(options.workingDir, outName);
+                const outputPath = helpers.resolveRelativePath(fullOutFile, options.entryDir, '');
+                const link = $('<link>');
+                link.attr('rel', 'stylesheet');
+                link.attr('href', outputPath);
+                dom.find('head').append(link);
+            });
+        }
     }
 
     return [result];
@@ -123,7 +134,7 @@ ${styleFiles
 
 /**
  * Collect and bundle each <script> reference.
- * @type {import('./index').Collector}
+ * @type {import('./index').Collector<{ injectStylesAs: 'script' | 'link' }>}
  */
 export async function collectScripts($, dom, options, helpers) {
     const moduleElements = dom.find('script[src][type="module"], script[type="module"]:not([src])').get();

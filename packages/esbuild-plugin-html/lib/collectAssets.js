@@ -27,7 +27,7 @@ export async function collectAsset($, element, attribute, options, helpers) {
 
 /**
  * Collect and bundle each node with a src reference.
- * @type {import('./index').Collector}
+ * @type {import('./index').Collector<{}>}
  */
 export async function collectAssets($, dom, options, helpers) {
     const builds = await Promise.all([

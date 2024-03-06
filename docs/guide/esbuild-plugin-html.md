@@ -85,6 +85,15 @@ The target of the plain scripts build (`type="text/javascript"`).
 
 The target of the ES modules build (`type="module"`).
 
+#### `injectStylesAs`
+
+The method to inject styles in the document when imported in a JavaScript module.  
+It can be `link` or `script` (default).
+
+#### `minifyOptions`
+
+The options for the minification process. If the `htmlnano` module is installed, the plugin will minify the HTML output.
+
 ## How it works
 
 **Esbuild Plugin HTML** instructs esbuild to load a HTML file as entrypoint. It parses the HTML and runs esbuild on scripts, styles, assets and icons.
@@ -117,7 +126,7 @@ This will result in producing two bundles:
 
 ### Styles
 
-It supports both `<link rel="stylesheet">` and `<style>` nodes for styling.
+The plugins collects `<link rel="stylesheet">` entrypoints, `<style>` nodes and CSS imports in JavaScript modules.
 
 **Sample**
 

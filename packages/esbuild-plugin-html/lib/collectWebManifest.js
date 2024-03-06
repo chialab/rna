@@ -45,7 +45,7 @@ const MANIFEST_ICONS = [
 
 /**
  * Collect and bundle webmanifests.
- * @type {import('./index').Collector}
+ * @type {import('./index').Collector<{}>}
  */
 export async function collectWebManifest($, dom, options, helpers) {
     const htmlElement = dom.find('html');

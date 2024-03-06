@@ -112,6 +112,9 @@
       "path": "./packages/vitest-axe"
     },
     {
+      "path": "./packages/vitest-provider-browserstack"
+    },
+    {
       "path": "./packages/wds-plugin-hmr"
     },
     {

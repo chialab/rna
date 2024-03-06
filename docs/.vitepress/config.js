@@ -101,6 +101,10 @@ export default defineConfig({
                         text: 'postcss-url-rebase',
                         link: '/guide/postcss-url-rebase',
                     },
+                    {
+                        text: 'vitest-axe',
+                        link: '/guide/vitest-axe',
+                    },
                     // {
                     //     text: 'Write a plugin',
                     //     link: '/guide/write-a-plugin',

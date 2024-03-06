@@ -18,11 +18,9 @@ npm i @chialab/vitest-axe -D
 yarn add @chialab/vitest-axe -D
 ```
 
-## Usage
+## Documentation
 
-```js
-import '@chialab/vitest-axe';
-```
+Read the documentation at [chialab.github.io/rna](https://chialab.github.io/rna/guide/vitest-axe).
 
 ---
 

@@ -1,7 +1,7 @@
 {
   "name": "@chialab/vitest-provider-browserstack",
   "type": "module",
-  "version": "0.18.0",
+  "version": "0.18.1",
   "description": "A BrowserStack provider for Vitest browser runner.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",

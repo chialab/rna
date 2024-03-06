@@ -105,6 +105,10 @@ export default defineConfig({
                         text: 'vitest-axe',
                         link: '/guide/vitest-axe',
                     },
+                    {
+                        text: 'vitest-provider-browserstack',
+                        link: '/guide/vitest-provider-browserstack',
+                    },
                     // {
                     //     text: 'Write a plugin',
                     //     link: '/guide/write-a-plugin',

@@ -2,7 +2,7 @@
   "name": "@chialab/vitest-provider-browserstack",
   "type": "module",
   "version": "0.18.0",
-  "description": "A BrowserStack provider for vitest browser runner.",
+  "description": "A BrowserStack provider for Vitest browser runner.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",
   "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
@@ -12,7 +12,11 @@
     "url": "https://github.com/chialab/rna",
     "directory": "packages/vitest-provider-browserstack"
   },
-  "keywords": [],
+  "keywords": [
+    "vitest",
+    "browserstack",
+    "webdriver"
+  ],
   "files": [
     "lib",
     "types",

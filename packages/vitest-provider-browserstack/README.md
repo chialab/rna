@@ -18,11 +18,9 @@ npm i @chialab/vitest-provider-browserstack -D
 yarn add @chialab/vitest-provider-browserstack -D
 ```
 
-## Requirements
+## Usage
 
 In order to use this provider, you need to have a Browserstack account and a valid access key.
-
-## Usage
 
 Use this module as provider for Vitest browser runner:
 

@@ -20,11 +20,13 @@ pnpm add -D @chialab/vitest-provider-browserstack
 
 :::
 
-### Requirements
+### Usage
+
+::: info
 
 In order to use this provider, you need to have a Browserstack account and a valid access key.
 
-### Usage
+:::
 
 Use this module as provider for Vitest browser runner:
 

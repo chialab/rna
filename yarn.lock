@@ -2294,6 +2294,19 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@chialab/vitest-axe@workspace:packages/vitest-axe":
+  version: 0.0.0-use.local
+  resolution: "@chialab/vitest-axe@workspace:packages/vitest-axe"
+  dependencies:
+    axe-core: ^4.0.0
+    typescript: ^5.0.0
+    vitest: ^1.0.0
+  peerDependencies:
+    axe-core: ^4.0.0
+    vitest: ^1.0.0
+  languageName: unknown
+  linkType: soft
+
 "@chialab/wds-plugin-hmr@^0.18.0, @chialab/wds-plugin-hmr@workspace:packages/wds-plugin-hmr":
   version: 0.0.0-use.local
   resolution: "@chialab/wds-plugin-hmr@workspace:packages/wds-plugin-hmr"
@@ -5440,7 +5453,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axe-core@npm:^4.3.3":
+"axe-core@npm:^4.0.0, axe-core@npm:^4.3.3":
   version: 4.8.4
   resolution: "axe-core@npm:4.8.4"
   checksum: 644da2fec17bcf6f834edaab1baa5a75a9a3ee370c323215c73da6d7e45fac11d01470d92d0a3d5f26695e15c1d9b781733dfbe1fe09d505076c58f09ed74e02
@@ -15555,7 +15568,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vitest@npm:^1.3.1":
+"vitest@npm:^1.0.0, vitest@npm:^1.3.1":
   version: 1.3.1
   resolution: "vitest@npm:1.3.1"
   dependencies:

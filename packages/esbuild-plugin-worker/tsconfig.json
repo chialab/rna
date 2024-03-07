@@ -16,9 +16,6 @@
     },
     {
       "path": "../estransform"
-    },
-    {
-      "path": "../node-resolve"
     }
   ]
 }

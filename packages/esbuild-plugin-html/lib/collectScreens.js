@@ -1,9 +1,9 @@
 import { Buffer } from 'buffer';
 import path from 'path';
-import { isRelativeUrl } from '@chialab/node-resolve';
 import { collectAsset } from './collectAssets.js';
 import { generateLaunch } from './generateLaunch.js';
 import Jimp from './generator.js';
+import { isRelativeUrl } from './utils.js';
 
 /**
  * @typedef {Object} Screen

@@ -1889,7 +1889,6 @@ __metadata:
   resolution: "@chialab/esbuild-plugin-html@workspace:packages/esbuild-plugin-html"
   dependencies:
     "@chialab/esbuild-rna": ^0.18.1
-    "@chialab/node-resolve": ^0.18.0
     "@jimp/custom": ^0.22.0
     "@jimp/jpeg": ^0.22.0
     "@jimp/plugin-resize": ^0.22.0
@@ -1925,7 +1924,6 @@ __metadata:
   dependencies:
     "@chialab/esbuild-rna": ^0.18.1
     "@chialab/estransform": ^0.18.0
-    "@chialab/node-resolve": ^0.18.0
     "@types/mime-types": ^2.1.1
     esbuild: ^0.19.0
     mime-types: ^2.1.35
@@ -2003,7 +2001,6 @@ __metadata:
     "@chialab/esbuild-plugin-meta-url": ^0.18.0
     "@chialab/esbuild-rna": ^0.18.0
     "@chialab/estransform": ^0.18.0
-    "@chialab/node-resolve": ^0.18.0
     typescript: ^5.0.0
   languageName: unknown
   linkType: soft

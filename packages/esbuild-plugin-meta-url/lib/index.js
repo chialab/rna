@@ -4,8 +4,28 @@ import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
 import { useRna } from '@chialab/esbuild-rna';
 import { getBlock, getIdentifierValue, getLocation, parse, TokenType, walk } from '@chialab/estransform';
-import { getSearchParam, isUrl } from '@chialab/node-resolve';
 import mime from 'mime-types';
+
+/**
+ * Check if the given path is a valid url.
+ * @param {string} url
+ */
+function isUrl(url) {
+    try {
+        return !!new URL(url);
+    } catch (err) {
+        //
+    }
+    return false;
+}
+
+/**
+ * Get hash param (if available) in the url.
+ * @param {string} source
+ */
+export function getHashParam(source) {
+    return new URL(source).searchParams.get('hash') || null;
+}
 
 /**
  * @param {import('@chialab/estransform').TokenProcessor} processor Token processor.
@@ -161,7 +181,7 @@ export default function ({ emit = true } = {}) {
                         return;
                     }
 
-                    const id = getSearchParam(value, 'hash');
+                    const id = getHashParam(value);
                     if (id && build.isEmittedPath(id)) {
                         return;
                     }

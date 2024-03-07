@@ -5,7 +5,7 @@ import { isAbsolute } from 'path';
  * @param {string | null | undefined} url The source to check.
  */
 export function isRelativeUrl(url) {
-    if (url == null) {
+    if (!url) {
         return false;
     }
     if (isAbsolute(url)) {

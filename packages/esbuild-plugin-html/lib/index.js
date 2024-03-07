@@ -258,7 +258,14 @@ export default function ({ scriptsTarget = 'es2015', modulesTarget = 'es2020', m
                 if (minify) {
                     await import('htmlnano')
                         .then(async ({ default: htmlnano }) => {
-                            resultHtml = (await htmlnano.process(resultHtml, minifyOptions)).html;
+                            resultHtml = (
+                                await htmlnano.process(resultHtml, {
+                                    minifyJs: false,
+                                    minifyCss: false,
+                                    minifyJson: false,
+                                    ...minifyOptions,
+                                })
+                            ).html;
                         })
                         .catch(() => {
                             warnings.push({

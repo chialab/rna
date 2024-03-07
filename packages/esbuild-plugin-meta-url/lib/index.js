@@ -24,7 +24,7 @@ function isUrl(url) {
  * @param {string} source
  */
 export function getHashParam(source) {
-    return new URL(source).searchParams.get('hash') || null;
+    return new URLSearchParams(source.split('?').slice(1).join('?')).get('hash') || null;
 }
 
 /**

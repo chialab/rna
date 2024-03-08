@@ -6,6 +6,6 @@
     "baseUrl": ".",
     "rootDir": "./lib"
   },
-  "include": ["lib/**/*", "modules.d.ts"],
+  "include": ["lib/**/*"],
   "references": []
 }

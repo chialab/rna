@@ -1,5 +1,13 @@
 # @chialab/esbuild-plugin-meta-url
 
+## 0.18.2
+
+### Patch Changes
+
+- b67fc16: Remove node-resolve plugin dependency.
+- Updated dependencies [df8fcaf]
+  - @chialab/estransform@0.18.1
+
 ## 0.18.1
 
 ### Patch Changes

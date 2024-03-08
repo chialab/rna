@@ -1,5 +1,11 @@
 # @chialab/estransform
 
+## 0.18.1
+
+### Patch Changes
+
+- df8fcaf: Fix token typings.
+
 ## 0.18.0
 
 ### Minor Changes

@@ -1,5 +1,11 @@
 # @chialab/esbuild-plugin-html
 
+## 0.18.2
+
+### Patch Changes
+
+- b67fc16: Remove node-resolve plugin dependency.
+
 ## 0.18.1
 
 ### Patch Changes

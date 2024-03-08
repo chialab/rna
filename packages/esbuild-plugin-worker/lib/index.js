@@ -2,7 +2,7 @@ import { Buffer } from 'buffer';
 import path from 'path';
 import metaUrlPlugin, { getHashParam } from '@chialab/esbuild-plugin-meta-url';
 import { useRna } from '@chialab/esbuild-rna';
-import { getBlock, getIdentifierValue, getLocation, parse, splitArgs, TokenType, walk } from '@chialab/estransform';
+import { getLocation, parse, walk } from '@chialab/estransform';
 
 /**
  * @typedef {{ constructors?: string[], proxy?: boolean, emit?: boolean }} PluginOptions
@@ -58,247 +58,224 @@ export default function ({ constructors = ['Worker', 'SharedWorker'], proxy = fa
                     return;
                 }
 
-                /**
-                 * @type {Promise<void>[]}
-                 */
-                const promises = [];
-
-                /**
-                 * @type {Set<string>}
-                 */
-                const redefined = new Set();
-
-                const { helpers, processor } = await parse(code, path.relative(workingDir, args.path));
-                await walk(processor, (token) => {
-                    if (token.type === TokenType._class) {
-                        processor.nextToken();
-                        if (processor.currentToken().type === TokenType.name) {
-                            const name = processor.identifierNameForToken(processor.currentToken());
-                            if (constructors.includes(name)) {
-                                redefined.add(name);
-                            }
-                        }
-                    }
-                });
+                const { ast, helpers } = await parse(code, path.relative(workingDir, args.path));
 
                 /**
                  * @type {import('esbuild').Message[]}
                  */
                 const warnings = [];
 
-                await walk(processor, (token) => {
-                    if (token.type !== TokenType._new) {
-                        return;
-                    }
+                /**
+                 * @type {string[]}
+                 */
+                const classDeclarations = [];
 
-                    processor.nextToken();
-                    let Ctr = processor.identifierNameForToken(processor.currentToken());
-                    if (Ctr === 'window' || Ctr === 'self' || Ctr === 'globalThis') {
-                        processor.nextToken();
-                        processor.nextToken();
-                        Ctr = `${Ctr}.${processor.identifierNameForToken(processor.currentToken())}`;
-                    }
-
-                    if (redefined.has(Ctr)) {
-                        return;
-                    }
-
-                    if (!variants.includes(Ctr)) {
-                        return;
-                    }
-
-                    const block = getBlock(processor, TokenType.parenL, TokenType.parenR);
-                    const argsBlock = block.slice(2, -1);
-                    const [firstArg, secondArg] = splitArgs(argsBlock);
-                    if (!firstArg) {
-                        return;
-                    }
-
-                    const startToken = firstArg[0];
-                    const endToken = firstArg[firstArg.length - 1];
-
-                    /**
-                     * @type {import('@chialab/esbuild-rna').BuildOptions}
-                     */
-                    const transformOptions = {
-                        format: 'iife',
-                        bundle: true,
-                        platform: 'neutral',
-                    };
-
-                    if (
-                        (format !== 'iife' || !bundle) &&
-                        secondArg &&
-                        secondArg.length >= 4 &&
-                        secondArg[0].type === TokenType.braceL
-                    ) {
-                        if (
-                            ((secondArg[1].type === TokenType.string &&
-                                processor.stringValueForToken(secondArg[1]) === 'type') ||
-                                (secondArg[1].type === TokenType.name &&
-                                    processor.identifierNameForToken(secondArg[1]) === 'type')) &&
-                            secondArg[2].type === TokenType.colon &&
-                            secondArg[3].type === TokenType.string &&
-                            processor.stringValueForToken(secondArg[3]) === 'module'
-                        ) {
-                            transformOptions.format = 'esm';
-                            delete transformOptions.external;
-                            delete transformOptions.bundle;
+                /**
+                 * @type {{ [key: string]: string }}
+                 */
+                const symbols = {};
+                walk(ast, {
+                    ClassDeclaration(node) {
+                        if (!node.id || node.id.type !== 'Identifier') {
+                            return;
                         }
-                    }
-
-                    if (
-                        startToken.type !== TokenType._new ||
-                        firstArg[1].type !== TokenType.name ||
-                        processor.identifierNameForToken(firstArg[1]) !== 'URL'
-                    ) {
-                        const isStringLiteral = startToken.type === TokenType.string;
-                        const isIdentifier = startToken.type === TokenType.name;
-                        if ((isStringLiteral || isIdentifier) && proxy) {
-                            const arg = code.substring(firstArg[0].start, firstArg[firstArg.length - 1].end);
-                            helpers.overwrite(
-                                firstArg[0].start,
-                                firstArg[firstArg.length - 1].end,
-                                createBlobProxy(arg, transformOptions, true)
-                            );
+                        classDeclarations.push(node.id.name);
+                    },
+                    VariableDeclarator(node) {
+                        if (node.id.type === 'Identifier' && node.init && node.init.type === 'StringLiteral') {
+                            symbols[node.id.name] = node.init.value;
                         }
-                        return;
-                    }
-
-                    const firstParen = firstArg.findIndex((token) => token.type === TokenType.parenL);
-                    const lastParen = -firstArg
-                        .slice(0)
-                        .reverse()
-                        .findIndex((token) => token.type === TokenType.parenR);
-                    const [urlArgs, metaArgs] = splitArgs(firstArg.slice(firstParen + 1, lastParen - 1));
-                    const reference = urlArgs[0];
-
-                    if (
-                        !metaArgs ||
-                        metaArgs.length !== 5 ||
-                        metaArgs[0].type !== TokenType.name ||
-                        processor.identifierNameForToken(metaArgs[0]) !== 'import' ||
-                        metaArgs[1].type !== TokenType.dot ||
-                        metaArgs[2].type !== TokenType.name ||
-                        processor.identifierNameForToken(metaArgs[2]) !== 'meta' ||
-                        metaArgs[3].type !== TokenType.dot ||
-                        metaArgs[4].type !== TokenType.name ||
-                        processor.identifierNameForToken(metaArgs[4]) !== 'url' ||
-                        !reference
-                    ) {
-                        return;
-                    }
-
-                    const isStringLiteral = reference.type === TokenType.string;
-                    const isIdentifier = reference.type === TokenType.name;
-                    if (!isStringLiteral && !isIdentifier && !proxy) {
-                        return;
-                    }
-
-                    promises.push(
-                        Promise.resolve().then(async () => {
-                            const value = isStringLiteral
-                                ? processor.stringValueForToken(reference)
-                                : isIdentifier
-                                  ? getIdentifierValue(processor, reference)
-                                  : null;
-
-                            if (typeof value !== 'string') {
-                                if (proxy) {
-                                    const arg = code.substring(firstArg[0].start, firstArg[firstArg.length - 1].end);
-                                    helpers.overwrite(
-                                        firstArg[0].start,
-                                        firstArg[firstArg.length - 1].end,
-                                        createBlobProxy(arg, transformOptions, true)
-                                    );
-                                }
-                                return;
-                            }
-
-                            const id = getHashParam(value);
-                            if (id && build.isEmittedPath(id)) {
-                                return;
-                            }
-
-                            const { path: resolvedPath, external } = await build.resolve(value, {
-                                kind: 'dynamic-import',
-                                importer: args.path,
-                                namespace: 'file',
-                                resolveDir: path.dirname(args.path),
-                                pluginData: null,
-                            });
-
-                            if (external) {
-                                return;
-                            }
-
-                            if (!resolvedPath) {
-                                const location = getLocation(code, startToken.start);
-                                warnings.push({
-                                    id: 'worker-reference-not-found',
-                                    pluginName: 'worker',
-                                    text: `Unable to resolve '${value}' file.`,
-                                    location: {
-                                        file: args.path,
-                                        namespace: args.namespace,
-                                        ...location,
-                                        length: endToken.end - startToken.start,
-                                        lineText: code.split('\n')[location.line - 1],
-                                        suggestion: '',
-                                    },
-                                    notes: [],
-                                    detail: '',
-                                });
-                                return;
-                            }
-
-                            let emittedChunk;
-                            let entryPoint = resolvedPath;
-                            const searchParams = new URLSearchParams();
-                            if (emit) {
-                                emittedChunk = await build.emitChunk(
-                                    {
-                                        ...transformOptions,
-                                        path: resolvedPath,
-                                        write: format !== 'iife' || !bundle,
-                                    },
-                                    format !== 'iife' || !bundle
-                                );
-                                searchParams.set('hash', emittedChunk.id);
-                                entryPoint = emittedChunk.path;
-                            }
-
-                            if (emittedChunk && format === 'iife' && bundle) {
-                                const { outputFiles } = emittedChunk;
-                                if (outputFiles) {
-                                    const base64 = Buffer.from(outputFiles[0].contents).toString('base64');
-                                    helpers.overwrite(
-                                        startToken.start,
-                                        endToken.end,
-                                        `new URL('data:text/javascript;base64,${base64}')`
-                                    );
-                                }
-                            } else {
-                                const outputPath = build.resolveRelativePath(entryPoint);
-                                const searchParamsString = searchParams.toString();
-                                const arg = `new URL('${outputPath}${
-                                    searchParamsString ? `?${searchParamsString}` : ''
-                                }', import.meta.url).href`;
-                                if (proxy) {
-                                    helpers.overwrite(
-                                        firstArg[0].start,
-                                        firstArg[firstArg.length - 1].end,
-                                        createBlobProxy(arg, transformOptions, false)
-                                    );
-                                } else {
-                                    helpers.overwrite(firstArg[0].start, firstArg[firstArg.length - 1].end, arg);
-                                }
-                            }
-                        })
-                    );
+                    },
                 });
 
-                await Promise.all(promises);
+                await walk(ast, {
+                    async NewExpression(node) {
+                        const callee = node.callee;
+                        if (callee.type !== 'Identifier' || !constructors.includes(callee.name)) {
+                            if (callee.type !== 'StaticMemberExpression') {
+                                return;
+                            }
+                            if (
+                                callee.object.type !== 'Identifier' ||
+                                !['window', 'globalThis', 'self', 'global'].includes(callee.object.name) ||
+                                callee.property.type !== 'Identifier' ||
+                                !constructors.includes(callee.property.name)
+                            ) {
+                                return;
+                            }
+                        } else if (classDeclarations.includes(callee.name)) {
+                            return;
+                        }
+
+                        const argument = node.arguments[0];
+                        if (!argument) {
+                            return;
+                        }
+
+                        const options = node.arguments[1];
+
+                        /**
+                         * @type {import('@chialab/esbuild-rna').BuildOptions}
+                         */
+                        const transformOptions = {
+                            format: 'iife',
+                            bundle: true,
+                            platform: 'neutral',
+                        };
+
+                        if (options && options.type === 'ObjectExpression') {
+                            for (const property of options.properties) {
+                                if (
+                                    property.type === 'ObjectProperty' &&
+                                    property.key.type === 'Identifier' &&
+                                    property.key.name === 'type' &&
+                                    property.value.type === 'StringLiteral'
+                                ) {
+                                    transformOptions.format = 'esm';
+                                    delete transformOptions.external;
+                                    delete transformOptions.bundle;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (
+                            argument.type !== 'NewExpression' ||
+                            argument.callee.type !== 'Identifier' ||
+                            argument.callee.name !== 'URL'
+                        ) {
+                            const isStringLiteral = argument.type === 'StringLiteral';
+                            const isIdentifier = argument.type === 'Identifier';
+                            if ((isStringLiteral || isIdentifier) && proxy) {
+                                const arg = code.substring(argument.start, argument.end);
+                                helpers.overwrite(
+                                    argument.start,
+                                    argument.end,
+                                    createBlobProxy(arg, transformOptions, true)
+                                );
+                            }
+                            return;
+                        }
+
+                        const reference = argument.arguments[0];
+                        const originArgument = argument.arguments[1];
+                        if (
+                            !originArgument ||
+                            originArgument.type !== 'StaticMemberExpression' ||
+                            originArgument.object.type !== 'MetaProperty' ||
+                            originArgument.object.meta.name !== 'import' ||
+                            originArgument.object.property.name !== 'meta' ||
+                            originArgument.property.type !== 'Identifier' ||
+                            originArgument.property.name !== 'url'
+                        ) {
+                            return;
+                        }
+
+                        const isStringLiteral = reference.type === 'StringLiteral';
+                        const isIdentifier = reference.type === 'Identifier';
+                        if (!isStringLiteral && !isIdentifier && !proxy) {
+                            return;
+                        }
+
+                        const value = isStringLiteral
+                            ? reference.value
+                            : isIdentifier
+                              ? symbols[reference.name] || null
+                              : null;
+
+                        if (typeof value !== 'string') {
+                            if (proxy) {
+                                const arg = code.substring(argument.start, argument.end);
+                                helpers.overwrite(
+                                    argument.start,
+                                    argument.end,
+                                    createBlobProxy(arg, transformOptions, true)
+                                );
+                            }
+                            return;
+                        }
+
+                        const id = getHashParam(value);
+                        if (id && build.isEmittedPath(id)) {
+                            return;
+                        }
+
+                        const { path: resolvedPath, external } = await build.resolve(value, {
+                            kind: 'dynamic-import',
+                            importer: args.path,
+                            namespace: 'file',
+                            resolveDir: path.dirname(args.path),
+                            pluginData: null,
+                        });
+
+                        if (external) {
+                            return;
+                        }
+
+                        if (!resolvedPath) {
+                            const location = getLocation(code, argument.start);
+                            warnings.push({
+                                id: 'worker-reference-not-found',
+                                pluginName: 'worker',
+                                text: `Unable to resolve '${value}' file.`,
+                                location: {
+                                    file: args.path,
+                                    namespace: args.namespace,
+                                    ...location,
+                                    length: argument.end - argument.start,
+                                    lineText: code.split('\n')[location.line - 1],
+                                    suggestion: '',
+                                },
+                                notes: [],
+                                detail: '',
+                            });
+                            return;
+                        }
+
+                        let emittedChunk;
+                        let entryPoint = resolvedPath;
+                        const searchParams = new URLSearchParams();
+                        if (emit) {
+                            emittedChunk = await build.emitChunk(
+                                {
+                                    ...transformOptions,
+                                    path: resolvedPath,
+                                    write: format !== 'iife' || !bundle,
+                                },
+                                format !== 'iife' || !bundle
+                            );
+                            searchParams.set('hash', emittedChunk.id);
+                            entryPoint = emittedChunk.path;
+                        }
+
+                        if (emittedChunk && format === 'iife' && bundle) {
+                            const { outputFiles } = emittedChunk;
+                            if (outputFiles) {
+                                const base64 = Buffer.from(outputFiles[0].contents).toString('base64');
+                                helpers.overwrite(
+                                    argument.start,
+                                    argument.end,
+                                    `new URL('data:text/javascript;base64,${base64}')`
+                                );
+                            }
+                        } else {
+                            const outputPath = build.resolveRelativePath(entryPoint);
+                            const searchParamsString = searchParams.toString();
+                            const arg = `new URL('${outputPath}${
+                                searchParamsString ? `?${searchParamsString}` : ''
+                            }', import.meta.url).href`;
+                            if (proxy) {
+                                helpers.overwrite(
+                                    argument.start,
+                                    argument.end,
+                                    createBlobProxy(arg, transformOptions, false)
+                                );
+                            } else {
+                                helpers.overwrite(argument.start, argument.end, arg);
+                            }
+                        }
+                    },
+                });
 
                 if (!helpers.isDirty()) {
                     return {

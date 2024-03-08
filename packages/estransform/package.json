@@ -32,14 +32,14 @@
     "node": ">=18"
   },
   "dependencies": {
-    "@parcel/source-map": "^2.0.0"
+    "@parcel/source-map": "^2.0.0",
+    "oxc-parser": "^0.8.0"
   },
   "devDependencies": {
     "cjs-module-lexer": "^1.2.2",
     "es-module-lexer": "^1.0.0",
     "magic-string": "^0.30.3",
     "rimraf": "^5.0.1",
-    "sucrase": "^3.0.0",
     "typescript": "^5.0.0"
   }
 }

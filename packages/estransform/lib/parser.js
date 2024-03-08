@@ -1,53 +1,49 @@
 import MagicString from 'magic-string';
-import { HelperManager } from 'sucrase/dist/HelperManager.js';
-import NameManagerModule from 'sucrase/dist/NameManager.js';
-import { parse as sucraseParse } from 'sucrase/dist/parser/index.js';
-import TokenProcessorModule from 'sucrase/dist/TokenProcessor.js';
+import { parseAsync } from 'oxc-parser';
 import { inlineSourcemap, loadSourcemap, mergeSourcemaps, removeInlineSourcemap } from './sourcemaps.js';
 
 /**
- * @param {*} mod
+ * @typedef {{ type: string; start: number; end: number; [key: string]: any }} Node
  */
-function interopImport(mod) {
-    return typeof mod.default !== 'undefined' ? mod.default : mod;
-}
-
-export const NameManager = /** @type {typeof import('sucrase/dist/NameManager.js').default} */ (
-    interopImport(NameManagerModule)
-);
-export const TokenProcessor = /** @type {typeof import('sucrase/dist/types/TokenProcessor').default} */ (
-    interopImport(TokenProcessorModule)
-);
 
 /**
- * Walk through tokens and wait async visitors.
- *
- * @param {InstanceType<TokenProcessor>} processor
- * @param {(token: import('./types.js').Token, index: number, processor: InstanceType<TokenProcessor>) => void|false|Promise<void|false>} callback
+ * @param {*} obj
+ * @param {(string|number)[]} path
+ * @returns {Generator<Node>}
  */
-export async function walk(processor, callback) {
-    if (processor.isAtEnd()) {
-        processor.reset();
+function* jsonWalker(obj, path = []) {
+    if (typeof obj === 'object' && obj != null) {
+        if (Array.isArray(obj)) {
+            for (let i = 0; i < obj.length; i++) {
+                yield* jsonWalker(obj[i], [...path, i]);
+            }
+        } else {
+            if (Object.hasOwn(obj, 'type')) {
+                yield obj;
+            }
+            for (const key in obj) {
+                if (Object.hasOwn(obj, key)) {
+                    yield* jsonWalker(obj[key], [...path, key]);
+                }
+            }
+        }
     }
+}
 
-    while (!processor.isAtEnd()) {
-        const token = processor.currentToken();
-        const index = processor.currentIndex();
-
-        let result = callback(token, index, processor);
-        if (result instanceof Promise) {
-            result = await result;
+/**
+ * Walk an ast node.
+ * @param {Node} root
+ * @param {Record<string, (node: Node) => void | Promise<void>>} visitors
+ * @returns {Promise<void>}
+ */
+export async function walk(root, visitors) {
+    for (const object of jsonWalker(root)) {
+        if (visitors[object.type]) {
+            const result = visitors[object.type](object);
+            if (result instanceof Promise) {
+                await result;
+            }
         }
-
-        if (result === false) {
-            return;
-        }
-
-        if (processor.isAtEnd()) {
-            return;
-        }
-
-        processor.nextToken();
     }
 }
 
@@ -55,21 +51,17 @@ export async function walk(processor, callback) {
  * @param {string} inputCode The code to parse.
  * @param {string} [filePath] The source file name.
  */
-export function parse(inputCode, filePath) {
+export async function parse(inputCode, filePath) {
     const code = removeInlineSourcemap(inputCode);
-    const program = sucraseParse(code, true, true, false);
-    const nameManager = new NameManager(code, program.tokens);
-    const helperManager = new HelperManager(nameManager);
-    const processor = new TokenProcessor(code, program.tokens, false, true, helperManager);
     const magicCode = new MagicString(code);
+    const result = await parseAsync(code, { sourceType: 'module', sourceFilename: filePath });
+    const ast = JSON.parse(result.program);
 
     let changed = false;
 
     return {
-        program,
-        nameManager,
-        helperManager,
-        processor,
+        ast,
+        comments: result.comments,
         helpers: {
             /**
              * @param {string} code

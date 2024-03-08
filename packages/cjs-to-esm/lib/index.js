@@ -1,13 +1,4 @@
-import {
-    createEmptySourcemapComment,
-    getBlock,
-    getStatement,
-    parse,
-    parseCommonjs,
-    parseEsm,
-    TokenType,
-    walk,
-} from '@chialab/estransform';
+import { createEmptySourcemapComment, parse, parseCommonjs, parseEsm, walk } from '@chialab/estransform';
 
 export const REQUIRE_REGEX = /([^.\w$]|^)require\s*\((['"])(.*?)\2\)/g;
 export const UMD_REGEXES = [
@@ -21,7 +12,6 @@ export const ESM_KEYWORDS =
     /((?:^\s*|;\s*)(\bimport\s*(\{.*?\}\s*from|\s[\w$]+\s+from|\*\s*as\s+[^\s]+\s+from)?\s*['"])|((?:^\s*|;\s*)export(\s+(default|const|var|let|function|class)[^\w$]|\s*\{)))/m;
 export const EXPORTS_KEYWORDS = /\b(module\.exports\b|exports\b)/;
 export const CJS_KEYWORDS = /\b(module\.exports\b|exports\b|require[.(])/;
-export const THIS_PARAM = /(}\s*\()this(,|\))/g;
 
 export const REQUIRE_FUNCTION = '__cjs_default__';
 export const HELPER_MODULE = '__cjs_helper__.js';
@@ -157,17 +147,6 @@ export async function maybeMixedModule(code) {
 }
 
 /**
- * Check if an expression is a require call.
- * @param {import('@chialab/estransform').TokenProcessor} processor
- */
-function isRequireCallExpression(processor) {
-    return (
-        processor.matches4(TokenType.name, TokenType.parenL, TokenType.string, TokenType.parenR) &&
-        processor.identifierNameAtIndex(processor.currentIndex()) === 'require'
-    );
-}
-
-/**
  * @typedef {(specifier: string) => boolean|Promise<boolean>} IgnoreCallback
  */
 
@@ -202,74 +181,79 @@ export async function transform(
 
     const specs = new Map();
     const ns = new Map();
-    const { helpers, processor } = await parse(code, source);
+    const { ast, helpers } = await parse(code, source);
     const isUmd = UMD_REGEXES.some((regex) => regex.test(code));
 
     let insertHelper = false;
     if (!isUmd) {
         /**
-         * @type {*[]}
+         * @type {import('@chialab/estransform').Node[]}
          */
         const ignoredExpressions = [];
 
         if (ignoreTryCatch) {
-            let openBlocks = 0;
-            await walk(processor, (token) => {
-                if (token.type === TokenType._try) {
-                    openBlocks++;
-                    return;
-                }
-
-                if (token.type === TokenType._catch) {
-                    openBlocks--;
-                    return;
-                }
-
-                if (openBlocks && isRequireCallExpression(processor)) {
-                    ignoredExpressions.push(processor.currentIndex());
-                }
+            walk(ast, {
+                TryStatement(node) {
+                    walk(node.block, {
+                        CallExpression(node) {
+                            if (node.callee.type !== 'Identifier' || node.callee.name !== 'require') {
+                                return;
+                            }
+                            ignoredExpressions.push(node);
+                        },
+                    });
+                },
             });
         }
 
-        await walk(processor, (token, index) => {
-            if (!isRequireCallExpression(processor) || ignoredExpressions.includes(index)) {
-                return;
-            }
+        /**
+         * @type {import('@chialab/estransform').Node[]}
+         */
+        const callExpressions = [];
+        walk(ast, {
+            CallExpression(node) {
+                if (node.callee.type !== 'Identifier' || node.callee.name !== 'require') {
+                    return;
+                }
 
-            const specifierToken = processor.tokens[index + 2];
-            const specifier = processor.stringValueAtIndex(index + 2);
+                if (ignoredExpressions.includes(node)) {
+                    return;
+                }
 
-            return (async () => {
-                let spec = specs.get(specifier);
+                const specifier = node.arguments[0];
+                if (specifier.type === 'StringLiteral') {
+                    callExpressions.push(node);
+                }
+            },
+        });
+
+        await Promise.all(
+            callExpressions.map(async (callExp) => {
+                const specifier = callExp.arguments[0];
+                let spec = specs.get(specifier.value);
                 if (!spec) {
-                    let id = `$cjs$${specifier.replace(/[^\w_$]+/g, '_')}`;
+                    let id = `$cjs$${specifier.value.replace(/[^\w_$]+/g, '_')}`;
                     const count = (ns.get(id) || 0) + 1;
                     ns.set(id, count);
                     if (count > 1) {
                         id += count;
                     }
-
-                    if (await ignore(specifier)) {
+                    if (await ignore(specifier.value)) {
                         return;
                     }
-
-                    spec = { id, specifier };
+                    spec = { id, specifier: specifier.value };
                     specs.set(specifier, spec);
                 }
 
                 insertHelper = true;
-
-                helpers.overwrite(token.start, token.end, REQUIRE_FUNCTION);
-                processor.nextToken();
-                processor.nextToken();
+                helpers.overwrite(callExp.callee.start, callExp.callee.end, REQUIRE_FUNCTION);
                 helpers.overwrite(
-                    specifierToken.start,
-                    specifierToken.end,
+                    specifier.start,
+                    specifier.end,
                     `typeof ${spec.id} !== 'undefined' ? ${spec.id} : {}`
                 );
-                processor.nextToken();
-            })();
-        });
+            })
+        );
     }
 
     const { exports, reexports } = await parseCommonjs(code);
@@ -314,17 +298,6 @@ __umdFunction.prototype = Function.prototype;
 }).call(__umdRoot, __umdRoot, __umdRoot, __umdRoot, __umdRoot, undefined, undefined, __umdFunction);
 
 export default (__umdExports.length !== 1 && __umdRoot[__umdExports[0]] !== __umdRoot[__umdExports[1]] ? __umdRoot : __umdRoot[__umdExports[0]]);`);
-
-        // replace the usage of `this` as global object because is not supported in esm
-        let thisMatch = THIS_PARAM.exec(code);
-        while (thisMatch) {
-            helpers.overwrite(
-                thisMatch.index,
-                thisMatch.index + thisMatch[0].length,
-                `${thisMatch[1]}this || __umdGlobal${thisMatch[2]}`
-            );
-            thisMatch = THIS_PARAM.exec(code);
-        }
     } else if (exports.length > 0 || reexports.length > 0) {
         helpers.prepend(`var global = ${GLOBAL_HELPER};
 var exports = {};
@@ -409,34 +382,39 @@ var module = {
  * @param {{ sourcemap?: boolean, source?: string; sourcesContent?: boolean }} options
  */
 export async function wrapDynamicRequire(code, { sourcemap = true, source, sourcesContent = false } = {}) {
-    const { helpers, processor } = await parse(code, source);
-    await walk(processor, (token, index) => {
-        if (
-            !processor.matches5(TokenType._if, TokenType.parenL, TokenType._typeof, TokenType.name, TokenType.equality)
-        ) {
-            return;
-        }
+    const { ast, helpers } = await parse(code, source);
+    walk(ast, {
+        IfStatement(node) {
+            if (node.test.type !== 'BinaryExpression') {
+                return;
+            }
+            if (node.test.left.type !== 'UnaryExpression') {
+                return;
+            }
+            if (node.test.left.operator !== 'typeof') {
+                return;
+            }
+            if (node.test.left.argument.type !== 'Identifier') {
+                return;
+            }
+            if (node.test.left.argument.name !== 'require') {
+                return;
+            }
+            if (!['===', '==', '!==', '!='].includes(node.test.operator)) {
+                return;
+            }
 
-        const identifier = processor.identifierNameAtIndex(index + 3);
-        if (identifier !== 'require') {
-            return;
-        }
-
-        getBlock(processor, TokenType.parenL, TokenType.parenR);
-        processor.nextToken();
-
-        const tokens = [];
-        if (processor.currentToken() && processor.currentToken().type === TokenType.braceL) {
-            tokens.push(...getBlock(processor).slice(1, -1));
-        } else {
-            tokens.push(...getStatement(processor));
-        }
-
-        const startToken = tokens[0];
-        const endToken = tokens[tokens.length - 1];
-
-        helpers.prepend('(() => { try { return (() => {', startToken.start);
-        helpers.append('})(); } catch(err) {} })();', endToken.end);
+            if (node.consequent.type === 'BlockStatement') {
+                helpers.prepend('(() => { try { return (() => {', node.consequent.body[0].start);
+                helpers.append(
+                    '})(); } catch(err) {} })();',
+                    node.consequent.body[node.consequent.body.length - 1].end
+                );
+            } else {
+                helpers.prepend('(() => { try { return (() => {', node.consequent.start);
+                helpers.append('})(); } catch(err) {} })();', node.consequent.end);
+            }
+        },
     });
 
     if (!helpers.isDirty()) {

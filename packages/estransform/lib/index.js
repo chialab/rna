@@ -1,4 +1,3 @@
-export * from './types.js';
 export * from './parser.js';
 export * from './modules.js';
 export * from './sourcemaps.js';

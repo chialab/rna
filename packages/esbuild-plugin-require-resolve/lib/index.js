@@ -52,7 +52,6 @@ export default function () {
 
                         const emittedFile = await build.emitFile(resolvedFilePath);
                         const outputFile = build.resolveRelativePath(emittedFile.path);
-                        console.log(`'${outputFile}'`);
                         helpers.overwrite(argument.start, argument.end, `'${outputFile}'`);
                     },
                 });

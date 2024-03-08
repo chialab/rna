@@ -1,5 +1,5 @@
 import path from 'path';
-import { isRelativeUrl } from '@chialab/node-resolve';
+import { isRelativeUrl } from './utils.js';
 
 /**
  * Collect and bundle each <link> reference.

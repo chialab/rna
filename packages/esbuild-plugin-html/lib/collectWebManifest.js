@@ -1,8 +1,8 @@
 import { Buffer } from 'buffer';
 import path from 'path';
-import { isRelativeUrl } from '@chialab/node-resolve';
 import { generateIcon } from './generateIcon.js';
 import Jimp from './generator.js';
+import { isRelativeUrl } from './utils.js';
 
 const MANIFEST_ICONS = [
     {

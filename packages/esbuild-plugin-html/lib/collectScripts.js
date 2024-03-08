@@ -1,5 +1,5 @@
 import path from 'path';
-import { isRelativeUrl } from '@chialab/node-resolve';
+import { isRelativeUrl } from './utils.js';
 
 /**
  * @param {import('cheerio').CheerioAPI} $ The cheerio selector.

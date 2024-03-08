@@ -1,9 +1,8 @@
 import { Buffer } from 'buffer';
 import path from 'path';
-import metaUrlPlugin from '@chialab/esbuild-plugin-meta-url';
+import metaUrlPlugin, { getHashParam } from '@chialab/esbuild-plugin-meta-url';
 import { useRna } from '@chialab/esbuild-rna';
 import { getBlock, getIdentifierValue, getLocation, parse, splitArgs, TokenType, walk } from '@chialab/estransform';
-import { getSearchParam } from '@chialab/node-resolve';
 
 /**
  * @typedef {{ constructors?: string[], proxy?: boolean, emit?: boolean }} PluginOptions
@@ -216,7 +215,7 @@ export default function ({ constructors = ['Worker', 'SharedWorker'], proxy = fa
                                 return;
                             }
 
-                            const id = getSearchParam(value, 'hash');
+                            const id = getHashParam(value);
                             if (id && build.isEmittedPath(id)) {
                                 return;
                             }

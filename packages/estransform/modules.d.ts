@@ -11,7 +11,7 @@ declare module 'sucrase/dist/HelperManager.js' {
 }
 
 declare module 'sucrase/dist/TokenProcessor.js' {
-    export { TokenProcessor as default } from 'sucrase';
+    export * from 'sucrase/dist/types/TokenProcessor';
 }
 
 declare module 'sucrase/dist/parser/tokenizer/types.js' {

@@ -99,11 +99,16 @@ export function getLocation(code, index) {
 }
 
 /**
+ * Get a block of tokens.
  * @param {import('./parser.js').TokenProcessor} processor
  * @param {TokenType} [openingToken]
  * @param {TokenType} [closingToken]
+ * @returns {import('./types.js').Token[]}
  */
 export function getBlock(processor, openingToken = TokenType.braceL, closingToken = TokenType.braceR) {
+    /**
+     * @type {import('./types.js').Token | null}
+     */
     let token = processor.currentToken();
     let count = 0;
 
@@ -130,6 +135,9 @@ export function getBlock(processor, openingToken = TokenType.braceL, closingToke
  * @param {import('./parser.js').TokenProcessor} processor
  */
 export function getStatement(processor) {
+    /**
+     * @type {import('./types.js').Token | null}
+     */
     let token = processor.currentToken();
     let count = 0;
 
@@ -153,7 +161,9 @@ export function getStatement(processor) {
 }
 
 /**
+ * Split tokens into function arguments.
  * @param {import('./types.js').Token[]} tokens
+ * @returns {import('./types.js').Token[][]}
  */
 export function splitArgs(tokens) {
     /**
@@ -205,6 +215,9 @@ export function extractFunctionArguments(processor) {
     let openBrackets = 0;
     let openBraces = 0;
 
+    /**
+     * @type {import('./types.js').Token | null}
+     */
     let token = processor.currentToken();
     let arg = [];
     while ((token && token.type !== TokenType.parenR) || openParens || openBrackets || openBraces) {
@@ -252,6 +265,7 @@ export function extractFunctionArguments(processor) {
 /**
  * Move forward in tokens list and return the current token.
  * @param {import('./parser.js').TokenProcessor} processor
+ * @returns {import('./types.js').Token|null}
  */
 export function getNextToken(processor) {
     if (processor.isAtEnd()) {
@@ -267,13 +281,19 @@ export function getNextToken(processor) {
  */
 export function nextBlock(processor) {
     let openParens = 0;
+    /**
+     * @type {import('./types.js').Token | null}
+     */
     let token = processor.currentToken();
     while (token && (token.type !== TokenType.parenR || openParens)) {
         if (token.type === TokenType.parenR) {
             openParens--;
         }
         token = getNextToken(processor);
-        if (token.type === TokenType.parenL) {
+        if (!token) {
+            break;
+        }
+        if (token && token.type === TokenType.parenL) {
             openParens++;
         }
     }

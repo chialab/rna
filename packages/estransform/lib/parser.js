@@ -15,7 +15,7 @@ function interopImport(mod) {
 export const NameManager = /** @type {typeof import('sucrase/dist/NameManager.js').default} */ (
     interopImport(NameManagerModule)
 );
-export const TokenProcessor = /** @type {typeof import('sucrase/dist/TokenProcessor.js').default} */ (
+export const TokenProcessor = /** @type {typeof import('sucrase/dist/types/TokenProcessor').default} */ (
     interopImport(TokenProcessorModule)
 );
 

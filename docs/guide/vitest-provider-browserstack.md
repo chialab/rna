@@ -1,8 +1,8 @@
-# Browserstack provider for Vitest
+# vitest-provider-browserstack
 
 A browser provider for [Vitest](https://vitest.dev/) that runs tests on [Browserstack](https://www.browserstack.com/).
 
-### Install
+## Install
 
 ::: code-group
 
@@ -20,7 +20,7 @@ pnpm add -D @chialab/vitest-provider-browserstack
 
 :::
 
-### Usage
+## Usage
 
 ::: info
 
@@ -83,7 +83,7 @@ export default {
 };
 ```
 
-### Options
+## Options
 
 `user` and `key` options can be omitted if you have a `BROWSERSTACK_USERNAME` and `BROWSERSTACK_ACCESS_KEY` environment variables set.
 

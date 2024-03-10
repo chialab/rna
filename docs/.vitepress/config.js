@@ -102,6 +102,10 @@ export default defineConfig({
                         link: '/guide/postcss-url-rebase',
                     },
                     {
+                        text: 'vite-plugin-commonjs',
+                        link: '/guide/vite-plugin-commonjs',
+                    },
+                    {
                         text: 'vitest-axe',
                         link: '/guide/vitest-axe',
                     },

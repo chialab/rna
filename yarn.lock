@@ -2291,6 +2291,15 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@chialab/vite-plugin-commonjs@workspace:packages/vite-plugin-commonjs":
+  version: 0.0.0-use.local
+  resolution: "@chialab/vite-plugin-commonjs@workspace:packages/vite-plugin-commonjs"
+  dependencies:
+    "@chialab/cjs-to-esm": ^0.18.0
+    typescript: ^5.0.0
+  languageName: unknown
+  linkType: soft
+
 "@chialab/vitest-axe@workspace:packages/vitest-axe":
   version: 0.0.0-use.local
   resolution: "@chialab/vitest-axe@workspace:packages/vitest-axe"

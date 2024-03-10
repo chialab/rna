@@ -109,6 +109,9 @@
       "path": "./packages/rna-saucelabs-test-runner"
     },
     {
+      "path": "./packages/vite-plugin-commonjs"
+    },
+    {
       "path": "./packages/vitest-axe"
     },
     {

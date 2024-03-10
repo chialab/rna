@@ -1,4 +1,4 @@
-# Vitest Axe matchers
+# vitest-axe
 
 Axe violations matchers for Vitest.
 

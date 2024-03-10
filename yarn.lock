@@ -2291,6 +2291,15 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@chialab/vite-plugin-worker-proxy@workspace:packages/vite-plugin-worker-proxy":
+  version: 0.0.0-use.local
+  resolution: "@chialab/vite-plugin-worker-proxy@workspace:packages/vite-plugin-worker-proxy"
+  dependencies:
+    "@chialab/estransform": ^0.18.0
+    typescript: ^5.0.0
+  languageName: unknown
+  linkType: soft
+
 "@chialab/vitest-axe@workspace:packages/vitest-axe":
   version: 0.0.0-use.local
   resolution: "@chialab/vitest-axe@workspace:packages/vitest-axe"

@@ -32,8 +32,6 @@
 "@chialab/rna-config-loader": minor
 "@chialab/rna-node-test-runner": minor
 "@chialab/rna-saucelabs-test-runner": minor
-"@chialab/vite-plugin-commonjs": minor
-"@chialab/vite-plugin-worker-proxy": minor
 "@chialab/vitest-axe": minor
 "@chialab/vitest-provider-browserstack": minor
 "@chialab/wds-plugin-legacy": minor

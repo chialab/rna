@@ -33,30 +33,10 @@
   "engines": {
     "node": ">=18"
   },
-  "peerDependencies": {
-    "@chialab/rna-browser-test-runner": "^0.18.0",
-    "@chialab/rna-bundler": "^0.18.0",
-    "@chialab/rna-dev-server": "^0.18.0",
-    "@chialab/rna-node-test-runner": "^0.18.0",
-    "@chialab/rna-saucelabs-test-runner": "^0.18.0"
-  },
-  "peerDependenciesMeta": {
-    "@chialab/rna-browser-test-runner": {
-      "optional": true
-    },
-    "@chialab/rna-dev-server": {
-      "optional": true
-    },
-    "@chialab/rna-node-test-runner": {
-      "optional": true
-    },
-    "@chialab/rna-saucelabs-test-runner": {
-      "optional": true
-    }
-  },
   "dependencies": {
     "@chialab/rna-bundler": "^0.18.0",
     "@chialab/rna-config-loader": "^0.18.0",
+    "@chialab/rna-dev-server": "^0.18.0",
     "@chialab/rna-logger": "^0.18.0"
   },
   "devDependencies": {

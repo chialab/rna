@@ -16,70 +16,12 @@
 
 ## Install
 
-The `@chialab/rna` contains only the core of the RNA cli and the bundler.
-
-| Command | Description                                          | Module                                                                     |
-| ------- | ---------------------------------------------------- | -------------------------------------------------------------------------- |
-| `build` | A JavaScript, CSS and HTML bundler based on esbuild. | [@chialab/rna-bundler](https://www.npmjs.com/package/@chialab/rna-bundler) |
-
-In order to make other commands work, you need to install each dependency.
-
-| Command        | Description                                          | Module                                                                                             |
-| -------------- | ---------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
-| `serve`        | A webapp server based on Web Dev Server.             | [@chialab/rna-dev-server](https://www.npmjs.com/package/@chialab/rna-dev-server)                   |
-| `test:browser` | A test runner for browsers based on Web Test Runner. | [@chialab/rna-browser-test-runner](https://www.npmjs.com/package/@chialab/rna-browser-test-runner) |
-| `test:node`    | A test runner for node based on mocha.               | [@chialab/rna-node-test-runner](https://www.npmjs.com/package/@chialab/rna-node-test-runner)       |
-
-#### Common module
-
 ```sh
-npm i -D \
-  @chialab/rna \
-  @chialab/rna-dev-server \
-  @chialab/rna-browser-test-runner
+npm i @chialab/rna
 ```
 
 ```sh
-yarn add -D \
-  @chialab/rna \
-  @chialab/rna-dev-server \
-  @chialab/rna-browser-test-runner
-```
-
-#### Common webapp
-
-```sh
-npm i -D \
-  @chialab/rna \
-  @chialab/rna-dev-server \
-  @chialab/rna-browser-test-runner
-```
-
-```sh
-yarn add -D \
-  @chialab/rna \
-  @chialab/rna-dev-server \
-  @chialab/rna-browser-test-runner
-```
-
-#### Build only
-
-```sh
-npm i -D @chialab/rna
-```
-
-```sh
-yarn add -D @chialab/rna
-```
-
-#### Test node
-
-```sh
-npm i -D @chialab/rna @chialab/rna-node-test-runner
-```
-
-```sh
-yarn add -D @chialab/rna @chialab/rna-node-test-runner
+yarn add @chialab/rna
 ```
 
 ---

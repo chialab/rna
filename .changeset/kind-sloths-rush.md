@@ -4,8 +4,6 @@
 "@chialab/esbuild-plugin-meta-url": minor
 "@chialab/esbuild-plugin-worker": minor
 "@chialab/esbuild-plugin-html": minor
-"@chialab/wtr-mocha-reporter": minor
-"@chialab/es-test-runner": minor
 "@chialab/rna-dev-server": minor
 "@chialab/wds-plugin-hmr": minor
 "@chialab/es-dev-server": minor
@@ -27,18 +25,14 @@
 "@chialab/postcss-dart-sass": minor
 "@chialab/postcss-preset-chialab": minor
 "@chialab/postcss-url-rebase": minor
-"@chialab/rna-browser-test-runner": minor
 "@chialab/rna-bundler": minor
 "@chialab/rna-config-loader": minor
-"@chialab/rna-node-test-runner": minor
-"@chialab/rna-saucelabs-test-runner": minor
 "@chialab/vitest-axe": minor
 "@chialab/vitest-provider-browserstack": minor
 "@chialab/wds-plugin-legacy": minor
 "@chialab/wds-plugin-node-resolve": minor
 "@chialab/wds-plugin-polyfill": minor
 "@chialab/wds-plugin-rna": minor
-"@chialab/wtr-coverage-reporter": minor
 ---
 
 Migrate from sucrase to oxc parser.

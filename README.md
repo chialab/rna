@@ -30,25 +30,12 @@ Build plugins are also available for the [Web Dev Server](https://modern-web.dev
 
 -   [Dev server for web apps](./docs/Dev-server-web-apps)
 
-## RNA is a browser and node test runner
-
-Built on the Web Dev Server, a configured instance of the [Web Test Runner](https://modern-web.dev/docs/test-runner/overview/) is also available for browsers. It comes with coverage and on-the-fly legacy browsers support.
-
-Since RNA aims to support both browser and Node modules, you can test your modules in Node environments using the RNA test runner based on [Mocha](https://mochajs.org/). Coverage is also available thanks to the v8 coverage tool.
-
--   [Testing in the browser](./docs/Testing-browser)
--   [Testing in node](./docs/Testing-node)
--   [Testing in SauceLabs](./docs/Testing-saucelabs)
-
 ## RNA is a cli
 
 ### Quick usage
 
 ```sh
-npm i -D \
-    @chialab/rna \
-    @chialab/rna-dev-server \
-    @chialab/rna-browser-test-runner
+npm i -D @chialab/rna
 ```
 
 **package.json**
@@ -57,8 +44,7 @@ npm i -D \
 {
     "scripts": {
         "start": "rna serve src --port 3000",
-        "build": "rna build src/index.html --output public",
-        "test": "rna test:browser 'test/**/*.spec'"
+        "build": "rna build src/index.html --output public"
     }
 }
 ```

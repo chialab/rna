@@ -69,15 +69,15 @@ First, we need to install `rna` dependencies:
 ::: code-group
 
 ```sh[npm]
-npm i -D @chialab/rna @chialab/rna-dev-server
+npm i -D @chialab/rna
 ```
 
 ```sh[yarn]
-yarn add -D @chialab/rna @chialab/rna-dev-server
+yarn add -D @chialab/rna
 ```
 
 ```sh[pnpm]
-pnpm add -D @chialab/rna @chialab/rna-dev-server
+pnpm add -D @chialab/rna
 ```
 
 :::

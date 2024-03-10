@@ -16,15 +16,6 @@ Build plugins are also available for the [Web Dev Server](https://modern-web.dev
 
 -   [Dev server for web apps](./dev-server)
 
-## RNA is a browser and node test runner
-
-Built on the Web Dev Server, a configured instance of the [Web Test Runner](https://modern-web.dev/docs/test-runner/overview/) is also available for browsers. It comes with coverage and on-the-fly legacy browsers support.
-
-Since RNA aims to support both browser and Node modules, you can test your modules in Node environments using the RNA test runner based on [Mocha](https://mochajs.org/). Coverage is also available thanks to the v8 coverage tool.
-
--   [Testing in the browser](./testing-browser)
--   [Testing in node](./testing-node)
-
 ## RNA is a build framework
 
 We built RNA to be pluggable and to be interoperable with other build systems. A lot of esbuild and postcss plugins are distribuited as standalone packages in order to be reused outside the RNA opinionated ecosystem. We also designed a micro-sdk for esbuild plugin authors that handles transform pipelines and emits chunks or files.
@@ -36,24 +27,15 @@ We built RNA to be pluggable and to be interoperable with other build systems. A
 ::: code-group
 
 ```sh[npm]
-npm i -D \
-    @chialab/rna \
-    @chialab/rna-dev-server \
-    @chialab/rna-browser-test-runner
+npm i -D @chialab/rna
 ```
 
 ```sh[yarn]
-yarn add -D \
-    @chialab/rna \
-    @chialab/rna-dev-server \
-    @chialab/rna-browser-test-runner
+yarn add -D @chialab/rna
 ```
 
 ```sh[pnpm]
-pnpm add -D \
-    @chialab/rna \
-    @chialab/rna-dev-server \
-    @chialab/rna-browser-test-runner
+pnpm add -D @chialab/rna
 ```
 
 :::
@@ -64,8 +46,7 @@ pnpm add -D \
 {
     "scripts": {
         "start": "rna serve src --port 3000",
-        "build": "rna build src/index.html --output public",
-        "test": "rna test:browser 'test/**/*.spec'"
+        "build": "rna build src/index.html --output public"
     }
 }
 ```

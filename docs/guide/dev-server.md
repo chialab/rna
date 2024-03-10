@@ -26,15 +26,15 @@ The RNA dev server can be installed with the following preset:
 ::: code-group
 
 ```sh[npm]
-npm i -D @chialab/rna @chialab/rna-dev-server
+npm i -D @chialab/rna
 ```
 
 ```sh[yarn]
-yarn add -D @chialab/rna @chialab/rna-dev-server
+yarn add -D @chialab/rna
 ```
 
 ```sh[pnpm]
-pnpm add -D @chialab/rna @chialab/rna-dev-server
+pnpm add -D @chialab/rna
 ```
 
 :::
@@ -61,7 +61,7 @@ You can also specify a custom port using the `--port N` flag.
 
 ## Legacy browsers
 
-Sometimes you may need to test on legacy browsers. Since the Dev Server is based on ESM support, in order to work in Internet Explorer or Safari 9 it needs to transpile and convert the module system.  
+Sometimes you may need to support legacy browsers. Since the Dev Server is based on ESM support, in order to work in Internet Explorer or Safari 9 it needs to transpile and convert the module system.  
 Installing the [legacy plugin](https://www.npmjs.com/package/@chialab/wds-plugin-legacy) will enable the convertion of ESM modules to [SystemJS](https://github.com/systemjs/systemjs) and it will inject required polyfills for `Promise` and `fetch`.
 
 ::: code-group

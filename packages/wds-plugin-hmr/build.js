@@ -10,7 +10,7 @@ esbuild.build({
     sourcemap: true,
     format: 'esm',
     platform: 'node',
-    external: ['@chialab/esbuild-plugin-require-resolve', '@chialab/es-dev-server'],
+    external: ['@chialab/es-dev-server'],
     banner: {
         js: `import { dirname as __pathDirname } from 'path';
 import { createRequire as __moduleCreateRequire } from 'module';

@@ -112,6 +112,9 @@
       "path": "./packages/vite-plugin-commonjs"
     },
     {
+      "path": "./packages/vite-plugin-worker-proxy"
+    },
+    {
       "path": "./packages/vitest-axe"
     },
     {

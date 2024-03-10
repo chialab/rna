@@ -106,6 +106,10 @@ export default defineConfig({
                         link: '/guide/vite-plugin-commonjs',
                     },
                     {
+                        text: 'vite-plugin-worker-proxy',
+                        link: '/guide/vite-plugin-worker-proxy',
+                    },
+                    {
                         text: 'vitest-axe',
                         link: '/guide/vitest-axe',
                     },

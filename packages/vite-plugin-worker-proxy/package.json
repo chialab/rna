@@ -1,0 +1,32 @@
+{
+  "name": "@chialab/vite-plugin-worker-proxy",
+  "type": "module",
+  "version": "0.19.0",
+  "description": "Avoid DOMException while importing Web Workers from a different origin.",
+  "main": "lib/index.js",
+  "typings": "./types/index.d.ts",
+  "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chialab/rna",
+    "directory": "packages/vite-plugin-worker-proxy"
+  },
+  "keywords": [],
+  "files": [
+    "lib",
+    "types",
+    "package.json",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@chialab/estransform": "^0.18.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

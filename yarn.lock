@@ -2291,11 +2291,11 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@chialab/vite-plugin-worker-proxy@workspace:packages/vite-plugin-worker-proxy":
+"@chialab/vite-plugin-commonjs@workspace:packages/vite-plugin-commonjs":
   version: 0.0.0-use.local
-  resolution: "@chialab/vite-plugin-worker-proxy@workspace:packages/vite-plugin-worker-proxy"
+  resolution: "@chialab/vite-plugin-commonjs@workspace:packages/vite-plugin-commonjs"
   dependencies:
-    "@chialab/estransform": ^0.18.0
+    "@chialab/cjs-to-esm": ^0.18.0
     typescript: ^5.0.0
   languageName: unknown
   linkType: soft

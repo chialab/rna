@@ -49,17 +49,8 @@ ${colors.white(`yarn add -D ${colors.hex('#ef7d00')(sourceModule)}`)}
  * @type {Record<string, [string, () => Promise<CommandLoader>]>}
  */
 const commands = {
-    'build': ['@chialab/rna-bundler', () => import('./commands/build.js').then((mod) => mod.default)],
-    'serve': ['@chialab/rna-dev-server', () => import('./commands/serve.js').then((mod) => mod.default)],
-    'test:browser': [
-        '@chialab/rna-browser-test-runner',
-        () => import('./commands/test-browser.js').then((mod) => mod.default),
-    ],
-    'test:node': ['@chialab/rna-node-test-runner', () => import('./commands/test-node.js').then((mod) => mod.default)],
-    'test:saucelabs': [
-        '@chialab/rna-saucelabs-test-runner',
-        () => import('./commands/test-saucelabs.js').then((mod) => mod.default),
-    ],
+    build: ['@chialab/rna-bundler', () => import('./commands/build.js').then((mod) => mod.default)],
+    serve: ['@chialab/rna-dev-server', () => import('./commands/serve.js').then((mod) => mod.default)],
 };
 
 const command = /** @type {keyof typeof commands} */ (argv[2]);

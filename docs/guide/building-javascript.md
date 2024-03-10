@@ -268,7 +268,7 @@ export class Child {
 
 ## ENV variables
 
-Many JavaScript modules uses process variables for both browser and Node environments. Expecially frameworks and web apps try to access the value of the `process.env.NODE_ENV` member in order to detect test or production environments. RNA comes with a plugin that automatically replaces the expression with the actual value.
+Many JavaScript modules uses process variables for both browser and Node environments. Expecially frameworks and web apps try to access the value of the `process.env.NODE_ENV` member in order to detect development or production environments. RNA comes with a plugin that automatically replaces the expression with the actual value.
 
 ```sh
 NODE_ENV='production' npx rna build src/index.js --output public/index.js

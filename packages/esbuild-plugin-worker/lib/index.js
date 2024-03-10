@@ -147,7 +147,7 @@ export default function ({ constructors = ['Worker', 'SharedWorker'], proxy = fa
                             const isStringLiteral = argument.type === 'StringLiteral';
                             const isIdentifier = argument.type === 'Identifier';
                             if ((isStringLiteral || isIdentifier) && proxy) {
-                                const arg = code.substring(argument.start, argument.end);
+                                const arg = helpers.substring(argument.start, argument.end);
                                 helpers.overwrite(
                                     argument.start,
                                     argument.end,
@@ -185,7 +185,7 @@ export default function ({ constructors = ['Worker', 'SharedWorker'], proxy = fa
 
                         if (typeof value !== 'string') {
                             if (proxy) {
-                                const arg = code.substring(argument.start, argument.end);
+                                const arg = helpers.substring(argument.start, argument.end);
                                 helpers.overwrite(
                                     argument.start,
                                     argument.end,

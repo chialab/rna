@@ -1,4 +1,5 @@
-import MagicString from 'magic-string';
+import { Buffer } from 'buffer';
+import { MagicString } from '@napi-rs/magic-string';
 import { parseAsync } from 'oxc-parser';
 import { inlineSourcemap, loadSourcemap, mergeSourcemaps, removeInlineSourcemap } from './sourcemaps.js';
 
@@ -53,6 +54,7 @@ export async function walk(root, visitors) {
  */
 export async function parse(inputCode, filePath) {
     const code = removeInlineSourcemap(inputCode);
+    const buffer = Buffer.from(code);
     const magicCode = new MagicString(code);
     const result = await parseAsync(code, { sourceType: 'module', sourceFilename: filePath });
     const ast = JSON.parse(result.program);
@@ -63,6 +65,14 @@ export async function parse(inputCode, filePath) {
         ast,
         comments: result.comments,
         helpers: {
+            /**
+             * @param {number} start
+             * @param {number} end
+             * @returns {string}
+             */
+            substring(start, end) {
+                return buffer.subarray(start, end).toString('utf8');
+            },
             /**
              * @param {string} code
              * @param {number} [index]
@@ -109,11 +119,13 @@ export async function parse(inputCode, filePath) {
                 if (options.sourcemap) {
                     const inputSourcemap = await loadSourcemap(inputCode, filePath);
                     const newSourcemap = /** @type {import('./sourcemaps.js').SourceMap} */ (
-                        magicCode.generateMap({
-                            source: filePath,
-                            includeContent: options.sourcesContent,
-                            hires: true,
-                        })
+                        magicCode
+                            .generateMap({
+                                source: filePath,
+                                includeContent: options.sourcesContent || false,
+                                hires: true,
+                            })
+                            .toMap()
                     );
 
                     map = inputSourcemap ? await mergeSourcemaps([inputSourcemap, newSourcemap]) : newSourcemap;

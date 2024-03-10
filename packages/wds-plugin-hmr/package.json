@@ -33,10 +33,10 @@
     "node": ">=18"
   },
   "dependencies": {
-    "@chialab/es-dev-server": "^0.18.0"
+    "@chialab/es-dev-server": "^0.18.0",
+    "@chialab/esbuild-plugin-require-resolve": "^0.18.0"
   },
   "devDependencies": {
-    "@chialab/esbuild-plugin-require-resolve": "^0.18.0",
     "@web/dev-server-hmr": "^0.4.0",
     "rimraf": "^5.0.1",
     "typescript": "^5.0.0"

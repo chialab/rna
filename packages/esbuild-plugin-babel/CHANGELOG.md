@@ -1,5 +1,17 @@
 # @chialab/esbuild-plugin-babel
 
+## 0.19.0-beta.0
+
+### Minor Changes
+
+- dfa2625: Migrate from sucrase to oxc parser.
+
+### Patch Changes
+
+- Updated dependencies [dfa2625]
+- Updated dependencies [f53a437]
+  - @chialab/esbuild-rna@0.19.0-beta.0
+
 ## 0.18.0
 
 ### Minor Changes

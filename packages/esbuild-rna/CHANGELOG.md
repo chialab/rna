@@ -1,5 +1,19 @@
 # @chialab/esbuild-rna
 
+## 0.19.0-beta.0
+
+### Minor Changes
+
+- dfa2625: Migrate from sucrase to oxc parser.
+- f53a437: Update esbuild to 0.20.x
+
+### Patch Changes
+
+- Updated dependencies [dfa2625]
+- Updated dependencies [1752e96]
+  - @chialab/estransform@0.19.0-beta.0
+  - @chialab/node-resolve@0.19.0-beta.0
+
 ## 0.18.2
 
 ### Patch Changes

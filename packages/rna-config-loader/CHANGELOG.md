@@ -1,5 +1,17 @@
 # @chialab/rna-config-loader
 
+## 0.19.0-beta.0
+
+### Minor Changes
+
+- dfa2625: Migrate from sucrase to oxc parser.
+
+### Patch Changes
+
+- Updated dependencies [dfa2625]
+- Updated dependencies [1752e96]
+  - @chialab/node-resolve@0.19.0-beta.0
+
 ## 0.18.0
 
 ### Minor Changes

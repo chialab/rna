@@ -1,5 +1,16 @@
 # @chialab/cjs-to-esm
 
+## 0.19.0-beta.0
+
+### Minor Changes
+
+- dfa2625: Migrate from sucrase to oxc parser.
+
+### Patch Changes
+
+- Updated dependencies [dfa2625]
+  - @chialab/estransform@0.19.0-beta.0
+
 ## 0.18.0
 
 ### Minor Changes

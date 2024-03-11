@@ -1,5 +1,19 @@
 # @chialab/esbuild-plugin-postcss
 
+## 1.0.0-beta.0
+
+### Minor Changes
+
+- dfa2625: Migrate from sucrase to oxc parser.
+- f53a437: Update esbuild to 0.20.x
+
+### Patch Changes
+
+- Updated dependencies [dfa2625]
+- Updated dependencies [f53a437]
+  - @chialab/esbuild-rna@0.19.0-beta.0
+  - @chialab/postcss-dart-sass@0.19.0-beta.0
+
 ## 0.18.0
 
 ### Minor Changes

@@ -1966,7 +1966,7 @@ __metadata:
   dependencies:
     "@chialab/esbuild-rna": ^0.18.0
     "@chialab/estransform": ^0.18.0
-    "@chialab/node-resolve": ^0.18.0
+    fast-glob: ^3.2.0
     typescript: ^5.0.0
   languageName: unknown
   linkType: soft
@@ -2043,7 +2043,6 @@ __metadata:
   dependencies:
     "@types/is-core-module": ^2.2.0
     enhanced-resolve: ^5.8.2
-    fast-glob: ^3.2.0
     is-core-module: ^2.5.0
     pkg-up: ^4.0.0
     rimraf: ^5.0.1

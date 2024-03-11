@@ -1,10 +1,9 @@
 import path from 'path';
 import nodeResolve from 'enhanced-resolve';
-import glob from 'fast-glob';
 import isCore from 'is-core-module';
 import { pkgUp } from 'pkg-up';
 
-export { glob, pkgUp };
+export { pkgUp };
 
 /**
  * @typedef {Object} ResolveOptions

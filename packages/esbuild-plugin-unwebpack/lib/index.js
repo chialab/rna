@@ -1,7 +1,7 @@
 import path from 'path';
 import { useRna } from '@chialab/esbuild-rna';
 import { parse, walk } from '@chialab/estransform';
-import { glob } from '@chialab/node-resolve';
+import glob from 'fast-glob';
 
 /**
  * Remove webpack features from sources.

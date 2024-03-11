@@ -39,5 +39,11 @@
     "@chialab/wds-plugin-polyfill": "0.18.0",
     "@chialab/wds-plugin-rna": "0.18.0"
   },
-  "changesets": []
+  "changesets": [
+    "kind-sloths-rush",
+    "ninety-falcons-agree",
+    "purple-pianos-battle",
+    "ten-bikes-fly",
+    "wild-bees-reflect"
+  ]
 }

@@ -1,7 +1,7 @@
 {
   "name": "@chialab/postcss-url-rebase",
   "type": "module",
-  "version": "0.18.0",
+  "version": "0.19.0-beta.0",
   "description": "A postcss plugin for url() rebasing before import.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",
@@ -27,7 +27,7 @@
     "node": ">=18"
   },
   "dependencies": {
-    "@chialab/node-resolve": "^0.18.0"
+    "@chialab/node-resolve": "^0.19.0-beta.0"
   },
   "devDependencies": {
     "postcss": "^8.2.5",

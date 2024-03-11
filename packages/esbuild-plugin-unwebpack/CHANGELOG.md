@@ -1,5 +1,19 @@
 # @chialab/esbuild-plugin-unwebpack
 
+## 0.19.0-beta.0
+
+### Minor Changes
+
+- dfa2625: Migrate from sucrase to oxc parser.
+
+### Patch Changes
+
+- 3ce41d9: Remove `@chialab/node-resolve` dependency.
+- Updated dependencies [dfa2625]
+- Updated dependencies [f53a437]
+  - @chialab/estransform@0.19.0-beta.0
+  - @chialab/esbuild-rna@0.19.0-beta.0
+
 ## 0.18.0
 
 ### Minor Changes

@@ -1,5 +1,15 @@
 # @chialab/node-resolve
 
+## 0.19.0-beta.0
+
+### Minor Changes
+
+- dfa2625: Migrate from sucrase to oxc parser.
+
+### Patch Changes
+
+- 1752e96: Remove glob re-export from module.
+
 ## 0.18.0
 
 ### Minor Changes

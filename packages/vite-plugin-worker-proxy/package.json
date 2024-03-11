@@ -1,7 +1,7 @@
 {
   "name": "@chialab/vite-plugin-worker-proxy",
   "type": "module",
-  "version": "0.18.0",
+  "version": "0.19.0-beta.0",
   "description": "Avoid DOMException while importing Web Workers from a different origin.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",
@@ -24,7 +24,7 @@
     "node": ">=18"
   },
   "dependencies": {
-    "@chialab/estransform": "^0.18.0"
+    "@chialab/estransform": "^0.19.0-beta.0"
   },
   "devDependencies": {
     "typescript": "^5.0.0"

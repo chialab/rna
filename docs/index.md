@@ -18,7 +18,7 @@ hero:
 
 features:
     - title: Modular
-      details: RNA is an ecosystem of modular plugins for common bundlers and transformers like esbuild and postcss. Every feature is a standalone package that can be installed and used independently.
+      details: RNA is an ecosystem of modular plugins for common bundlers and transformers like esbuild, postcss, Vite, and Vitest. Every feature is a standalone package that can be installed and used independently.
       icon: <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><path fill="currentColor" d="M22 8h-1V2h-2v6h-6V2h-2v6h-1a2 2 0 0 0-2 2v6a8.007 8.007 0 0 0 7 7.93V30h2v-6.07A8.007 8.007 0 0 0 24 16v-6a2 2 0 0 0-2-2Z"/></svg>
     - title: A toolchain
       details: RNA is a toolchain for common frontend (and JavaScript in general) tasks with a strong conventions over configuration and largely opinionated policy.

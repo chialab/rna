@@ -1,6 +1,6 @@
 # vite-plugin-worker-proxy
 
-Workers has a cross-origin policy that prevents them from being imported from a different origin. This plugin allows to import workers from a different origin by proxying the worker script with a Blob url.
+Workers have a cross-origin policy that prevents them from being imported from a different origin. This plugin allows to import workers from a different origin by proxying the worker script with a `Blob` url.
 
 Generally, this plugin is useful only in development mode, since in production the worker script should be served from the same origin.
 

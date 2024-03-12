@@ -142,14 +142,6 @@ export default defineConfig({
                         text: 'Dev server',
                         link: '/guide/dev-server',
                     },
-                    {
-                        text: 'Testing in the browser',
-                        link: '/guide/testing-browser',
-                    },
-                    {
-                        text: 'Testing in node',
-                        link: '/guide/testing-node',
-                    },
                 ],
             },
             {

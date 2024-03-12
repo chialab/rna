@@ -4,7 +4,7 @@ Resolve CSS imports using the node resolution algorithm and the `style` field in
 
 ## Why
 
-CSS modules resolution is not standardized, so it's not possible to natively import CSS files from node_modules using the `@import` statement.
+CSS modules resolution is not standardized, so it's not possible to natively import CSS files from `node_modules/` using the `@import` statement.
 
 This plugin enables the node resolution algorithm for CSS files. That means that `@import` and `@url()` statements can refer to both relative files and NPM packages. CSS modules must have the `style` field in their package.json in order to correctly pickup the CSS entrypoint.
 

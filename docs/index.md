@@ -9,11 +9,11 @@ hero:
     name: 'RNA'
     tagline: 'Build tools for modern web modules and applications'
     image:
-        src: https://raw.githubusercontent.com/chialab/rna/main/logo.svg
+        src: /logo.svg
         alt: RNA logo
     actions:
         - theme: brand
-          text: npm i -D @chialab/rna
+          text: Get started
           link: /guide/
 
 features:

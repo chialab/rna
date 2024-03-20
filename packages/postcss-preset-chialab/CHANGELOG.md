@@ -1,5 +1,11 @@
 # @chialab/postcss-preset-chialab
 
+## 0.19.0-beta.1
+
+### Patch Changes
+
+- f7f2840: Update postcss-initial dependency.
+
 ## 0.19.0-beta.0
 
 ### Minor Changes

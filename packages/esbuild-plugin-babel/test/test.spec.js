@@ -136,7 +136,7 @@ function toPrimitive(t, r) {
 // ../../../node_modules/@babel/runtime/helpers/esm/toPropertyKey.js
 function toPropertyKey(t) {
   var i = toPrimitive(t, "string");
-  return "symbol" == _typeof(i) ? i : String(i);
+  return "symbol" == _typeof(i) ? i : i + "";
 }
 
 // ../../../node_modules/@babel/runtime/helpers/esm/defineProperty.js

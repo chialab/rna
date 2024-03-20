@@ -30,7 +30,7 @@
   },
   "devDependencies": {
     "@types/source-map": "^0.5.7",
-    "postcss": "^8.0.0",
+    "postcss": "^8.4.31",
     "typescript": "^5.0.0"
   }
 }

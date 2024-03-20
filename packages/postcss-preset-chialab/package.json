@@ -47,7 +47,7 @@
     "postcss-url": "^10.0.0"
   },
   "devDependencies": {
-    "postcss": "^8.2.5",
+    "postcss": "^8.4.31",
     "typescript": "^5.0.0"
   }
 }

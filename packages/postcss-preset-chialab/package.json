@@ -37,7 +37,7 @@
     "postcss-focus-within": "^8.0.0",
     "postcss-font-variant": "^5.0.0",
     "postcss-import": "^15.1.0",
-    "postcss-initial": "^3.0.4",
+    "postcss-initial": "^4.0.0",
     "postcss-logical": "^7.0.0",
     "postcss-nesting": "^12.0.0",
     "postcss-page-break": "^3.0.0",

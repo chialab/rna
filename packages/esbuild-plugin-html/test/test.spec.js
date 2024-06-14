@@ -1476,7 +1476,7 @@ loadStyle('/public/index.css');
 }());</script></head><body> <script src=/public/index.js type=application/javascript></script> </body></html>`);
     });
 
-    test.only('should interop with other html preprocessors', async () => {
+    test('should interop with other html preprocessors', async () => {
         const { outputFiles } = await esbuild.build({
             absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
             entryPoints: [fileURLToPath(new URL('fixture/index.icons.hbs', import.meta.url))],

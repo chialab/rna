@@ -1928,6 +1928,7 @@ __metadata:
     "@types/js-beautify": ^1.13.3
     cheerio: ^1.0.0-rc.12
     esbuild: ^0.21.0
+    handlebars: ^4.7.8
     htmlnano: ^2.1.0
     js-beautify: ^1.14.0
     rimraf: ^5.0.1

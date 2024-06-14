@@ -40,9 +40,12 @@
     "@chialab/wds-plugin-rna": "0.18.0"
   },
   "changesets": [
+    "healthy-pets-destroy",
     "kind-sloths-rush",
     "ninety-falcons-agree",
+    "plenty-yaks-heal",
     "purple-pianos-battle",
+    "rude-moles-repeat",
     "ten-bikes-fly",
     "wild-bees-reflect"
   ]

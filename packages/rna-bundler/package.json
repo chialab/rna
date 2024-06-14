@@ -1,7 +1,7 @@
 {
   "name": "@chialab/rna-bundler",
   "type": "module",
-  "version": "0.19.0-beta.0",
+  "version": "0.19.0-beta.1",
   "description": "A JavaScript, CSS and HTML bundler based on esbuild.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",
@@ -31,13 +31,13 @@
   },
   "dependencies": {
     "@chialab/esbuild-plugin-any-file": "^0.19.0-beta.0",
-    "@chialab/esbuild-plugin-commonjs": "^0.19.0-beta.0",
-    "@chialab/esbuild-plugin-env": "^0.19.0-beta.0",
-    "@chialab/esbuild-plugin-html": "^0.19.0-beta.0",
-    "@chialab/esbuild-plugin-meta-url": "^0.19.0-beta.0",
-    "@chialab/esbuild-plugin-metadata": "^0.19.0-beta.0",
+    "@chialab/esbuild-plugin-commonjs": "^0.19.0-beta.1",
+    "@chialab/esbuild-plugin-env": "^0.19.0-beta.1",
+    "@chialab/esbuild-plugin-html": "^0.19.0-beta.1",
+    "@chialab/esbuild-plugin-meta-url": "^0.19.0-beta.1",
+    "@chialab/esbuild-plugin-metadata": "^0.19.0-beta.1",
     "@chialab/esbuild-plugin-worker": "^0.19.0-beta.0",
-    "@chialab/esbuild-rna": "^0.19.0-beta.0",
+    "@chialab/esbuild-rna": "^0.19.0-beta.1",
     "@chialab/rna-config-loader": "^0.19.0-beta.0",
     "@chialab/rna-logger": "^0.19.0-beta.0",
     "esbuild": "^0.21.0"

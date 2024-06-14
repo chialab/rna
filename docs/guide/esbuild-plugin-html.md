@@ -303,14 +303,16 @@ await esbuild.build({
     outdir: 'public',
     assetNames: 'assets/[name]-[hash]',
     chunkNames: '[ext]/[name]-[hash]',
-    plugins: [htmlPlugin({
-        extensions: ['.html', '.hbs'],
-        preprocess: async (html, path) => {
-            const { compile } = await import('handlebars');
-            const template = compile(contents);
-            return template({});
-        },
-    })],
+    plugins: [
+        htmlPlugin({
+            extensions: ['.html', '.hbs'],
+            preprocess: async (html, path) => {
+                const { compile } = await import('handlebars');
+                const template = compile(contents);
+                return template({});
+            },
+        }),
+    ],
 });
 ```
 

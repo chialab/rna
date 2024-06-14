@@ -1475,4 +1475,63 @@ function loadStyle(url) {
 loadStyle('/public/index.css');
 }());</script></head><body> <script src=/public/index.js type=application/javascript></script> </body></html>`);
     });
+
+    test.only('should interop with other html preprocessors', async () => {
+        const { outputFiles } = await esbuild.build({
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
+            entryPoints: [fileURLToPath(new URL('fixture/index.icons.hbs', import.meta.url))],
+            sourceRoot: '/',
+            publicPath: '/public',
+            assetNames: 'icons/[name]',
+            outdir: 'out',
+            format: 'esm',
+            bundle: true,
+            write: false,
+            plugins: [
+                htmlPlugin({
+                    extensions: ['.html', '.hbs'],
+                    async preprocess(contents) {
+                        const { compile } = await import('handlebars');
+                        const template = compile(contents);
+                        return template({
+                            iconPath: 'img/icon.png',
+                        });
+                    },
+                }),
+            ],
+        });
+
+        const [index, ...icons] = outputFiles;
+
+        expect(outputFiles).toHaveLength(7);
+
+        expect(index.path).endsWith(path.join(path.sep, 'out', 'index.icons.html'));
+        expect(index.text).toBe(`<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="icon" sizes="16x16" href="/public/icons/favicon-16x16.png">
+    <link rel="icon" sizes="32x32" href="/public/icons/favicon-32x32.png">
+    <link rel="icon" sizes="48x48" href="/public/icons/favicon-48x48.png">
+    <link rel="shortcut icon" href="/public/icons/favicon-196x196.png">
+    <link rel="icon" sizes="196x196" href="/public/icons/favicon-196x196.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/public/icons/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="167x167" href="/public/icons/apple-touch-icon-ipad.png">
+</head>
+
+<body>
+</body>
+
+</html>`);
+
+        expect(icons[0].path).endsWith(path.join(path.sep, 'out', 'icons', 'favicon-16x16.png'));
+        expect(icons[0].contents.byteLength).toBe(459);
+
+        expect(icons[3].path).endsWith(path.join(path.sep, 'out', 'icons', 'favicon-196x196.png'));
+        expect(icons[3].contents.byteLength).toBe(6366);
+    });
 });

@@ -94,6 +94,14 @@ It can be `link` or `script` (default).
 
 The options for the minification process. If the `htmlnano` module is installed, the plugin will minify the HTML output.
 
+#### `extensions`
+
+An array of extensions to consider as HTML entrypoints.
+
+#### `preprocess(html: string, path: string): string | Promise<string>`
+
+A function to preprocess the HTML content before parsing it.
+
 ## How it works
 
 **Esbuild Plugin HTML** instructs esbuild to load a HTML file as entrypoint. It parses the HTML and runs esbuild on scripts, styles, assets and icons.
@@ -279,3 +287,31 @@ await esbuild.build({
     ],
 });
 ```
+
+## Preprocess
+
+The plugin accepts a `preprocess` function that can be used to modify the HTML content before parsing it.
+
+If you are using a specific extension for template files, you should also add it to the `extensions` option.
+
+```ts
+import htmlPlugin from '@chialab/esbuild-plugin-html';
+import esbuild from 'esbuild';
+
+await esbuild.build({
+    entryPoints: ['src/index.hbs'],
+    outdir: 'public',
+    assetNames: 'assets/[name]-[hash]',
+    chunkNames: '[ext]/[name]-[hash]',
+    plugins: [htmlPlugin({
+        extensions: ['.html', '.hbs'],
+        preprocess: async (html, path) => {
+            const { compile } = await import('handlebars');
+            const template = compile(contents);
+            return template({});
+        },
+    })],
+});
+```
+
+The plugin will rename the output file to the `.html` extension.

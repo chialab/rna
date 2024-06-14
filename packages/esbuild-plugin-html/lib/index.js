@@ -21,8 +21,10 @@ const loadHtml = /** @type {typeof cheerio.load} */ (cheerio.load || cheerio.def
  * @property {string} [entryNames]
  * @property {string} [chunkNames]
  * @property {string} [assetNames]
+ * @property {string[]} [extensions]
  * @property {'link' | 'script'} [injectStylesAs]
  * @property {import('htmlnano').HtmlnanoOptions} [minifyOptions]
+ * @property {(code: string, path: string) => string | Promise<string>} [preprocess]
  */
 
 /**
@@ -66,6 +68,8 @@ export default function ({
     modulesTarget = 'es2020',
     minifyOptions = {},
     injectStylesAs = 'script',
+    extensions = ['.html'],
+    preprocess = (code) => code,
 } = {}) {
     /**
      * @type {import('esbuild').Plugin}
@@ -154,7 +158,7 @@ export default function ({
                             const buffer = resultOutputFile
                                 ? Buffer.from(resultOutputFile.contents)
                                 : await readFile(actualOutputFile);
-                            const finalOutputFile = build.resolveOutputFile(mainInput, buffer);
+                            const finalOutputFile = build.resolveOutputFile(path.join(path.dirname(mainInput), `${path.basename(mainInput, path.extname(mainInput))}.html`), buffer);
 
                             delete outputs[outputFile];
                             outputs[build.getOutputName(finalOutputFile)] = output;
@@ -172,7 +176,14 @@ export default function ({
                 );
             });
 
-            build.onTransform({ filter: /\.html$/ }, async (args) => {
+            build.onTransform({
+                filter: new RegExp(`(${(extensions.map((ext) => {
+                if (ext[0] !== '.') {
+                    ext = `\\.${ext}`;
+                }
+                return `\\${ext}`;
+                }).join('|'))})$`)
+            }, async (args) => {
                 entryPoints.push(args.path);
 
                 const [
@@ -191,7 +202,7 @@ export default function ({
                     import('./collectScreens.js'),
                 ]);
 
-                const code = args.code;
+                const code = await preprocess(args.code, args.path);
                 const $ = loadHtml(code);
                 const root = $.root();
                 let count = 0;

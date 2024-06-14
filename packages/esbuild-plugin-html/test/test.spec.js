@@ -714,6 +714,8 @@ body {
     <style>
         @import '1-EKADEBHI.css'
     </style>
+    <!-- Empty style tag -->
+    <style></style>
 </head>
 
 <body>
@@ -770,6 +772,8 @@ body {
     <style>
         @import '/public/1-VXBR4AUQ.css'
     </style>
+    <!-- Empty style tag -->
+    <style></style>
 </head>
 
 <body>

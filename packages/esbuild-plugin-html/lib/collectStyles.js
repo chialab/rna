@@ -37,6 +37,10 @@ export async function collectStyles($, dom, options, helpers) {
                 builds.set(element, resolvedFile.path);
                 entrypoints.set(resolvedFile.path, element);
             } else {
+                const contents = $(element).html() || '';
+                if (!contents) {
+                    return;
+                }
                 const entryPoint = path.join(options.sourceDir, helpers.createEntry('css'));
                 builds.set(element, {
                     path: entryPoint,

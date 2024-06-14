@@ -103,7 +103,7 @@ export async function collectScreen($, element, screen, options, helpers) {
 
 /**
  * Collect and bundle apple screens.
- * @type {import('./index').Collector}
+ * @type {import('./index').Collector<{}>}
  */
 export async function collectScreens($, dom, options, helpers) {
     const splashElement = dom.find('link[rel*="apple-touch-startup-image"]').last();

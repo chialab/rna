@@ -119,7 +119,7 @@ export async function collectIcon($, element, icon, rel, shortcut, options, help
 
 /**
  * Collect and bundle apple icons.
- * @type {import('./index').Collector}
+ * @type {import('./index').Collector<{}>}
  */
 async function collectAppleIcons($, dom, options, helpers) {
     let remove = true;
@@ -173,7 +173,7 @@ async function collectAppleIcons($, dom, options, helpers) {
 
 /**
  * Collect and bundle favicons.
- * @type {import('./index').Collector}
+ * @type {import('./index').Collector<{}>}
  */
 export async function collectIcons($, dom, options, helpers) {
     const { resolve, load } = helpers;

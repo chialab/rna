@@ -21,6 +21,7 @@ const loadHtml = /** @type {typeof cheerio.load} */ (cheerio.load || cheerio.def
  * @property {string} [entryNames]
  * @property {string} [chunkNames]
  * @property {string} [assetNames]
+ * @property {'link' | 'script'} [injectStylesAs]
  * @property {import('htmlnano').HtmlnanoOptions} [minifyOptions]
  */
 
@@ -31,6 +32,11 @@ const loadHtml = /** @type {typeof cheerio.load} */ (cheerio.load || cheerio.def
  * @property {string} entryDir
  * @property {string} workingDir
  * @property {(string | string[])[]} target
+ */
+
+/**
+ * @typedef {BuildOptions & T} CollectOptions
+ * @template {object} T
  */
 
 /**
@@ -46,7 +52,8 @@ const loadHtml = /** @type {typeof cheerio.load} */ (cheerio.load || cheerio.def
  */
 
 /**
- * @typedef {($: import('cheerio').CheerioAPI, dom: import('cheerio').Cheerio<import('cheerio').Document>, options: BuildOptions, helpers: Helpers) => Promise<import('@chialab/esbuild-rna').OnTransformResult[]>} Collector
+ * @typedef {($: import('cheerio').CheerioAPI, dom: import('cheerio').Cheerio<import('cheerio').Document>, options: CollectOptions<T>, helpers: Helpers) => Promise<import('@chialab/esbuild-rna').OnTransformResult[]>} Collector
+ * @template {object} T
  */
 
 /**
@@ -54,7 +61,12 @@ const loadHtml = /** @type {typeof cheerio.load} */ (cheerio.load || cheerio.def
  * @param {PluginOptions} options
  * @returns An esbuild plugin.
  */
-export default function ({ scriptsTarget = 'es2015', modulesTarget = 'es2020', minifyOptions = {} } = {}) {
+export default function ({
+    scriptsTarget = 'es2015',
+    modulesTarget = 'es2020',
+    minifyOptions = {},
+    injectStylesAs = 'script',
+} = {}) {
     /**
      * @type {import('esbuild').Plugin}
      */
@@ -252,7 +264,17 @@ export default function ({ scriptsTarget = 'es2015', modulesTarget = 'es2020', m
                 results.push(...(await collectIcons($, root, collectOptions, helpers)));
                 results.push(...(await collectAssets($, root, collectOptions, helpers)));
                 results.push(...(await collectStyles($, root, collectOptions, helpers)));
-                results.push(...(await collectScripts($, root, collectOptions, helpers)));
+                results.push(
+                    ...(await collectScripts(
+                        $,
+                        root,
+                        {
+                            ...collectOptions,
+                            injectStylesAs,
+                        },
+                        helpers
+                    ))
+                );
 
                 let resultHtml = $.html().replace(/\n\s*$/gm, '');
                 if (minify) {

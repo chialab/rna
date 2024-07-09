@@ -666,7 +666,7 @@ export class Build {
             resolveDir = args.resolveDir;
         } else {
             const loadResult = await this.load(args);
-            if (!loadResult || !loadResult.contents) {
+            if (!loadResult || loadResult.contents == null) {
                 return;
             }
 
@@ -1025,7 +1025,7 @@ export class Build {
                 with: {},
             });
 
-            if (result && result.contents) {
+            if (result && result.contents != null) {
                 buffer = Buffer.from(result.contents);
             } else {
                 buffer = await readFile(source);
@@ -1119,7 +1119,7 @@ export class Build {
             value: true,
         });
 
-        if (options.contents) {
+        if (options.contents != null) {
             delete config.entryPoints;
             config.stdin = {
                 sourcefile: options.path,
@@ -1207,7 +1207,7 @@ export class Build {
                     if (typeof entryPoint !== 'object') {
                         return;
                     }
-                    if (entryPoint.contents) {
+                    if (entryPoint.contents != null) {
                         build.addVirtualModule(entryPoint);
                     }
                 });

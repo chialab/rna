@@ -22,6 +22,7 @@ const loadHtml = /** @type {typeof cheerio.load} */ (cheerio.load || cheerio.def
  * @property {string} [chunkNames]
  * @property {string} [assetNames]
  * @property {'link' | 'script'} [injectStylesAs]
+ * @property {boolean} [generateIcons]
  * @property {import('htmlnano').HtmlnanoOptions} [minifyOptions]
  */
 
@@ -66,6 +67,7 @@ export default function ({
     modulesTarget = 'es2020',
     minifyOptions = {},
     injectStylesAs = 'script',
+    generateIcons = true,
 } = {}) {
     /**
      * @type {import('esbuild').Plugin}
@@ -261,7 +263,17 @@ export default function ({
 
                 const results = await collectWebManifest($, root, collectOptions, helpers);
                 results.push(...(await collectScreens($, root, collectOptions, helpers)));
-                results.push(...(await collectIcons($, root, collectOptions, helpers)));
+                results.push(
+                    ...(await collectIcons(
+                        $,
+                        root,
+                        {
+                            ...collectOptions,
+                            generateIcons,
+                        },
+                        helpers
+                    ))
+                );
                 results.push(...(await collectAssets($, root, collectOptions, helpers)));
                 results.push(...(await collectStyles($, root, collectOptions, helpers)));
                 results.push(

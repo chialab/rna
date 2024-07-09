@@ -89,7 +89,7 @@ async function generateAppleIcons(image, icons) {
  * @param {Icon} icon The generated icon file.
  * @param {string} rel Rel attribute.
  * @param {boolean} shortcut Should include shortcut.
- * @param {import('./index.js').BuildOptions} options Build options.
+ * @param {import('./index.js').CollectOptions<{ generateFavicons: boolean }>} options Build options.
  * @param {import('./index.js').Helpers} helpers Helpers.
  * @returns {Promise<import('@chialab/esbuild-rna').OnTransformResult>} Plain build.
  */
@@ -173,10 +173,14 @@ async function collectAppleIcons($, dom, options, helpers) {
 
 /**
  * Collect and bundle favicons.
- * @type {import('./index').Collector<{}>}
+ * @type {import('./index').Collector<{ generateFavicons: boolean }>}
  */
 export async function collectIcons($, dom, options, helpers) {
     const { resolve, load } = helpers;
+
+    if (!options.generateFavicons) {
+        return [];
+    }
 
     const iconElement = dom.find(ICON_SELECTORS.join(',')).last();
     if (!iconElement.length) {

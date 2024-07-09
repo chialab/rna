@@ -50,10 +50,10 @@
     "@jimp/png": "^0.22.0",
     "@types/js-beautify": "^1.13.3",
     "cheerio": "^1.0.0-rc.12",
-    "esbuild": "^0.21.0",
+    "esbuild": "^0.23.0",
     "htmlnano": "^2.1.0",
     "js-beautify": "^1.14.0",
-    "rimraf": "^5.0.1",
+    "rimraf": "^6.0.0",
     "typescript": "^5.0.0"
   }
 }

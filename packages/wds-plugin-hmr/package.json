@@ -38,7 +38,7 @@
   "devDependencies": {
     "@chialab/esbuild-plugin-require-resolve": "^0.19.0-beta.0",
     "@web/dev-server-hmr": "^0.4.0",
-    "rimraf": "^5.0.1",
+    "rimraf": "^6.0.0",
     "typescript": "^5.0.0"
   }
 }

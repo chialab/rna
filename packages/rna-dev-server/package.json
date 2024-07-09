@@ -55,7 +55,7 @@
     "@types/koa-range": "^0.3.2",
     "@types/koa__cors": "^3.0.2",
     "koa-range": "^0.3.0",
-    "rimraf": "^5.0.1",
+    "rimraf": "^6.0.0",
     "typescript": "^5.0.0"
   }
 }

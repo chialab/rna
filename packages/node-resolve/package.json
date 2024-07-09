@@ -37,7 +37,7 @@
     "enhanced-resolve": "^5.8.2",
     "is-core-module": "^2.5.0",
     "pkg-up": "^4.0.0",
-    "rimraf": "^5.0.1",
+    "rimraf": "^6.0.0",
     "typescript": "^5.0.0"
   }
 }

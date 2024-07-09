@@ -1,5 +1,13 @@
 # @chialab/esbuild-plugin-html
 
+## 0.19.0-beta.3
+
+### Patch Changes
+
+-   a5ef23d: Ignore empty `<script>` and `<style>` elements.
+-   Updated dependencies [a5ef23d]
+    -   @chialab/esbuild-rna@0.19.0-beta.3
+
 ## 0.19.0-beta.2
 
 ### Patch Changes

@@ -1919,7 +1919,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@chialab/esbuild-plugin-html@workspace:packages/esbuild-plugin-html"
   dependencies:
-    "@chialab/esbuild-rna": ^0.19.0-beta.2
+    "@chialab/esbuild-rna": ^0.19.0-beta.3
     "@jimp/custom": ^0.22.0
     "@jimp/jpeg": ^0.22.0
     "@jimp/plugin-resize": ^0.22.0
@@ -2036,7 +2036,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@chialab/esbuild-rna@^0.19.0-beta.0, @chialab/esbuild-rna@^0.19.0-beta.1, @chialab/esbuild-rna@^0.19.0-beta.2, @chialab/esbuild-rna@workspace:packages/esbuild-rna":
+"@chialab/esbuild-rna@^0.19.0-beta.0, @chialab/esbuild-rna@^0.19.0-beta.1, @chialab/esbuild-rna@^0.19.0-beta.2, @chialab/esbuild-rna@^0.19.0-beta.3, @chialab/esbuild-rna@workspace:packages/esbuild-rna":
   version: 0.0.0-use.local
   resolution: "@chialab/esbuild-rna@workspace:packages/esbuild-rna"
   dependencies:

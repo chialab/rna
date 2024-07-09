@@ -1848,7 +1848,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@chialab/es-dev-server@^0.19.0-beta.0, @chialab/es-dev-server@workspace:packages/es-dev-server":
+"@chialab/es-dev-server@^0.19.0-beta.0, @chialab/es-dev-server@^0.19.0-beta.1, @chialab/es-dev-server@workspace:packages/es-dev-server":
   version: 0.0.0-use.local
   resolution: "@chialab/es-dev-server@workspace:packages/es-dev-server"
   dependencies:
@@ -1906,7 +1906,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@chialab/esbuild-plugin-env@^0.19.0-beta.1, @chialab/esbuild-plugin-env@workspace:packages/esbuild-plugin-env":
+"@chialab/esbuild-plugin-env@^0.19.0-beta.2, @chialab/esbuild-plugin-env@workspace:packages/esbuild-plugin-env":
   version: 0.0.0-use.local
   resolution: "@chialab/esbuild-plugin-env@workspace:packages/esbuild-plugin-env"
   dependencies:
@@ -1915,11 +1915,11 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@chialab/esbuild-plugin-html@^0.19.0-beta.1, @chialab/esbuild-plugin-html@workspace:packages/esbuild-plugin-html":
+"@chialab/esbuild-plugin-html@^0.19.0-beta.2, @chialab/esbuild-plugin-html@workspace:packages/esbuild-plugin-html":
   version: 0.0.0-use.local
   resolution: "@chialab/esbuild-plugin-html@workspace:packages/esbuild-plugin-html"
   dependencies:
-    "@chialab/esbuild-rna": ^0.19.0-beta.1
+    "@chialab/esbuild-rna": ^0.19.0-beta.2
     "@jimp/custom": ^0.22.0
     "@jimp/jpeg": ^0.22.0
     "@jimp/plugin-resize": ^0.22.0
@@ -1949,12 +1949,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@chialab/esbuild-plugin-meta-url@^0.19.0-beta.0, @chialab/esbuild-plugin-meta-url@^0.19.0-beta.1, @chialab/esbuild-plugin-meta-url@workspace:packages/esbuild-plugin-meta-url":
+"@chialab/esbuild-plugin-meta-url@^0.19.0-beta.0, @chialab/esbuild-plugin-meta-url@^0.19.0-beta.2, @chialab/esbuild-plugin-meta-url@workspace:packages/esbuild-plugin-meta-url":
   version: 0.0.0-use.local
   resolution: "@chialab/esbuild-plugin-meta-url@workspace:packages/esbuild-plugin-meta-url"
   dependencies:
-    "@chialab/esbuild-rna": ^0.19.0-beta.1
-    "@chialab/estransform": ^0.19.0-beta.0
+    "@chialab/esbuild-rna": ^0.19.0-beta.2
+    "@chialab/estransform": ^0.19.0-beta.1
     "@types/mime-types": ^2.1.1
     esbuild: ^0.23.0
     mime-types: ^2.1.35
@@ -1962,7 +1962,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@chialab/esbuild-plugin-metadata@^0.19.0-beta.0, @chialab/esbuild-plugin-metadata@^0.19.0-beta.1, @chialab/esbuild-plugin-metadata@workspace:packages/esbuild-plugin-metadata":
+"@chialab/esbuild-plugin-metadata@^0.19.0-beta.0, @chialab/esbuild-plugin-metadata@^0.19.0-beta.2, @chialab/esbuild-plugin-metadata@workspace:packages/esbuild-plugin-metadata":
   version: 0.0.0-use.local
   resolution: "@chialab/esbuild-plugin-metadata@workspace:packages/esbuild-plugin-metadata"
   dependencies:
@@ -1975,8 +1975,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@chialab/esbuild-plugin-postcss@workspace:packages/esbuild-plugin-postcss"
   dependencies:
-    "@chialab/esbuild-rna": ^0.19.0-beta.1
-    "@chialab/postcss-dart-sass": ^0.19.0-beta.0
+    "@chialab/esbuild-rna": ^0.19.0-beta.2
+    "@chialab/postcss-dart-sass": ^0.19.0-beta.1
     cssnano: ^6.0.1
     esbuild: ^0.23.0
     postcss: ^8.4.31
@@ -1985,7 +1985,7 @@ __metadata:
     postcss-scss: ^4.0.0
     typescript: ^5.0.0
   peerDependencies:
-    "@chialab/postcss-dart-sass": ^0.19.0-beta.0
+    "@chialab/postcss-dart-sass": ^0.19.0-beta.1
     postcss-scss: ^4.0.0
   peerDependenciesMeta:
     "@chialab/postcss-dart-sass":
@@ -2036,12 +2036,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@chialab/esbuild-rna@^0.19.0-beta.0, @chialab/esbuild-rna@^0.19.0-beta.1, @chialab/esbuild-rna@workspace:packages/esbuild-rna":
+"@chialab/esbuild-rna@^0.19.0-beta.0, @chialab/esbuild-rna@^0.19.0-beta.1, @chialab/esbuild-rna@^0.19.0-beta.2, @chialab/esbuild-rna@workspace:packages/esbuild-rna":
   version: 0.0.0-use.local
   resolution: "@chialab/esbuild-rna@workspace:packages/esbuild-rna"
   dependencies:
-    "@chialab/estransform": ^0.19.0-beta.0
-    "@chialab/node-resolve": ^0.19.0-beta.0
+    "@chialab/estransform": ^0.19.0-beta.1
+    "@chialab/node-resolve": ^0.19.0-beta.1
     esbuild: ^0.23.0
     typescript: ^5.0.0
   languageName: unknown
@@ -2069,7 +2069,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@chialab/estransform@^0.19.0-beta.0, @chialab/estransform@workspace:packages/estransform":
+"@chialab/estransform@^0.19.0-beta.0, @chialab/estransform@^0.19.0-beta.1, @chialab/estransform@workspace:packages/estransform":
   version: 0.0.0-use.local
   resolution: "@chialab/estransform@workspace:packages/estransform"
   dependencies:
@@ -2083,7 +2083,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@chialab/node-resolve@^0.19.0-beta.0, @chialab/node-resolve@workspace:packages/node-resolve":
+"@chialab/node-resolve@^0.19.0-beta.0, @chialab/node-resolve@^0.19.0-beta.1, @chialab/node-resolve@workspace:packages/node-resolve":
   version: 0.0.0-use.local
   resolution: "@chialab/node-resolve@workspace:packages/node-resolve"
   dependencies:
@@ -2096,11 +2096,11 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@chialab/postcss-dart-sass@^0.19.0-beta.0, @chialab/postcss-dart-sass@workspace:packages/postcss-dart-sass":
+"@chialab/postcss-dart-sass@^0.19.0-beta.1, @chialab/postcss-dart-sass@workspace:packages/postcss-dart-sass":
   version: 0.0.0-use.local
   resolution: "@chialab/postcss-dart-sass@workspace:packages/postcss-dart-sass"
   dependencies:
-    "@chialab/node-resolve": ^0.19.0-beta.0
+    "@chialab/node-resolve": ^0.19.0-beta.1
     postcss: ^8.4.31
     sass: ^1.66.1
     source-map: ^0.7.3
@@ -2155,18 +2155,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@chialab/rna-bundler@^0.19.0-beta.0, @chialab/rna-bundler@workspace:packages/rna-bundler":
+"@chialab/rna-bundler@^0.19.0-beta.0, @chialab/rna-bundler@^0.19.0-beta.2, @chialab/rna-bundler@workspace:packages/rna-bundler":
   version: 0.0.0-use.local
   resolution: "@chialab/rna-bundler@workspace:packages/rna-bundler"
   dependencies:
     "@chialab/esbuild-plugin-any-file": ^0.19.0-beta.0
     "@chialab/esbuild-plugin-commonjs": ^0.19.0-beta.1
-    "@chialab/esbuild-plugin-env": ^0.19.0-beta.1
-    "@chialab/esbuild-plugin-html": ^0.19.0-beta.1
-    "@chialab/esbuild-plugin-meta-url": ^0.19.0-beta.1
-    "@chialab/esbuild-plugin-metadata": ^0.19.0-beta.1
+    "@chialab/esbuild-plugin-env": ^0.19.0-beta.2
+    "@chialab/esbuild-plugin-html": ^0.19.0-beta.2
+    "@chialab/esbuild-plugin-meta-url": ^0.19.0-beta.2
+    "@chialab/esbuild-plugin-metadata": ^0.19.0-beta.2
     "@chialab/esbuild-plugin-worker": ^0.19.0-beta.0
-    "@chialab/esbuild-rna": ^0.19.0-beta.1
+    "@chialab/esbuild-rna": ^0.19.0-beta.2
     "@chialab/rna-config-loader": ^0.19.0-beta.0
     "@chialab/rna-logger": ^0.19.0-beta.0
     esbuild: ^0.21.0 || ^0.22.0 || ^0.23.0
@@ -2184,15 +2184,15 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@chialab/rna-dev-server@^1.0.0-beta.0, @chialab/rna-dev-server@workspace:packages/rna-dev-server":
+"@chialab/rna-dev-server@^1.0.0-beta.1, @chialab/rna-dev-server@workspace:packages/rna-dev-server":
   version: 0.0.0-use.local
   resolution: "@chialab/rna-dev-server@workspace:packages/rna-dev-server"
   dependencies:
-    "@chialab/es-dev-server": ^0.19.0-beta.0
+    "@chialab/es-dev-server": ^0.19.0-beta.1
     "@chialab/esbuild-plugin-require-resolve": ^0.19.0-beta.0
     "@chialab/rna-config-loader": ^0.19.0-beta.0
     "@chialab/rna-logger": ^0.19.0-beta.0
-    "@chialab/wds-plugin-hmr": ^0.19.0-beta.0
+    "@chialab/wds-plugin-hmr": ^0.19.0-beta.1
     "@chialab/wds-plugin-node-resolve": ^0.19.0-beta.0
     "@chialab/wds-plugin-rna": ^0.19.0-beta.0
     "@koa/cors": ^5.0.0
@@ -2284,9 +2284,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@chialab/rna@workspace:packages/rna"
   dependencies:
-    "@chialab/rna-bundler": ^0.19.0-beta.0
+    "@chialab/rna-bundler": ^0.19.0-beta.2
     "@chialab/rna-config-loader": ^0.19.0-beta.0
-    "@chialab/rna-dev-server": ^1.0.0-beta.0
+    "@chialab/rna-dev-server": ^1.0.0-beta.1
     "@chialab/rna-logger": ^0.19.0-beta.0
     commander: ^11.0.0
     rimraf: ^6.0.0
@@ -2339,11 +2339,11 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@chialab/wds-plugin-hmr@^0.19.0-beta.0, @chialab/wds-plugin-hmr@workspace:packages/wds-plugin-hmr":
+"@chialab/wds-plugin-hmr@^0.19.0-beta.1, @chialab/wds-plugin-hmr@workspace:packages/wds-plugin-hmr":
   version: 0.0.0-use.local
   resolution: "@chialab/wds-plugin-hmr@workspace:packages/wds-plugin-hmr"
   dependencies:
-    "@chialab/es-dev-server": ^0.19.0-beta.0
+    "@chialab/es-dev-server": ^0.19.0-beta.1
     "@chialab/esbuild-plugin-require-resolve": ^0.19.0-beta.0
     "@web/dev-server-hmr": ^0.4.0
     rimraf: ^6.0.0

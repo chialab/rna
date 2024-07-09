@@ -40,6 +40,7 @@
     "@chialab/wds-plugin-rna": "0.18.0"
   },
   "changesets": [
+    "cold-crabs-rush",
     "healthy-pets-destroy",
     "kind-sloths-rush",
     "ninety-falcons-agree",

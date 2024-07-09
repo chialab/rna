@@ -1,5 +1,13 @@
 # @chialab/esbuild-plugin-html
 
+## 0.19.0-beta.2
+
+### Patch Changes
+
+-   e9812e3: Update some dependencies.
+-   Updated dependencies [e9812e3]
+    -   @chialab/esbuild-rna@0.19.0-beta.2
+
 ## 0.19.0-beta.1
 
 ### Minor Changes

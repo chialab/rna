@@ -1,5 +1,11 @@
 # @chialab/esbuild-plugin-metadata
 
+## 0.19.0-beta.2
+
+### Patch Changes
+
+-   e9812e3: Update some dependencies.
+
 ## 0.19.0-beta.1
 
 ### Minor Changes

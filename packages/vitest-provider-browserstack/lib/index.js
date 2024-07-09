@@ -68,6 +68,11 @@ export default class BrowserStackProvider {
     _tunnelPromise = null;
 
     /**
+     * @inheritdoc
+     */
+    supportsParallelism = false;
+
+    /**
      * Get supported browsers.
      * @returns {string[]}
      */
@@ -94,7 +99,10 @@ export default class BrowserStackProvider {
         this.testName = config.name;
 
         const { browser: browserName } = options;
-        const browserstackConfig = browser.config.browserstack || {};
+        const browserstackConfig =
+            ('config' in browser
+                ? /** @type {import('vite').UserConfig} */ (browser.config).browserstack
+                : browser.vite.config.browserstack) || {};
         if (!browserstackConfig.capabilities) {
             throw new Error('Missing capabilities in browserstack configuration');
         }
@@ -140,6 +148,32 @@ export default class BrowserStackProvider {
     }
 
     /**
+     * @inheritdoc
+     */
+    async beforeCommand() {
+        const browser = /** @type {WebdriverIO.Browser} */ (await this._browserPromise);
+        const iframe = await browser.findElement('css selector', 'iframe[data-vitest]');
+        await browser.switchToFrame(iframe);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    async afterCommand() {
+        const browser = /** @type {WebdriverIO.Browser} */ (await this._browserPromise);
+        await browser.switchToParentFrame();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    getCommandsContext() {
+        return {
+            browser: this.browser,
+        };
+    }
+
+    /**
      * Open the browser.
      * @returns {Promise<WebdriverIO.Browser>}
      */
@@ -166,6 +200,8 @@ export default class BrowserStackProvider {
                 user: /** @type {string} */ (this.bsOptions.user),
                 key: /** @type {string} */ (this.bsOptions.key),
             });
+
+            this.browser = browser;
 
             return browser;
         }));

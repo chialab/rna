@@ -1,5 +1,11 @@
 # @chialab/esbuild-rna
 
+## 0.19.0-beta.3
+
+### Patch Changes
+
+-   a5ef23d: Correctly handle empty (`contents = ''`) virtual modules.
+
 ## 0.19.0-beta.2
 
 ### Patch Changes

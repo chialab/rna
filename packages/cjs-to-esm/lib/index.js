@@ -324,7 +324,7 @@ if (${conditions.join(' && ')}) {
     ${named.map((name, index) => `__export${index} = module.exports['${name}'];`).join('\n    ')}
 }`);
 
-            helpers.append(`\nexport { ${named.map((name, index) => `__export${index} as ${name}`).join(', ')} }`);
+            helpers.append(`\nexport { ${named.map((name, index) => `__export${index} as "${name}"`).join(', ')} }`);
         }
         if (isEsModule) {
             if (!isUmd && (hasDefault || named.length === 0)) {

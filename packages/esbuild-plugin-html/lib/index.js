@@ -21,8 +21,10 @@ const loadHtml = /** @type {typeof cheerio.load} */ (cheerio.load || cheerio.def
  * @property {string} [entryNames]
  * @property {string} [chunkNames]
  * @property {string} [assetNames]
+ * @property {string[]} [extensions]
  * @property {'link' | 'script'} [injectStylesAs]
  * @property {import('htmlnano').HtmlnanoOptions} [minifyOptions]
+ * @property {(code: string, path: string) => string | Promise<string>} [preprocess]
  */
 
 /**
@@ -66,6 +68,8 @@ export default function ({
     modulesTarget = 'es2020',
     minifyOptions = {},
     injectStylesAs = 'script',
+    extensions = ['.html'],
+    preprocess = (code) => code,
 } = {}) {
     /**
      * @type {import('esbuild').Plugin}
@@ -154,7 +158,13 @@ export default function ({
                             const buffer = resultOutputFile
                                 ? Buffer.from(resultOutputFile.contents)
                                 : await readFile(actualOutputFile);
-                            const finalOutputFile = build.resolveOutputFile(mainInput, buffer);
+                            const finalOutputFile = build.resolveOutputFile(
+                                path.join(
+                                    path.dirname(mainInput),
+                                    `${path.basename(mainInput, path.extname(mainInput))}.html`
+                                ),
+                                buffer
+                            );
 
                             delete outputs[outputFile];
                             outputs[build.getOutputName(finalOutputFile)] = output;
@@ -172,158 +182,172 @@ export default function ({
                 );
             });
 
-            build.onTransform({ filter: /\.html$/ }, async (args) => {
-                entryPoints.push(args.path);
+            build.onTransform(
+                {
+                    filter: new RegExp(
+                        `(${extensions
+                            .map((ext) => {
+                                if (ext[0] !== '.') {
+                                    ext = `\\.${ext}`;
+                                }
+                                return `\\${ext}`;
+                            })
+                            .join('|')})$`
+                    ),
+                },
+                async (args) => {
+                    entryPoints.push(args.path);
 
-                const [
-                    { collectStyles },
-                    { collectScripts },
-                    { collectAssets },
-                    { collectWebManifest },
-                    { collectIcons },
-                    { collectScreens },
-                ] = await Promise.all([
-                    import('./collectStyles.js'),
-                    import('./collectScripts.js'),
-                    import('./collectAssets.js'),
-                    import('./collectWebManifest.js'),
-                    import('./collectIcons.js'),
-                    import('./collectScreens.js'),
-                ]);
+                    const [
+                        { collectStyles },
+                        { collectScripts },
+                        { collectAssets },
+                        { collectWebManifest },
+                        { collectIcons },
+                        { collectScreens },
+                    ] = await Promise.all([
+                        import('./collectStyles.js'),
+                        import('./collectScripts.js'),
+                        import('./collectAssets.js'),
+                        import('./collectWebManifest.js'),
+                        import('./collectIcons.js'),
+                        import('./collectScreens.js'),
+                    ]);
 
-                const code = args.code;
-                const $ = loadHtml(code);
-                const root = $.root();
-                let count = 0;
+                    const code = await preprocess(args.code, args.path);
+                    const $ = loadHtml(code);
+                    const root = $.root();
+                    let count = 0;
 
-                /**
-                 * @param {string} file
-                 */
-                const resolveFile = (file) =>
-                    build.resolve(`./${file}`, {
-                        kind: 'dynamic-import',
-                        importer: args.path,
-                        resolveDir: path.dirname(args.path),
-                        pluginData: null,
-                        namespace: 'file',
-                    });
-
-                /**
-                 * @param {string} path
-                 * @param {Partial<import('esbuild').OnLoadArgs>} [options]
-                 */
-                const loadFile = (path, options = {}) =>
-                    build.load({
-                        pluginData: null,
-                        namespace: 'file',
-                        suffix: '',
-                        ...options,
-                        path,
-                        with: {},
-                    });
-
-                const collectOptions = {
-                    sourceDir: path.dirname(args.path),
-                    workingDir,
-                    outDir: /** @type {string} */ (build.getFullOutDir()),
-                    entryDir: build.resolveOutputDir(args.path),
-                    target: [scriptsTarget, modulesTarget],
-                };
-
-                /**
-                 * Get entry name.
-                 *
-                 * @param {string} ext
-                 * @param {string|undefined} suggestion
-                 * @returns {string}
-                 */
-                const createEntry = (ext, suggestion) => {
-                    const i = ++count;
-
-                    return `${suggestion ? `${suggestion}${i}` : i}.${ext}`;
-                };
-
-                /**
-                 * @type {Helpers}
-                 */
-                const helpers = {
-                    createEntry,
-                    resolveAssetFile(source, buffer) {
-                        return build.resolveOutputFile(source, buffer || Buffer.from(''), Build.ASSET);
-                    },
-                    emitFile: build.emitFile.bind(build),
-                    emitChunk: build.emitChunk.bind(build),
-                    emitBuild: build.emitBuild.bind(build),
-                    resolveRelativePath: build.resolveRelativePath.bind(build),
-                    resolve: resolveFile,
-                    load: loadFile,
-                };
-
-                const results = await collectWebManifest($, root, collectOptions, helpers);
-                results.push(...(await collectScreens($, root, collectOptions, helpers)));
-                results.push(...(await collectIcons($, root, collectOptions, helpers)));
-                results.push(...(await collectAssets($, root, collectOptions, helpers)));
-                results.push(...(await collectStyles($, root, collectOptions, helpers)));
-                results.push(
-                    ...(await collectScripts(
-                        $,
-                        root,
-                        {
-                            ...collectOptions,
-                            injectStylesAs,
-                        },
-                        helpers
-                    ))
-                );
-
-                let resultHtml = $.html().replace(/\n\s*$/gm, '');
-                if (minify) {
-                    await import('htmlnano')
-                        .then(async ({ default: htmlnano }) => {
-                            resultHtml = (
-                                await htmlnano.process(resultHtml, {
-                                    minifyJs: false,
-                                    minifyCss: false,
-                                    minifyJson: false,
-                                    ...minifyOptions,
-                                })
-                            ).html;
-                        })
-                        .catch(() => {
-                            warnings.push({
-                                id: 'missing-htmlnano',
-                                pluginName: 'html',
-                                text: `Unable to load "htmlnano" module for HTML minification.`,
-                                location: null,
-                                notes: [],
-                                detail: '',
-                            });
+                    /**
+                     * @param {string} file
+                     */
+                    const resolveFile = (file) =>
+                        build.resolve(`./${file}`, {
+                            kind: 'dynamic-import',
+                            importer: args.path,
+                            resolveDir: path.dirname(args.path),
+                            pluginData: null,
+                            namespace: 'file',
                         });
-                } else {
-                    resultHtml = beautify.html(resultHtml);
-                }
 
-                return {
-                    code: resultHtml,
-                    loader: 'file',
-                    watchFiles: results.reduce((acc, result) => {
-                        if (!result) {
+                    /**
+                     * @param {string} path
+                     * @param {Partial<import('esbuild').OnLoadArgs>} [options]
+                     */
+                    const loadFile = (path, options = {}) =>
+                        build.load({
+                            pluginData: null,
+                            namespace: 'file',
+                            suffix: '',
+                            ...options,
+                            path,
+                            with: {},
+                        });
+
+                    const collectOptions = {
+                        sourceDir: path.dirname(args.path),
+                        workingDir,
+                        outDir: /** @type {string} */ (build.getFullOutDir()),
+                        entryDir: build.resolveOutputDir(args.path),
+                        target: [scriptsTarget, modulesTarget],
+                    };
+
+                    /**
+                     * Get entry name.
+                     *
+                     * @param {string} ext
+                     * @param {string|undefined} suggestion
+                     * @returns {string}
+                     */
+                    const createEntry = (ext, suggestion) => {
+                        const i = ++count;
+
+                        return `${suggestion ? `${suggestion}${i}` : i}.${ext}`;
+                    };
+
+                    /**
+                     * @type {Helpers}
+                     */
+                    const helpers = {
+                        createEntry,
+                        resolveAssetFile(source, buffer) {
+                            return build.resolveOutputFile(source, buffer || Buffer.from(''), Build.ASSET);
+                        },
+                        emitFile: build.emitFile.bind(build),
+                        emitChunk: build.emitChunk.bind(build),
+                        emitBuild: build.emitBuild.bind(build),
+                        resolveRelativePath: build.resolveRelativePath.bind(build),
+                        resolve: resolveFile,
+                        load: loadFile,
+                    };
+
+                    const results = await collectWebManifest($, root, collectOptions, helpers);
+                    results.push(...(await collectScreens($, root, collectOptions, helpers)));
+                    results.push(...(await collectIcons($, root, collectOptions, helpers)));
+                    results.push(...(await collectAssets($, root, collectOptions, helpers)));
+                    results.push(...(await collectStyles($, root, collectOptions, helpers)));
+                    results.push(
+                        ...(await collectScripts(
+                            $,
+                            root,
+                            {
+                                ...collectOptions,
+                                injectStylesAs,
+                            },
+                            helpers
+                        ))
+                    );
+
+                    let resultHtml = $.html().replace(/\n\s*$/gm, '');
+                    if (minify) {
+                        await import('htmlnano')
+                            .then(async ({ default: htmlnano }) => {
+                                resultHtml = (
+                                    await htmlnano.process(resultHtml, {
+                                        minifyJs: false,
+                                        minifyCss: false,
+                                        minifyJson: false,
+                                        ...minifyOptions,
+                                    })
+                                ).html;
+                            })
+                            .catch(() => {
+                                warnings.push({
+                                    id: 'missing-htmlnano',
+                                    pluginName: 'html',
+                                    text: `Unable to load "htmlnano" module for HTML minification.`,
+                                    location: null,
+                                    notes: [],
+                                    detail: '',
+                                });
+                            });
+                    } else {
+                        resultHtml = beautify.html(resultHtml);
+                    }
+
+                    return {
+                        code: resultHtml,
+                        loader: 'file',
+                        watchFiles: results.reduce((acc, result) => {
+                            if (!result) {
+                                return acc;
+                            }
+                            if (result.watchFiles) {
+                                return [...acc, ...result.watchFiles];
+                            }
+                            if (result.metafile) {
+                                return [
+                                    ...acc,
+                                    ...Object.keys(result.metafile.inputs).map((key) => path.resolve(cwd, key)),
+                                ];
+                            }
                             return acc;
-                        }
-                        if (result.watchFiles) {
-                            return [...acc, ...result.watchFiles];
-                        }
-                        if (result.metafile) {
-                            return [
-                                ...acc,
-                                ...Object.keys(result.metafile.inputs).map((key) => path.resolve(cwd, key)),
-                            ];
-                        }
-                        return acc;
-                    }, /** @type {string[]} */ ([])),
-                    warnings,
-                };
-            });
+                        }, /** @type {string[]} */ ([])),
+                        warnings,
+                    };
+                }
+            );
         },
     };
 

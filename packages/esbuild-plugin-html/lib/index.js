@@ -2,17 +2,12 @@ import { Buffer } from 'buffer';
 import { copyFile, readFile, rm } from 'fs/promises';
 import path from 'path';
 import { Build, useRna } from '@chialab/esbuild-rna';
-import * as cheerio from 'cheerio';
+import { load } from 'cheerio';
 import beautify from 'js-beautify';
 
 /**
  * @typedef {import('esbuild').Metafile} Metafile
  */
-
-/**
- * Cheerio esm support is unstable for some Node versions.
- */
-const loadHtml = /** @type {typeof cheerio.load} */ (cheerio.load || cheerio.default?.load);
 
 /**
  * @typedef {Object} PluginOptions
@@ -54,7 +49,7 @@ const loadHtml = /** @type {typeof cheerio.load} */ (cheerio.load || cheerio.def
  */
 
 /**
- * @typedef {($: import('cheerio').CheerioAPI, dom: import('cheerio').Cheerio<import('cheerio').Document>, options: CollectOptions<T>, helpers: Helpers) => Promise<import('@chialab/esbuild-rna').OnTransformResult[]>} Collector
+ * @typedef {($: import('cheerio').CheerioAPI, dom: import('cheerio').Cheerio<import('domhandler').Document>, options: CollectOptions<T>, helpers: Helpers) => Promise<import('@chialab/esbuild-rna').OnTransformResult[]>} Collector
  * @template {object} T
  */
 
@@ -215,7 +210,7 @@ export default function ({
                     ]);
 
                     const code = await preprocess(args.code, args.path);
-                    const $ = loadHtml(code);
+                    const $ = load(code);
                     const root = $.root();
                     let count = 0;
 

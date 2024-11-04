@@ -85,7 +85,7 @@ async function generateAppleIcons(image, icons) {
 
 /**
  * @param {import('cheerio').CheerioAPI} $ The cheerio selector.
- * @param {import('cheerio').Cheerio<import('cheerio').Element>} element The DOM element.
+ * @param {import('cheerio').Cheerio<import('domhandler').Element>} element The DOM element.
  * @param {Icon} icon The generated icon file.
  * @param {string} rel Rel attribute.
  * @param {boolean} shortcut Should include shortcut.

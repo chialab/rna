@@ -16,12 +16,12 @@ export async function collectStyles($, dom, options, helpers) {
     }
 
     /**
-     * @type {Map<import('cheerio').Element, import('@chialab/esbuild-rna').VirtualEntry|string>}
+     * @type {Map<import('domhandler').Element, import('@chialab/esbuild-rna').VirtualEntry|string>}
      */
     const builds = new Map();
 
     /**
-     * @type {Map<string, import('cheerio').Element>}
+     * @type {Map<string, import('domhandler').Element>}
      */
     const entrypoints = new Map();
 

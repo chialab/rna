@@ -3,8 +3,8 @@ import { isRelativeUrl } from './utils.js';
 
 /**
  * @param {import('cheerio').CheerioAPI} $ The cheerio selector.
- * @param {import('cheerio').Cheerio<import('cheerio').Document>} dom The DOM element.
- * @param {import('cheerio').Element[]} elements List of nodes.
+ * @param {import('cheerio').Cheerio<import('domhandler').Document>} dom The DOM element.
+ * @param {import('domhandler').Element[]} elements List of nodes.
  * @param {string|string[]} target Build target.
  * @param {import('esbuild').Format} format Build format.
  * @param {string} type Script type.
@@ -21,12 +21,12 @@ async function innerCollect($, dom, elements, target, format, type, attrs = {}, 
     }
 
     /**
-     * @type {Map<import('cheerio').Element, import('@chialab/esbuild-rna').VirtualEntry|string>}
+     * @type {Map<import('domhandler').Element, import('@chialab/esbuild-rna').VirtualEntry|string>}
      */
     const builds = new Map();
 
     /**
-     * @type {Map<string, import('cheerio').Element>}
+     * @type {Map<string, import('domhandler').Element>}
      */
     const entrypoints = new Map();
 

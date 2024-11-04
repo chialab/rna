@@ -24,7 +24,7 @@
     "node": ">=18"
   },
   "devDependencies": {
-    "esbuild": "^0.23.0",
+    "esbuild": "^0.24.0",
     "typescript": "^5.0.0"
   }
 }

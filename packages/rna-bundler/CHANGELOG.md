@@ -1,5 +1,19 @@
 # @chialab/rna-bundler
 
+## 0.19.0-beta.3
+
+### Patch Changes
+
+-   cc20230: Add support for mapped entrypoints like esbuild does.
+-   1c56855: Update esbuild constraint.
+-   Updated dependencies [cc20230]
+-   Updated dependencies [60e95b1]
+-   Updated dependencies [048fb10]
+-   Updated dependencies [475a487]
+    -   @chialab/rna-config-loader@0.19.0-beta.1
+    -   @chialab/esbuild-plugin-commonjs@0.19.0-beta.2
+    -   @chialab/esbuild-plugin-html@0.19.0-beta.4
+
 ## 0.19.0-beta.2
 
 ### Patch Changes

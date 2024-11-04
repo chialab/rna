@@ -1,5 +1,12 @@
 # @chialab/esbuild-plugin-html
 
+## 0.19.0-beta.4
+
+### Patch Changes
+
+-   048fb10: Use stable cheerio.
+-   475a487: Add `extensions` and `preprocess` options to HTML plugin.
+
 ## 0.19.0-beta.3
 
 ### Patch Changes

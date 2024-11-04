@@ -1,5 +1,13 @@
 # @chialab/esbuild-plugin-commonjs
 
+## 0.19.0-beta.2
+
+### Patch Changes
+
+-   60e95b1: Fixes handling of CJS modules that export identifiers with spaces.
+-   Updated dependencies [60e95b1]
+    -   @chialab/cjs-to-esm@0.19.0-beta.1
+
 ## 0.19.0-beta.1
 
 ### Minor Changes

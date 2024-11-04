@@ -40,15 +40,20 @@
     "@chialab/wds-plugin-rna": "0.18.0"
   },
   "changesets": [
+    "clever-mirrors-tan",
     "cold-crabs-rush",
+    "great-rules-boil",
     "healthy-pets-destroy",
     "kind-sloths-rush",
     "long-hounds-think",
+    "nasty-flies-nail",
     "ninety-falcons-agree",
     "plenty-yaks-heal",
     "pretty-experts-grin",
     "purple-pianos-battle",
     "rude-moles-repeat",
+    "shiny-cycles-crash",
+    "tame-avocados-serve",
     "ten-bikes-fly",
     "twelve-dragons-cover",
     "wild-bees-reflect"

@@ -1608,7 +1608,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@chialab/cjs-to-esm@^0.19.0-beta.0, @chialab/cjs-to-esm@workspace:packages/cjs-to-esm":
+"@chialab/cjs-to-esm@^0.19.0-beta.1, @chialab/cjs-to-esm@workspace:packages/cjs-to-esm":
   version: 0.0.0-use.local
   resolution: "@chialab/cjs-to-esm@workspace:packages/cjs-to-esm"
   dependencies:
@@ -1657,11 +1657,11 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@chialab/esbuild-plugin-commonjs@^0.19.0-beta.1, @chialab/esbuild-plugin-commonjs@workspace:packages/esbuild-plugin-commonjs":
+"@chialab/esbuild-plugin-commonjs@^0.19.0-beta.2, @chialab/esbuild-plugin-commonjs@workspace:packages/esbuild-plugin-commonjs":
   version: 0.0.0-use.local
   resolution: "@chialab/esbuild-plugin-commonjs@workspace:packages/esbuild-plugin-commonjs"
   dependencies:
-    "@chialab/cjs-to-esm": ^0.19.0-beta.0
+    "@chialab/cjs-to-esm": ^0.19.0-beta.1
     "@chialab/esbuild-rna": ^0.19.0-beta.1
     typescript: ^5.0.0
   languageName: unknown
@@ -1685,7 +1685,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@chialab/esbuild-plugin-html@^0.19.0-beta.2, @chialab/esbuild-plugin-html@workspace:packages/esbuild-plugin-html":
+"@chialab/esbuild-plugin-html@^0.19.0-beta.4, @chialab/esbuild-plugin-html@workspace:packages/esbuild-plugin-html":
   version: 0.0.0-use.local
   resolution: "@chialab/esbuild-plugin-html@workspace:packages/esbuild-plugin-html"
   dependencies:
@@ -1926,26 +1926,26 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@chialab/rna-bundler@^0.19.0-beta.0, @chialab/rna-bundler@^0.19.0-beta.2, @chialab/rna-bundler@workspace:packages/rna-bundler":
+"@chialab/rna-bundler@^0.19.0-beta.2, @chialab/rna-bundler@^0.19.0-beta.3, @chialab/rna-bundler@workspace:packages/rna-bundler":
   version: 0.0.0-use.local
   resolution: "@chialab/rna-bundler@workspace:packages/rna-bundler"
   dependencies:
     "@chialab/esbuild-plugin-any-file": ^0.19.0-beta.0
-    "@chialab/esbuild-plugin-commonjs": ^0.19.0-beta.1
+    "@chialab/esbuild-plugin-commonjs": ^0.19.0-beta.2
     "@chialab/esbuild-plugin-env": ^0.19.0-beta.2
-    "@chialab/esbuild-plugin-html": ^0.19.0-beta.2
+    "@chialab/esbuild-plugin-html": ^0.19.0-beta.4
     "@chialab/esbuild-plugin-meta-url": ^0.19.0-beta.2
     "@chialab/esbuild-plugin-metadata": ^0.19.0-beta.2
     "@chialab/esbuild-plugin-worker": ^0.19.0-beta.0
     "@chialab/esbuild-rna": ^0.19.0-beta.2
-    "@chialab/rna-config-loader": ^0.19.0-beta.0
+    "@chialab/rna-config-loader": ^0.19.0-beta.1
     "@chialab/rna-logger": ^0.19.0-beta.0
     esbuild: ^0.21.0 || ^0.22.0 || ^0.23.0 || ^0.24.0
     typescript: ^5.0.0
   languageName: unknown
   linkType: soft
 
-"@chialab/rna-config-loader@^0.19.0-beta.0, @chialab/rna-config-loader@workspace:packages/rna-config-loader":
+"@chialab/rna-config-loader@^0.19.0-beta.0, @chialab/rna-config-loader@^0.19.0-beta.1, @chialab/rna-config-loader@workspace:packages/rna-config-loader":
   version: 0.0.0-use.local
   resolution: "@chialab/rna-config-loader@workspace:packages/rna-config-loader"
   dependencies:
@@ -2071,7 +2071,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@chialab/vite-plugin-commonjs@workspace:packages/vite-plugin-commonjs"
   dependencies:
-    "@chialab/cjs-to-esm": ^0.19.0-beta.0
+    "@chialab/cjs-to-esm": ^0.19.0-beta.1
     typescript: ^5.0.0
   languageName: unknown
   linkType: soft
@@ -2174,8 +2174,8 @@ __metadata:
     "@chialab/esbuild-plugin-worker": ^0.19.0-beta.0
     "@chialab/esbuild-rna": ^0.19.0-beta.0
     "@chialab/node-resolve": ^0.19.0-beta.0
-    "@chialab/rna-bundler": ^0.19.0-beta.0
-    "@chialab/rna-config-loader": ^0.19.0-beta.0
+    "@chialab/rna-bundler": ^0.19.0-beta.3
+    "@chialab/rna-config-loader": ^0.19.0-beta.1
     "@chialab/wds-plugin-node-resolve": ^0.19.0-beta.0
     "@types/browserslist-useragent": ^3.0.3
     browserslist-useragent: ^4.0.0

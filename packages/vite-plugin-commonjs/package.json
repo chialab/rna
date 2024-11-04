@@ -1,7 +1,7 @@
 {
   "name": "@chialab/vite-plugin-commonjs",
   "type": "module",
-  "version": "0.19.0-beta.0",
+  "version": "0.19.0-beta.1",
   "description": "Support for dynamic commonjs transformation in Vite dev server.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",
@@ -24,7 +24,7 @@
     "node": ">=18"
   },
   "dependencies": {
-    "@chialab/cjs-to-esm": "^0.19.0-beta.0"
+    "@chialab/cjs-to-esm": "^0.19.0-beta.1"
   },
   "devDependencies": {
     "typescript": "^5.0.0"

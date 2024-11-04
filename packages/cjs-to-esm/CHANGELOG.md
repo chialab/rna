@@ -1,5 +1,11 @@
 # @chialab/cjs-to-esm
 
+## 0.19.0-beta.2
+
+### Patch Changes
+
+-   fd6db70: Update jsdom dependency.
+
 ## 0.19.0-beta.1
 
 ### Patch Changes

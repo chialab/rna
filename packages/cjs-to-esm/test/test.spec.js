@@ -413,6 +413,18 @@ fs.readFile(path.resolve('test.js'));`).catch((err) => err);
                 expect(globalThis.chai).toBe(value);
                 expect(value.expect).toBeTypeOf('function');
             });
+
+            test('webidl-conversions', async () => {
+                const fixture = fileURLToPath(new URL('fixtures/webidl-conversions.js', import.meta.url));
+                const contents = await readFile(fixture, 'utf-8');
+                const { code } = await transform(`var process = undefined;${contents}`);
+                const { default: value } = await import(
+                    `data:text/javascript;base64,${Buffer.from(code).toString('base64')}`
+                );
+
+                // webidl-conversions exports have spaces in the names. test that this case is handled correctly.
+                expect(value['unsigned long long']).toBeTypeOf('function');
+            });
         });
     });
 });

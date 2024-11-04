@@ -3,17 +3,12 @@ import crypto from 'crypto';
 import { createRequire } from 'module';
 import { createHelperUrl, isPlainScript } from '@chialab/wds-plugin-node-resolve';
 import { inject } from '@chialab/wds-plugin-polyfill';
-import * as cheerio from 'cheerio';
+import { load } from 'cheerio';
 import { checkEsmSupport } from './checkEsmSupport.js';
 import { readFile } from './readFile.js';
 import { transform } from './transform.js';
 
 const require = createRequire(import.meta.url);
-
-/**
- * Cheerio esm support is unstable for some Node versions.
- */
-const load = /** typeof cheerio.load */ cheerio.load || cheerio.default?.load;
 
 /**
  * Create an hash for the given buffer.

@@ -2,6 +2,7 @@ import path from 'path';
 import process from 'process';
 import { hasPlugin } from '@chialab/esbuild-rna';
 import esbuild from 'esbuild';
+import { resolveSourceFile } from './helpers.js';
 import { transformLoaders } from './loaders.js';
 
 /**
@@ -73,7 +74,7 @@ export async function transform(config) {
         )
     );
 
-    const sourceFile = path.resolve(rootDir, Array.isArray(input) ? input[0] : input);
+    const sourceFile = path.resolve(rootDir, resolveSourceFile(input));
     const absWorkingDir = path.dirname(sourceFile);
     const result = /** @type {import('@chialab/esbuild-rna').Result} */ (
         await esbuild.build({

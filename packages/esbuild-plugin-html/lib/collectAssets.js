@@ -2,7 +2,7 @@ import { isRelativeUrl } from './utils.js';
 
 /**
  * @param {import('cheerio').CheerioAPI} $ The cheerio selector.
- * @param {import('cheerio').Cheerio<import('cheerio').Element>} element The DOM element.
+ * @param {import('cheerio').Cheerio<import('domhandler').Element>} element The DOM element.
  * @param {string} attribute The element attribute to load.
  * @param {import('./index.js').BuildOptions} options Build options.
  * @param {import('./index.js').Helpers} helpers Helpers.

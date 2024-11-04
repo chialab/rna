@@ -3,6 +3,7 @@ import path from 'path';
 import process from 'process';
 import { hasPlugin } from '@chialab/esbuild-rna';
 import esbuild from 'esbuild';
+import { resolveSourceFile } from './helpers.js';
 import { loaders } from './loaders.js';
 
 /**
@@ -68,10 +69,10 @@ export async function build(config) {
         entryOptions.stdin = {
             contents: code,
             resolveDir: rootDir,
-            sourcefile: Array.isArray(input) ? input[0] : input,
+            sourcefile: resolveSourceFile(input),
         };
     } else if (input) {
-        entryOptions.entryPoints = Array.isArray(input) ? input : [input];
+        entryOptions.entryPoints = typeof input === 'string' ? [input] : input;
     }
 
     const outputDir = hasOutputFile ? path.dirname(output) : output;

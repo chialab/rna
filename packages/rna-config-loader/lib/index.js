@@ -4,6 +4,10 @@ import process from 'process';
 import { pathToFileURL } from 'url';
 
 /**
+ * @typedef {string | string[] | Record<string, string> | { in: string, out: string }[]} Input
+ */
+
+/**
  * @typedef {import('esbuild').BuildOptions} BuildOptions
  */
 
@@ -55,7 +59,7 @@ import { pathToFileURL } from 'url';
 
 /**
  * @typedef {Object} RnaEntrypointConfig
- * @property {string|string[]} input
+ * @property {Input} input
  * @property {string} [output]
  * @property {string} [name]
  * @property {string} [code]
@@ -76,22 +80,9 @@ import { pathToFileURL } from 'url';
  */
 
 /**
- * Convert a file path to CamelCase.
- *
- * @param {string} file The file path.
- * @returns {string}
- */
-export function camelize(file) {
-    const filename = path.basename(file, path.extname(file));
-    return filename
-        .replace(/(^[a-z0-9]|[-_]([a-z0-9]))/g, (g) => (g[1] || g[0]).toUpperCase())
-        .replace(/[^a-zA-Z0-9]/g, '');
-}
-
-/**
  * @param {EntrypointConfig} entrypoint
  * @param {ProjectConfig} config
- * @returns {ProjectConfig & { input: string|string[] }}
+ * @returns {ProjectConfig & { input: Input }}
  */
 export function getEntryConfig(entrypoint, config) {
     const root = entrypoint.root || config.root || process.cwd();
@@ -117,12 +108,7 @@ export function getEntryConfig(entrypoint, config) {
         minify: entrypoint.minify ?? config.minify ?? false,
         clean: entrypoint.clean ?? config.clean ?? false,
         splitting: entrypoint.splitting ?? config.splitting,
-        globalName:
-            entrypoint.globalName ||
-            entrypoint.name ||
-            (format === 'iife'
-                ? camelize(Array.isArray(entrypoint.input) ? entrypoint.input[0] : entrypoint.input)
-                : undefined),
+        globalName: entrypoint.globalName || entrypoint.name,
         entryNames: entrypoint.entryNames || config.entryNames || '[dir]/[name]',
         chunkNames: entrypoint.chunkNames || config.chunkNames || '[name]-[hash]',
         assetNames: entrypoint.assetNames || config.assetNames || '[name]-[hash]',
@@ -157,16 +143,11 @@ export function getEntryBuildConfig(entrypoint, config) {
         throw new Error('Missing required `output` path');
     }
 
-    const format = entrypoint.format || config.format;
-
     return /** @type {EntrypointConfig} */ (
         getEntryConfig(
             {
                 ...entrypoint,
-                globalName:
-                    entrypoint.globalName ||
-                    entrypoint.name ||
-                    (format === 'iife' ? camelize(entrypoint.output) : undefined),
+                globalName: entrypoint.globalName || entrypoint.name,
             },
             config
         )

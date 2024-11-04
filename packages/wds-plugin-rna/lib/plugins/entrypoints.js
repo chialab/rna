@@ -83,7 +83,21 @@ export function entrypointsPlugin(options) {
                             return;
                         }
 
-                        const files = Array.isArray(input) ? input : [input];
+                        /**
+                         * @type {string[]}
+                         */
+                        const files = [];
+                        if (typeof input === 'string') {
+                            files.push(input);
+                        } else if (Array.isArray(input)) {
+                            if (typeof input[0] === 'string') {
+                                files.push(.../** @type {string[]} */ (input));
+                            } else {
+                                files.push(.../** @type {{ in: string; out: string; }[]} */ (input).map((i) => i.in));
+                            }
+                        } else {
+                            files.push(...Object.values(input));
+                        }
                         await writeDevEntrypointsJson(files, entrypointsPath, serverStartParams, loaders, 'esm');
                     })
                 );

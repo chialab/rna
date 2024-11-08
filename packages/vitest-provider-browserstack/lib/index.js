@@ -1,4 +1,5 @@
 import process from 'node:process';
+import { webdriverio } from '@vitest/browser/providers';
 import { Local } from 'browserstack-local';
 import ip from 'ip';
 import { remote } from 'webdriverio';
@@ -19,17 +20,11 @@ import { remote } from 'webdriverio';
  * A BrowserStack provider for vitest.
  * @implements {BrowserProvider}
  */
-export default class BrowserStackProvider {
+export default class BrowserStackProvider extends webdriverio {
     /**
      * @type {string}
      */
     name = 'browserstack';
-
-    /**
-     * @type {WorkspaceProject}
-     * @protected
-     */
-    ctx;
 
     /**
      * @type {string}
@@ -76,11 +71,10 @@ export default class BrowserStackProvider {
      * Get supported browsers.
      * @returns {string[]}
      */
-    getSupportedBrowsers() {
-        return Object.assign([], {
+    getSupportedBrowsers = () =>
+        Object.assign([], {
             includes: /** @param {string} value */ (value) => value.startsWith('browserstack:'),
         });
-    }
 
     /**
      * Initialize the BrowserStack provider.
@@ -89,7 +83,7 @@ export default class BrowserStackProvider {
      * @throws {Error} If browser configuration is missing.
      */
     initialize(ctx, options) {
-        this.ctx = ctx;
+        super.initialize(ctx, options);
 
         const { config, browser } = ctx;
         if (!browser) {
@@ -148,32 +142,6 @@ export default class BrowserStackProvider {
     }
 
     /**
-     * @inheritdoc
-     */
-    async beforeCommand() {
-        const browser = /** @type {WebdriverIO.Browser} */ (await this._browserPromise);
-        const iframe = await browser.findElement('css selector', 'iframe[data-vitest]');
-        await browser.switchToFrame(iframe);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    async afterCommand() {
-        const browser = /** @type {WebdriverIO.Browser} */ (await this._browserPromise);
-        await browser.switchToParentFrame();
-    }
-
-    /**
-     * @inheritdoc
-     */
-    getCommandsContext() {
-        return {
-            browser: this.browser,
-        };
-    }
-
-    /**
      * Open the browser.
      * @returns {Promise<WebdriverIO.Browser>}
      */
@@ -209,10 +177,11 @@ export default class BrowserStackProvider {
 
     /**
      * Open the page in the browser.
+     * @param {string} contextId - The browser context.
      * @param {string} url - The URL to open.
      * @returns {Promise<void>}
      */
-    async openPage(url) {
+    openPage = async (contextId, url) => {
         const browser = await this.openBrowser();
         const networkAddress = ip.address();
         if (networkAddress) {
@@ -225,13 +194,13 @@ export default class BrowserStackProvider {
         if (title !== 'Vitest Browser Runner') {
             throw new Error('Failed to open url');
         }
-    }
+    };
 
     /**
      * Close the browser and tunnel.
      * @returns {Promise<void>}
      */
-    async close() {
+    close = async () => {
         try {
             if (this._tunnelPromise) {
                 const closeTunnel = await this._tunnelPromise;
@@ -241,19 +210,6 @@ export default class BrowserStackProvider {
             //
         }
 
-        try {
-            if (this._browserPromise) {
-                const browser = await this._browserPromise;
-                await browser.deleteSession();
-            }
-        } catch {
-            //
-        }
-
-        /**
-         * TODO
-         * @see https://github.com/vitest-dev/vitest/blob/eac7776521bcf4e335771b1ab4f823f40ad9c4ff/packages/vitest/src/node/browser/webdriver.ts#L83
-         */
-        process.exit();
-    }
+        return super.close();
+    };
 }

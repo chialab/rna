@@ -28,6 +28,7 @@
     "node": ">=18"
   },
   "dependencies": {
+    "@vitest/browser": "^2.1.4",
     "browserstack-local": "^1.5.5",
     "ip": "^2.0.0",
     "webdriverio": "^8.17.0"

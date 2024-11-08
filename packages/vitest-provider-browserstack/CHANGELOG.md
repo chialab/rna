@@ -1,5 +1,11 @@
 # @chialab/vitest-provider-browserstack
 
+## 0.19.0-beta.2
+
+### Minor Changes
+
+-   1b45e36: Extend vitest webdriver provider.
+
 ## 0.19.0-beta.1
 
 ### Minor Changes

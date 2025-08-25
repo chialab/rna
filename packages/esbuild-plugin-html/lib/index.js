@@ -294,7 +294,7 @@ export default function ({
                         ))
                     );
 
-                    let resultHtml = $.html().replace(/\n\s*$/gm, '');
+                    let resultHtml = $.html();
                     if (minify) {
                         await import('htmlnano')
                             .then(async ({ default: htmlnano }) => {
@@ -318,7 +318,9 @@ export default function ({
                                 });
                             });
                     } else {
-                        resultHtml = beautify.html(resultHtml);
+                        resultHtml = beautify.html(resultHtml, {
+                            preserve_newlines: false,
+                        });
                     }
 
                     return {

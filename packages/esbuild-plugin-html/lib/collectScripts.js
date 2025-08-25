@@ -111,7 +111,6 @@ function loadStyle(url) {
     l.href = url;
     document.head.appendChild(l);
 }
-
 ${styleFiles
     .map((outName) => {
         const fullOutFile = path.join(options.workingDir, outName);

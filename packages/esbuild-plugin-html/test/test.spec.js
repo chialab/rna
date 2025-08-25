@@ -1534,4 +1534,39 @@ loadStyle('/public/index.css');
         expect(icons[3].path).endsWith(path.join(path.sep, 'out', 'icons', 'favicon-196x196.png'));
         expect(icons[3].contents.byteLength).toBe(6366);
     });
+
+    test('should preserve spaces inside pre', async () => {
+        const { outputFiles } = await esbuild.build({
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
+            entryPoints: [fileURLToPath(new URL('fixture/index.formatting.html', import.meta.url))],
+            sourceRoot: '/',
+            chunkNames: '[name]-[hash]',
+            outdir: 'out',
+            format: 'esm',
+            bundle: true,
+            write: false,
+            plugins: [htmlPlugin()],
+        });
+
+        const [index] = outputFiles;
+
+        expect(index.text).toBe(`<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <pre>
+            preserve whitespace
+
+    </pre>
+</body>
+
+</html>`);
+    });
 });

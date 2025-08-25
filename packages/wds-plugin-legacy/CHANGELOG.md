@@ -1,5 +1,18 @@
 # @chialab/wds-plugin-legacy
 
+## 0.19.0
+
+### Minor Changes
+
+-   dfa2625: Migrate from sucrase to oxc parser.
+
+### Patch Changes
+
+-   048fb10: Use stable cheerio.
+-   Updated dependencies [dfa2625]
+    -   @chialab/wds-plugin-node-resolve@0.19.0
+    -   @chialab/wds-plugin-polyfill@0.19.0
+
 ## 0.19.0-beta.1
 
 ### Patch Changes

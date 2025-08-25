@@ -1,5 +1,13 @@
 # @chialab/vitest-provider-browserstack
 
+## 0.19.0
+
+### Minor Changes
+
+-   1b45e36: Extend vitest webdriver provider.
+-   dfa2625: Migrate from sucrase to oxc parser.
+-   f7c7e6b: Add support for vitest 2.x
+
 ## 0.19.0-beta.2
 
 ### Minor Changes

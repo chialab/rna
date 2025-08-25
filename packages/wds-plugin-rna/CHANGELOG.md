@@ -1,5 +1,31 @@
 # @chialab/wds-plugin-rna
 
+## 0.19.0
+
+### Minor Changes
+
+-   dfa2625: Migrate from sucrase to oxc parser.
+
+### Patch Changes
+
+-   cc20230: Add support for mapped entrypoints like esbuild does.
+-   Updated dependencies [cc20230]
+-   Updated dependencies [e9812e3]
+-   Updated dependencies [3e27c42]
+-   Updated dependencies [dfa2625]
+-   Updated dependencies [1752e96]
+-   Updated dependencies [f53a437]
+-   Updated dependencies [1c56855]
+    -   @chialab/rna-config-loader@0.19.0
+    -   @chialab/rna-bundler@0.19.0
+    -   @chialab/esbuild-plugin-meta-url@0.19.0
+    -   @chialab/esbuild-plugin-metadata@0.19.0
+    -   @chialab/esbuild-plugin-postcss@1.0.0
+    -   @chialab/es-dev-server@0.19.0
+    -   @chialab/node-resolve@0.19.0
+    -   @chialab/esbuild-plugin-worker@0.19.0
+    -   @chialab/wds-plugin-node-resolve@0.19.0
+
 ## 0.19.0-beta.1
 
 ### Patch Changes

@@ -1,5 +1,41 @@
 # @chialab/rna-bundler
 
+## 0.19.0
+
+### Minor Changes
+
+-   3e27c42: Upgrade esbuild to 0.21.x
+-   dfa2625: Migrate from sucrase to oxc parser.
+-   f53a437: Update esbuild to 0.20.x
+
+### Patch Changes
+
+-   cc20230: Add support for mapped entrypoints like esbuild does.
+-   e9812e3: Update some dependencies.
+-   1c56855: Update esbuild constraint.
+-   Updated dependencies [cc20230]
+-   Updated dependencies [e9812e3]
+-   Updated dependencies [60e95b1]
+-   Updated dependencies [3e27c42]
+-   Updated dependencies [dfa2625]
+-   Updated dependencies [048fb10]
+-   Updated dependencies [b190cf1]
+-   Updated dependencies [a5ef23d]
+-   Updated dependencies [f53a437]
+-   Updated dependencies [b37143c]
+-   Updated dependencies [475a487]
+-   Updated dependencies [a5ef23d]
+    -   @chialab/rna-config-loader@0.19.0
+    -   @chialab/esbuild-plugin-meta-url@0.19.0
+    -   @chialab/esbuild-plugin-metadata@0.19.0
+    -   @chialab/esbuild-plugin-html@0.19.0
+    -   @chialab/esbuild-plugin-env@0.19.0
+    -   @chialab/esbuild-rna@0.19.0
+    -   @chialab/esbuild-plugin-commonjs@0.19.0
+    -   @chialab/esbuild-plugin-worker@0.19.0
+    -   @chialab/rna-logger@0.19.0
+    -   @chialab/esbuild-plugin-any-file@0.19.0
+
 ## 0.19.0-beta.3
 
 ### Patch Changes

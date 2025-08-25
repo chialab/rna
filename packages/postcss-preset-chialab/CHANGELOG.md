@@ -1,5 +1,17 @@
 # @chialab/postcss-preset-chialab
 
+## 0.19.0
+
+### Minor Changes
+
+-   dfa2625: Migrate from sucrase to oxc parser.
+
+### Patch Changes
+
+-   f7f2840: Update postcss-initial dependency.
+-   Updated dependencies [dfa2625]
+    -   @chialab/postcss-url-rebase@0.19.0
+
 ## 0.19.0-beta.1
 
 ### Patch Changes

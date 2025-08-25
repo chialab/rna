@@ -1,5 +1,25 @@
 # @chialab/rna-dev-server
 
+## 1.0.0
+
+### Minor Changes
+
+-   dfa2625: Migrate from sucrase to oxc parser.
+
+### Patch Changes
+
+-   e9812e3: Update some dependencies.
+-   Updated dependencies [cc20230]
+-   Updated dependencies [e9812e3]
+-   Updated dependencies [dfa2625]
+-   Updated dependencies [048fb10]
+    -   @chialab/rna-config-loader@0.19.0
+    -   @chialab/wds-plugin-rna@0.19.0
+    -   @chialab/wds-plugin-hmr@0.19.0
+    -   @chialab/es-dev-server@0.19.0
+    -   @chialab/wds-plugin-legacy@0.19.0
+    -   @chialab/wds-plugin-node-resolve@0.19.0
+
 ## 1.0.0-beta.1
 
 ### Patch Changes

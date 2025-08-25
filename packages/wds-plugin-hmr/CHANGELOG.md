@@ -1,5 +1,18 @@
 # @chialab/wds-plugin-hmr
 
+## 0.19.0
+
+### Minor Changes
+
+-   dfa2625: Migrate from sucrase to oxc parser.
+
+### Patch Changes
+
+-   e9812e3: Update some dependencies.
+-   Updated dependencies [e9812e3]
+-   Updated dependencies [dfa2625]
+    -   @chialab/es-dev-server@0.19.0
+
 ## 0.19.0-beta.1
 
 ### Patch Changes

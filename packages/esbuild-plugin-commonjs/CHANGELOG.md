@@ -1,5 +1,25 @@
 # @chialab/esbuild-plugin-commonjs
 
+## 0.19.0
+
+### Minor Changes
+
+-   3e27c42: Upgrade esbuild to 0.21.x
+-   dfa2625: Migrate from sucrase to oxc parser.
+
+### Patch Changes
+
+-   60e95b1: Fixes handling of CJS modules that export identifiers with spaces.
+-   Updated dependencies [e9812e3]
+-   Updated dependencies [60e95b1]
+-   Updated dependencies [3e27c42]
+-   Updated dependencies [dfa2625]
+-   Updated dependencies [fd6db70]
+-   Updated dependencies [f53a437]
+-   Updated dependencies [a5ef23d]
+    -   @chialab/esbuild-rna@0.19.0
+    -   @chialab/cjs-to-esm@0.19.0
+
 ## 0.19.0-beta.2
 
 ### Patch Changes

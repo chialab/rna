@@ -1,5 +1,15 @@
 # @chialab/es-dev-server
 
+## 0.19.0
+
+### Minor Changes
+
+-   dfa2625: Migrate from sucrase to oxc parser.
+
+### Patch Changes
+
+-   e9812e3: Update some dependencies.
+
 ## 0.19.0-beta.1
 
 ### Patch Changes

@@ -1,5 +1,19 @@
 # @chialab/cjs-to-esm
 
+## 0.19.0
+
+### Minor Changes
+
+-   dfa2625: Migrate from sucrase to oxc parser.
+
+### Patch Changes
+
+-   60e95b1: Fixes handling of CJS modules that export identifiers with spaces.
+-   fd6db70: Update jsdom dependency.
+-   Updated dependencies [e9812e3]
+-   Updated dependencies [dfa2625]
+    -   @chialab/estransform@0.19.0
+
 ## 0.19.0-beta.2
 
 ### Patch Changes

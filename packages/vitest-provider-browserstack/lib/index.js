@@ -13,7 +13,6 @@ import { remote } from 'webdriverio';
  * @typedef {import('vitest/node').BrowserProvider} BrowserProvider
  * @typedef {import('vitest/node').BrowserProviderInitializationOptions} BrowserProviderInitializationOptions
  * @typedef {import('vitest/node').WorkspaceProject} WorkspaceProject
- * @typedef {import('webdriverio').RemoteOptions} RemoteOptions
  */
 
 /**
@@ -45,7 +44,7 @@ export default class BrowserStackProvider extends webdriverio {
     bsOptions;
 
     /**
-     * @type {RemoteOptions['capabilities'] & { 'bstack:options'?: object }}
+     * @type {WebdriverIO.Capabilities & { 'bstack:options'?: object }}
      * @protected
      */
     capabilities;
@@ -125,7 +124,7 @@ export default class BrowserStackProvider extends webdriverio {
             return this._tunnelPromise;
         }
 
-        return (this._tunnelPromise = new Promise((resolve, reject) => {
+        this._tunnelPromise = new Promise((resolve, reject) => {
             this.bs.start(this.bsOptions, (error) => {
                 if (error) {
                     reject(error);
@@ -138,7 +137,9 @@ export default class BrowserStackProvider extends webdriverio {
                     );
                 }
             });
-        }));
+        });
+
+        return this._tunnelPromise;
     }
 
     /**
@@ -150,7 +151,7 @@ export default class BrowserStackProvider extends webdriverio {
             return this._browserPromise;
         }
 
-        return (this._browserPromise = Promise.resolve().then(async () => {
+        this._browserPromise = Promise.resolve().then(async () => {
             await this.startTunnel();
             const capabilities = {
                 ...this.capabilities,
@@ -172,16 +173,18 @@ export default class BrowserStackProvider extends webdriverio {
             this.browser = browser;
 
             return browser;
-        }));
+        });
+
+        return this._browserPromise;
     }
 
     /**
      * Open the page in the browser.
-     * @param {string} contextId - The browser context.
+     * @param {string} _contextId - The browser context.
      * @param {string} url - The URL to open.
      * @returns {Promise<void>}
      */
-    openPage = async (contextId, url) => {
+    openPage = async (_contextId, url) => {
         const browser = await this.openBrowser();
         const networkAddress = ip.address();
         if (networkAddress) {

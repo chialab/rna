@@ -31,7 +31,8 @@ const memoMatchUserAgent = () => {
         if (ua in cache) {
             return cache[ua];
         }
-        return (cache[ua] = matchesUA(ua, { browsers: ESM_BROWSERS }));
+        cache[ua] = matchesUA(ua, { browsers: ESM_BROWSERS });
+        return cache[ua];
     };
 
     return match;

@@ -133,7 +133,11 @@ export async function createDevServer(config, logger) {
                     port: [...portNumbers(8080, 8090), ...portNumbers(3000, 3100)],
                 })),
             rootDir: root,
-            middleware: [cors({ origin: '*' }), range, ...(config.middleware || [])],
+            middleware: [
+                /** @type {import('koa').Middleware} */ (/** @type {unknown} */ (cors({ origin: '*' }))),
+                /** @type {import('koa').Middleware} */ (/** @type {unknown} */ (range)),
+                ...(config.middleware || []),
+            ],
             plugins,
         },
         logger

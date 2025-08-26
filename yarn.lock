@@ -1980,6 +1980,7 @@ __metadata:
     "@chialab/wds-plugin-node-resolve": ^0.19.0
     "@chialab/wds-plugin-rna": ^0.19.0
     "@koa/cors": ^5.0.0
+    "@types/koa": ^2.0.0
     "@types/koa-range": ^0.3.2
     "@types/koa__cors": ^3.0.2
     koa-range: ^0.3.0
@@ -4496,7 +4497,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/koa@npm:^2.11.6":
+"@types/koa@npm:^2.0.0, @types/koa@npm:^2.11.6":
   version: 2.15.0
   resolution: "@types/koa@npm:2.15.0"
   dependencies:

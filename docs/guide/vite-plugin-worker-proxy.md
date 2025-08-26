@@ -41,6 +41,6 @@ The plugin accepts an options object with the following properties:
 
 ### `constructors`
 
--   Type: `string[]`
+- Type: `string[]`
 
 A list of constructors to proxy. By default, the plugin proxies only the `Worker` and `SharedWorker` constructors.

@@ -83,7 +83,7 @@ app.use(devServer.callback());
 
 ### Integrations
 
--   [RNA CakePHP](https://github.com/chialab/rna-cakephp): a view helper to inject scripts and css with livereload.
+- [RNA CakePHP](https://github.com/chialab/rna-cakephp): a view helper to inject scripts and css with livereload.
 
 ---
 

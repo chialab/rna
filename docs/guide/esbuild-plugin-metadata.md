@@ -67,4 +67,4 @@ Then, you can read this file and load resources in your PHP application:
 
 Here is a list of RNA-based helpers for common frameworks:
 
--   [RNA CakePHP](https://github.com/chialab/rna-cakephp)
+- [RNA CakePHP](https://github.com/chialab/rna-cakephp)

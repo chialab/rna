@@ -41,6 +41,6 @@ The plugin accepts an options object with the following properties:
 
 ### `optimizeDeps`
 
--   Type: `boolean`
+- Type: `boolean`
 
 Re-enable dependency optimization. By the default, the plugin disables Vite optimizations.

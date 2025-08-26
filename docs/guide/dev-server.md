@@ -6,18 +6,18 @@ The [Web Dev Server](https://modern-web.dev/docs/dev-server/overview/) is a serv
 
 **From WDS**:
 
--   Cold start
--   Transform TypeScript, JSX and proposal via esbuild
--   Node modules resolution
--   Auto reload on change
--   Hot Module Replacement ([esm-hmr proposal](https://github.com/snowpackjs/esm-hmr))
--   SPA routing
+- Cold start
+- Transform TypeScript, JSX and proposal via esbuild
+- Node modules resolution
+- Auto reload on change
+- Hot Module Replacement ([esm-hmr proposal](https://github.com/snowpackjs/esm-hmr))
+- SPA routing
 
 **From RNA**:
 
--   CSS live reload
--   CSS `@import` modules resolution
--   cjs to esm converter on the fly
+- CSS live reload
+- CSS `@import` modules resolution
+- cjs to esm converter on the fly
 
 ## Setup
 
@@ -132,4 +132,4 @@ Then, you can read this file and load resources in your PHP application:
 
 Here is a list of RNA-based helpers for common frameworks:
 
--   [RNA CakePHP](https://github.com/chialab/rna-cakephp)
+- [RNA CakePHP](https://github.com/chialab/rna-cakephp)

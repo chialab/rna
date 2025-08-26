@@ -156,4 +156,4 @@ pnpm add -D @chialab/stylelint-config
 
 Also, do not forget to install the linter extension for your IDE:
 
--   [VSCode](https://marketplace.visualstudio.com/items?itemName=stylelint.vscode-stylelint)
+- [VSCode](https://marketplace.visualstudio.com/items?itemName=stylelint.vscode-stylelint)

@@ -10,15 +10,15 @@ RNA bundler is heavily based on [esbuild](https://esbuild.github.io/), _an extre
 
 The bundler is designed for modern browsers, but it can transpile code for IE11 and other legacy browsers with [Babel](https://babeljs.io/) and [PostCSS](https://postcss.org/) plugins.
 
--   [Build a JavaScript module](./building-javascript)
--   [Build a CSS module](./building-css)
--   [Build a Web App](./building-web-apps)
+- [Build a JavaScript module](./building-javascript)
+- [Build a CSS module](./building-css)
+- [Build a Web App](./building-web-apps)
 
 ## RNA is a dev server
 
 Build plugins are also available for the [Web Dev Server](https://modern-web.dev/docs/dev-server/overview/). Since both WDS and RNA aim to use standard syntax and practises in web projects, you can run a local server with hot module replacement and CSS livereload without have to bundle your web app first or to re-run a partial build for each change. Files loaded via ESM will pass through a little esbuild transpilation in order to support TypeScript, CommonJS modules and node resolution, making a great difference in developer experience. The dev server can be used also for PHP with an Encore-like approach.
 
--   [Dev server for web apps](./dev-server)
+- [Dev server for web apps](./dev-server)
 
 ## RNA is a cli
 

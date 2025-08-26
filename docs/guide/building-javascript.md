@@ -139,9 +139,9 @@ When a module defines conditions as follow in the package.json:
 
 Esbuild will
 
--   resolve to `exports.browser` if `--platform browser`
--   resolve to `exports.require` if `--format cjs`
--   resolve to `exports.default` otherwise
+- resolve to `exports.browser` if `--platform browser`
+- resolve to `exports.require` if `--format cjs`
+- resolve to `exports.default` otherwise
 
 ### Using main fields
 
@@ -157,10 +157,10 @@ When a module defines entrypoints as follow in the package.json:
 
 Esbuild will
 
--   resolve to `browser` if `--platform browser`
--   resolve to `main` if `--format cjs`
--   resolve to `module` if defined
--   resolve to `main` otherwise
+- resolve to `browser` if `--platform browser`
+- resolve to `main` if `--format cjs`
+- resolve to `module` if defined
+- resolve to `main` otherwise
 
 Read more about the [esbuild resolution algorithm](https://esbuild.github.io/api/#conditions) and [node specifications](https://nodejs.org/api/packages.html).
 
@@ -194,9 +194,9 @@ export function Profile() {
 
 The build step of this app will generate 3 chunks:
 
--   **vendors.js** that includes the `view` dependency
--   **entrypoint.js** that imports **vendors.js** and includes `router` dependency and **app.js** source
--   **chunk.js** that imports **vendors.js** and includes **Profile.js** source
+- **vendors.js** that includes the `view` dependency
+- **entrypoint.js** that imports **vendors.js** and includes `router` dependency and **app.js** source
+- **chunk.js** that imports **vendors.js** and includes **Profile.js** source
 
 ## TypeScript
 

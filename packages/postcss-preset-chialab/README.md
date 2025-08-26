@@ -10,11 +10,11 @@
 
 ## Plugins
 
--   [autoprefixer](https://preview.npmjs.com/package/autoprefixer)
--   [postcss-all-unset](https://preview.npmjs.com/package/postcss-all-unset)
--   [postcss-custom-properties](https://preview.npmjs.com/package/postcss-custom-properties)
--   [postcss-focus-visible](https://preview.npmjs.com/package/postcss-focus-visible)
--   [postcss-focus-within](https://preview.npmjs.com/package/postcss-focus-within)
+- [autoprefixer](https://preview.npmjs.com/package/autoprefixer)
+- [postcss-all-unset](https://preview.npmjs.com/package/postcss-all-unset)
+- [postcss-custom-properties](https://preview.npmjs.com/package/postcss-custom-properties)
+- [postcss-focus-visible](https://preview.npmjs.com/package/postcss-focus-visible)
+- [postcss-focus-within](https://preview.npmjs.com/package/postcss-focus-within)
 
 ---
 

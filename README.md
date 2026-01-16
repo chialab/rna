@@ -1,10 +1,4 @@
-<p align="center">
-    <a href="https://chialab.github.io/rna/">
-        <img alt="RNA logo" width="144" height="144" src="https://raw.githack.com/chialab/rna/main/logo.svg" />
-    </a>
-</p>
-
----
+# RNA
 
 ## RNA is a build framework
 

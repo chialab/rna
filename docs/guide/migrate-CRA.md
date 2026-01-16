@@ -1,3 +1,9 @@
+::: danger
+
+RNA cli development is deprecated and discontinued. It's recommended to use RNA plugins directly in your projects using vite, esbuild, or other supported tools.
+
+:::
+
 # Migrate Create React App to RNA
 
 In this tutorial we will migrate [Create React App](https://facebook.github.io/create-react-app/) to RNA, replacing default `react-scripts serve` and `react-scripts build` scripts.

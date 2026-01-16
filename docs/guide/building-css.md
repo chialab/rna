@@ -1,3 +1,9 @@
+::: danger
+
+RNA cli development is deprecated and discontinued. It's recommended to use RNA plugins directly in your projects using vite, esbuild, or other supported tools.
+
+:::
+
 # Building CSS
 
 Unless you are using syntaxes like Sass and Less, CSS builds are less expansive and intrusive than JavaScript ones, and generally have less impact in production environments. RNA does not provide plugins for extra transpiler by design, since modern and native CSS has enough features for solid web apps development. Anyway, CSS bundling can be useful for collecting and optimizing image and font assets or for adding support for legacy browser via autoprefixers.

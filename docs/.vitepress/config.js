@@ -135,7 +135,7 @@ export default defineConfig({
                 ],
             },
             {
-                text: 'CLI',
+                text: 'CLI [deprecated]',
                 items: [
                     {
                         text: 'JavaScript modules',

@@ -1,3 +1,9 @@
+::: danger
+
+RNA cli development is deprecated and discontinued. It's recommended to use RNA plugins directly in your projects using vite, esbuild, or other supported tools.
+
+:::
+
 # Dev server for web apps
 
 The [Web Dev Server](https://modern-web.dev/docs/dev-server/overview/) is a server thought for web dev environments. It loads JavaScript modules without the need of a bundler, and it execs a little number of transformation in order to provide a great experience.

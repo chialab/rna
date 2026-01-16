@@ -1,16 +1,13 @@
 <p align="center">
-    <a href="https://chialab.github.io/rna/">
-        <img alt="RNA logo" width="144" height="144" src="https://raw.githack.com/chialab/rna/main/logo.svg" />
-    </a>
-</p>
-
-<p align="center">
     <strong>RNA Bundler</strong> • A JavaScript, CSS and HTML bundler based on <a href="https://esbuild.github.io/">esbuild</a>.
 </p>
 
 <p align="center">
     <a href="https://www.npmjs.com/package/@chialab/rna-bundler"><img alt="NPM" src="https://img.shields.io/npm/v/@chialab/rna-bundler.svg?style=flat-square"></a>
 </p>
+
+> [!CAUTION]
+> RNA cli development is deprecated and discontinued. It's recommended to use RNA plugins directly in your projects using vite, esbuild, or other supported tools.
 
 ---
 

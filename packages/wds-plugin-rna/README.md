@@ -6,6 +6,9 @@
     <a href="https://www.npmjs.com/package/@chialab/wds-plugin-rna"><img alt="NPM" src="https://img.shields.io/npm/v/@chialab/wds-plugin-rna.svg?style=flat-square"></a>
 </p>
 
+> [!CAUTION]
+> Since we are moving away from the RNA cli, we are discontinuing the development of Web Dev Server plugins.
+
 ---
 
 ## Install

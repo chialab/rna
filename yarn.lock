@@ -2061,19 +2061,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@chialab/vitest-axe@workspace:packages/vitest-axe":
-  version: 0.0.0-use.local
-  resolution: "@chialab/vitest-axe@workspace:packages/vitest-axe"
-  dependencies:
-    axe-core: ^4.0.0
-    typescript: ^5.0.0
-    vitest: ^2.0.0
-  peerDependencies:
-    axe-core: ^4.0.0
-    vitest: ^1.0.0 || ^2.0.0
-  languageName: unknown
-  linkType: soft
-
 "@chialab/vitest-provider-browserstack@workspace:packages/vitest-provider-browserstack":
   version: 0.0.0-use.local
   resolution: "@chialab/vitest-provider-browserstack@workspace:packages/vitest-provider-browserstack"
@@ -6038,7 +6025,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axe-core@npm:^4.0.0, axe-core@npm:^4.10.0, axe-core@npm:^4.3.3":
+"axe-core@npm:^4.10.0, axe-core@npm:^4.3.3":
   version: 4.10.3
   resolution: "axe-core@npm:4.10.3"
   checksum: e89fa5bcad9216f2de29bbdf95d6211d8c5b1025cbdcf56b6695c18b2e9a1eebd0b997a0141334169f6f062fc68fd39a5b97f86348d9f5be05958eade5c1ec78

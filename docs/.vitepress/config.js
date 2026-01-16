@@ -110,10 +110,6 @@ export default defineConfig({
                         link: '/guide/vite-plugin-worker-proxy',
                     },
                     {
-                        text: 'vitest-axe',
-                        link: '/guide/vitest-axe',
-                    },
-                    {
                         text: 'vitest-provider-browserstack',
                         link: '/guide/vitest-provider-browserstack',
                     },

@@ -48,10 +48,6 @@ export default defineConfig({
                 link: '/guide/',
             },
             {
-                text: 'Architecture',
-                link: '/guide/architecture',
-            },
-            {
                 text: 'Vite plugins',
                 items: [
                     {

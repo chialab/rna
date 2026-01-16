@@ -28,8 +28,17 @@ export default defineConfig({
                 link: '/guide/',
             },
             {
-                text: 'Chialab Open Source',
-                link: 'https://www.chialab.io',
+                text: 'Ecosystem',
+                items: [
+                    { text: 'DNA', link: 'https://chialab.github.io/dna/' },
+                    { text: 'Loock', link: 'https://chialab.github.io/loock/' },
+                    { text: 'Catalog', link: 'https://catalog.chialab.io/' },
+                    { text: 'Synapse', link: 'https://github.com/chialab/synapse/' },
+                ],
+            },
+            {
+                text: 'Chialab',
+                link: 'https://www.chialab.it',
             },
         ],
 
@@ -43,7 +52,24 @@ export default defineConfig({
                 link: '/guide/architecture',
             },
             {
-                text: 'Plugins',
+                text: 'Vite plugins',
+                items: [
+                    {
+                        text: 'vite-plugin-commonjs',
+                        link: '/guide/vite-plugin-commonjs',
+                    },
+                    {
+                        text: 'vite-plugin-worker-proxy',
+                        link: '/guide/vite-plugin-worker-proxy',
+                    },
+                    {
+                        text: 'vitest-provider-browserstack',
+                        link: '/guide/vitest-provider-browserstack',
+                    },
+                ],
+            },
+            {
+                text: 'Esbuild plugins',
                 items: [
                     {
                         text: 'esbuild-plugin-any-file',
@@ -93,6 +119,11 @@ export default defineConfig({
                         text: 'esbuild-plugin-worker',
                         link: '/guide/esbuild-plugin-worker',
                     },
+                ],
+            },
+            {
+                text: 'Postcss plugins',
+                items: [
                     {
                         text: 'postcss-dart-sass',
                         link: '/guide/postcss-dart-sass',
@@ -101,22 +132,6 @@ export default defineConfig({
                         text: 'postcss-url-rebase',
                         link: '/guide/postcss-url-rebase',
                     },
-                    {
-                        text: 'vite-plugin-commonjs',
-                        link: '/guide/vite-plugin-commonjs',
-                    },
-                    {
-                        text: 'vite-plugin-worker-proxy',
-                        link: '/guide/vite-plugin-worker-proxy',
-                    },
-                    {
-                        text: 'vitest-provider-browserstack',
-                        link: '/guide/vitest-provider-browserstack',
-                    },
-                    // {
-                    //     text: 'Write a plugin',
-                    //     link: '/guide/write-a-plugin',
-                    // },
                 ],
             },
             {
@@ -160,7 +175,7 @@ export default defineConfig({
 
         footer: {
             message: 'Released under the MIT License.',
-            copyright: 'Copyright © 2023 - Chialab',
+            copyright: 'Copyright © 2023 - DNA project - Chialab',
         },
     },
     lastUpdated: true,

@@ -1,5 +1,5 @@
 <p align="center">
-    <strong>esbuild-plugin-metadata</strong> • Write entrypoints.json manifest for esbuild builds.
+    <strong>esbuild-plugin-metadata</strong><br />Write entrypoints.json manifest for esbuild builds.
 </p>
 
 <p align="center">

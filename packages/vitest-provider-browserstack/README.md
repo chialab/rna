@@ -1,5 +1,5 @@
 <p align="center">
-    <strong>Browserstack provider for Vitest</strong> • A BrowserStack provider for Vitest browser runner.
+    <strong>Browserstack provider for Vitest</strong><br />A BrowserStack provider for Vitest browser runner.
 </p>
 
 <p align="center">

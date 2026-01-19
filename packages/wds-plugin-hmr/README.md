@@ -1,5 +1,5 @@
 <p align="center">
-    <strong>Wds Plugin Hmr CSS</strong> • Enable ES modules and CSS hot module replacement for the <a href="https://modern-web.dev/docs/dev-server/overview/">Web Dev Server</a>.
+    <strong>Wds Plugin Hmr CSS</strong><br />Enable ES modules and CSS hot module replacement for the <a href="https://modern-web.dev/docs/dev-server/overview/">Web Dev Server</a>.
 </p>
 
 <p align="center">

@@ -1,0 +1,41 @@
+{
+  "name": "@chialab/vite-plugin-css-modules",
+  "type": "module",
+  "version": "0.0.1",
+  "description": "Vite plugin to support constructable CSS modules via JavaScript imports.",
+  "main": "lib/index.js",
+  "typings": "./types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./vite": {
+      "types": "./types/vite.d.ts",
+      "default": "./lib/vite.js"
+    }
+  },
+  "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chialab/rna",
+    "directory": "packages/vite-plugin-css-modules"
+  },
+  "keywords": [
+    "vite",
+    "plugin",
+    "css",
+    "constructable stylesheets"
+  ],
+  "files": [
+    "lib",
+    "types",
+    "package.json",
+    "README.md",
+    "LICENSE"
+  ],
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

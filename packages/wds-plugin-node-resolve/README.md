@@ -1,5 +1,5 @@
 <p align="center">
-    <strong>Wds Plugin Node Resolve</strong> • A plugin the Web Dev Server for node resolutions.
+    <strong>Wds Plugin Node Resolve</strong><br />A plugin the Web Dev Server for node resolutions.
 </p>
 
 <p align="center">

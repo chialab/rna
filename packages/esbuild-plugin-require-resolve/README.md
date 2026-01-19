@@ -1,5 +1,5 @@
 <p align="center">
-    <strong>Esbuild Plugin Require Resolve</strong> • A file loader plugin for <a href="https://esbuild.github.io/">esbuild</a> for `require.resolve` statements.
+    <strong>Esbuild Plugin Require Resolve</strong><br />A file loader plugin for <a href="https://esbuild.github.io/">esbuild</a> for `require.resolve` statements.
 </p>
 
 <p align="center">

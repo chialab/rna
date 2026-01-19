@@ -1,5 +1,5 @@
 <p align="center">
-    <strong>esbuild-plugin-unwebpack</strong> • Remove webpack features from sources.
+    <strong>esbuild-plugin-unwebpack</strong><br />Remove webpack features from sources.
 </p>
 
 <p align="center">

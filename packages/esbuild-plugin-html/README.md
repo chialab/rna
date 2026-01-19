@@ -1,5 +1,5 @@
 <p align="center">
-    <strong>Esbuild Plugin HTML</strong> • A HTML loader plugin for <a href="https://esbuild.github.io/">esbuild</a>.
+    <strong>Esbuild Plugin HTML</strong><br />A HTML loader plugin for <a href="https://esbuild.github.io/">esbuild</a>.
 </p>
 
 <p align="center">

@@ -1,5 +1,5 @@
 <p align="center">
-    <strong>RNA Logger</strong> • A logging helper for the RNA cli.
+    <strong>RNA Logger</strong><br />A logging helper for the RNA cli.
 </p>
 
 <p align="center">

@@ -51,6 +51,10 @@ export default defineConfig({
                 text: 'Vite plugins',
                 items: [
                     {
+                        text: 'vite-plugin-css-modules',
+                        link: '/guide/vite-plugin-css-modules',
+                    },
+                    {
                         text: 'vite-plugin-commonjs',
                         link: '/guide/vite-plugin-commonjs',
                     },

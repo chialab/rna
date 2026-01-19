@@ -1,5 +1,5 @@
 <p align="center">
-    <strong>Esbuild Plugin Commonjs</strong> • A commonjs to esm converter for <a href="https://esbuild.github.io/">esbuild</a>.
+    <strong>Esbuild Plugin Commonjs</strong><br />A commonjs to esm converter for <a href="https://esbuild.github.io/">esbuild</a>.
 </p>
 
 <p align="center">

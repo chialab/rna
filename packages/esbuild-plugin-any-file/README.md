@@ -1,5 +1,5 @@
 <p align="center">
-    <strong>Esbuild Plugin Any File</strong> • A loader plugin for <a href="https://esbuild.github.io/">esbuild</a> for files with unknown loader.
+    <strong>Esbuild Plugin Any File</strong><br />A loader plugin for <a href="https://esbuild.github.io/">esbuild</a> for files with unknown loader.
 </p>
 
 <p align="center">

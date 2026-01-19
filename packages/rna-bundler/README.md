@@ -1,5 +1,5 @@
 <p align="center">
-    <strong>RNA Bundler</strong> • A JavaScript, CSS and HTML bundler based on <a href="https://esbuild.github.io/">esbuild</a>.
+    <strong>RNA Bundler</strong><br />A JavaScript, CSS and HTML bundler based on <a href="https://esbuild.github.io/">esbuild</a>.
 </p>
 
 <p align="center">

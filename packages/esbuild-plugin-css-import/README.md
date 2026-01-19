@@ -1,5 +1,5 @@
 <p align="center">
-    <strong>Esbuild Plugin CSS Import</strong> • Resolve CSS imports using the node resolution algorithm and the `style` field in package.json.
+    <strong>Esbuild Plugin CSS Import</strong><br />Resolve CSS imports using the node resolution algorithm and the `style` field in package.json.
 </p>
 
 <p align="center">

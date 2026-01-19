@@ -1,5 +1,5 @@
 <p align="center">
-    <strong>Wds Plugin Polyfill</strong> • Inject polyfills to HTML responses served by the <a href="https://modern-web.dev/docs/dev-server/overview/">Web Dev Server</a>.
+    <strong>Wds Plugin Polyfill</strong><br />Inject polyfills to HTML responses served by the <a href="https://modern-web.dev/docs/dev-server/overview/">Web Dev Server</a>.
 </p>
 
 <p align="center">

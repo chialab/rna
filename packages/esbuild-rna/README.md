@@ -1,5 +1,5 @@
 <p align="center">
-    <strong>Esbuild RNA</strong> • A framework for esbuild plugins with transform and emit capabilities.
+    <strong>Esbuild RNA</strong><br />A framework for esbuild plugins with transform and emit capabilities.
 </p>
 
 <p align="center">

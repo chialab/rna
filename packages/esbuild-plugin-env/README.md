@@ -1,5 +1,5 @@
 <p align="center">
-    <strong>Esbuild Plugin Env</strong> • Define all environement variables for <a href="https://esbuild.github.io/">esbuild</a>.
+    <strong>Esbuild Plugin Env</strong><br />Define all environement variables for <a href="https://esbuild.github.io/">esbuild</a>.
 </p>
 
 <p align="center">

@@ -1,5 +1,5 @@
 <p align="center">
-    <strong>ES Dev Server</strong> • Dev server for ES modules.
+    <strong>ES Dev Server</strong><br />Dev server for ES modules.
 </p>
 
 <p align="center">

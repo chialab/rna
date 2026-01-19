@@ -1,5 +1,5 @@
 <p align="center">
-    <strong>Node Resolve</strong> • A promise based node resolution library based on <a href="https://github.com/webpack/enhanced-resolve">enhanced-resolve</a>.
+    <strong>Node Resolve</strong><br />A promise based node resolution library based on <a href="https://github.com/webpack/enhanced-resolve">enhanced-resolve</a>.
 </p>
 
 <p align="center">

@@ -1,5 +1,5 @@
 <p align="center">
-    <strong>Esbuild Plugin Lightning CSS</strong> • A CSS loader plugin for <a href="https://esbuild.github.io/">esbuild</a> that uses <a href="https://lightningcss.dev/">Lightning CSS</a> as preprocessor.
+    <strong>Esbuild Plugin Lightning CSS</strong><br />A CSS loader plugin for <a href="https://esbuild.github.io/">esbuild</a> that uses <a href="https://lightningcss.dev/">Lightning CSS</a> as preprocessor.
 </p>
 
 <p align="center">

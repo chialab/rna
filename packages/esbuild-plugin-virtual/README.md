@@ -1,5 +1,5 @@
 <p align="center">
-    <strong>esbuild-plugin-virtual</strong> • A virtual file system for ebuild modules.
+    <strong>esbuild-plugin-virtual</strong><br />A virtual file system for ebuild modules.
 </p>
 
 <p align="center">

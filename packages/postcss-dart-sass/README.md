@@ -1,5 +1,5 @@
 <p align="center">
-    <strong>postcss-dart-sass</strong> • A postcss plugin that uses dart sass to transpile scss files.
+    <strong>postcss-dart-sass</strong><br />A postcss plugin that uses dart sass to transpile scss files.
 </p>
 
 <p align="center">

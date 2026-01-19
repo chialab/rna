@@ -1,5 +1,5 @@
 <p align="center">
-    <strong>RNA Config Loader</strong> • Load and setup RNA configuration object.
+    <strong>RNA Config Loader</strong><br />Load and setup RNA configuration object.
 </p>
 
 <p align="center">

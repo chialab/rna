@@ -1,5 +1,5 @@
 <p align="center">
-    <strong>Esbuild Plugin Postcss</strong> • A CSS loader plugin for <a href="https://esbuild.github.io/">esbuild</a> that uses <a href="https://postcss.org/">postcss</a> as preprocessor.
+    <strong>Esbuild Plugin Postcss</strong><br />A CSS loader plugin for <a href="https://esbuild.github.io/">esbuild</a> that uses <a href="https://postcss.org/">postcss</a> as preprocessor.
 </p>
 
 <p align="center">

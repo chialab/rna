@@ -1,5 +1,5 @@
 <p align="center">
-    <strong>Postcss Url Rebase</strong> • A <a href="https://postcss.org/">postcss</a> plugin for `url()` rebasing before import.
+    <strong>Postcss Url Rebase</strong><br />A <a href="https://postcss.org/">postcss</a> plugin for `url()` rebasing before import.
 </p>
 
 <p align="center">

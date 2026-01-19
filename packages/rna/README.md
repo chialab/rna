@@ -1,5 +1,5 @@
 <p align="center">
-    <strong>RNA</strong> • A bundler, a server and a test runner for modern modules and applications.
+    <strong>RNA</strong><br />A bundler, a server and a test runner for modern modules and applications.
 </p>
 
 <p align="center">

@@ -1,5 +1,5 @@
 <p align="center">
-    <strong>Esbuild Plugin Worker</strong> • Collect and transpile Web Workers with esbuild.
+    <strong>Esbuild Plugin Worker</strong><br />Collect and transpile Web Workers with esbuild.
 </p>
 
 <p align="center">

@@ -1,5 +1,5 @@
 <p align="center">
-    <strong>Wds Plugin RNA</strong> • A plugin for the Web Dev Server to transpile sources using the RNA bundler.
+    <strong>Wds Plugin RNA</strong><br />A plugin for the Web Dev Server to transpile sources using the RNA bundler.
 </p>
 
 <p align="center">

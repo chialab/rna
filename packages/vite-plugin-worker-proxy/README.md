@@ -1,5 +1,5 @@
 <p align="center">
-    <strong>vite-plugin-worker-proxy</strong> • Avoid DOMException while importing Web Workers from a different origin.
+    <strong>vite-plugin-worker-proxy</strong><br />Avoid DOMException while importing Web Workers from a different origin.
 </p>
 
 <p align="center">

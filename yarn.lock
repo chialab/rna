@@ -2090,6 +2090,14 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@chialab/vite-plugin-css-modules@workspace:packages/vite-plugin-css-modules":
+  version: 0.0.0-use.local
+  resolution: "@chialab/vite-plugin-css-modules@workspace:packages/vite-plugin-css-modules"
+  dependencies:
+    typescript: ^5.0.0
+  languageName: unknown
+  linkType: soft
+
 "@chialab/vite-plugin-worker-proxy@workspace:packages/vite-plugin-worker-proxy":
   version: 0.0.0-use.local
   resolution: "@chialab/vite-plugin-worker-proxy@workspace:packages/vite-plugin-worker-proxy"

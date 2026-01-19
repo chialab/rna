@@ -146,7 +146,14 @@ export default defineConfig({
         },
     },
 });
+```
 
+```ts[tsconfig.json]
+{
+  "compilerOptions": {
+    "types": ["@chialab/vitest-csf-visual-regression/storybook"]
+  }
+}
 ```
 
 :::

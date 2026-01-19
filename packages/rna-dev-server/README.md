@@ -1,5 +1,5 @@
 <p align="center">
-    <strong>RNA Dev Server</strong> • A webapp server based on <a href="https://modern-web.dev/docs/dev-server/overview/">Web Dev Server</a>.
+    <strong>RNA Dev Server</strong><br />A webapp server based on <a href="https://modern-web.dev/docs/dev-server/overview/">Web Dev Server</a>.
 </p>
 
 <p align="center">

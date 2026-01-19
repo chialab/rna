@@ -1,5 +1,5 @@
 <p align="center">
-    <strong>Esbuild Plugin Babel</strong> • An <a href="https://esbuild.github.io/">esbuild</a> plugin that runs <a href="https://babeljs.io/">babel</a> for es5 transpilation.
+    <strong>Esbuild Plugin Babel</strong><br />An <a href="https://esbuild.github.io/">esbuild</a> plugin that runs <a href="https://babeljs.io/">babel</a> for es5 transpilation.
 </p>
 
 <p align="center">

@@ -1,5 +1,5 @@
 <p align="center">
-    <strong>Wds Plugin Legacy</strong> • Transform esm modules served by the <a href="https://modern-web.dev/docs/dev-server/overview/">Web Dev Server</a> into SystemJS modules for legacy browser compatibility.
+    <strong>Wds Plugin Legacy</strong><br />Transform esm modules served by the <a href="https://modern-web.dev/docs/dev-server/overview/">Web Dev Server</a> into SystemJS modules for legacy browser compatibility.
 </p>
 
 <p align="center">

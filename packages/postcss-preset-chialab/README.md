@@ -1,5 +1,5 @@
 <p align="center">
-    <strong>Postcss Preset Chialab</strong> • The <a href="https://postcss.org/">postcss</a> preset used by Chialab.
+    <strong>Postcss Preset Chialab</strong><br />The <a href="https://postcss.org/">postcss</a> preset used by Chialab.
 </p>
 
 <p align="center">

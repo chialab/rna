@@ -1,5 +1,5 @@
 <p align="center">
-    <strong>Esbuild Plugin Meta Url</strong> • A file loader plugin for <a href="https://esbuild.github.io/">esbuild</a> for constructed URLs using import metadata.
+    <strong>Esbuild Plugin Meta Url</strong><br />A file loader plugin for <a href="https://esbuild.github.io/">esbuild</a> for constructed URLs using import metadata.
 </p>
 
 <p align="center">

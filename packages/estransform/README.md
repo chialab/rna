@@ -1,5 +1,5 @@
 <p align="center">
-    <strong>Estransform</strong> • Execute multiple transformations on JavaScript sources with full sourcemaps support.
+    <strong>Estransform</strong><br />Execute multiple transformations on JavaScript sources with full sourcemaps support.
 </p>
 
 <p align="center">

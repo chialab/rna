@@ -1,5 +1,5 @@
 <p align="center">
-    <strong>vite-plugin-commonjs</strong> • Support for dynamic commonjs transformation in Vite dev server.
+    <strong>vite-plugin-commonjs</strong><br />Support for dynamic commonjs transformation in Vite dev server.
 </p>
 
 <p align="center">

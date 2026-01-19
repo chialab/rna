@@ -1,30 +1,18 @@
 import process from 'node:process';
-import { webdriverio } from '@vitest/browser/providers';
+import { defineBrowserProvider } from '@vitest/browser';
+import { WebdriverBrowserProvider } from '@vitest/browser-webdriverio';
 import { Local } from 'browserstack-local';
 import ip from 'ip';
 import { remote } from 'webdriverio';
 
 /**
- * @typedef {import('./vite').BrowserStackConfig} BrowserStackConfig
- */
-
-/**
- * @typedef {import('browserstack-local').Options} Options
- * @typedef {import('vitest/node').BrowserProvider} BrowserProvider
- * @typedef {import('vitest/node').BrowserProviderInitializationOptions} BrowserProviderInitializationOptions
- * @typedef {import('vitest/node').WorkspaceProject} WorkspaceProject
+ * @typedef {import('./types')} Types
  */
 
 /**
  * A BrowserStack provider for vitest.
- * @implements {BrowserProvider}
  */
-export default class BrowserStackProvider extends webdriverio {
-    /**
-     * @type {string}
-     */
-    name = 'browserstack';
-
+export default class BrowserStackProvider extends WebdriverBrowserProvider {
     /**
      * @type {string}
      * @protected
@@ -32,22 +20,16 @@ export default class BrowserStackProvider extends webdriverio {
     testName;
 
     /**
-     * @type {Local}
+     * @type {Partial<import('browserstack-local').Options>}
      * @protected
      */
-    bs;
-
-    /**
-     * @type {Partial<Options>}
-     * @protected
-     */
-    bsOptions;
+    _bsOptions;
 
     /**
      * @type {WebdriverIO.Capabilities & { 'bstack:options'?: object }}
      * @protected
      */
-    capabilities;
+    _capabilities;
 
     /**
      * @type {Promise<WebdriverIO.Browser> | null}
@@ -77,69 +59,21 @@ export default class BrowserStackProvider extends webdriverio {
 
     /**
      * Initialize the BrowserStack provider.
-     * @param {WorkspaceProject} ctx The workspace project.
-     * @param {BrowserProviderInitializationOptions} options The initialization options.
-     * @throws {Error} If browser configuration is missing.
+     * @param {import('vitest/node').TestProject} project The test project.
+     * @param {import('@vitest/browser-webdriverio').WebdriverProviderOptions} options Webdriverio options.
+     * @param {Partial<import('browserstack-local').Options>} bsOptions BrowserStack local options.
+     * @param {Promise<() => Promise<void>>} tunnelPromise Promise that resolves to a function to close the tunnel.
      */
-    initialize(ctx, options) {
-        super.initialize(ctx, options);
+    constructor(project, options, bsOptions, tunnelPromise) {
+        super(project, options);
 
-        const { config, browser } = ctx;
-        if (!browser) {
-            throw new Error('BrowserStack provider requires a browser configuration');
-        }
-
+        const { config } = project;
         this.testName = config.name;
-
-        const { browser: browserName } = options;
-        const browserstackConfig =
-            ('config' in browser
-                ? /** @type {import('vite').UserConfig} */ (browser.config).browserstack
-                : browser.vite.config.browserstack) || {};
-        if (!browserstackConfig.capabilities) {
-            throw new Error('Missing capabilities in browserstack configuration');
-        }
-
-        this.bsOptions = {
-            force: true,
-            forceLocal: true,
-            user: /** @type {string} */ (process.env.BROWSERSTACK_USERNAME),
-            key: /** @type {string} */ (process.env.BROWSERSTACK_ACCESS_KEY),
-            localIdentifier: `vitest-${Date.now()}`,
-            ...(browserstackConfig.options || {}),
-        };
-        this.capabilities = browserstackConfig.capabilities[browserName.replace('browserstack:', '')];
-        if (!this.capabilities) {
-            throw new Error(`Missing capabilities for browser name ${browserName}`);
-        }
-        this.bs = new Local();
-    }
-
-    /**
-     * Start the tunnel.
-     * @returns {Promise<() => Promise<void>>}
-     */
-    async startTunnel() {
-        if (this._tunnelPromise) {
-            return this._tunnelPromise;
-        }
-
-        this._tunnelPromise = new Promise((resolve, reject) => {
-            this.bs.start(this.bsOptions, (error) => {
-                if (error) {
-                    reject(error);
-                } else {
-                    resolve(
-                        () =>
-                            new Promise((resolve) => {
-                                this.bs.stop(() => resolve());
-                            })
-                    );
-                }
-            });
-        });
-
-        return this._tunnelPromise;
+        this._bsOptions = bsOptions;
+        this._tunnelPromise = tunnelPromise;
+        this._capabilities = /** @type {WebdriverIO.Capabilities & { 'bstack:options'?: object }} */ (
+            options.capabilities
+        );
     }
 
     /**
@@ -152,22 +86,22 @@ export default class BrowserStackProvider extends webdriverio {
         }
 
         this._browserPromise = Promise.resolve().then(async () => {
-            await this.startTunnel();
+            await this._tunnelPromise;
             const capabilities = {
-                ...this.capabilities,
+                ...this._capabilities,
                 'bstack:options': {
-                    ...this.capabilities['bstack:options'],
+                    ...this._capabilities['bstack:options'],
                     local: true,
                     buildName: this.testName,
-                    localIdentifier: this.bsOptions.localIdentifier,
+                    localIdentifier: this._bsOptions.localIdentifier,
                 },
             };
 
             const browser = await remote({
                 logLevel: 'error',
                 capabilities,
-                user: /** @type {string} */ (this.bsOptions.user),
-                key: /** @type {string} */ (this.bsOptions.key),
+                user: /** @type {string} */ (this._bsOptions.user),
+                key: /** @type {string} */ (this._bsOptions.key),
             });
 
             this.browser = browser;
@@ -216,3 +150,46 @@ export default class BrowserStackProvider extends webdriverio {
         return super.close();
     };
 }
+
+/**
+ * Create the BrowserStack provider.
+ * @param {Partial<import('browserstack-local').Options>} [options] - The provider options.
+ * @return {(options?: import('@vitest/browser-webdriverio').WebdriverProviderOptions) => import('vitest/node').BrowserProviderOption<import('@vitest/browser-webdriverio').WebdriverProviderOptions>}
+ */
+export const createBrowserStackProvider = (options = {}) => {
+    const bsOptions = {
+        force: true,
+        forceLocal: true,
+        user: /** @type {string} */ (process.env.BROWSERSTACK_USERNAME),
+        key: /** @type {string} */ (process.env.BROWSERSTACK_ACCESS_KEY),
+        localIdentifier: `vitest-${Date.now()}`,
+        ...options,
+    };
+    const bs = new Local();
+    const tunnelPromise = new Promise((resolve, reject) => {
+        bs.start(bsOptions, (error) => {
+            if (error) {
+                reject(error);
+            } else {
+                resolve(
+                    () =>
+                        /**
+                         * @type {Promise<void>}
+                         */
+                        (
+                            new Promise((resolve) => {
+                                bs.stop(() => resolve());
+                            })
+                        )
+                );
+            }
+        });
+    });
+
+    return (options) =>
+        defineBrowserProvider({
+            name: 'browserstack',
+            options,
+            providerFactory: (project) => new BrowserStackProvider(project, options || {}, bsOptions, tunnelPromise),
+        });
+};

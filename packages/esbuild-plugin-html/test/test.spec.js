@@ -1007,6 +1007,9 @@ html {
 
     test(
         'should bundle webapp with ios splashscreens',
+        {
+            timeout: 20_000,
+        },
         async () => {
             const { outputFiles } = await esbuild.build({
                 absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
@@ -1052,9 +1055,6 @@ html {
 
             expect(screens[3].path).endsWith(path.join(path.sep, 'out', 'screens', 'apple-launch-iphone5.png'));
             expect(screens[3].contents.byteLength).toBe(8536);
-        },
-        {
-            timeout: 20_000,
         }
     );
 

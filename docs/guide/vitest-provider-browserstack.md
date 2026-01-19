@@ -31,14 +31,19 @@ In order to use this provider, you need to have a Browserstack account and a val
 Use this module as provider for Vitest browser runner:
 
 ```ts
-/// <reference types="@chialab/vitest-provider-browserstack" />
+import { createBrowserStackProvider } from '@chialab/vitest-provider-browserstack';
+
+const browserstack = createBrowserStackProvider({
+    user: 'YOUR_BROWSERSTACK_USERNAME',
+    key: 'YOUR_BROWSERSTACK_ACCESS_KEY',
+});
 
 export default {
     test: {
         browser: {
             name: 'browserstack:chrome-latest',
             // Use the browserstack provider.
-            provider: '@chialab/vitest-provider-browserstack',
+            provider: browserstack(),
             // We need to expose the server to the network in order to let Browserstack access it.
             api: {
                 host: '0.0.0.0',
@@ -46,38 +51,52 @@ export default {
             },
             // Hijack ESM imports is unstable on older browsers.
             slowHijackESM: false,
-        },
-    },
-    browserstack: {
-        options: {
-            user: 'YOUR_BROWSERSTACK_USERNAME',
-            key: 'YOUR_BROWSERSTACK_ACCESS_KEY',
-        },
-        capabilities: {
-            'chrome-latest': {
-                'browserName': 'Chrome',
-                'bstack:options': {
-                    browserVersion: 'latest',
+            instances: [
+                {
+                    browser: 'browserstack:chrome-latest',
+                    provider: browserstack({
+                        capabilities: {
+                            'browserName': 'Chrome',
+                            'bstack:options': {
+                                browserVersion: 'latest',
+                            },
+                        },
+                    }),
                 },
-            },
-            'firefox-latest': {
-                'browserName': 'Firefox',
-                'bstack:options': {
-                    browserVersion: 'latest',
+                {
+                    browser: 'browserstack:firefox-latest',
+                    provider: browserstack({
+                        capabilities: {
+                            'browserName': 'Firefox',
+                            'bstack:options': {
+                                browserVersion: 'latest',
+                            },
+                        },
+                    }),
                 },
-            },
-            'safari-latest': {
-                'browserName': 'Safari',
-                'bstack:options': {
-                    browserVersion: 'latest',
+                {
+                    browser: 'browserstack:safari-16',
+                    provider: browserstack({
+                        capabilities: {
+                            'browserName': 'Safari',
+                            'bstack:options': {
+                                browserVersion: '16',
+                            },
+                        },
+                    }),
                 },
-            },
-            'edge-latest': {
-                'browserName': 'MicrosoftEdge',
-                'bstack:options': {
-                    browserVersion: 'latest',
+                {
+                    browser: 'browserstack:edge-latest',
+                    provider: browserstack({
+                        capabilities: {
+                            'browserName': 'MicrosoftEdge',
+                            'bstack:options': {
+                                browserVersion: 'latest',
+                            },
+                        },
+                    }),
                 },
-            },
+            ],
         },
     },
 };

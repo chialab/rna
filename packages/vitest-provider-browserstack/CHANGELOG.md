@@ -1,5 +1,11 @@
 # @chialab/vitest-provider-browserstack
 
+## 4.0.0
+
+### Major Changes
+
+- 76f2e32: Update support to vitest 4.
+
 ## 0.19.1
 
 ### Patch Changes

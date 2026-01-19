@@ -1,0 +1,50 @@
+{
+  "name": "@chialab/vitest-csf-visual-regression",
+  "type": "module",
+  "version": "3.0.0",
+  "description": "A Vitest plugin to perform visual regression testing on Storybook stories.",
+  "exports": {
+    ".": {
+      "types": "./types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./client": {
+      "types": "./types/client.d.ts",
+      "default": "./lib/client.js"
+    },
+    "./storybook": {
+      "types": "./types/storybook.d.ts",
+      "default": "./lib/storybook.js"
+    }
+  },
+  "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chialab/rna",
+    "directory": "packages/vitest-csf-visual-regression"
+  },
+  "keywords": [
+    "vitest",
+    "visual regression",
+    "storybook",
+    "csf",
+    "component story format"
+  ],
+  "files": [
+    "lib",
+    "types",
+    "package.json",
+    "README.md",
+    "LICENSE"
+  ],
+  "dependencies": {
+    "magic-string": "^0.30.21"
+  },
+  "devDependencies": {
+    "@vitest/browser-playwright": "^4.0.0",
+    "playwright": "^1.0.0",
+    "storybook": "^10.0.0",
+    "typescript": "^5.0.0"
+  }
+}

@@ -103,6 +103,9 @@
       "path": "./packages/vite-plugin-worker-proxy"
     },
     {
+      "path": "./packages/vitest-csf-visual-regression"
+    },
+    {
       "path": "./packages/vitest-provider-browserstack"
     },
     {

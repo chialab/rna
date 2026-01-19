@@ -59,6 +59,10 @@ export default defineConfig({
                         link: '/guide/vite-plugin-worker-proxy',
                     },
                     {
+                        text: 'vitest-csf-visual-regression',
+                        link: '/guide/vitest-csf-visual-regression',
+                    },
+                    {
                         text: 'vitest-provider-browserstack',
                         link: '/guide/vitest-provider-browserstack',
                     },

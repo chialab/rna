@@ -6,7 +6,7 @@ A Vite plugin that turns
 import styles from './file.css' with { type: 'css' };
 ```
 
-into either a [constructable stylesheet](https://web.dev/articles/constructable-stylesheets) (CSSStyleSheet) (when supported) or the raw CSS string as a fallback — with optional enforcement of type="css" and smooth HMR behavior.
+into either a [constructable CSSStyleSheet](https://web.dev/articles/constructable-stylesheets) (when supported) or the raw CSS string as a fallback — with optional enforcement of type="css" and smooth HMR behavior.
 
 ## Overview
 
@@ -18,9 +18,9 @@ Modern browsers support constructable stylesheets via `new CSSStyleSheet()` and 
 
 This plugin makes authoring simple: you keep importing plain `.css` files from JS/TS, and the plugin rewrites those imports so that:
 
-- the CSS is bundled as an inline string (?inline)
+- the CSS is bundled as an inline string (`?inline`)
 - the module’s default export becomes:
-    - a CSSStyleSheet instance (preferred, when available in the runtime), or
+    - a `CSSStyleSheet` instance (preferred, when available in the runtime), or
     - the original CSS string (fallback) for older browsers and Node.js environments
 
 It also optionally supports a stricter mode where it only transforms CSS imports that explicitly declare `type="css"` in the import attributes.
@@ -84,7 +84,7 @@ If `true`, only imports with `with { type: 'css' }` will be transformed. If `fal
 
 ::: warning
 
-Set this option to `false` until Vite has a proper implementation of import attributes handling.
+Set this option to `false` until Vite has a proper support for import attributes.
 
 :::
 

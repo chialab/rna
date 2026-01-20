@@ -3,7 +3,7 @@ import { defineConfig } from 'vitepress';
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
     title: 'RNA',
-    description: 'Build tools for modern web modules and applications.',
+    description: 'Build tools for modern Web Components.',
     base: '/rna/',
     outDir: '../public',
 

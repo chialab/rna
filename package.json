@@ -2,8 +2,8 @@
   "name": "@chialab/rna-project",
   "private": true,
   "type": "module",
-  "version": "0.18.0",
-  "description": "Build tools for modern web modules and applications.",
+  "version": "0.0.0",
+  "description": "Build tools for modern Web Components.",
   "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
   "license": "MIT",
   "scripts": {

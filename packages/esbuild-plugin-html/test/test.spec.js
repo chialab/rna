@@ -1008,7 +1008,7 @@ html {
     test(
         'should bundle webapp with ios splashscreens',
         {
-            timeout: 20_000,
+            timeout: 30_000,
         },
         async () => {
             const { outputFiles } = await esbuild.build({

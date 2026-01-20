@@ -30,7 +30,7 @@ The plugin is designed around a few core principles:
 
 At a high level, the plugin works as follows:
 
-- Intercept CSF story files `(\*.stories.{js,jsx,ts,tsx})`.
+- Intercept CSF story files (`*.stories.{js,jsx,ts,tsx}`).
 - Append Vitest test code using in-source testing.
 - Import and render stories using Storybook’s renderStory.
 - Control the browser environment (network idle, animations, viewport sizing).
@@ -67,7 +67,7 @@ type CsfVisualRegressionParams = {
 Before rendering a story, the test can:
 
 - Freeze time with `vi.setSystemTime`
-- Replace `Math.random()` with a deterministic sequence
+- Replace `Math.random` with a deterministic sequence
 - Mock browser `geolocation` (or force an error)
 
 All mocks are automatically restored after each test.

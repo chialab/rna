@@ -99,6 +99,10 @@ jobs:
     name: Release
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    permissions:
+      id-token: write # Required for OIDC
+      contents: write # Required to create the release
+      pull-requests: write # Required to create the release PR
     needs:
       - test
     steps:

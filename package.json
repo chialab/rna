@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "version": "0.0.0",
-  "description": "Build tools for modern Web Components.",
+  "description": "Build tools for Web Components.",
   "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
   "license": "MIT",
   "scripts": {

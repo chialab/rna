@@ -1,4 +1,4 @@
-# CSF visual regression testing
+# vitest-csf-visual-regression
 
 A Vitest plugin to perform visual regression testing on Storybook stories.
 

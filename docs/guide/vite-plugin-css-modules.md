@@ -1,4 +1,4 @@
-# CSS Modules plugin
+# vite-plugin-css-modules
 
 A Vite plugin that turns
 

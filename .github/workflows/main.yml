@@ -20,6 +20,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v6
         with:
+          node-version: latest
           cache: yarn
 
       - name: Install project dependencies
@@ -39,6 +40,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v6
         with:
+          node-version: latest
           cache: yarn
 
       - name: Install project dependencies
@@ -72,6 +74,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v6
         with:
+          node-version: latest
           cache: yarn
 
       - name: Download build artifacts
@@ -105,6 +108,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v6
         with:
+          node-version: latest
           cache: yarn
 
       - name: Download build artifacts

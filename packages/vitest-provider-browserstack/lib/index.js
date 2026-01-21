@@ -128,7 +128,7 @@ export default class BrowserStackProvider extends WebdriverBrowserProvider {
         await browser.navigateTo(url);
 
         const title = await browser.getTitle();
-        if (title !== 'Vitest Browser Runner') {
+        if (title !== 'Vitest') {
             throw new Error('Failed to open url');
         }
     };

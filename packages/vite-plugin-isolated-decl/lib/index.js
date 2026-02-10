@@ -44,7 +44,7 @@ export default function isolatedDeclPlugin() {
 
         async buildEnd() {
             const { getOutputFileNames } = await import('typescript');
-            const srcDir = commonDir([...declarations.keys()]);
+            const srcDir = commonDir([...declarations.keys()].map((id) => id.split('/').slice(0, -1).join('/')));
 
             for (const [id, decl] of declarations) {
                 const [outputPath] = getOutputFileNames(

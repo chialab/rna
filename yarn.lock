@@ -2098,6 +2098,14 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@chialab/vite-plugin-isolated-decl@workspace:packages/vite-plugin-isolated-decl":
+  version: 0.0.0-use.local
+  resolution: "@chialab/vite-plugin-isolated-decl@workspace:packages/vite-plugin-isolated-decl"
+  dependencies:
+    typescript: ^5.5.0
+  languageName: unknown
+  linkType: soft
+
 "@chialab/vite-plugin-worker-proxy@workspace:packages/vite-plugin-worker-proxy":
   version: 0.0.0-use.local
   resolution: "@chialab/vite-plugin-worker-proxy@workspace:packages/vite-plugin-worker-proxy"
@@ -15189,7 +15197,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:^5.0.0":
+"typescript@npm:^5.0.0, typescript@npm:^5.5.0":
   version: 5.9.3
   resolution: "typescript@npm:5.9.3"
   bin:
@@ -15199,7 +15207,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@^5.0.0#~builtin<compat/typescript>":
+"typescript@patch:typescript@^5.0.0#~builtin<compat/typescript>, typescript@patch:typescript@^5.5.0#~builtin<compat/typescript>":
   version: 5.9.3
   resolution: "typescript@patch:typescript@npm%3A5.9.3#~builtin<compat/typescript>::version=5.9.3&hash=7ad353"
   bin:

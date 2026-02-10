@@ -59,6 +59,10 @@ export default defineConfig({
                         link: '/guide/vite-plugin-commonjs',
                     },
                     {
+                        text: 'vite-plugin-isolated-decl',
+                        link: '/guide/vite-plugin-isolated-decl',
+                    },
+                    {
                         text: 'vite-plugin-worker-proxy',
                         link: '/guide/vite-plugin-worker-proxy',
                     },

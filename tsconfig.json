@@ -103,6 +103,9 @@
       "path": "./packages/vite-plugin-css-modules"
     },
     {
+      "path": "./packages/vite-plugin-isolated-decl"
+    },
+    {
       "path": "./packages/vite-plugin-worker-proxy"
     },
     {

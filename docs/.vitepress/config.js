@@ -48,6 +48,13 @@ export default defineConfig({
                 link: '/guide/',
             },
             {
+                text: 'Tools',
+                items: [{
+                    text: 'CEM Analyzer',
+                    link: '/guide/cem-analyzer',
+                }],
+            },
+            {
                 text: 'Vite plugins',
                 items: [
                     {

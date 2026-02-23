@@ -1,6 +1,6 @@
-import { Buffer } from 'buffer';
-import path from 'path';
-import process from 'process';
+import { Buffer } from 'node:buffer';
+import path from 'node:path';
+import process from 'node:process';
 import { useRna } from '@chialab/esbuild-rna';
 import postcssrc from 'postcss-load-config';
 
@@ -109,23 +109,23 @@ export default function (options = {}) {
                             postcssSass({
                                 rootDir: build.getSourceRoot(),
                                 importer: (url, prev, done) => {
+                                    // some modules use ~ or package: for node_modules import
+                                    const normalizedUrl = url.replace(/^(~|package:)/, '');
                                     (async () => {
                                         try {
-                                            if (url.match(/^(~|package:)/)) {
-                                                // some modules use ~ or package: for node_modules import
-                                                url = url.replace(/^(~|package:)/, '');
+                                            if (cache.has(normalizedUrl)) {
+                                                return done(cache.get(normalizedUrl));
                                             }
 
-                                            if (cache.has(url)) {
-                                                return done(cache.get(url));
-                                            }
-
-                                            const splitted = url.split('/');
+                                            const splitted = normalizedUrl.split('/');
                                             const checks = [];
-                                            if (splitted.length === 1 || (url[0] === '@' && splitted.length === 2)) {
-                                                checks.push(url);
+                                            if (
+                                                splitted.length === 1 ||
+                                                (normalizedUrl[0] === '@' && splitted.length === 2)
+                                            ) {
+                                                checks.push(normalizedUrl);
                                             } else {
-                                                checks.push(...alternatives(url));
+                                                checks.push(...alternatives(normalizedUrl));
                                             }
 
                                             for (let i = 0; i < checks.length; i++) {
@@ -162,7 +162,7 @@ export default function (options = {}) {
                                                             ).toString(),
                                                         };
 
-                                                        cache.set(url, {
+                                                        cache.set(normalizedUrl, {
                                                             file: result.path,
                                                             contents: '',
                                                         });
@@ -176,18 +176,18 @@ export default function (options = {}) {
                                                             continue;
                                                         }
 
-                                                        cache.set(url, err);
+                                                        cache.set(normalizedUrl, err);
                                                         return done(/** @type {Error} */ (err));
                                                     }
-                                                } catch (e) {
+                                                } catch {
                                                     //
                                                 }
                                             }
 
-                                            cache.set(url, null);
+                                            cache.set(normalizedUrl, null);
                                             done(null);
                                         } catch (err) {
-                                            cache.set(url, err);
+                                            cache.set(normalizedUrl, err);
                                             done(/** @type {Error} */ (err));
                                         }
                                     })();
@@ -228,14 +228,14 @@ export default function (options = {}) {
 
                 const code = args.code;
                 const result = await postcss(plugins).process(code, finalConfig);
-                const sourceMap = result.map && result.map.toJSON();
+                const sourceMap = result.map?.toJSON();
                 if (sourceMap) {
                     const cwd = absWorkingDir || process.cwd();
                     const argsDir = path.dirname(args.path);
                     sourceMap.sources = sourceMap.sources.map((source) =>
                         path.relative(argsDir, path.resolve(cwd, source))
                     );
-                    delete sourceMap.file;
+                    sourceMap.file = undefined;
                 }
                 const sourceMapUrl =
                     sourceMap &&

@@ -1,5 +1,5 @@
-import path from 'path';
-import { fileURLToPath } from 'url';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import virtualPlugin from '@chialab/esbuild-plugin-virtual';
 import chaiString from 'chai-string';
 import esbuild from 'esbuild';
@@ -243,7 +243,7 @@ body {
                 l.href = url;
                 document.head.appendChild(l);
             }
-            loadStyle('index-LET4DQVG.css');
+            loadStyle('index-RR4QL3TF.css');
         }());
     </script>
 </head>
@@ -268,14 +268,14 @@ body {
 //# sourceMappingURL=index-4YXF7HZB.js.map
 `);
 
-        expect(css.path).endsWith(path.join(path.sep, 'out', 'index-LET4DQVG.css'));
+        expect(css.path).endsWith(path.join(path.sep, 'out', 'index-RR4QL3TF.css'));
         expect(css.text).toBe(`/* fixture/index.css */
 html,
 body {
   margin: 0;
   padding: 0;
 }
-/*# sourceMappingURL=index-LET4DQVG.css.map */
+/*# sourceMappingURL=index-RR4QL3TF.css.map */
 `);
     });
 
@@ -1429,8 +1429,9 @@ html {
         });
 
         const [index] = outputFiles;
-        expect(index.text)
-            .toBe(`<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Document</title><script type="application/javascript">(function() {
+        expect(
+            index.text
+        ).toBe(`<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Document</title><script type="application/javascript">(function() {
 function loadStyle(url) {
     var l = document.createElement('link');
     l.rel = 'stylesheet';
@@ -1464,8 +1465,9 @@ loadStyle('/public/index.css');
         });
 
         const [index] = outputFiles;
-        expect(index.text)
-            .toBe(`<!DOCTYPE html><html lang=en><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width, initial-scale=1.0"><title>Document</title><script type=application/javascript>(function() {
+        expect(
+            index.text
+        ).toBe(`<!DOCTYPE html><html lang=en><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width, initial-scale=1.0"><title>Document</title><script type=application/javascript>(function() {
 function loadStyle(url) {
     var l = document.createElement('link');
     l.rel = 'stylesheet';

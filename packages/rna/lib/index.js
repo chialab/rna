@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import { readFile } from 'fs/promises';
-import process from 'process';
+import { readFile } from 'node:fs/promises';
+import process from 'node:process';
 import { colors, createLogger } from '@chialab/rna-logger';
 import { program } from 'commander';
 
@@ -19,7 +19,7 @@ program.version(json.version);
  * @param {string} sourceModule
  * @param {() => Promise<CommandLoader>} importer
  */
-const loadCommand = async function (name, sourceModule, importer) {
+const loadCommand = async (name, sourceModule, importer) => {
     try {
         const command = await importer();
         command(program);

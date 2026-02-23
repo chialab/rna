@@ -1,4 +1,4 @@
-import { isAbsolute } from 'path';
+import { isAbsolute } from 'node:path';
 
 /**
  * Check if the given source is a relative url.
@@ -14,7 +14,7 @@ export function isRelativeUrl(url) {
     try {
         new URL(url);
         return false;
-    } catch (err) {
+    } catch {
         return true;
     }
 }

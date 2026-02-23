@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'node:path';
 import { isRelativeUrl } from './utils.js';
 
 /**
@@ -13,10 +13,12 @@ import { isRelativeUrl } from './utils.js';
  * @param {import('./index.js').Helpers} helpers Helpers.
  * @returns {Promise<import('@chialab/esbuild-rna').OnTransformResult[]>} Plain build.
  */
-async function innerCollect($, dom, elements, target, format, type, attrs = {}, options, helpers) {
-    elements = elements.filter((element) => !$(element).attr('src') || isRelativeUrl($(element).attr('src')));
+async function innerCollect($, dom, elements, target, format, type, attrs, options, helpers) {
+    const filteredElements = elements.filter(
+        (element) => !$(element).attr('src') || isRelativeUrl($(element).attr('src'))
+    );
 
-    if (!elements.length) {
+    if (!filteredElements.length) {
         return [];
     }
 
@@ -31,7 +33,7 @@ async function innerCollect($, dom, elements, target, format, type, attrs = {}, 
     const entrypoints = new Map();
 
     await Promise.all(
-        elements.map(async (element) => {
+        filteredElements.map(async (element) => {
             const src = $(element).attr('src');
             if (src) {
                 const resolvedFile = await helpers.resolve(src);

@@ -1,6 +1,6 @@
-import { writeFile } from 'fs/promises';
-import path from 'path';
-import process from 'process';
+import { writeFile } from 'node:fs/promises';
+import path from 'node:path';
+import process from 'node:process';
 import { generateEntrypointsJson, writeEntrypointsJson } from './writeEntrypointsJson.js';
 import { writeManifestJson } from './writeManifestJson.js';
 

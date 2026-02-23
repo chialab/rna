@@ -1,7 +1,7 @@
-import { Buffer } from 'buffer';
-import { mkdir, readFile, writeFile } from 'fs/promises';
-import path from 'path';
-import process from 'process';
+import { Buffer } from 'node:buffer';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import path from 'node:path';
+import process from 'node:process';
 import { inlineSourcemap, loadSourcemap, mergeSourcemaps } from '@chialab/estransform';
 import { assignToResult, createFileHash, createOutputFile, createResult } from './helpers.js';
 
@@ -259,12 +259,9 @@ export class Build {
 
             if (Array.isArray(entryPoints)) {
                 entryPoints.forEach((entryPoint) => {
-                    if (typeof entryPoint === 'string') {
-                        entryPoint = this.resolvePath(entryPoint);
-                    } else {
-                        entryPoint = this.resolvePath(entryPoint.in);
-                    }
-                    this.collectDependencies(entryPoint, [entryPoint]);
+                    const resolved =
+                        typeof entryPoint === 'string' ? this.resolvePath(entryPoint) : this.resolvePath(entryPoint.in);
+                    this.collectDependencies(resolved, [resolved]);
                 });
             } else {
                 for (let [, entryPoint] of Object.entries(entryPoints)) {
@@ -276,9 +273,15 @@ export class Build {
 
         this.onEnd(async (buildResult) => {
             const rnaResult = /** @type {Result} */ (buildResult);
-            this.chunks.forEach((result) => assignToResult(rnaResult, result));
-            this.files.forEach((result) => assignToResult(rnaResult, result));
-            this.builds.forEach((result) => assignToResult(rnaResult, result));
+            this.chunks.forEach((result) => {
+                assignToResult(rnaResult, result);
+            });
+            this.files.forEach((result) => {
+                assignToResult(rnaResult, result);
+            });
+            this.builds.forEach((result) => {
+                assignToResult(rnaResult, result);
+            });
 
             if (rnaResult.metafile) {
                 const outputs = { ...rnaResult.metafile.outputs };
@@ -588,7 +591,8 @@ export class Build {
         if (options.extensions) {
             bodies.push(`(${options.extensions.join('|')})$`);
         }
-        const filter = (options.filter = new RegExp(`(${bodies.join(')|(')})`));
+        const filter = new RegExp(`(${bodies.join(')|(')})`);
+        options.filter = filter;
         this.pluginBuild.onLoad({ filter }, (args) => this.transform(args));
         this.onTransformRules.push({ options, callback });
     }
@@ -640,7 +644,7 @@ export class Build {
             return {
                 contents: await readFile(filePath),
             };
-        } catch (err) {
+        } catch {
             //
         }
     }
@@ -806,12 +810,17 @@ export class Build {
             .replace('[ext]', () => path.extname(inputFile))
             .replace('[hash]', () => this.hash(buffer))
             .split('/')
-            .reduce((parts, part) => {
-                if (part === '[dir]') {
-                    return [...parts, ...(path.relative(outBase, path.dirname(filePath)) || '').split(path.sep)];
-                }
-                return [...parts, part];
-            }, /** @type {string[]} */ ([]))
+            .reduce(
+                (parts, part) => {
+                    if (part === '[dir]') {
+                        parts.push(...(path.relative(outBase, path.dirname(filePath)) || '').split(path.sep));
+                    } else {
+                        parts.push(part);
+                    }
+                    return parts;
+                },
+                /** @type {string[]} */ ([])
+            )
             .map((part) => {
                 if (part === '..') {
                     return '_.._';
@@ -955,7 +964,8 @@ export class Build {
         }
 
         const initialOptions = this.getOptions();
-        const installedPlugins = (initialOptions.plugins = this.getPlugins());
+        const installedPlugins = this.getPlugins();
+        initialOptions.plugins = installedPlugins;
 
         let last = this.plugin;
         for (let i = 0; i < plugins.length; i++) {
@@ -1016,7 +1026,8 @@ export class Build {
     async emitFile(source, buffer, collect = true) {
         const workingDir = this.getWorkingDir();
 
-        if (!buffer) {
+        let fileBuffer = buffer;
+        if (!fileBuffer) {
             const result = await this.load({
                 pluginData: null,
                 namespace: 'file',
@@ -1026,23 +1037,23 @@ export class Build {
             });
 
             if (result && result.contents != null) {
-                buffer = Buffer.from(result.contents);
+                fileBuffer = Buffer.from(result.contents);
             } else {
-                buffer = await readFile(source);
+                fileBuffer = await readFile(source);
             }
         }
 
-        const outputFile = this.resolveOutputFile(source, Buffer.from(buffer), Build.ASSET);
-        const bytes = buffer.length;
+        const outputFile = this.resolveOutputFile(source, Buffer.from(fileBuffer), Build.ASSET);
+        const bytes = fileBuffer.length;
         const write = this.getOption('write') ?? true;
         if (write) {
             await mkdir(path.dirname(outputFile), {
                 recursive: true,
             });
-            await writeFile(outputFile, buffer);
+            await writeFile(outputFile, fileBuffer);
         }
 
-        const outputFiles = !write ? [createOutputFile(outputFile, Buffer.from(buffer))] : undefined;
+        const outputFiles = !write ? [createOutputFile(outputFile, Buffer.from(fileBuffer))] : undefined;
 
         const result = createResult(outputFiles, {
             inputs: {
@@ -1066,7 +1077,7 @@ export class Build {
             },
         });
 
-        const id = this.hash(buffer);
+        const id = this.hash(fileBuffer);
         const chunkResult = {
             ...result,
             id,
@@ -1120,7 +1131,7 @@ export class Build {
         });
 
         if (options.contents != null) {
-            delete config.entryPoints;
+            config.entryPoints = undefined;
             config.stdin = {
                 sourcefile: options.path,
                 contents: options.contents.toString(),
@@ -1131,6 +1142,7 @@ export class Build {
         }
 
         if (config.define) {
+            // biome-ignore lint/performance/noDelete: We want to remove the key.
             delete config.define['this'];
         }
 

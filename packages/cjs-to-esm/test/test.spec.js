@@ -1,6 +1,6 @@
-import { Buffer } from 'buffer';
-import { readFile } from 'fs/promises';
-import { fileURLToPath } from 'url';
+import { Buffer } from 'node:buffer';
+import { readFile } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
 import { transform, wrapDynamicRequire } from '../lib/index.js';
 
@@ -282,7 +282,9 @@ fs.readFile(path.resolve('test.js'));`).catch((err) => err);
                     expect(window.mapboxgl).toBe(value);
                     expect(value.version).toBe('2.14.1');
                 } finally {
+                    // biome-ignore lint/performance/noDelete: We want to remove the key
                     delete globalThis.window;
+                    // biome-ignore lint/performance/noDelete: We want to remove the key
                     delete globalThis.document;
                 }
             });
@@ -397,7 +399,9 @@ fs.readFile(path.resolve('test.js'));`).catch((err) => err);
                     expect(window.$).toBe(value);
                     expect(value.name).toBe('jQuery');
                 } finally {
+                    // biome-ignore lint/performance/noDelete: We want to remove the key
                     delete globalThis.window;
+                    // biome-ignore lint/performance/noDelete: We want to remove the key
                     delete globalThis.document;
                 }
             });

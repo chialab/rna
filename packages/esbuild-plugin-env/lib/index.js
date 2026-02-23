@@ -1,4 +1,4 @@
-import process from 'process';
+import process from 'node:process';
 
 /**
  * @param {string} str
@@ -6,7 +6,7 @@ import process from 'process';
 function isValidId(str) {
     try {
         new Function(`var ${str};`);
-    } catch (err) {
+    } catch {
         return false;
     }
     return true;

@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'node:path';
 import { createEmptyModule } from '@chialab/estransform';
 import { browserResolve, getSearchParam, getSearchParams, isUrl } from '@chialab/node-resolve';
 import { getRequestFilePath, PluginError, PluginSyntaxError } from '@web/dev-server-core';
@@ -99,16 +99,14 @@ export function resolveRelativeImport(specifier, importer, serveDir, { code, lin
     const { path: importerPathname } = getSearchParams(importer);
     const { path: specifierPathname, searchParams } = getSearchParams(specifier);
     const search = searchParams.toString() ? `?${searchParams.toString()}` : '';
-    importer = importerPathname;
-    specifier = specifierPathname;
-    if (specifier.startsWith(serveDir)) {
-        if (!importer.startsWith(serveDir)) {
-            return `/${path.relative(serveDir, specifier)}${search}`;
+    if (specifierPathname.startsWith(serveDir)) {
+        if (!importerPathname.startsWith(serveDir)) {
+            return `/${path.relative(serveDir, specifierPathname)}${search}`;
         }
-        return `./${path.relative(path.dirname(importer), specifier)}${search}`;
+        return `./${path.relative(path.dirname(importerPathname), specifierPathname)}${search}`;
     }
 
-    const relativePath = path.relative(serveDir, specifier);
+    const relativePath = path.relative(serveDir, specifierPathname);
     const dirUp = `..${path.sep}`;
     const lastDirUpIndex = relativePath.lastIndexOf(dirUp) + 3;
     const dirUpStrings = relativePath.substring(0, lastDirUpIndex).split(path.sep);
@@ -117,10 +115,9 @@ export function resolveRelativeImport(specifier, importer, serveDir, { code, lin
         const errorMessage =
             'This path could not be converted to a browser path. Please file an issue with a reproduction.';
         if (typeof code === 'string' && typeof column === 'number' && typeof line === 'number') {
-            throw new PluginSyntaxError(errorMessage, importer, code, column, line);
-        } else {
-            throw new PluginError(errorMessage);
+            throw new PluginSyntaxError(errorMessage, importerPathname, code, column, line);
         }
+        throw new PluginError(errorMessage);
     }
 
     const importPath = toBrowserPath(relativePath.substring(lastDirUpIndex));

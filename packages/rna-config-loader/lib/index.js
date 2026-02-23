@@ -1,7 +1,7 @@
-import { access } from 'fs/promises';
-import path from 'path';
-import process from 'process';
-import { pathToFileURL } from 'url';
+import { access } from 'node:fs/promises';
+import path from 'node:path';
+import process from 'node:process';
+import { pathToFileURL } from 'node:url';
 
 /**
  * @typedef {string | string[] | Record<string, string> | { in: string, out: string }[]} Input
@@ -165,22 +165,26 @@ export function mergeConfig(...entries) {
         /**
          * @type {ProjectConfig}
          */
-        const clone = keys.reduce((config, key) => {
-            if (entry[key] != null) {
-                config[key] = entry[key];
-            }
+        const clone = keys.reduce(
+            (config, key) => {
+                if (entry[key] != null) {
+                    config[key] = entry[key];
+                }
 
-            return config;
-        }, /** @type {*} */ ({}));
+                return config;
+            },
+            /** @type {*} */ ({})
+        );
 
-        return {
-            ...config,
+        Object.assign(config, {
             ...clone,
             entrypoints: [...(config.entrypoints || []), ...(clone.entrypoints || [])],
             external: [...(config.external || []), ...(clone.external || [])],
             plugins: [...(config.plugins || []), ...(clone.plugins || [])],
             servePlugins: [...(config.servePlugins || []), ...(clone.servePlugins || [])],
-        };
+        });
+
+        return config;
     }, {});
 }
 
@@ -211,8 +215,8 @@ async function computeConfigFile(inputConfig, initialConfig, mode) {
  * @returns {Promise<ProjectConfig>}
  */
 export async function readConfigFile(configFile, initialConfig, mode = 'build', cwd = process.cwd()) {
-    configFile = path.isAbsolute(configFile) ? configFile : `./${configFile}`;
-    const { default: inputConfig } = await import(pathToFileURL(path.resolve(cwd, configFile)).href);
+    const resolvedConfigFile = path.isAbsolute(configFile) ? configFile : `./${configFile}`;
+    const { default: inputConfig } = await import(pathToFileURL(path.resolve(cwd, resolvedConfigFile)).href);
 
     return computeConfigFile(inputConfig, initialConfig, mode);
 }

@@ -1,6 +1,6 @@
-import { Buffer } from 'buffer';
-import { copyFile, readFile, rm } from 'fs/promises';
-import path from 'path';
+import { Buffer } from 'node:buffer';
+import { copyFile, readFile, rm } from 'node:fs/promises';
+import path from 'node:path';
 import { Build, useRna } from '@chialab/esbuild-rna';
 import { load } from 'cheerio';
 import beautify from 'js-beautify';
@@ -144,8 +144,7 @@ export default function ({
                             }
                         } else {
                             // real html output
-                            const resultOutputFile =
-                                result.outputFiles && result.outputFiles.find((file) => file.path === actualOutputFile);
+                            const resultOutputFile = result.outputFiles?.find((file) => file.path === actualOutputFile);
                             if (!resultOutputFile && !write) {
                                 return;
                             }
@@ -183,7 +182,7 @@ export default function ({
                         `(${extensions
                             .map((ext) => {
                                 if (ext[0] !== '.') {
-                                    ext = `\\.${ext}`;
+                                    return `\\\\.${ext}`;
                                 }
                                 return `\\${ext}`;
                             })
@@ -326,21 +325,22 @@ export default function ({
                     return {
                         code: resultHtml,
                         loader: 'file',
-                        watchFiles: results.reduce((acc, result) => {
-                            if (!result) {
+                        watchFiles: results.reduce(
+                            (acc, result) => {
+                                if (!result) {
+                                    return acc;
+                                }
+                                if (result.watchFiles) {
+                                    acc.push(...result.watchFiles);
+                                } else if (result.metafile) {
+                                    acc.push(
+                                        ...Object.keys(result.metafile.inputs).map((key) => path.resolve(cwd, key))
+                                    );
+                                }
                                 return acc;
-                            }
-                            if (result.watchFiles) {
-                                return [...acc, ...result.watchFiles];
-                            }
-                            if (result.metafile) {
-                                return [
-                                    ...acc,
-                                    ...Object.keys(result.metafile.inputs).map((key) => path.resolve(cwd, key)),
-                                ];
-                            }
-                            return acc;
-                        }, /** @type {string[]} */ ([])),
+                            },
+                            /** @type {string[]} */ ([])
+                        ),
                         warnings,
                     };
                 }

@@ -1,5 +1,5 @@
-import process from 'process';
-import { fileURLToPath } from 'url';
+import process from 'node:process';
+import { fileURLToPath } from 'node:url';
 import esbuild from 'esbuild';
 import { describe, expect, test } from 'vitest';
 import envPlugin from '../lib/index.js';

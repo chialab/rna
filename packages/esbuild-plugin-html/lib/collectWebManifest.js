@@ -1,5 +1,5 @@
-import { Buffer } from 'buffer';
-import path from 'path';
+import { Buffer } from 'node:buffer';
+import path from 'node:path';
 import { generateIcon } from './generateIcon.js';
 import Jimp from './generator.js';
 import { isRelativeUrl } from './utils.js';
@@ -92,7 +92,7 @@ export async function collectWebManifest($, dom, options, helpers) {
     json.background_color = json.background_color || '#fff';
     json.lang = json.lang || htmlElement.attr('lang') || 'en-US';
 
-    icon: if (iconElement && iconElement.length) {
+    if (iconElement?.length) {
         const iconHref = iconElement.attr('href') || '';
         const iconFilePath = await helpers.resolve(iconHref);
         if (!iconFilePath.path) {
@@ -107,28 +107,25 @@ export async function collectWebManifest($, dom, options, helpers) {
         const imageBuffer = Buffer.from(iconFile.contents);
 
         /**
-         * @type {InstanceType<Jimp>}
+         * @type {InstanceType<Jimp> | null}
          */
-        let image;
-        try {
-            image = await Jimp.read(imageBuffer);
-        } catch (err) {
-            break icon;
-        }
+        const image = await Jimp.read(imageBuffer).catch(() => null);
 
-        const manifestOutputDir = path.dirname(helpers.resolveAssetFile(entryPoint));
-        json.icons = await Promise.all(
-            MANIFEST_ICONS.map(async ({ name, size }) => {
-                const contents = await generateIcon(image, size, 0, { r: 255, g: 255, b: 255, a: 1 });
-                const result = await helpers.emitFile(name, contents);
-                const outputPath = helpers.resolveRelativePath(result.path, manifestOutputDir, '');
-                return {
-                    src: outputPath,
-                    sizes: `${size}x${size}`,
-                    type: 'image/png',
-                };
-            })
-        );
+        if (image) {
+            const manifestOutputDir = path.dirname(helpers.resolveAssetFile(entryPoint));
+            json.icons = await Promise.all(
+                MANIFEST_ICONS.map(async ({ name, size }) => {
+                    const contents = await generateIcon(image, size, 0, { r: 255, g: 255, b: 255, a: 1 });
+                    const result = await helpers.emitFile(name, contents);
+                    const outputPath = helpers.resolveRelativePath(result.path, manifestOutputDir, '');
+                    return {
+                        src: outputPath,
+                        sizes: `${size}x${size}`,
+                        type: 'image/png',
+                    };
+                })
+            );
+        }
     }
 
     const file = await helpers.emitFile(entryPoint, JSON.stringify(json, null, 2));

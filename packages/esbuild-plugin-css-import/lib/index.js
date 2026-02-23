@@ -40,7 +40,7 @@ export default function () {
                     return {
                         path: result,
                     };
-                } catch (err) {
+                } catch {
                     return;
                 }
             });

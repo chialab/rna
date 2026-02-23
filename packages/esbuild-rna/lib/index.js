@@ -20,7 +20,7 @@ const manager = new BuildManager();
 export function useRna(pluginInstance, pluginBuild) {
     const build = manager.getBuild(pluginBuild);
     const stdin = build.getOption('stdin');
-    if (stdin && stdin.sourcefile) {
+    if (stdin?.sourcefile) {
         const sourceFile = build.resolveSourcePath(stdin.sourcefile);
         build.setOption('entryPoints', [sourceFile]);
         build.deleteOption('stdin');

@@ -11,7 +11,7 @@ export function createLogger(name = 'rna') {
          * @param  {any[]} messages
          */
         log(...messages) {
-            // eslint-disable-next-line no-console
+            // biome-ignore lint/suspicious/noConsole: we are using it for logging helpers
             console.log(...messages);
         },
         /**
@@ -24,14 +24,12 @@ export function createLogger(name = 'rna') {
          * @param  {any[]} messages
          */
         error(...messages) {
-            // eslint-disable-next-line no-console
             console.error(...messages);
         },
         /**
          * @param  {any[]} messages
          */
         warn(...messages) {
-            // eslint-disable-next-line no-console
             console.warn(...messages);
         },
         /**
@@ -39,7 +37,7 @@ export function createLogger(name = 'rna') {
          * @param {string[]} [properties]
          */
         table(tabularData, properties) {
-            // eslint-disable-next-line no-console
+            // biome-ignore lint/suspicious/noConsole: we are using it for logging helpers
             console.table(tabularData, properties);
         },
         /**
@@ -54,35 +52,43 @@ export function createLogger(name = 'rna') {
              */
             const format = (key, value) => (formatters[key] ? formatters[key](value) : `${value}`);
 
-            const columns = Object.keys(files).reduce((acc, key) => {
-                const fileColumn = (acc.filename = acc.filename || {
-                    values: [],
-                    length: 0,
-                });
-                fileColumn.values.push(key);
-                fileColumn.length = Math.max(fileColumn.length || 0, key.length);
-
-                const file = files[key];
-                properties.forEach((propKey) => {
-                    const realValue = file[propKey];
-                    const propValue = format(propKey, realValue);
-                    const propColumn = (acc[propKey] = acc[propKey] || {
+            const columns = Object.keys(files).reduce(
+                (acc, key) => {
+                    const fileColumn = acc.filename || {
                         values: [],
                         length: 0,
-                        total: 0,
+                    };
+                    acc.filename = fileColumn;
+                    fileColumn.values.push(key);
+                    fileColumn.length = Math.max(fileColumn.length || 0, key.length);
+
+                    const file = files[key];
+                    properties.forEach((propKey) => {
+                        const realValue = file[propKey];
+                        const propValue = format(propKey, realValue);
+                        const propColumn = acc[propKey] || {
+                            values: [],
+                            length: 0,
+                            total: 0,
+                        };
+                        acc[propKey] = propColumn;
+
+                        if (typeof realValue === 'number') {
+                            propColumn.total += realValue;
+                            propColumn.length = Math.max(
+                                propColumn.length || 0,
+                                format(propKey, propColumn.total).length
+                            );
+                        }
+
+                        propColumn.values.push(propValue);
+                        propColumn.length = Math.max(propColumn.length || 0, propValue.length);
                     });
 
-                    if (typeof realValue === 'number') {
-                        propColumn.total += realValue;
-                        propColumn.length = Math.max(propColumn.length || 0, format(propKey, propColumn.total).length);
-                    }
-
-                    propColumn.values.push(propValue);
-                    propColumn.length = Math.max(propColumn.length || 0, propValue.length);
-                });
-
-                return acc;
-            }, /** @type {*} */ ({}));
+                    return acc;
+                },
+                /** @type {*} */ ({})
+            );
 
             this.log(
                 Object.keys(columns)
@@ -130,11 +136,11 @@ export function createLogger(name = 'rna') {
             this.log();
         },
         group() {
-            // eslint-disable-next-line no-console
+            // biome-ignore lint/suspicious/noConsole: we are using it for logging helpers
             console.group();
         },
         groupEnd() {
-            // eslint-disable-next-line no-console
+            // biome-ignore lint/suspicious/noConsole: we are using it for logging helpers
             console.groupEnd();
         },
         /**

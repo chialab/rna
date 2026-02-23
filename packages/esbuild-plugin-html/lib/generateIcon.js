@@ -9,13 +9,13 @@ import Jimp from './generator.js';
 
  */
 export async function generateIcon(image, size, gutter, background) {
-    image = image.clone();
-    const gutterAlpha = image.hasAlpha() ? gutter || 0 : 0;
-    const backgroundColor = image.hasAlpha() ? { r: 255, g: 255, b: 255, a: 0 } : background;
+    const clone = image.clone();
+    const gutterAlpha = clone.hasAlpha() ? gutter || 0 : 0;
+    const backgroundColor = clone.hasAlpha() ? { r: 255, g: 255, b: 255, a: 0 } : background;
     const color = `rgba(${backgroundColor.r}, ${backgroundColor.g}, ${backgroundColor.b}, ${backgroundColor.a})`;
     const iconBuffer = new Jimp(size, size, color);
     iconBuffer.composite(
-        image.resize(size - (gutterAlpha || 0), size - (gutterAlpha || 0), 'bezierInterpolation'),
+        clone.resize(size - (gutterAlpha || 0), size - (gutterAlpha || 0), 'bezierInterpolation'),
         (gutterAlpha || 0) / 2,
         (gutterAlpha || 0) / 2
     );

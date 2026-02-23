@@ -1,8 +1,8 @@
-import { createReadStream } from 'fs';
-import os from 'os';
-import path from 'path';
-import process from 'process';
-import { createBrotliCompress, createGzip } from 'zlib';
+import { createReadStream } from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import process from 'node:process';
+import { createBrotliCompress, createGzip } from 'node:zlib';
 import { assignToResult, createResult, remapResult, useRna } from '@chialab/esbuild-rna';
 import { build } from '@chialab/rna-bundler';
 import { getEntryBuildConfig, locateConfigFile, mergeConfig, readConfigFile } from '@chialab/rna-config-loader';
@@ -50,13 +50,16 @@ function compressFileSize(path, compressMethod) {
  * @param {boolean} compressed Show size compressed with these algorithms. Supports gzip and brotli.
  */
 async function bundleSize(metafile, compressed = false) {
-    const fileSizes = Object.entries(metafile.outputs).reduce((map, [path, output]) => {
-        if (!path.endsWith('.map')) {
-            map[path] = { size: output.bytes };
-        }
+    const fileSizes = Object.entries(metafile.outputs).reduce(
+        (map, [path, output]) => {
+            if (!path.endsWith('.map')) {
+                map[path] = { size: output.bytes };
+            }
 
-        return map;
-    }, /** @type {{ [path: string]: { size: number, brotli?: number, gzip?: number } } }} */ ({}));
+            return map;
+        },
+        /** @type {{ [path: string]: { size: number, brotli?: number, gzip?: number } } }} */ ({})
+    );
 
     if (compressed) {
         await Promise.all(
@@ -213,7 +216,7 @@ export default function (program) {
                     { format: 'esm' },
                     configFile ? await readConfigFile(configFile, inputConfig, 'build') : {},
                     inputConfig,
-                    input && input.length
+                    input?.length
                         ? {
                               entrypoints: [
                                   {
@@ -241,7 +244,9 @@ export default function (program) {
                  * @param {boolean} [rebuild]
                  */
                 const onBuildEnd = async (rebuild = false) => {
-                    buildResults.forEach((result) => assignToResult(buildResult, result));
+                    buildResults.forEach((result) => {
+                        assignToResult(buildResult, result);
+                    });
                     const metafile = buildResult.metafile;
 
                     if (Object.keys(metafile.outputs).length) {
@@ -278,18 +283,19 @@ Build completed!
 
                                 if (!build.isChunk()) {
                                     build.onEnd(async (result) => {
+                                        let computedResult = result;
                                         if (cwd !== buildDir) {
-                                            result = remapResult(
+                                            computedResult = remapResult(
                                                 /** @type {import('@chialab/esbuild-rna').Result} */ (result),
                                                 buildDir,
                                                 cwd
                                             );
                                         }
                                         if (buildResults[i]) {
-                                            buildResults[i] = result;
+                                            buildResults[i] = computedResult;
                                             await onBuildEnd(true);
                                         } else {
-                                            buildResults[i] = result;
+                                            buildResults[i] = computedResult;
                                         }
                                     });
                                 }

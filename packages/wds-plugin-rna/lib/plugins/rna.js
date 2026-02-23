@@ -1,6 +1,6 @@
-import { Buffer } from 'buffer';
-import { realpath } from 'fs/promises';
-import path from 'path';
+import { Buffer } from 'node:buffer';
+import { realpath } from 'node:fs/promises';
+import path from 'node:path';
 import { getRequestFilePath } from '@chialab/es-dev-server';
 import {
     appendSearchParam,
@@ -99,7 +99,7 @@ export function getBrowserTarget(context) {
     const browserTarget = resolveUserAgent(context.get('user-agent'));
     const family = browserTarget.family.toLowerCase();
     const version = browserTarget.version;
-    const [major, minor] = version.split('.').map((v) => parseInt(v));
+    const [major, minor] = version.split('.').map((v) => Number.parseInt(v, 10));
     switch (family) {
         case 'chrome':
             if (major < 63) {
@@ -217,7 +217,9 @@ export function rnaPlugin(config) {
                 });
             }
 
-            dependencies[key].forEach((file) => serverFileWatcher.add(file));
+            dependencies[key].forEach((file) => {
+                serverFileWatcher.add(file);
+            });
         }
 
         Object.assign(dependenciesMap, dependencies);

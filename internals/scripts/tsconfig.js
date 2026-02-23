@@ -1,6 +1,6 @@
-import { readFile, writeFile } from 'fs/promises';
-import { relative, resolve } from 'path';
-import { fileURLToPath } from 'url';
+import { readFile, writeFile } from 'node:fs/promises';
+import { relative, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { Configuration, Project } from '@yarnpkg/core';
 import { applyEdits, modify } from 'jsonc-parser';
 
@@ -57,7 +57,6 @@ Project.find(config, ROOT).then(async ({ project }) => {
 
                 await writeFile(tsconfig, applyEdits(content, edits));
             } catch (err) {
-                // eslint-disable-next-line
                 console.error(err, pkg.location, content);
             }
         })

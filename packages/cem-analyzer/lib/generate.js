@@ -200,16 +200,17 @@ export async function generate(sourceFiles, options = {}) {
          * @returns {Block[]}
          */
         parseJSDoc(node) {
+            let targetNode = node;
             if (currentSourceFile.comments.length === 0) {
                 return [];
             }
-            let io = flatProgramNodes.indexOf(node);
-            if (node.type === 'VariableDeclarator') {
-                while (node && node?.type !== 'VariableDeclaration') {
-                    node = flatProgramNodes[--io];
+            let io = flatProgramNodes.indexOf(targetNode);
+            if (targetNode.type === 'VariableDeclarator') {
+                while (targetNode && targetNode?.type !== 'VariableDeclaration') {
+                    targetNode = flatProgramNodes[--io];
                 }
             }
-            if (!node || io === -1) {
+            if (!targetNode || io === -1) {
                 return [];
             }
             const prevNode = flatProgramNodes[io - 1];
@@ -226,14 +227,14 @@ export async function generate(sourceFiles, options = {}) {
             if (prevNode) {
                 if (prevNode.type === 'Program') {
                     prev = 0;
-                } else if (prevNode.end > node.start) {
+                } else if (prevNode.end > targetNode.start) {
                     prev = prevNode.start;
                 } else {
                     prev = prevNode.end;
                 }
             }
 
-            return parseJSDoc(currentSourceFile, node.start, prev);
+            return parseJSDoc(currentSourceFile, targetNode.start, prev);
         },
         walk,
         print,

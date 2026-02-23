@@ -1,5 +1,5 @@
-import path from 'path';
-import process from 'process';
+import path from 'node:path';
+import process from 'node:process';
 import { hasPlugin } from '@chialab/esbuild-rna';
 import esbuild from 'esbuild';
 import { resolveSourceFile } from './helpers.js';

@@ -15,15 +15,15 @@ export function hmrPlugin() {
         injectWebSocket: true,
 
         serverStart(args) {
-            return baseHmrPlugin.serverStart && baseHmrPlugin.serverStart(args);
+            return baseHmrPlugin.serverStart?.(args);
         },
 
         resolveImport(args) {
-            return baseHmrPlugin.resolveImport && baseHmrPlugin.resolveImport(args);
+            return baseHmrPlugin.resolveImport?.(args);
         },
 
         serve(context) {
-            return baseHmrPlugin.serve && baseHmrPlugin.serve(context);
+            return baseHmrPlugin.serve?.(context);
         },
 
         async transform(context) {
@@ -31,7 +31,7 @@ export function hmrPlugin() {
                 return `${context.body}\n;import('/__web-dev-server__/hmr.js');`;
             }
 
-            return baseHmrPlugin.transform && baseHmrPlugin.transform(context);
+            return baseHmrPlugin.transform?.(context);
         },
     };
 

@@ -2,10 +2,10 @@ declare module 'polyfill-library' {
     export type Config = {
         uaString?: string;
         minify?: boolean;
-        features: { [key: string]: any };
+        features: { [key: string]: unknown };
     };
 
     function getPolyfillString(options: Config): Promise<string>;
 
-    export { getPolyfillString };
+    export type { getPolyfillString };
 }

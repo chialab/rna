@@ -51,12 +51,13 @@ export class Queue {
      * @param {any[]} [results] List of results.
      * @returns A list of queue results.
      */
-    async run(count = 1, results) {
+    async run(count = 1, results = undefined) {
         const promises = [];
 
-        if (!results) {
+        let runResults = results;
+        if (!runResults) {
             // main request
-            results = [];
+            runResults = [];
             this.todo = this.tasks.slice(0);
             this.running = [];
             this.complete = [];
@@ -67,14 +68,14 @@ export class Queue {
             const promise = task.call(null);
             promises.push(
                 promise.then((result) => {
-                    if (results) {
-                        results[this.tasks.indexOf(task)] = result;
+                    if (runResults) {
+                        runResults[this.tasks.indexOf(task)] = result;
                     }
                     const io = this.running.indexOf(task);
                     const runningTask = /** @type {Task} */ (this.running[io]);
                     this.running.splice(io, 1);
                     this.complete.push(runningTask);
-                    return this.run(count, results);
+                    return this.run(count, runResults);
                 })
             );
             this.running.push(task);
@@ -82,6 +83,6 @@ export class Queue {
 
         await Promise.all(promises);
 
-        return results;
+        return runResults;
     }
 }

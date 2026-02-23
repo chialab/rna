@@ -1,4 +1,4 @@
-import { fileURLToPath } from 'url';
+import { fileURLToPath } from 'node:url';
 import esbuild from 'esbuild';
 import { describe, expect, test } from 'vitest';
 import virtualPlugin, { createVirtualPlugin } from '../lib/index.js';

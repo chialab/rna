@@ -1,5 +1,5 @@
-import path from 'path';
-import process from 'process';
+import path from 'node:path';
+import process from 'node:process';
 import { render } from 'sass';
 import { SourceMapConsumer, SourceMapGenerator } from 'source-map';
 import sassResolver, { alternatives } from './sassResolver.js';
@@ -138,15 +138,15 @@ function getDeclFile(decl, filePath) {
         return;
     }
 
-    const importee = source.input && source.input.file;
-    const map = source.input && source.input.map;
+    const importee = source.input?.file;
+    const map = source.input?.map;
     if (!map || !source.start) {
         return importee;
     }
 
     const consumer = map.consumer();
     const position = consumer.originalPositionFor(source.start);
-    if (position && position.source) {
+    if (position?.source) {
         return path.resolve(filePath, position.source);
     }
 

@@ -1,5 +1,5 @@
-import { Buffer } from 'buffer';
-import path from 'path';
+import { Buffer } from 'node:buffer';
+import path from 'node:path';
 import { collectAsset } from './collectAssets.js';
 import { generateLaunch } from './generateLaunch.js';
 import Jimp from './generator.js';
@@ -133,7 +133,7 @@ export async function collectScreens($, dom, options, helpers) {
         splashElement.remove();
 
         return results;
-    } catch (err) {
+    } catch {
         const result = await collectAsset($, splashElement, 'href', options, helpers);
         if (result) {
             return [result];

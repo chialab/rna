@@ -115,7 +115,7 @@ export async function maybeCommonjsModule(code) {
         if (imports.length !== 0 || exports.length !== 0) {
             return false;
         }
-    } catch (err) {
+    } catch {
         return false;
     }
 
@@ -139,7 +139,7 @@ export async function maybeMixedModule(code) {
     try {
         const [imports, exports] = await parseEsm(code);
         return imports.length !== 0 || exports.length !== 0;
-    } catch (err) {
+    } catch {
         //
     }
 

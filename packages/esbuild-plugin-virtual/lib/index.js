@@ -28,7 +28,9 @@ export default function virtual(entries) {
         name: this?.name || 'virtual',
         async setup(pluginBuild) {
             const build = useRna(plugin, pluginBuild);
-            entries.forEach((entry) => build.addVirtualModule(entry));
+            entries.forEach((entry) => {
+                build.addVirtualModule(entry);
+            });
         },
     };
 

@@ -1,5 +1,5 @@
-import { Buffer } from 'buffer';
-import path from 'path';
+import { Buffer } from 'node:buffer';
+import path from 'node:path';
 import metaUrlPlugin, { getHashParam } from '@chialab/esbuild-plugin-meta-url';
 import { useRna } from '@chialab/esbuild-rna';
 import { getLocation, parse, walk } from '@chialab/estransform';
@@ -37,7 +37,10 @@ function createBlobProxy(argument, transformOptions, checkType = false) {
  */
 export default function ({ constructors = ['Worker', 'SharedWorker'], proxy = false, emit = true } = {}) {
     const variants = constructors.reduce(
-        (acc, Ctr) => [...acc, Ctr, `window.${Ctr}`, `globalThis.${Ctr}`, `self.${Ctr}`],
+        (acc, Ctr) => {
+            acc.push(Ctr, `window.${Ctr}`, `globalThis.${Ctr}`, `self.${Ctr}`);
+            return acc;
+        },
         /** @type {string[]} */ ([])
     );
 
@@ -132,8 +135,8 @@ export default function ({ constructors = ['Worker', 'SharedWorker'], proxy = fa
                                     property.value.type === 'StringLiteral'
                                 ) {
                                     transformOptions.format = 'esm';
-                                    delete transformOptions.external;
-                                    delete transformOptions.bundle;
+                                    transformOptions.external = undefined;
+                                    transformOptions.bundle = undefined;
                                     break;
                                 }
                             }

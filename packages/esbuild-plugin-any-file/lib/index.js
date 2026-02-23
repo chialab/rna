@@ -1,5 +1,5 @@
-import { access, readFile } from 'fs/promises';
-import path from 'path';
+import { access, readFile } from 'node:fs/promises';
+import path from 'node:path';
 import { useRna } from '@chialab/esbuild-rna';
 
 /**

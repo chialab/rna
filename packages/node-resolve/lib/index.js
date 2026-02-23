@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'node:path';
 import nodeResolve from 'enhanced-resolve';
 import isCore from 'is-core-module';
 import { pkgUp } from 'pkg-up';
@@ -37,13 +37,12 @@ export function createResolver(options = {}) {
     /**
      * @type {Resolver}
      */
-    const resolve = async function (specifier, importer) {
+    const resolve = async (specifier, importer) => {
         const { path, searchParams } = getSearchParams(specifier);
-        importer = getBasePath(importer);
         const resolved = await new Promise((resolve, reject) =>
             resolver(
                 {},
-                importer,
+                getBasePath(importer),
                 path,
                 {},
                 /**
@@ -143,8 +142,7 @@ export async function fsResolve(specifier, importer) {
  * @param {string} filePath
  */
 export function getFileName(filePath) {
-    filePath = filePath.replace('file://', '');
-    return getSearchParams(filePath).path;
+    return getSearchParams(filePath.replace('file://', '')).path;
 }
 
 /**
@@ -153,11 +151,11 @@ export function getFileName(filePath) {
  * @param {string} filePath
  */
 export function getBasePath(filePath) {
-    filePath = getFileName(filePath);
-    if (path.extname(filePath)) {
-        return path.dirname(filePath);
+    const fileName = getFileName(filePath);
+    if (path.extname(fileName)) {
+        return path.dirname(fileName);
     }
-    return filePath;
+    return fileName;
 }
 
 /**
@@ -167,7 +165,7 @@ export function getBasePath(filePath) {
 export function isUrl(url) {
     try {
         return !!new URL(url);
-    } catch (err) {
+    } catch {
         //
     }
     return false;

@@ -1,4 +1,4 @@
-import process from 'process';
+import process from 'node:process';
 import urlRebase from '@chialab/postcss-url-rebase';
 import autoprefixer from 'autoprefixer';
 import colorHex from 'postcss-color-hex-alpha';
@@ -86,38 +86,58 @@ export default function preset({ bundle = false, root = process.cwd(), assetsPat
             ];
             const visitors = [
                 ...plugins.map((plugin) => typeof plugin === 'function' && plugin(result.root)).filter(Boolean),
-                ...plugins.map((plugin) => plugin.prepare && plugin.prepare(result)).filter(Boolean),
+                ...plugins.map((plugin) => plugin.prepare?.(result)).filter(Boolean),
             ];
             return {
                 Once(node, helpers) {
-                    visitors.forEach((visitor) => visitor.Once && visitor.Once(node, helpers));
+                    visitors.forEach((visitor) => {
+                        visitor.Once?.(node, helpers);
+                    });
                 },
                 Root(node, helpers) {
-                    visitors.forEach((visitor) => visitor.Root && visitor.Root(node, helpers));
+                    visitors.forEach((visitor) => {
+                        visitor.Root?.(node, helpers);
+                    });
                 },
                 AtRule(node, helpers) {
-                    visitors.forEach((visitor) => visitor.AtRule && visitor.AtRule(node, helpers));
+                    visitors.forEach((visitor) => {
+                        visitor.AtRule?.(node, helpers);
+                    });
                 },
                 Rule(node, helpers) {
-                    visitors.forEach((visitor) => visitor.Rule && visitor.Rule(node, helpers));
+                    visitors.forEach((visitor) => {
+                        visitor.Rule?.(node, helpers);
+                    });
                 },
                 Declaration(node, helpers) {
-                    visitors.forEach((visitor) => visitor.Declaration && visitor.Declaration(node, helpers));
+                    visitors.forEach((visitor) => {
+                        visitor.Declaration?.(node, helpers);
+                    });
                 },
                 OnceExit(node, helpers) {
-                    visitors.forEach((visitor) => visitor.OnceExit && visitor.OnceExit(node, helpers));
+                    visitors.forEach((visitor) => {
+                        visitor.OnceExit?.(node, helpers);
+                    });
                 },
                 RootExit(node, helpers) {
-                    visitors.forEach((visitor) => visitor.RootExit && visitor.RootExit(node, helpers));
+                    visitors.forEach((visitor) => {
+                        visitor.RootExit?.(node, helpers);
+                    });
                 },
                 AtRuleExit(node, helpers) {
-                    visitors.forEach((visitor) => visitor.AtRuleExit && visitor.AtRuleExit(node, helpers));
+                    visitors.forEach((visitor) => {
+                        visitor.AtRuleExit?.(node, helpers);
+                    });
                 },
                 RuleExit(node, helpers) {
-                    visitors.forEach((visitor) => visitor.RuleExit && visitor.RuleExit(node, helpers));
+                    visitors.forEach((visitor) => {
+                        visitor.RuleExit?.(node, helpers);
+                    });
                 },
                 DeclarationExit(node, helpers) {
-                    visitors.forEach((visitor) => visitor.DeclarationExit && visitor.DeclarationExit(node, helpers));
+                    visitors.forEach((visitor) => {
+                        visitor.DeclarationExit?.(node, helpers);
+                    });
                 },
             };
         },

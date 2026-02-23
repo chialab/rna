@@ -1,6 +1,6 @@
-import { Buffer } from 'buffer';
-import crypto from 'crypto';
-import path from 'path';
+import { Buffer } from 'node:buffer';
+import crypto from 'node:crypto';
+import path from 'node:path';
 
 /**
  * Create an empty metafile object.
@@ -65,12 +65,13 @@ export function assignToResult(context, result) {
     context.warnings.push(...result.warnings);
 
     if (context.outputFiles || result.outputFiles) {
-        const outputFiles = (context.outputFiles = context.outputFiles || []);
-        outputFiles.push(...(result.outputFiles || []));
+        context.outputFiles = context.outputFiles || [];
+        context.outputFiles.push(...(result.outputFiles || []));
     }
 
-    const contextMeta = (context.metafile = context.metafile || createEmptyMetafile());
+    const contextMeta = context.metafile || createEmptyMetafile();
     const resultMeta = result.metafile || createEmptyMetafile();
+    context.metafile = contextMeta;
 
     contextMeta.inputs = {
         ...contextMeta.inputs,
@@ -84,11 +85,13 @@ export function assignToResult(context, result) {
     /**
      * @type {Record<string, string[]>}
      */
-    const dependencies = (context.dependencies = context.dependencies || {});
+    const dependencies = context.dependencies || {};
+    context.dependencies = dependencies;
     if (typeof result.dependencies === 'object') {
         for (const out of Object.entries(result.dependencies)) {
             const entryPoint = out[0];
-            const list = (dependencies[entryPoint] = dependencies[entryPoint] || []);
+            const list = dependencies[entryPoint] || [];
+            dependencies[entryPoint] = list;
             out[1].forEach((dep) => {
                 if (!list.includes(dep)) {
                     list.push(dep);
@@ -115,16 +118,22 @@ export function remapResult(result, from, to) {
         outputFiles: result.outputFiles,
         dependencies: result.dependencies,
         metafile: {
-            inputs: Object.keys(inputs).reduce((acc, input) => {
-                const newPath = path.relative(to, path.resolve(from, input));
-                acc[newPath] = inputs[input];
-                return acc;
-            }, /** @type {import('esbuild').Metafile['inputs']} */ ({})),
-            outputs: Object.keys(outputs).reduce((acc, output) => {
-                const newPath = path.relative(to, path.resolve(from, output));
-                acc[newPath] = outputs[output];
-                return acc;
-            }, /** @type {import('esbuild').Metafile['outputs']} */ ({})),
+            inputs: Object.keys(inputs).reduce(
+                (acc, input) => {
+                    const newPath = path.relative(to, path.resolve(from, input));
+                    acc[newPath] = inputs[input];
+                    return acc;
+                },
+                /** @type {import('esbuild').Metafile['inputs']} */ ({})
+            ),
+            outputs: Object.keys(outputs).reduce(
+                (acc, output) => {
+                    const newPath = path.relative(to, path.resolve(from, output));
+                    acc[newPath] = outputs[output];
+                    return acc;
+                },
+                /** @type {import('esbuild').Metafile['outputs']} */ ({})
+            ),
         },
         mangleCache: result.mangleCache,
     };

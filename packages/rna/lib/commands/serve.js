@@ -1,5 +1,5 @@
-import path from 'path';
-import process from 'process';
+import path from 'node:path';
+import process from 'node:process';
 import { loadDevServerConfig, serve } from '@chialab/rna-dev-server';
 import { colors, createLogger } from '@chialab/rna-logger';
 
@@ -25,7 +25,7 @@ export default function (program) {
         .description(
             'Start a web dev server (https://modern-web.dev/docs/dev-server/overview/) that transforms ESM imports for node resolution on demand. It also uses esbuild (https://esbuild.github.io/) to compile non standard JavaScript syntax.'
         )
-        .option('-P, --port <number>', 'server port number', parseInt)
+        .option('-P, --port <number>', 'server port number', Number.parseInt)
         .option('-C, --config <path>', 'the rna config file')
         .option('--manifest <path>', 'generate manifest file')
         .option('--entrypoints <path>', 'generate entrypoints file')
@@ -39,7 +39,7 @@ export default function (program) {
              * @param {string} root
              * @param {ServeCommandOptions} options
              */
-            async (root = process.cwd(), options) => {
+            async (root = process.cwd(), options = {}) => {
                 const { port, target, jsx, jsxImportSource, jsxFactory, jsxFragment } = options;
 
                 const manifestPath = options.manifest

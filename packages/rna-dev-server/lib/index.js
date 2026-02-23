@@ -1,6 +1,6 @@
-import { stat } from 'fs/promises';
-import path from 'path';
-import process from 'process';
+import { stat } from 'node:fs/promises';
+import path from 'node:path';
+import process from 'node:process';
 import { DevServer, getPort, portNumbers } from '@chialab/es-dev-server';
 import { locateConfigFile, mergeConfig, readConfigFile } from '@chialab/rna-config-loader';
 import nodeResolvePlugin from '@chialab/wds-plugin-node-resolve';
@@ -33,7 +33,7 @@ import range from 'koa-range';
  * @returns {Promise<DevServerConfig>}
  */
 export async function loadDevServerConfig(initialConfig = {}, configFile = undefined) {
-    configFile = configFile || (await locateConfigFile());
+    const finalConfigFile = configFile || (await locateConfigFile());
 
     const rootDir = initialConfig.rootDir || process.cwd();
 
@@ -42,7 +42,7 @@ export async function loadDevServerConfig(initialConfig = {}, configFile = undef
      */
     const config = mergeConfig(
         { root: rootDir },
-        configFile ? await readConfigFile(configFile, { root: rootDir }, 'serve') : {}
+        finalConfigFile ? await readConfigFile(finalConfigFile, { root: rootDir }, 'serve') : {}
     );
 
     const servePlugins = config.servePlugins || [];
@@ -60,7 +60,7 @@ export async function loadDevServerConfig(initialConfig = {}, configFile = undef
                 })
             );
         }
-    } catch (err) {
+    } catch {
         //
     }
 

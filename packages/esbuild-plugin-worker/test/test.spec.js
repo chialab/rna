@@ -1,5 +1,5 @@
-import path from 'path';
-import { fileURLToPath } from 'url';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import workerPlugin from '@chialab/esbuild-plugin-worker';
 import esbuild from 'esbuild';
 import { describe, expect, test } from 'vitest';
@@ -58,8 +58,9 @@ export {
             plugins: [workerPlugin()],
         });
 
-        expect(result.text)
-            .toBe(`const worker = new Worker(new URL("./worker-iife.js?hash=5f77c0c4", import.meta.url).href);
+        expect(
+            result.text
+        ).toBe(`const worker = new Worker(new URL("./worker-iife.js?hash=5f77c0c4", import.meta.url).href);
 export {
   worker
 };
@@ -127,8 +128,9 @@ postMessage("message");
 
         const [result, worker] = outputFiles;
 
-        expect(result.text)
-            .toBe(`const worker = new Worker(new URL("./worker.js?hash=5a665960", import.meta.url).href, { type: "module" });
+        expect(
+            result.text
+        ).toBe(`const worker = new Worker(new URL("./worker.js?hash=5a665960", import.meta.url).href, { type: "module" });
 export {
   worker
 };

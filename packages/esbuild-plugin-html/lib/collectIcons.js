@@ -1,5 +1,5 @@
-import { Buffer } from 'buffer';
-import path from 'path';
+import { Buffer } from 'node:buffer';
+import path from 'node:path';
 import { collectAsset } from './collectAssets.js';
 import { generateIcon } from './generateIcon.js';
 import Jimp from './generator.js';
@@ -161,7 +161,7 @@ async function collectAppleIcons($, dom, options, helpers) {
         }
 
         return results;
-    } catch (err) {
+    } catch {
         const result = await collectAsset($, iconElement, 'href', options, helpers);
         if (result) {
             return [result];
@@ -210,7 +210,7 @@ export async function collectIcons($, dom, options, helpers) {
         iconElement.remove();
 
         return results;
-    } catch (err) {
+    } catch {
         const result = await collectAsset($, iconElement, 'href', options, helpers);
         if (result) {
             return [result];

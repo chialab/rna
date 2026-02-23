@@ -1,7 +1,7 @@
-import { Buffer } from 'buffer';
-import { lstat } from 'fs/promises';
-import path from 'path';
-import { fileURLToPath, pathToFileURL } from 'url';
+import { Buffer } from 'node:buffer';
+import { lstat } from 'node:fs/promises';
+import path from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { useRna } from '@chialab/esbuild-rna';
 import { getLocation, parse, walk } from '@chialab/estransform';
 import mime from 'mime-types';
@@ -13,7 +13,7 @@ import mime from 'mime-types';
 function isUrl(url) {
     try {
         return !!new URL(url);
-    } catch (err) {
+    } catch {
         //
     }
     return false;
@@ -181,7 +181,8 @@ export default function ({ emit = true } = {}) {
                             }
 
                             if (isIIFE) {
-                                let buffer, mimeType;
+                                let buffer;
+                                let mimeType;
                                 if (isChunk) {
                                     const { outputFiles } = await build.emitChunk(
                                         {
@@ -203,7 +204,7 @@ export default function ({ emit = true } = {}) {
                                         with: {},
                                     });
 
-                                    if (result && result.contents) {
+                                    if (result?.contents) {
                                         mimeType = mime.lookup(resolvedPath);
                                         buffer = Buffer.from(result.contents);
                                     }

@@ -1,4 +1,4 @@
-import { fileURLToPath } from 'url';
+import { fileURLToPath } from 'node:url';
 import cssImportPlugin from '@chialab/esbuild-plugin-css-import';
 import esbuild from 'esbuild';
 import { describe, expect, test } from 'vitest';

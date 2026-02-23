@@ -57,7 +57,7 @@ const _vi = Object.create(vi, {
             ]
         ) => {
             let randomIndex = 0;
-            Math.random = function () {
+            Math.random = () => {
                 const value = values[randomIndex++];
                 if (randomIndex === values.length) {
                     randomIndex = 0;
@@ -78,7 +78,7 @@ const _vi = Object.create(vi, {
          * @param {GeolocationPosition | null} position The position to return, or null to simulate an error.
          */
         value: (position) => {
-            navigator.geolocation.getCurrentPosition = function (successCallback, errorCallback) {
+            navigator.geolocation.getCurrentPosition = (successCallback, errorCallback) => {
                 setTimeout(() => {
                     if (position) {
                         successCallback({

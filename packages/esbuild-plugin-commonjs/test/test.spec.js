@@ -1,4 +1,4 @@
-import { fileURLToPath } from 'url';
+import { fileURLToPath } from 'node:url';
 import esbuild from 'esbuild';
 import { describe, expect, test } from 'vitest';
 import commonjsPlugin from '../lib/index.js';
@@ -228,8 +228,9 @@ export {
             plugins: [commonjsPlugin()],
         });
 
-        expect(result.text)
-            .toBe(`var __require = /* @__PURE__ */ ((x) => typeof require !== "undefined" ? require : typeof Proxy !== "undefined" ? new Proxy(x, {
+        expect(
+            result.text
+        ).toBe(`var __require = /* @__PURE__ */ ((x) => typeof require !== "undefined" ? require : typeof Proxy !== "undefined" ? new Proxy(x, {
   get: (a, b) => (typeof require !== "undefined" ? require : a)[b]
 }) : x)(function(x) {
   if (typeof require !== "undefined") return require.apply(this, arguments);

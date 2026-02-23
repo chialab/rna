@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'node:path';
 import { styleResolve } from '@chialab/node-resolve';
 
 /**
@@ -33,12 +33,15 @@ export function alternatives(url) {
 export default function (rootDir) {
     /**
      * Resolve the file path of an imported style.
-     * @type {import('sass').LegacyAsyncImporter}
+     * @param {string} url
+     * @param {string} prev
+     * @param {(options: { file: string } | null) => void} done
+     * @return {void}
      */
     const nodeResolver = (url, prev, done) => {
         if (url.match(/^(~|package:)/)) {
             // some modules use ~ or package: for node_modules import
-            url = url.replace(/^(~|package:)/, '');
+            return nodeResolver(url.replace(/^(~|package:)/, ''), prev, done);
         }
 
         const splitted = url.split('/');

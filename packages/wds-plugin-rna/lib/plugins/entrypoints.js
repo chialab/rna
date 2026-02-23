@@ -1,5 +1,5 @@
-import { mkdir, rm, writeFile } from 'fs/promises';
-import path from 'path';
+import { mkdir, rm, writeFile } from 'node:fs/promises';
+import path from 'node:path';
 import { generateEntrypointsJson } from '@chialab/esbuild-plugin-metadata';
 
 /**
@@ -14,9 +14,8 @@ export async function writeDevEntrypointsJson(entrypoints, outputFile, server, l
     const { config } = server;
     const base = `http${config.http2 ? 's' : ''}://${config.hostname ?? 'localhost'}:${config.port}`;
     const outputDir = path.extname(outputFile) ? path.dirname(outputFile) : outputFile;
-    const webSocketImport =
-        server.webSockets && server.webSockets.webSocketImport && new URL(server.webSockets.webSocketImport, base).href;
-    outputFile = path.extname(outputFile) ? outputFile : path.join(outputDir, 'entrypoints.json');
+    const webSocketImport = server.webSockets?.webSocketImport && new URL(server.webSockets.webSocketImport, base).href;
+    const resolvedOutputFile = path.extname(outputFile) ? outputFile : path.join(outputDir, 'entrypoints.json');
 
     const entrypointsJson = generateEntrypointsJson(
         entrypoints,
@@ -28,7 +27,7 @@ export async function writeDevEntrypointsJson(entrypoints, outputFile, server, l
     await rm(outputDir, { recursive: true, force: true });
     await mkdir(outputDir, { recursive: true });
     await writeFile(
-        outputFile,
+        resolvedOutputFile,
         JSON.stringify(
             {
                 entrypoints: entrypointsJson,

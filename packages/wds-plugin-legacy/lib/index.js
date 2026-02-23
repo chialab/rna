@@ -1,6 +1,6 @@
-import { Buffer } from 'buffer';
-import crypto from 'crypto';
-import { createRequire } from 'module';
+import { Buffer } from 'node:buffer';
+import crypto from 'node:crypto';
+import { createRequire } from 'node:module';
 import { createHelperUrl, isPlainScript } from '@chialab/wds-plugin-node-resolve';
 import { inject } from '@chialab/wds-plugin-polyfill';
 import { load } from 'cheerio';

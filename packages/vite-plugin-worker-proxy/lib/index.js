@@ -19,7 +19,10 @@ function createBlobProxy(argument, type = 'script') {
  */
 export default function workerProxy({ constructors = ['Worker', 'SharedWorker'] } = {}) {
     const variants = constructors.reduce(
-        (acc, Ctr) => [...acc, Ctr, `window.${Ctr}`, `globalThis.${Ctr}`, `self.${Ctr}`],
+        (acc, Ctr) => {
+            acc.push(Ctr, `window.${Ctr}`, `globalThis.${Ctr}`, `self.${Ctr}`);
+            return acc;
+        },
         /** @type {string[]} */ ([])
     );
 

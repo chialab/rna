@@ -121,11 +121,10 @@ export default class BrowserStackProvider extends WebdriverBrowserProvider {
     openPage = async (_contextId, url) => {
         const browser = await this.openBrowser();
         const networkAddress = ip.address();
-        if (networkAddress) {
-            url = url.replace(/(localhost|127\.0\.0\.1|0\.0\.0\.0)/, networkAddress);
-        }
 
-        await browser.navigateTo(url);
+        await browser.navigateTo(
+            networkAddress ? url.replace(/(localhost|127\.0\.0\.1|0\.0\.0\.0)/, networkAddress) : url
+        );
 
         const title = await browser.getTitle();
         if (title !== 'Vitest Browser Runner') {

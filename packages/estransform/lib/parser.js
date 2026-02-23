@@ -1,4 +1,4 @@
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 import { MagicString } from '@napi-rs/magic-string';
 import { parseAsync } from 'oxc-parser';
 import { inlineSourcemap, loadSourcemap, mergeSourcemaps, removeInlineSourcemap } from './sourcemaps.js';

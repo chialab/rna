@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'node:path';
 import { useRna } from '@chialab/esbuild-rna';
 import { parse, walk } from '@chialab/estransform';
 

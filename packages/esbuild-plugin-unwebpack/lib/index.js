@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'node:path';
 import { useRna } from '@chialab/esbuild-rna';
 import { parse, walk } from '@chialab/estransform';
 import glob from 'fast-glob';
@@ -84,10 +84,13 @@ export default function () {
                         });
                         const map = matched
                             .filter((name) => name.match(include) && (!exclude || !name.match(exclude)))
-                            .reduce((map, name) => {
-                                map[name.replace(include, '')] = `./${name}`;
-                                return map;
-                            }, /** @type {{ [key: string]: string }} */ ({}));
+                            .reduce(
+                                (map, name) => {
+                                    map[name.replace(include, '')] = `./${name}`;
+                                    return map;
+                                },
+                                /** @type {{ [key: string]: string }} */ ({})
+                            );
                         helpers.overwrite(
                             node.start,
                             node.end,

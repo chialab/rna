@@ -1,5 +1,5 @@
-import path from 'path';
-import { fileURLToPath } from 'url';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import virtual from '@chialab/esbuild-plugin-virtual';
 import esbuild from 'esbuild';
 import { describe, expect, test } from 'vitest';

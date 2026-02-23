@@ -52,7 +52,10 @@ function invalidateResource(dependencyTree, filePath) {
     }
 
     return resource.dependants.reduce(
-        (acc, dependant) => [...acc, ...invalidateResource(dependencyTree, dependant)],
+        (acc, dependant) => {
+            acc.push(...invalidateResource(dependencyTree, dependant));
+            return acc;
+        },
         /** @type {CSSResource[]} */ ([])
     );
 }
@@ -144,7 +147,7 @@ export function hmrCssPlugin() {
                     );
                     const content = createCssLiveReload();
                     webSockets.sendImport(`data:text/javascript,${content}`, [entrypoints]);
-                } catch (err) {
+                } catch {
                     //
                 }
             };

@@ -1,0 +1,116 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.4.4/schema.json",
+  "files": {
+    "includes": [
+      "**",
+      "!.yarn/**/*",
+      "!.changeset/**/*",
+      "!node_modules/**/*",
+      "!packages/*/dist/**/*",
+      "!packages/*/demo/**/*",
+      "!packages/*/types/**/*",
+      "!packages/*/test/fixture/**/*",
+      "!packages/*/test/fixtures/**/*",
+      "!packages/*/test/out/**/*",
+      "!docs/.vitepress/**/*",
+      "!public/**/*",
+      "!coverage/**/*"
+    ],
+    "maxSize": 2097152
+  },
+  "assist": { "actions": { "source": { "organizeImports": "on" } } },
+  "formatter": {
+    "attributePosition": "multiline",
+    "lineWidth": 120,
+    "useEditorconfig": true,
+    "indentStyle": "space",
+    "indentWidth": 4
+  },
+  "linter": {
+    "rules": {
+      "recommended": true,
+      "a11y": {
+        "noRedundantAlt": "warn",
+        "useButtonType": "warn",
+        "useSemanticElements": "off"
+      },
+      "complexity": {
+        "noForEach": "off",
+        "noThisInStatic": "off",
+        "noUselessSwitchCase": "warn",
+        "noUselessThisAlias": "warn",
+        "useArrowFunction": "warn",
+        "useFlatMap": "warn",
+        "useLiteralKeys": "off",
+        "useOptionalChain": "warn"
+      },
+      "correctness": {
+        "useJsxKeyInIterable": "off",
+        "useUniqueElementIds": "off",
+        "noSwitchDeclarations": "off",
+        "noUnusedFunctionParameters": "off",
+        "noUnusedPrivateClassMembers": "off"
+      },
+      "performance": {
+        "noAccumulatingSpread": "warn",
+        "noDelete": "warn"
+      },
+      "style": {
+        "noInferrableTypes": "warn",
+        "noParameterAssign": "warn",
+        "noNamespace": "off",
+        "useConst": "warn",
+        "useExponentiationOperator": "warn",
+        "useImportType": "warn",
+        "useSelfClosingElements": "warn",
+        "useSingleVarDeclarator": "warn",
+        "useTemplate": "warn",
+        "noUselessElse": "warn",
+        "useAsConstAssertion": "error",
+        "useDefaultParameterLast": "error",
+        "useEnumInitializers": "error",
+        "noUnusedTemplateLiteral": "error",
+        "useNumberNamespace": "error"
+      },
+      "suspicious": {
+        "noAssignInExpressions": "warn",
+        "noClassAssign": "off",
+        "noConfusingLabels": "warn",
+        "noExplicitAny": "warn",
+        "noConsole": {
+          "level": "warn",
+          "options": { "allow": ["error", "warn"] }
+        }
+      }
+    }
+  },
+  "css": {
+    "linter": {
+      "enabled": true
+    },
+    "formatter": {
+      "quoteStyle": "single"
+    }
+  },
+  "javascript": {
+    "formatter": {
+      "arrowParentheses": "always",
+      "attributePosition": "multiline",
+      "bracketSameLine": true,
+      "bracketSpacing": true,
+      "jsxQuoteStyle": "double",
+      "quoteStyle": "single",
+      "quoteProperties": "preserve",
+      "semicolons": "always",
+      "trailingCommas": "es5"
+    }
+  },
+  "overrides": [
+    {
+      "includes": ["**/package.json"],
+      "formatter": {
+        "lineWidth": 1
+      }
+    }
+  ]
+}

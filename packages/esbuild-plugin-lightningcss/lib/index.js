@@ -1,6 +1,6 @@
-import { Buffer } from 'buffer';
-import path from 'path';
-import process from 'process';
+import { Buffer } from 'node:buffer';
+import path from 'node:path';
+import process from 'node:process';
 import { useRna } from '@chialab/esbuild-rna';
 
 const DEFAULT_TARGETS = ['chrome 63', 'and_chr 63', 'firefox 67', 'edge 79', 'opera 50', 'safari 11.1', 'ios_saf 11.3'];

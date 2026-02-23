@@ -1,6 +1,6 @@
-import { rm } from 'fs/promises';
-import path from 'path';
-import process from 'process';
+import { rm } from 'node:fs/promises';
+import path from 'node:path';
+import process from 'node:process';
 import { hasPlugin } from '@chialab/esbuild-rna';
 import esbuild from 'esbuild';
 import { resolveSourceFile } from './helpers.js';

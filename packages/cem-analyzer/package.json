@@ -1,0 +1,48 @@
+{
+  "name": "@chialab/cem-analyzer",
+  "type": "module",
+  "version": "0.0.0",
+  "description": "Custom Elements Manifest analyzer and generator.",
+  "main": "lib/index.js",
+  "typings": "./types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./types/index.d.ts",
+      "default": "./lib/index.js"
+    }
+  },
+  "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chialab/rna",
+    "directory": "packages/cem-analyzer"
+  },
+  "keywords": [
+    "custom-elements",
+    "manifest",
+    "web-components"
+  ],
+  "files": [
+    "lib",
+    "types",
+    "package.json",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@oxc-project/types": "0.114.0",
+    "comment-parser": "^1.4.5",
+    "custom-elements-manifest": "^2.1.0",
+    "esrap": "^2.2.3"
+  },
+  "optionalDependencies": {
+    "oxc-parser": "^0.114.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

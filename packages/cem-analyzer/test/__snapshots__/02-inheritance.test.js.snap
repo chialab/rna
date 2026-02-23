@@ -1,0 +1,252 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`02-inheritance > 01-superclass 1`] = `
+"{
+  "schemaVersion": "2.1.0",
+  "readme": "",
+  "modules": [
+    {
+      "kind": "javascript-module",
+      "path": "./BatchingElement.js",
+      "declarations": [
+        {
+          "kind": "class",
+          "name": "BatchingElement",
+          "description": "",
+          "members": [
+            {
+              "kind": "field",
+              "name": "superClassField"
+            },
+            {
+              "kind": "method",
+              "name": "superClassMethod"
+            },
+            {
+              "kind": "field",
+              "name": "overriddenField",
+              "type": {
+                "text": "string"
+              },
+              "default": "'hello'"
+            }
+          ],
+          "events": [
+            {
+              "name": "superClass-event",
+              "type": {
+                "text": "Event"
+              }
+            }
+          ],
+          "attributes": [
+            {
+              "name": "superClass-attr"
+            }
+          ],
+          "superclass": {
+            "name": "HTMLElement"
+          }
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "BatchingElement",
+          "declaration": {
+            "name": "BatchingElement"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "./implements-element.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "name": "ImplementsElement",
+          "description": "",
+          "members": [
+            {
+              "kind": "field",
+              "name": "classField"
+            },
+            {
+              "kind": "method",
+              "name": "implementsMethod"
+            },
+            {
+              "kind": "method",
+              "name": "classMethod"
+            },
+            {
+              "kind": "field",
+              "name": "superClassField",
+              "inheritedFrom": {
+                "name": "BatchingElement",
+                "module": "./BatchingElement.js"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "superClassMethod",
+              "inheritedFrom": {
+                "name": "BatchingElement",
+                "module": "./BatchingElement.js"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "overriddenField",
+              "type": {
+                "text": "string"
+              },
+              "default": "'hello'",
+              "inheritedFrom": {
+                "name": "BatchingElement",
+                "module": "./BatchingElement.js"
+              }
+            }
+          ],
+          "events": [
+            {
+              "name": "class-event",
+              "type": {
+                "text": "Event"
+              }
+            },
+            {
+              "name": "superClass-event",
+              "type": {
+                "text": "Event"
+              },
+              "inheritedFrom": {
+                "name": "BatchingElement",
+                "module": "./BatchingElement.js"
+              }
+            }
+          ],
+          "attributes": [
+            {
+              "name": "class-attr"
+            },
+            {
+              "name": "superClass-attr",
+              "inheritedFrom": {
+                "name": "BatchingElement",
+                "module": "./BatchingElement.js"
+              }
+            }
+          ],
+          "superclass": {
+            "name": "BatchingElement",
+            "module": "./BatchingElement"
+          }
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "ImplementsElement",
+          "declaration": {
+            "name": "ImplementsElement"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "./my-element.js",
+      "declarations": [
+        {
+          "kind": "class",
+          "name": "MyElement",
+          "description": "",
+          "members": [
+            {
+              "kind": "field",
+              "name": "classField"
+            },
+            {
+              "kind": "method",
+              "name": "classMethod"
+            },
+            {
+              "kind": "field",
+              "name": "overriddenField",
+              "type": {
+                "text": "string"
+              },
+              "default": "'bye'",
+              "inheritedFrom": {
+                "name": "BatchingElement",
+                "module": "./BatchingElement.js"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "superClassField",
+              "inheritedFrom": {
+                "name": "BatchingElement",
+                "module": "./BatchingElement.js"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "superClassMethod",
+              "inheritedFrom": {
+                "name": "BatchingElement",
+                "module": "./BatchingElement.js"
+              }
+            }
+          ],
+          "events": [
+            {
+              "name": "class-event",
+              "type": {
+                "text": "Event"
+              }
+            },
+            {
+              "name": "superClass-event",
+              "type": {
+                "text": "Event"
+              },
+              "inheritedFrom": {
+                "name": "BatchingElement",
+                "module": "./BatchingElement.js"
+              }
+            }
+          ],
+          "attributes": [
+            {
+              "name": "class-attr"
+            },
+            {
+              "name": "superClass-attr",
+              "inheritedFrom": {
+                "name": "BatchingElement",
+                "module": "./BatchingElement.js"
+              }
+            }
+          ],
+          "superclass": {
+            "name": "BatchingElement",
+            "module": "./BatchingElement"
+          }
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "MyElement",
+          "declaration": {
+            "name": "MyElement"
+          }
+        }
+      ]
+    }
+  ]
+}"
+`;

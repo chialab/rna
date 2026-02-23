@@ -1,0 +1,562 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`03-module > functionLike 1`] = `
+"{
+  "schemaVersion": "2.1.0",
+  "readme": "",
+  "modules": [
+    {
+      "kind": "javascript-module",
+      "path": "./my-element.ts",
+      "declarations": [
+        {
+          "kind": "function",
+          "name": "arrow1",
+          "description": "ARROW FUNCTIONS"
+        },
+        {
+          "kind": "function",
+          "name": "arrow2",
+          "parameters": [
+            {
+              "name": "bar"
+            }
+          ]
+        },
+        {
+          "kind": "function",
+          "name": "arrow3",
+          "parameters": [
+            {
+              "name": "bar",
+              "type": {
+                "text": "string"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "function",
+          "name": "arrow4",
+          "parameters": [
+            {
+              "name": "bar",
+              "type": {
+                "text": "string"
+              }
+            }
+          ],
+          "return": {
+            "type": {
+              "text": "boolean"
+            }
+          }
+        },
+        {
+          "kind": "function",
+          "name": "arrow5",
+          "parameters": [
+            {
+              "name": "bar",
+              "type": {
+                "text": "number"
+              }
+            }
+          ],
+          "return": {
+            "type": {
+              "text": "boolean"
+            }
+          }
+        },
+        {
+          "kind": "function",
+          "name": "arrow6",
+          "parameters": [
+            {
+              "name": "bar",
+              "type": {
+                "text": "number"
+              }
+            }
+          ],
+          "return": {
+            "type": {
+              "text": "string"
+            }
+          }
+        },
+        {
+          "kind": "function",
+          "name": "functionDeclaration1",
+          "description": "FUNCTION DECLARATIONS"
+        },
+        {
+          "kind": "function",
+          "name": "functionDeclaration2",
+          "parameters": [
+            {
+              "name": "bar"
+            }
+          ]
+        },
+        {
+          "kind": "function",
+          "name": "functionDeclaration3",
+          "parameters": [
+            {
+              "name": "bar",
+              "type": {
+                "text": "string"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "function",
+          "name": "functionDeclaration4",
+          "parameters": [
+            {
+              "name": "bar",
+              "type": {
+                "text": "string"
+              }
+            }
+          ],
+          "return": {
+            "type": {
+              "text": "boolean"
+            }
+          }
+        },
+        {
+          "kind": "function",
+          "name": "functionDeclaration5",
+          "parameters": [
+            {
+              "name": "bar",
+              "type": {
+                "text": "number"
+              }
+            }
+          ],
+          "return": {
+            "type": {
+              "text": "boolean"
+            }
+          }
+        },
+        {
+          "kind": "function",
+          "name": "functionDeclaration6",
+          "parameters": [
+            {
+              "name": "bar",
+              "type": {
+                "text": "number"
+              }
+            }
+          ],
+          "return": {
+            "type": {
+              "text": "string"
+            }
+          }
+        },
+        {
+          "kind": "function",
+          "name": "emptyReturn"
+        },
+        {
+          "kind": "class",
+          "name": "MyEl",
+          "description": "METHODS",
+          "members": [
+            {
+              "kind": "method",
+              "name": "functionDeclaration1"
+            },
+            {
+              "kind": "method",
+              "name": "functionDeclaration2",
+              "parameters": [
+                {
+                  "name": "bar"
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "functionDeclaration3",
+              "parameters": [
+                {
+                  "name": "bar",
+                  "type": {
+                    "text": "string"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "functionDeclaration4",
+              "parameters": [
+                {
+                  "name": "bar",
+                  "type": {
+                    "text": "string"
+                  }
+                }
+              ],
+              "return": {
+                "type": {
+                  "text": "boolean"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "functionDeclaration5",
+              "parameters": [
+                {
+                  "name": "bar",
+                  "type": {
+                    "text": "number"
+                  }
+                }
+              ],
+              "return": {
+                "type": {
+                  "text": "boolean"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "functionDeclaration6",
+              "parameters": [
+                {
+                  "name": "bar",
+                  "type": {
+                    "text": "number"
+                  }
+                }
+              ],
+              "return": {
+                "type": {
+                  "text": "string"
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "arrow1",
+          "declaration": {
+            "name": "arrow1"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "arrow2",
+          "declaration": {
+            "name": "arrow2"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "arrow3",
+          "declaration": {
+            "name": "arrow3"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "arrow4",
+          "declaration": {
+            "name": "arrow4"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "arrow5",
+          "declaration": {
+            "name": "arrow5"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "arrow6",
+          "declaration": {
+            "name": "arrow6"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "functionDeclaration1",
+          "declaration": {
+            "name": "functionDeclaration1"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "functionDeclaration2",
+          "declaration": {
+            "name": "functionDeclaration2"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "functionDeclaration3",
+          "declaration": {
+            "name": "functionDeclaration3"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "functionDeclaration4",
+          "declaration": {
+            "name": "functionDeclaration4"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "functionDeclaration5",
+          "declaration": {
+            "name": "functionDeclaration5"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "functionDeclaration6",
+          "declaration": {
+            "name": "functionDeclaration6"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "emptyReturn",
+          "declaration": {
+            "name": "emptyReturn"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "MyEl",
+          "declaration": {
+            "name": "MyEl"
+          }
+        }
+      ]
+    }
+  ]
+}"
+`;
+
+exports[`03-module > variables 1`] = `
+"{
+  "schemaVersion": "2.1.0",
+  "readme": "",
+  "modules": [
+    {
+      "kind": "javascript-module",
+      "path": "./foo.js",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "foo",
+          "type": {
+            "text": "number"
+          },
+          "default": "1"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "foo",
+          "declaration": {
+            "name": "foo"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "./my-element.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "var1"
+        },
+        {
+          "kind": "variable",
+          "name": "var2"
+        },
+        {
+          "kind": "variable",
+          "name": "var3A"
+        },
+        {
+          "kind": "variable",
+          "name": "var4",
+          "type": {
+            "text": "boolean"
+          },
+          "default": "true"
+        },
+        {
+          "kind": "variable",
+          "name": "var5"
+        },
+        {
+          "kind": "variable",
+          "name": "var6"
+        },
+        {
+          "kind": "variable",
+          "name": "var7"
+        },
+        {
+          "kind": "function",
+          "name": "function1"
+        },
+        {
+          "kind": "class",
+          "name": "Class1",
+          "description": ""
+        },
+        {
+          "kind": "variable",
+          "name": "typeinferrence",
+          "type": {
+            "text": "string"
+          },
+          "default": "''"
+        },
+        {
+          "kind": "variable",
+          "name": "asConst",
+          "type": {
+            "text": "'const'"
+          },
+          "default": "'const'"
+        },
+        {
+          "kind": "variable",
+          "name": "asConstRef",
+          "type": {
+            "text": "{ foo: 'bar' }"
+          },
+          "default": "{ foo: 'bar' }"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "var1",
+          "declaration": {
+            "name": "var1"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "var2",
+          "declaration": {
+            "name": "var2"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "var3B",
+          "declaration": {
+            "name": "var3A"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "var4",
+          "declaration": {
+            "name": "var4"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "var5",
+          "declaration": {
+            "name": "var5"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "var6",
+          "declaration": {
+            "name": "var6"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "var7",
+          "declaration": {
+            "name": "var7"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "function1",
+          "declaration": {
+            "name": "function1"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "Class1",
+          "declaration": {
+            "name": "Class1"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "typeinferrence",
+          "declaration": {
+            "name": "typeinferrence"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "asConst",
+          "declaration": {
+            "name": "asConst"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "asConstRef",
+          "declaration": {
+            "name": "asConstRef"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "foo",
+            "module": "./foo.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "bar",
+            "package": "bar"
+          }
+        }
+      ]
+    }
+  ]
+}"
+`;

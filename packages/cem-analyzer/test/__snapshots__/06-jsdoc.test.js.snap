@@ -1,0 +1,247 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`06-jsdoc > default 1`] = `
+"{
+  "schemaVersion": "2.1.0",
+  "readme": "",
+  "modules": [
+    {
+      "kind": "javascript-module",
+      "path": "./my-element.js",
+      "declarations": [
+        {
+          "kind": "class",
+          "name": "DefaultValues",
+          "description": "",
+          "members": [
+            {
+              "kind": "field",
+              "name": "defaultViaJsDoc",
+              "default": "'default from jsdoc'"
+            },
+            {
+              "kind": "field",
+              "name": "defaultWhereCodeTakesPrecedence",
+              "type": {
+                "text": "string"
+              },
+              "default": "'default from code'"
+            },
+            {
+              "kind": "field",
+              "name": "withoutDefault"
+            },
+            {
+              "kind": "field",
+              "name": "foo",
+              "description": "Should work with \\"@attribute\\" and no name",
+              "type": {
+                "text": "string"
+              },
+              "attribute": "foo",
+              "default": "\\"bar\\""
+            },
+            {
+              "kind": "field",
+              "name": "myFoo",
+              "description": "Should work with \\"@attribute\\" and a name",
+              "type": {
+                "text": "string"
+              },
+              "attribute": "my-foo",
+              "default": "\\"bar\\""
+            },
+            {
+              "kind": "field",
+              "name": "bar",
+              "description": "Should work with \\"@attr\\" and no name",
+              "type": {
+                "text": "string"
+              },
+              "attribute": "bar",
+              "default": "\\"bar\\""
+            },
+            {
+              "kind": "field",
+              "name": "myBar",
+              "description": "Should work with \\"@attr\\" and a name",
+              "type": {
+                "text": "string"
+              },
+              "attribute": "my-bar",
+              "default": "\\"bar\\""
+            }
+          ],
+          "attributes": [
+            {
+              "name": "foo",
+              "description": "Should work with \\"@attribute\\" and no name",
+              "type": {
+                "text": "string"
+              },
+              "fieldName": "foo",
+              "default": "\\"bar\\""
+            },
+            {
+              "name": "my-foo",
+              "description": "Should work with \\"@attribute\\" and a name",
+              "type": {
+                "text": "string"
+              },
+              "fieldName": "myFoo",
+              "default": "\\"bar\\""
+            },
+            {
+              "name": "bar",
+              "description": "Should work with \\"@attr\\" and no name",
+              "type": {
+                "text": "string"
+              },
+              "fieldName": "bar",
+              "default": "\\"bar\\""
+            },
+            {
+              "name": "my-bar",
+              "description": "Should work with \\"@attr\\" and a name",
+              "type": {
+                "text": "string"
+              },
+              "fieldName": "myBar",
+              "default": "\\"bar\\""
+            }
+          ],
+          "superclass": {
+            "name": "HTMLElement"
+          },
+          "tagName": "default-values",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "DefaultValues",
+          "declaration": {
+            "name": "DefaultValues"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "default-values",
+          "declaration": {
+            "name": "DefaultValues"
+          }
+        }
+      ]
+    }
+  ]
+}"
+`;
+
+exports[`06-jsdoc > ignore-internal 1`] = `
+"{
+  "schemaVersion": "2.1.0",
+  "readme": "",
+  "modules": [
+    {
+      "kind": "javascript-module",
+      "path": "./my-element.js",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "variable",
+          "type": {
+            "text": "string"
+          },
+          "default": "'var'"
+        },
+        {
+          "kind": "class",
+          "name": "IamDeprecated",
+          "description": "",
+          "superclass": {
+            "name": "HTMLElement"
+          },
+          "deprecated": "true"
+        },
+        {
+          "kind": "class",
+          "name": "IamDeprecatedWithReason",
+          "description": "",
+          "superclass": {
+            "name": "HTMLElement"
+          },
+          "deprecated": "the reason for the deprecation."
+        },
+        {
+          "kind": "class",
+          "name": "IncludeMe",
+          "description": "",
+          "members": [
+            {
+              "kind": "field",
+              "name": "included",
+              "type": {
+                "text": "string"
+              },
+              "default": "'hello world'"
+            },
+            {
+              "kind": "method",
+              "name": "imDeprecated",
+              "deprecated": "true"
+            },
+            {
+              "kind": "method",
+              "name": "imDeprecatedWithReason",
+              "deprecated": "the reason for the deprecation."
+            }
+          ],
+          "superclass": {
+            "name": "HTMLElement"
+          },
+          "tagName": "include-me",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "variable",
+          "declaration": {
+            "name": "variable"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "IamDeprecated",
+          "declaration": {
+            "name": "IamDeprecated"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "IamDeprecatedWithReason",
+          "declaration": {
+            "name": "IamDeprecatedWithReason"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "IncludeMe",
+          "declaration": {
+            "name": "IncludeMe"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "include-me",
+          "declaration": {
+            "name": "IncludeMe"
+          }
+        }
+      ]
+    }
+  ]
+}"
+`;

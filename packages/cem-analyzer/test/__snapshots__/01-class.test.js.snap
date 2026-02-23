@@ -1,0 +1,381 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`01-class > 01-fields 1`] = `
+"{
+  "schemaVersion": "2.1.0",
+  "readme": "",
+  "modules": [
+    {
+      "kind": "javascript-module",
+      "path": "./my-element.js",
+      "declarations": [],
+      "exports": []
+    }
+  ]
+}"
+`;
+
+exports[`01-class > 02-attributes 1`] = `
+"{
+  "schemaVersion": "2.1.0",
+  "readme": "",
+  "modules": [
+    {
+      "kind": "javascript-module",
+      "path": "./my-element.js",
+      "declarations": [
+        {
+          "kind": "class",
+          "name": "MyEl",
+          "description": "",
+          "members": [
+            {
+              "kind": "field",
+              "name": "myField",
+              "reflects": true,
+              "attribute": "myField"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "a-a"
+            },
+            {
+              "name": "b-b"
+            },
+            {
+              "name": "c-c"
+            },
+            {
+              "name": "d-d"
+            },
+            {
+              "name": "myField",
+              "fieldName": "myField"
+            },
+            {
+              "name": "attr1",
+              "type": {
+                "text": "boolean"
+              }
+            },
+            {
+              "name": "attr2",
+              "type": {
+                "text": "boolean"
+              }
+            }
+          ],
+          "superclass": {
+            "name": "HTMLElement"
+          },
+          "tagName": "my-el",
+          "customElement": true
+        },
+        {
+          "kind": "class",
+          "name": "Foo",
+          "description": "",
+          "members": [
+            {
+              "kind": "field",
+              "name": "foo",
+              "description": "this is the field description",
+              "type": {
+                "text": "string"
+              },
+              "attribute": "my-attr",
+              "default": "''"
+            },
+            {
+              "kind": "field",
+              "name": "member",
+              "description": "this is the description",
+              "type": {
+                "text": "string"
+              },
+              "default": "''"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "my-attr",
+              "description": "this is the attr description",
+              "type": {
+                "text": "string"
+              },
+              "fieldName": "foo",
+              "default": "''"
+            }
+          ],
+          "superclass": {
+            "name": "HTMLElement"
+          }
+        }
+      ],
+      "exports": [
+        {
+          "kind": "custom-element-definition",
+          "name": "my-el",
+          "declaration": {
+            "name": "MyEl"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "Foo",
+          "declaration": {
+            "name": "Foo"
+          }
+        }
+      ]
+    }
+  ]
+}"
+`;
+
+exports[`01-class > 03-jsdoc 1`] = `
+"{
+  "schemaVersion": "2.1.0",
+  "readme": "",
+  "modules": [
+    {
+      "kind": "javascript-module",
+      "path": "./my-element.js",
+      "declarations": [
+        {
+          "kind": "class",
+          "name": "MyElement",
+          "description": "{@link https://a.b} [CD]{@link https://e.f} {@link g|HIJ} {@link klm En? Oh Pee}",
+          "members": [
+            {
+              "kind": "field",
+              "name": "prop1",
+              "description": "some description",
+              "type": {
+                "text": "boolean"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "prop2",
+              "description": "some description",
+              "type": {
+                "text": "number"
+              }
+            }
+          ],
+          "cssProperties": [
+            {
+              "name": "--text-color",
+              "description": "Controls the color of foo"
+            },
+            {
+              "name": "--background-color",
+              "description": "Controls the color of bar",
+              "default": "red"
+            }
+          ],
+          "cssParts": [
+            {
+              "name": "bar",
+              "description": "Styles the color of bar"
+            }
+          ],
+          "slots": [
+            {
+              "name": "",
+              "description": "This is the default slot"
+            },
+            {
+              "name": "container",
+              "description": "You can put some elements here"
+            }
+          ],
+          "events": [
+            {
+              "name": "custom-event",
+              "description": "some description for custom-event"
+            },
+            {
+              "name": "typed-event",
+              "description": "some description for typed-event",
+              "type": {
+                "text": "Event"
+              }
+            },
+            {
+              "name": "typed-custom-event",
+              "description": "some description for typed-custom-event",
+              "type": {
+                "text": "CustomEvent"
+              }
+            }
+          ],
+          "attributes": [
+            {
+              "name": "disabled",
+              "description": "disables the element",
+              "type": {
+                "text": "boolean"
+              }
+            },
+            {
+              "name": "foo",
+              "description": "description for foo",
+              "type": {
+                "text": "string"
+              }
+            }
+          ],
+          "superclass": {
+            "name": "HTMLElement"
+          },
+          "tagName": "my-element",
+          "customElement": true,
+          "summary": "This is MyElement"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "MyElement",
+          "declaration": {
+            "name": "MyElement"
+          }
+        }
+      ]
+    }
+  ]
+}"
+`;
+
+exports[`01-class > 04-readonly 1`] = `
+"{
+  "schemaVersion": "2.1.0",
+  "readme": "",
+  "modules": [
+    {
+      "kind": "javascript-module",
+      "path": "./my-element.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "name": "MyElement",
+          "description": "",
+          "members": [
+            {
+              "kind": "field",
+              "name": "foo",
+              "type": {
+                "text": "number"
+              },
+              "readonly": true,
+              "default": "1"
+            },
+            {
+              "kind": "field",
+              "name": "bar",
+              "type": {
+                "text": "number"
+              },
+              "readonly": true,
+              "default": "2"
+            },
+            {
+              "kind": "field",
+              "name": "baz"
+            },
+            {
+              "kind": "field",
+              "name": "qux",
+              "readonly": true
+            }
+          ],
+          "superclass": {
+            "name": "HTMLElement"
+          }
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "MyElement",
+          "declaration": {
+            "name": "MyElement"
+          }
+        }
+      ]
+    }
+  ]
+}"
+`;
+
+exports[`01-class > 05-custom-states 1`] = `
+"{
+  "schemaVersion": "2.1.0",
+  "readme": "",
+  "modules": [
+    {
+      "kind": "javascript-module",
+      "path": "./my-element.js",
+      "declarations": [
+        {
+          "kind": "class",
+          "name": "MyElement",
+          "description": "",
+          "superclass": {
+            "name": "HTMLElement"
+          }
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "MyElement",
+          "declaration": {
+            "name": "MyElement"
+          }
+        }
+      ]
+    }
+  ]
+}"
+`;
+
+exports[`01-class > default 1`] = `
+"{
+  "schemaVersion": "2.1.0",
+  "readme": "",
+  "modules": [
+    {
+      "kind": "javascript-module",
+      "path": "./bar.js",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "foo",
+          "type": {
+            "text": "number"
+          },
+          "default": "1"
+        },
+        {
+          "kind": "variable",
+          "name": "bar",
+          "default": "{ foo }"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "bar",
+          "declaration": {
+            "name": "bar"
+          }
+        }
+      ]
+    }
+  ]
+}"
+`;

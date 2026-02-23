@@ -1,0 +1,229 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`07-plugin-lit > 01-basic 1`] = `
+"{
+  "schemaVersion": "2.1.0",
+  "readme": "",
+  "modules": [
+    {
+      "kind": "javascript-module",
+      "path": "./my-element.js",
+      "declarations": [
+        {
+          "kind": "class",
+          "name": "MyElement",
+          "description": "",
+          "members": [
+            {
+              "kind": "field",
+              "name": "decoratedProperty",
+              "type": {
+                "text": "array"
+              },
+              "attribute": "decoratedProperty",
+              "default": "[]"
+            },
+            {
+              "kind": "field",
+              "name": "decoratedPropertyAlsoAttr",
+              "type": {
+                "text": "array"
+              },
+              "attribute": "my-attr2",
+              "default": "[]"
+            },
+            {
+              "kind": "field",
+              "name": "decoratedPropertyNoAttr",
+              "type": {
+                "text": "array"
+              },
+              "default": "[]"
+            },
+            {
+              "kind": "field",
+              "name": "decoratedReflect",
+              "reflects": true,
+              "attribute": "decoratedReflect"
+            },
+            {
+              "kind": "field",
+              "name": "decoratedReflect2",
+              "reflects": true,
+              "attribute": "decorated-reflect"
+            },
+            {
+              "kind": "field",
+              "name": "prop1",
+              "description": "this is the description",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "public",
+              "attribute": "prop1",
+              "default": "'foo'"
+            },
+            {
+              "kind": "field",
+              "name": "prop2",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "attribute": "prop2"
+            },
+            {
+              "kind": "field",
+              "name": "attr",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "public",
+              "attribute": "my-attr"
+            },
+            {
+              "kind": "field",
+              "name": "noAttr",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "public"
+            },
+            {
+              "kind": "field",
+              "name": "_privateProp",
+              "type": {
+                "text": "Boolean"
+              },
+              "privacy": "private",
+              "attribute": "_privateProp"
+            },
+            {
+              "kind": "field",
+              "name": "reflect",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "reflects": true,
+              "attribute": "reflect"
+            },
+            {
+              "kind": "field",
+              "name": "reflect2",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "public",
+              "reflects": true,
+              "attribute": "reflect-2"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "my-attr",
+              "type": {
+                "text": "string"
+              },
+              "fieldName": "attr"
+            },
+            {
+              "name": "decoratedProperty",
+              "type": {
+                "text": "array"
+              },
+              "default": "[]",
+              "fieldName": "decoratedProperty"
+            },
+            {
+              "name": "my-attr2",
+              "type": {
+                "text": "array"
+              },
+              "default": "[]",
+              "fieldName": "decoratedPropertyAlsoAttr"
+            },
+            {
+              "name": "decoratedReflect",
+              "fieldName": "decoratedReflect"
+            },
+            {
+              "name": "decorated-reflect",
+              "fieldName": "decoratedReflect2"
+            },
+            {
+              "name": "prop1",
+              "description": "this is the description",
+              "type": {
+                "text": "string"
+              },
+              "default": "'foo'",
+              "fieldName": "prop1"
+            },
+            {
+              "name": "prop2",
+              "type": {
+                "text": "boolean"
+              },
+              "fieldName": "prop2"
+            },
+            {
+              "name": "_privateProp",
+              "type": {
+                "text": "Boolean"
+              },
+              "fieldName": "_privateProp"
+            },
+            {
+              "name": "reflect",
+              "type": {
+                "text": "boolean"
+              },
+              "fieldName": "reflect"
+            },
+            {
+              "name": "reflect-2",
+              "type": {
+                "text": "boolean"
+              },
+              "fieldName": "reflect2"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit-element"
+          },
+          "tagName": "my-element",
+          "customElement": true
+        },
+        {
+          "kind": "function",
+          "name": "InputMixin",
+          "description": "Picks up property decorator on mixins as well",
+          "parameters": [
+            {
+              "name": "superClass"
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "custom-element-definition",
+          "name": "my-element",
+          "declaration": {
+            "name": "MyElement"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "InputMixin",
+          "declaration": {
+            "name": "InputMixin"
+          }
+        }
+      ]
+    }
+  ]
+}"
+`;

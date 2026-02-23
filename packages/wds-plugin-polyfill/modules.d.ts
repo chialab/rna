@@ -7,5 +7,5 @@ declare module 'polyfill-library' {
 
     function getPolyfillString(options: Config): Promise<string>;
 
-    export type { getPolyfillString };
+    export { getPolyfillString };
 }

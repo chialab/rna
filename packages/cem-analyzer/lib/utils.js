@@ -152,7 +152,7 @@ export function decorateClassFieldWithJSDoc(doc, jsdoc) {
  * @returns {string} The generated code as a string.
  */
 export function print(node) {
-    return corePrint(/** @type {any} */ (node), tsx()).code;
+    return corePrint(node, tsx()).code;
 }
 
 /**

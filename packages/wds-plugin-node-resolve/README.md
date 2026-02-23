@@ -1,13 +1,11 @@
-<p align="center">
-    <strong>Wds Plugin Node Resolve</strong><br />A plugin the Web Dev Server for node resolutions.
-</p>
+# Wds Plugin Node Resolve
 
-<p align="center">
-    <a href="https://www.npmjs.com/package/@chialab/wds-plugin-node-resolve"><img alt="NPM" src="https://img.shields.io/npm/v/@chialab/wds-plugin-node-resolve.svg?style=flat-square"></a>
-</p>
+A plugin for the [Web Dev Server](https://modern-web.dev/docs/dev-server/overview/) for node resolutions.
 
 > [!CAUTION]
 > Since we are moving away from the RNA cli, we are discontinuing the development of Web Dev Server plugins.
+
+[![NPM](https://img.shields.io/npm/v/@chialab/wds-plugin-node-resolve.svg)](https://www.npmjs.com/package/@chialab/wds-plugin-node-resolve)
 
 ---
 
@@ -21,6 +19,10 @@ npm i @chialab/wds-plugin-node-resolve -D
 yarn add @chialab/wds-plugin-node-resolve -D
 ```
 
+```sh
+pnpm add @chialab/wds-plugin-node-resolve -D
+```
+
 ## Usage
 
 ```js
@@ -31,8 +33,6 @@ await startDevServer({
     plugins: [nodeResolvePlugin()],
 });
 ```
-
----
 
 ## License
 

@@ -1,12 +1,8 @@
-<p align="center">
-    <strong>esbuild-plugin-unwebpack</strong><br />Remove webpack features from sources.
-</p>
+# Esbuild Plugin Unwebpack
 
-<p align="center">
-    <a href="https://www.npmjs.com/package/@chialab/esbuild-plugin-unwebpack"><img alt="NPM" src="https://img.shields.io/npm/v/@chialab/esbuild-plugin-unwebpack.svg?style=flat-square"></a>
-</p>
+A plugin for [esbuild](https://esbuild.github.io/) that removes webpack features from sources.
 
----
+[![NPM](https://img.shields.io/npm/v/@chialab/esbuild-plugin-unwebpack.svg)](https://www.npmjs.com/package/@chialab/esbuild-plugin-unwebpack)
 
 ## Install
 
@@ -16,6 +12,10 @@ npm i @chialab/esbuild-plugin-unwebpack -D
 
 ```sh
 yarn add @chialab/esbuild-plugin-unwebpack -D
+```
+
+```sh
+pnpm add @chialab/esbuild-plugin-unwebpack -D
 ```
 
 ## Usage
@@ -29,8 +29,6 @@ await esbuild.build({
 });
 ```
 
----
-
 ## License
 
-**esbuild-plugin-unwebpack** is released under the [MIT](https://github.com/chialab/rna/blob/main/packages/esbuild-plugin-unwebpack/LICENSE) license.
+**Esbuild Plugin Unwebpack** is released under the [MIT](https://github.com/chialab/rna/blob/main/packages/esbuild-plugin-unwebpack/LICENSE) license.

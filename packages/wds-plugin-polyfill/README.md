@@ -1,15 +1,11 @@
-<p align="center">
-    <strong>Wds Plugin Polyfill</strong><br />Inject polyfills to HTML responses served by the <a href="https://modern-web.dev/docs/dev-server/overview/">Web Dev Server</a>.
-</p>
+# Wds Plugin Polyfill
 
-<p align="center">
-    <a href="https://www.npmjs.com/package/@chialab/wds-plugin-polyfill"><img alt="NPM" src="https://img.shields.io/npm/v/@chialab/wds-plugin-polyfill.svg?style=flat-square"></a>
-</p>
+Inject polyfills to HTML responses served by the [Web Dev Server](https://modern-web.dev/docs/dev-server/overview/).
 
 > [!CAUTION]
 > Since we are moving away from the RNA cli, we are discontinuing the development of Web Dev Server plugins.
 
----
+[![NPM](https://img.shields.io/npm/v/@chialab/wds-plugin-polyfill.svg)](https://www.npmjs.com/package/@chialab/wds-plugin-polyfill)
 
 ## Install
 
@@ -19,6 +15,10 @@ npm i @chialab/wds-plugin-polyfill -D
 
 ```sh
 yarn add @chialab/wds-plugin-polyfill -D
+```
+
+```sh
+pnpm add @chialab/wds-plugin-polyfill -D
 ```
 
 ## Usage
@@ -45,8 +45,6 @@ await startDevServer({
 ```
 
 It uses the [polyfill.io](https://github.com/Financial-Times/polyfill-library) library under the hoods.
-
----
 
 ## License
 

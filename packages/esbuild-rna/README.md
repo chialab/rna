@@ -1,12 +1,8 @@
-<p align="center">
-    <strong>Esbuild RNA</strong><br />A framework for esbuild plugins with transform and emit capabilities.
-</p>
+# Esbuild RNA
 
-<p align="center">
-    <a href="https://www.npmjs.com/package/@chialab/esbuild-rna"><img alt="NPM" src="https://img.shields.io/npm/v/@chialab/esbuild-rna.svg?style=flat-square"></a>
-</p>
+A framework for [esbuild](https://esbuild.github.io/) plugins with transform and emit capabilities.
 
----
+[![NPM](https://img.shields.io/npm/v/@chialab/esbuild-rna.svg)](https://www.npmjs.com/package/@chialab/esbuild-rna)
 
 ## Install
 
@@ -18,13 +14,9 @@ npm i @chialab/esbuild-rna -D
 yarn add @chialab/esbuild-rna -D
 ```
 
-## Usage
-
-```js
-import '@chialab/esbuild-rna';
+```sh
+pnpm add @chialab/esbuild-rna -D
 ```
-
----
 
 ## License
 

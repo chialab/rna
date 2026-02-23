@@ -1,29 +1,13 @@
-<p align="center">
-    <strong>vite-plugin-commonjs</strong><br />Support for dynamic commonjs transformation in Vite dev server.
-</p>
+# Vite Plugin CommonJS
 
-<p align="center">
-    <a href="https://www.npmjs.com/package/@chialab/vite-plugin-commonjs"><img alt="NPM" src="https://img.shields.io/npm/v/@chialab/vite-plugin-commonjs.svg?style=flat-square"></a>
-</p>
+Support for dynamic commonjs transformation in [vite](https://vite.dev/) dev server.
 
----
-
-## Install
-
-```sh
-npm i @chialab/vite-plugin-commonjs -D
-```
-
-```sh
-yarn add @chialab/vite-plugin-commonjs -D
-```
+[![NPM](https://img.shields.io/npm/v/@chialab/vite-plugin-commonjs.svg)](https://www.npmjs.com/package/@chialab/vite-plugin-commonjs)
 
 ## Documentation
 
 Read the documentation at [chialab.github.io/rna](https://chialab.github.io/rna/guide/vite-plugin-commonjs).
 
----
-
 ## License
 
-**vite-plugin-commonjs** is released under the [MIT](https://github.com/chialab/rna/blob/main/packages/vite-plugin-commonjs/LICENSE) license.
+**Vite Plugin CommonJS** is released under the [MIT](https://github.com/chialab/rna/blob/main/packages/vite-plugin-commonjs/LICENSE) license.

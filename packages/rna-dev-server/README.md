@@ -1,15 +1,11 @@
-<p align="center">
-    <strong>RNA Dev Server</strong><br />A webapp server based on <a href="https://modern-web.dev/docs/dev-server/overview/">Web Dev Server</a>.
-</p>
+# RNA Dev Server
 
-<p align="center">
-    <a href="https://www.npmjs.com/package/@chialab/rna-dev-server"><img alt="NPM" src="https://img.shields.io/npm/v/@chialab/rna-dev-server.svg?style=flat-square"></a>
-</p>
+A webapp server based on [Web Dev Server](https://modern-web.dev/docs/dev-server/overview/).
 
 > [!CAUTION]
 > RNA cli development is deprecated and discontinued. It's recommended to use RNA plugins directly in your projects using vite, esbuild, or other supported tools.
 
----
+[![NPM](https://img.shields.io/npm/v/@chialab/rna-dev-server.svg)](https://www.npmjs.com/package/@chialab/rna-dev-server)
 
 ## Install
 
@@ -19,6 +15,10 @@ npm i @chialab/rna-dev-server -D
 
 ```sh
 yarn add @chialab/rna-dev-server -D
+```
+
+```sh
+pnpm add @chialab/rna-dev-server -D
 ```
 
 ## Usage
@@ -76,14 +76,10 @@ await devServer.start(server);
 app.use(devServer.callback());
 ```
 
----
-
 ### Integrations
 
 - [RNA CakePHP](https://github.com/chialab/rna-cakephp): a view helper to inject scripts and css with livereload.
 
----
-
 ## License
 
-RNA Dev Server is released under the [MIT](https://github.com/chialab/rna/blob/main/packages/rna-dev-server/LICENSE) license.
+**RNA Dev Server** is released under the [MIT](https://github.com/chialab/rna/blob/main/packages/rna-dev-server/LICENSE) license.

@@ -1,12 +1,8 @@
-<p align="center">
-    <strong>Postcss Preset Chialab</strong><br />The <a href="https://postcss.org/">postcss</a> preset used by Chialab.
-</p>
+# Postcss Preset Chialab
 
-<p align="center">
-    <a href="https://www.npmjs.com/package/@chialab/postcss-preset-chialab"><img alt="NPM" src="https://img.shields.io/npm/v/@chialab/postcss-preset-chialab.svg?style=flat-square"></a>
-</p>
+The [postcss](https://postcss.org/) preset used by Chialab.
 
----
+[![NPM](https://img.shields.io/npm/v/@chialab/postcss-preset-chialab.svg)](https://www.npmjs.com/package/@chialab/postcss-preset-chialab)
 
 ## Plugins
 
@@ -16,8 +12,6 @@
 - [postcss-focus-visible](https://preview.npmjs.com/package/postcss-focus-visible)
 - [postcss-focus-within](https://preview.npmjs.com/package/postcss-focus-within)
 
----
-
 ## Install
 
 ```sh
@@ -26,6 +20,10 @@ npm i @chialab/postcss-preset-chialab -D
 
 ```sh
 yarn add @chialab/postcss-preset-chialab -D
+```
+
+```sh
+pnpm add @chialab/postcss-preset-chialab -D
 ```
 
 ## Usage
@@ -38,8 +36,6 @@ postcss([
     chialabPreset(),
 ]).process(...);
 ```
-
----
 
 ## License
 

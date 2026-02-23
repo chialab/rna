@@ -1,16 +1,12 @@
-<p align="center">
-    <strong>Esbuild Plugin Postcss</strong><br />A CSS loader plugin for <a href="https://esbuild.github.io/">esbuild</a> that uses <a href="https://postcss.org/">postcss</a> as preprocessor.
-</p>
+# Esbuild Plugin Postcss
 
-<p align="center">
-    <a href="https://www.npmjs.com/package/@chialab/esbuild-plugin-postcss"><img alt="NPM" src="https://img.shields.io/npm/v/@chialab/esbuild-plugin-postcss.svg?style=flat-square"></a>
-</p>
+A CSS loader plugin for [esbuild](https://esbuild.github.io/) that uses [postcss](https://postcss.org/) as preprocessor.
+
+[![NPM](https://img.shields.io/npm/v/@chialab/esbuild-plugin-postcss.svg)](https://www.npmjs.com/package/@chialab/esbuild-plugin-postcss)
 
 ## Documentation
 
 Read the documentation at [chialab.github.io/rna](https://chialab.github.io/rna/guide/esbuild-plugin-postcss).
-
----
 
 ## License
 

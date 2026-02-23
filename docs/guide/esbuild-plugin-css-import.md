@@ -2,6 +2,12 @@
 
 Resolve CSS imports using the node resolution algorithm and the `style` field in package.json.
 
+::: danger
+
+This plugin development is deprecated and discontinued, as we are moving away from the custom `style` resolution field in package.json in favor of the `./style` export specifier.
+
+:::
+
 ## Why
 
 CSS modules resolution is not standardized, so it's not possible to natively import CSS files from `node_modules/` using the `@import` statement.

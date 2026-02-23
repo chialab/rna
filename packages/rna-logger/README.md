@@ -1,12 +1,11 @@
-<p align="center">
-    <strong>RNA Logger</strong><br />A logging helper for the RNA cli.
-</p>
+# RNA Logger
 
-<p align="center">
-    <a href="https://www.npmjs.com/package/@chialab/rna-logger"><img alt="NPM" src="https://img.shields.io/npm/v/@chialab/rna-logger.svg?style=flat-square"></a>
-</p>
+A logging helper for the RNA cli.
 
----
+> [!CAUTION]
+> RNA cli development is deprecated and discontinued. It's recommended to use RNA plugins directly in your projects using vite, esbuild, or other supported tools.
+
+[![NPM](https://img.shields.io/npm/v/@chialab/rna-logger.svg)](https://www.npmjs.com/package/@chialab/rna-logger)
 
 ## Install
 
@@ -18,13 +17,15 @@ npm i @chialab/rna-logger -D
 yarn add @chialab/rna-logger -D
 ```
 
+```sh
+pnpm add @chialab/rna-logger -D
+```
+
 ## Usage
 
 ```js
 import '@chialab/rna-logger';
 ```
-
----
 
 ## License
 

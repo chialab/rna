@@ -2,7 +2,7 @@
 
 Custom Elements Manifest analyzer and generator.
 
-[![NPM](https://img.shields.io/npm/v/@chialab/cem-analyzer.svg?style=flat-square)](https://www.npmjs.com/package/@chialab/cem-analyzer)
+[![NPM](https://img.shields.io/npm/v/@chialab/cem-analyzer.svg)](https://www.npmjs.com/package/@chialab/cem-analyzer)
 
 ---
 

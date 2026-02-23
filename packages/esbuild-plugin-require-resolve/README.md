@@ -1,41 +1,12 @@
-<p align="center">
-    <strong>Esbuild Plugin Require Resolve</strong><br />A file loader plugin for <a href="https://esbuild.github.io/">esbuild</a> for `require.resolve` statements.
-</p>
+# Esbuild Plugin Require Resolve
 
-<p align="center">
-    <a href="https://www.npmjs.com/package/@chialab/esbuild-plugin-require-resolve"><img alt="NPM" src="https://img.shields.io/npm/v/@chialab/esbuild-plugin-require-resolve.svg?style=flat-square"></a>
-</p>
+A file loader plugin for [esbuild](https://esbuild.github.io/) for `require.resolve` statements.
 
----
+[![NPM](https://img.shields.io/npm/v/@chialab/esbuild-plugin-require-resolve.svg)](https://www.npmjs.com/package/@chialab/esbuild-plugin-require-resolve)
 
-## How it works
+## Documentation
 
-**Esbuild Plugin Require Resolve** looks for `require.resolve('path/to/file.png')` statements in JavaScript and TypeScript files and instructs esbuild to copy referenced files.
-
----
-
-## Install
-
-```sh
-npm i @chialab/esbuild-plugin-require-resolve -D
-```
-
-```sh
-yarn add @chialab/esbuild-plugin-require-resolve -D
-```
-
-## Usage
-
-```js
-import requireResolvePlugin from '@chialab/esbuild-plugin-require-resolve';
-import esbuild from 'esbuild';
-
-await esbuild.build({
-    plugins: [requireResolvePlugin()],
-});
-```
-
----
+Read the documentation at [chialab.github.io/rna](https://chialab.github.io/rna/guide/esbuild-plugin-require-resolve).
 
 ## License
 

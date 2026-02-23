@@ -1,15 +1,11 @@
-<p align="center">
-    <strong>Wds Plugin RNA</strong><br />A plugin for the Web Dev Server to transpile sources using the RNA bundler.
-</p>
+# Wds Plugin RNA
 
-<p align="center">
-    <a href="https://www.npmjs.com/package/@chialab/wds-plugin-rna"><img alt="NPM" src="https://img.shields.io/npm/v/@chialab/wds-plugin-rna.svg?style=flat-square"></a>
-</p>
+A plugin for the [Web Dev Server](https://modern-web.dev/docs/dev-server/overview/) to transpile sources using the RNA bundler.
 
 > [!CAUTION]
 > Since we are moving away from the RNA cli, we are discontinuing the development of Web Dev Server plugins.
 
----
+[![NPM](https://img.shields.io/npm/v/@chialab/wds-plugin-rna.svg)](https://www.npmjs.com/package/@chialab/wds-plugin-rna)
 
 ## Install
 
@@ -19,6 +15,10 @@ npm i @chialab/wds-plugin-rna -D
 
 ```sh
 yarn add @chialab/wds-plugin-rna -D
+```
+
+```sh
+pnpm add @chialab/wds-plugin-rna -D
 ```
 
 ## Usage
@@ -31,8 +31,6 @@ await startDevServer({
     plugins: [rnaPlugin()],
 });
 ```
-
----
 
 ## License
 

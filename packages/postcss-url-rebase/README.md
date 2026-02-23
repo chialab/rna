@@ -1,16 +1,12 @@
-<p align="center">
-    <strong>Postcss Url Rebase</strong><br />A <a href="https://postcss.org/">postcss</a> plugin for `url()` rebasing before import.
-</p>
+# Postcss Url Rebase
 
-<p align="center">
-    <a href="https://www.npmjs.com/package/@chialab/postcss-url-rebase"><img alt="NPM" src="https://img.shields.io/npm/v/@chialab/postcss-url-rebase.svg?style=flat-square"></a>
-</p>
+A [postcss](https://postcss.org/) plugin for `url()` rebasing before import.
+
+[![NPM](https://img.shields.io/npm/v/@chialab/postcss-url-rebase.svg)](https://www.npmjs.com/package/@chialab/postcss-url-rebase)
 
 ## Documentation
 
 Read the documentation at [chialab.github.io/rna](https://chialab.github.io/rna/guide/postcss-url-rebase).
-
----
 
 ## License
 

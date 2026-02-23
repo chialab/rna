@@ -1,15 +1,11 @@
-<p align="center">
-    <strong>RNA</strong><br />A bundler, a server and a test runner for modern modules and applications.
-</p>
+# RNA
 
-<p align="center">
-    <a href="https://www.npmjs.com/package/@chialab/rna"><img alt="NPM" src="https://img.shields.io/npm/v/@chialab/rna.svg?style=flat-square"></a>
-</p>
+A bundler, a server and a test runner for modern modules and applications.
 
 > [!CAUTION]
 > RNA cli development is deprecated and discontinued. It's recommended to use RNA plugins directly in your projects using vite, esbuild, or other supported tools.
 
----
+[![NPM](https://img.shields.io/npm/v/@chialab/rna.svg)](https://www.npmjs.com/package/@chialab/rna)
 
 ## Install
 
@@ -21,7 +17,9 @@ npm i @chialab/rna
 yarn add @chialab/rna
 ```
 
----
+```sh
+pnpm add @chialab/rna
+```
 
 ## License
 

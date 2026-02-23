@@ -1,12 +1,8 @@
-<p align="center">
-    <strong>CommonJS to ESM</strong><br />A commonjs to esm converter, inspired by <a href="https://github.com/preactjs/wmr">WMR</a>.
-</p>
+# CommonJS to ESM
 
-<p align="center">
-    <a href="https://www.npmjs.com/package/@chialab/cjs-to-esm"><img alt="NPM" src="https://img.shields.io/npm/v/@chialab/cjs-to-esm.svg?style=flat-square"></a>
-</p>
+A commonjs to esm converter, inspired by [WMR](https://github.com/preactjs/wmr).
 
----
+[![NPM](https://img.shields.io/npm/v/@chialab/cjs-to-esm.svg)](https://www.npmjs.com/package/@chialab/cjs-to-esm)
 
 ## Install
 
@@ -18,6 +14,10 @@ npm i @chialab/cjs-to-esm -D
 yarn add @chialab/cjs-to-esm -D
 ```
 
+```sh
+pnpm add @chialab/cjs-to-esm -D
+```
+
 ## Usage
 
 ```js
@@ -25,8 +25,6 @@ import { transform } from '@chialab/cjs-to-esm';
 
 const { code, map } = transform('require("tslib"); module.exports = function() {}');
 ```
-
----
 
 ## License
 

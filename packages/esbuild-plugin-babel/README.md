@@ -1,16 +1,12 @@
-<p align="center">
-    <strong>Esbuild Plugin Babel</strong><br />An <a href="https://esbuild.github.io/">esbuild</a> plugin that runs <a href="https://babeljs.io/">babel</a> for es5 transpilation.
-</p>
+# Esbuild Plugin Babel
 
-<p align="center">
-    <a href="https://www.npmjs.com/package/@chialab/esbuild-plugin-babel"><img alt="NPM" src="https://img.shields.io/npm/v/@chialab/esbuild-plugin-babel.svg?style=flat-square"></a>
-</p>
+An [esbuild](https://esbuild.github.io/) plugin that runs [babel](https://babeljs.io/) for es5 transpilation.
+
+[![NPM](https://img.shields.io/npm/v/@chialab/esbuild-plugin-babel.svg)](https://www.npmjs.com/package/@chialab/esbuild-plugin-babel)
 
 ## Documentation
 
 Read the documentation at [chialab.github.io/rna](https://chialab.github.io/rna/guide/esbuild-plugin-babel).
-
----
 
 ## License
 

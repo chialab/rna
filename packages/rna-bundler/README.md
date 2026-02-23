@@ -1,15 +1,11 @@
-<p align="center">
-    <strong>RNA Bundler</strong><br />A JavaScript, CSS and HTML bundler based on <a href="https://esbuild.github.io/">esbuild</a>.
-</p>
+# RNA Bundler
 
-<p align="center">
-    <a href="https://www.npmjs.com/package/@chialab/rna-bundler"><img alt="NPM" src="https://img.shields.io/npm/v/@chialab/rna-bundler.svg?style=flat-square"></a>
-</p>
+A JavaScript, CSS and HTML bundler based on [esbuild](https://esbuild.github.io/).
 
 > [!CAUTION]
 > RNA cli development is deprecated and discontinued. It's recommended to use RNA plugins directly in your projects using vite, esbuild, or other supported tools.
 
----
+[![NPM](https://img.shields.io/npm/v/@chialab/rna-bundler.svg)](https://www.npmjs.com/package/@chialab/rna-bundler)
 
 ## Install
 
@@ -21,6 +17,10 @@ npm i @chialab/rna-bundler -D
 
 ```sh
 yarn add @chialab/rna-bundler -D
+```
+
+```sh
+pnpm add @chialab/rna-bundler -D
 ```
 
 ## Usage
@@ -85,8 +85,6 @@ $ rna build src/index.js --output public/index.js --format iife --minify --bundl
 $ rna build src/index.css --output public/index.css --minify --bundle
 ```
 
----
-
 ### Known limitations and workarounds
 
 Esbuild does not merge import statements from the same external source when bundling (see [#3](https://github.com/chialab/rna/issues/3)). Consumed esbuild bundles in webpack can be affected by a wrong optimization.
@@ -102,8 +100,6 @@ module.exports = {
 };
 ```
 
----
-
 ## License
 
-RNA Bundler is released under the [MIT](https://github.com/chialab/rna/blob/main/packages/rna-bundler/LICENSE) license.
+**RNA Bundler** is released under the [MIT](https://github.com/chialab/rna/blob/main/packages/rna-bundler/LICENSE) license.

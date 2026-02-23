@@ -1,12 +1,8 @@
-<p align="center">
-    <strong>ES Dev Server</strong><br />Dev server for ES modules.
-</p>
+# ES Dev Server
 
-<p align="center">
-    <a href="https://www.npmjs.com/package/@chialab/es-dev-server"><img alt="NPM" src="https://img.shields.io/npm/v/@chialab/es-dev-server.svg?style=flat-square"></a>
-</p>
+Dev server for ES modules.
 
----
+[![NPM version](https://img.shields.io/npm/v/@chialab/es-dev-server.svg)](https://www.npmjs.com/package/@chialab/es-dev-server)
 
 ## Install
 
@@ -18,7 +14,9 @@ npm i @chialab/es-dev-server -D
 yarn add @chialab/es-dev-server -D
 ```
 
----
+```sh
+pnpm add @chialab/es-dev-server -D
+```
 
 ## License
 

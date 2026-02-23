@@ -1,12 +1,8 @@
-<p align="center">
-    <strong>Estransform</strong><br />Execute multiple transformations on JavaScript sources with full sourcemaps support.
-</p>
+# Estransform
 
-<p align="center">
-    <a href="https://www.npmjs.com/package/@chialab/estransform"><img alt="NPM" src="https://img.shields.io/npm/v/@chialab/estransform.svg?style=flat-square"></a>
-</p>
+Execute multiple transformations on JavaScript sources with full sourcemaps support.
 
----
+[![NPM](https://img.shields.io/npm/v/@chialab/estransform.svg)](https://www.npmjs.com/package/@chialab/estransform)
 
 ## Install
 
@@ -16,6 +12,10 @@ npm i @chialab/estransform -D
 
 ```sh
 yarn add @chialab/estransform -D
+```
+
+```sh
+pnpm add @chialab/estransform -D
 ```
 
 ## Usage
@@ -29,8 +29,6 @@ const { ast, helpers } = await transform('require("tslib"); module.exports = fun
 
 helpers.overwrite(0, contents.length, 'Hello!');
 ```
-
----
 
 ## License
 

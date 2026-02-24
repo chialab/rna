@@ -31,20 +31,18 @@ export function overridePrototype(targetClass, sourceClass) {
         /**
          * @param {...unknown} args
          */
+
+        // biome-ignore lint/correctness/noUnreachableSuper: We need to override the source constructor with the target constructor.
         constructor(...args) {
             if (new.target === sourceClass) {
                 // biome-ignore lint/correctness/noConstructorReturn: We need to return a new target constructor instance instead of the source constructor instance.
                 return new targetClass(...args);
             }
-            // biome-ignore lint/correctness/noUnreachableSuper: We need to override the source constructor with the target constructor.
             super(...args);
         }
     };
     // Move Symbol.metadata to the new constructor.
-    if (
-        Symbol.metadata &&
-        Object.prototype.hasOwnProperty.call(sourceClass, Symbol.metadata)
-    ) {
+    if (Symbol.metadata && Object.prototype.hasOwnProperty.call(sourceClass, Symbol.metadata)) {
         Object.defineProperty(Ctr, Symbol.metadata, {
             writable: false,
             configurable: true,

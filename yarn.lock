@@ -1932,6 +1932,17 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@chialab/vite-plugin-hmr-dna@workspace:packages/vite-plugin-hmr-dna":
+  version: 0.0.0-use.local
+  resolution: "@chialab/vite-plugin-hmr-dna@workspace:packages/vite-plugin-hmr-dna"
+  dependencies:
+    "@chialab/dna": ^4.0.0
+    magic-string: ^0.30.0
+    typescript: ^5.0.0
+    vite: ^7.0.0
+  languageName: unknown
+  linkType: soft
+
 "@chialab/vite-plugin-isolated-decl@workspace:packages/vite-plugin-isolated-decl":
   version: 0.0.0-use.local
   resolution: "@chialab/vite-plugin-isolated-decl@workspace:packages/vite-plugin-isolated-decl"
@@ -9499,7 +9510,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"magic-string@npm:^0.30.21":
+"magic-string@npm:^0.30.0, magic-string@npm:^0.30.21":
   version: 0.30.21
   resolution: "magic-string@npm:0.30.21"
   dependencies:
@@ -13370,7 +13381,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite@npm:^6.0.0 || ^7.0.0, vite@npm:^7.3.1":
+"vite@npm:^6.0.0 || ^7.0.0, vite@npm:^7.0.0, vite@npm:^7.3.1":
   version: 7.3.1
   resolution: "vite@npm:7.3.1"
   dependencies:

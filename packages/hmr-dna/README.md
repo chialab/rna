@@ -1,6 +1,6 @@
 # HMR for DNA components
 
-Hot module replacement library for DNA components.
+Hot module replacement library for [DNA](https://chialab.github.io/dna/) components.
 
 [![NPM](https://img.shields.io/npm/v/@chialab/hmr-dna.svg)](https://www.npmjs.com/package/@chialab/hmr-dna)
 

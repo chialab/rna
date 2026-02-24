@@ -1,5 +1,11 @@
 # @chialab/storybook-dna
 
+## 10.1.6
+
+### Patch Changes
+
+- b442760: Use internal custom elements analyzer.
+
 ## 10.1.5
 
 ### Patch Changes

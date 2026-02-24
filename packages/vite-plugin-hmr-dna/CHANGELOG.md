@@ -1,5 +1,11 @@
 # @chialab/vite-plugin-hmr-dna
 
+## 4.1.3
+
+### Patch Changes
+
+- b442760: Use internal custom elements analyzer.
+
 ## 4.1.2
 
 ### Patch Changes

@@ -1,5 +1,14 @@
 # @chialab/storybook-dna-vite
 
+## 10.0.3
+
+### Patch Changes
+
+- b442760: Use internal custom elements analyzer.
+- Updated dependencies [b442760]
+  - @chialab/storybook-dna@10.1.6
+  - @chialab/vite-plugin-hmr-dna@4.1.3
+
 ## 10.0.2
 
 ### Patch Changes

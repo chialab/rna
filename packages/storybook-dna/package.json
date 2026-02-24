@@ -1,13 +1,16 @@
 {
-  "name": "@chialab/hmr-dna",
+  "name": "@chialab/storybook-dna",
   "type": "module",
-  "version": "4.0.1",
-  "description": "Hot module replacement library for DNA components.",
+  "version": "10.1.5",
+  "description": "The library used to render Storybook stories with DNA.",
   "exports": {
     ".": {
       "types": "./types/index.d.ts",
       "default": "./lib/index.js"
     },
+    "./preset": "./preset.js",
+    "./lib/entry-preview.js": "./lib/entry-preview.js",
+    "./lib/entry-preview-docs.js": "./lib/entry-preview-docs.js",
     "./package.json": "./package.json"
   },
   "main": "lib/index.js",
@@ -17,25 +20,34 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/chialab/rna",
-    "directory": "packages/hmr-dna"
+    "directory": "packages/storybook-dna"
   },
   "keywords": [
     "hmr",
     "dna",
+    "vite",
     "hot module replacement",
     "components"
   ],
   "files": [
     "lib",
     "types",
+    "preset.js",
     "package.json",
     "README.md",
     "LICENSE"
   ],
   "dependencies": {
-    "@chialab/dna": "^4.0.0"
+    "ts-dedent": "^2.0.0"
   },
   "devDependencies": {
-    "typescript": "^5.0.0"
+    "@chialab/dna": "^4.0.0",
+    "@types/react": "^18.0.26",
+    "custom-elements-manifest": "^2.0.0",
+    "storybook": "^10.0.0-rc.0"
+  },
+  "peerDependencies": {
+    "@chialab/dna": "^4.0.0",
+    "storybook": "^10.0.0-rc.0"
   }
 }

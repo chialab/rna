@@ -1915,6 +1915,21 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@chialab/storybook-dna@workspace:packages/storybook-dna":
+  version: 0.0.0-use.local
+  resolution: "@chialab/storybook-dna@workspace:packages/storybook-dna"
+  dependencies:
+    "@chialab/dna": ^4.0.0
+    "@types/react": ^18.0.26
+    custom-elements-manifest: ^2.0.0
+    storybook: ^10.0.0-rc.0
+    ts-dedent: ^2.0.0
+  peerDependencies:
+    "@chialab/dna": ^4.0.0
+    storybook: ^10.0.0-rc.0
+  languageName: unknown
+  linkType: soft
+
 "@chialab/vite-plugin-commonjs@workspace:packages/vite-plugin-commonjs":
   version: 0.0.0-use.local
   resolution: "@chialab/vite-plugin-commonjs@workspace:packages/vite-plugin-commonjs"
@@ -4590,6 +4605,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/prop-types@npm:*":
+  version: 15.7.15
+  resolution: "@types/prop-types@npm:15.7.15"
+  checksum: 31aa2f59b28f24da6fb4f1d70807dae2aedfce090ec63eaf9ea01727a9533ef6eaf017de5bff99fbccad7d1c9e644f52c6c2ba30869465dd22b1a7221c29f356
+  languageName: node
+  linkType: hard
+
 "@types/qs@npm:*":
   version: 6.14.0
   resolution: "@types/qs@npm:6.14.0"
@@ -4601,6 +4623,16 @@ __metadata:
   version: 1.2.7
   resolution: "@types/range-parser@npm:1.2.7"
   checksum: 95640233b689dfbd85b8c6ee268812a732cf36d5affead89e806fe30da9a430767af8ef2cd661024fd97e19d61f3dec75af2df5e80ec3bea000019ab7028629a
+  languageName: node
+  linkType: hard
+
+"@types/react@npm:^18.0.26":
+  version: 18.3.28
+  resolution: "@types/react@npm:18.3.28"
+  dependencies:
+    "@types/prop-types": "*"
+    csstype: ^3.2.2
+  checksum: 9d59fb3def4e712d4f8fa15998791a07f9799462f8d581d17039a9503017bfce3463d57fc737ce1d28d6aa3f482f4a3a5bae5a662d97560a9359aab111556c97
   languageName: node
   linkType: hard
 
@@ -6695,7 +6727,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"csstype@npm:^3.2.3":
+"csstype@npm:^3.2.2, csstype@npm:^3.2.3":
   version: 3.2.3
   resolution: "csstype@npm:3.2.3"
   checksum: cb882521b3398958a1ce6ca98c011aec0bde1c77ecaf8a1dd4db3b112a189939beae3b1308243b2fe50fc27eb3edeb0f73a5a4d91d928765dc6d5ecc7bda92ee
@@ -6709,7 +6741,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"custom-elements-manifest@npm:^2.1.0":
+"custom-elements-manifest@npm:^2.0.0, custom-elements-manifest@npm:^2.1.0":
   version: 2.1.0
   resolution: "custom-elements-manifest@npm:2.1.0"
   checksum: d79fa32b40160859a0cdf9ed46f45059be5591b6aa6d272a8f54fbf541f289192a21e8d60868fb1a9728805c728caef1564c80b82cd90def123a4522fe38f09e
@@ -12591,6 +12623,33 @@ __metadata:
   languageName: node
   linkType: hard
 
+"storybook@npm:^10.0.0-rc.0":
+  version: 10.2.11
+  resolution: "storybook@npm:10.2.11"
+  dependencies:
+    "@storybook/global": ^5.0.0
+    "@storybook/icons": ^2.0.1
+    "@testing-library/jest-dom": ^6.6.3
+    "@testing-library/user-event": ^14.6.1
+    "@vitest/expect": 3.2.4
+    "@vitest/spy": 3.2.4
+    esbuild: ^0.18.0 || ^0.19.0 || ^0.20.0 || ^0.21.0 || ^0.22.0 || ^0.23.0 || ^0.24.0 || ^0.25.0 || ^0.26.0 || ^0.27.0
+    open: ^10.2.0
+    recast: ^0.23.5
+    semver: ^7.7.3
+    use-sync-external-store: ^1.5.0
+    ws: ^8.18.0
+  peerDependencies:
+    prettier: ^2 || ^3
+  peerDependenciesMeta:
+    prettier:
+      optional: true
+  bin:
+    storybook: ./dist/bin/dispatcher.js
+  checksum: bf3ad33d794fa51ed7210343e34a28c92fd9d9d5a6bed0a959018d7c4cd50f1692ea8cb323f408e1e62186cd922a67cefc15edc24c10ceaf320cddccf1163413
+  languageName: node
+  linkType: hard
+
 "stream-combiner@npm:~0.0.4":
   version: 0.0.4
   resolution: "stream-combiner@npm:0.0.4"
@@ -13071,6 +13130,13 @@ __metadata:
   version: 3.0.1
   resolution: "trim-lines@npm:3.0.1"
   checksum: e241da104682a0e0d807222cc1496b92e716af4db7a002f4aeff33ae6a0024fef93165d49eab11aa07c71e1347c42d46563f91dfaa4d3fb945aa535cdead53ed
+  languageName: node
+  linkType: hard
+
+"ts-dedent@npm:^2.0.0":
+  version: 2.2.0
+  resolution: "ts-dedent@npm:2.2.0"
+  checksum: 93ed8f7878b6d5ed3c08d99b740010eede6bccfe64bce61c5a4da06a2c17d6ddbb80a8c49c2d15251de7594a4f93ffa21dd10e7be75ef66a4dc9951b4a94e2af
   languageName: node
   linkType: hard
 

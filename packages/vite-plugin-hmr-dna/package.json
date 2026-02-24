@@ -3,6 +3,13 @@
   "type": "module",
   "version": "4.1.2",
   "description": "Hot module replacement for DNA components and Vite.",
+  "exports": {
+    ".": {
+      "types": "./types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./package.json": "./package.json"
+  },
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",
   "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",

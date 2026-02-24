@@ -73,6 +73,9 @@
       "path": "./packages/estransform"
     },
     {
+      "path": "./packages/hmr-dna"
+    },
+    {
       "path": "./packages/node-resolve"
     },
     {

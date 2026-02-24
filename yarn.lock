@@ -1524,6 +1524,13 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@chialab/dna@npm:^4.0.0":
+  version: 4.5.0
+  resolution: "@chialab/dna@npm:4.5.0"
+  checksum: be314b75c005d5b89399ecbd8018f9555d25430bf14c549d692926af593dc087d6768e03e2a945eaf04b7e5b9062032c3a7d94bac6abc15382fb779f371c55c0
+  languageName: node
+  linkType: hard
+
 "@chialab/es-dev-server@^0.19.0, @chialab/es-dev-server@workspace:packages/es-dev-server":
   version: 0.0.0-use.local
   resolution: "@chialab/es-dev-server@workspace:packages/es-dev-server"
@@ -1733,7 +1740,15 @@ __metadata:
     cjs-module-lexer: ^1.2.2
     es-module-lexer: ^1.0.0
     oxc-parser: ^0.8.0
-    rimraf: ^6.0.0
+    typescript: ^5.0.0
+  languageName: unknown
+  linkType: soft
+
+"@chialab/hmr-dna@workspace:packages/hmr-dna":
+  version: 0.0.0-use.local
+  resolution: "@chialab/hmr-dna@workspace:packages/hmr-dna"
+  dependencies:
+    "@chialab/dna": ^4.0.0
     typescript: ^5.0.0
   languageName: unknown
   linkType: soft

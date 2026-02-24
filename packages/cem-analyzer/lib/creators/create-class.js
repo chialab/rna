@@ -108,7 +108,7 @@ export function createClass(context, node, jsdoc = context.parseJSDoc(node)) {
                 description: undefined,
                 type: undefined,
                 static: member.static || undefined,
-                privacy: undefined,
+                privacy: member.accessibility || undefined,
                 reflects: undefined,
                 readonly: undefined,
                 deprecated: undefined,
@@ -137,6 +137,30 @@ export function createClass(context, node, jsdoc = context.parseJSDoc(node)) {
                 )
             ) {
                 fieldTemplate.readonly = true;
+                const returnType = /** @type {MethodDefinition} */ (member).value.returnType;
+                if (returnType && !typeText) {
+                    typeText = context.print(returnType.typeAnnotation);
+                }
+                const returnStatement = /** @type {MethodDefinition} */ (member).value.body?.body.find(
+                    (statement) => statement.type === 'ReturnStatement'
+                );
+                if (returnStatement?.argument?.type === 'Literal') {
+                    const value = returnStatement.argument.value;
+                    if (!typeText) {
+                        if (typeof value === 'string') {
+                            typeText = 'string';
+                        } else if (typeof value === 'number') {
+                            typeText = 'number';
+                        } else if (typeof value === 'boolean') {
+                            typeText = 'boolean';
+                        } else if (typeof value === 'symbol') {
+                            typeText = 'symbol';
+                        } else if (typeof value === 'bigint') {
+                            typeText = 'bigint';
+                        }
+                    }
+                    fieldTemplate.default = returnStatement.argument.raw || String(value);
+                }
             }
 
             decorateClassFieldWithJSDoc(fieldTemplate, jsdoc);
@@ -219,6 +243,7 @@ export function createClass(context, node, jsdoc = context.parseJSDoc(node)) {
                 ...createFunction(context, member.value, jsdoc),
                 name: member.key.name,
                 kind: 'method',
+                privacy: member.accessibility || undefined,
             };
             decorateClassFieldWithJSDoc(classMethod, jsdoc);
             classTemplate.members ??= [];

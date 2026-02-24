@@ -8,7 +8,7 @@
       "types": "./types/index.d.ts",
       "default": "./lib/index.js"
     },
-    "./preset": "./preset.js",
+    "./preset": "./lib/preset.js",
     "./package.json": "./package.json"
   },
   "main": "lib/index.js",

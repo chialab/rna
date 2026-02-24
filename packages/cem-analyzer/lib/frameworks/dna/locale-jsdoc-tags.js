@@ -25,12 +25,9 @@ export function localeJSDocTagsPlugin() {
                 doc.tags.forEach((tag) => {
                     if (tag.tag === 'locale') {
                         classDoc.locale ??= [];
-
-                        const fullText = `${tag.name} ${tag.description}`;
-                        const [name, description] = fullText.split(/\s*-\s+/);
                         classDoc.locale.push({
-                            value: name.replace(/^["']/, '').replace(/["']$/, ''),
-                            description,
+                            value: tag.name.replace(/^["']/, '').replace(/["']$/, ''),
+                            description: tag.description.replace(/^\s*-\s+/, '').trim() || '',
                         });
                     }
                 });

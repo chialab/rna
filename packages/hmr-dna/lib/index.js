@@ -1,10 +1,7 @@
 /**
  * @import { ComponentConstructor, ComponentInstance } from '@chialab/dna'
  */
-import {
-    getProperties,
-    isComponentConstructor,
-} from '@chialab/dna';
+import { getProperties, isComponentConstructor } from '@chialab/dna';
 import { createProxy } from './CustomElementProxy';
 import { getConnected } from './connectedRegistry';
 import { defineOnce } from './defineOnce';
@@ -49,9 +46,7 @@ customElements.define = function hmrDefine(name, ctr, options) {
 
     connected.forEach((node) => {
         const computedProperties = getProperties(node);
-        const actualProperties =
-            connectedProperties.get(node) ||
-            /** @type {{ [K in keyof T]: T[K] }} */ ({});
+        const actualProperties = connectedProperties.get(node) || /** @type {{ [K in keyof T]: T[K] }} */ ({});
         /** @type {T | undefined} */
         let initializedProperties;
         for (const propertyKey in computedProperties) {
@@ -69,10 +64,7 @@ customElements.define = function hmrDefine(name, ctr, options) {
                     } else if (!property.static) {
                         initializedProperties ??= /** @type {T} */ (new proxyClass());
                         const initialNode = /** @type {T} */ (initializedProperties);
-                        node.setInnerPropertyValue(
-                            key,
-                            initialNode[key]
-                        );
+                        node.setInnerPropertyValue(key, initialNode[key]);
                     }
                 }
             }

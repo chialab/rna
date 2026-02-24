@@ -36,11 +36,15 @@ export default function customElementsManifestPlugin(options) {
                 [id]: code,
             });
 
+            console.log(this);
+
             const customElementsManifest = await generate(modules, {
                 plugins: options.plugins,
-                resolve: async (source, importer) => {
-                    return (await this.resolve(source, importer))?.id || null;
-                },
+                resolve: this.resolve
+                    ? async (source, importer) => {
+                          return (await this.resolve(source, importer))?.id || null;
+                      }
+                    : undefined,
                 thirdPartyManifests: Array.from(manifests.values()),
             });
 

@@ -16,19 +16,19 @@ exports[`02-inheritance > 01-superclass 1`] = `
           "members": [
             {
               "kind": "field",
-              "name": "superClassField"
-            },
-            {
-              "kind": "method",
-              "name": "superClassMethod"
-            },
-            {
-              "kind": "field",
               "name": "overriddenField",
               "type": {
                 "text": "string"
               },
               "default": "'hello'"
+            },
+            {
+              "kind": "field",
+              "name": "superClassField"
+            },
+            {
+              "kind": "method",
+              "name": "superClassMethod"
             }
           ],
           "events": [
@@ -74,39 +74,11 @@ exports[`02-inheritance > 01-superclass 1`] = `
             },
             {
               "kind": "method",
-              "name": "implementsMethod"
-            },
-            {
-              "kind": "method",
               "name": "classMethod"
             },
             {
-              "kind": "field",
-              "name": "superClassField",
-              "inheritedFrom": {
-                "name": "BatchingElement",
-                "module": "./BatchingElement.js"
-              }
-            },
-            {
               "kind": "method",
-              "name": "superClassMethod",
-              "inheritedFrom": {
-                "name": "BatchingElement",
-                "module": "./BatchingElement.js"
-              }
-            },
-            {
-              "kind": "field",
-              "name": "overriddenField",
-              "type": {
-                "text": "string"
-              },
-              "default": "'hello'",
-              "inheritedFrom": {
-                "name": "BatchingElement",
-                "module": "./BatchingElement.js"
-              }
+              "name": "implementsMethod"
             }
           ],
           "events": [
@@ -115,33 +87,16 @@ exports[`02-inheritance > 01-superclass 1`] = `
               "type": {
                 "text": "Event"
               }
-            },
-            {
-              "name": "superClass-event",
-              "type": {
-                "text": "Event"
-              },
-              "inheritedFrom": {
-                "name": "BatchingElement",
-                "module": "./BatchingElement.js"
-              }
             }
           ],
           "attributes": [
             {
               "name": "class-attr"
-            },
-            {
-              "name": "superClass-attr",
-              "inheritedFrom": {
-                "name": "BatchingElement",
-                "module": "./BatchingElement.js"
-              }
             }
           ],
           "superclass": {
             "name": "BatchingElement",
-            "module": "./BatchingElement"
+            "module": "/BatchingElement"
           }
         }
       ],
@@ -178,27 +133,7 @@ exports[`02-inheritance > 01-superclass 1`] = `
               "type": {
                 "text": "string"
               },
-              "default": "'bye'",
-              "inheritedFrom": {
-                "name": "BatchingElement",
-                "module": "./BatchingElement.js"
-              }
-            },
-            {
-              "kind": "field",
-              "name": "superClassField",
-              "inheritedFrom": {
-                "name": "BatchingElement",
-                "module": "./BatchingElement.js"
-              }
-            },
-            {
-              "kind": "method",
-              "name": "superClassMethod",
-              "inheritedFrom": {
-                "name": "BatchingElement",
-                "module": "./BatchingElement.js"
-              }
+              "default": "'bye'"
             }
           ],
           "events": [
@@ -207,33 +142,16 @@ exports[`02-inheritance > 01-superclass 1`] = `
               "type": {
                 "text": "Event"
               }
-            },
-            {
-              "name": "superClass-event",
-              "type": {
-                "text": "Event"
-              },
-              "inheritedFrom": {
-                "name": "BatchingElement",
-                "module": "./BatchingElement.js"
-              }
             }
           ],
           "attributes": [
             {
               "name": "class-attr"
-            },
-            {
-              "name": "superClass-attr",
-              "inheritedFrom": {
-                "name": "BatchingElement",
-                "module": "./BatchingElement.js"
-              }
             }
           ],
           "superclass": {
             "name": "BatchingElement",
-            "module": "./BatchingElement"
+            "module": "/BatchingElement"
           }
         }
       ],

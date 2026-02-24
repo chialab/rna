@@ -10,10 +10,38 @@ exports[`07-plugin-lit > 01-basic 1`] = `
       "path": "./my-element.js",
       "declarations": [
         {
+          "kind": "function",
+          "name": "InputMixin",
+          "description": "Picks up property decorator on mixins as well",
+          "parameters": [
+            {
+              "name": "superClass"
+            }
+          ]
+        },
+        {
           "kind": "class",
           "name": "MyElement",
           "description": "",
           "members": [
+            {
+              "kind": "field",
+              "name": "_privateProp",
+              "type": {
+                "text": "Boolean"
+              },
+              "privacy": "private",
+              "attribute": "_privateProp"
+            },
+            {
+              "kind": "field",
+              "name": "attr",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "public",
+              "attribute": "my-attr"
+            },
             {
               "kind": "field",
               "name": "decoratedProperty",
@@ -54,6 +82,14 @@ exports[`07-plugin-lit > 01-basic 1`] = `
             },
             {
               "kind": "field",
+              "name": "noAttr",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "public"
+            },
+            {
+              "kind": "field",
               "name": "prop1",
               "description": "this is the description",
               "type": {
@@ -71,32 +107,6 @@ exports[`07-plugin-lit > 01-basic 1`] = `
               },
               "privacy": "public",
               "attribute": "prop2"
-            },
-            {
-              "kind": "field",
-              "name": "attr",
-              "type": {
-                "text": "string"
-              },
-              "privacy": "public",
-              "attribute": "my-attr"
-            },
-            {
-              "kind": "field",
-              "name": "noAttr",
-              "type": {
-                "text": "string"
-              },
-              "privacy": "public"
-            },
-            {
-              "kind": "field",
-              "name": "_privateProp",
-              "type": {
-                "text": "Boolean"
-              },
-              "privacy": "private",
-              "attribute": "_privateProp"
             },
             {
               "kind": "field",
@@ -121,11 +131,15 @@ exports[`07-plugin-lit > 01-basic 1`] = `
           ],
           "attributes": [
             {
-              "name": "my-attr",
+              "name": "_privateProp",
               "type": {
-                "text": "string"
+                "text": "Boolean"
               },
-              "fieldName": "attr"
+              "fieldName": "_privateProp"
+            },
+            {
+              "name": "decorated-reflect",
+              "fieldName": "decoratedReflect2"
             },
             {
               "name": "decoratedProperty",
@@ -136,20 +150,23 @@ exports[`07-plugin-lit > 01-basic 1`] = `
               "fieldName": "decoratedProperty"
             },
             {
+              "name": "decoratedReflect",
+              "fieldName": "decoratedReflect"
+            },
+            {
+              "name": "my-attr",
+              "type": {
+                "text": "string"
+              },
+              "fieldName": "attr"
+            },
+            {
               "name": "my-attr2",
               "type": {
                 "text": "array"
               },
               "default": "[]",
               "fieldName": "decoratedPropertyAlsoAttr"
-            },
-            {
-              "name": "decoratedReflect",
-              "fieldName": "decoratedReflect"
-            },
-            {
-              "name": "decorated-reflect",
-              "fieldName": "decoratedReflect2"
             },
             {
               "name": "prop1",
@@ -166,13 +183,6 @@ exports[`07-plugin-lit > 01-basic 1`] = `
                 "text": "boolean"
               },
               "fieldName": "prop2"
-            },
-            {
-              "name": "_privateProp",
-              "type": {
-                "text": "Boolean"
-              },
-              "fieldName": "_privateProp"
             },
             {
               "name": "reflect",
@@ -195,31 +205,21 @@ exports[`07-plugin-lit > 01-basic 1`] = `
           },
           "tagName": "my-element",
           "customElement": true
-        },
-        {
-          "kind": "function",
-          "name": "InputMixin",
-          "description": "Picks up property decorator on mixins as well",
-          "parameters": [
-            {
-              "name": "superClass"
-            }
-          ]
         }
       ],
       "exports": [
-        {
-          "kind": "custom-element-definition",
-          "name": "my-element",
-          "declaration": {
-            "name": "MyElement"
-          }
-        },
         {
           "kind": "js",
           "name": "InputMixin",
           "declaration": {
             "name": "InputMixin"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "my-element",
+          "declaration": {
+            "name": "MyElement"
           }
         }
       ]

@@ -11,6 +11,26 @@ exports[`04-custom-elements-define > 01-basic 1`] = `
       "declarations": [
         {
           "kind": "class",
+          "name": "anonymous_0",
+          "description": "",
+          "superclass": {
+            "name": "HTMLElement"
+          },
+          "tagName": "anon-1",
+          "customElement": true
+        },
+        {
+          "kind": "class",
+          "name": "MyEl",
+          "description": "",
+          "superclass": {
+            "name": "HTMLElement"
+          },
+          "tagName": "anon-2",
+          "customElement": true
+        },
+        {
+          "kind": "class",
           "name": "MyElement",
           "description": "",
           "members": [
@@ -38,43 +58,9 @@ exports[`04-custom-elements-define > 01-basic 1`] = `
           },
           "tagName": "my-window",
           "customElement": true
-        },
-        {
-          "kind": "class",
-          "name": "anonymous_0",
-          "description": "",
-          "superclass": {
-            "name": "HTMLElement"
-          },
-          "tagName": "anon-1",
-          "customElement": true
-        },
-        {
-          "kind": "class",
-          "name": "MyEl",
-          "description": "",
-          "superclass": {
-            "name": "HTMLElement"
-          },
-          "tagName": "anon-2",
-          "customElement": true
         }
       ],
       "exports": [
-        {
-          "kind": "custom-element-definition",
-          "name": "my-element",
-          "declaration": {
-            "name": "MyElement"
-          }
-        },
-        {
-          "kind": "custom-element-definition",
-          "name": "my-window",
-          "declaration": {
-            "name": "MyWindow"
-          }
-        },
         {
           "kind": "custom-element-definition",
           "name": "anon-1",
@@ -87,6 +73,20 @@ exports[`04-custom-elements-define > 01-basic 1`] = `
           "name": "anon-2",
           "declaration": {
             "name": "MyEl"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "my-element",
+          "declaration": {
+            "name": "MyElement"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "my-window",
+          "declaration": {
+            "name": "MyWindow"
           }
         }
       ]

@@ -88,6 +88,10 @@ exports[`03-module > functionLike 1`] = `
         },
         {
           "kind": "function",
+          "name": "emptyReturn"
+        },
+        {
+          "kind": "function",
           "name": "functionDeclaration1",
           "description": "FUNCTION DECLARATIONS"
         },
@@ -162,10 +166,6 @@ exports[`03-module > functionLike 1`] = `
               "text": "string"
             }
           }
-        },
-        {
-          "kind": "function",
-          "name": "emptyReturn"
         },
         {
           "kind": "class",
@@ -296,6 +296,13 @@ exports[`03-module > functionLike 1`] = `
         },
         {
           "kind": "js",
+          "name": "emptyReturn",
+          "declaration": {
+            "name": "emptyReturn"
+          }
+        },
+        {
+          "kind": "js",
           "name": "functionDeclaration1",
           "declaration": {
             "name": "functionDeclaration1"
@@ -334,13 +341,6 @@ exports[`03-module > functionLike 1`] = `
           "name": "functionDeclaration6",
           "declaration": {
             "name": "functionDeclaration6"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "emptyReturn",
-          "declaration": {
-            "name": "emptyReturn"
           }
         },
         {
@@ -390,6 +390,39 @@ exports[`03-module > variables 1`] = `
       "declarations": [
         {
           "kind": "variable",
+          "name": "asConst",
+          "type": {
+            "text": "'const'"
+          },
+          "default": "'const'"
+        },
+        {
+          "kind": "variable",
+          "name": "asConstRef",
+          "type": {
+            "text": "{ foo: 'bar' }"
+          },
+          "default": "{ foo: 'bar' }"
+        },
+        {
+          "kind": "class",
+          "name": "Class1",
+          "description": ""
+        },
+        {
+          "kind": "function",
+          "name": "function1"
+        },
+        {
+          "kind": "variable",
+          "name": "typeinferrence",
+          "type": {
+            "text": "string"
+          },
+          "default": "''"
+        },
+        {
+          "kind": "variable",
           "name": "var1"
         },
         {
@@ -419,42 +452,60 @@ exports[`03-module > variables 1`] = `
         {
           "kind": "variable",
           "name": "var7"
-        },
-        {
-          "kind": "function",
-          "name": "function1"
-        },
-        {
-          "kind": "class",
-          "name": "Class1",
-          "description": ""
-        },
-        {
-          "kind": "variable",
-          "name": "typeinferrence",
-          "type": {
-            "text": "string"
-          },
-          "default": "''"
-        },
-        {
-          "kind": "variable",
-          "name": "asConst",
-          "type": {
-            "text": "'const'"
-          },
-          "default": "'const'"
-        },
-        {
-          "kind": "variable",
-          "name": "asConstRef",
-          "type": {
-            "text": "{ foo: 'bar' }"
-          },
-          "default": "{ foo: 'bar' }"
         }
       ],
       "exports": [
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "foo",
+            "module": "/foo.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "bar",
+            "package": "bar"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "asConst",
+          "declaration": {
+            "name": "asConst"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "asConstRef",
+          "declaration": {
+            "name": "asConstRef"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "Class1",
+          "declaration": {
+            "name": "Class1"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "function1",
+          "declaration": {
+            "name": "function1"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "typeinferrence",
+          "declaration": {
+            "name": "typeinferrence"
+          }
+        },
         {
           "kind": "js",
           "name": "var1",
@@ -502,57 +553,6 @@ exports[`03-module > variables 1`] = `
           "name": "var7",
           "declaration": {
             "name": "var7"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "function1",
-          "declaration": {
-            "name": "function1"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "Class1",
-          "declaration": {
-            "name": "Class1"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "typeinferrence",
-          "declaration": {
-            "name": "typeinferrence"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "asConst",
-          "declaration": {
-            "name": "asConst"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "asConstRef",
-          "declaration": {
-            "name": "asConstRef"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "*",
-          "declaration": {
-            "name": "foo",
-            "module": "./foo.js"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "*",
-          "declaration": {
-            "name": "bar",
-            "package": "bar"
           }
         }
       ]

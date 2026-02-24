@@ -17,12 +17,12 @@ export function sortMembersPlugin() {
                 return;
             }
             for (const module of customElementsManifest.modules) {
+                module.declarations?.sort((a, b) => a.name?.localeCompare(b.name || '') || 0);
+                module.exports?.sort((a, b) => a.name?.localeCompare(b.name || '') || 0);
+
                 if (!module.declarations) {
                     continue;
                 }
-
-                module.declarations.sort((a, b) => a.name?.localeCompare(b.name || '') || 0);
-
                 for (const customElement of module.declarations) {
                     if (customElement.kind !== 'class') {
                         continue;

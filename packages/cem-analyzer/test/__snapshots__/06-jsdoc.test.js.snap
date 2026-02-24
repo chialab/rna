@@ -16,6 +16,16 @@ exports[`06-jsdoc > default 1`] = `
           "members": [
             {
               "kind": "field",
+              "name": "bar",
+              "description": "Should work with \\"@attr\\" and no name",
+              "type": {
+                "text": "string"
+              },
+              "attribute": "bar",
+              "default": "\\"bar\\""
+            },
+            {
+              "kind": "field",
               "name": "defaultViaJsDoc",
               "default": "'default from jsdoc'"
             },
@@ -29,16 +39,22 @@ exports[`06-jsdoc > default 1`] = `
             },
             {
               "kind": "field",
-              "name": "withoutDefault"
-            },
-            {
-              "kind": "field",
               "name": "foo",
               "description": "Should work with \\"@attribute\\" and no name",
               "type": {
                 "text": "string"
               },
               "attribute": "foo",
+              "default": "\\"bar\\""
+            },
+            {
+              "kind": "field",
+              "name": "myBar",
+              "description": "Should work with \\"@attr\\" and a name",
+              "type": {
+                "text": "string"
+              },
+              "attribute": "my-bar",
               "default": "\\"bar\\""
             },
             {
@@ -53,44 +69,10 @@ exports[`06-jsdoc > default 1`] = `
             },
             {
               "kind": "field",
-              "name": "bar",
-              "description": "Should work with \\"@attr\\" and no name",
-              "type": {
-                "text": "string"
-              },
-              "attribute": "bar",
-              "default": "\\"bar\\""
-            },
-            {
-              "kind": "field",
-              "name": "myBar",
-              "description": "Should work with \\"@attr\\" and a name",
-              "type": {
-                "text": "string"
-              },
-              "attribute": "my-bar",
-              "default": "\\"bar\\""
+              "name": "withoutDefault"
             }
           ],
           "attributes": [
-            {
-              "name": "foo",
-              "description": "Should work with \\"@attribute\\" and no name",
-              "type": {
-                "text": "string"
-              },
-              "fieldName": "foo",
-              "default": "\\"bar\\""
-            },
-            {
-              "name": "my-foo",
-              "description": "Should work with \\"@attribute\\" and a name",
-              "type": {
-                "text": "string"
-              },
-              "fieldName": "myFoo",
-              "default": "\\"bar\\""
-            },
             {
               "name": "bar",
               "description": "Should work with \\"@attr\\" and no name",
@@ -101,12 +83,30 @@ exports[`06-jsdoc > default 1`] = `
               "default": "\\"bar\\""
             },
             {
+              "name": "foo",
+              "description": "Should work with \\"@attribute\\" and no name",
+              "type": {
+                "text": "string"
+              },
+              "fieldName": "foo",
+              "default": "\\"bar\\""
+            },
+            {
               "name": "my-bar",
               "description": "Should work with \\"@attr\\" and a name",
               "type": {
                 "text": "string"
               },
               "fieldName": "myBar",
+              "default": "\\"bar\\""
+            },
+            {
+              "name": "my-foo",
+              "description": "Should work with \\"@attribute\\" and a name",
+              "type": {
+                "text": "string"
+              },
+              "fieldName": "myFoo",
               "default": "\\"bar\\""
             }
           ],
@@ -119,15 +119,15 @@ exports[`06-jsdoc > default 1`] = `
       ],
       "exports": [
         {
-          "kind": "js",
-          "name": "DefaultValues",
+          "kind": "custom-element-definition",
+          "name": "default-values",
           "declaration": {
             "name": "DefaultValues"
           }
         },
         {
-          "kind": "custom-element-definition",
-          "name": "default-values",
+          "kind": "js",
+          "name": "DefaultValues",
           "declaration": {
             "name": "DefaultValues"
           }
@@ -147,14 +147,6 @@ exports[`06-jsdoc > ignore-internal 1`] = `
       "kind": "javascript-module",
       "path": "./my-element.js",
       "declarations": [
-        {
-          "kind": "variable",
-          "name": "variable",
-          "type": {
-            "text": "string"
-          },
-          "default": "'var'"
-        },
         {
           "kind": "class",
           "name": "IamDeprecated",
@@ -179,14 +171,6 @@ exports[`06-jsdoc > ignore-internal 1`] = `
           "description": "",
           "members": [
             {
-              "kind": "field",
-              "name": "included",
-              "type": {
-                "text": "string"
-              },
-              "default": "'hello world'"
-            },
-            {
               "kind": "method",
               "name": "imDeprecated",
               "deprecated": "true"
@@ -195,6 +179,14 @@ exports[`06-jsdoc > ignore-internal 1`] = `
               "kind": "method",
               "name": "imDeprecatedWithReason",
               "deprecated": "the reason for the deprecation."
+            },
+            {
+              "kind": "field",
+              "name": "included",
+              "type": {
+                "text": "string"
+              },
+              "default": "'hello world'"
             }
           ],
           "superclass": {
@@ -202,16 +194,17 @@ exports[`06-jsdoc > ignore-internal 1`] = `
           },
           "tagName": "include-me",
           "customElement": true
+        },
+        {
+          "kind": "variable",
+          "name": "variable",
+          "type": {
+            "text": "string"
+          },
+          "default": "'var'"
         }
       ],
       "exports": [
-        {
-          "kind": "js",
-          "name": "variable",
-          "declaration": {
-            "name": "variable"
-          }
-        },
         {
           "kind": "js",
           "name": "IamDeprecated",
@@ -227,6 +220,13 @@ exports[`06-jsdoc > ignore-internal 1`] = `
           }
         },
         {
+          "kind": "custom-element-definition",
+          "name": "include-me",
+          "declaration": {
+            "name": "IncludeMe"
+          }
+        },
+        {
           "kind": "js",
           "name": "IncludeMe",
           "declaration": {
@@ -234,10 +234,10 @@ exports[`06-jsdoc > ignore-internal 1`] = `
           }
         },
         {
-          "kind": "custom-element-definition",
-          "name": "include-me",
+          "kind": "js",
+          "name": "variable",
           "declaration": {
-            "name": "IncludeMe"
+            "name": "variable"
           }
         }
       ]

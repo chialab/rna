@@ -26,54 +26,6 @@ exports[`01-class > 02-attributes 1`] = `
       "declarations": [
         {
           "kind": "class",
-          "name": "MyEl",
-          "description": "",
-          "members": [
-            {
-              "kind": "field",
-              "name": "myField",
-              "reflects": true,
-              "attribute": "myField"
-            }
-          ],
-          "attributes": [
-            {
-              "name": "a-a"
-            },
-            {
-              "name": "b-b"
-            },
-            {
-              "name": "c-c"
-            },
-            {
-              "name": "d-d"
-            },
-            {
-              "name": "myField",
-              "fieldName": "myField"
-            },
-            {
-              "name": "attr1",
-              "type": {
-                "text": "boolean"
-              }
-            },
-            {
-              "name": "attr2",
-              "type": {
-                "text": "boolean"
-              }
-            }
-          ],
-          "superclass": {
-            "name": "HTMLElement"
-          },
-          "tagName": "my-el",
-          "customElement": true
-        },
-        {
-          "kind": "class",
           "name": "Foo",
           "description": "",
           "members": [
@@ -111,21 +63,69 @@ exports[`01-class > 02-attributes 1`] = `
           "superclass": {
             "name": "HTMLElement"
           }
+        },
+        {
+          "kind": "class",
+          "name": "MyEl",
+          "description": "",
+          "members": [
+            {
+              "kind": "field",
+              "name": "myField",
+              "reflects": true,
+              "attribute": "myField"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "a-a"
+            },
+            {
+              "name": "attr1",
+              "type": {
+                "text": "boolean"
+              }
+            },
+            {
+              "name": "attr2",
+              "type": {
+                "text": "boolean"
+              }
+            },
+            {
+              "name": "b-b"
+            },
+            {
+              "name": "c-c"
+            },
+            {
+              "name": "d-d"
+            },
+            {
+              "name": "myField",
+              "fieldName": "myField"
+            }
+          ],
+          "superclass": {
+            "name": "HTMLElement"
+          },
+          "tagName": "my-el",
+          "customElement": true
         }
       ],
       "exports": [
-        {
-          "kind": "custom-element-definition",
-          "name": "my-el",
-          "declaration": {
-            "name": "MyEl"
-          }
-        },
         {
           "kind": "js",
           "name": "Foo",
           "declaration": {
             "name": "Foo"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "my-el",
+          "declaration": {
+            "name": "MyEl"
           }
         }
       ]
@@ -167,13 +167,13 @@ exports[`01-class > 03-jsdoc 1`] = `
           ],
           "cssProperties": [
             {
-              "name": "--text-color",
-              "description": "Controls the color of foo"
-            },
-            {
               "name": "--background-color",
               "description": "Controls the color of bar",
               "default": "red"
+            },
+            {
+              "name": "--text-color",
+              "description": "Controls the color of foo"
             }
           ],
           "cssParts": [
@@ -198,17 +198,17 @@ exports[`01-class > 03-jsdoc 1`] = `
               "description": "some description for custom-event"
             },
             {
-              "name": "typed-event",
-              "description": "some description for typed-event",
-              "type": {
-                "text": "Event"
-              }
-            },
-            {
               "name": "typed-custom-event",
               "description": "some description for typed-custom-event",
               "type": {
                 "text": "CustomEvent"
+              }
+            },
+            {
+              "name": "typed-event",
+              "description": "some description for typed-event",
+              "type": {
+                "text": "Event"
               }
             }
           ],
@@ -266,15 +266,6 @@ exports[`01-class > 04-readonly 1`] = `
           "members": [
             {
               "kind": "field",
-              "name": "foo",
-              "type": {
-                "text": "number"
-              },
-              "readonly": true,
-              "default": "1"
-            },
-            {
-              "kind": "field",
               "name": "bar",
               "type": {
                 "text": "number"
@@ -285,6 +276,15 @@ exports[`01-class > 04-readonly 1`] = `
             {
               "kind": "field",
               "name": "baz"
+            },
+            {
+              "kind": "field",
+              "name": "foo",
+              "type": {
+                "text": "number"
+              },
+              "readonly": true,
+              "default": "1"
             },
             {
               "kind": "field",
@@ -354,16 +354,16 @@ exports[`01-class > default 1`] = `
       "declarations": [
         {
           "kind": "variable",
+          "name": "bar",
+          "default": "{ foo }"
+        },
+        {
+          "kind": "variable",
           "name": "foo",
           "type": {
             "text": "number"
           },
           "default": "1"
-        },
-        {
-          "kind": "variable",
-          "name": "bar",
-          "default": "{ foo }"
         }
       ],
       "exports": [

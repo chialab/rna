@@ -6,15 +6,17 @@ describe('generate custom elements manifest', () => {
     test('DNA module', async () => {
         const plugin = customElementsManifestPlugin({
             renderer: '@chialab/storybook-dna',
-            plugins: [...dnaPlugins()],
+            plugins: [...dnaPlugins],
         });
 
         const result = await plugin.transform?.(
-            `import { customElement, Component } from '@chialab/dna';
+            `import { customElement, Component, property } from '@chialab/dna';
 
 @customElement('dna-test')
 export class Test extends Component {
-    @property() testProp?: string;
+    @property({
+        attribute: 'test-prop',
+    }) testProp?: string;
 }
 `,
             'Test.ts'
@@ -22,11 +24,13 @@ export class Test extends Component {
 
         expect(result).toBeDefined();
         expect(result?.code).toEqual(`import * as __STORYBOOK_WEB_COMPONENTS__ from '@chialab/storybook-dna';
-import { customElement, Component } from '@chialab/dna';
+import { customElement, Component, property } from '@chialab/dna';
 
 @customElement('dna-test')
 export class Test extends Component {
-    @property() testProp?: string;
+    @property({
+        attribute: 'test-prop',
+    }) testProp?: string;
 }
 
 ;(function() {
@@ -36,7 +40,7 @@ export class Test extends Component {
         return;
     }
 
-    const customElementManifest = {"schemaVersion":"1.0.0","readme":"","modules":[{"kind":"javascript-module","path":"Test.ts","declarations":[{"kind":"class","description":"","name":"Test","members":[{"kind":"field","name":"testProp","type":{"text":"string | undefined"}}],"superclass":{"name":"Component","package":"@chialab/dna"},"tagName":"dna-test","customElement":true}],"exports":[{"kind":"js","name":"Test","declaration":{"name":"Test","module":"Test.ts"}},{"kind":"custom-element-definition","name":"dna-test","declaration":{"name":"Test","module":"Test.ts"}}]}]};
+    const customElementManifest = {"schemaVersion":"2.1.0","readme":"","modules":[{"kind":"javascript-module","path":"Test.ts","declarations":[{"kind":"class","name":"Test","description":"","members":[{"kind":"field","name":"testProp","type":{"text":"string | undefined"},"reflects":true,"attribute":"test-prop"}],"attributes":[{"name":"test-prop","fieldName":"testProp"}],"superclass":{"name":"Component","package":"@chialab/dna"},"tagName":"dna-test","customElement":true}],"exports":[{"kind":"js","name":"Test","declaration":{"name":"Test"}},{"kind":"custom-element-definition","name":"dna-test","declaration":{"name":"Test"}}]}]};
     const globalCustomElementsManifest = getCustomElementsManifest() || {};
     setCustomElementsManifest(mergeCustomElementsManifests(globalCustomElementsManifest, customElementManifest));
 }());`);

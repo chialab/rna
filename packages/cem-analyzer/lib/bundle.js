@@ -1,64 +1,11 @@
 /**
  * @import { CustomElement, Export, Module, Package, Reference } from 'custom-elements-manifest'
- * @import { GenerateOptions } from './generate.js'
+ * @import { GenerateOptions, ResolveFunction } from './generate.js'
  * @import { SourceFile } from './source-file.js'
  */
 import { generate } from './generate.js';
+import { createResolve } from './resolve.js';
 import { isBareModuleSpecifier } from './utils.js';
-
-/**
- * @typedef {(from: string, to: string) => Promise<string | null> | string | null} ResolveFunction
- */
-
-/**
- * @typedef {GenerateOptions & { resolve?: ResolveFunction }} BundleOptions
- */
-
-/**
- * @param {Module[]} modules
- * @returns {(from: string, to: string) => string | null}
- */
-function createResolve(modules) {
-    const RESOLVE_VARIANTS = [
-        '.js',
-        '.mjs',
-        '.cjs',
-        '.jsx',
-        '.ts',
-        '.mts',
-        '.cts',
-        '.tsx',
-        '/index.js',
-        '/index.mjs',
-        '/index.cjs',
-        '/index.jsx',
-        '/index.ts',
-        '/index.mts',
-        '/index.cts',
-        '/index.tsx',
-    ];
-
-    return (from, to) => {
-        if (to[0] !== '.' && to[0] !== '/') {
-            return to;
-        }
-
-        const resolvedPath = new URL(to, `file://${from}`).pathname;
-
-        for (const path of modules.map((m) => m.path) ?? []) {
-            if (resolvedPath === path) {
-                return path;
-            }
-            for (const variant of RESOLVE_VARIANTS) {
-                if (resolvedPath + variant === path) {
-                    return path;
-                }
-            }
-        }
-
-        return resolvedPath;
-    };
-}
 
 /**
  * @param {Module} module
@@ -81,7 +28,7 @@ async function resolveExports(module, { resolve, manifest }) {
             exports.push(exp);
             continue;
         }
-        const resolved = await resolve(module.path, moduleName);
+        const resolved = await resolve(moduleName, module.path);
         if (!resolved) {
             exports.push(exp);
             continue;
@@ -146,7 +93,7 @@ function resolveExport(name, module) {
 
 /**
  * @param {Record<string, SourceFile[]>} modules
- * @param {BundleOptions} [options={}]
+ * @param {GenerateOptions} [options={}]
  * @returns {Promise<Package>}
  */
 export async function bundle(modules, options = {}) {
@@ -156,8 +103,10 @@ export async function bundle(modules, options = {}) {
         modules: [],
     };
     for (const [packageName, sourceFiles] of Object.entries(modules)) {
+        const resolve = options.resolve ?? createResolve(sourceFiles);
         const manifest = await generate(sourceFiles, {
             ...options,
+            resolve,
             thirdPartyManifests: [...(options.thirdPartyManifests || []), bundle],
         });
         const [entrypoint, ...entries] = manifest.modules || [];
@@ -210,7 +159,6 @@ export async function bundle(modules, options = {}) {
         }
 
         // resolve dependencies
-        const resolve = options.resolve ?? createResolve(manifest.modules ?? []);
         for (const declaration of mod.declarations) {
             if (declaration.kind !== 'class') {
                 continue;
@@ -238,7 +186,7 @@ export async function bundle(modules, options = {}) {
                 if (!moduleName) {
                     continue;
                 }
-                const path = await resolve(entrypoint.path, moduleName);
+                const path = await resolve(moduleName, entrypoint.path);
                 if (!path || !isBareModuleSpecifier(path)) {
                     continue;
                 }

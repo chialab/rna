@@ -82,7 +82,7 @@ export const extractArgTypesFromElements = (tagName, customElements) => {
     }
 
     const customMetaData =
-        /** @type {CustomElement & { locale?: { value: string, description: string }[], icons?: { name: string, description: string }[] }} */ (
+        /** @type {CustomElement & { locale?: { name: string, description: string }[], icons?: { name: string, description: string }[] }} */ (
             metaData
         );
 
@@ -130,8 +130,8 @@ export const extractArgTypesFromElements = (tagName, customElements) => {
         customMetaData.locale
             ? customMetaData.locale.reduce(
                   (acc, locale) => {
-                      acc[`locale/${locale.value}`] = {
-                          name: locale.value,
+                      acc[`locale/${locale.name}`] = {
+                          name: locale.name,
                           description: locale.description,
                           type: {},
                           table: {

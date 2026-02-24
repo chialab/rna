@@ -118,22 +118,28 @@ export function exportsPlugin() {
                 }
 
                 const specifier = node.source.value.replace(/'/g, '').replace(/"/g, '');
-                const isBare = isBareModuleSpecifier(specifier);
-                /** @type {Export} */
-                const _export = {
-                    kind: 'js',
-                    name: '*',
-                    declaration: {
-                        name: node.exported ? node.exported.name : '*',
-                        ...(isBare
-                            ? { package: specifier }
-                            : {
-                                  module: node.source.value,
-                              }),
-                    },
-                };
-                moduleDoc.exports ??= [];
-                moduleDoc.exports.push(_export);
+                const exportedName = node.exported ? node.exported.name : '*';
+                return Promise.resolve()
+                    .then(() => this.resolve(specifier))
+                    .then((path) => {
+                        const isBare = isBareModuleSpecifier(path || specifier);
+
+                        /** @type {Export} */
+                        const _export = {
+                            kind: 'js',
+                            name: '*',
+                            declaration: {
+                                name: exportedName,
+                                ...(isBare
+                                    ? { package: path || specifier }
+                                    : {
+                                          module: path || specifier,
+                                      }),
+                            },
+                        };
+                        moduleDoc.exports ??= [];
+                        moduleDoc.exports.push(_export);
+                    });
             }
 
             /**

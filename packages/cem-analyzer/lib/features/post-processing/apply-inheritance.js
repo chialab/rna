@@ -1,31 +1,34 @@
 /**
- * @import { ClassDeclaration, CustomElement } from 'custom-elements-manifest'
+ * @import { ClassDeclaration, Module } from 'custom-elements-manifest'
  * @import { Context, Plugin } from '../../generate.js'
  */
 
 /**
  * @param {Context} context
- * @param {string} className
+ * @param {ClassDeclaration} klass
  * @returns {ClassDeclaration[]}
  */
-function getInheritanceTree(context, className) {
+function getInheritanceTree(context, klass) {
     /** @type {ClassDeclaration[]} */
     const tree = [];
 
-    let klass = context.getDeclarationByName(className, 'class');
-    if (klass) {
-        tree.push(klass);
-
-        while (klass?.superclass?.name) {
-            klass = context.getDeclarationByName(klass.superclass.name, 'class');
-            if (!klass) {
-                break;
-            }
-            tree.push(klass);
+    /** @type {ClassDeclaration | null} */
+    let superClass = klass;
+    /** @type {Module | null} */
+    let superModule = context.getDeclarationModule(superClass);
+    while (superClass?.superclass?.name && superModule) {
+        superClass = context.resolveDeclaration(
+            superClass.superclass.name,
+            'class',
+            superClass.superclass.module || superClass.superclass.package || superModule
+        );
+        if (!superClass) {
+            break;
         }
-        return tree;
+        superModule = context.getDeclarationModule(superClass);
+        tree.push(superClass);
     }
-    return [];
+    return tree;
 }
 
 /**
@@ -37,16 +40,31 @@ function getInheritanceTree(context, className) {
 export function applyInheritancePlugin() {
     return {
         name: 'CORE - APPLY-INHERITANCE',
-        packageLinkPhase() {
-            this.getDeclarations('class').forEach((customElement) => {
-                getInheritanceTree(this, customElement.name).forEach((klass) => {
-                    // ignore the current class itself
-                    if (klass?.name === customElement.name) {
-                        return;
+        packageLinkPhase({ customElementsManifest }) {
+            if (!customElementsManifest.modules) {
+                return;
+            }
+            for (const module of customElementsManifest.modules) {
+                if (!module.declarations) {
+                    continue;
+                }
+                for (const customElement of module.declarations) {
+                    if (customElement.kind !== 'class') {
+                        continue;
                     }
-
-                    ['slots', 'cssParts', 'cssProperties', 'attributes', 'members', 'events', 'cssStates'].forEach(
-                        (type) => {
+                    const tree = getInheritanceTree(this, customElement);
+                    tree.forEach((klass) => {
+                        [
+                            'slots',
+                            'cssParts',
+                            'cssProperties',
+                            'attributes',
+                            'members',
+                            'events',
+                            'cssStates',
+                            'icones',
+                            'locale',
+                        ].forEach((type) => {
                             const items = klass[/** @type {'members'} */ (type)] || [];
                             if (!items.length) {
                                 return;
@@ -89,10 +107,10 @@ export function applyInheritancePlugin() {
                                     arr.push(newItem);
                                 }
                             });
-                        }
-                    );
-                });
-            });
+                        });
+                    });
+                }
+            }
         },
     };
 }

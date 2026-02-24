@@ -19,6 +19,8 @@ import { applyInheritancePlugin } from './features/post-processing/apply-inherit
 import { isCustomElementPlugin } from './features/post-processing/is-custom-element.js';
 import { linkClassToTagnamePlugin } from './features/post-processing/link-class-to-tagname.js';
 import { removeUnexportedDeclarationsPlugin } from './features/post-processing/remove-unexported-declarations.js';
+import { sortMembersPlugin } from './features/post-processing/sort-members.js';
+import { createResolve } from './resolve.js';
 import { isBareModuleSpecifier, iterateCallbacks, parseJSDoc, print } from './utils.js';
 import { ANY_CHILD, walk } from './walker.js';
 
@@ -51,17 +53,22 @@ import { ANY_CHILD, walk } from './walker.js';
  */
 
 /**
+ * @typedef {(source: string, importer: string) => Promise<string | null> | string | null} ResolveFunction
+ */
+
+/**
  * @typedef {Object} Context
  * @property {() => SourceFile} getSourceFile
  * @property {() => void} resetImports
+ * @property {(source: string) => string | null | Promise<string | null>} resolve
  * @property {(specifier: string | Declaration) => { module: string } | { package: string } | null} resolveModuleOrPackageSpecifier
  * @property {(importData: ImportData) => void} collectImport
  * @property {typeof walk} walk
  * @property {(node: Node) => string} print
  * @property {(node: Node) => Block[]} parseJSDoc
  * @property {(name: string) => Node | null} getNodeByName
- * @property {<T extends DeclatationType>(name: string, kind?: T) => DeclarationByType<T> | null} getDeclarationByName
- * @property {<T extends DeclatationType>(kind?: T) => DeclarationByType<T>[]} getDeclarations
+ * @property {<T extends DeclatationType>(name: string, kind: T, source: string | Module) => DeclarationByType<T> | null} resolveDeclaration
+ * @property {(declaration: Declaration) => Module | null} getDeclarationModule
  * @property {() => Package[]} getManifests
  */
 
@@ -79,6 +86,7 @@ import { ANY_CHILD, walk } from './walker.js';
  * @typedef {Object} GenerateOptions
  * @property {Plugin[]} [plugins]
  * @property {Package[]} [thirdPartyManifests]
+ * @property {ResolveFunction} [resolve]
  */
 
 /**
@@ -126,6 +134,7 @@ export const corePlugins = [
     isCustomElementPlugin(),
     applyInheritancePlugin(),
     removeUnexportedDeclarationsPlugin(),
+    sortMembersPlugin(),
 ];
 
 /**
@@ -142,6 +151,7 @@ export async function generate(sourceFiles, options = {}) {
         modules: [],
     };
 
+    const resolve = options.resolve ?? createResolve(sourceFiles);
     const plugins = [...corePlugins, ...(options.plugins || [])];
     /** @type {SourceFile} */
     let currentSourceFile;
@@ -157,6 +167,9 @@ export async function generate(sourceFiles, options = {}) {
         },
         resetImports() {
             importsMap.set(this.getSourceFile(), []);
+        },
+        resolve(source) {
+            return resolve(source, this.getSourceFile().fileName);
         },
         resolveModuleOrPackageSpecifier(specifier) {
             if (typeof specifier === 'string') {
@@ -266,37 +279,51 @@ export async function generate(sourceFiles, options = {}) {
         /**
          * @template {DeclatationType} T
          * @param {string} name
-         * @param {T} [kind]
+         * @param {T} kind
+         * @param {string | Module} source
          * @returns {DeclarationByType<T> | null}
          */
-        getDeclarationByName(name, kind) {
+        resolveDeclaration(name, kind, source) {
             for (const manifest of context.getManifests()) {
                 for (const module of manifest.modules) {
-                    const declaration = module.declarations?.find(
-                        (decl) => decl.name === name && (kind ? decl.kind === kind : true)
-                    );
-                    if (declaration) {
-                        return /** @type {DeclarationByType<T>} */ (declaration);
+                    if (typeof source === 'string' ? module.path !== source : module !== source) {
+                        continue;
+                    }
+                    if (module.exports) {
+                        for (const exp of module.exports) {
+                            const specifier = exp.declaration.module || exp.declaration.package;
+                            if (exp.name === name) {
+                                if (specifier) {
+                                    return context.resolveDeclaration(exp.declaration.name, kind, specifier);
+                                }
+
+                                const declaration = module.declarations?.find(
+                                    (decl) => decl.name === exp.declaration.name && (kind ? decl.kind === kind : true)
+                                );
+                                if (declaration) {
+                                    return /** @type {DeclarationByType<T>} */ (declaration);
+                                }
+                            } else if (exp.name === '*' && specifier) {
+                                const declaration = context.resolveDeclaration(name, kind, specifier);
+                                if (declaration) {
+                                    return declaration;
+                                }
+                            }
+                        }
                     }
                 }
             }
             return null;
         },
-        /**
-         * @template {DeclatationType} T
-         * @param {T} [kind]
-         * @returns {DeclarationByType<T>[]}
-         */
-        getDeclarations(kind) {
-            return /** @type {DeclarationByType<T>[]} */ (
-                this.getManifests().flatMap((manifest) =>
-                    manifest.modules.flatMap(
-                        (module) =>
-                            module.declarations?.filter((declaration) => (kind ? declaration.kind === kind : true)) ||
-                            []
-                    )
-                )
-            );
+        getDeclarationModule(declaration) {
+            for (const manifest of context.getManifests()) {
+                for (const module of manifest.modules) {
+                    if (module.declarations?.some((decl) => decl === declaration)) {
+                        return module;
+                    }
+                }
+            }
+            return null;
         },
         getManifests() {
             return [...(options.thirdPartyManifests || []), customElementsManifest];
@@ -354,13 +381,13 @@ export async function generate(sourceFiles, options = {}) {
                 iterateCallbacks(
                     plugins.map(
                         (plugin) => () =>
-                            withErrorHandling(plugin.name, () => {
+                            withErrorHandling(plugin.name, () =>
                                 plugin.collectPhase?.call(context, {
                                     node,
                                     moduleDoc,
                                     customElementsManifest,
-                                });
-                            })
+                                })
+                            )
                     )
                 ),
             walkerOptions
@@ -372,13 +399,13 @@ export async function generate(sourceFiles, options = {}) {
                 iterateCallbacks(
                     plugins.map(
                         (plugin) => () =>
-                            withErrorHandling(plugin.name, () => {
+                            withErrorHandling(plugin.name, () =>
                                 plugin.analyzePhase?.call(context, {
                                     node,
                                     moduleDoc,
                                     customElementsManifest,
-                                });
-                            })
+                                })
+                            )
                     )
                 ),
             walkerOptions

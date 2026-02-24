@@ -10,7 +10,7 @@ import { isBareModuleSpecifier } from '../../utils.js';
 export function collectImportsPlugin() {
     return {
         name: 'CORE - IMPORTS',
-        collectPhase({ node }) {
+        async collectPhase({ node }) {
             if (node.type === 'Program') {
                 this.resetImports();
             }
@@ -24,7 +24,7 @@ export function collectImportsPlugin() {
             ) {
                 this.collectImport({
                     kind: 'default',
-                    path: node.source.value,
+                    path: (await this.resolve(node.source.value)) ?? node.source.value,
                     name: node.specifiers.find((specifier) => specifier.type === 'ImportDefaultSpecifier')?.local.name,
                     isBareModuleSpecifier: isBareModuleSpecifier(node.source.value),
                     isTypeOnly: node?.importKind === 'type',
@@ -40,18 +40,20 @@ export function collectImportsPlugin() {
                 node.type === 'ImportDeclaration' &&
                 node.specifiers.some((specifier) => specifier.type === 'ImportSpecifier')
             ) {
-                node.specifiers.forEach((element) => {
-                    if (element.type !== 'ImportSpecifier') {
-                        return;
-                    }
-                    this.collectImport({
-                        kind: 'named',
-                        path: node.source.value,
-                        name: element.local.name,
-                        isBareModuleSpecifier: isBareModuleSpecifier(node.source.value),
-                        isTypeOnly: element?.importKind === 'type',
-                    });
-                });
+                await Promise.all(
+                    node.specifiers.map(async (element) => {
+                        if (element.type !== 'ImportSpecifier') {
+                            return;
+                        }
+                        this.collectImport({
+                            kind: 'named',
+                            path: (await this.resolve(node.source.value)) ?? node.source.value,
+                            name: element.local.name,
+                            isBareModuleSpecifier: isBareModuleSpecifier(node.source.value),
+                            isTypeOnly: element?.importKind === 'type',
+                        });
+                    })
+                );
             }
 
             /**
@@ -63,7 +65,7 @@ export function collectImportsPlugin() {
             ) {
                 this.collectImport({
                     kind: 'aggregate',
-                    path: node.source.value,
+                    path: (await this.resolve(node.source.value)) ?? node.source.value,
                     name: node.specifiers.find((specifier) => specifier.type === 'ImportNamespaceSpecifier')?.local
                         .name,
                     isBareModuleSpecifier: isBareModuleSpecifier(node.source.value),
@@ -77,7 +79,7 @@ export function collectImportsPlugin() {
             if (node.type === 'ImportDeclaration' && node.specifiers.length === 0) {
                 this.collectImport({
                     kind: 'side-effect',
-                    path: node.source.value,
+                    path: (await this.resolve(node.source.value)) ?? node.source.value,
                     isBareModuleSpecifier: isBareModuleSpecifier(node.source.value),
                     isTypeOnly: false,
                 });

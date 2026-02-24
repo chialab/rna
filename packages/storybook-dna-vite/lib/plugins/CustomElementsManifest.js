@@ -18,9 +18,12 @@ import MagicString from 'magic-string';
  */
 export default function customElementsManifestPlugin(options) {
     const filter = createFilter(options.include || /\.(m?ts|[jt]sx)$/, options.exclude);
+    const manifests = new Map();
 
     return {
         name: 'vite:storybook-cem',
+
+        apply: 'serve',
 
         enforce: 'pre',
 
@@ -35,6 +38,10 @@ export default function customElementsManifestPlugin(options) {
 
             const customElementsManifest = await generate(modules, {
                 plugins: options.plugins,
+                resolve: async (source, importer) => {
+                    return (await this.resolve(source, importer))?.id || null;
+                },
+                thirdPartyManifests: Array.from(manifests.values()),
             });
 
             if (!customElementsManifest.modules) {
@@ -42,11 +49,6 @@ export default function customElementsManifestPlugin(options) {
             }
 
             const declarations = customElementsManifest.modules.flatMap((mod) => mod.declarations ?? []);
-
-            if (declarations.length === 0) {
-                return;
-            }
-
             const customElements = /** @type {CustomElement[]} */ (
                 declarations.filter(
                     (decl) =>

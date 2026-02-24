@@ -13,7 +13,7 @@ export function localeJSDocTagsPlugin() {
             }
             const className = node.id?.name;
             const classDoc =
-                /** @type {(ClassDeclaration & { locale?: { value: string; description: string }[]; }) | undefined} */ (
+                /** @type {(ClassDeclaration & { locale?: { name: string; description: string }[]; }) | undefined} */ (
                     moduleDoc.declarations?.find((declaration) => declaration.name === className)
                 );
             if (!classDoc) {
@@ -26,7 +26,7 @@ export function localeJSDocTagsPlugin() {
                     if (tag.tag === 'locale') {
                         classDoc.locale ??= [];
                         classDoc.locale.push({
-                            value: tag.name.replace(/^["']/, '').replace(/["']$/, ''),
+                            name: tag.name.replace(/^["']/, '').replace(/["']$/, ''),
                             description: tag.description.replace(/^\s*-\s+/, '').trim() || '',
                         });
                     }

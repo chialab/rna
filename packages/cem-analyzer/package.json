@@ -1,7 +1,7 @@
 {
   "name": "@chialab/cem-analyzer",
   "type": "module",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Custom Elements Manifest analyzer and generator.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",

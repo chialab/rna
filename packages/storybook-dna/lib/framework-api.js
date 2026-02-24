@@ -1,3 +1,5 @@
+/// <reference types="./typings.d.ts" />
+
 /**
  * @import { CustomElement, Package, PropertyLike } from 'custom-elements-manifest'
  */

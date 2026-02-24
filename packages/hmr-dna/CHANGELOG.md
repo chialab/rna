@@ -1,5 +1,11 @@
 # @chialab/hmr-dna
 
+## 4.0.2
+
+### Patch Changes
+
+- b442760: Use internal custom elements analyzer.
+
 ## 4.0.1
 
 ### Patch Changes

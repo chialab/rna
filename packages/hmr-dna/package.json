@@ -1,7 +1,7 @@
 {
   "name": "@chialab/hmr-dna",
   "type": "module",
-  "version": "4.0.1",
+  "version": "4.0.2",
   "description": "Hot module replacement library for DNA components.",
   "exports": {
     ".": {

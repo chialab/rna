@@ -1921,8 +1921,8 @@ __metadata:
   dependencies:
     "@chialab/cem-analyzer": ^0.1.0
     "@chialab/dna": ^4.0.0
-    "@chialab/storybook-dna": ^10.0.0
-    "@chialab/vite-plugin-hmr-dna": ^4.1.1
+    "@chialab/storybook-dna": ^10.1.6
+    "@chialab/vite-plugin-hmr-dna": ^4.1.3
     "@rollup/pluginutils": ^5.0.2
     "@storybook/builder-vite": ^10.0.0
     "@types/react": ^18.0.26
@@ -1938,7 +1938,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@chialab/storybook-dna@^10.0.0, @chialab/storybook-dna@workspace:packages/storybook-dna":
+"@chialab/storybook-dna@^10.1.6, @chialab/storybook-dna@workspace:packages/storybook-dna":
   version: 0.0.0-use.local
   resolution: "@chialab/storybook-dna@workspace:packages/storybook-dna"
   dependencies:
@@ -1970,7 +1970,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@chialab/vite-plugin-hmr-dna@^4.1.1, @chialab/vite-plugin-hmr-dna@workspace:packages/vite-plugin-hmr-dna":
+"@chialab/vite-plugin-hmr-dna@^4.1.3, @chialab/vite-plugin-hmr-dna@workspace:packages/vite-plugin-hmr-dna":
   version: 0.0.0-use.local
   resolution: "@chialab/vite-plugin-hmr-dna@workspace:packages/vite-plugin-hmr-dna"
   dependencies:

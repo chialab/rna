@@ -103,6 +103,9 @@
       "path": "./packages/rna-logger"
     },
     {
+      "path": "./packages/storybook-dna-vite"
+    },
+    {
       "path": "./packages/vite-plugin-commonjs"
     },
     {

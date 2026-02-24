@@ -85,10 +85,16 @@ export default defineConfig({
             },
             {
                 text: 'DNA',
-                items: [{
-                    text: 'vite-plugin-hmr-dna',
-                    link: '/guide/vite-plugin-hmr-dna',
-                }],
+                items: [
+                    {
+                        text: 'vite-plugin-hmr-dna',
+                        link: '/guide/vite-plugin-hmr-dna',
+                    },
+                    {
+                        text: 'storybook-dna-vite',
+                        link: '/guide/storybook-dna-vite',
+                    },
+                ],
             },
             {
                 text: 'Esbuild plugins',

@@ -109,6 +109,9 @@
       "path": "./packages/vite-plugin-css-modules"
     },
     {
+      "path": "./packages/vite-plugin-hmr-dna"
+    },
+    {
       "path": "./packages/vite-plugin-isolated-decl"
     },
     {

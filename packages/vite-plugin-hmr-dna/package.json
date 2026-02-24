@@ -1,8 +1,8 @@
 {
-  "name": "@chialab/hmr-dna",
+  "name": "@chialab/vite-plugin-hmr-dna",
   "type": "module",
-  "version": "4.0.1",
-  "description": "Hot module replacement library for DNA components.",
+  "version": "4.1.2",
+  "description": "Hot module replacement for DNA components and Vite.",
   "main": "lib/index.js",
   "typings": "./types/index.d.ts",
   "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
@@ -10,11 +10,12 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/chialab/rna",
-    "directory": "packages/hmr-dna"
+    "directory": "packages/vite-plugin-hmr-dna"
   },
   "keywords": [
     "hmr",
     "dna",
+    "vite",
     "hot module replacement",
     "components"
   ],
@@ -26,9 +27,11 @@
     "LICENSE"
   ],
   "dependencies": {
-    "@chialab/dna": "^4.0.0"
+    "@chialab/dna": "^4.0.0",
+    "magic-string": "^0.30.0"
   },
   "devDependencies": {
-    "typescript": "^5.0.0"
+    "typescript": "^5.0.0",
+    "vite": "^7.0.0"
   }
 }

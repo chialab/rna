@@ -1,5 +1,3 @@
-export * from './vitest-axe';
-
 export default {
     /**
      * @param {import('axe-core').AxeResults} results

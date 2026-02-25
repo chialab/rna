@@ -22,7 +22,8 @@ pnpm add -D axe-core @chialab/vitest-axe
 
 ## Usage
 
-Use a Vitest setup file to add the matchers to the test runner.
+Use a Vitest setup file to add the matchers to the test runner expectation API.  
+Also, make sure to include typings for the matchers in the `tsconfig.json` file.
 
 ::: code-group
 
@@ -39,6 +40,15 @@ import matchers from '@chialab/vitest-axe';
 import { expect } from 'vitest';
 
 expect.extend(matchers);
+```
+
+```json[tsconfig.json]
+{
+    "compilerOptions": {
+        // ...
+        "types": ["@chialab/vitest-axe/matchers"]
+    }
+}
 ```
 
 :::

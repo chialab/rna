@@ -124,6 +124,9 @@
       "path": "./packages/vite-plugin-worker-proxy"
     },
     {
+      "path": "./packages/vitest-axe"
+    },
+    {
       "path": "./packages/vitest-csf-visual-regression"
     },
     {

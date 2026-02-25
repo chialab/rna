@@ -74,6 +74,10 @@ export default defineConfig({
                         link: '/guide/vite-plugin-worker-proxy',
                     },
                     {
+                        text: 'vitest-axe',
+                        link: '/guide/vitest-axe',
+                    },
+                    {
                         text: 'vitest-csf-visual-regression',
                         link: '/guide/vitest-csf-visual-regression',
                     },

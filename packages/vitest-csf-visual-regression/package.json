@@ -1,7 +1,7 @@
 {
   "name": "@chialab/vitest-csf-visual-regression",
   "type": "module",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "description": "A Vitest plugin to perform visual regression testing on Storybook stories.",
   "main": "lib/index.js",
   "typings": "types/index.d.ts",

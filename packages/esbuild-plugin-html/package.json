@@ -1,7 +1,7 @@
 {
   "name": "@chialab/esbuild-plugin-html",
   "type": "module",
-  "version": "0.19.0",
+  "version": "0.19.1",
   "description": "A HTML loader plugin for esbuild.",
   "main": "dist/index.js",
   "typings": "types/index.d.ts",
@@ -39,7 +39,7 @@
     "node": ">=18"
   },
   "dependencies": {
-    "@chialab/esbuild-rna": "^0.19.0"
+    "@chialab/esbuild-rna": "^0.19.1"
   },
   "peerDependencies": {
     "htmlnano": "^2.0.0"

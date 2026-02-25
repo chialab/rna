@@ -1,29 +1,13 @@
-<p align="center">
-    <strong>vitest-axe</strong> • Axe matchers for Vitest.
-</p>
+# Vitest Axe
 
-<p align="center">
-    <a href="https://www.npmjs.com/package/@chialab/vitest-axe"><img alt="NPM" src="https://img.shields.io/npm/v/@chialab/vitest-axe.svg?style=flat-square"></a>
-</p>
+[Axe](https://github.com/dequelabs/axe-core) matchers for [Vitest](https://vitest.dev/).
 
----
-
-## Install
-
-```sh
-npm i @chialab/vitest-axe -D
-```
-
-```sh
-yarn add @chialab/vitest-axe -D
-```
+[![NPM](https://img.shields.io/npm/v/@chialab/vitest-axe.svg)](https://www.npmjs.com/package/@chialab/vitest-axe)
 
 ## Documentation
 
 Read the documentation at [chialab.github.io/rna](https://chialab.github.io/rna/guide/vitest-axe).
 
----
-
 ## License
 
-**vitest-axe** is released under the [MIT](https://github.com/chialab/rna/blob/main/packages/vitest-axe/LICENSE) license.
+**Vitest Axe** is released under the [MIT](https://github.com/chialab/rna/blob/main/packages/vitest-axe/LICENSE) license.

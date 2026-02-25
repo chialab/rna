@@ -1,6 +1,6 @@
 # vitest-axe
 
-Axe violations matchers for Vitest.
+[Axe](https://github.com/dequelabs/axe-core) matchers for [Vitest](https://vitest.dev/).
 
 ## Install
 

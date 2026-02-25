@@ -1,5 +1,11 @@
 # @chialab/storybook-dna
 
+## 10.1.7
+
+### Patch Changes
+
+- d3037b1: Add `exports` field to package.json
+
 ## 10.1.6
 
 ### Patch Changes

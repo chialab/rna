@@ -1,5 +1,15 @@
 # @chialab/storybook-dna-vite
 
+## 10.0.4
+
+### Patch Changes
+
+- d3037b1: Add `exports` field to package.json
+- Updated dependencies [d3037b1]
+  - @chialab/vite-plugin-hmr-dna@4.1.4
+  - @chialab/storybook-dna@10.1.7
+  - @chialab/cem-analyzer@0.1.1
+
 ## 10.0.3
 
 ### Patch Changes

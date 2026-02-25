@@ -1,5 +1,11 @@
 # @chialab/vite-plugin-hmr-dna
 
+## 4.1.4
+
+### Patch Changes
+
+- d3037b1: Add `exports` field to package.json
+
 ## 4.1.3
 
 ### Patch Changes

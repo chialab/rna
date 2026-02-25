@@ -1,7 +1,7 @@
 {
   "name": "@chialab/esbuild-plugin-lightningcss",
   "type": "module",
-  "version": "0.19.0",
+  "version": "0.19.1",
   "description": "A CSS loader plugin for esbuild that uses Lightning CSS as preprocessor.",
   "main": "lib/index.js",
   "typings": "types/index.d.ts",
@@ -35,7 +35,7 @@
     "node": ">=18"
   },
   "dependencies": {
-    "@chialab/esbuild-rna": "^0.19.0",
+    "@chialab/esbuild-rna": "^0.19.1",
     "lightningcss": "^1.16.0"
   },
   "devDependencies": {

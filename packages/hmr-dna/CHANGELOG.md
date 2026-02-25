@@ -1,5 +1,11 @@
 # @chialab/hmr-dna
 
+## 4.0.3
+
+### Patch Changes
+
+- d3037b1: Add `exports` field to package.json
+
 ## 4.0.2
 
 ### Patch Changes

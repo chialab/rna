@@ -1,7 +1,7 @@
 {
   "name": "@chialab/vite-plugin-css-modules",
   "type": "module",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Vite plugin to support constructable CSS modules via JavaScript imports.",
   "main": "lib/index.js",
   "typings": "types/index.d.ts",

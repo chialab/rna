@@ -1,7 +1,7 @@
 {
   "name": "@chialab/vitest-axe",
   "type": "module",
-  "version": "0.19.0",
+  "version": "0.19.1",
   "description": "Axe matchers for Vitest.",
   "main": "lib/index.js",
   "typings": "types/index.d.ts",

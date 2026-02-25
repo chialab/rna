@@ -4,7 +4,13 @@
   "version": "0.19.0",
   "description": "A HTML loader plugin for esbuild.",
   "main": "dist/index.js",
-  "typings": "./types/index.d.ts",
+  "typings": "types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./types/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
   "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
   "license": "MIT",
   "repository": {

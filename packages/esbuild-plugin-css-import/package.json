@@ -4,7 +4,13 @@
   "version": "0.19.0",
   "description": "Resolve CSS imports using the node resolution algorithm and the style field in package.json.",
   "main": "lib/index.js",
-  "typings": "./types/index.d.ts",
+  "typings": "types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./types/index.d.ts",
+      "default": "./lib/index.js"
+    }
+  },
   "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
   "license": "MIT",
   "repository": {

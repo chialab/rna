@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "description": "Vite plugin to support constructable CSS modules via JavaScript imports.",
   "main": "lib/index.js",
-  "typings": "./types/index.d.ts",
+  "typings": "types/index.d.ts",
   "exports": {
     ".": {
       "types": "./types/index.d.ts",

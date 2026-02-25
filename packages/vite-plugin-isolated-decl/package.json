@@ -4,7 +4,7 @@
   "version": "0.1.1",
   "description": "Vite plugin to generate isolated declaration files for TypeScript sources.",
   "main": "lib/index.js",
-  "typings": "./types/index.d.ts",
+  "typings": "types/index.d.ts",
   "exports": {
     ".": {
       "types": "./types/index.d.ts",

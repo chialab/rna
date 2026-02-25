@@ -3,6 +3,8 @@
   "type": "module",
   "version": "4.0.0",
   "description": "A Vitest plugin to perform visual regression testing on Storybook stories.",
+  "main": "lib/index.js",
+  "typings": "types/index.d.ts",
   "exports": {
     ".": {
       "types": "./types/index.d.ts",

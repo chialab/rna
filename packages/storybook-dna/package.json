@@ -14,7 +14,7 @@
     "./package.json": "./package.json"
   },
   "main": "lib/index.js",
-  "typings": "./types/index.d.ts",
+  "typings": "types/index.d.ts",
   "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
   "license": "MIT",
   "repository": {

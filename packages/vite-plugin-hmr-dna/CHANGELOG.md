@@ -1,5 +1,11 @@
 # @chialab/vite-plugin-hmr-dna
 
+## 4.1.5
+
+### Patch Changes
+
+- 2de6747: Fix `vite-plugin-hmr-dna` dependency.
+
 ## 4.1.4
 
 ### Patch Changes

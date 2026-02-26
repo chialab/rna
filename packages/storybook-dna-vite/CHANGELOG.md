@@ -1,5 +1,13 @@
 # @chialab/storybook-dna-vite
 
+## 10.0.5
+
+### Patch Changes
+
+- a4f50eb: Remove `remark-gfm` dependency.
+- Updated dependencies [2de6747]
+  - @chialab/vite-plugin-hmr-dna@4.1.5
+
 ## 10.0.4
 
 ### Patch Changes

@@ -58,6 +58,10 @@ export default defineConfig({
                 text: 'Vite plugins',
                 items: [
                     {
+                        text: 'vite-plugin-cem',
+                        link: '/guide/vite-plugin-cem',
+                    },
+                    {
                         text: 'vite-plugin-css-modules',
                         link: '/guide/vite-plugin-css-modules',
                     },

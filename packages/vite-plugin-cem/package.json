@@ -1,0 +1,43 @@
+{
+  "name": "@chialab/vite-plugin-cem",
+  "type": "module",
+  "version": "0.0.0",
+  "description": "Generate a Custom Elements Manifest for Vite builds.",
+  "exports": {
+    ".": {
+      "types": "./types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "lib/index.js",
+  "typings": "types/index.d.ts",
+  "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chialab/rna",
+    "directory": "packages/vite-plugin-cem"
+  },
+  "keywords": [
+    "manifest",
+    "cem",
+    "vite",
+    "custom-elements",
+    "web-components"
+  ],
+  "files": [
+    "lib",
+    "types",
+    "package.json",
+    "README.md",
+    "LICENSE"
+  ],
+  "dependencies": {
+    "@chialab/cem-analyzer": "^0.1.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "vite": "^7.0.0"
+  }
+}

@@ -1953,6 +1953,16 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@chialab/vite-plugin-cem@workspace:packages/vite-plugin-cem":
+  version: 0.0.0-use.local
+  resolution: "@chialab/vite-plugin-cem@workspace:packages/vite-plugin-cem"
+  dependencies:
+    "@chialab/cem-analyzer": ^0.1.1
+    typescript: ^5.0.0
+    vite: ^7.0.0
+  languageName: unknown
+  linkType: soft
+
 "@chialab/vite-plugin-commonjs@workspace:packages/vite-plugin-commonjs":
   version: 0.0.0-use.local
   resolution: "@chialab/vite-plugin-commonjs@workspace:packages/vite-plugin-commonjs"

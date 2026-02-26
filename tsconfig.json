@@ -109,6 +109,9 @@
       "path": "./packages/storybook-dna-vite"
     },
     {
+      "path": "./packages/vite-plugin-cem"
+    },
+    {
       "path": "./packages/vite-plugin-commonjs"
     },
     {

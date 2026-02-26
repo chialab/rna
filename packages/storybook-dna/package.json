@@ -39,6 +39,7 @@
     "ts-dedent": "^2.0.0"
   },
   "devDependencies": {
+    "@chialab/cem-analyzer": "^0.1.1",
     "@chialab/dna": "^4.0.0",
     "@types/react": "^18.0.26",
     "custom-elements-manifest": "^2.0.0",

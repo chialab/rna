@@ -6,7 +6,7 @@ The library used to render [Storybook](https://storybook.js.org/) stories with [
 
 ## Documentation
 
-For documentation, please refer to the [Storybook DNA documentation](https://chialab.github.io/rna/guide/storybook-dna-vite/).
+Read the documentation at [chialab.github.io/rna](https://chialab.github.io/rna/guide/storybook-dna-vite/).
 
 ## License
 

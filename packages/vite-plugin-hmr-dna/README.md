@@ -6,7 +6,7 @@ Hot module replacement for [DNA](https://chialab.github.io/dna/) components and 
 
 ## Documentation
 
-For documentation, please refer to the [HMR DNA documentation](https://chialab.github.io/rna/guide/vite-plugin-hmr-dna/).
+Read the documentation at [chialab.github.io/rna](https://chialab.github.io/rna/guide/vite-plugin-hmr-dna/).
 
 ## License
 

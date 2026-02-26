@@ -2,7 +2,7 @@
  * @import { VariableDeclaration } from 'custom-elements-manifest'
  * @import { Plugin } from '../../generate.js'
  */
-import { decorateWithJSDoc } from '../../utils.js';
+import { decorateWithJSDoc, literalToType } from '../../utils.js';
 
 /**
  * variablePlugin
@@ -54,25 +54,9 @@ export function variablePlugin() {
                                     value = this.print(declarator.init);
                                     if (declarator.init.value == null) {
                                         //
-                                    } else if (typeof declarator.init.value === 'string') {
+                                    } else {
                                         variable.type = {
-                                            text: 'string',
-                                        };
-                                    } else if (typeof declarator.init.value === 'number') {
-                                        variable.type = {
-                                            text: 'number',
-                                        };
-                                    } else if (typeof declarator.init.value === 'boolean') {
-                                        variable.type = {
-                                            text: 'boolean',
-                                        };
-                                    } else if (typeof declarator.init.value === 'symbol') {
-                                        variable.type = {
-                                            text: 'symbol',
-                                        };
-                                    } else if (typeof declarator.init.value === 'bigint') {
-                                        variable.type = {
-                                            text: 'bigint',
+                                            text: literalToType(declarator.init.value),
                                         };
                                     }
                                 } else if (

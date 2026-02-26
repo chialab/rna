@@ -14,7 +14,7 @@
  * } from 'custom-elements-manifest'
  * @import { Context } from '../generate'
  */
-import { decorateClassFieldWithJSDoc, decorateWithJSDoc, hasIgnoreJSDoc, print } from '../utils.js';
+import { decorateClassFieldWithJSDoc, decorateWithJSDoc, hasIgnoreJSDoc, literalToType, print } from '../utils.js';
 import { createFunction } from './create-function.js';
 
 /**
@@ -147,17 +147,7 @@ export function createClass(context, node, jsdoc = context.parseJSDoc(node)) {
                 if (returnStatement?.argument?.type === 'Literal') {
                     const value = returnStatement.argument.value;
                     if (!typeText) {
-                        if (typeof value === 'string') {
-                            typeText = 'string';
-                        } else if (typeof value === 'number') {
-                            typeText = 'number';
-                        } else if (typeof value === 'boolean') {
-                            typeText = 'boolean';
-                        } else if (typeof value === 'symbol') {
-                            typeText = 'symbol';
-                        } else if (typeof value === 'bigint') {
-                            typeText = 'bigint';
-                        }
+                        typeText = literalToType(value);
                     }
                     fieldTemplate.default = returnStatement.argument.raw || String(value);
                 }
@@ -169,18 +159,7 @@ export function createClass(context, node, jsdoc = context.parseJSDoc(node)) {
                 fieldTemplate.default = (member.value.type === 'Literal' && member.value.raw) || print(member.value);
                 if (!fieldTemplate.type) {
                     if (member.value.type === 'Literal') {
-                        const value = member.value.value;
-                        if (typeof value === 'string') {
-                            typeText = 'string';
-                        } else if (typeof value === 'number') {
-                            typeText = 'number';
-                        } else if (typeof value === 'boolean') {
-                            typeText = 'boolean';
-                        } else if (typeof value === 'symbol') {
-                            typeText = 'symbol';
-                        } else if (typeof value === 'bigint') {
-                            typeText = 'bigint';
-                        }
+                        typeText = literalToType(member.value.value);
                     } else if (member.value.type === 'ArrayExpression') {
                         typeText = 'array';
                     } else if (member.value.type === 'ObjectExpression') {

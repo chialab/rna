@@ -4,7 +4,7 @@
  * @import { FunctionDeclaration, Parameter } from 'custom-elements-manifest'
  * @import { Context } from '../generate'
  */
-import { decorateWithJSDoc } from '../utils.js';
+import { decorateWithJSDoc, literalToType } from '../utils.js';
 
 /**
  * @param {Context} context
@@ -36,6 +36,9 @@ export function createFunction(context, node, jsdoc = context.parseJSDoc(node)) 
         /** @type {Parameter} */
         const parameter = {
             name: param.type === 'Identifier' ? param.name : `param${index}`,
+            description: undefined,
+            type: undefined,
+            default: undefined,
         };
         if (param.type === 'Identifier') {
             if (param.typeAnnotation) {
@@ -45,6 +48,14 @@ export function createFunction(context, node, jsdoc = context.parseJSDoc(node)) 
                     text: context.print(typedParam.typeAnnotation.typeAnnotation),
                 };
             }
+        } else if (param.type === 'AssignmentPattern' && param.left.type === 'Identifier') {
+            parameter.name = param.left.name;
+            if (param.right.type === 'Literal' && param.right.value != null) {
+                parameter.type = {
+                    text: literalToType(param.right.value),
+                };
+            }
+            parameter.default = context.print(param.right);
         }
         parameters.push(parameter);
     });
@@ -59,6 +70,9 @@ export function createFunction(context, node, jsdoc = context.parseJSDoc(node)) 
             if (tag.tag === 'param') {
                 const parameter = functionLikeTemplate.parameters?.find((parameter) => parameter.name === tag.name) || {
                     name: tag.name,
+                    description: undefined,
+                    type: undefined,
+                    default: undefined,
                 };
                 const parameterAlreadyExists = !!parameter;
                 const parameterTemplate = parameter || {};

@@ -188,3 +188,33 @@ export function iterateCallbacks(arr, pos = 0) {
     }
     return iterateCallbacks(arr, pos + 1);
 }
+
+/**
+ * Converts a literal value to a type representation. This function is intended to take a literal value (such as a string, number, boolean, or null) and return an object that represents the type of that literal in a format suitable for documentation or analysis purposes.
+ * @param {unknown} literal - The literal value to convert to a type representation.
+ * @returns {string}
+ */
+export function literalToType(literal) {
+    if (typeof literal === 'string') {
+        return 'string';
+    }
+    if (typeof literal === 'number') {
+        return 'number';
+    }
+    if (typeof literal === 'boolean') {
+        return 'boolean';
+    }
+    if (typeof literal === 'symbol') {
+        return 'symbol';
+    }
+    if (typeof literal === 'bigint') {
+        return 'bigint';
+    }
+    if (literal === null) {
+        return 'null';
+    }
+    if (literal === undefined) {
+        return 'undefined';
+    }
+    return 'unknown';
+}

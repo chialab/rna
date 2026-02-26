@@ -1,7 +1,7 @@
 /**
- * @import { ClassDeclaration, Module } from 'custom-elements-manifest'
- * @import { Context, Plugin } from '../../generate.js'
+ * @import { Plugin } from '../../generate.js'
  */
+import { customElementKeys } from '../../helpers.js';
 
 /**
  * SORT-MEMBERS-PLUGIN
@@ -28,17 +28,7 @@ export function sortMembersPlugin() {
                         continue;
                     }
 
-                    [
-                        'slots',
-                        'cssParts',
-                        'cssProperties',
-                        'attributes',
-                        'members',
-                        'events',
-                        'cssStates',
-                        'icones',
-                        'locale',
-                    ].forEach((type) => {
+                    customElementKeys.forEach((type) => {
                         customElement[/** @type {'members'} */ (type)]?.sort(
                             (a, b) => a.name?.localeCompare(b.name || '') || 0
                         );

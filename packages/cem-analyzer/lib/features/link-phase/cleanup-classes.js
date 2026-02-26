@@ -1,7 +1,7 @@
 /**
- * @import { CustomElementDeclaration } from 'custom-elements-manifest'
  * @import { Plugin } from '../../generate.js'
  */
+import { customElementKeys } from '../../helpers.js';
 
 /**
  * CLEANUP-CLASSES
@@ -17,9 +17,7 @@ export function cleanupClassesPlugin() {
             const classes = moduleDoc?.declarations?.filter((declaration) => declaration.kind === 'class') ?? [];
 
             classes.forEach((klass) => {
-                /** @type {(keyof CustomElementDeclaration)[]} */
-                const fields = ['cssProperties', 'cssParts', 'slots', 'members', 'attributes', 'events', 'cssStates'];
-                fields.forEach((field) => {
+                customElementKeys.forEach((field) => {
                     const arr = klass[/** @type {'members'} */ (field)];
                     if (Array.isArray(arr) && arr.length === 0) {
                         delete klass[/** @type {'members'} */ (field)];

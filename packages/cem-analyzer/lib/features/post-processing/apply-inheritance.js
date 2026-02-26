@@ -2,6 +2,7 @@
  * @import { ClassDeclaration, Module } from 'custom-elements-manifest'
  * @import { Context, Plugin } from '../../generate.js'
  */
+import { customElementKeys } from '../../helpers.js';
 
 /**
  * @param {Context} context
@@ -54,17 +55,7 @@ export function applyInheritancePlugin() {
                     }
                     const tree = getInheritanceTree(this, customElement);
                     tree.forEach((klass) => {
-                        [
-                            'slots',
-                            'cssParts',
-                            'cssProperties',
-                            'attributes',
-                            'members',
-                            'events',
-                            'cssStates',
-                            'icones',
-                            'locale',
-                        ].forEach((type) => {
+                        customElementKeys.forEach((type) => {
                             const items = klass[/** @type {'members'} */ (type)] || [];
                             if (!items.length) {
                                 return;

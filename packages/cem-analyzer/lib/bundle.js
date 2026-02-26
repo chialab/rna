@@ -4,6 +4,7 @@
  * @import { SourceFile } from './source-file.js'
  */
 import { generate } from './generate.js';
+import { applyInheritance } from './helpers.js';
 import { createResolve } from './resolve.js';
 import { isBareModuleSpecifier } from './utils.js';
 
@@ -238,5 +239,8 @@ export async function bundle(modules, options = {}) {
             });
         }
     }
+
+    applyInheritance(bundle);
+
     return bundle;
 }

@@ -9,6 +9,10 @@
     ".": {
       "types": "./types/index.d.ts",
       "default": "./lib/index.js"
+    },
+    "./helpers": {
+      "types": "./types/helpers.d.ts",
+      "default": "./lib/helpers.js"
     }
   },
   "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",

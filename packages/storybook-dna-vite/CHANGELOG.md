@@ -1,5 +1,11 @@
 # @chialab/storybook-dna-vite
 
+## 10.0.6
+
+### Patch Changes
+
+- 7583f42: Apply `vite:storybook-cem` to builds.
+
 ## 10.0.5
 
 ### Patch Changes

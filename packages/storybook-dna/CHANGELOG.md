@@ -1,5 +1,11 @@
 # @chialab/storybook-dna
 
+## 10.1.8
+
+### Patch Changes
+
+- d54f538: Use helpers from CEM Analyzer.
+
 ## 10.1.7
 
 ### Patch Changes

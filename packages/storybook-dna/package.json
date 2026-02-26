@@ -1,7 +1,7 @@
 {
   "name": "@chialab/storybook-dna",
   "type": "module",
-  "version": "10.1.7",
+  "version": "10.1.8",
   "description": "The library used to render Storybook stories with DNA.",
   "exports": {
     ".": {
@@ -39,7 +39,7 @@
     "ts-dedent": "^2.0.0"
   },
   "devDependencies": {
-    "@chialab/cem-analyzer": "^0.1.1",
+    "@chialab/cem-analyzer": "^0.1.2",
     "@chialab/dna": "^4.0.0",
     "@types/react": "^18.0.26",
     "custom-elements-manifest": "^2.0.0",

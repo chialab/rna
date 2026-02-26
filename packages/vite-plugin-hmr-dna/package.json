@@ -34,7 +34,7 @@
     "LICENSE"
   ],
   "dependencies": {
-    "@chialab/dna": "^4.0.0",
+    "@chialab/hmr-dna": "^4.0.0",
     "magic-string": "^0.30.0"
   },
   "devDependencies": {

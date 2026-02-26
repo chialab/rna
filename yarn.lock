@@ -1744,7 +1744,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@chialab/hmr-dna@workspace:packages/hmr-dna":
+"@chialab/hmr-dna@^4.0.0, @chialab/hmr-dna@workspace:packages/hmr-dna":
   version: 0.0.0-use.local
   resolution: "@chialab/hmr-dna@workspace:packages/hmr-dna"
   dependencies:
@@ -1973,7 +1973,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@chialab/vite-plugin-hmr-dna@workspace:packages/vite-plugin-hmr-dna"
   dependencies:
-    "@chialab/dna": ^4.0.0
+    "@chialab/hmr-dna": ^4.0.0
     magic-string: ^0.30.0
     typescript: ^5.0.0
     vite: ^7.0.0

@@ -4,7 +4,6 @@
  */
 import { dnaPlugins } from '@chialab/cem-analyzer';
 import { hmrPlugin } from '@chialab/vite-plugin-hmr-dna';
-import remarkGfm from 'remark-gfm';
 import customElementsManifestPlugin from './plugins/CustomElementsManifest.js';
 
 /**
@@ -13,12 +12,6 @@ import customElementsManifestPlugin from './plugins/CustomElementsManifest.js';
 export const core = {
     builder: '@storybook/builder-vite',
     renderer: '@chialab/storybook-dna',
-};
-
-export const mdxLoaderOptions = {
-    mdxCompileOptions: {
-        remarkPlugins: ['default' in remarkGfm ? remarkGfm.default : remarkGfm],
-    },
 };
 
 /**

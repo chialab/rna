@@ -23,8 +23,6 @@ export default function customElementsManifestPlugin(options) {
     return {
         name: 'vite:storybook-cem',
 
-        apply: 'serve',
-
         enforce: 'pre',
 
         async transform(code, id) {

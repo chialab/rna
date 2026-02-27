@@ -1,5 +1,11 @@
 # @chialab/vite-plugin-cem
 
+## 0.1.1
+
+### Patch Changes
+
+- 8085726: Use `rolldown` if available with Vite 8.
+
 ## 0.1.0
 
 ### Minor Changes

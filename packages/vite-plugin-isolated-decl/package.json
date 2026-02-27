@@ -1,7 +1,7 @@
 {
   "name": "@chialab/vite-plugin-isolated-decl",
   "type": "module",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Vite plugin to generate isolated declaration files for TypeScript sources.",
   "main": "lib/index.js",
   "typings": "types/index.d.ts",

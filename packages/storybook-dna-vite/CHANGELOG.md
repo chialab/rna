@@ -1,5 +1,11 @@
 # @chialab/storybook-dna-vite
 
+## 10.0.8
+
+### Patch Changes
+
+- 8085726: Remove oxc-parser dependency.
+
 ## 10.0.7
 
 ### Patch Changes

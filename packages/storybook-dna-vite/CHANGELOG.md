@@ -1,5 +1,11 @@
 # @chialab/storybook-dna-vite
 
+## 10.0.9
+
+### Patch Changes
+
+- cf94a8a: Use rolldown if available with Vite 8.
+
 ## 10.0.8
 
 ### Patch Changes

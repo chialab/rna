@@ -4,8 +4,8 @@
  * @import { CustomElement } from 'custom-elements-manifest/schema';
  */
 import { createSourceFiles, generate } from '@chialab/cem-analyzer';
-import { createFilter } from '@rollup/pluginutils';
 import MagicString from 'magic-string';
+import { createFilter } from 'vite';
 
 /**
  * @typedef {{ include?: string | RegExp | string[] | RegExp[]; exclude?: string | RegExp | string[] | RegExp[]; renderer: string; plugins?: AnalyzerPlugin[]; }} CustomElementsManifestOptions

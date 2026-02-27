@@ -38,7 +38,6 @@
     "@chialab/cem-analyzer": "^0.1.1",
     "@chialab/storybook-dna": "^10.1.7",
     "@chialab/vite-plugin-hmr-dna": "^4.1.5",
-    "@rollup/pluginutils": "^5.0.2",
     "@storybook/builder-vite": "^10.0.0",
     "magic-string": "^0.30.0",
     "oxc-parser": "^0.114.0",

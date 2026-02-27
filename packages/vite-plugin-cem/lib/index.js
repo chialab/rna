@@ -3,7 +3,7 @@
  * @import { SourceFile } from '@chialab/cem-analyzer';
  * @import { Plugin, FilterPattern } from 'vite';
  */
-import { bundle, createSourceFile, dnaPlugins } from '@chialab/cem-analyzer';
+import { bundle, createSourceFile as createSourceFileFallback, dnaPlugins } from '@chialab/cem-analyzer';
 import { createFilter } from 'vite';
 
 /**
@@ -37,6 +37,49 @@ function groupSourceFiles(sourceFiles, modulePath) {
     });
 
     return grouped;
+}
+
+/**
+ * @type {Map<string, Promise<unknown>>}
+ */
+const importCache = new Map();
+
+/**
+ * Attempts to dynamically import a module and returns null if the module is not found.
+ * @param {string} moduleName The name of the module to import.
+ * @returns {Promise<unknown>} The imported module or null if not found.
+ */
+async function tryImport(moduleName) {
+    const loadPromise =
+        importCache.get(moduleName) ||
+        import(moduleName).catch((err) => {
+            if (/** @type {{ code?: string }} */ (err).code === 'ERR_MODULE_NOT_FOUND') {
+                return null;
+            }
+            throw err;
+        });
+    importCache.set(moduleName, loadPromise);
+    return await loadPromise;
+}
+
+/**
+ * Creates a SourceFile from the given code and identifier.
+ * @param {string} id The identifier (file path) of the source code.
+ * @param {string} code The source code to create the SourceFile from.
+ * @returns {Promise<SourceFile>} The created SourceFile.
+ */
+async function createSourceFile(id, code) {
+    const rolldown = /** @type {typeof import('rolldown/utils') | null} */ (await tryImport('rolldown/utils'));
+    if (rolldown?.parse) {
+        const { program, comments } = await rolldown.parse(code, id);
+        return {
+            fileName: id,
+            program,
+            comments,
+        };
+    }
+
+    return createSourceFileFallback(id, code);
 }
 
 /**

@@ -31,7 +31,20 @@
     "README.md",
     "LICENSE"
   ],
-  "dependencies": {
+  "peerDependencies": {
+    "rolldown": "^1.0.0-rc.0",
+    "typescript": "^5.5.0"
+  },
+  "peerDependenciesMeta": {
+    "rolldown": {
+      "optional": true
+    },
+    "typescript": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "rolldown": "^1.0.0-rc.0",
     "typescript": "^5.5.0"
   }
 }

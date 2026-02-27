@@ -40,7 +40,6 @@
     "@chialab/vite-plugin-hmr-dna": "^4.1.5",
     "@storybook/builder-vite": "^10.0.0",
     "magic-string": "^0.30.0",
-    "oxc-parser": "^0.114.0",
     "ts-dedent": "^2.0.0"
   },
   "devDependencies": {

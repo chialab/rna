@@ -24,6 +24,93 @@ function commonDir(paths) {
 }
 
 /**
+ * Determines the declaration emit extension (.d.ts, .d.mts, .d.cts)
+ * based on the source file path.
+ * @param {string} path The source file path.
+ * @returns {string} The appropriate declaration file extension.
+ */
+function getDeclarationFilerName(path) {
+    const [fileName, ext] = path.split(/\.([^.]+)$/);
+    if (ext === 'mts' || ext === 'mjs') {
+        return `${fileName}.d.mts`;
+    }
+    if (ext === 'cts' || ext === 'cjs') {
+        return `${fileName}.d.cts`;
+    }
+    return `${fileName}.d.ts`;
+}
+
+/**
+ * @type {Map<string, Promise<unknown>>}
+ */
+const importCache = new Map();
+
+/**
+ * Attempts to dynamically import a module and returns null if the module is not found.
+ * @param {string} moduleName The name of the module to import.
+ * @returns {Promise<unknown>} The imported module or null if not found.
+ */
+async function tryImport(moduleName) {
+    const loadPromise =
+        importCache.get(moduleName) ||
+        import(moduleName).catch((err) => {
+            if (/** @type {{ code?: string }} */ (err).code === 'ERR_MODULE_NOT_FOUND') {
+                return null;
+            }
+            throw err;
+        });
+    importCache.set(moduleName, loadPromise);
+    return await loadPromise;
+}
+
+/**
+ * Transpiles code to declaration files using Typescript.
+ * @param {string} code The TypeScript source code to transpile.
+ * @param {string} id The identifier (file path) of the source code.
+ * @returns {Promise<string | false>} The transpiled declaration code.
+ */
+async function typescriptTranspile(code, id) {
+    const ts = /** @type {typeof import('typescript') | null} */ (await tryImport('typescript'));
+    if (!ts) {
+        return false;
+    }
+    return ts.transpileDeclaration(code, {
+        fileName: id,
+        reportDiagnostics: false,
+    }).outputText;
+}
+
+/**
+ * Transpiles code to declaration files using Rolldown.
+ * @param {string} code The TypeScript source code to transpile.
+ * @param {string} id The identifier (file path) of the source code.
+ * @returns {Promise<string | false>} The transpiled declaration code.
+ */
+async function rolldownTranspile(code, id) {
+    const rolldown = /** @type {typeof import('rolldown/experimental') | null} */ (
+        await tryImport('rolldown/experimental')
+    );
+    if (!rolldown) {
+        return false;
+    }
+    return (await rolldown.isolatedDeclaration(id, code)).code;
+}
+
+/**
+ * Transpiles code to declaration files.
+ * @param {string} code The TypeScript source code to transpile.
+ * @param {string} id The identifier (file path) of the source code.
+ * @returns {Promise<string>} The transpiled declaration code.
+ */
+async function transpile(code, id) {
+    const result = (await rolldownTranspile(code, id)) || (await typescriptTranspile(code, id));
+    if (result === false) {
+        throw new Error('No transpiler available for generating declaration files.');
+    }
+    return result;
+}
+
+/**
  * Vite plugin to generate isolated declaration files for TypeScript sources.
  * @returns {import('vite').Plugin} The Vite plugin instance.
  */
@@ -42,23 +129,11 @@ export default function isolatedDeclPlugin() {
             declarations.clear();
         },
 
-        async buildEnd() {
-            const { getOutputFileNames } = await import('typescript');
+        buildEnd() {
             const srcDir = commonDir([...declarations.keys()].map((id) => id.split('/').slice(0, -1).join('/')));
 
             for (const [id, decl] of declarations) {
-                const [outputPath] = getOutputFileNames(
-                    {
-                        errors: [],
-                        fileNames: [id],
-                        options: {
-                            declaration: true,
-                            emitDeclarationOnly: true,
-                        },
-                    },
-                    id,
-                    false
-                );
+                const outputPath = getDeclarationFilerName(id);
                 const relativePath = outputPath.replace(`${srcDir}/`, '');
                 this.emitFile({
                     type: 'asset',
@@ -74,12 +149,7 @@ export default function isolatedDeclPlugin() {
                 id: [/\.(m|c)?tsx?$/],
             },
             async handler(code, id) {
-                const { transpileDeclaration } = await import('typescript');
-                const { outputText } = transpileDeclaration(code, {
-                    fileName: id,
-                    reportDiagnostics: false,
-                });
-                declarations.set(id, outputText);
+                declarations.set(id, await transpile(code, id));
             },
         },
     };

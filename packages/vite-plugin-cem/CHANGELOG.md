@@ -1,5 +1,11 @@
 # @chialab/vite-plugin-cem
 
+## 0.1.2
+
+### Patch Changes
+
+- f00d61c: Fix rolldown parsing.
+
 ## 0.1.1
 
 ### Patch Changes

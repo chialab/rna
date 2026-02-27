@@ -1,15 +1,58 @@
 /**
  * @import { Plugin } from 'vite';
- * @import { Plugin as AnalyzerPlugin } from '@chialab/cem-analyzer';
+ * @import { Plugin as AnalyzerPlugin, SourceFile } from '@chialab/cem-analyzer';
  * @import { CustomElement } from 'custom-elements-manifest/schema';
  */
-import { createSourceFiles, generate } from '@chialab/cem-analyzer';
+import { createSourceFile as createSourceFileFallback, generate } from '@chialab/cem-analyzer';
 import MagicString from 'magic-string';
 import { createFilter } from 'vite';
 
 /**
  * @typedef {{ include?: string | RegExp | string[] | RegExp[]; exclude?: string | RegExp | string[] | RegExp[]; renderer: string; plugins?: AnalyzerPlugin[]; }} CustomElementsManifestOptions
  */
+
+/**
+ * @type {Map<string, Promise<unknown>>}
+ */
+const importCache = new Map();
+
+/**
+ * Attempts to dynamically import a module and returns null if the module is not found.
+ * @param {string} moduleName The name of the module to import.
+ * @returns {Promise<unknown>} The imported module or null if not found.
+ */
+async function tryImport(moduleName) {
+    const loadPromise =
+        importCache.get(moduleName) ||
+        import(moduleName).catch((err) => {
+            if (/** @type {{ code?: string }} */ (err).code === 'ERR_MODULE_NOT_FOUND') {
+                return null;
+            }
+            throw err;
+        });
+    importCache.set(moduleName, loadPromise);
+    return await loadPromise;
+}
+
+/**
+ * Creates a SourceFile from the given code and identifier.
+ * @param {string} id The identifier (file path) of the source code.
+ * @param {string} code The source code to create the SourceFile from.
+ * @returns {Promise<SourceFile>} The created SourceFile.
+ */
+async function createSourceFile(id, code) {
+    const rolldown = /** @type {typeof import('rolldown/utils') | null} */ (await tryImport('rolldown/utils'));
+    if (rolldown?.parse) {
+        const { program, comments } = await rolldown.parse(id, code);
+        return {
+            fileName: id,
+            program,
+            comments,
+        };
+    }
+
+    return createSourceFileFallback(id, code);
+}
 
 /**
  * A Vite plugin that generates a custom elements manifest for the project and injects it into the bundle.
@@ -30,11 +73,8 @@ export default function customElementsManifestPlugin(options) {
                 return;
             }
 
-            const modules = await createSourceFiles({
-                [id]: code,
-            });
-
-            const customElementsManifest = await generate(modules, {
+            const sourceFile = await createSourceFile(id, code);
+            const customElementsManifest = await generate([sourceFile], {
                 plugins: options.plugins,
                 resolve: this.resolve
                     ? async (source, importer) => {

@@ -42,14 +42,20 @@
     "magic-string": "^0.30.0",
     "ts-dedent": "^2.0.0"
   },
+  "peerDependencies": {
+    "rolldown": "^1.0.0-rc.0",
+    "storybook": "^10.0.0",
+    "vite": "^5.0.0 || ^6.0.0 || ^7.0.0"
+  },
+  "peerDependenciesMeta": {
+    "rolldown": {
+      "optional": true
+    }
+  },
   "devDependencies": {
     "@chialab/dna": "^4.0.0",
     "@types/react": "^18.0.26",
     "custom-elements-manifest": "^2.0.0",
     "storybook": "^10.0.0"
-  },
-  "peerDependencies": {
-    "storybook": "^10.0.0",
-    "vite": "^5.0.0 || ^6.0.0 || ^7.0.0"
   }
 }

@@ -1,5 +1,11 @@
 # @chialab/storybook-dna-vite
 
+## 10.0.7
+
+### Patch Changes
+
+- 641a923: Remove `@rollup/pluginutils` dependency.
+
 ## 10.0.6
 
 ### Patch Changes

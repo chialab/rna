@@ -71,7 +71,7 @@ async function tryImport(moduleName) {
 async function createSourceFile(id, code) {
     const rolldown = /** @type {typeof import('rolldown/utils') | null} */ (await tryImport('rolldown/utils'));
     if (rolldown?.parse) {
-        const { program, comments } = await rolldown.parse(code, id);
+        const { program, comments } = await rolldown.parse(id, code);
         return {
             fileName: id,
             program,

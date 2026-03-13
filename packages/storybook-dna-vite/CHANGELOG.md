@@ -1,5 +1,11 @@
 # @chialab/storybook-dna-vite
 
+## 10.0.10
+
+### Patch Changes
+
+- 0d1cd0d: Add support for Vite 8.
+
 ## 10.0.9
 
 ### Patch Changes

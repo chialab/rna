@@ -1005,30 +1005,27 @@ html {
         expect(icon.contents.byteLength).toBe(1475);
     });
 
-    test(
-        'should bundle webapp with ios splashscreens',
-        {
-            timeout: 30_000,
-        },
-        async () => {
-            const { outputFiles } = await esbuild.build({
-                absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
-                entryPoints: [fileURLToPath(new URL('fixture/index.screens.html', import.meta.url))],
-                sourceRoot: '/',
-                assetNames: 'screens/[name]',
-                outdir: 'out',
-                format: 'esm',
-                bundle: true,
-                write: false,
-                plugins: [htmlPlugin()],
-            });
+    test('should bundle webapp with ios splashscreens', {
+        timeout: 30_000,
+    }, async () => {
+        const { outputFiles } = await esbuild.build({
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
+            entryPoints: [fileURLToPath(new URL('fixture/index.screens.html', import.meta.url))],
+            sourceRoot: '/',
+            assetNames: 'screens/[name]',
+            outdir: 'out',
+            format: 'esm',
+            bundle: true,
+            write: false,
+            plugins: [htmlPlugin()],
+        });
 
-            const [index, ...screens] = outputFiles;
+        const [index, ...screens] = outputFiles;
 
-            expect(outputFiles).toHaveLength(8);
+        expect(outputFiles).toHaveLength(8);
 
-            expect(index.path).endsWith(path.join(path.sep, 'out', 'index.screens.html'));
-            expect(index.text).toBe(`<!DOCTYPE html>
+        expect(index.path).endsWith(path.join(path.sep, 'out', 'index.screens.html'));
+        expect(index.text).toBe(`<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -1050,13 +1047,12 @@ html {
 
 </html>`);
 
-            expect(screens[0].path).endsWith(path.join(path.sep, 'out', 'screens', 'apple-launch-iphonex.png'));
-            expect(screens[0].contents.byteLength).toBe(21254);
+        expect(screens[0].path).endsWith(path.join(path.sep, 'out', 'screens', 'apple-launch-iphonex.png'));
+        expect(screens[0].contents.byteLength).toBe(21254);
 
-            expect(screens[3].path).endsWith(path.join(path.sep, 'out', 'screens', 'apple-launch-iphone5.png'));
-            expect(screens[3].contents.byteLength).toBe(8536);
-        }
-    );
+        expect(screens[3].path).endsWith(path.join(path.sep, 'out', 'screens', 'apple-launch-iphone5.png'));
+        expect(screens[3].contents.byteLength).toBe(8536);
+    });
 
     test('should bundle webapp with assets', async () => {
         const { outputFiles } = await esbuild.build({

@@ -1,10 +1,8 @@
+/**
+ * @import { Plugin, FilterPattern } from 'vite'
+ */
 import MagicString from 'magic-string';
 import { createFilter } from 'vite';
-
-/**
- * @typedef {import('vite').FilterPattern} FilterPattern
- * @typedef {import('vite').Plugin} Plugin
- */
 
 /**
  * @typedef {Object} CssModulesPluginOptions
@@ -40,7 +38,12 @@ export default function cssModulesPlugin({ checkAttribute = true, include = '**/
                     if (!filter(importer)) {
                         return null;
                     }
-                    if (checkAttribute && options.attributes?.type !== 'css') {
+                    if (
+                        checkAttribute &&
+                        // Rolldown does not support attributes at the moment
+                        'attributes' in options &&
+                        /** @type {{ type?: string }} */ (options.attributes)?.type !== 'css'
+                    ) {
                         return null;
                     }
 

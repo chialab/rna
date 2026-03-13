@@ -1,3 +1,8 @@
+/**
+ * @import { RawSourceMap } from 'source-map'
+ * @import { Plugin } from 'esbuild'
+ * @import { TransformOptions, ImportDependency } from 'lightningcss'
+ */
 import { Buffer } from 'node:buffer';
 import path from 'node:path';
 import process from 'node:process';
@@ -6,7 +11,7 @@ import { useRna } from '@chialab/esbuild-rna';
 const DEFAULT_TARGETS = ['chrome 63', 'and_chr 63', 'firefox 67', 'edge 79', 'opera 50', 'safari 11.1', 'ios_saf 11.3'];
 
 /**
- * @typedef {Partial<import('lightningcss').TransformOptions<{}>>} PluginOptions
+ * @typedef {Partial<TransformOptions<{}>>} PluginOptions
  */
 
 /**
@@ -16,7 +21,7 @@ const DEFAULT_TARGETS = ['chrome 63', 'and_chr 63', 'firefox 67', 'edge 79', 'op
  */
 export default function (options = {}) {
     /**
-     * @type {import('esbuild').Plugin}
+     * @type {Plugin}
      */
     const plugin = {
         name: 'lightningcss',
@@ -36,7 +41,7 @@ export default function (options = {}) {
                 const { transform, bundleAsync, browserslistToTargets } = await import('lightningcss');
 
                 /**
-                 * @type {import('lightningcss').TransformOptions<{}>}
+                 * @type {TransformOptions<{}>}
                  */
                 const finalConfig = {
                     errorRecovery: true,
@@ -70,7 +75,7 @@ export default function (options = {}) {
                     : transform(finalConfig));
 
                 /**
-                 * @type {import('source-map').RawSourceMap}
+                 * @type {RawSourceMap}
                  */
                 const sourceMap = result.map && JSON.parse(result.map.toString());
                 if (sourceMap) {
@@ -86,7 +91,7 @@ export default function (options = {}) {
                     `data:application/json;base64,${Buffer.from(JSON.stringify(sourceMap)).toString('base64')}`;
                 const dependencies = (result.dependencies || [])
                     .filter(({ type }) => type === 'import')
-                    .map(({ url }) => url);
+                    .map((dependency) => /** @type {ImportDependency} */ (dependency).url);
 
                 build.collectDependencies(args.path, dependencies);
 

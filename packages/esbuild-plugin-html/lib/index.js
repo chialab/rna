@@ -18,6 +18,7 @@ import beautify from 'js-beautify';
  * @property {string} [assetNames]
  * @property {string[]} [extensions]
  * @property {'link' | 'script'} [injectStylesAs]
+ * @property {boolean} [generateFavicons]
  * @property {import('htmlnano').HtmlnanoOptions} [minifyOptions]
  * @property {(code: string, path: string) => string | Promise<string>} [preprocess]
  */
@@ -65,6 +66,7 @@ export default function ({
     injectStylesAs = 'script',
     extensions = ['.html'],
     preprocess = (code) => code,
+    generateFavicons = true,
 } = {}) {
     /**
      * @type {import('esbuild').Plugin}
@@ -245,6 +247,7 @@ export default function ({
                         outDir: /** @type {string} */ (build.getFullOutDir()),
                         entryDir: build.resolveOutputDir(args.path),
                         target: [scriptsTarget, modulesTarget],
+                        generateFavicons,
                     };
 
                     /**

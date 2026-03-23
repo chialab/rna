@@ -35,7 +35,10 @@ export default function cssModulesPlugin({ checkAttribute = true, include = '**/
                     id: /\.css$/,
                 },
                 async handler(id, importer, options) {
-                    if (!filter(importer)) {
+                    if (!importer) {
+                        return null;
+                    }
+                    if (!filter(importer.split('?')[0] || '')) {
                         return null;
                     }
                     if (

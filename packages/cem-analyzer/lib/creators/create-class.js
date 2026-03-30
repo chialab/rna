@@ -126,17 +126,18 @@ export function createClass(context, node, jsdoc = context.parseJSDoc(node)) {
             if (propertyMember.readonly) {
                 fieldTemplate.readonly = true;
             }
-            if (
-                /** @type {MethodDefinition} */ (member).kind === 'get' &&
-                !node.body.body.find(
-                    (m) =>
-                        m.type === 'MethodDefinition' &&
-                        m.kind === 'set' &&
-                        m.key.type === 'Identifier' &&
-                        m.key.name === fieldTemplate.name
-                )
-            ) {
-                fieldTemplate.readonly = true;
+            if (/** @type {MethodDefinition} */ (member).kind === 'get') {
+                if (
+                    !node.body.body.find(
+                        (m) =>
+                            m.type === 'MethodDefinition' &&
+                            m.kind === 'set' &&
+                            m.key.type === 'Identifier' &&
+                            m.key.name === fieldTemplate.name
+                    )
+                ) {
+                    fieldTemplate.readonly = true;
+                }
                 const returnType = /** @type {MethodDefinition} */ (member).value.returnType;
                 if (returnType && !typeText) {
                     typeText = context.print(returnType.typeAnnotation);

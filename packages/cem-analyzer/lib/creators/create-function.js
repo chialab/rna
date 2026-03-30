@@ -59,9 +59,7 @@ export function createFunction(context, node, jsdoc = context.parseJSDoc(node)) 
         }
         parameters.push(parameter);
     });
-    if (parameters.length) {
-        functionLikeTemplate.parameters = parameters;
-    }
+    functionLikeTemplate.parameters = parameters;
 
     decorateWithJSDoc(functionLikeTemplate, jsdoc);
 

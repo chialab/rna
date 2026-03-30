@@ -61,10 +61,6 @@ export function propertyDecoratorPlugin() {
                     return;
                 }
 
-                if (stateDecorator) {
-                    classMember.privacy = 'protected';
-                }
-
                 const propertyOptions = /** @type {CallExpression} */ (actualDecorator.expression).arguments?.find(
                     (arg) => arg.type === 'ObjectExpression'
                 )?.properties;

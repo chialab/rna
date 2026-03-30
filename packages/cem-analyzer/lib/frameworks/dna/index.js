@@ -15,9 +15,9 @@ export const dnaPlugins = [
     localeJSDocTagsPlugin(),
     iconJSDocTagsPlugin(),
     firesDecoratorPlugin(),
-    memberDenyListPlugin(),
-    methodDenyListPlugin(),
     propertyDecoratorPlugin(),
     staticPropertiesPlugin(),
+    memberDenyListPlugin(),
+    methodDenyListPlugin(),
     inheritancePlugin(),
 ];

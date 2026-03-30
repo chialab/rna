@@ -1,11 +1,11 @@
 /**
- * @import { Attribute, ClassMember, CustomElement, Package, PropertyLike } from 'custom-elements-manifest'
+ * @import { Attribute, ClassMember, CustomElement, Package, PropertyLike, FunctionLike } from 'custom-elements-manifest'
  * @import { PropDef } from 'storybook/internal/docs-tools'
  */
 import { getCustomElementDeclaration, getCustomElementsManifest } from '../framework-api.js';
 
 /**
- * @typedef {PropDef & { table?: { category?: string }, control?: { type?: string } | false, defaultValue?: { summary: string } }} CustomElementPropDef
+ * @typedef {PropDef & { table?: { category?: string; defaultValue?: { summary: string } }, control?: { type?: string } | false, defaultValue?: { summary: string } }} CustomElementPropDef
  */
 
 /**
@@ -21,10 +21,18 @@ function mapData(data, category) {
 
             const name = item.name || '-';
             const isProperty = category === 'properties';
-            const isState = category === 'states';
-            const propertyLike = /** @type {PropertyLike} */ (item);
-            const types =
-                (isProperty || isState) && (propertyLike.type?.text ?? '').split('|').map((item) => item.trim());
+            const propertyLike = /** @type {PropertyLike | FunctionLike} */ (item);
+            /**
+             * @type {string[]}
+             */
+            let types = [];
+            if ('type' in propertyLike) {
+                types = propertyLike.type?.text.split('|').map((item) => item.trim()) ?? [];
+            } else if ('parameters' in propertyLike) {
+                types = [
+                    `(${propertyLike.parameters?.map((p) => `${p.name}: ${p.type?.text || 'unknown'}`).join(', ') || ''}) => ${propertyLike.return?.type?.text || 'unknown'}`,
+                ];
+            }
 
             /** @type {CustomElementPropDef} */
             const entry = {
@@ -50,6 +58,10 @@ function mapData(data, category) {
             const defaultValue = /** @type {PropertyLike} */ (item).default;
             if (typeof defaultValue === 'string') {
                 entry.defaultValue = {
+                    summary: defaultValue,
+                };
+                entry.table ??= {};
+                entry.table.defaultValue = {
                     summary: defaultValue,
                 };
             }

@@ -8,9 +8,18 @@
       "types": "./types/index.d.ts",
       "default": "./lib/index.js"
     },
-    "./preset": "./lib/preset.js",
-    "./lib/entry-preview.js": "./lib/entry-preview.js",
-    "./lib/entry-preview-docs.js": "./lib/entry-preview-docs.js",
+    "./preset": {
+      "types": "./types/preset.d.ts",
+      "default": "./lib/preset.js"
+    },
+    "./lib/entry-preview.js": {
+      "types": "./types/entry-preview.d.ts",
+      "default": "./lib/entry-preview.js"
+    },
+    "./lib/entry-preview-docs.js": {
+      "types": "./types/entry-preview-docs.d.ts",
+      "default": "./lib/entry-preview-docs.js"
+    },
     "./package.json": "./package.json"
   },
   "main": "lib/index.js",

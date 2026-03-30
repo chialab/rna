@@ -1,4 +1,4 @@
-import './globals';
+import './globals.js';
 
 export * from './framework-api.js';
 export * from './portable-stories.js';

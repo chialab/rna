@@ -1,3 +1,1 @@
-if (typeof window !== 'undefined') {
-    window.STORYBOOK_ENV = 'dna';
-}
+globalThis.STORYBOOK_ENV = 'dna';

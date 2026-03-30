@@ -13,7 +13,7 @@ export * from '@chialab/cem-analyzer/helpers';
  * @returns {Package | undefined}
  */
 export function getCustomElementsManifest() {
-    return window.__STORYBOOK_CUSTOM_ELEMENTS_MANIFEST__;
+    return /** @type {Window} */ (/** @type {unknown} */ (globalThis)).__STORYBOOK_CUSTOM_ELEMENTS_MANIFEST__;
 }
 
 /**
@@ -21,7 +21,7 @@ export function getCustomElementsManifest() {
  * @param {Package} manifest
  */
 export function setCustomElementsManifest(manifest) {
-    window.__STORYBOOK_CUSTOM_ELEMENTS_MANIFEST__ = manifest;
+    /** @type {Window} */ (/** @type {unknown} */ (globalThis)).__STORYBOOK_CUSTOM_ELEMENTS_MANIFEST__ = manifest;
 }
 
 /**

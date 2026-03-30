@@ -2,7 +2,7 @@
  * @import { Attribute, ClassMember, CustomElement, Package, PropertyLike } from 'custom-elements-manifest'
  * @import { PropDef } from 'storybook/internal/docs-tools'
  */
-import { getCustomElementDeclaration, getCustomElementsManifest } from '../framework-api';
+import { getCustomElementDeclaration, getCustomElementsManifest } from '../framework-api.js';
 
 /**
  * @typedef {PropDef & { table?: { category?: string }, control?: { type?: string } | false, defaultValue?: { summary: string } }} CustomElementPropDef

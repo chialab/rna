@@ -1,5 +1,11 @@
 # @chialab/cem-analyzer
 
+## 0.1.3
+
+### Patch Changes
+
+- eb5609c: Fix DNA plugins order.
+
 ## 0.1.2
 
 ### Patch Changes

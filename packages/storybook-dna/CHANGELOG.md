@@ -1,5 +1,11 @@
 # @chialab/storybook-dna
 
+## 10.1.9
+
+### Patch Changes
+
+- 19f7ee6: Improve SSR support.
+
 ## 10.1.8
 
 ### Patch Changes

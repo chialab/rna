@@ -14,10 +14,10 @@ export const dnaPlugins = [
     customElementDecoratorPlugin(),
     localeJSDocTagsPlugin(),
     iconJSDocTagsPlugin(),
+    firesDecoratorPlugin(),
     memberDenyListPlugin(),
     methodDenyListPlugin(),
     propertyDecoratorPlugin(),
     staticPropertiesPlugin(),
-    firesDecoratorPlugin(),
     inheritancePlugin(),
 ];

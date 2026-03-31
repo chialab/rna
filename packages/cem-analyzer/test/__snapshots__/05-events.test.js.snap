@@ -16,7 +16,8 @@ exports[`05-events > 01-keyboard 1`] = `
           "members": [
             {
               "kind": "method",
-              "name": "foo"
+              "name": "foo",
+              "parameters": []
             }
           ],
           "events": [

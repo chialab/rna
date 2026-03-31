@@ -18,7 +18,7 @@ export function createFunction(context, node, jsdoc = context.parseJSDoc(node)) 
         kind: 'function',
         name: node.id?.type === 'Identifier' ? node.id.name : '',
         description: undefined,
-        parameters: undefined,
+        parameters: [],
         return: undefined,
     };
 
@@ -30,8 +30,6 @@ export function createFunction(context, node, jsdoc = context.parseJSDoc(node)) 
         };
     }
 
-    /** @type {Parameter[]} */
-    const parameters = [];
     node.params.forEach((param, index) => {
         /** @type {Parameter} */
         const parameter = {
@@ -57,9 +55,9 @@ export function createFunction(context, node, jsdoc = context.parseJSDoc(node)) 
             }
             parameter.default = context.print(param.right);
         }
-        parameters.push(parameter);
+        functionLikeTemplate.parameters ??= [];
+        functionLikeTemplate.parameters.push(parameter);
     });
-    functionLikeTemplate.parameters = parameters;
 
     decorateWithJSDoc(functionLikeTemplate, jsdoc);
 

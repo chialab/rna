@@ -173,11 +173,13 @@ exports[`06-jsdoc > ignore-internal 1`] = `
             {
               "kind": "method",
               "name": "imDeprecated",
+              "parameters": [],
               "deprecated": "true"
             },
             {
               "kind": "method",
               "name": "imDeprecatedWithReason",
+              "parameters": [],
               "deprecated": "the reason for the deprecation."
             },
             {

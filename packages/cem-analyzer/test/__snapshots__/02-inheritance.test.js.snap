@@ -28,7 +28,8 @@ exports[`02-inheritance > 01-superclass 1`] = `
             },
             {
               "kind": "method",
-              "name": "superClassMethod"
+              "name": "superClassMethod",
+              "parameters": []
             }
           ],
           "events": [
@@ -74,11 +75,13 @@ exports[`02-inheritance > 01-superclass 1`] = `
             },
             {
               "kind": "method",
-              "name": "classMethod"
+              "name": "classMethod",
+              "parameters": []
             },
             {
               "kind": "method",
-              "name": "implementsMethod"
+              "name": "implementsMethod",
+              "parameters": []
             }
           ],
           "events": [
@@ -125,7 +128,8 @@ exports[`02-inheritance > 01-superclass 1`] = `
             },
             {
               "kind": "method",
-              "name": "classMethod"
+              "name": "classMethod",
+              "parameters": []
             },
             {
               "kind": "field",

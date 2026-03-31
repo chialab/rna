@@ -12,7 +12,8 @@ exports[`03-module > functionLike 1`] = `
         {
           "kind": "function",
           "name": "arrow1",
-          "description": "ARROW FUNCTIONS"
+          "description": "ARROW FUNCTIONS",
+          "parameters": []
         },
         {
           "kind": "function",
@@ -88,12 +89,14 @@ exports[`03-module > functionLike 1`] = `
         },
         {
           "kind": "function",
-          "name": "emptyReturn"
+          "name": "emptyReturn",
+          "parameters": []
         },
         {
           "kind": "function",
           "name": "functionDeclaration1",
-          "description": "FUNCTION DECLARATIONS"
+          "description": "FUNCTION DECLARATIONS",
+          "parameters": []
         },
         {
           "kind": "function",
@@ -174,7 +177,8 @@ exports[`03-module > functionLike 1`] = `
           "members": [
             {
               "kind": "method",
-              "name": "functionDeclaration1"
+              "name": "functionDeclaration1",
+              "parameters": []
             },
             {
               "kind": "method",
@@ -411,7 +415,8 @@ exports[`03-module > variables 1`] = `
         },
         {
           "kind": "function",
-          "name": "function1"
+          "name": "function1",
+          "parameters": []
         },
         {
           "kind": "variable",

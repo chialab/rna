@@ -1504,7 +1504,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@chialab/cem-analyzer@^0.1.1, @chialab/cem-analyzer@^0.1.2, @chialab/cem-analyzer@workspace:packages/cem-analyzer":
+"@chialab/cem-analyzer@^0.1.1, @chialab/cem-analyzer@^0.1.2, @chialab/cem-analyzer@^0.1.4, @chialab/cem-analyzer@workspace:packages/cem-analyzer":
   version: 0.0.0-use.local
   resolution: "@chialab/cem-analyzer@workspace:packages/cem-analyzer"
   dependencies:
@@ -1949,7 +1949,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@chialab/storybook-dna@workspace:packages/storybook-dna"
   dependencies:
-    "@chialab/cem-analyzer": ^0.1.2
+    "@chialab/cem-analyzer": ^0.1.4
     "@chialab/dna": ^4.0.0
     "@types/react": ^18.0.26
     custom-elements-manifest: ^2.0.0

@@ -1,5 +1,11 @@
 # @chialab/storybook-dna
 
+## 10.1.10
+
+### Patch Changes
+
+- 454faf7: Improve cem to arg types convertion.
+
 ## 10.1.9
 
 ### Patch Changes

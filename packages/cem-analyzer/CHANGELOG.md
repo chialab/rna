@@ -1,5 +1,11 @@
 # @chialab/cem-analyzer
 
+## 0.1.4
+
+### Patch Changes
+
+- 454faf7: Improve DNA properties detection.
+
 ## 0.1.3
 
 ### Patch Changes

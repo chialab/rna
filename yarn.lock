@@ -2013,7 +2013,7 @@ __metadata:
     typescript: ^5.5.0
   peerDependencies:
     rolldown: ^1.0.0-rc.0
-    typescript: ^5.5.0
+    typescript: ^5.5.0 || ^6.0.0 || ^7.0.0
   peerDependenciesMeta:
     rolldown:
       optional: true

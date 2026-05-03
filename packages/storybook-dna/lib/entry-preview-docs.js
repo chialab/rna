@@ -7,6 +7,8 @@ import { extractArgTypes, extractComponentDescription } from './docs/custom-elem
 import { prepareForInline } from './docs/prepareForInline.js';
 import { sourceDecorator } from './docs/sourceDecorator.js';
 
+export { vnodeToString } from './docs/sourceDecorator.js';
+
 /** @type {DecoratorFunction<DnaRenderer>[]} */
 export const decorators = [sourceDecorator];
 

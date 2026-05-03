@@ -140,7 +140,7 @@ function escapeHtml(input) {
  * @param {Template} vnode
  * @returns {string}
  */
-function vnodeToString(vnode) {
+export function vnodeToString(vnode) {
     if (vnode == null) {
         return '';
     }
@@ -149,12 +149,6 @@ function vnodeToString(vnode) {
     }
     if (Array.isArray(vnode)) {
         return vnode.map(vnodeToString).join('\n');
-    }
-    if (vnode instanceof Element) {
-        return vnode.outerHTML;
-    }
-    if (vnode instanceof Node) {
-        return vnode.textContent || '';
     }
 
     const hyperObject = /** @type {VObject} */ (vnode);
@@ -168,11 +162,7 @@ function vnodeToString(vnode) {
         return children.map(vnodeToString).join('\n');
     }
 
-    const tag =
-        (typeof hyperObject.type === 'string' && hyperObject.type) ||
-        (hyperObject.type instanceof Element && hyperObject.type.tagName) ||
-        '#unknown';
-
+    const tag = (typeof hyperObject.type === 'string' && hyperObject.type) || '#unknown';
     if (tag === 'style') {
         return '';
     }
@@ -251,8 +241,6 @@ function vnodeToString(vnode) {
             (acc, child) => {
                 let convertedChild = child;
                 if (typeof child !== 'object') {
-                    convertedChild = vnodeToString(child);
-                } else if (child instanceof Node) {
                     convertedChild = vnodeToString(child);
                 }
 

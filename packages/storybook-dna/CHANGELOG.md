@@ -1,5 +1,11 @@
 # @chialab/storybook-dna
 
+## 10.1.11
+
+### Patch Changes
+
+- 80c4dd9: Export `vnodeToString` method.
+
 ## 10.1.10
 
 ### Patch Changes

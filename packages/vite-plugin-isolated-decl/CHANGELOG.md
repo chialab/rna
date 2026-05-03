@@ -1,5 +1,11 @@
 # @chialab/vite-plugin-isolated-decl
 
+## 0.1.4
+
+### Patch Changes
+
+- 80c4dd9: Extend typescript constraint.
+
 ## 0.1.3
 
 ### Patch Changes

@@ -1,7 +1,7 @@
 {
   "name": "@chialab/storybook-dna",
   "type": "module",
-  "version": "10.1.10",
+  "version": "10.1.11",
   "description": "The library used to render Storybook stories with DNA.",
   "exports": {
     ".": {

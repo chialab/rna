@@ -1,5 +1,5 @@
 /**
- * @import { BooleanLiteral, CallExpression, ObjectProperty, StringLiteral } from '@oxc-project/types'
+ * @import { CallExpression, ObjectProperty } from '@oxc-project/types'
  * @import { Attribute, CustomElementDeclaration, CustomElementField } from 'custom-elements-manifest'
  * @import { Plugin } from '../../generate.js'
  */
@@ -77,7 +77,7 @@ export function propertyDecoratorPlugin() {
                             prop.value.type === 'Literal'
                     )
                 );
-                if (/** @type {StringLiteral | BooleanLiteral | undefined} */ (propertyAttr?.value)?.value === false) {
+                if (propertyAttr?.value.type === 'Literal' && propertyAttr.value.value === false) {
                     return;
                 }
 

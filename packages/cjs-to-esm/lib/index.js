@@ -221,7 +221,7 @@ export async function transform(
                 }
 
                 const specifier = node.arguments[0];
-                if (specifier.type === 'StringLiteral') {
+                if (specifier.type === 'Literal' && typeof specifier.value === 'string') {
                     callExpressions.push(node);
                 }
             },

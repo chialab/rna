@@ -1,5 +1,5 @@
 /**
- * @import { BooleanLiteral, Function as IFunction, ObjectProperty, StringLiteral } from '@oxc-project/types'
+ * @import { Function as OxcFunction, ObjectProperty } from '@oxc-project/types'
  * @import { Attribute, CustomElementDeclaration, CustomElementField } from 'custom-elements-manifest'
  * @import { Plugin } from '../../generate.js'
  */
@@ -42,9 +42,9 @@ export function staticPropertiesPlugin() {
                         ? member.value?.type === 'ObjectExpression'
                             ? member.value
                             : undefined
-                        : /** @type {IFunction} */ (member.value).body?.body?.find((n) => n.type === 'ReturnStatement')
+                        : /** @type {OxcFunction} */ (member.value).body?.body?.find((n) => n.type === 'ReturnStatement')
                                 ?.argument?.type === 'ObjectExpression'
-                          ? /** @type {IFunction} */ (member.value).body?.body?.find(
+                          ? /** @type {OxcFunction} */ (member.value).body?.body?.find(
                                 (n) => n.type === 'ReturnStatement'
                             )?.argument
                           : undefined;
@@ -125,7 +125,7 @@ export function staticPropertiesPlugin() {
                     );
                     if (
                         !propertyAttr ||
-                        /** @type {StringLiteral | BooleanLiteral | undefined} */ (propertyAttr?.value)?.value !== false
+                        !(propertyAttr.value.type === 'Literal' && propertyAttr.value.value === false)
                     ) {
                         /** @type {Attribute} */
                         const attribute = {

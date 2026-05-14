@@ -85,7 +85,12 @@ export default function ({ constructors = ['Worker', 'SharedWorker'], proxy = fa
                         classDeclarations.push(node.id.name);
                     },
                     VariableDeclarator(node) {
-                        if (node.id.type === 'Identifier' && node.init && node.init.type === 'StringLiteral') {
+                        if (
+                            node.id.type === 'Identifier' &&
+                            node.init &&
+                            node.init.type === 'Literal' &&
+                            typeof node.init.value === 'string'
+                        ) {
                             symbols[node.id.name] = node.init.value;
                         }
                     },
@@ -95,7 +100,7 @@ export default function ({ constructors = ['Worker', 'SharedWorker'], proxy = fa
                     async NewExpression(node) {
                         const callee = node.callee;
                         if (callee.type !== 'Identifier' || !constructors.includes(callee.name)) {
-                            if (callee.type !== 'StaticMemberExpression') {
+                            if (callee.type !== 'MemberExpression' || callee.computed) {
                                 return;
                             }
                             if (
@@ -129,10 +134,11 @@ export default function ({ constructors = ['Worker', 'SharedWorker'], proxy = fa
                         if (options && options.type === 'ObjectExpression') {
                             for (const property of options.properties) {
                                 if (
-                                    property.type === 'ObjectProperty' &&
+                                    property.type === 'Property' &&
                                     property.key.type === 'Identifier' &&
                                     property.key.name === 'type' &&
-                                    property.value.type === 'StringLiteral'
+                                    property.value.type === 'Literal' &&
+                                    typeof property.value.value === 'string'
                                 ) {
                                     transformOptions.format = 'esm';
                                     transformOptions.external = undefined;
@@ -147,7 +153,7 @@ export default function ({ constructors = ['Worker', 'SharedWorker'], proxy = fa
                             argument.callee.type !== 'Identifier' ||
                             argument.callee.name !== 'URL'
                         ) {
-                            const isStringLiteral = argument.type === 'StringLiteral';
+                            const isStringLiteral = argument.type === 'Literal' && typeof argument.value === 'string';
                             const isIdentifier = argument.type === 'Identifier';
                             if ((isStringLiteral || isIdentifier) && proxy) {
                                 const arg = helpers.substring(argument.start, argument.end);
@@ -164,7 +170,8 @@ export default function ({ constructors = ['Worker', 'SharedWorker'], proxy = fa
                         const originArgument = argument.arguments[1];
                         if (
                             !originArgument ||
-                            originArgument.type !== 'StaticMemberExpression' ||
+                            originArgument.type !== 'MemberExpression' ||
+                            originArgument.computed ||
                             originArgument.object.type !== 'MetaProperty' ||
                             originArgument.object.meta.name !== 'import' ||
                             originArgument.object.property.name !== 'meta' ||
@@ -174,7 +181,7 @@ export default function ({ constructors = ['Worker', 'SharedWorker'], proxy = fa
                             return;
                         }
 
-                        const isStringLiteral = reference.type === 'StringLiteral';
+                        const isStringLiteral = reference.type === 'Literal' && typeof reference.value === 'string';
                         const isIdentifier = reference.type === 'Identifier';
                         if (!isStringLiteral && !isIdentifier && !proxy) {
                             return;

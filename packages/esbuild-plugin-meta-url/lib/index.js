@@ -82,7 +82,12 @@ export default function ({ emit = true } = {}) {
                 const symbols = {};
                 walk(ast, {
                     VariableDeclarator(node) {
-                        if (node.id.type === 'Identifier' && node.init && node.init.type === 'StringLiteral') {
+                        if (
+                            node.id.type === 'Identifier' &&
+                            node.init &&
+                            node.init.type === 'Literal' &&
+                            typeof node.init.value === 'string'
+                        ) {
                             symbols[node.id.name] = node.init.value;
                         }
                     },
@@ -92,7 +97,7 @@ export default function ({ emit = true } = {}) {
                     async NewExpression(node) {
                         const callee = node.callee;
                         if (callee.type !== 'Identifier' || callee.name !== 'URL') {
-                            if (callee.type !== 'StaticMemberExpression') {
+                            if (callee.type !== 'MemberExpression' || callee.computed) {
                                 return;
                             }
                             if (
@@ -110,7 +115,8 @@ export default function ({ emit = true } = {}) {
                         const originArgument = node.arguments[1];
                         if (
                             !originArgument ||
-                            originArgument.type !== 'StaticMemberExpression' ||
+                            originArgument.type !== 'MemberExpression' ||
+                            originArgument.computed ||
                             originArgument.object.type !== 'MetaProperty' ||
                             originArgument.object.meta.name !== 'import' ||
                             originArgument.object.property.name !== 'meta' ||
@@ -121,7 +127,7 @@ export default function ({ emit = true } = {}) {
                         }
 
                         const value =
-                            argument.type === 'StringLiteral'
+                            argument.type === 'Literal' && typeof argument.value === 'string'
                                 ? argument.value
                                 : argument.type === 'Identifier'
                                   ? symbols[argument.name]

@@ -26,7 +26,8 @@ export default function () {
                 await walk(ast, {
                     async CallExpression(node) {
                         if (
-                            node.callee.type !== 'StaticMemberExpression' ||
+                            node.callee.type !== 'MemberExpression' ||
+                            node.callee.computed ||
                             node.callee.object.type !== 'Identifier' ||
                             node.callee.object.name !== 'require' ||
                             node.callee.property.type !== 'Identifier' ||
@@ -36,7 +37,7 @@ export default function () {
                         }
 
                         const argument = node.arguments[0];
-                        if (argument.type !== 'StringLiteral') {
+                        if (argument.type !== 'Literal' || typeof argument.value !== 'string') {
                             return;
                         }
 

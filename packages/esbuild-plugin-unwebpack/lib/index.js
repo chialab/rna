@@ -105,7 +105,8 @@ export default function () {
                     IfStatement(node) {
                         // if (module.hot) {
                         if (
-                            node.test.type === 'StaticMemberExpression' &&
+                            node.test.type === 'MemberExpression' &&
+                            !node.test.computed &&
                             node.test.object.type === 'Identifier' &&
                             node.test.object.name === 'module' &&
                             node.test.property.type === 'Identifier' &&
@@ -117,7 +118,8 @@ export default function () {
 
                         // if (import.meta.webpackHot) {
                         if (
-                            node.test.type === 'StaticMemberExpression' &&
+                            node.test.type === 'MemberExpression' &&
+                            !node.test.computed &&
                             node.test.object.type === 'MetaProperty' &&
                             node.test.object.meta.type === 'Identifier' &&
                             node.test.object.meta.name === 'import' &&
@@ -136,7 +138,8 @@ export default function () {
                             node.test.operator === '&&' &&
                             node.test.left.type === 'Identifier' &&
                             node.test.left.name === 'module' &&
-                            node.test.right.type === 'StaticMemberExpression' &&
+                            node.test.right.type === 'MemberExpression' &&
+                            !node.test.right.computed &&
                             node.test.right.object.type === 'Identifier' &&
                             node.test.right.object.name === 'module' &&
                             node.test.right.property.type === 'Identifier' &&
@@ -154,13 +157,16 @@ export default function () {
                             node.test.left.operator === '&&' &&
                             node.test.left.left.type === 'Identifier' &&
                             node.test.left.left.name === 'module' &&
-                            node.test.left.right.type === 'StaticMemberExpression' &&
+                            node.test.left.right.type === 'MemberExpression' &&
+                            !node.test.left.right.computed &&
                             node.test.left.right.object.type === 'Identifier' &&
                             node.test.left.right.object.name === 'module' &&
                             node.test.left.right.property.type === 'Identifier' &&
                             node.test.left.right.property.name === 'hot' &&
-                            node.test.right.type === 'StaticMemberExpression' &&
-                            node.test.right.object.type === 'StaticMemberExpression' &&
+                            node.test.right.type === 'MemberExpression' &&
+                            !node.test.right.computed &&
+                            node.test.right.object.type === 'MemberExpression' &&
+                            !node.test.right.object.computed &&
                             node.test.right.object.object.type === 'Identifier' &&
                             node.test.right.object.object.name === 'module' &&
                             node.test.right.object.property.type === 'Identifier' &&

@@ -1,4 +1,12 @@
 /**
+ * @import { Plugin, FilterPattern } from 'vite';
+ * @import * as typescript from 'typescript';
+ * @import * as rolldown from 'rolldown/experimental';
+ */
+import { join } from 'node:path';
+import { createFilter } from 'vite';
+
+/**
  * Get the common directory from a list of paths.
  * @param {string[]} paths The list of paths to analyze.
  * @returns {string} The common directory of the given paths.
@@ -70,7 +78,7 @@ async function tryImport(moduleName) {
  * @returns {Promise<string | false>} The transpiled declaration code.
  */
 async function typescriptTranspile(code, id) {
-    const ts = /** @type {typeof import('typescript') | null} */ (await tryImport('typescript'));
+    const ts = /** @type {typeof typescript | null} */ (await tryImport('typescript'));
     if (!ts) {
         return false;
     }
@@ -87,13 +95,11 @@ async function typescriptTranspile(code, id) {
  * @returns {Promise<string | false>} The transpiled declaration code.
  */
 async function rolldownTranspile(code, id) {
-    const rolldown = /** @type {typeof import('rolldown/experimental') | null} */ (
-        await tryImport('rolldown/experimental')
-    );
-    if (!rolldown) {
+    const rd = /** @type {typeof rolldown | null} */ (await tryImport('rolldown/experimental'));
+    if (!rd) {
         return false;
     }
-    return (await rolldown.isolatedDeclaration(id, code)).code;
+    return (await rd.isolatedDeclaration(id, code)).code;
 }
 
 /**
@@ -112,9 +118,12 @@ async function transpile(code, id) {
 
 /**
  * Vite plugin to generate isolated declaration files for TypeScript sources.
- * @returns {import('vite').Plugin} The Vite plugin instance.
+ * @param {{ include?: FilterPattern; exclude?: FilterPattern; outDir?: string }} [options] Optional configuration for the plugin (currently unused).
+ * @returns {Plugin} The Vite plugin instance.
  */
-export default function isolatedDeclPlugin() {
+export default function isolatedDeclPlugin(options = {}) {
+    const filter = createFilter(options.include, options.exclude);
+
     /**
      * @type {Map<string, string>}
      */
@@ -137,7 +146,7 @@ export default function isolatedDeclPlugin() {
                 const relativePath = outputPath.replace(`${srcDir}/`, '');
                 this.emitFile({
                     type: 'asset',
-                    fileName: relativePath,
+                    fileName: options.outDir ? join(options.outDir, relativePath) : relativePath,
                     name: id,
                     source: decl,
                 });
@@ -149,6 +158,9 @@ export default function isolatedDeclPlugin() {
                 id: [/\.(m|c)?tsx?$/],
             },
             async handler(code, id) {
+                if (!filter(id)) {
+                    return null;
+                }
                 declarations.set(id, await transpile(code, id));
             },
         },

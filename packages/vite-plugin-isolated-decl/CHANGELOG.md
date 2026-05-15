@@ -1,5 +1,11 @@
 # @chialab/vite-plugin-isolated-decl
 
+## 0.1.5
+
+### Patch Changes
+
+- 69a8331: Allow declarations filtering.
+
 ## 0.1.4
 
 ### Patch Changes

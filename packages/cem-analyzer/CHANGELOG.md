@@ -1,5 +1,12 @@
 # @chialab/cem-analyzer
 
+## 0.1.5
+
+### Patch Changes
+
+- c200a85: Use version range for oxc-parser.
+- c405c10: Update `oxc-parser` to `^0.114.0` and migrate AST consumers to the ESTree-conformant node shape.
+
 ## 0.1.4
 
 ### Patch Changes

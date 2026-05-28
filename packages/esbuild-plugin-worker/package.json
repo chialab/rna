@@ -1,7 +1,7 @@
 {
   "name": "@chialab/esbuild-plugin-worker",
   "type": "module",
-  "version": "0.19.1",
+  "version": "0.19.2",
   "description": "A plugin for esbuild that collects and transpiles Web Workers.",
   "main": "lib/index.js",
   "typings": "types/index.d.ts",
@@ -30,9 +30,9 @@
     "node": ">=18"
   },
   "dependencies": {
-    "@chialab/esbuild-plugin-meta-url": "^0.19.1",
-    "@chialab/esbuild-rna": "^0.19.1",
-    "@chialab/estransform": "^0.19.1"
+    "@chialab/esbuild-plugin-meta-url": "^0.19.2",
+    "@chialab/esbuild-rna": "^0.19.2",
+    "@chialab/estransform": "^0.20.0"
   },
   "devDependencies": {
     "typescript": "^5.0.0"

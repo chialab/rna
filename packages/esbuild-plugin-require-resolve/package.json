@@ -1,7 +1,7 @@
 {
   "name": "@chialab/esbuild-plugin-require-resolve",
   "type": "module",
-  "version": "0.19.1",
+  "version": "0.19.2",
   "description": "A file loader plugin for esbuild for `require.resolve` statements.",
   "main": "lib/index.js",
   "typings": "types/index.d.ts",
@@ -35,8 +35,8 @@
     "node": ">=18"
   },
   "dependencies": {
-    "@chialab/esbuild-rna": "^0.19.1",
-    "@chialab/estransform": "^0.19.1"
+    "@chialab/esbuild-rna": "^0.19.2",
+    "@chialab/estransform": "^0.20.0"
   },
   "devDependencies": {
     "typescript": "^5.0.0"

@@ -1,5 +1,14 @@
 # @chialab/vite-plugin-worker-proxy
 
+## 0.19.2
+
+### Patch Changes
+
+- c405c10: Update `oxc-parser` to `^0.114.0` and migrate AST consumers to the ESTree-conformant node shape.
+- Updated dependencies [c200a85]
+- Updated dependencies [c405c10]
+  - @chialab/estransform@0.20.0
+
 ## 0.19.1
 
 ### Patch Changes

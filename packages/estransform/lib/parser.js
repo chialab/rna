@@ -1,6 +1,6 @@
 import { Buffer } from 'node:buffer';
 import { MagicString } from '@napi-rs/magic-string';
-import { parseAsync } from 'oxc-parser';
+import { parse as oxcParse } from 'oxc-parser';
 import { inlineSourcemap, loadSourcemap, mergeSourcemaps, removeInlineSourcemap } from './sourcemaps.js';
 
 /**
@@ -56,8 +56,8 @@ export async function parse(inputCode, filePath) {
     const code = removeInlineSourcemap(inputCode);
     const buffer = Buffer.from(code);
     const magicCode = new MagicString(code);
-    const result = await parseAsync(code, { sourceType: 'module', sourceFilename: filePath });
-    const ast = JSON.parse(result.program);
+    const result = await oxcParse(filePath ?? '', code, { sourceType: 'module' });
+    const ast = result.program;
 
     let changed = false;
 

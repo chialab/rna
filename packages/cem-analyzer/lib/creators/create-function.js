@@ -1,5 +1,5 @@
 /**
- * @import { ArrowFunctionExpression, Function as IFunction, TSTypeAnnotation } from '@oxc-project/types'
+ * @import { ArrowFunctionExpression, Function as OxcFunction, TSTypeAnnotation } from '@oxc-project/types'
  * @import { Block } from 'comment-parser'
  * @import { FunctionDeclaration, Parameter } from 'custom-elements-manifest'
  * @import { Context } from '../generate'
@@ -8,7 +8,7 @@ import { decorateWithJSDoc, literalToType } from '../utils.js';
 
 /**
  * @param {Context} context
- * @param {ArrowFunctionExpression | IFunction} node
+ * @param {ArrowFunctionExpression | OxcFunction} node
  * @param {Block[]} [jsdoc=context.parseJSDoc(node)]
  * @returns {FunctionDeclaration}
  */

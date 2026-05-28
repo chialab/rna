@@ -1745,7 +1745,7 @@ __metadata:
     "@parcel/source-map": ^2.0.0
     cjs-module-lexer: ^1.2.2
     es-module-lexer: ^1.0.0
-    oxc-parser: ^0.8.0
+    oxc-parser: ^0.114.0
     typescript: ^5.0.0
   languageName: unknown
   linkType: soft
@@ -3521,23 +3521,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@oxc-parser/binding-darwin-arm64@npm:0.8.0":
-  version: 0.8.0
-  resolution: "@oxc-parser/binding-darwin-arm64@npm:0.8.0"
-  conditions: os=darwin & cpu=arm64
-  languageName: node
-  linkType: hard
-
 "@oxc-parser/binding-darwin-x64@npm:0.114.0":
   version: 0.114.0
   resolution: "@oxc-parser/binding-darwin-x64@npm:0.114.0"
-  conditions: os=darwin & cpu=x64
-  languageName: node
-  linkType: hard
-
-"@oxc-parser/binding-darwin-x64@npm:0.8.0":
-  version: 0.8.0
-  resolution: "@oxc-parser/binding-darwin-x64@npm:0.8.0"
   conditions: os=darwin & cpu=x64
   languageName: node
   linkType: hard
@@ -3570,23 +3556,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@oxc-parser/binding-linux-arm64-gnu@npm:0.8.0":
-  version: 0.8.0
-  resolution: "@oxc-parser/binding-linux-arm64-gnu@npm:0.8.0"
-  conditions: os=linux & cpu=arm64 & libc=glibc
-  languageName: node
-  linkType: hard
-
 "@oxc-parser/binding-linux-arm64-musl@npm:0.114.0":
   version: 0.114.0
   resolution: "@oxc-parser/binding-linux-arm64-musl@npm:0.114.0"
-  conditions: os=linux & cpu=arm64 & libc=musl
-  languageName: node
-  linkType: hard
-
-"@oxc-parser/binding-linux-arm64-musl@npm:0.8.0":
-  version: 0.8.0
-  resolution: "@oxc-parser/binding-linux-arm64-musl@npm:0.8.0"
   conditions: os=linux & cpu=arm64 & libc=musl
   languageName: node
   linkType: hard
@@ -3626,23 +3598,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@oxc-parser/binding-linux-x64-gnu@npm:0.8.0":
-  version: 0.8.0
-  resolution: "@oxc-parser/binding-linux-x64-gnu@npm:0.8.0"
-  conditions: os=linux & cpu=x64 & libc=glibc
-  languageName: node
-  linkType: hard
-
 "@oxc-parser/binding-linux-x64-musl@npm:0.114.0":
   version: 0.114.0
   resolution: "@oxc-parser/binding-linux-x64-musl@npm:0.114.0"
-  conditions: os=linux & cpu=x64 & libc=musl
-  languageName: node
-  linkType: hard
-
-"@oxc-parser/binding-linux-x64-musl@npm:0.8.0":
-  version: 0.8.0
-  resolution: "@oxc-parser/binding-linux-x64-musl@npm:0.8.0"
   conditions: os=linux & cpu=x64 & libc=musl
   languageName: node
   linkType: hard
@@ -3670,13 +3628,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@oxc-parser/binding-win32-arm64-msvc@npm:0.8.0":
-  version: 0.8.0
-  resolution: "@oxc-parser/binding-win32-arm64-msvc@npm:0.8.0"
-  conditions: os=win32 & cpu=arm64
-  languageName: node
-  linkType: hard
-
 "@oxc-parser/binding-win32-ia32-msvc@npm:0.114.0":
   version: 0.114.0
   resolution: "@oxc-parser/binding-win32-ia32-msvc@npm:0.114.0"
@@ -3687,13 +3638,6 @@ __metadata:
 "@oxc-parser/binding-win32-x64-msvc@npm:0.114.0":
   version: 0.114.0
   resolution: "@oxc-parser/binding-win32-x64-msvc@npm:0.114.0"
-  conditions: os=win32 & cpu=x64
-  languageName: node
-  linkType: hard
-
-"@oxc-parser/binding-win32-x64-msvc@npm:0.8.0":
-  version: 0.8.0
-  resolution: "@oxc-parser/binding-win32-x64-msvc@npm:0.8.0"
   conditions: os=win32 & cpu=x64
   languageName: node
   linkType: hard
@@ -10536,39 +10480,6 @@ __metadata:
     "@oxc-parser/binding-win32-x64-msvc":
       optional: true
   checksum: 6c8acdd28a4a1fe98d8330d42d6b9bc7959a5f74499364223581941955322f7bce5445f44e6ad8b6c09d46df4cdd331a0053028584e9081fda3010b6512b3d73
-  languageName: node
-  linkType: hard
-
-"oxc-parser@npm:^0.8.0":
-  version: 0.8.0
-  resolution: "oxc-parser@npm:0.8.0"
-  dependencies:
-    "@oxc-parser/binding-darwin-arm64": 0.8.0
-    "@oxc-parser/binding-darwin-x64": 0.8.0
-    "@oxc-parser/binding-linux-arm64-gnu": 0.8.0
-    "@oxc-parser/binding-linux-arm64-musl": 0.8.0
-    "@oxc-parser/binding-linux-x64-gnu": 0.8.0
-    "@oxc-parser/binding-linux-x64-musl": 0.8.0
-    "@oxc-parser/binding-win32-arm64-msvc": 0.8.0
-    "@oxc-parser/binding-win32-x64-msvc": 0.8.0
-  dependenciesMeta:
-    "@oxc-parser/binding-darwin-arm64":
-      optional: true
-    "@oxc-parser/binding-darwin-x64":
-      optional: true
-    "@oxc-parser/binding-linux-arm64-gnu":
-      optional: true
-    "@oxc-parser/binding-linux-arm64-musl":
-      optional: true
-    "@oxc-parser/binding-linux-x64-gnu":
-      optional: true
-    "@oxc-parser/binding-linux-x64-musl":
-      optional: true
-    "@oxc-parser/binding-win32-arm64-msvc":
-      optional: true
-    "@oxc-parser/binding-win32-x64-msvc":
-      optional: true
-  checksum: e60e5817e66b1e8020dcfdc45c7e730882e477798fc067e98aa7d473d887334e62876c85824769d61b6bf5f07068d34001081dd61c7f152db9a8eccf32e054fb
   languageName: node
   linkType: hard
 

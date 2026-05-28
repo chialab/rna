@@ -40,7 +40,7 @@ export default function workerProxy({ constructors = ['Worker', 'SharedWorker'] 
                 async NewExpression(node) {
                     const callee = node.callee;
                     if (callee.type !== 'Identifier' || !constructors.includes(callee.name)) {
-                        if (callee.type !== 'StaticMemberExpression') {
+                        if (callee.type !== 'MemberExpression' || callee.computed) {
                             return;
                         }
                         if (
@@ -66,10 +66,11 @@ export default function workerProxy({ constructors = ['Worker', 'SharedWorker'] 
                     if (options && options.type === 'ObjectExpression') {
                         for (const property of options.properties) {
                             if (
-                                property.type === 'ObjectProperty' &&
+                                property.type === 'Property' &&
                                 property.key.type === 'Identifier' &&
                                 property.key.name === 'type' &&
-                                property.value.type === 'StringLiteral'
+                                property.value.type === 'Literal' &&
+                                typeof property.value.value === 'string'
                             ) {
                                 type = property.value.value;
                                 break;

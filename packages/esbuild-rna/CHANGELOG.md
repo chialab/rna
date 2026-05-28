@@ -1,5 +1,13 @@
 # @chialab/esbuild-rna
 
+## 0.19.2
+
+### Patch Changes
+
+- Updated dependencies [c200a85]
+- Updated dependencies [c405c10]
+  - @chialab/estransform@0.20.0
+
 ## 0.19.1
 
 ### Patch Changes

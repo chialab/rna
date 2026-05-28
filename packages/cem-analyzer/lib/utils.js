@@ -3,7 +3,6 @@
  * @import { SourceFile } from './source-file.js'
  * @import { CustomElementField, FunctionLike, PropertyLike } from 'custom-elements-manifest'
  * @import { Node } from '@oxc-project/types'
- * @import { TSESTree } from '@typescript-eslint/types'
  */
 import { parse } from 'comment-parser';
 import { print as corePrint } from 'esrap';
@@ -153,7 +152,7 @@ export function decorateClassFieldWithJSDoc(doc, jsdoc) {
  * @returns {string} The generated code as a string.
  */
 export function print(node) {
-    return corePrint(/** @type {TSESTree.Program} */ (/** @type {unknown} */ (node)), tsx()).code;
+    return corePrint(/** @type {Parameters<typeof corePrint>[0]} */ (/** @type {unknown} */ (node)), tsx()).code;
 }
 
 /**

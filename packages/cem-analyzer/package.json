@@ -44,7 +44,7 @@
     "esrap": "^2.2.3"
   },
   "optionalDependencies": {
-    "oxc-parser": "^0.114.0"
+    "oxc-parser": ">=0.114.0 <1.0.0"
   },
   "devDependencies": {
     "typescript": "^5.0.0"

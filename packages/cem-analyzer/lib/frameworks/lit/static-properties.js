@@ -42,8 +42,9 @@ export function staticPropertiesPlugin() {
                         ? member.value?.type === 'ObjectExpression'
                             ? member.value
                             : undefined
-                        : /** @type {OxcFunction} */ (member.value).body?.body?.find((n) => n.type === 'ReturnStatement')
-                                ?.argument?.type === 'ObjectExpression'
+                        : /** @type {OxcFunction} */ (member.value).body?.body?.find(
+                                (n) => n.type === 'ReturnStatement'
+                            )?.argument?.type === 'ObjectExpression'
                           ? /** @type {OxcFunction} */ (member.value).body?.body?.find(
                                 (n) => n.type === 'ReturnStatement'
                             )?.argument

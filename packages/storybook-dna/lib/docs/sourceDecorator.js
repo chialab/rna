@@ -168,11 +168,8 @@ export function vnodeToString(vnode) {
     }
 
     const properties = { ...hyperObject.properties };
-    const typedProperties = /** @type {Record<string, unknown>} */ (properties);
     const ctr = customElements.get(properties.is || tag);
     const definedProperties = ctr && isComponentConstructor(ctr) ? getProperties(ctr.prototype) : null;
-    const typedDefinedProperties = /** @type {Record<string, any> | null} */ (definedProperties);
-
     const attrs = Object.keys(properties)
         .map((prop) => {
             if (prop === 'ref' || prop === 'children' || prop === 'class' || prop === 'style') {
@@ -180,15 +177,15 @@ export function vnodeToString(vnode) {
             }
 
             if (prop === 'is') {
-                return `is="${typedProperties[prop]}"`;
+                return `is="${properties[prop]}"`;
             }
 
-            let value = typedProperties[prop];
+            let value = properties[prop];
             if (value == null) {
                 return false;
             }
 
-            const definedProperty = typedDefinedProperties?.[prop];
+            const definedProperty = definedProperties?.[/** @type {keyof typeof definedProperties} */ (prop)];
             if (definedProperty?.defaultValue === value) {
                 return false;
             }

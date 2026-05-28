@@ -138,7 +138,7 @@ export default function (options = {}) {
                                                         resolveDir: prev ? path.dirname(prev) : path.dirname(args.path),
                                                     });
 
-                                                    if (!result || !result.path) {
+                                                    if (!result?.path) {
                                                         continue;
                                                     }
 

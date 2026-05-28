@@ -42,7 +42,7 @@ export function overridePrototype(targetClass, sourceClass) {
         }
     };
     // Move Symbol.metadata to the new constructor.
-    if (Symbol.metadata && Object.prototype.hasOwnProperty.call(sourceClass, Symbol.metadata)) {
+    if (Symbol.metadata && Object.hasOwn(sourceClass, Symbol.metadata)) {
         Object.defineProperty(Ctr, Symbol.metadata, {
             writable: false,
             configurable: true,

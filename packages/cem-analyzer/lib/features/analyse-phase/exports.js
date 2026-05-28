@@ -146,7 +146,7 @@ export function exportsPlugin() {
              * @example export { var1, var2 } from 'foo';
              * @example export { var1, var2 } from './my-module.js';
              */
-            if (node.type === 'ExportNamedDeclaration' && !!node.source) {
+            if (node.type === 'ExportNamedDeclaration' && node.source) {
                 const jsdoc = this.parseJSDoc(node);
                 if (hasIgnoreJSDoc(jsdoc)) {
                     return;

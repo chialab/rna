@@ -66,7 +66,7 @@ export function createClass(context, node, jsdoc = context.parseJSDoc(node)) {
                     const returnStatement = member.value.body?.body.find(
                         (statement) => statement.type === 'ReturnStatement'
                     );
-                    if (!returnStatement || returnStatement.argument?.type !== 'ArrayExpression') {
+                    if (returnStatement?.argument?.type !== 'ArrayExpression') {
                         return;
                     }
                     returnStatement.argument.elements.forEach((el) => {
@@ -382,7 +382,7 @@ export function createClass(context, node, jsdoc = context.parseJSDoc(node)) {
         }
 
         const arg = child.arguments[0];
-        if (!arg || arg.type !== 'NewExpression') {
+        if (arg?.type !== 'NewExpression') {
             return;
         }
 

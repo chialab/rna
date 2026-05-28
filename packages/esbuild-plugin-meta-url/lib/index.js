@@ -114,8 +114,7 @@ export default function ({ emit = true } = {}) {
                         const argument = node.arguments[0];
                         const originArgument = node.arguments[1];
                         if (
-                            !originArgument ||
-                            originArgument.type !== 'MemberExpression' ||
+                            originArgument?.type !== 'MemberExpression' ||
                             originArgument.computed ||
                             originArgument.object.type !== 'MetaProperty' ||
                             originArgument.object.meta.name !== 'import' ||

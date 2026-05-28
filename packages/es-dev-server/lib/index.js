@@ -81,4 +81,4 @@ class DevServer extends CoreDevServer {
     }
 }
 
-export { DevServer, getPort, portNumbers, getRequestFilePath };
+export { DevServer, getPort, getRequestFilePath, portNumbers };

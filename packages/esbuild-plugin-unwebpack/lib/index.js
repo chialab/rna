@@ -36,7 +36,7 @@ export default function () {
                 } = await parse(code, path.relative(workingDir, args.path));
                 await walk(ast, {
                     async ImportExpression(node) {
-                        if (!node.source || node.source.type !== 'TemplateLiteral') {
+                        if (node.source?.type !== 'TemplateLiteral') {
                             return;
                         }
 

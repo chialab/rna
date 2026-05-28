@@ -69,14 +69,14 @@ export const getCustomElementDeclaration = (tagName, manifest) => {
         return null;
     }
 
-    if (!manifest || !manifest.modules) {
+    if (!manifest?.modules) {
         return null;
     }
 
     /** @type {CustomElement | null} */
     let metadata = null;
     manifest.modules.forEach((_module) => {
-        if (!_module || !_module.declarations) {
+        if (!_module?.declarations) {
             return;
         }
         _module.declarations.forEach((declaration) => {

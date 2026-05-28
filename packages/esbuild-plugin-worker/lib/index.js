@@ -79,7 +79,7 @@ export default function ({ constructors = ['Worker', 'SharedWorker'], proxy = fa
                 const symbols = {};
                 walk(ast, {
                     ClassDeclaration(node) {
-                        if (!node.id || node.id.type !== 'Identifier') {
+                        if (node.id?.type !== 'Identifier') {
                             return;
                         }
                         classDeclarations.push(node.id.name);
@@ -169,8 +169,7 @@ export default function ({ constructors = ['Worker', 'SharedWorker'], proxy = fa
                         const reference = argument.arguments[0];
                         const originArgument = argument.arguments[1];
                         if (
-                            !originArgument ||
-                            originArgument.type !== 'MemberExpression' ||
+                            originArgument?.type !== 'MemberExpression' ||
                             originArgument.computed ||
                             originArgument.object.type !== 'MetaProperty' ||
                             originArgument.object.meta.name !== 'import' ||

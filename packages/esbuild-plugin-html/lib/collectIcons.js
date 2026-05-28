@@ -144,7 +144,7 @@ async function collectAppleIcons($, dom, options, helpers) {
     }
 
     const iconFile = await helpers.load(iconFilePath.path, iconFilePath);
-    if (!iconFile || !iconFile.contents) {
+    if (!iconFile?.contents) {
         throw new Error(`Failed to load icon file: ${iconFilePath.path}`);
     }
 
@@ -194,7 +194,7 @@ export async function collectIcons($, dom, options, helpers) {
     }
 
     const iconFile = await load(iconFilePath.path, iconFilePath);
-    if (!iconFile || !iconFile.contents) {
+    if (!iconFile?.contents) {
         throw new Error(`Failed to load icon file: ${iconFilePath.path}`);
     }
 

@@ -102,6 +102,11 @@ An array of extensions to consider as HTML entrypoints.
 
 A function to preprocess the HTML content before parsing it.
 
+#### `generateFavicons`
+
+Enable or disable the generation of the favicons.
+It can be `true` (default) or `false`.
+
 ## How it works
 
 **Esbuild Plugin HTML** instructs esbuild to load a HTML file as entrypoint. It parses the HTML and runs esbuild on scripts, styles, assets and icons.
@@ -179,6 +184,8 @@ This will result in:
 ### Icons
 
 Manually generate favicons can be a pain. This plugin detects a `<link rel="icon">` node and uses its reference to generate icons and launch screens for (almost) every browser.
+
+This step can be disabled by setting the option `generateFavicons` to `false`.
 
 **Sample**
 

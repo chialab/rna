@@ -1,13 +1,17 @@
 /**
  * @import { Package } from 'custom-elements-manifest';
- * @import { SourceFile } from '@chialab/cem-analyzer';
+ * @import { SourceFile, Plugin as AnalyzerPlugin } from '@chialab/cem-analyzer';
  * @import { Plugin, FilterPattern } from 'vite';
  */
-import { bundle, createSourceFile as createSourceFileFallback, dnaPlugins } from '@chialab/cem-analyzer';
+import { bundle, createSourceFile as createSourceFileFallback } from '@chialab/cem-analyzer';
 import { createFilter } from 'vite';
 
 /**
  * @typedef {((sourceFile: SourceFile) => string | null | void) | Record<string, string> | string} ModulePath
+ */
+
+/**
+ * @typedef {((customElementManifest: Package) => string | null | void) | string} ModuleReadme
  */
 
 /**
@@ -83,15 +87,28 @@ async function createSourceFile(id, code) {
 }
 
 /**
+ * @typedef {Object} CemPluginOptions
+ * @property {FilterPattern} [include] - A filter pattern to include files for processing.
+ * @property {FilterPattern} [exclude] - A filter pattern to exclude files from processing.
+ * @property {AnalyzerPlugin[]} [plugins] - An array of plugins to use for processing the source files.
+ * @property {string} [fileName] - The name of the output Custom Elements Manifest file.
+ * @property {ModulePath} [modulePath] - A function or mapping to determine the module path for each source file.
+ * @property {ModuleReadme} [moduleReadme] - A function or string to determine the README content for each module.
+ * @property {Package[]} [thirdPartyManifests] - An array of third-party Custom Elements Manifests to include in the final output.
+ */
+
+/**
  * Generate a Custom Elements Manifest for Vite builds.
- * @param {{ include?: FilterPattern; exclude?: FilterPattern; fileName?: string; modulePath?: ModulePath; thirdPartyManifests?: Package[]; }} [options]
+ * @param {CemPluginOptions} [options]
  * @returns {Plugin}
  */
 export default function cemPlugin({
     include = /\.(j|t)sx?$/,
     exclude,
+    plugins = [],
     fileName = 'custom-elements.json',
     modulePath,
+    moduleReadme,
     thirdPartyManifests,
 } = {}) {
     /**
@@ -116,10 +133,14 @@ export default function cemPlugin({
             sourceFiles.clear();
             const grouped = groupSourceFiles(sourceFilesArr, modulePath);
             const customElementsManifest = await bundle(grouped, {
-                plugins: [...dnaPlugins],
+                plugins: [...plugins],
                 thirdPartyManifests,
             });
-            customElementsManifest.modules.sort((a, b) => a.path.localeCompare(b.path));
+            if (typeof moduleReadme === 'function') {
+                customElementsManifest.readme = moduleReadme(customElementsManifest) || undefined;
+            } else if (typeof moduleReadme === 'string') {
+                customElementsManifest.readme = moduleReadme || undefined;
+            }
             this.emitFile({
                 type: 'asset',
                 fileName,

@@ -21,7 +21,7 @@ import { linkClassToTagnamePlugin } from './features/post-processing/link-class-
 import { removeUnexportedDeclarationsPlugin } from './features/post-processing/remove-unexported-declarations.js';
 import { sortMembersPlugin } from './features/post-processing/sort-members.js';
 import { createResolve } from './resolve.js';
-import { isBareModuleSpecifier, iterateCallbacks, parseJSDoc, print } from './utils.js';
+import { isBareModuleSpecifier, iterateCallbacks, parseJSDoc, print, sortPackage } from './utils.js';
 import { ANY_CHILD, walk } from './walker.js';
 
 /**
@@ -432,6 +432,8 @@ export async function generate(sourceFiles, options = {}) {
                 withErrorHandling(plugin.name, () => plugin.packageLinkPhase?.call(context, { customElementsManifest }))
         )
     );
+
+    sortPackage(customElementsManifest);
 
     return customElementsManifest;
 }

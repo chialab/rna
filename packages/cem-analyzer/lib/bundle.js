@@ -6,7 +6,7 @@
 import { generate } from './generate.js';
 import { applyInheritance } from './helpers.js';
 import { createResolve } from './resolve.js';
-import { isBareModuleSpecifier } from './utils.js';
+import { isBareModuleSpecifier, sortPackage } from './utils.js';
 
 /**
  * @param {Module} module
@@ -241,6 +241,7 @@ export async function bundle(modules, options = {}) {
     }
 
     applyInheritance(bundle);
+    sortPackage(bundle);
 
     return bundle;
 }

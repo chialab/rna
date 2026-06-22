@@ -1,7 +1,7 @@
 /**
  * @import { Block } from 'comment-parser'
  * @import { SourceFile } from './source-file.js'
- * @import { CustomElementField, FunctionLike, PropertyLike } from 'custom-elements-manifest'
+ * @import { Package, Module, CustomElementField, FunctionLike, PropertyLike } from 'custom-elements-manifest'
  * @import { Node } from '@oxc-project/types'
  */
 import { parse } from 'comment-parser';
@@ -217,4 +217,24 @@ export function literalToType(literal) {
         return 'undefined';
     }
     return 'unknown';
+}
+
+/**
+ * Sorts the declarations and exports of a module in place, ordering them first by name and then by kind. This function is intended to be used on modules within a custom elements manifest to ensure consistent ordering of their members for documentation or analysis purposes.
+ * @param {Module} mod The module whose declarations and exports are to be sorted.
+ */
+export function sortModule(mod) {
+    mod.declarations?.sort((a, b) => a.name.localeCompare(b.name) || (a.kind ?? '').localeCompare(b.kind ?? ''));
+    mod.exports?.sort((a, b) => a.name.localeCompare(b.name) || (a.kind ?? '').localeCompare(b.kind ?? ''));
+}
+
+/**
+ * Sorts the modules of a package in place, ordering them by their path. Additionally, it sorts the declarations and exports of each module using the sortModule function. This function is intended to be used on a custom elements manifest package to ensure consistent ordering of its modules and their members for documentation or analysis purposes.
+ * @param {Package} pkg The package whose modules are to be sorted.
+ */
+export function sortPackage(pkg) {
+    pkg.modules?.sort((a, b) => a.path.localeCompare(b.path));
+    for (const mod of pkg.modules ?? []) {
+        sortModule(mod);
+    }
 }

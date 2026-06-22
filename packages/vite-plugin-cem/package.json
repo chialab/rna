@@ -1,7 +1,7 @@
 {
   "name": "@chialab/vite-plugin-cem",
   "type": "module",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Generate a Custom Elements Manifest for Vite builds.",
   "exports": {
     ".": {
@@ -34,7 +34,7 @@
     "LICENSE"
   ],
   "dependencies": {
-    "@chialab/cem-analyzer": "^0.1.2"
+    "@chialab/cem-analyzer": "^0.1.6"
   },
   "peerDependencies": {
     "rolldown": "^1.0.0-rc.0"

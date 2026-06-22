@@ -1,5 +1,13 @@
 # @chialab/vite-plugin-cem
 
+## 0.1.3
+
+### Patch Changes
+
+- c76cbcb: Customize README entries and plugins.
+- Updated dependencies [5f39e93]
+  - @chialab/cem-analyzer@0.1.6
+
 ## 0.1.2
 
 ### Patch Changes

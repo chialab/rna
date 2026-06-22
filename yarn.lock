@@ -1517,7 +1517,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@chialab/cem-analyzer@^0.1.1, @chialab/cem-analyzer@^0.1.2, @chialab/cem-analyzer@^0.1.4, @chialab/cem-analyzer@workspace:packages/cem-analyzer":
+"@chialab/cem-analyzer@^0.1.1, @chialab/cem-analyzer@^0.1.4, @chialab/cem-analyzer@^0.1.6, @chialab/cem-analyzer@workspace:packages/cem-analyzer":
   version: 0.0.0-use.local
   resolution: "@chialab/cem-analyzer@workspace:packages/cem-analyzer"
   dependencies:
@@ -1978,7 +1978,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@chialab/vite-plugin-cem@workspace:packages/vite-plugin-cem"
   dependencies:
-    "@chialab/cem-analyzer": ^0.1.2
+    "@chialab/cem-analyzer": ^0.1.6
     rolldown: ^1.0.0-rc.0
     typescript: ^5.0.0
     vite: ^8.0.0

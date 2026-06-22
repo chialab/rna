@@ -1,5 +1,11 @@
 # @chialab/cem-analyzer
 
+## 0.1.6
+
+### Patch Changes
+
+- 5f39e93: Sort symbols.
+
 ## 0.1.5
 
 ### Patch Changes

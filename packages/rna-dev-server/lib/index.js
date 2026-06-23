@@ -72,6 +72,7 @@ export async function loadDevServerConfig(initialConfig = {}, configFile = undef
         entrypointsPath: initialConfig.entrypointsPath ?? config.entrypointsPath,
         entrypoints: initialConfig.entrypoints ?? config.entrypoints,
         alias: initialConfig.alias ?? config.alias,
+        loader: initialConfig.loader ?? config.loader,
         target: initialConfig.target ?? config.target,
         jsx: initialConfig.jsx ?? config.jsx,
         jsxImportSource: initialConfig.jsxImportSource ?? config.jsxImportSource,
@@ -99,6 +100,7 @@ export async function createDevServer(config, logger) {
     const plugins = [
         ...(config.plugins || []).filter((plugin) => plugin.enforce === 'pre'),
         rnaPlugin({
+            loader: config.loader,
             alias: config.alias,
             target: config.target,
             jsx: config.jsx,

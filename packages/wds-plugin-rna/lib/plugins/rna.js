@@ -81,13 +81,23 @@ export function convertFileToJsModule(source) {
 }
 
 /**
+ * Check if the loader is a JavaScript loader.
+ * @param {import('esbuild').Loader} loader
+ * @returns {boolean}
+ */
+function isJsLoader(loader) {
+    return loader === 'js' || loader === 'jsx' || loader === 'ts' || loader === 'tsx';
+}
+
+/**
  * Get the esbuild loader to use from context.
- * @param {import('koa').Context} context
+ * @param {Record<string, import('esbuild').Loader>} loaders
+ * @param {string} filePath
  * @return The esbuild loader name.
  */
-export function getRequestLoader(context) {
-    const fileExtension = path.posix.extname(context.path);
-    return transformLoaders[fileExtension];
+function getRequestLoader(loaders, filePath) {
+    const fileExtension = path.posix.extname(filePath);
+    return loaders[fileExtension];
 }
 
 /**
@@ -273,15 +283,23 @@ export function rnaPlugin(config) {
         },
 
         resolveMimeType(context) {
+            const loader = getRequestLoader(
+                {
+                    ...transformLoaders,
+                    ...config.loader,
+                },
+                context.url
+            );
             if (
                 isJs(context.path) ||
                 isJson(context.path) ||
                 isCssModuleRequest(context.url) ||
-                isFileRequest(context.url)
+                isFileRequest(context.url) ||
+                isJsLoader(loader)
             ) {
                 return 'js';
             }
-            if (isCss(context.path)) {
+            if (isCss(context.path) || loader === 'css') {
                 return 'css';
             }
         },
@@ -333,7 +351,13 @@ export function rnaPlugin(config) {
                 return;
             }
 
-            const loader = getRequestLoader(context);
+            const loader = getRequestLoader(
+                {
+                    ...transformLoaders,
+                    ...config.loader,
+                },
+                context.url
+            );
             if (!loader) {
                 return;
             }
@@ -406,15 +430,22 @@ export function rnaPlugin(config) {
         },
 
         async transformImport({ source }) {
-            if (isJson(source)) {
+            const loader = getRequestLoader(
+                {
+                    ...transformLoaders,
+                    ...config.loader,
+                },
+                source
+            );
+            if (loader === 'json') {
                 return appendJsonModuleParam(source);
             }
 
-            if (isCss(source)) {
+            if (loader === 'css') {
                 return appendCssModuleParam(source);
             }
 
-            if (!isJs(source)) {
+            if (!isJsLoader(loader)) {
                 return appendFileParam(source);
             }
         },

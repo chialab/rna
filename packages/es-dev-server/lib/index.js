@@ -6,7 +6,7 @@ import getPort, { portNumbers } from 'get-port';
  */
 
 /**
- * @typedef {Omit<import('@web/dev-server-core').DevServerCoreConfig, 'plugins'> & { plugins?: Plugin[] }} DevServerCoreConfig
+ * @typedef {Omit<import('@web/dev-server-core').DevServerCoreConfig, 'plugins'> & { loader?: Record<string, import('esbuild').Loader>, plugins?: Plugin[] }} DevServerCoreConfig
  */
 
 /**

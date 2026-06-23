@@ -1,5 +1,11 @@
 # @chialab/es-dev-server
 
+## 0.19.2
+
+### Patch Changes
+
+- 760ccef: Support configurable loaders.
+
 ## 0.19.1
 
 ### Patch Changes

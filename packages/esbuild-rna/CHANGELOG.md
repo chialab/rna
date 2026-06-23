@@ -1,5 +1,11 @@
 # @chialab/esbuild-rna
 
+## 0.19.3
+
+### Patch Changes
+
+- 4102699: Introduce `wrapPlugin` helper.
+
 ## 0.19.2
 
 ### Patch Changes

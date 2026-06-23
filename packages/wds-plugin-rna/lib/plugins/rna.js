@@ -356,7 +356,7 @@ export function rnaPlugin(config) {
                     ...transformLoaders,
                     ...config.loader,
                 },
-                context.url
+                context.path
             );
             if (!loader) {
                 return;
@@ -379,7 +379,8 @@ export function rnaPlugin(config) {
             const entrypoint = {
                 root: rootDir,
                 input: `./${path.relative(rootDir, filePath)}`,
-                output: filePath,
+                // Must use different output to avoid esbuild internal conflicts
+                output: `${filePath}.transformed`,
                 code: /** @type {string} */ (context.body),
                 ...contextConfig,
             };
@@ -387,6 +388,10 @@ export function rnaPlugin(config) {
             const transformConfig = getEntryConfig(entrypoint, {
                 ...config,
                 bundle,
+                loader: {
+                    ...transformLoaders,
+                    ...config.loader,
+                },
                 write: false,
                 sourcemap: 'inline',
                 platform: 'browser',

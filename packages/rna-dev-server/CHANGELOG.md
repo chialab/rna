@@ -1,5 +1,14 @@
 # @chialab/rna-dev-server
 
+## 1.0.2
+
+### Patch Changes
+
+- 760ccef: Support configurable loaders.
+- Updated dependencies [760ccef]
+  - @chialab/wds-plugin-rna@0.19.2
+  - @chialab/es-dev-server@0.19.2
+
 ## 1.0.1
 
 ### Patch Changes

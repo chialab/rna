@@ -6,7 +6,7 @@ import { inlineSourcemap, loadSourcemap, mergeSourcemaps } from '@chialab/estran
 import { assignToResult, createFileHash, createOutputFile, createResult } from './helpers.js';
 
 /**
- * @typedef {import('esbuild').Message} Message
+ * @typedef {import('esbuild').PartialMessage} PartialMessage
  */
 
 /**
@@ -134,10 +134,11 @@ import { assignToResult, createFileHash, createOutputFile, createResult } from '
 /**
  * @typedef {Object} OnTransformResult
  * @property {string} [code]
+ * @property {string|Buffer|Uint8Array} [contents]
  * @property {import('@chialab/estransform').SourceMap|null} [map]
  * @property {string} [resolveDir]
- * @property {Message[]} [errors]
- * @property {Message[]} [warnings]
+ * @property {PartialMessage[]} [errors]
+ * @property {PartialMessage[]} [warnings]
  * @property {string[]} [watchFiles]
  * @property {Metafile} [metafile]
  */
@@ -154,6 +155,7 @@ import { assignToResult, createFileHash, createOutputFile, createResult } from '
 
 /**
  * Esbuild build handler.
+ * @implements {PluginBuild}
  */
 export class Build {
     static ENTRY = 1;
@@ -235,6 +237,10 @@ export class Build {
      * @private
      */
     dependencies = {};
+
+    get esbuild() {
+        return this.pluginBuild.esbuild;
+    }
 
     /**
      * Create a build instance and state.
@@ -548,6 +554,14 @@ export class Build {
     }
 
     /**
+     * Register a callback for dispose hook of the build.
+     * @param {() => void} callback The callback to register.
+     */
+    onDispose(callback) {
+        this.pluginBuild.onDispose(callback);
+    }
+
+    /**
      * Add a load rule for the build.
      * Wrap esbuild onLoad hook in order to use it in the transform pipeline.
      * @param {OnLoadOptions} options Load options.
@@ -682,12 +696,12 @@ export class Build {
         const maps = [];
 
         /**
-         * @type {Message[]}
+         * @type {PartialMessage[]}
          */
         const warnings = [];
 
         /**
-         * @type {Message[]}
+         * @type {PartialMessage[]}
          */
         const errors = [];
 
@@ -715,6 +729,8 @@ export class Build {
                 if (result) {
                     if (result.code) {
                         code = result.code;
+                    } else if (result.contents) {
+                        code = Buffer.from(result.contents).toString('utf-8');
                     }
                     if (result.warnings) {
                         warnings.push(...result.warnings);

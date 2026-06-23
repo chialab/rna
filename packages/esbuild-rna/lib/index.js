@@ -39,6 +39,30 @@ export function useRna(pluginInstance, pluginBuild) {
 }
 
 /**
+ * Wrap an esbuild plugin to provide the rna build instance in the setup function.
+ * @param {import('esbuild').Plugin} plugin
+ * @returns {import('esbuild').Plugin}
+ */
+export function wrapPlugin(plugin) {
+    return {
+        name: plugin.name,
+        setup(build) {
+            const rna = useRna(plugin, build);
+            plugin.setup({
+                esbuild: rna.esbuild,
+                initialOptions: rna.initialOptions,
+                resolve: rna.resolve.bind(rna),
+                onStart: rna.onStart.bind(rna),
+                onEnd: rna.onEnd.bind(rna),
+                onResolve: rna.onResolve.bind(rna),
+                onLoad: rna.onTransform.bind(rna),
+                onDispose: rna.onDispose.bind(rna),
+            });
+        },
+    };
+}
+
+/**
  * @returns {import('esbuild').Plugin}
  */
 export function rnaPlugin() {

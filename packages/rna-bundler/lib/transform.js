@@ -1,3 +1,4 @@
+import { access } from 'node:fs/promises';
 import path from 'node:path';
 import process from 'node:process';
 import { hasPlugin } from '@chialab/esbuild-rna';
@@ -10,6 +11,63 @@ import { transformLoaders } from './loaders.js';
  */
 
 /**
+ * Recursively find the nearest tsconfig.json file for a given file path, using a cache to avoid redundant filesystem checks.
+ * @param {string} filePath The file path to start searching from.
+ * @return {Promise<string | null>} The path to the nearest tsconfig.json file, or null if not found.
+ */
+const findTsConfigWithCache = (() => {
+    const cache = new Map();
+
+    /**
+     * @param {string} filePath
+     * @returns {Promise<boolean>} Whether the file exists or not.
+     */
+    const fileExists = async (filePath) => {
+        try {
+            await access(filePath);
+            return true;
+        } catch {
+            return false;
+        }
+    };
+
+    /**
+     * Check if two paths are the same after resolving them to their absolute forms.
+     * @param {string} pathA
+     * @param {string} pathB
+     * @returns {boolean} Whether the paths are the same.
+     */
+    const isSamePath = (pathA, pathB) => path.resolve(pathA) === path.resolve(pathB);
+
+    /**
+     * @param {string} filePath
+     * @param {string} until
+     * @param {string[]} checked
+     * @returns {Promise<string | null>} The tsconfig path, or null if not found.
+     */
+    return async function recursiveFind(filePath, until, checked = []) {
+        if (isSamePath(filePath, until)) {
+            return null;
+        }
+        const dir = path.dirname(filePath);
+        if (cache.has(dir)) {
+            return cache.get(dir);
+        }
+
+        const tsconfigPath = path.join(dir, 'tsconfig.json');
+        if (await fileExists(tsconfigPath)) {
+            for (const checkedDir of checked) {
+                cache.set(checkedDir, tsconfigPath);
+            }
+            cache.set(dir, tsconfigPath);
+            return tsconfigPath;
+        }
+
+        return recursiveFind(dir, until, [...checked, dir]);
+    };
+})();
+
+/**
  * Build and bundle sources.
  * @param {import('@chialab/rna-config-loader').EntrypointConfig} config
  * @returns {Promise<TransformResult>} The esbuild bundle result.
@@ -19,7 +77,7 @@ export async function transform(config) {
         input,
         code,
         root: rootDir = process.cwd(),
-        loader = transformLoaders,
+        loader,
         format,
         platform,
         target,
@@ -99,7 +157,10 @@ export async function transform(config) {
             jsxImportSource,
             jsxFactory,
             jsxFragment,
-            loader,
+            loader: {
+                ...transformLoaders,
+                ...(loader || {}),
+            },
             metafile: true,
             preserveSymlinks: true,
             sourcesContent: true,
@@ -111,7 +172,8 @@ export async function transform(config) {
             inject,
             banner,
             footer,
-            tsconfig,
+            tsconfig:
+                tsconfig || (tsconfigRaw ? undefined : (await findTsConfigWithCache(sourceFile, rootDir)) || undefined),
             tsconfigRaw,
         })
     );

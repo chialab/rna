@@ -1,5 +1,11 @@
 # @chialab/rna-bundler
 
+## 0.19.3
+
+### Patch Changes
+
+- 563524a: Use `jsx` for `.js` extensions.
+
 ## 0.19.2
 
 ### Patch Changes

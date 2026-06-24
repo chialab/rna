@@ -112,6 +112,10 @@ export function getEntryConfig(entrypoint, config) {
         entryNames: entrypoint.entryNames || config.entryNames || '[dir]/[name]',
         chunkNames: entrypoint.chunkNames || config.chunkNames || '[name]-[hash]',
         assetNames: entrypoint.assetNames || config.assetNames || '[name]-[hash]',
+        loader: {
+            ...(entrypoint.loader || {}),
+            ...(config.loader || {}),
+        },
         define: {
             ...(entrypoint.define || {}),
             ...(config.define || {}),
@@ -179,6 +183,10 @@ export function mergeConfig(...entries) {
         Object.assign(config, {
             ...clone,
             entrypoints: [...(config.entrypoints || []), ...(clone.entrypoints || [])],
+            loader: {
+                ...(config.loader || {}),
+                ...(clone.loader || {}),
+            },
             external: [...(config.external || []), ...(clone.external || [])],
             plugins: [...(config.plugins || []), ...(clone.plugins || [])],
             servePlugins: [...(config.servePlugins || []), ...(clone.servePlugins || [])],

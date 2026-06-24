@@ -1,5 +1,11 @@
 # @chialab/rna-config-loader
 
+## 0.19.2
+
+### Patch Changes
+
+- 3ac0772: Merge config loaders.
+
 ## 0.19.1
 
 ### Patch Changes

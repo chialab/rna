@@ -1833,7 +1833,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@chialab/rna-bundler@^0.19.1, @chialab/rna-bundler@workspace:packages/rna-bundler":
+"@chialab/rna-bundler@^0.19.1, @chialab/rna-bundler@^0.19.2, @chialab/rna-bundler@workspace:packages/rna-bundler":
   version: 0.0.0-use.local
   resolution: "@chialab/rna-bundler@workspace:packages/rna-bundler"
   dependencies:
@@ -1845,14 +1845,14 @@ __metadata:
     "@chialab/esbuild-plugin-metadata": ^0.19.1
     "@chialab/esbuild-plugin-worker": ^0.19.1
     "@chialab/esbuild-rna": ^0.19.1
-    "@chialab/rna-config-loader": ^0.19.1
+    "@chialab/rna-config-loader": ^0.19.2
     "@chialab/rna-logger": ^0.19.1
     esbuild: ^0.21.0 || ^0.22.0 || ^0.23.0 || ^0.24.0
     typescript: ^5.0.0
   languageName: unknown
   linkType: soft
 
-"@chialab/rna-config-loader@^0.19.1, @chialab/rna-config-loader@workspace:packages/rna-config-loader":
+"@chialab/rna-config-loader@^0.19.1, @chialab/rna-config-loader@^0.19.2, @chialab/rna-config-loader@workspace:packages/rna-config-loader":
   version: 0.0.0-use.local
   resolution: "@chialab/rna-config-loader@workspace:packages/rna-config-loader"
   dependencies:
@@ -2147,8 +2147,8 @@ __metadata:
     "@chialab/esbuild-plugin-worker": ^0.19.1
     "@chialab/esbuild-rna": ^0.19.3
     "@chialab/node-resolve": ^0.19.1
-    "@chialab/rna-bundler": ^0.19.1
-    "@chialab/rna-config-loader": ^0.19.1
+    "@chialab/rna-bundler": ^0.19.2
+    "@chialab/rna-config-loader": ^0.19.2
     "@chialab/wds-plugin-node-resolve": ^0.19.1
     "@types/browserslist-useragent": ^3.0.3
     browserslist-useragent: ^4.0.0

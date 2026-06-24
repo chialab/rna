@@ -1,5 +1,14 @@
 # @chialab/rna-bundler
 
+## 0.19.2
+
+### Patch Changes
+
+- 31ff247: Find tsconfig also for transform method.
+- 3ac0772: Merge config loaders.
+- Updated dependencies [3ac0772]
+  - @chialab/rna-config-loader@0.19.2
+
 ## 0.19.1
 
 ### Patch Changes

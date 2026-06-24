@@ -1,5 +1,15 @@
 # @chialab/wds-plugin-rna
 
+## 0.19.4
+
+### Patch Changes
+
+- 31ff247: Find tsconfig also for transform method.
+- Updated dependencies [31ff247]
+- Updated dependencies [3ac0772]
+  - @chialab/rna-bundler@0.19.2
+  - @chialab/rna-config-loader@0.19.2
+
 ## 0.19.3
 
 ### Patch Changes

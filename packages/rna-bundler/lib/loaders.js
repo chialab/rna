@@ -4,8 +4,8 @@
 export const loaders = {
     '.cjs': 'tsx',
     '.mjs': 'tsx',
-    '.js': 'tsx',
-    '.jsx': 'tsx',
+    '.js': 'jsx',
+    '.jsx': 'jsx',
     '.ts': 'ts',
     '.tsx': 'tsx',
     '.json': 'json',
@@ -23,8 +23,8 @@ export const loaders = {
 export const transformLoaders = {
     '.cjs': 'tsx',
     '.mjs': 'tsx',
-    '.js': 'tsx',
-    '.jsx': 'tsx',
+    '.js': 'jsx',
+    '.jsx': 'jsx',
     '.ts': 'ts',
     '.tsx': 'tsx',
     '.json': 'json',

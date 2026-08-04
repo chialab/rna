@@ -35,6 +35,9 @@
     "README.md",
     "LICENSE"
   ],
+  "dependencies": {
+    "magic-string": "^0.30.0"
+  },
   "devDependencies": {
     "typescript": "^5.0.0"
   }

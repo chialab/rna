@@ -1,5 +1,11 @@
 # @chialab/vite-plugin-css-modules
 
+## 0.1.3
+
+### Patch Changes
+
+- 07def88: Add missing `magic-string` dependency.
+
 ## 0.1.2
 
 ### Patch Changes

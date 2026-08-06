@@ -1159,7 +1159,7 @@ export class Build {
 
         if (config.define) {
             // biome-ignore lint/performance/noDelete: We want to remove the key.
-            delete config.define['this'];
+            delete config.define.this;
         }
 
         const result = await this.build(config);

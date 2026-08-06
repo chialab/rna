@@ -22,32 +22,26 @@
   "formatter": {
     "attributePosition": "multiline",
     "lineWidth": 120,
-    "useEditorconfig": true,
-    "indentStyle": "space",
-    "indentWidth": 4
+    "useEditorconfig": true
   },
   "linter": {
     "rules": {
-      "recommended": true,
+      "preset": "recommended",
       "a11y": {
         "noRedundantAlt": "warn",
         "useButtonType": "warn",
         "useSemanticElements": "off"
       },
       "complexity": {
-        "noForEach": "off",
         "noThisInStatic": "off",
         "noUselessSwitchCase": "warn",
         "noUselessThisAlias": "warn",
         "useArrowFunction": "warn",
         "useFlatMap": "warn",
-        "useLiteralKeys": "off",
         "useOptionalChain": "warn"
       },
       "correctness": {
         "useJsxKeyInIterable": "off",
-        "useUniqueElementIds": "off",
-        "noSwitchDeclarations": "off",
         "noUnusedFunctionParameters": "off",
         "noUnusedPrivateClassMembers": "off"
       },
@@ -58,7 +52,6 @@
       "style": {
         "noInferrableTypes": "warn",
         "noParameterAssign": "warn",
-        "noNamespace": "off",
         "useConst": "warn",
         "useExponentiationOperator": "warn",
         "useImportType": "warn",
@@ -74,7 +67,6 @@
       },
       "suspicious": {
         "noAssignInExpressions": "warn",
-        "noClassAssign": "off",
         "noConfusingLabels": "warn",
         "noExplicitAny": "warn",
         "noConsole": {

@@ -72,13 +72,13 @@ export function isPlainScript(context) {
         return false;
     }
     const headers = context.headers;
-    if (headers['accept'] !== '*/*') {
+    if (headers.accept !== '*/*') {
         return;
     }
     if ('sec-fetch-mode' in headers) {
         return headers['sec-fetch-mode'] === 'no-cors' && headers['sec-fetch-dest'] === 'script';
     }
-    if (!context['origin']) {
+    if (!context.origin) {
         return true;
     }
 

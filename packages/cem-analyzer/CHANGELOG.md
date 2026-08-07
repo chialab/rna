@@ -1,5 +1,11 @@
 # @chialab/cem-analyzer
 
+## 0.1.7
+
+### Patch Changes
+
+- dfa5f2c: Update types constraint.
+
 ## 0.1.6
 
 ### Patch Changes

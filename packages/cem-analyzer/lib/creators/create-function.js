@@ -39,11 +39,10 @@ export function createFunction(context, node, jsdoc = context.parseJSDoc(node)) 
             default: undefined,
         };
         if (param.type === 'Identifier') {
-            if (param.typeAnnotation) {
-                /** @type {{ typeAnnotation: TSTypeAnnotation }} */
-                const typedParam = param;
+            const typeAnnotation = param.typeAnnotation;
+            if (typeAnnotation) {
                 parameter.type = {
-                    text: context.print(typedParam.typeAnnotation.typeAnnotation),
+                    text: context.print(typeAnnotation.typeAnnotation),
                 };
             }
         } else if (param.type === 'AssignmentPattern' && param.left.type === 'Identifier') {

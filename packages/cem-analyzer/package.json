@@ -38,7 +38,7 @@
     "node": ">=18"
   },
   "dependencies": {
-    "@oxc-project/types": "0.114.0",
+    "@oxc-project/types": ">=0.114.0 <1.0.0",
     "comment-parser": "^1.4.5",
     "custom-elements-manifest": "^2.1.0",
     "esrap": "^2.2.3"

@@ -39,7 +39,7 @@
     "@chialab/storybook-dna": "^10.1.7",
     "@chialab/vite-plugin-hmr-dna": "^4.1.5",
     "@storybook/builder-vite": "^10.0.0",
-    "magic-string": "^0.30.0",
+    "magic-string": "^1.0.0",
     "ts-dedent": "^2.0.0"
   },
   "peerDependencies": {

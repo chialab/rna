@@ -35,10 +35,10 @@
     "node": ">=18"
   },
   "dependencies": {
-    "@napi-rs/magic-string": "^0.3.4",
     "@parcel/source-map": "^2.0.0",
     "cjs-module-lexer": "^1.2.2",
     "es-module-lexer": "^1.0.0",
+    "magic-string": "^1.0.0",
     "oxc-parser": ">=0.114.0 <1.0.0"
   },
   "devDependencies": {

@@ -41,7 +41,7 @@
     "LICENSE"
   ],
   "dependencies": {
-    "magic-string": "^0.30.21"
+    "magic-string": "^1.0.0"
   },
   "devDependencies": {
     "@vitest/browser-playwright": "^4.0.0",

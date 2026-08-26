@@ -1754,10 +1754,10 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@chialab/estransform@workspace:packages/estransform"
   dependencies:
-    "@napi-rs/magic-string": ^0.3.4
     "@parcel/source-map": ^2.0.0
     cjs-module-lexer: ^1.2.2
     es-module-lexer: ^1.0.0
+    magic-string: ^1.0.0
     oxc-parser: ">=0.114.0 <1.0.0"
     typescript: ^5.0.0
   languageName: unknown
@@ -1945,7 +1945,7 @@ __metadata:
     "@storybook/builder-vite": ^10.0.0
     "@types/react": ^18.0.26
     custom-elements-manifest: ^2.0.0
-    magic-string: ^0.30.0
+    magic-string: ^1.0.0
     storybook: ^10.0.0
     ts-dedent: ^2.0.0
   peerDependencies:
@@ -2003,7 +2003,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@chialab/vite-plugin-css-modules@workspace:packages/vite-plugin-css-modules"
   dependencies:
-    magic-string: ^0.30.0
+    magic-string: ^1.0.0
     typescript: ^5.0.0
   languageName: unknown
   linkType: soft
@@ -2013,7 +2013,7 @@ __metadata:
   resolution: "@chialab/vite-plugin-hmr-dna@workspace:packages/vite-plugin-hmr-dna"
   dependencies:
     "@chialab/hmr-dna": ^4.0.0
-    magic-string: ^0.30.0
+    magic-string: ^1.0.0
     typescript: ^5.0.0
     vite: ^8.0.0
   languageName: unknown
@@ -2063,7 +2063,7 @@ __metadata:
   resolution: "@chialab/vitest-csf-visual-regression@workspace:packages/vitest-csf-visual-regression"
   dependencies:
     "@vitest/browser-playwright": ^4.0.0
-    magic-string: ^0.30.21
+    magic-string: ^1.0.0
     playwright: ^1.0.0
     storybook: ^10.0.0
     typescript: ^5.0.0
@@ -3324,145 +3324,6 @@ __metadata:
     globby: ^11.0.0
     read-yaml-file: ^1.1.0
   checksum: f5a756e5a659e0e1c33f48852d56826d170d5b10a3cdea89ce4fcaa77678d8799aa4004b30e1985c87b73dbc390b95bb6411b78336dd1e0db87c08c74b5c0e74
-  languageName: node
-  linkType: hard
-
-"@napi-rs/magic-string-android-arm-eabi@npm:0.3.4":
-  version: 0.3.4
-  resolution: "@napi-rs/magic-string-android-arm-eabi@npm:0.3.4"
-  conditions: os=android & cpu=arm
-  languageName: node
-  linkType: hard
-
-"@napi-rs/magic-string-android-arm64@npm:0.3.4":
-  version: 0.3.4
-  resolution: "@napi-rs/magic-string-android-arm64@npm:0.3.4"
-  conditions: os=android & cpu=arm64
-  languageName: node
-  linkType: hard
-
-"@napi-rs/magic-string-darwin-arm64@npm:0.3.4":
-  version: 0.3.4
-  resolution: "@napi-rs/magic-string-darwin-arm64@npm:0.3.4"
-  conditions: os=darwin & cpu=arm64
-  languageName: node
-  linkType: hard
-
-"@napi-rs/magic-string-darwin-x64@npm:0.3.4":
-  version: 0.3.4
-  resolution: "@napi-rs/magic-string-darwin-x64@npm:0.3.4"
-  conditions: os=darwin & cpu=x64
-  languageName: node
-  linkType: hard
-
-"@napi-rs/magic-string-freebsd-x64@npm:0.3.4":
-  version: 0.3.4
-  resolution: "@napi-rs/magic-string-freebsd-x64@npm:0.3.4"
-  conditions: os=freebsd & cpu=x64
-  languageName: node
-  linkType: hard
-
-"@napi-rs/magic-string-linux-arm-gnueabihf@npm:0.3.4":
-  version: 0.3.4
-  resolution: "@napi-rs/magic-string-linux-arm-gnueabihf@npm:0.3.4"
-  conditions: os=linux & cpu=arm
-  languageName: node
-  linkType: hard
-
-"@napi-rs/magic-string-linux-arm64-gnu@npm:0.3.4":
-  version: 0.3.4
-  resolution: "@napi-rs/magic-string-linux-arm64-gnu@npm:0.3.4"
-  conditions: os=linux & cpu=arm64
-  languageName: node
-  linkType: hard
-
-"@napi-rs/magic-string-linux-arm64-musl@npm:0.3.4":
-  version: 0.3.4
-  resolution: "@napi-rs/magic-string-linux-arm64-musl@npm:0.3.4"
-  conditions: os=linux & cpu=arm64
-  languageName: node
-  linkType: hard
-
-"@napi-rs/magic-string-linux-x64-gnu@npm:0.3.4":
-  version: 0.3.4
-  resolution: "@napi-rs/magic-string-linux-x64-gnu@npm:0.3.4"
-  conditions: os=linux & cpu=x64
-  languageName: node
-  linkType: hard
-
-"@napi-rs/magic-string-linux-x64-musl@npm:0.3.4":
-  version: 0.3.4
-  resolution: "@napi-rs/magic-string-linux-x64-musl@npm:0.3.4"
-  conditions: os=linux & cpu=x64
-  languageName: node
-  linkType: hard
-
-"@napi-rs/magic-string-win32-arm64-msvc@npm:0.3.4":
-  version: 0.3.4
-  resolution: "@napi-rs/magic-string-win32-arm64-msvc@npm:0.3.4"
-  conditions: os=win32 & cpu=arm64
-  languageName: node
-  linkType: hard
-
-"@napi-rs/magic-string-win32-ia32-msvc@npm:0.3.4":
-  version: 0.3.4
-  resolution: "@napi-rs/magic-string-win32-ia32-msvc@npm:0.3.4"
-  conditions: os=win32 & cpu=ia32
-  languageName: node
-  linkType: hard
-
-"@napi-rs/magic-string-win32-x64-msvc@npm:0.3.4":
-  version: 0.3.4
-  resolution: "@napi-rs/magic-string-win32-x64-msvc@npm:0.3.4"
-  conditions: os=win32 & cpu=x64
-  languageName: node
-  linkType: hard
-
-"@napi-rs/magic-string@npm:^0.3.4":
-  version: 0.3.4
-  resolution: "@napi-rs/magic-string@npm:0.3.4"
-  dependencies:
-    "@napi-rs/magic-string-android-arm-eabi": 0.3.4
-    "@napi-rs/magic-string-android-arm64": 0.3.4
-    "@napi-rs/magic-string-darwin-arm64": 0.3.4
-    "@napi-rs/magic-string-darwin-x64": 0.3.4
-    "@napi-rs/magic-string-freebsd-x64": 0.3.4
-    "@napi-rs/magic-string-linux-arm-gnueabihf": 0.3.4
-    "@napi-rs/magic-string-linux-arm64-gnu": 0.3.4
-    "@napi-rs/magic-string-linux-arm64-musl": 0.3.4
-    "@napi-rs/magic-string-linux-x64-gnu": 0.3.4
-    "@napi-rs/magic-string-linux-x64-musl": 0.3.4
-    "@napi-rs/magic-string-win32-arm64-msvc": 0.3.4
-    "@napi-rs/magic-string-win32-ia32-msvc": 0.3.4
-    "@napi-rs/magic-string-win32-x64-msvc": 0.3.4
-  dependenciesMeta:
-    "@napi-rs/magic-string-android-arm-eabi":
-      optional: true
-    "@napi-rs/magic-string-android-arm64":
-      optional: true
-    "@napi-rs/magic-string-darwin-arm64":
-      optional: true
-    "@napi-rs/magic-string-darwin-x64":
-      optional: true
-    "@napi-rs/magic-string-freebsd-x64":
-      optional: true
-    "@napi-rs/magic-string-linux-arm-gnueabihf":
-      optional: true
-    "@napi-rs/magic-string-linux-arm64-gnu":
-      optional: true
-    "@napi-rs/magic-string-linux-arm64-musl":
-      optional: true
-    "@napi-rs/magic-string-linux-x64-gnu":
-      optional: true
-    "@napi-rs/magic-string-linux-x64-musl":
-      optional: true
-    "@napi-rs/magic-string-win32-arm64-msvc":
-      optional: true
-    "@napi-rs/magic-string-win32-ia32-msvc":
-      optional: true
-    "@napi-rs/magic-string-win32-x64-msvc":
-      optional: true
-  checksum: b138f5ba72511f80b20ac068edb124cae3693a5650cb574b8fcff781c149bb76db286a314d172e15cf688bd176e0a693929422c3e0c20663fda00a8e954beaf5
   languageName: node
   linkType: hard
 
@@ -9832,12 +9693,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"magic-string@npm:^0.30.0, magic-string@npm:^0.30.21":
+"magic-string@npm:^0.30.21":
   version: 0.30.21
   resolution: "magic-string@npm:0.30.21"
   dependencies:
     "@jridgewell/sourcemap-codec": ^1.5.5
   checksum: 4ff76a4e8d439431cf49f039658751ed351962d044e5955adc257489569bd676019c906b631f86319217689d04815d7d064ee3ff08ab82ae65b7655a7e82a414
+  languageName: node
+  linkType: hard
+
+"magic-string@npm:^1.0.0":
+  version: 1.2.3
+  resolution: "magic-string@npm:1.2.3"
+  dependencies:
+    "@jridgewell/sourcemap-codec": ^1.5.5
+  checksum: 69918b87a776b8d14bb615ae4fddc1227f7ff3a276ec81d6822c7733f39fa9bdf8f66c74ea40d946ecb6c6466ad105463d834a205f193673b88b67bfa648a8cd
   languageName: node
   linkType: hard
 

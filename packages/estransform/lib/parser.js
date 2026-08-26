@@ -1,5 +1,5 @@
 import { Buffer } from 'node:buffer';
-import { MagicString } from '@napi-rs/magic-string';
+import MagicString from 'magic-string';
 import { parse as oxcParse } from 'oxc-parser';
 import { inlineSourcemap, loadSourcemap, mergeSourcemaps, removeInlineSourcemap } from './sourcemaps.js';
 
@@ -119,13 +119,11 @@ export async function parse(inputCode, filePath) {
                 if (options.sourcemap) {
                     const inputSourcemap = await loadSourcemap(inputCode, filePath);
                     const newSourcemap = /** @type {import('./sourcemaps.js').SourceMap} */ (
-                        magicCode
-                            .generateMap({
-                                source: filePath,
-                                includeContent: options.sourcesContent || false,
-                                hires: true,
-                            })
-                            .toMap()
+                        magicCode.generateMap({
+                            source: filePath,
+                            includeContent: options.sourcesContent || false,
+                            hires: true,
+                        })
                     );
 
                     map = inputSourcemap ? await mergeSourcemaps([inputSourcemap, newSourcemap]) : newSourcemap;

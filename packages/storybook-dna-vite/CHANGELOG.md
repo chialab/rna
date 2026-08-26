@@ -1,5 +1,13 @@
 # @chialab/storybook-dna-vite
 
+## 10.0.11
+
+### Patch Changes
+
+- 5463f02: Update magic-string to v1.
+- Updated dependencies [5463f02]
+  - @chialab/vite-plugin-hmr-dna@4.1.6
+
 ## 10.0.10
 
 ### Patch Changes

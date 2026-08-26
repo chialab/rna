@@ -1,5 +1,11 @@
 # @chialab/vitest-axe
 
+## 0.19.2
+
+### Patch Changes
+
+- d2031e1: Fix typings param.
+
 ## 0.19.1
 
 ### Patch Changes

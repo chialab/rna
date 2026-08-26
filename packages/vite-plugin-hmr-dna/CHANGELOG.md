@@ -1,5 +1,11 @@
 # @chialab/vite-plugin-hmr-dna
 
+## 4.1.6
+
+### Patch Changes
+
+- 5463f02: Update magic-string to v1.
+
 ## 4.1.5
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @chialab/estransform
 
+## 0.20.1
+
+### Patch Changes
+
+- 5463f02: Update magic-string to v1.
+
 ## 0.20.0
 
 ### Minor Changes

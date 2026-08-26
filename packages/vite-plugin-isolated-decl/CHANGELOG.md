@@ -1,5 +1,11 @@
 # @chialab/vite-plugin-isolated-decl
 
+## 0.1.6
+
+### Patch Changes
+
+- d9474f9: Generate declarations for modules imported only as types.
+
 ## 0.1.5
 
 ### Patch Changes

@@ -3,8 +3,29 @@
  * @import * as typescript from 'typescript';
  * @import * as rolldown from 'rolldown/experimental';
  */
+import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { createFilter } from 'vite';
+import { createFilter, parseSync } from 'vite';
+
+/**
+ * The plugin context available during the build phase.
+ * @typedef {ThisParameterType<Extract<NonNullable<Plugin['buildStart']>, Function>>} PluginContext
+ */
+
+/**
+ * Matches TypeScript sources, the only files that can be transpiled to declarations.
+ */
+const TS_SOURCE_RE = /\.(m|c)?tsx?$/;
+
+/**
+ * Matches TypeScript declaration files, which are emitted as-is.
+ */
+const DECLARATION_RE = /\.d\.(m|c)?ts$/;
+
+/**
+ * Matches `import('...')` type nodes and `import x = require('...')` statements.
+ */
+const IMPORT_CALL_RE = /\b(?:import|require)\s*\(\s*['"]([^'"]+)['"]/g;
 
 /**
  * Get the common directory from a list of paths.
@@ -38,6 +59,9 @@ function commonDir(paths) {
  * @returns {string} The appropriate declaration file extension.
  */
 function getDeclarationFilerName(path) {
+    if (DECLARATION_RE.test(path)) {
+        return path;
+    }
     const [fileName, ext] = path.split(/\.([^.]+)$/);
     if (ext === 'mts' || ext === 'mjs') {
         return `${fileName}.d.mts`;
@@ -117,6 +141,30 @@ async function transpile(code, id) {
 }
 
 /**
+ * Collects the module specifiers referenced by a declaration file.
+ * Type-only imports are erased before the bundler resolves them, so the emitted
+ * declarations are the only place where those dependencies are still visible.
+ * @param {string} code The declaration code to analyze.
+ * @param {string} id The identifier (file path) of the declaration source.
+ * @returns {Promise<string[]>} The referenced module specifiers.
+ */
+async function collectSpecifiers(code, id) {
+    const { module } = parseSync(id, code, { lang: 'ts' });
+    const specifiers = module.staticImports.map(({ moduleRequest }) => moduleRequest.value);
+    for (const { entries } of module.staticExports) {
+        for (const { moduleRequest } of entries) {
+            if (moduleRequest) {
+                specifiers.push(moduleRequest.value);
+            }
+        }
+    }
+    for (const [, specifier] of code.matchAll(IMPORT_CALL_RE)) {
+        specifiers.push(specifier);
+    }
+    return specifiers;
+}
+
+/**
  * Vite plugin to generate isolated declaration files for TypeScript sources.
  * @param {{ include?: FilterPattern; exclude?: FilterPattern; outDir?: string }} [options] Optional configuration for the plugin (currently unused).
  * @returns {Plugin} The Vite plugin instance.
@@ -125,9 +173,64 @@ export default function isolatedDeclPlugin(options = {}) {
     const filter = createFilter(options.include, options.exclude);
 
     /**
-     * @type {Map<string, string>}
+     * @type {Map<string, Promise<string>>}
      */
     const declarations = new Map();
+
+    /**
+     * Resolves a module specifier to a local TypeScript source eligible for declaration emit.
+     * @param {PluginContext} ctx The plugin context.
+     * @param {string} specifier The module specifier to resolve.
+     * @param {string} importer The file that references the specifier.
+     * @returns {Promise<string | null>} The resolved file path, or null when it should be skipped.
+     */
+    async function resolveSource(ctx, specifier, importer) {
+        const resolved = await ctx.resolve(specifier, importer);
+        if (!resolved || resolved.external) {
+            return null;
+        }
+        const [id] = resolved.id.split('?');
+        if (id.includes('\0') || id.includes('/node_modules/') || !TS_SOURCE_RE.test(id) || !filter(id)) {
+            return null;
+        }
+        return id;
+    }
+
+    /**
+     * Generates the declaration of a source file, then walks the dependencies of the
+     * generated declaration in order to reach files that are only imported as types
+     * and therefore never hit the `transform` hook.
+     * @param {PluginContext} ctx The plugin context.
+     * @param {string} id The source file path.
+     * @param {string} [code] The source code, when already available.
+     * @returns {Promise<string>} The declaration code of the given file.
+     */
+    function collect(ctx, id, code) {
+        const cached = declarations.get(id);
+        if (cached) {
+            return cached;
+        }
+
+        const declaration = Promise.resolve(code ?? readFile(id, 'utf-8')).then((source) =>
+            DECLARATION_RE.test(id) ? source : transpile(source, id)
+        );
+        declarations.set(id, declaration);
+
+        return declaration.then(async (decl) => {
+            const specifiers = await collectSpecifiers(decl, id);
+            await Promise.all(
+                specifiers.map(async (specifier) => {
+                    const dependency = await resolveSource(ctx, specifier, id);
+                    if (!dependency || declarations.has(dependency)) {
+                        return;
+                    }
+                    ctx.addWatchFile(dependency);
+                    await collect(ctx, dependency);
+                })
+            );
+            return decl;
+        });
+    }
 
     return {
         name: 'vite-plugin-isolated-decl',
@@ -138,10 +241,15 @@ export default function isolatedDeclPlugin(options = {}) {
             declarations.clear();
         },
 
-        buildEnd() {
-            const srcDir = commonDir([...declarations.keys()].map((id) => id.split('/').slice(0, -1).join('/')));
+        async buildEnd() {
+            const entries = await Promise.all(
+                [...declarations].map(
+                    async ([id, declaration]) => /** @type {[string, string]} */ ([id, await declaration])
+                )
+            );
+            const srcDir = commonDir(entries.map(([id]) => id.split('/').slice(0, -1).join('/')));
 
-            for (const [id, decl] of declarations) {
+            for (const [id, decl] of entries) {
                 const outputPath = getDeclarationFilerName(id);
                 const relativePath = outputPath.replace(`${srcDir}/`, '');
                 this.emitFile({
@@ -161,7 +269,7 @@ export default function isolatedDeclPlugin(options = {}) {
                 if (!filter(id)) {
                     return null;
                 }
-                declarations.set(id, await transpile(code, id));
+                await collect(this, id, code);
             },
         },
     };

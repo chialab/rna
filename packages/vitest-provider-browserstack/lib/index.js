@@ -1,3 +1,9 @@
+/**
+ * @import { BrowserProviderOption, TestProject } from 'vitest/node';
+ * @import { WebdriverProviderOptions } from '@vitest/browser-webdriverio';
+ * @import { Options } from 'browserstack-local';
+ * @import { Capabilities } from '@wdio/types';
+ */
 import process from 'node:process';
 import { defineBrowserProvider } from '@vitest/browser';
 import { WebdriverBrowserProvider } from '@vitest/browser-webdriverio';
@@ -6,7 +12,11 @@ import ip from 'ip';
 import { remote } from 'webdriverio';
 
 /**
- * @typedef {import('./types')} Types
+ * @typedef {Capabilities & { 'bstack:options'?: Capabilities.BrowserStackCapabilities }} BrowserStackCapabilities
+ */
+
+/**
+ * @typedef {{ buildName?: string; projectName?: string }} BrowserStackProviderData
  */
 
 /**
@@ -14,19 +24,31 @@ import { remote } from 'webdriverio';
  */
 export default class BrowserStackProvider extends WebdriverBrowserProvider {
     /**
-     * @type {string}
+     * @type {string | null | undefined}
      * @protected
      */
-    testName;
+    _buildName;
 
     /**
-     * @type {Partial<import('browserstack-local').Options>}
+     * @type {string | null | undefined}
+     * @protected
+     */
+    _projectName;
+
+    /**
+     * @type {TestProject}
+     * @protected
+     */
+    _project;
+
+    /**
+     * @type {Partial<Options>}
      * @protected
      */
     _bsOptions;
 
     /**
-     * @type {WebdriverIO.Capabilities & { 'bstack:options'?: object }}
+     * @type {BrowserStackCapabilities}
      * @protected
      */
     _capabilities;
@@ -44,6 +66,12 @@ export default class BrowserStackProvider extends WebdriverBrowserProvider {
     _tunnelPromise = null;
 
     /**
+     * @type {(closeSelf: () => Promise<void>) => Promise<void>}
+     * @private
+     */
+    _takeTurn;
+
+    /**
      * @inheritdoc
      */
     supportsParallelism = false;
@@ -59,21 +87,24 @@ export default class BrowserStackProvider extends WebdriverBrowserProvider {
 
     /**
      * Initialize the BrowserStack provider.
-     * @param {import('vitest/node').TestProject} project The test project.
-     * @param {import('@vitest/browser-webdriverio').WebdriverProviderOptions} options Webdriverio options.
-     * @param {Partial<import('browserstack-local').Options>} bsOptions BrowserStack local options.
+     * @param {TestProject} project The test project.
+     * @param {WebdriverProviderOptions} options Webdriverio options.
+     * @param {BrowserStackProviderData} data The provider data.
+     * @param {Partial<Options>} bsOptions BrowserStack local options.
      * @param {Promise<() => Promise<void>>} tunnelPromise Promise that resolves to a function to close the tunnel.
+     * @param {(closeSelf: () => Promise<void>) => Promise<void>} takeTurn Waits for, and closes, the previously active session (shared across all providers of the same `createBrowserStackProvider` call).
      */
-    constructor(project, options, bsOptions, tunnelPromise) {
+    constructor(project, options, data, bsOptions, tunnelPromise, takeTurn) {
         super(project, options);
 
         const { config } = project;
-        this.testName = config.name;
+        this._buildName = data.buildName || config.name?.replace(/\s*\([^)]+\)$/, '');
+        this._projectName = data.projectName;
+        this._project = project;
         this._bsOptions = bsOptions;
         this._tunnelPromise = tunnelPromise;
-        this._capabilities = /** @type {WebdriverIO.Capabilities & { 'bstack:options'?: object }} */ (
-            options.capabilities
-        );
+        this._capabilities = /** @type {BrowserStackCapabilities} */ (options.capabilities);
+        this._takeTurn = takeTurn;
     }
 
     /**
@@ -87,26 +118,38 @@ export default class BrowserStackProvider extends WebdriverBrowserProvider {
 
         this._browserPromise = Promise.resolve().then(async () => {
             await this._tunnelPromise;
+            // since `supportsParallelism` is false, projects run one after another: by the
+            // time this project's session is about to open, the previous (sequential) project
+            // has already fully finished, so its session can be safely closed now to free the
+            // BrowserStack concurrency slot before opening this one.
+            await this._takeTurn(this._closeSession);
+
+            /**
+             * @type {BrowserStackCapabilities}
+             */
             const capabilities = {
                 ...this._capabilities,
                 'bstack:options': {
-                    ...this._capabilities['bstack:options'],
+                    // avoid the session being killed by BrowserStack while long test files
+                    // run without sending any webdriver command; can be overridden below
+                    idleTimeout: 300,
+                    buildName: this._buildName ?? undefined,
+                    projectName: this._projectName ?? undefined,
+                    video: false,
+                    ...this._capabilities?.['bstack:options'],
                     local: true,
-                    buildName: this.testName,
                     localIdentifier: this._bsOptions.localIdentifier,
                 },
             };
 
-            const browser = await remote({
+            this.browser = await remote({
                 logLevel: 'error',
                 capabilities,
                 user: /** @type {string} */ (this._bsOptions.user),
                 key: /** @type {string} */ (this._bsOptions.key),
             });
 
-            this.browser = browser;
-
-            return browser;
+            return this.browser;
         });
 
         return this._browserPromise;
@@ -133,10 +176,55 @@ export default class BrowserStackProvider extends WebdriverBrowserProvider {
     };
 
     /**
+     * Report the project test outcome as the BrowserStack session status.
+     * @returns {Promise<void>}
+     */
+    reportSessionStatus = async () => {
+        if (!this.browser) {
+            return;
+        }
+
+        const testModules = this._project.vitest.state
+            .getTestModules()
+            .filter((testModule) => testModule.project === this._project);
+        const failedModules = testModules.filter((testModule) => !testModule.ok());
+        const status = failedModules.length ? 'failed' : 'passed';
+        const reason = failedModules.length
+            ? `${failedModules.length} of ${testModules.length} test file(s) failed`
+            : 'All tests passed';
+
+        await this.browser.execute(
+            `browserstack_executor: ${JSON.stringify({
+                action: 'setSessionStatus',
+                arguments: { status, reason },
+            })}`
+        );
+    };
+
+    /**
+     * Report the session status and close it (without touching the shared tunnel), so the
+     * BrowserStack concurrency slot can be handed off to the next project.
+     * @private
+     * @returns {Promise<void>}
+     */
+    _closeSession = async () => {
+        if (!this.browser) {
+            return;
+        }
+
+        await this.reportSessionStatus().catch(() => undefined);
+        await super.close().catch(() => undefined);
+        this.browser = null;
+        this._browserPromise = null;
+    };
+
+    /**
      * Close the browser and tunnel.
      * @returns {Promise<void>}
      */
     close = async () => {
+        await this._closeSession();
+
         try {
             if (this._tunnelPromise) {
                 const closeTunnel = await this._tunnelPromise;
@@ -145,17 +233,16 @@ export default class BrowserStackProvider extends WebdriverBrowserProvider {
         } catch {
             //
         }
-
-        return super.close();
     };
 }
 
 /**
  * Create the BrowserStack provider.
- * @param {Partial<import('browserstack-local').Options>} [options] - The provider options.
- * @return {(options?: import('@vitest/browser-webdriverio').WebdriverProviderOptions) => import('vitest/node').BrowserProviderOption<import('@vitest/browser-webdriverio').WebdriverProviderOptions>}
+ * @param {BrowserStackProviderData} [data] - The provider data.
+ * @param {Partial<Options>} [options] - The provider options.
+ * @return {(options?: WebdriverProviderOptions) => BrowserProviderOption<WebdriverProviderOptions>}
  */
-export const createBrowserStackProvider = (options = {}) => {
+export const createBrowserStackProvider = (data = {}, options = {}) => {
     const bsOptions = {
         force: true,
         forceLocal: true,
@@ -185,10 +272,28 @@ export const createBrowserStackProvider = (options = {}) => {
         });
     });
 
+    // Sessions are handed off one at a time across every provider created from this call, so
+    // that at most one BrowserStack session is open at any given time (see `openBrowser`).
+    /** @type {(() => Promise<void>) | null} */
+    let activeSessionClose = null;
+    let handoffQueue = Promise.resolve();
+
+    /** @type {(closeSelf: () => Promise<void>) => Promise<void>} */
+    const takeTurn = (closeSelf) => {
+        handoffQueue = handoffQueue.then(async () => {
+            if (activeSessionClose) {
+                await activeSessionClose().catch(() => undefined);
+            }
+            activeSessionClose = closeSelf;
+        });
+        return handoffQueue;
+    };
+
     return (options) =>
         defineBrowserProvider({
             name: 'browserstack',
             options,
-            providerFactory: (project) => new BrowserStackProvider(project, options || {}, bsOptions, tunnelPromise),
+            providerFactory: (project) =>
+                new BrowserStackProvider(project, options || {}, data || {}, bsOptions, tunnelPromise, takeTurn),
         });
 };

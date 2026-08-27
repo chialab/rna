@@ -1,5 +1,11 @@
 # @chialab/vitest-provider-browserstack
 
+## 4.1.0
+
+### Minor Changes
+
+- 772e4fd: Report test results as the BrowserStack session status, free the concurrency slot as soon as each instance's tests finish, and let build/project names be set explicitly via `createBrowserStackProvider(data, options)`.
+
 ## 4.0.1
 
 ### Patch Changes

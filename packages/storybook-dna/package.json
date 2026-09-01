@@ -50,9 +50,10 @@
   "devDependencies": {
     "@chialab/cem-analyzer": "^0.1.4",
     "@chialab/dna": "^4.0.0",
-    "@types/react": "^18.0.26",
-    "custom-elements-manifest": "^2.0.0",
-    "storybook": "^10.0.0-rc.0"
+    "@types/node": "^26.4.0",
+    "@types/react": "^19.2.18",
+    "custom-elements-manifest": "^2.1.0",
+    "storybook": "^10.5.10"
   },
   "peerDependencies": {
     "@chialab/dna": "^4.0.0",

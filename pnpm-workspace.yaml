@@ -1,0 +1,7 @@
+packages:
+  - 'packages/*'
+allowBuilds:
+  '@parcel/watcher': true
+  edgedriver: true
+  esbuild: true
+  geckodriver: true

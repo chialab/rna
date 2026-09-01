@@ -41,8 +41,10 @@
     "mime-types": "^2.1.35"
   },
   "devDependencies": {
-    "@types/mime-types": "^2.1.1",
+    "@chialab/esbuild-plugin-virtual": "^0.19.1",
+    "@types/mime-types": "^3.0.1",
+    "@types/node": "^26.4.0",
     "esbuild": "^0.24.0",
-    "typescript": "^5.0.0"
+    "typescript": "^6.0.3"
   }
 }

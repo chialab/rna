@@ -35,6 +35,7 @@ const loadCommand = async (name, sourceModule, importer) => {
 ${colors.yellow('Please install the corresponding module in order to use this command:')}
 ${colors.white(`npm install -D ${colors.hex('#ef7d00')(sourceModule)}`)}
 ${colors.white(`yarn add -D ${colors.hex('#ef7d00')(sourceModule)}`)}
+${colors.white(`pnpm add -D ${colors.hex('#ef7d00')(sourceModule)}`)}
 `);
 
                     process.exitCode = 1;

@@ -39,6 +39,9 @@
     "lightningcss": "^1.16.0"
   },
   "devDependencies": {
-    "typescript": "^5.0.0"
+    "@types/node": "^26.4.0",
+    "esbuild": "^0.24.0",
+    "source-map": "^0.7.4",
+    "typescript": "^6.0.3"
   }
 }

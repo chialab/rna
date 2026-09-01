@@ -49,6 +49,7 @@
     "esbuild": "^0.21.0 || ^0.22.0 || ^0.23.0 || ^0.24.0"
   },
   "devDependencies": {
-    "typescript": "^5.0.0"
+    "@types/node": "^26.4.0",
+    "typescript": "^6.0.3"
   }
 }

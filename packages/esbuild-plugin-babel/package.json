@@ -44,9 +44,12 @@
     "babel-plugin-htm": "^3.0.0"
   },
   "devDependencies": {
-    "@types/babel__core": "^7.1.14",
-    "@types/babel__plugin-transform-runtime": "^7.9.1",
-    "@types/babel__preset-env": "^7.9.1",
-    "typescript": "^5.0.0"
+    "@chialab/estransform": "^0.20.0",
+    "@types/babel__core": "^7.20.5",
+    "@types/babel__plugin-transform-runtime": "^7.9.5",
+    "@types/babel__preset-env": "^7.10.0",
+    "@types/node": "^26.4.0",
+    "esbuild": "^0.24.0",
+    "typescript": "^6.0.3"
   }
 }

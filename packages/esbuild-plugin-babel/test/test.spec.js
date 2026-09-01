@@ -108,7 +108,9 @@ export {
             plugins: [babelPlugin()],
         });
 
-        expect(result.text).toBe(`// ../../../node_modules/@babel/runtime/helpers/esm/typeof.js
+        const text = result.text.replace(/\/\.pnpm\/[^/]+\/node_modules\//g, '/');
+
+        expect(text).toBe(`// ../../../node_modules/@babel/runtime/helpers/esm/typeof.js
 function _typeof(o) {
   "@babel/helpers - typeof";
   return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(o2) {

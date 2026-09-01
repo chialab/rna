@@ -33,9 +33,10 @@
     "node": ">=18"
   },
   "devDependencies": {
-    "@types/debug": "^4.1.6",
-    "chalk": "^5.3.0",
-    "debug": "^4.3.2",
-    "typescript": "^5.0.0"
+    "@types/debug": "^4.1.13",
+    "chalk": "^6.0.0",
+    "debug": "^4.4.3",
+    "esbuild": "^0.24.0",
+    "typescript": "^6.0.3"
   }
 }

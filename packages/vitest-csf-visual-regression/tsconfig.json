@@ -4,7 +4,6 @@
     "outDir": "./types",
     "declarationDir": "./types",
     "strictPropertyInitialization": false,
-    "baseUrl": ".",
     "rootDir": "./lib"
   },
   "include": ["lib/**/*"],

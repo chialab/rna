@@ -32,7 +32,16 @@
   "dependencies": {
     "@chialab/estransform": "^0.20.0"
   },
+  "peerDependencies": {
+    "vite": "^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0"
+  },
+  "peerDependenciesMeta": {
+    "vite": {
+      "optional": true
+    }
+  },
   "devDependencies": {
-    "typescript": "^5.0.0"
+    "typescript": "^6.0.3",
+    "vite": "^8.2.2"
   }
 }

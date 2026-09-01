@@ -934,7 +934,7 @@ importers:
         specifier: ^1.0.0
         version: 1.2.3
       rolldown:
-        specifier: ^1.0.0-rc.0
+        specifier: ^1.0.0
         version: 1.2.6
       ts-dedent:
         specifier: ^2.0.0

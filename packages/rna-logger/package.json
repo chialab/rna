@@ -36,7 +36,7 @@
     "@types/debug": "^4.1.13",
     "chalk": "^6.0.0",
     "debug": "^4.4.3",
-    "esbuild": "^0.24.0",
+    "esbuild": "^0.28.2",
     "typescript": "^6.0.3"
   }
 }

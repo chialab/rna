@@ -117,7 +117,7 @@ importers:
         version: 3.0.1
       '@chialab/rna':
         specifier: '*'
-        version: 0.19.1(@chialab/postcss-dart-sass@0.19.1)(@chialab/wds-plugin-legacy@0.19.1(browserslist@4.28.8)(supports-color@7.2.0))(browserslist@4.28.8)(postcss-scss@4.0.9(postcss@8.5.26))(supports-color@7.2.0)
+        version: 0.19.1(@chialab/postcss-dart-sass@0.19.1)(@chialab/wds-plugin-legacy@0.19.1(browserslist@4.28.8)(supports-color@7.2.0))(browserslist@4.28.8)(htmlnano@2.1.5(postcss@8.5.26)(typescript@6.0.3))(postcss-scss@4.0.9(postcss@8.5.26))(supports-color@7.2.0)
       '@types/node':
         specifier: ^26.4.0
         version: 26.4.0
@@ -191,8 +191,8 @@ importers:
         specifier: ^0.7.0
         version: 0.7.5(supports-color@7.2.0)
       esbuild:
-        specifier: ^0.24.0
-        version: 0.24.2
+        specifier: ^0.28.2
+        version: 0.28.2
       get-port:
         specifier: ^7.2.0
         version: 7.2.0
@@ -213,8 +213,8 @@ importers:
         specifier: ^26.4.0
         version: 26.4.0
       esbuild:
-        specifier: ^0.24.0
-        version: 0.24.2
+        specifier: ^0.28.2
+        version: 0.28.2
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
@@ -259,8 +259,8 @@ importers:
         specifier: ^26.4.0
         version: 26.4.0
       esbuild:
-        specifier: ^0.24.0
-        version: 0.24.2
+        specifier: ^0.28.2
+        version: 0.28.2
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
@@ -278,8 +278,8 @@ importers:
         specifier: ^26.4.0
         version: 26.4.0
       esbuild:
-        specifier: ^0.24.0
-        version: 0.24.2
+        specifier: ^0.28.2
+        version: 0.28.2
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
@@ -291,8 +291,8 @@ importers:
         version: 0.19.1
     devDependencies:
       esbuild:
-        specifier: ^0.24.0
-        version: 0.24.2
+        specifier: ^0.28.2
+        version: 0.28.2
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
@@ -303,8 +303,8 @@ importers:
         specifier: ^26.4.0
         version: 26.4.0
       esbuild:
-        specifier: ^0.24.0
-        version: 0.24.2
+        specifier: ^0.28.2
+        version: 0.28.2
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
@@ -346,8 +346,8 @@ importers:
         specifier: ^6.0.1
         version: 6.0.1
       esbuild:
-        specifier: ^0.24.0
-        version: 0.24.2
+        specifier: ^0.28.2
+        version: 0.28.2
       handlebars:
         specifier: ^4.7.9
         version: 4.7.9
@@ -377,8 +377,8 @@ importers:
         specifier: ^26.4.0
         version: 26.4.0
       esbuild:
-        specifier: ^0.24.0
-        version: 0.24.2
+        specifier: ^0.28.2
+        version: 0.28.2
       source-map:
         specifier: ^0.7.4
         version: 0.7.6
@@ -408,8 +408,8 @@ importers:
         specifier: ^26.4.0
         version: 26.4.0
       esbuild:
-        specifier: ^0.24.0
-        version: 0.24.2
+        specifier: ^0.28.2
+        version: 0.28.2
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
@@ -420,8 +420,8 @@ importers:
         specifier: ^26.4.0
         version: 26.4.0
       esbuild:
-        specifier: ^0.24.0
-        version: 0.24.2
+        specifier: ^0.28.2
+        version: 0.28.2
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
@@ -454,8 +454,8 @@ importers:
         specifier: ^8.0.10
         version: 8.0.10(postcss@8.5.26)
       esbuild:
-        specifier: ^0.24.0
-        version: 0.24.2
+        specifier: ^0.28.2
+        version: 0.28.2
       postcss-scss:
         specifier: ^4.0.9
         version: 4.0.9(postcss@8.5.26)
@@ -476,8 +476,8 @@ importers:
         specifier: ^26.4.0
         version: 26.4.0
       esbuild:
-        specifier: ^0.24.0
-        version: 0.24.2
+        specifier: ^0.28.2
+        version: 0.28.2
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
@@ -498,8 +498,8 @@ importers:
         specifier: ^26.4.0
         version: 26.4.0
       esbuild:
-        specifier: ^0.24.0
-        version: 0.24.2
+        specifier: ^0.28.2
+        version: 0.28.2
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
@@ -511,8 +511,8 @@ importers:
         version: 0.19.3
     devDependencies:
       esbuild:
-        specifier: ^0.24.0
-        version: 0.24.2
+        specifier: ^0.28.2
+        version: 0.28.2
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
@@ -533,8 +533,8 @@ importers:
         specifier: ^26.4.0
         version: 26.4.0
       esbuild:
-        specifier: ^0.24.0
-        version: 0.24.2
+        specifier: ^0.28.2
+        version: 0.28.2
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
@@ -552,8 +552,8 @@ importers:
         specifier: ^26.4.0
         version: 26.4.0
       esbuild:
-        specifier: ^0.24.0
-        version: 0.24.2
+        specifier: ^0.28.2
+        version: 0.28.2
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
@@ -605,8 +605,8 @@ importers:
         specifier: ^5.24.5
         version: 5.24.5
       esbuild:
-        specifier: ^0.24.0
-        version: 0.24.2
+        specifier: ^0.28.2
+        version: 0.28.2
       is-core-module:
         specifier: ^2.16.2
         version: 2.16.2
@@ -735,7 +735,7 @@ importers:
         version: 0.19.2
       '@chialab/rna-dev-server':
         specifier: ^0.19.0
-        version: 0.19.0(@chialab/postcss-dart-sass@0.19.1)(@chialab/wds-plugin-legacy@0.19.1(browserslist@4.28.8)(supports-color@7.2.0))(browserslist@4.28.8)(postcss-scss@4.0.9(postcss@8.5.26))(supports-color@7.2.0)
+        version: 0.19.0(@chialab/postcss-dart-sass@0.19.1)(@chialab/wds-plugin-legacy@0.19.1(browserslist@4.28.8)(supports-color@7.2.0))(browserslist@4.28.8)(htmlnano@2.1.5(postcss@8.5.26)(typescript@6.0.3))(postcss-scss@4.0.9(postcss@8.5.26))(supports-color@7.2.0)
       '@chialab/rna-logger':
         specifier: ^0.19.1
         version: 0.19.1
@@ -747,8 +747,8 @@ importers:
         specifier: ^15.0.0
         version: 15.0.0
       esbuild:
-        specifier: ^0.24.0
-        version: 0.24.2
+        specifier: ^0.28.2
+        version: 0.28.2
       rimraf:
         specifier: ^6.1.3
         version: 6.1.3
@@ -789,8 +789,8 @@ importers:
         specifier: ^0.19.1
         version: 0.19.1
       esbuild:
-        specifier: ^0.21.0 || ^0.22.0 || ^0.23.0 || ^0.24.0
-        version: 0.24.2
+        specifier: '>=0.21.0 <0.29.0'
+        version: 0.28.2
     devDependencies:
       '@types/node':
         specifier: ^26.4.0
@@ -812,8 +812,8 @@ importers:
         specifier: ^26.4.0
         version: 26.4.0
       esbuild:
-        specifier: ^0.24.0
-        version: 0.24.2
+        specifier: ^0.28.2
+        version: 0.28.2
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
@@ -837,7 +837,7 @@ importers:
         version: 0.19.2(supports-color@7.2.0)
       '@chialab/wds-plugin-rna':
         specifier: ^0.19.2
-        version: 0.19.4(@chialab/postcss-dart-sass@0.19.1)(browserslist@4.28.8)(postcss-scss@4.0.9(postcss@8.5.26))(supports-color@7.2.0)
+        version: 0.19.4(@chialab/postcss-dart-sass@0.19.1)(browserslist@4.28.8)(htmlnano@2.1.5(postcss@8.5.26)(typescript@6.0.3))(postcss-scss@4.0.9(postcss@8.5.26))(supports-color@7.2.0)
     devDependencies:
       '@chialab/esbuild-plugin-require-resolve':
         specifier: ^0.19.1
@@ -861,8 +861,8 @@ importers:
         specifier: ^26.4.0
         version: 26.4.0
       esbuild:
-        specifier: ^0.24.0
-        version: 0.24.2
+        specifier: ^0.28.2
+        version: 0.28.2
       koa-range:
         specifier: ^0.3.0
         version: 0.3.0
@@ -885,8 +885,8 @@ importers:
         specifier: ^4.4.3
         version: 4.4.3(supports-color@7.2.0)
       esbuild:
-        specifier: ^0.24.0
-        version: 0.24.2
+        specifier: ^0.28.2
+        version: 0.28.2
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
@@ -1129,8 +1129,8 @@ importers:
         specifier: ^0.4.0
         version: 0.4.1(supports-color@7.2.0)
       esbuild:
-        specifier: ^0.24.0
-        version: 0.24.2
+        specifier: ^0.28.2
+        version: 0.28.2
       rimraf:
         specifier: ^6.1.3
         version: 6.1.3
@@ -1274,8 +1274,8 @@ importers:
         specifier: ^4.0.1
         version: 4.0.3
       esbuild:
-        specifier: ^0.24.0
-        version: 0.24.2
+        specifier: ^0.28.2
+        version: 0.28.2
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
@@ -2172,8 +2172,8 @@ packages:
     peerDependencies:
       '@csstools/css-tokenizer': ^4.0.0
 
-  '@csstools/css-syntax-patches-for-csstree@1.1.11':
-    resolution: {integrity: sha512-+a7SqvwQfLl8OAp/C/B8PhfV2UjRUIeCRvcZQEXjhTkM2nTxg8r9nbB7mdxkEGT67VbR6pREsAIlsx65N2KR6Q==}
+  '@csstools/css-syntax-patches-for-csstree@1.1.12':
+    resolution: {integrity: sha512-3vLQK+dXxhBMR2Wx99PTCifE+vHtW2ndZWyla8yK813ev6oGhyn8Lja8jCyGAWTJ+LEYZK7EVtJxrDj8ztevJw==}
     peerDependencies:
       css-tree: ^3.2.1
     peerDependenciesMeta:
@@ -3594,9 +3594,6 @@ packages:
 
   '@types/koa@2.15.2':
     resolution: {integrity: sha512-CB+iyjjh1uS5N6/CKwXvw0qA7USMS2WVc4Tjf660yCjhdvqzNr8gdFcIawB41zGGptOQ+d1fnpaQWIIUXYxR3w==}
-
-  '@types/koa@3.0.3':
-    resolution: {integrity: sha512-TdtNEJ7sYSrFQcVuS2ySsVqnq5EyE3oJbnfFJvkC9UtGP4Kpem5KE7r+ivHIbIAQAofSqnlB5D3vkfYO69TQpg==}
 
   '@types/koa__cors@3.3.1':
     resolution: {integrity: sha512-aFGYhTFW7651KhmZZ05VG0QZJre7QxBxDj2LF1lf6GA/wSXEfKVAJxiQQWzRV4ZoMzQIO8vJBXKsUcRuvYK9qw==}
@@ -8168,13 +8165,13 @@ snapshots:
     dependencies:
       '@chialab/node-resolve': 0.19.1
 
-  '@chialab/rna-dev-server@0.19.0(@chialab/postcss-dart-sass@0.19.1)(@chialab/wds-plugin-legacy@0.19.1(browserslist@4.28.8)(supports-color@7.2.0))(browserslist@4.28.8)(postcss-scss@4.0.9(postcss@8.5.26))(supports-color@7.2.0)':
+  '@chialab/rna-dev-server@0.19.0(@chialab/postcss-dart-sass@0.19.1)(@chialab/wds-plugin-legacy@0.19.1(browserslist@4.28.8)(supports-color@7.2.0))(browserslist@4.28.8)(htmlnano@2.1.5(postcss@8.5.26)(typescript@6.0.3))(postcss-scss@4.0.9(postcss@8.5.26))(supports-color@7.2.0)':
     dependencies:
       '@chialab/es-dev-server': 0.19.2
       '@chialab/rna-config-loader': 0.19.2
       '@chialab/wds-plugin-hmr': 0.19.1
       '@chialab/wds-plugin-node-resolve': 0.19.2(supports-color@7.2.0)
-      '@chialab/wds-plugin-rna': 0.19.4(@chialab/postcss-dart-sass@0.19.1)(browserslist@4.28.8)(postcss-scss@4.0.9(postcss@8.5.26))(supports-color@7.2.0)
+      '@chialab/wds-plugin-rna': 0.19.4(@chialab/postcss-dart-sass@0.19.1)(browserslist@4.28.8)(htmlnano@2.1.5(postcss@8.5.26)(typescript@6.0.3))(postcss-scss@4.0.9(postcss@8.5.26))(supports-color@7.2.0)
     optionalDependencies:
       '@chialab/wds-plugin-legacy': 0.19.1(browserslist@4.28.8)(supports-color@7.2.0)
     transitivePeerDependencies:
@@ -8187,13 +8184,13 @@ snapshots:
       - ts-node
       - utf-8-validate
 
-  '@chialab/rna-dev-server@1.0.2(@chialab/postcss-dart-sass@0.19.1)(@chialab/wds-plugin-legacy@0.19.1(browserslist@4.28.8)(supports-color@7.2.0))(browserslist@4.28.8)(postcss-scss@4.0.9(postcss@8.5.26))(supports-color@7.2.0)':
+  '@chialab/rna-dev-server@1.0.2(@chialab/postcss-dart-sass@0.19.1)(@chialab/wds-plugin-legacy@0.19.1(browserslist@4.28.8)(supports-color@7.2.0))(browserslist@4.28.8)(htmlnano@2.1.5(postcss@8.5.26)(typescript@6.0.3))(postcss-scss@4.0.9(postcss@8.5.26))(supports-color@7.2.0)':
     dependencies:
       '@chialab/es-dev-server': 0.19.2
       '@chialab/rna-config-loader': 0.19.2
       '@chialab/wds-plugin-hmr': 0.19.1
       '@chialab/wds-plugin-node-resolve': 0.19.2(supports-color@7.2.0)
-      '@chialab/wds-plugin-rna': 0.19.4(@chialab/postcss-dart-sass@0.19.1)(browserslist@4.28.8)(postcss-scss@4.0.9(postcss@8.5.26))(supports-color@7.2.0)
+      '@chialab/wds-plugin-rna': 0.19.4(@chialab/postcss-dart-sass@0.19.1)(browserslist@4.28.8)(htmlnano@2.1.5(postcss@8.5.26)(typescript@6.0.3))(postcss-scss@4.0.9(postcss@8.5.26))(supports-color@7.2.0)
     optionalDependencies:
       '@chialab/wds-plugin-legacy': 0.19.1(browserslist@4.28.8)(supports-color@7.2.0)
     transitivePeerDependencies:
@@ -8208,11 +8205,11 @@ snapshots:
 
   '@chialab/rna-logger@0.19.1': {}
 
-  '@chialab/rna@0.19.1(@chialab/postcss-dart-sass@0.19.1)(@chialab/wds-plugin-legacy@0.19.1(browserslist@4.28.8)(supports-color@7.2.0))(browserslist@4.28.8)(postcss-scss@4.0.9(postcss@8.5.26))(supports-color@7.2.0)':
+  '@chialab/rna@0.19.1(@chialab/postcss-dart-sass@0.19.1)(@chialab/wds-plugin-legacy@0.19.1(browserslist@4.28.8)(supports-color@7.2.0))(browserslist@4.28.8)(htmlnano@2.1.5(postcss@8.5.26)(typescript@6.0.3))(postcss-scss@4.0.9(postcss@8.5.26))(supports-color@7.2.0)':
     dependencies:
       '@chialab/rna-bundler': 0.19.3(htmlnano@2.1.5(postcss@8.5.26)(typescript@6.0.3))
       '@chialab/rna-config-loader': 0.19.2
-      '@chialab/rna-dev-server': 1.0.2(@chialab/postcss-dart-sass@0.19.1)(@chialab/wds-plugin-legacy@0.19.1(browserslist@4.28.8)(supports-color@7.2.0))(browserslist@4.28.8)(postcss-scss@4.0.9(postcss@8.5.26))(supports-color@7.2.0)
+      '@chialab/rna-dev-server': 1.0.2(@chialab/postcss-dart-sass@0.19.1)(@chialab/wds-plugin-legacy@0.19.1(browserslist@4.28.8)(supports-color@7.2.0))(browserslist@4.28.8)(htmlnano@2.1.5(postcss@8.5.26)(typescript@6.0.3))(postcss-scss@4.0.9(postcss@8.5.26))(supports-color@7.2.0)
       '@chialab/rna-logger': 0.19.1
     transitivePeerDependencies:
       - '@chialab/postcss-dart-sass'
@@ -8271,7 +8268,7 @@ snapshots:
     dependencies:
       polyfill-library: 4.8.0
 
-  '@chialab/wds-plugin-rna@0.19.4(@chialab/postcss-dart-sass@0.19.1)(browserslist@4.28.8)(postcss-scss@4.0.9(postcss@8.5.26))(supports-color@7.2.0)':
+  '@chialab/wds-plugin-rna@0.19.4(@chialab/postcss-dart-sass@0.19.1)(browserslist@4.28.8)(htmlnano@2.1.5(postcss@8.5.26)(typescript@6.0.3))(postcss-scss@4.0.9(postcss@8.5.26))(supports-color@7.2.0)':
     dependencies:
       '@chialab/es-dev-server': 0.19.2
       '@chialab/esbuild-plugin-meta-url': 0.19.2
@@ -8348,7 +8345,7 @@ snapshots:
     dependencies:
       '@csstools/css-tokenizer': 4.0.0
 
-  '@csstools/css-syntax-patches-for-csstree@1.1.11(css-tree@3.2.1)':
+  '@csstools/css-syntax-patches-for-csstree@1.1.12(css-tree@3.2.1)':
     optionalDependencies:
       css-tree: 3.2.1
 
@@ -9430,24 +9427,13 @@ snapshots:
 
   '@types/koa-compose@3.2.9':
     dependencies:
-      '@types/koa': 3.0.3
+      '@types/koa': 2.15.2
 
   '@types/koa-range@0.3.6':
     dependencies:
-      '@types/koa': 3.0.3
+      '@types/koa': 2.15.2
 
   '@types/koa@2.15.2':
-    dependencies:
-      '@types/accepts': 1.3.7
-      '@types/content-disposition': 0.5.9
-      '@types/cookies': 0.9.2
-      '@types/http-assert': 1.5.6
-      '@types/http-errors': 2.0.5
-      '@types/keygrip': 1.0.6
-      '@types/koa-compose': 3.2.9
-      '@types/node': 26.4.0
-
-  '@types/koa@3.0.3':
     dependencies:
       '@types/accepts': 1.3.7
       '@types/content-disposition': 0.5.9
@@ -11273,7 +11259,7 @@ snapshots:
       '@asamuzakjp/css-color': 6.0.7
       '@asamuzakjp/dom-selector': 8.3.2
       '@bramus/specificity': 2.4.2
-      '@csstools/css-syntax-patches-for-csstree': 1.1.11(css-tree@3.2.1)
+      '@csstools/css-syntax-patches-for-csstree': 1.1.12(css-tree@3.2.1)
       '@exodus/bytes': 1.15.1
       css-tree: 3.2.1
       data-urls: 7.0.0

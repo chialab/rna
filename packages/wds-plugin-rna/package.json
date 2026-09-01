@@ -48,7 +48,7 @@
     "@types/node": "^26.4.0",
     "@web/dev-server-core": "^0.7.0",
     "chokidar": "^4.0.1",
-    "esbuild": "^0.24.0",
+    "esbuild": "^0.28.2",
     "typescript": "^6.0.3"
   }
 }

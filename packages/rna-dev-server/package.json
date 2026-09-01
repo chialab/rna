@@ -62,7 +62,7 @@
     "@types/koa-range": "^0.3.2",
     "@types/koa__cors": "^3.0.2",
     "@types/node": "^26.4.0",
-    "esbuild": "^0.24.0",
+    "esbuild": "^0.28.2",
     "koa-range": "^0.3.0",
     "rimraf": "^6.1.3",
     "typescript": "^6.0.3"

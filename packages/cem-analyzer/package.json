@@ -47,6 +47,6 @@
     "oxc-parser": ">=0.114.0 <1.0.0"
   },
   "devDependencies": {
-    "typescript": "^5.0.0"
+    "typescript": "^6.0.3"
   }
 }

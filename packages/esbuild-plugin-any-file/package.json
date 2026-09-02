@@ -37,6 +37,8 @@
     "@chialab/esbuild-rna": "^0.19.1"
   },
   "devDependencies": {
-    "typescript": "^5.0.0"
+    "@types/node": "^26.4.0",
+    "esbuild": "^0.28.2",
+    "typescript": "^6.0.3"
   }
 }

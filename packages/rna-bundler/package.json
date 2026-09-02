@@ -46,9 +46,10 @@
     "@chialab/esbuild-rna": "^0.19.1",
     "@chialab/rna-config-loader": "^0.19.2",
     "@chialab/rna-logger": "^0.19.1",
-    "esbuild": "^0.21.0 || ^0.22.0 || ^0.23.0 || ^0.24.0"
+    "esbuild": ">=0.21.0 <0.29.0"
   },
   "devDependencies": {
-    "typescript": "^5.0.0"
+    "@types/node": "^26.4.0",
+    "typescript": "^6.0.3"
   }
 }

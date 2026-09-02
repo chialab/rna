@@ -43,7 +43,12 @@
   },
   "devDependencies": {
     "@chialab/esbuild-rna": "^0.19.3",
-    "@types/browserslist-useragent": "^3.0.3",
-    "typescript": "^5.0.0"
+    "@types/browserslist-useragent": "^3.0.7",
+    "@types/koa": "^2.0.0",
+    "@types/node": "^26.4.0",
+    "@web/dev-server-core": "^0.7.0",
+    "chokidar": "^4.0.1",
+    "esbuild": "^0.28.2",
+    "typescript": "^6.0.3"
   }
 }

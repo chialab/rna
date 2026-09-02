@@ -15,17 +15,20 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@v7
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+
       - name: Setup Node
         uses: actions/setup-node@v7
         with:
           node-version: latest
-          cache: yarn
+          cache: pnpm
 
       - name: Install project dependencies
-        run: yarn install
+        run: pnpm install --frozen-lockfile
 
       - name: Lint
-        run: yarn lint
+        run: pnpm lint
 
   build:
     name: Build
@@ -35,20 +38,23 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@v7
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+
       - name: Setup Node
         uses: actions/setup-node@v7
         with:
           node-version: latest
-          cache: yarn
+          cache: pnpm
 
       - name: Install project dependencies
-        run: yarn install
+        run: pnpm install --frozen-lockfile
 
       - name: Run typings script
-        run: yarn types
+        run: pnpm types
 
       - name: Run build script
-        run: yarn build
+        run: pnpm build
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v7
@@ -69,11 +75,14 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@v7
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+
       - name: Setup Node
         uses: actions/setup-node@v7
         with:
           node-version: latest
-          cache: yarn
+          cache: pnpm
 
       - name: Download build artifacts
         uses: actions/download-artifact@v8
@@ -82,13 +91,13 @@ jobs:
           path: ./packages
 
       - name: Install project dependencies
-        run: yarn install
+        run: pnpm install --frozen-lockfile
 
       - name: Run tests
-        run: yarn test
+        run: pnpm test
 
       - name: Upload coverage to codecov
-        uses: codecov/codecov-action@v6
+        uses: codecov/codecov-action@v7
         if: always()
         with:
           files: coverage/clover.xml

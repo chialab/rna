@@ -50,17 +50,21 @@
     }
   },
   "devDependencies": {
-    "@jimp/custom": "^0.22.0",
-    "@jimp/jpeg": "^0.22.0",
-    "@jimp/plugin-resize": "^0.22.0",
-    "@jimp/png": "^0.22.0",
-    "@types/js-beautify": "^1.13.3",
-    "cheerio": "^1.0.0",
-    "esbuild": "^0.24.0",
-    "handlebars": "^4.7.8",
-    "htmlnano": "^2.1.0",
-    "js-beautify": "^1.14.0",
-    "rimraf": "^6.0.0",
-    "typescript": "^5.0.0"
+    "@chialab/esbuild-plugin-virtual": "^0.19.1",
+    "@jimp/core": "^0.22.12",
+    "@jimp/custom": "^0.22.12",
+    "@jimp/jpeg": "^0.22.12",
+    "@jimp/plugin-resize": "^0.22.12",
+    "@jimp/png": "^0.22.12",
+    "@types/js-beautify": "^1.14.3",
+    "@types/node": "^26.4.0",
+    "cheerio": "^1.2.0",
+    "domhandler": "^6.0.1",
+    "esbuild": "^0.28.2",
+    "handlebars": "^4.7.9",
+    "htmlnano": "^2.1.5",
+    "js-beautify": "^2.0.3",
+    "rimraf": "^6.1.3",
+    "typescript": "^6.0.3"
   }
 }

@@ -32,8 +32,9 @@
     "LICENSE"
   ],
   "peerDependencies": {
-    "rolldown": "^1.0.0-rc.0",
-    "typescript": "^5.5.0 || ^6.0.0 || ^7.0.0"
+    "rolldown": "^1.0.0",
+    "typescript": "^5.5.0 || ^6.0.0 || ^7.0.0",
+    "vite": "^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0"
   },
   "peerDependenciesMeta": {
     "rolldown": {
@@ -44,7 +45,9 @@
     }
   },
   "devDependencies": {
-    "rolldown": "^1.0.0-rc.0",
-    "typescript": "^5.5.0"
+    "@types/node": "^26.4.0",
+    "rolldown": "^1.2.6",
+    "typescript": "^6.0.3",
+    "vite": "^8.2.2"
   }
 }

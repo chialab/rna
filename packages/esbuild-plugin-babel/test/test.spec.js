@@ -71,7 +71,7 @@ export {
 
         expect(result.text).toBe(`import _asyncToGenerator from "@babel/runtime/helpers/esm/asyncToGenerator";
 import _regeneratorRuntime from "@babel/runtime/regenerator";
-var nil = /* @__PURE__ */ function() {
+var nil = /* @__PURE__ */ (function() {
   var _ref = _asyncToGenerator(/* @__PURE__ */ _regeneratorRuntime.mark(function _callee() {
     return _regeneratorRuntime.wrap(function(_context) {
       while (1) switch (_context.prev = _context.next) {
@@ -84,7 +84,7 @@ var nil = /* @__PURE__ */ function() {
   return function nil2() {
     return _ref.apply(this, arguments);
   };
-}();
+})();
 export {
   nil
 };
@@ -108,7 +108,9 @@ export {
             plugins: [babelPlugin()],
         });
 
-        expect(result.text).toBe(`// ../../../node_modules/@babel/runtime/helpers/esm/typeof.js
+        const text = result.text.replace(/\/\.pnpm\/[^/]+\/node_modules\//g, '/');
+
+        expect(text).toBe(`// ../../../node_modules/@babel/runtime/helpers/esm/typeof.js
 function _typeof(o) {
   "@babel/helpers - typeof";
   return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(o2) {

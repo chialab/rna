@@ -6,6 +6,7 @@ export default defineConfig({
     description: 'Build tools for Web Components.',
     base: '/rna/',
     outDir: '../public',
+    appearance: 'force-auto',
 
     head: [
         ['link', { rel: 'icon', href: '/rna/favicon.png' }],
@@ -47,8 +48,8 @@ export default defineConfig({
                 items: [
                     { text: 'DNA', link: 'https://chialab.github.io/dna/' },
                     { text: 'Loock', link: 'https://chialab.github.io/loock/' },
+                    { text: 'Synapse', link: 'https://chialab.github.io/synapse/' },
                     { text: 'Catalog', link: 'https://catalog.chialab.io/' },
-                    { text: 'Synapse', link: 'https://github.com/chialab/synapse/' },
                 ],
             },
             {
@@ -225,8 +226,8 @@ export default defineConfig({
         ],
 
         footer: {
-            message: 'Released under the MIT License.',
-            copyright: 'Copyright © 2023 - DNA project - Chialab',
+            message: 'Build tools for Web Components.',
+            copyright: '© 2026 Chia Lab Srl. MIT license.',
         },
     },
     lastUpdated: true,

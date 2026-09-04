@@ -6,7 +6,6 @@ title: RNA
 titleTemplate: Build tools for Web Components
 
 hero:
-    name: 'RNA'
     text: 'Build tools for Web Components'
     actions:
         - theme: brand

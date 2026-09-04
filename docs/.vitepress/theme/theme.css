@@ -1,10 +1,346 @@
-:root {
-    --vp-c-brand-1: #f07c00;
-    --vp-c-brand-2: #d56e00;
-    --vp-button-brand-bg: var(--vp-c-brand-1);
-    --vp-button-brand-hover-bg: #d56e00;
-    --vp-button-brand-active-bg: #ce5900;
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=IBM+Plex+Mono:wght@400&display=swap');
 
+:root {
+    --vp-c-bg: oklch(1 0 0);
+    --vp-c-bg-alt: oklch(0.985 0 0);
+    --vp-c-bg-elv: oklch(1 0 0);
+    --vp-c-bg-soft: oklch(98.5% 0 0);
+
+    --vp-c-text-1: oklch(0.145 0 0);
+    --vp-c-text-2: oklch(0.145 0 0);
+    --vp-c-text-3: oklch(0.708 0 0);
+
+    --vp-c-border: oklch(0.9 0 0);
+    --vp-c-divider: oklch(0.9 0 0);
+    --vp-c-gutter: oklch(0.9 0 0);
+
+    --vp-c-brand-1: oklch(0.145 0 0);
+    --vp-c-brand-2: color-mix(in oklch, oklch(0.145 0 0) 80%, oklch(1 0 0));
+    --vp-c-brand-3: oklch(0.145 0 0);
+    --vp-c-brand-soft: color-mix(in oklch, oklch(0.145 0 0) 14%, transparent);
+
+    --vp-c-danger-1: oklch(0.577 0.245 27.325);
+    --vp-c-danger-2: color-mix(in oklch, oklch(0.577 0.245 27.325) 90%, oklch(1 0 0));
+    --vp-c-danger-3: oklch(0.577 0.245 27.325);
+    --vp-c-danger-soft: color-mix(in oklch, oklch(0.577 0.245 27.325) 14%, transparent);
+
+    --vp-c-warning-1: #ffb100;
+    --vp-c-warning-2: color-mix(in oklch, #ffb100 90%, black);
+    --vp-c-warning-3: #ffb100;
+    --vp-c-warning-soft: color-mix(in oklch, #ffb100 14%, transparent);
+
+    --vp-c-success-1: oklch(0.6 0.118 184.704);
+    --vp-c-success-2: color-mix(in oklch, oklch(0.6 0.118 184.704) 90%, black);
+    --vp-c-success-3: oklch(0.6 0.118 184.704);
+    --vp-c-success-soft: color-mix(in oklch, oklch(0.6 0.118 184.704) 14%, transparent);
+
+    --vp-c-default-1: oklch(0.9 0 0);
+    --vp-c-default-2: oklch(0.708 0 0);
+    --vp-c-default-3: oklch(0.97 0 0);
+    --vp-c-default-soft: oklch(0.95 0 0);
+
+    --vp-font-family-base:
+        'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+    --vp-font-family-mono:
+        'IBM Plex Mono', ui-monospace, 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', monospace;
+
+    --vp-code-font-size: 0.9rem;
+    --vp-code-color: #343434;
+
+    --vp-layout-max-width: 80rem;
+    --vp-sidebar-width: 16rem;
+    --vp-z-index-footer: 40;
+    --vp-sidebar-bg-color: #fff;
     --vp-home-hero-name-color: transparent;
     --vp-home-hero-name-background: linear-gradient(to bottom right, #ffac52 0%, #f07c00 100%);
+
+    --cm-keyword: #d73a49;
+    --cm-static: #005cc5;
+    --cm-plain: #24292e;
+    --cm-definition: #6f42c1;
+    --cm-tag: #22863a;
+    --cm-property: #005cc5;
+    --cm-string: #032f62;
+    --cm-punctuation: #24292e;
+    --cm-comment: #6a737d;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --vp-c-bg: oklch(21% 0.006 285.885);
+        --vp-c-bg-alt: oklch(27.4% 0.006 286.033);
+        --vp-c-bg-elv: oklch(0.12 0 0);
+        --vp-c-bg-soft: oklch(27.4% 0.006 286.033);
+
+        --vp-c-text-1: oklch(0.985 0 0);
+        --vp-c-text-2: oklch(0.985 0 0);
+        --vp-c-text-3: oklch(0.439 0 0);
+
+        --vp-c-border: oklch(44.2% 0.017 285.786);
+        --vp-c-divider: oklch(0.25 0 0);
+        --vp-c-gutter: oklch(0.25 0 0);
+
+        --vp-c-brand-1: oklch(98.5% 0 0);
+        --vp-c-brand-2: color-mix(in oklch, oklch(98.5% 0 0) 80%, oklch(21% 0.006 285.885));
+        --vp-c-brand-3: oklch(98.5% 0 0);
+        --vp-button-brand-text: oklch(21% 0.006 285.885);
+        --vp-c-brand-soft: color-mix(in oklch, oklch(98.5% 0 0) 14%, transparent);
+
+        --vp-c-danger-1: oklch(0.396 0.141 25.723);
+        --vp-c-danger-2: color-mix(in oklch, oklch(0.396 0.141 25.723) 90%, oklch(21% 0.006 285.885));
+        --vp-c-danger-3: oklch(0.396 0.141 25.723);
+        --vp-c-danger-soft: color-mix(in oklch, oklch(0.396 0.141 25.723) 14%, transparent);
+
+        --vp-c-success-1: oklch(0.696 0.17 162.48);
+        --vp-c-success-2: color-mix(in oklch, oklch(0.696 0.17 162.48) 90%, black);
+        --vp-c-success-3: oklch(0.696 0.17 162.48);
+        --vp-c-success-soft: color-mix(in oklch, oklch(0.696 0.17 162.48) 14%, transparent);
+
+        --vp-c-default-1: oklch(44.2% 0.017 285.786);
+        --vp-c-default-2: oklch(0.439 0 0);
+        --vp-c-default-3: oklch(0.2 0 0);
+        --vp-c-default-soft: oklch(0.2 0 0);
+
+        --vp-code-color: #fff;
+
+        --cm-keyword: #ff7b72;
+        --cm-static: #79c0ff;
+        --cm-plain: #c9d1d9;
+        --cm-definition: #d2a8ff;
+        --cm-tag: #7ee787;
+        --cm-property: #79c0ff;
+        --cm-string: #a5d6ff;
+        --cm-punctuation: #c9d1d9;
+        --cm-comment: #8b949e;
+    }
+}
+
+#app {
+    --layout-padding: 48px;
+
+    @media (max-width: 40rem) {
+        --layout-padding: 24px;
+    }
+
+    .wrapper {
+        padding: 0;
+    }
+
+    .container {
+        max-width: var(--vp-layout-max-width);
+        padding-left: var(--layout-padding);
+        padding-right: var(--layout-padding);
+    }
+
+    button .container {
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    .box {
+        background: transparent;
+    }
+
+    .menu {
+        padding: 0;
+    }
+
+    .curtain {
+        display: none;
+    }
+
+    :is(.info, .warning, .danger) :is(a, code) {
+        color: inherit;
+    }
+
+    .VPNavBar {
+        background: color-mix(in oklab, var(--vp-nav-bg-color) 95%, transparent);
+        backdrop-filter: blur(8px);
+        border-bottom: 1px solid var(--vp-c-border);
+
+        .divider {
+            display: none;
+        }
+
+        &.has-sidebar {
+            .title {
+                position: static;
+                width: auto;
+                padding-right: 0;
+                padding-left: 0;
+                border: 0;
+            }
+
+            .content {
+                padding-right: 0;
+                padding-left: 0;
+            }
+
+            .content-body {
+                margin-right: 0;
+                margin-left: 0;
+                padding-right: 0;
+                padding-left: 0;
+                background: transparent;
+            }
+        }
+    }
+
+    .VPLocalNav {
+        padding: 0.5rem 0;
+
+        .VPLocalNavOutlineDropdown > button {
+            padding: 0;
+        }
+    }
+
+    .VPNavScreen {
+        padding: 0;
+    }
+
+    .VPMenu {
+        min-width: 0;
+    }
+
+    .VPLink {
+        &::after {
+            border: 0;
+        }
+    }
+
+    .VPButton {
+        font-weight: 400;
+        border-radius: 0.5rem;
+
+        &.alt {
+            background: var(--vp-c-bg);
+            border: 1px solid var(--vp-c-border);
+        }
+    }
+
+    .VPDoc {
+        padding: 1rem 0;
+
+        .content-container {
+            width: 100%;
+            max-width: var(--vp-layout-max-width);
+        }
+
+        @media (min-width: 60rem) {
+            &.has-sidebar {
+                .container {
+                    padding-left: 0;
+                }
+            }
+        }
+
+        @media (min-width: 80rem) {
+            padding: 2rem 0;
+        }
+    }
+
+    .VPHome {
+        margin-bottom: 0;
+    }
+
+    .VPHero {
+        padding: calc(var(--vp-nav-height) + 4rem) 0 4rem;
+    }
+
+    .VPFeatures.VPHomeFeatures {
+        padding: 4rem 0;
+        background: var(--vp-c-bg-alt);
+        border-top: 1px solid var(--vp-c-border);
+        border-bottom: 1px solid var(--vp-c-border);
+    }
+
+    .VPFeature {
+        background: var(--vp-c-bg);
+        border: 1px solid var(--vp-c-border);
+
+        .icon {
+            width: 40px;
+            height: 40px;
+            background: transparent;
+            border: 1px solid var(--vp-c-border);
+
+            svg {
+                width: 20px;
+                height: 20px;
+                fill: var(--vp-c-text-1);
+            }
+        }
+    }
+
+    .VPFooter {
+        display: none;
+    }
+
+    .VPSidebar {
+        @media (min-width: 60rem) {
+            --vp-sidebar-bg-color: transparent;
+
+            padding-top: calc(var(--vp-nav-height) + 2.5rem);
+            padding-right: 0;
+            padding-left: max(
+                var(--layout-padding),
+                calc((100% - (var(--vp-layout-max-width) - var(--layout-padding) * 2)) / 2)
+            );
+        }
+
+        @media (min-width: 80rem) {
+            padding-top: calc(var(--vp-nav-height) + 1rem);
+            width: calc(
+                (100% - (var(--vp-layout-max-width) - var(--layout-padding) * 2)) /
+                2 +
+                (var(--vp-sidebar-width) - var(--layout-padding))
+            );
+        }
+
+        h2 {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .VPSidebarItem {
+            a {
+                padding: 0.25rem 0.5rem;
+                margin: 0.125rem 0 0.125rem -0.5rem;
+                border-radius: calc(0.5rem - 2px);
+
+                &:hover {
+                    background: oklch(98.5% 0 none);
+                }
+            }
+
+            &.is-active {
+                a {
+                    background: oklch(87.1% 0.006 286.286);
+                }
+            }
+
+            .text {
+                padding: 0;
+                line-height: 1.25rem;
+            }
+
+            .indicator {
+                display: none;
+            }
+        }
+    }
+
+    .VPContent {
+        @media (min-width: 64rem) {
+            &.has-sidebar {
+                padding-right: calc((100% - var(--vp-layout-max-width)) / 2);
+                padding-left: max(
+                    var(--vp-sidebar-width),
+                    calc((100% - var(--vp-layout-max-width)) / 2 + var(--vp-sidebar-width))
+                );
+            }
+        }
+    }
 }

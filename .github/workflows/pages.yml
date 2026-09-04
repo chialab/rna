@@ -13,19 +13,16 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@v7
 
-      - name: Setup pnpm
+      - name: Setup Node
         uses: pnpm/setup@v2
         with:
           runtime: node@latest
           cache: true
-          install: false
+          require-lockfile: true
 
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v6
-
-      - name: Install project dependencies
-        run: pnpm install --frozen-lockfile
 
       - name: Build Documentation
         run: pnpm docs:build

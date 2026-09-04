@@ -48,8 +48,8 @@ export default defineConfig({
                 items: [
                     { text: 'DNA', link: 'https://chialab.github.io/dna/' },
                     { text: 'Loock', link: 'https://chialab.github.io/loock/' },
+                    { text: 'Synapse', link: 'https://chialab.github.io/synapse/' },
                     { text: 'Catalog', link: 'https://catalog.chialab.io/' },
-                    { text: 'Synapse', link: 'https://github.com/chialab/synapse/' },
                 ],
             },
             {

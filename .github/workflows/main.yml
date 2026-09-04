@@ -20,6 +20,7 @@ jobs:
       - name: Setup Node
         uses: pnpm/setup@v2
         with:
+          runtime: node@latest
           cache: true
           install: false
 
@@ -40,6 +41,7 @@ jobs:
       - name: Setup Node
         uses: pnpm/setup@v2
         with:
+          runtime: node@latest
           cache: true
           install: false
 
@@ -74,6 +76,7 @@ jobs:
       - name: Setup Node
         uses: pnpm/setup@v2
         with:
+          runtime: node@latest
           cache: true
           install: false
 
@@ -112,6 +115,7 @@ jobs:
       - name: Setup Node
         uses: pnpm/setup@v2
         with:
+          runtime: node@latest
           cache: true
           install: false
 

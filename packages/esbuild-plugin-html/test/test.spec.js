@@ -967,6 +967,47 @@ html {
         expect(icons[3].contents.byteLength).toBe(6366);
     });
 
+    test('should not generate favicons', async () => {
+        const { outputFiles } = await esbuild.build({
+            absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),
+            entryPoints: [fileURLToPath(new URL('fixture/index.icons.html', import.meta.url))],
+            sourceRoot: '/',
+            assetNames: 'icons/[name]',
+            outdir: 'out',
+            format: 'esm',
+            bundle: true,
+            write: false,
+            plugins: [
+                htmlPlugin({
+                    generateFavicons: false,
+                }),
+            ],
+        });
+
+        const [index, ...icons] = outputFiles;
+
+        expect(outputFiles).toHaveLength(1);
+
+        expect(index.path).endsWith(path.join(path.sep, 'out', 'index.icons.html'));
+        expect(index.text).toBe(`<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="shortcut icon" href="img/icon.png" type="image/png">
+</head>
+
+<body>
+</body>
+
+</html>`);
+
+        expect(icons).toHaveLength(0);
+    });
+
     test('should bundle webapp with svg favicon', async () => {
         const { outputFiles } = await esbuild.build({
             absWorkingDir: fileURLToPath(new URL('.', import.meta.url)),

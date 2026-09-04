@@ -1,5 +1,11 @@
 # @chialab/rna-bundler
 
+## 0.19.4
+
+### Patch Changes
+
+- 45870ae: Widen the supported `esbuild` dependency range to include `^0.25.0`, `^0.26.0`, `^0.27.0` and `^0.28.0`, in addition to the versions already supported.
+
 ## 0.19.3
 
 ### Patch Changes

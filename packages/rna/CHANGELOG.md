@@ -1,5 +1,13 @@
 # @chialab/rna
 
+## 0.19.2
+
+### Patch Changes
+
+- 896d77b: Declare `@chialab/esbuild-rna` as a real dependency. The CLI's `build` command imports it at runtime and the package build marks it as `external`, so it was missing from installs that don't happen to hoist it from elsewhere in the workspace.
+- Updated dependencies [45870ae]
+  - @chialab/rna-bundler@0.19.4
+
 ## 0.19.1
 
 ### Patch Changes

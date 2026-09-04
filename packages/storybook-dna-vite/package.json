@@ -1,7 +1,7 @@
 {
   "name": "@chialab/storybook-dna-vite",
   "type": "module",
-  "version": "10.0.11",
+  "version": "10.0.12",
   "description": "Storybook for DNA and Vite.",
   "exports": {
     ".": {
@@ -37,7 +37,7 @@
   "dependencies": {
     "@chialab/cem-analyzer": "^0.1.1",
     "@chialab/storybook-dna": "^10.1.7",
-    "@chialab/vite-plugin-hmr-dna": "^4.1.6",
+    "@chialab/vite-plugin-hmr-dna": "^4.1.7",
     "@storybook/builder-vite": "^10.0.0",
     "magic-string": "^1.0.0",
     "ts-dedent": "^2.0.0"

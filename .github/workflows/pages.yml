@@ -13,21 +13,15 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@v7
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v6
-
       - name: Setup Node
-        uses: actions/setup-node@v7
+        uses: pnpm/setup@v2
         with:
-          node-version: latest
-          cache: pnpm
+          runtime: node@latest
+          cache: true
 
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v6
-
-      - name: Install project dependencies
-        run: pnpm install --frozen-lockfile
 
       - name: Build Documentation
         run: pnpm docs:build

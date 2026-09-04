@@ -15,17 +15,11 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@v7
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v6
-
       - name: Setup Node
-        uses: actions/setup-node@v7
+        uses: pnpm/setup@v2
         with:
-          node-version: latest
-          cache: pnpm
-
-      - name: Install project dependencies
-        run: pnpm install --frozen-lockfile
+          runtime: node@latest
+          cache: true
 
       - name: Lint
         run: pnpm lint
@@ -38,17 +32,11 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@v7
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v6
-
       - name: Setup Node
-        uses: actions/setup-node@v7
+        uses: pnpm/setup@v2
         with:
-          node-version: latest
-          cache: pnpm
-
-      - name: Install project dependencies
-        run: pnpm install --frozen-lockfile
+          runtime: node@latest
+          cache: true
 
       - name: Run typings script
         run: pnpm types
@@ -75,23 +63,17 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@v7
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v6
-
       - name: Setup Node
-        uses: actions/setup-node@v7
+        uses: pnpm/setup@v2
         with:
-          node-version: latest
-          cache: pnpm
+          runtime: node@latest
+          cache: true
 
       - name: Download build artifacts
         uses: actions/download-artifact@v8
         with:
           name: packages
           path: ./packages
-
-      - name: Install project dependencies
-        run: pnpm install --frozen-lockfile
 
       - name: Run tests
         run: pnpm test

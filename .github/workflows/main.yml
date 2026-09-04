@@ -22,10 +22,6 @@ jobs:
         with:
           runtime: node@latest
           cache: true
-          install: false
-
-      - name: Install project dependencies
-        run: pnpm install --frozen-lockfile
 
       - name: Lint
         run: pnpm lint
@@ -43,10 +39,6 @@ jobs:
         with:
           runtime: node@latest
           cache: true
-          install: false
-
-      - name: Install project dependencies
-        run: pnpm install --frozen-lockfile
 
       - name: Run typings script
         run: pnpm types
@@ -78,16 +70,12 @@ jobs:
         with:
           runtime: node@latest
           cache: true
-          install: false
 
       - name: Download build artifacts
         uses: actions/download-artifact@v8
         with:
           name: packages
           path: ./packages
-
-      - name: Install project dependencies
-        run: pnpm install --frozen-lockfile
 
       - name: Run tests
         run: pnpm test
@@ -117,16 +105,12 @@ jobs:
         with:
           runtime: node@latest
           cache: true
-          install: false
 
       - name: Download build artifacts
         uses: actions/download-artifact@v8
         with:
           name: packages
           path: ./packages
-
-      - name: Install project dependencies
-        run: pnpm install --frozen-lockfile
 
       - name: Update npm to latest version
         run: npm install -g npm@latest

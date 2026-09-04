@@ -291,6 +291,7 @@
 
         @media (min-width: 80rem) {
             padding-top: calc(var(--vp-nav-height) + 1rem);
+            padding-bottom: 12rem;
             width: calc(
                 (100% - (var(--vp-layout-max-width) - var(--layout-padding) * 2)) /
                 2 +

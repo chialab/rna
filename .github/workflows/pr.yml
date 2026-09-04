@@ -19,7 +19,10 @@ jobs:
         uses: pnpm/setup@v2
         with:
           cache: true
-          require-lockfile: true
+          install: false
+
+      - name: Install project dependencies
+        run: pnpm install --frozen-lockfile
 
       - name: Lint
         run: pnpm lint
@@ -36,7 +39,10 @@ jobs:
         uses: pnpm/setup@v2
         with:
           cache: true
-          require-lockfile: true
+          install: false
+
+      - name: Install project dependencies
+        run: pnpm install --frozen-lockfile
 
       - name: Run typings script
         run: pnpm types
@@ -67,13 +73,16 @@ jobs:
         uses: pnpm/setup@v2
         with:
           cache: true
-          require-lockfile: true
+          install: false
 
       - name: Download build artifacts
         uses: actions/download-artifact@v8
         with:
           name: packages
           path: ./packages
+
+      - name: Install project dependencies
+        run: pnpm install --frozen-lockfile
 
       - name: Run tests
         run: pnpm test

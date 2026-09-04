@@ -722,8 +722,8 @@ importers:
         specifier: ^0.19.3
         version: 0.19.3
       '@chialab/rna-bundler':
-        specifier: ^0.19.1
-        version: 0.19.3(htmlnano@2.1.5(postcss@8.5.26)(typescript@6.0.3))
+        specifier: ^0.19.4
+        version: link:../rna-bundler
       '@chialab/rna-config-loader':
         specifier: ^0.19.1
         version: 0.19.2
@@ -919,8 +919,8 @@ importers:
         specifier: ^10.1.7
         version: 10.1.11(@chialab/dna@4.6.0)(storybook@10.5.10(@types/react@19.2.18)(react@19.2.8))
       '@chialab/vite-plugin-hmr-dna':
-        specifier: ^4.1.6
-        version: 4.1.6
+        specifier: ^4.1.7
+        version: link:../vite-plugin-hmr-dna
       '@storybook/builder-vite':
         specifier: ^10.0.0
         version: 10.5.10(esbuild@0.28.2)(storybook@10.5.10(@types/react@19.2.18)(react@19.2.8))(vite@8.2.2(@types/node@26.4.0)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.103.1)(yaml@2.9.0))
@@ -2029,9 +2029,6 @@ packages:
     peerDependencies:
       '@chialab/dna': ^4.0.0
       storybook: ^10.0.0-rc.0
-
-  '@chialab/vite-plugin-hmr-dna@4.1.6':
-    resolution: {integrity: sha512-4sq4sHK7+ZBXECcD+Lyo7qPIeba9B6Xoau9hQPU2CL/gb5IOYNO+76shcef+0dDa0rfM5szS7+e1Fbrx54f2hQ==}
 
   '@chialab/wds-plugin-hmr@0.19.1':
     resolution: {integrity: sha512-cCkniGm6IcJUF0mh0zco9j2prjp+lslJTWXO/CZrcIAB3sSaGe30m0CKdq8/3+mS9IvsVgqWlsN45fcZ8tHeeQ==}
@@ -7808,11 +7805,6 @@ snapshots:
       '@chialab/dna': 4.6.0
       storybook: 10.5.10(@types/react@19.2.18)(react@19.2.8)
       ts-dedent: 2.3.0
-
-  '@chialab/vite-plugin-hmr-dna@4.1.6':
-    dependencies:
-      '@chialab/hmr-dna': 4.0.3
-      magic-string: 1.2.3
 
   '@chialab/wds-plugin-hmr@0.19.1':
     dependencies:
